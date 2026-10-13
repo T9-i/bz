@@ -80,9 +80,9 @@ function makeWorld(opts = {}) {
           {
             id: 'hello',
             path: declPath,
+            // 缺省规则 `daily 00:00` —— 今天这个点早过了，任何时刻 tick 都该命中
             rules: [
-              // `daily 00:00` —— 今天这个点早过了，任何时刻 tick 都该命中
-              { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'run' } },
+              opts.rule || { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'run' } },
             ],
           },
           ...(opts.extraTools || []),
@@ -372,6 +372,79 @@ function readPluginTrust(world) {
   const p = path.join(world.vault, '.obsidian', 'plugins', 'bz', 'data.json');
   return JSON.parse(fs.readFileSync(p, 'utf8')).dockTrust;
 }
+
+test('带随机延迟的规则：先记账、不当场跑（错峰），事件留给下一轮', async () => {
+  const world = makeWorld({
+    rule: { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'run' }, jitterMin: 30 },
+  });
+  const realRandom = Math.random;
+  Math.random = () => 0.5; // 固定掷骰：30 分钟档的一半 = 15 分钟后才跑
+  try {
+    const watcher = await tickOnce(world);
+    const dock = readDock(world);
+    // 记账已经在跑之前写好 —— 否则延迟窗口里每一拍都会再命中一次
+    assert.ok(dock.tools[0].ruleState.r1.lastFiredAt, '延迟那一路也必须先记账');
+    assert.equal(watcher.state.runsSinceBoot, 0, '这一刻还没跑（这正是错峰的意思）');
+    assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), false);
+  } finally {
+    Math.random = realRandom;
+    world.cleanup();
+  }
+});
+
+test('`--once`（排障入口）不当场掷骰 —— 否则账记了、工具没跑', async () => {
+  const world = makeWorld({
+    rule: { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'run' }, jitterMin: 30 },
+  });
+  const realRandom = Math.random;
+  Math.random = () => 0.99;
+  try {
+    const config = { v: 1, vault: world.vault, intervalMs: 30000, pluginDataPath: '' };
+    const watcher = createWatcher(config, { coreVersion: '1.33.0', ignoreJitter: true });
+    await watcher.tick();
+    assert.equal(watcher.state.runsSinceBoot, 1, '--once 就该立刻看见结果');
+    assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), true);
+  } finally {
+    Math.random = realRandom;
+    world.cleanup();
+  }
+});
+
+test('只提醒类规则：离场记账但不投递（提醒的价值在「当时」）', async () => {
+  const world = makeWorld({
+    rule: { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'remind' } },
+  });
+  try {
+    const watcher = await tickOnce(world);
+    const dock = readDock(world);
+    assert.ok(dock.tools[0].ruleState.r1.lastFiredAt, '要记账 —— 不记的话它每拍都命中');
+    assert.equal(watcher.state.runsSinceBoot, 0, '不该拉进程');
+    assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), false);
+    assert.equal(rt.readQueue().length, 0, '隔一天补一条「昨天该手动跑一次」只是噪音');
+  } finally {
+    world.cleanup();
+  }
+});
+
+test('单实例锁：pid 被复用（活着但不是值守）时不该把值守永久挡在门外', () => {
+  const world = makeWorld();
+  try {
+    // 造一个「锁里那个 pid 活着、但 at 很旧」的现场 —— 等价于旧实例崩了、pid 被别的进程拿去
+    rt.writeJsonAtomic(rt.fileOf('watch.lock'), {
+      pid: process.pid, // 本测试进程活着
+      at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    });
+    const got = rt.acquireLock();
+    assert.ok(got, '陈旧锁该能被夺取（不然值守每天登录都起不来，且没有任何症状）');
+    rt.releaseLock(got);
+
+    // 反之：新鲜的心跳锁是真·在跑的另一实例，必须让位
+    rt.writeJsonAtomic(rt.fileOf('watch.lock'), { pid: process.pid, at: new Date().toISOString() });
+    assert.equal(rt.acquireLock(), null);
+  } finally {
+    world.cleanup();
+  }
+});
 
 test('单实例锁：已有活实例就不再拿一次', () => {
   const world = makeWorld();

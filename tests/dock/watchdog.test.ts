@@ -12,9 +12,9 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { createRequire } from 'node:module';
 import {
   WATCHDOG_CONFIG_FILENAME,
+  WATCHDOG_CONTRACT_VERSION,
   WATCHDOG_DIRNAME,
   WATCHDOG_LEASE_FILENAME,
-  WATCHDOG_LEASE_TTL_MS,
   WATCHDOG_QUEUE_FILENAME,
   WATCHDOG_STATUS_FILENAME,
   clearWatchdogLease,
@@ -205,8 +205,34 @@ describe('状态（值守进程写、bz 读）', () => {
     expect(isWatchdogInstalled({ env: ENV, fs: installed })).toBe(true);
   });
 
-  it('TTL 是「三拍」量级（插件每 60 秒续一次票，不能比一拍还短）', () => {
-    expect(WATCHDOG_LEASE_TTL_MS).toBeGreaterThanOrEqual(120_000);
+  it('契约版本常量与值守侧同值（不认识就不拍、不认）', () => {
+    expect(WATCHDOG_CONTRACT_VERSION).toBe(1);
+  });
+
+  it('让位口径真的由值守那一侧执行：新鲜 / 过期 / 别的 vault / 非 bz 的票', () => {
+    const runtime = require('../../tools/dock-watch/runtime.js') as {
+      leaseHeldByPlugin(lease: unknown, config: { vault: string }, intervalMs: number): boolean;
+    };
+    const config = { vault: 'E:/vault' };
+    const lease = (patch: Record<string, unknown> = {}): Record<string, unknown> => ({
+      v: 1,
+      owner: 'bz-plugin',
+      pid: process.pid, // 本测试进程活着，等价于「插件在」
+      at: new Date().toISOString(),
+      vault: 'E:/vault',
+      tickMs: 60_000,
+      ...patch,
+    });
+
+    expect(runtime.leaseHeldByPlugin(lease(), config, 30_000)).toBe(true);
+    // 三拍没续上 → 接管（插件卡死不该让值守整天不跑）
+    expect(runtime.leaseHeldByPlugin(lease({ at: new Date(Date.now() - 10 * 60_000).toISOString() }), config, 30_000)).toBe(false);
+    // 别的 vault 的插件在场 → 不让位（否则那个 vault 的规则会被整天空转掉）
+    expect(runtime.leaseHeldByPlugin(lease({ vault: 'E:/另一个库' }), config, 30_000)).toBe(false);
+    // 不是 bz 写的票 → 不认
+    expect(runtime.leaseHeldByPlugin(lease({ owner: 'someone-else' }), config, 30_000)).toBe(false);
+    // pid 已不在（插件关了）→ 立刻接管，不必等 TTL
+    expect(runtime.leaseHeldByPlugin(lease({ pid: 999_999 }), config, 30_000)).toBe(false);
   });
 });
 

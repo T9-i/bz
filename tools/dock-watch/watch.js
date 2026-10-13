@@ -52,6 +52,14 @@ function createWatcher(config, opts = {}) {
     pendingEvents: [],
     /** 上一拍的模式（只在切换时记日志） */
     lastMode: undefined,
+    /**
+     * 不当场掷骰错峰（`--once` 排障入口用）。
+     *
+     * 为什么要有这个开关：随机延迟那一路是「先记账、定时器到点才跑」，而 `--once` 是
+     * 「跑一拍就退出」—— 两者一撞，结果是**账记了、工具没跑**，还会让真正的那一拍
+     * （误以为今天已经跑过）跳过它。排障入口的意义就是立刻看见结果，所以它在 `--once` 下不抖。
+     */
+    ignoreJitter: opts.ignoreJitter === true,
     ticking: false,
     stopped: false,
   };
@@ -180,7 +188,7 @@ async function scanOnce(config, settings, state, watcher, views, panel, events) 
  * 跑完把事件投进 `pendingEvents` 再 kick 一轮（链条慢一点点，但不会丢）。
  */
 function scheduleRun(config, settings, state, watcher, view, rule) {
-  const min = Number.isFinite(rule.jitterMin) ? rule.jitterMin : 0;
+  const min = state.ignoreJitter ? 0 : Number.isFinite(rule.jitterMin) ? rule.jitterMin : 0;
   const delayMs = min > 0 ? Math.floor(Math.random() * min * 60000) : 0;
   if (delayMs === 0) return runOne(config, settings, state, watcher, view);
 

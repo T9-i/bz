@@ -37,6 +37,10 @@ node tools/dock-watch/cli.js --status    # 配置、租约（现在归谁拍）�
 node tools/dock-watch/cli.js --once      # 只拍一次就退出（排障：看它认不认得你的规则表）
 ```
 
+`--once` 有个刻意的不同：**它不当场掷骰错峰**（带 `jitterMin` 的规则会立刻跑，而不是先记账、
+等几分钟再跑）—— 排障入口的意义就是立刻看见结果，否则会出现「账记了、工具没跑」。
+日常常驻那一拍照常抖。
+
 日志：`%LOCALAPPDATA%\bz-dock-watch\logs\watch.log`（**只在有事件时写**，不复述每一拍）。
 `--status` 或 `BZ_DOCK_WATCH_VERBOSE=1` 会把过程打到终端。
 

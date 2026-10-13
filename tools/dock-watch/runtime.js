@@ -27,6 +27,10 @@ const CONTRACT_VERSION = 1;
 const QUEUE_LIMIT = 200;
 /** 日志超过这个大小就在启动时轮转一次（同名 `.1`，覆盖旧的） */
 const LOG_MAX_BYTES = 512 * 1024;
+/**
+ * 锁的保鲜期 —— **必须配合「每拍续期」用**（`touchLock`）。见 `acquireLock` 里为什么光看 pid 不够。
+ */
+const LOCK_STALE_MS = 5 * 60 * 1000;
 
 // ==================== 路径 ====================
 
@@ -35,6 +39,9 @@ function watchdogDir(env = process.env) {
   if (local) return path.join(local, DIRNAME);
   const home = String(env.USERPROFILE || env.HOME || '').trim();
   if (home) return path.join(home, 'AppData', 'Local', DIRNAME);
+  // 最后一级回落（非 Windows 的无家目录环境）：两侧都落到**各自的 cwd**，租约对不上 ——
+  // 也就是失去互斥。这里仍然不抛，是因为它同时是「读 config.json」的路径来源：
+  // 真到这一步会先在 readConfig 那里报「读不到配置」，比抛一个路径异常更好懂。
   return DIRNAME;
 }
 
@@ -123,15 +130,33 @@ function isProcessAlive(pid) {
  * 拿单实例锁。**已有活实例 → 返回 null，调用方直接退出**（计划任务在登录/唤醒时可能拉起两次，
  * 两个都拍就会重复跑）。
  *
- * 判据是「锁里那个 pid 还活着吗」，不是「锁文件在不在」——进程崩了不会自己删文件，
- * 只看文件存在会把值守永久卡死。
+ * 判据是「锁里的 pid 还活着**并且一直在续期**」，两条缺一不可：
+ *  - 只看文件在不在 → 进程崩了不会自己删文件，值守被永久卡死；
+ *  - 只看 pid 活不活 → **pid 会被复用**（旧实例崩了，pid 被系统发给别的进程），
+ *    那台机器上的值守从此起不来，且完全没有症状。
+ * 所以真实例每拍 `touchLock` 续一次，陈旧的 `at` 就等于「那个 pid 已经不是我们的同类」。
  */
 function acquireLock() {
   const file = fileOf('watch.lock');
   const prev = readJson(file);
-  if (isPlainObject(prev) && isProcessAlive(prev.pid)) return null;
+  if (isPlainObject(prev) && isProcessAlive(prev.pid)) {
+    const at = Date.parse(prev.at);
+    if (Number.isFinite(at) && Date.now() - at <= LOCK_STALE_MS) return null;
+  }
   writeJsonAtomic(file, { pid: process.pid, at: new Date().toISOString() });
   return file;
+}
+
+/** 续期（每拍调一次）—— 别人据此分辨「这个 pid 还是那个值守」还是「pid 被别人拿去了」 */
+function touchLock(file) {
+  if (!file) return;
+  const cur = readJson(file);
+  if (isPlainObject(cur) && cur.pid !== process.pid) return; // 已被接管，别抢回来
+  try {
+    writeJsonAtomic(file, { pid: process.pid, at: new Date().toISOString() });
+  } catch {
+    /* 写不进去不碍这一拍 */
+  }
 }
 
 function releaseLock(file) {
@@ -255,6 +280,7 @@ module.exports = {
   log,
   isProcessAlive,
   acquireLock,
+  touchLock,
   releaseLock,
   readConfig,
   pluginDataFile,

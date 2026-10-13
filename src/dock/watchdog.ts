@@ -46,12 +46,15 @@ export const WATCHDOG_QUEUE_FILENAME = 'pending.json';
 export const WATCHDOG_CONFIG_FILENAME = 'config.json';
 
 /**
- * 租约保鲜期。插件每 60 秒一拍刷一次，这里留两拍半余量：
- * 插件**卡死**（渲染进程假死、但 pid 还在）超过这么久，值守进程就接管 —— 宁可偶尔多跑一次，
- * 也不要因为插件僵住而整天不跑。反之 pid 已不在（正常关闭）时不必等这么久，那是**即时**接管。
+ * 租约保鲜期 —— **口径在本注释里，不在这里的常量上**。
+ *
+ * 判定权在值守进程那侧（`tools/dock-watch/runtime.js` 的 `leaseHeldByPlugin`）：它按
+ * `min(max(租约里的 tickMs, 自己的 intervalMs) × 3, 5 分钟)` 算 TTL，也就是「插件三拍没续上
+ * 就当我该接管」。插件这边的责任只有一条：**每拍都续**（`scheduler.ts` 的 `writeLease`）。
+ *
+ * 曾经这里有个 `WATCHDOG_LEASE_TTL_MS = 150_000` 常量，但它只被测试读、没有任何生产消费方 ——
+ * 两处 TTL 常量迟早漂，所以删掉：真正被执行的只有值守那一侧的那段算式。
  */
-export const WATCHDOG_LEASE_TTL_MS = 150_000;
-
 /** 值守进程认得的契约版本（`dock.json` 的 `v` 与它同类：不认识就不拍） */
 export const WATCHDOG_CONTRACT_VERSION = 1;
 
@@ -74,7 +77,9 @@ export function processEnv(): WatchdogEnv {
  * 值守目录的绝对路径 —— **两侧（插件与值守进程）必须完全同口径**，否则租约谁也看不见谁。
  *
  * Windows 取 `%LOCALAPPDATA%`；取不到时按 `%USERPROFILE%\AppData\Local` 拼一个（同机同人，
- * 结果一致）；再取不到就退回相对目录名（罕见：非 Windows 的无家目录环境，功能可用但位置漂）。
+ * 结果一致）；再取不到就退回相对目录名 —— 那种环境下两侧会落到**各自的 cwd**、租约对不上
+ * （等于失去互斥），但 Windows 上 `LOCALAPPDATA` 恒在，这一级只是「不抛异常」的兜底，
+ * 真走到它时值守进程会先卡在「读不到 config.json」上。
  */
 export function watchdogDirOf(env: WatchdogEnv = processEnv()): string {
   const local = env.LOCALAPPDATA?.trim();

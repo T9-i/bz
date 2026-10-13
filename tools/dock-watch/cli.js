@@ -85,7 +85,8 @@ function main() {
     return 3;
   }
 
-  const watcher = createWatcher(config, { coreVersion: readCoreVersion() });
+  const once = argv.includes('--once');
+  const watcher = createWatcher(config, { coreVersion: readCoreVersion(), ignoreJitter: once });
   rt.log(`值守启动（pid ${process.pid}，vault ${config.vault}，每 ${Math.round(config.intervalMs / 1000)} 秒一拍）`);
 
   const shutdown = (why) => {
@@ -101,14 +102,17 @@ function main() {
   process.on('uncaughtException', (e) => rt.log(`未捕获异常：${e && e.stack ? e.stack : e}`));
   process.on('unhandledRejection', (e) => rt.log(`未处理的 rejection：${e && e.stack ? e.stack : e}`));
 
-  const once = argv.includes('--once');
   let timer = null;
   if (once) {
     // 等这一拍真的走完（tick 内部若在跑工具，会等它结束）—— 排障时要看到完整结果
     void watcher.tick().then(() => shutdown('--once'));
   } else {
     void watcher.tick();
-    timer = setInterval(() => void watcher.tick(), config.intervalMs);
+    // 每拍顺手续锁：别让「pid 被复用」这种事把值守永久挡在门外（见 runtime.acquireLock）
+    timer = setInterval(() => {
+      rt.touchLock(lock);
+      void watcher.tick();
+    }, config.intervalMs);
   }
   return 0;
 }
