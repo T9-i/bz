@@ -4,7 +4,7 @@
 
 你写三件事：**一份 `manifest.json` 声明自己是谁、有哪些参数、该怎么跑；运行时按四行协议往 stdout 说话；再自己往目录里写一份运行记录。** 不 import 任何 bz 代码，bz 也不关心你脚本里是什么。
 
-真理源：`src/dock/schema.ts`（校验）、`src/dock/declaration.ts`（文件与路径）、`src/core/external-tool.ts`（协议）、`src/dock/runner.ts`（拉起与环境变量）、`src/dock/rules.ts` + `src/dock/scheduler.ts`（规则表与自动触发）。**本文与代码冲突以代码为准**，并顺手改这里。
+真理源：`src/dock/schema.ts`（校验）、`src/dock/declaration.ts`（文件与路径）、`src/core/external-tool.ts`（协议）、`src/dock/runner.ts`（拉起与环境变量）、`src/dock/rules.ts` + `src/dock/scheduler.ts`（规则表与自动触发）、`src/dock/watchdog.ts`（离线值守的租约与状态）。**本文与代码冲突以代码为准**，并顺手改这里。
 
 ## 0. 四份文件，四个写者
 
@@ -138,6 +138,30 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 
 **失败处理**：15 分钟冷却 → 连续 **3 次**熔断暂停 → **一次成功**即恢复；单次超时 **10 分钟**强杀。并发恒为 1，失败不连坐。
 
+### 3.4 离线值守（Obsidian 关着的时候）
+
+装好**值守进程**（`tools/dock-watch/`，挂在 Windows 登录自启上）后，**Obsidian 关着时它替你拍** ——
+用的是同一份规则表、同一份 `ruleDue`（打包成 `dock-core.cjs`）。对你的脚本而言**没有任何新东西要学**：
+环境变量、参数下发、超时、记录写法全都不变，契约这一份照旧。
+
+它认识哪些触发、不认识哪些：
+
+| 触发 | 离场 | 为什么 |
+|---|---|---|
+| `daily` / `interval` / `data-threshold` | ✅ | 靠时钟或直读 vault 里的 json |
+| `tool-ok` / `tool-fail` | ✅ | 值守自己跑完接着判联动 |
+| `on-launch` | ❌ | 语义是「Obsidian 启动后」，离场没有这个时刻 |
+| `panel-open` / `domain-event` | ❌ | 需要插件进程里的面板与域总线 |
+| `vault-file` | ❌ | 第一版没做（没事件时规则自然不命中，不会乱跑） |
+
+两条与「在场」不同的地方，你的脚本**不需要**适配（列出来只为让你知道自己在哪一端）：
+
+- **`remind`（只提醒）离场不投递** —— 提醒的价值在「当时」，隔一天补一条只是噪音；
+- 离场那次的 `BZ_DOCK_TRIGGER` 仍是 `auto`（没人手点它），「谁拉起的」由 `runs.json` 的时间戳回答。
+
+所以 §4.3 那条要求（`info` / `result` **一定要写进记录**）在离线值守下更值钱：离场没有 stdout，
+记录就是全部。
+
 ## 4. 运行中的契约
 
 ### 4.1 环境变量（bz 注入；**不继承宿主环境**，别依赖 `PATH`）
@@ -186,7 +210,7 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 
 ### 4.4 在场 vs 离场
 
-判据是**谁启动**：bz 拉起的都是在场（含自动触发，实时回显、能停止）；你自己配的系统计划任务在 Obsidian 关着时拉起 = 离场（只有记录，没有 stdout）。**所以 `info` / `result` 一定要写进记录**，否则离场那次就丢了。
+判据是**谁启动**：bz 拉起的都是在场（含自动触发，实时回显、能停止）；**值守进程**在 Obsidian 关着时拉起 = 离场（只有记录，没有 stdout）。**所以 `info` / `result` 一定要写进记录**，否则离场那次就丢了。
 
 ## 5. 示例：照着抄
 
@@ -211,7 +235,9 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 - 不要把接口 URL、请求体、字段名、超时做成参数 —— 写死在脚本里。
 - 不要解析与 `key` 拼写不一致的参数名：argv 就是 `--<key>` 逐字，`user_id` 不会变成 `--user-id`（见 2.2）。
 - `schedule` 不要用 `weekly`（折不出种子）；依赖 PATH 之外也一样。
-- 有启用中规则的工具别再配一份系统计划任务（两个触发源，记录翻倍）。
+- **不要自己再配一份系统计划任务**（两个触发源，记录翻倍）。想让脚本在 Obsidian 关着时也按时跑，
+  用的是**值守进程**（§3.4，`tools/dock-watch/`）—— 它与插件靠租约和共享记账共存，
+  你自己另配一份计划任务没有这层保护。
 - 记录里别写死 `trigger`；别编进度（拿不到写 `null`）。
 - 别 try/catch 吞掉异常后 `exit 0`（bz 会判成功）。
 - 别在脚本里做「今天跑过了就跳过」以外的调度判断 —— 该不该跑是 bz 的活。
@@ -235,5 +261,6 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 
 - **参考实现**：`E:\Obsidian\叫我包仔\CONFIG\SCRIPTS\DockTools\iamtxt-signin\`（`manifest.json` + `main.mjs`，接口写死、参数只留 Cookie）。工具放 vault 内只是这位用户的习惯 —— 放 vault 外一样能登记。
 - 源码：契约 `src/dock/schema.ts` · 文件路径 `src/dock/declaration.ts` · 协议 `src/core/external-tool.ts` · 拉起与环境变量 `src/dock/runner.ts` · 规则表 `src/dock/rules.ts` · 调度与熔断 `src/dock/scheduler.ts`
+- **离线值守**：进程本体与装法 `tools/dock-watch/README.md` · 租约与状态接口 `src/dock/watchdog.ts` · 判据打包面 `src/dock/watch-core.ts`（改判据要重跑 `node scripts/build-dock-watch.mjs`）
 - 面板数据住**数据目录** `dock.json`（ADR-0239）；**信任住本机插件设置** —— 换 vault / 换机器要重新确认。
-- ADR：0235（声明文件自描述）、0236（bz 调度 + 记录归工具目录）、0237（文件名对齐插件惯例 + `main.mjs`）、0239（面板数据搬出插件设置、信任留本机）
+- ADR：0235（声明文件自描述）、0236（bz 调度 + 记录归工具目录）、0237（文件名对齐插件惯例 + `main.mjs`）、0239（面板数据搬出插件设置、信任留本机）、0242（离线值守：判据复用 + 租约互斥）

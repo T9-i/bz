@@ -1,0 +1,64 @@
+<#
+卸载工具坞值守进程（ADR-0242）。
+
+默认只做「停掉并注销自启」——配置、状态与日志都留着（重装即可继续，也便于事后翻日志）。
+要连目录一起清掉就加 `-Purge`。
+
+用法：
+  powershell -ExecutionPolicy Bypass -File uninstall.ps1
+  powershell -ExecutionPolicy Bypass -File uninstall.ps1 -Purge
+#>
+[CmdletBinding()]
+param(
+  [string]$TaskName = 'bz-dock-watch',
+  # 连 %LOCALAPPDATA%\bz-dock-watch 整个目录一起删（配置、状态、日志都不留）
+  [switch]$Purge
+)
+
+$ErrorActionPreference = 'Continue'
+$dir = Join-Path $env:LOCALAPPDATA 'bz-dock-watch'
+
+# ---------- 1. 停掉在跑的进程（先停，再注销任务：反过来的话它可能正好在跑） ----------
+
+$lockFile = Join-Path $dir 'watch.lock'
+if (Test-Path -LiteralPath $lockFile) {
+  try {
+    $lock = Get-Content -LiteralPath $lockFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    # 别用 $pid —— 那是 PowerShell 的自动变量（当前进程）
+    $watchPid = [int]$lock.pid
+    $proc = Get-Process -Id $watchPid -ErrorAction SilentlyContinue
+    if ($proc) {
+      Stop-Process -Id $watchPid -Force
+      Write-Host "✓ 已停止值守进程（pid $watchPid）"
+    }
+  } catch {
+    Write-Host '· 锁文件读不出来，跳过停进程（它可能本来就没在跑）' -ForegroundColor DarkGray
+  }
+} else {
+  Write-Host '· 没有锁文件，说明它当前没在跑'
+}
+
+# ---------- 2. 注销计划任务 ----------
+
+$task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+if ($task) {
+  Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+  Write-Host "✓ 已注销计划任务：$TaskName"
+} else {
+  Write-Host "· 没有名为 $TaskName 的计划任务"
+}
+
+# ---------- 3. 收拾目录 ----------
+
+if ($Purge) {
+  if (Test-Path -LiteralPath $dir) {
+    Remove-Item -LiteralPath $dir -Recurse -Force
+    Write-Host "✓ 已删除：$dir"
+  }
+} else {
+  Write-Host "· 保留：$dir（配置/状态/日志；重装时会覆盖配置）" -ForegroundColor DarkGray
+  Write-Host '  想全清就加 -Purge 再跑一次'
+}
+
+Write-Host ''
+Write-Host '完成。Obsidian 的设置页里那一行会回到「还没装值守进程」。' -ForegroundColor Cyan

@@ -3,7 +3,7 @@
  *
  * | 数据 | 位置 | 为什么在那儿 |
  * |---|---|---|
- * | 登记表 / 调度台账 / 两个全域开关 | `<数据存储路径>/dock.json` | 与「域数据一律住 `storagePath`」同口径：换存储路径它跟着走，备份/迁移数据目录不会漏掉它 |
+ * | 登记表 / 调度台账 / 三个全域开关 | `<数据存储路径>/dock.json` | 与「域数据一律住 `storagePath`」同口径：换存储路径它跟着走，备份/迁移数据目录不会漏掉它 |
  * | **信任**（`trustedAt` / `trustedRun`） | 插件设置 `dockTrust` | 见下 |
  *
  * **信任为什么不进 vault**：`dock.json` 住在 vault 里（同步 / 进 git / 能整个分享出去），而信任是
@@ -77,12 +77,26 @@ export interface DockStoreFile {
   autoRun: boolean;
   /** 漏跑提醒（缺省开） */
   notifyMissed: boolean;
+  /**
+   * 离线值守（缺省开，ADR-0242）—— 装好 `dock-watch` 后，Obsidian 关着也按规则表跑。
+   *
+   * 它与 `autoRun` **并列但不同层**：`autoRun` 是「自动运行」这个行为的开关（在场离场都管，
+   * 值守进程也读它），本键只管「**离场那一半**让不让值守进程接手」。两个都开才真的离场跑。
+   */
+  watchdog: boolean;
 }
 
-export type DockSwitchKey = 'autoRun' | 'notifyMissed';
+export type DockSwitchKey = 'autoRun' | 'notifyMissed' | 'watchdog';
 
 function defaults(): DockStoreFile {
-  return { v: DOCK_STORE_VERSION, tools: [], runState: {}, autoRun: true, notifyMissed: true };
+  return {
+    v: DOCK_STORE_VERSION,
+    tools: [],
+    runState: {},
+    autoRun: true,
+    notifyMissed: true,
+    watchdog: true,
+  };
 }
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -97,9 +111,10 @@ export function normalizeDockStore(raw: unknown): DockStoreFile {
     v: DOCK_STORE_VERSION,
     tools: Array.isArray(raw.tools) ? raw.tools : [],
     runState: isPlainObject(raw.runState) ? raw.runState : {},
-    // 两个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
+    // 三个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
     autoRun: raw.autoRun !== false,
     notifyMissed: raw.notifyMissed !== false,
+    watchdog: raw.watchdog !== false,
   };
 }
 

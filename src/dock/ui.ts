@@ -96,6 +96,14 @@ import {
   type ResolvedRun,
 } from './declaration';
 import {
+  consumeWatchdogQueue,
+  isWatchdogAlive,
+  isWatchdogInstalled,
+  readWatchdogQueue,
+  readWatchdogStatus,
+  type WatchdogRunNote,
+} from './watchdog';
+import {
   EDITABLE_SCHEDULE_KINDS,
   durationText,
   isAlarm,
@@ -109,7 +117,7 @@ import {
   type DockRunHealth,
   type EditableScheduleKind,
 } from './schedule';
-import type { DockManifest, DockParam, DockRunRecord, DockSchedule } from './schema';
+import type { DockErrorKind, DockManifest, DockParam, DockRunRecord, DockSchedule } from './schema';
 
 // ==================== 模块状态 ====================
 
@@ -379,6 +387,9 @@ function build(app: App): void {
   const kpi = el('div', 'bz-dock-kpi');
   kpi.id = 'bz-dock-kpi';
 
+  const watchbar = el('div', 'bz-dock-watchbar');
+  watchbar.id = 'bz-dock-watchbar';
+
   const runbar = el('div', 'bz-dock-runbar');
   runbar.id = 'bz-dock-runbar';
 
@@ -388,7 +399,7 @@ function build(app: App): void {
   const body = el('div', 'bz-dock-body');
   body.id = 'bz-dock-body';
 
-  frame.append(head, kpi, runbar, bar, body);
+  frame.append(head, kpi, watchbar, runbar, bar, body);
   ov.appendChild(frame);
   ov.addEventListener('click', (e) => {
     if (e.target === ov) closeDock();
@@ -400,6 +411,9 @@ function build(app: App): void {
 
 function kpiEl(): HTMLElement | null {
   return overlay?.querySelector<HTMLElement>('#bz-dock-kpi') ?? null;
+}
+function watchbarEl(): HTMLElement | null {
+  return overlay?.querySelector<HTMLElement>('#bz-dock-watchbar') ?? null;
 }
 function runbarEl(): HTMLElement | null {
   return overlay?.querySelector<HTMLElement>('#bz-dock-runbar') ?? null;
@@ -422,6 +436,7 @@ async function refresh(): Promise<void> {
     // 也能在下次打开时生效（ADR-0239；与声明文件的「不缓存」同一条精神）
     await loadDockStore();
     views = await loadToolViews(hostApp);
+    replayWatchdogRuns();
     runDueNotifications();
   } catch (e) {
     console.warn('[dock] 载入工具视图失败', e);
@@ -430,6 +445,56 @@ async function refresh(): Promise<void> {
     refreshing = false;
     render();
   }
+}
+
+/**
+ * 值守记录里的 `kind` 是**工具自己写的**自由字符串（`runs.json` 的 `error.kind`），
+ * 认不出的落 `unknown` —— 同 `schema` 读侧的「脏值不猜」口径。
+ */
+function errorKindOf(kind: string | undefined): DockErrorKind {
+  switch (kind) {
+    case 'auth':
+    case 'network':
+    case 'config':
+    case 'timeout':
+    case 'aborted':
+    case 'unknown':
+      return kind;
+    default:
+      return 'unknown';
+  }
+}
+
+/** 一次补报最多单发几条；多出来的合并成一条汇总 */
+const REPLAY_NOTIFY_MAX = 5;
+
+/**
+ * 值守进程在 Obsidian 关着时跑过的那些，起来后补报一次（ADR-0242）。
+ *
+ * 开关用**「漏跑提醒」那一把**（`notifyMissed`）：它管的就是「发生过的事有没有被告知」，
+ * 离场跑成什么样正属于这一类，为此再开一个开关只是同一个问题问两遍。
+ *
+ * 补报完把那几条从队列里删掉 —— 走 `consumeWatchdogQueue`（**先重读再删，只删自己播过的**：
+ * 值守进程可能正在追加新条目，整文件覆写会把它们一起抹掉）。
+ * 一次最多单发 5 条：开机被 20 条通知糊脸和被 1 条糊脸是两种体验。
+ */
+function replayWatchdogRuns(): void {
+  if (!readDockSwitch('notifyMissed')) return;
+  const items = readWatchdogQueue();
+  if (!items.length) return;
+  const played: WatchdogRunNote[] = items.slice(); // 全部消费，但只播前几条
+  for (const it of items.slice(0, REPLAY_NOTIFY_MAX)) {
+    const name = it.name || it.toolId;
+    const when = relTime(it.at);
+    if (it.ok) {
+      notify(`${name} 完成（值守，${when}）`, { type: 'success' });
+      continue;
+    }
+    notify(`${name} 失败（值守，${when}）：${errorHint(errorKindOf(it.kind))}`, { type: 'error' });
+  }
+  const rest = items.length - REPLAY_NOTIFY_MAX;
+  if (rest > 0) notify(`另有 ${rest} 次离线运行，去工具坞看记录`, { type: 'info' });
+  consumeWatchdogQueue(played);
 }
 
 /**
@@ -479,9 +544,66 @@ function willAutoRun(v: DockToolView): boolean {
 function render(): void {
   renderHead();
   renderKpi();
+  renderWatch();
   renderRunbar();
   renderBar();
   renderBody();
+}
+
+/**
+ * 值守条（ADR-0242）：装了值守进程才出现，**没装整条隐藏** —— 一个可选件不该在面板上占位。
+ *
+ * 只读：状态、本次开机跑了几次、上次跑成什么样。**不给开关** —— 「离线值守」的开在心里
+ * 「设置 → 工具坞 → 自动运行」那一行（开关只有一处，面板与设置不并列同一件事）。
+ */
+function renderWatch(): void {
+  const host = watchbarEl();
+  if (!host) return;
+  host.innerHTML = '';
+  if (!isWatchdogInstalled()) {
+    host.classList.add('is-off');
+    return;
+  }
+  host.classList.remove('is-off');
+
+  const st = readWatchdogStatus();
+  const alive = st !== null && isWatchdogAlive(st);
+  // 四种色调各有其意：在守 / 让位 / 被开关关掉 / 进程根本没跑起来
+  const tone = !st || !alive
+    ? 'is-down'
+    : st.mode === 'watch'
+      ? 'is-on'
+      : st.mode === 'defer'
+        ? 'is-idle'
+        : 'is-shut';
+  const text = !st || !alive
+    ? '值守进程没在运行'
+    : st.mode === 'watch'
+      ? '离线值守中'
+      : st.mode === 'defer'
+        ? '值守待命（Obsidian 在值守）'
+        : '离线值守已关';
+
+  const row = el('div', `bz-dock-wb ${tone}`);
+  row.appendChild(el('span', 'bz-dock-wb-dot'));
+  row.appendChild(el('span', 'bz-dock-wb-text', text));
+
+  // 右半边是事实，不是状态：心跳、本次开机跑了几次、上次那一次
+  const meta = el('div', 'bz-dock-wb-meta');
+  if (st) {
+    meta.appendChild(el('span', 'bz-dock-wb-fact', `心跳 ${relTime(st.at)}`));
+    meta.appendChild(el('span', 'bz-dock-wb-fact', `本次开机跑了 ${st.runsSinceBoot} 次`));
+    if (st.lastRun) {
+      const n = st.lastRun.name || st.lastRun.toolId;
+      const mark = st.lastRun.ok ? '成功' : '失败';
+      meta.appendChild(el('span', `bz-dock-wb-fact${st.lastRun.ok ? '' : ' is-bad'}`, `上次 ${n} ${mark}`));
+    }
+    if (st.core) meta.appendChild(el('span', 'bz-dock-wb-fact', `值守件 ${st.core}`));
+  } else {
+    meta.appendChild(el('span', 'bz-dock-wb-fact', '还没有心跳 —— 计划任务可能没跑起来'));
+  }
+  row.appendChild(meta);
+  host.appendChild(row);
 }
 
 /**

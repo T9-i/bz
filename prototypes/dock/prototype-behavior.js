@@ -1,5 +1,5 @@
-/* 源指纹 175c9410ccdee87f · 仓内输入 58 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts"]*/
+/* 源指纹 0983bd51a0bbf931 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __create = Object.create;
@@ -5984,7 +5984,7 @@ var BZW_dock = (() => {
       const d = opts.defaultValue;
       return typeof d === "function" ? d() : d === void 0 ? [] : d;
     };
-    async function ensureDir(app2) {
+    async function ensureDir2(app2) {
       const d = filePath.substring(0, filePath.lastIndexOf("/"));
       if (!d || app2.vault.getAbstractFileByPath(d)) return;
       if (await diskPathExists(app2, d)) return;
@@ -5996,7 +5996,7 @@ var BZW_dock = (() => {
       }
     }
     async function createIfMissing(app2, content) {
-      await ensureDir(app2);
+      await ensureDir2(app2);
       try {
         await app2.vault.create(filePath, content);
         return true;
@@ -6104,7 +6104,14 @@ var BZW_dock = (() => {
   var DOCK_STORE_FILENAME = "dock.json";
   var DOCK_TRUST_SETTINGS_KEY = "dockTrust";
   function defaults() {
-    return { v: DOCK_STORE_VERSION, tools: [], runState: {}, autoRun: true, notifyMissed: true };
+    return {
+      v: DOCK_STORE_VERSION,
+      tools: [],
+      runState: {},
+      autoRun: true,
+      notifyMissed: true,
+      watchdog: true
+    };
   }
   function isPlainObject(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
@@ -6116,9 +6123,10 @@ var BZW_dock = (() => {
       v: DOCK_STORE_VERSION,
       tools: Array.isArray(raw.tools) ? raw.tools : [],
       runState: isPlainObject(raw.runState) ? raw.runState : {},
-      // 两个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
+      // 三个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
       autoRun: raw.autoRun !== false,
-      notifyMissed: raw.notifyMissed !== false
+      notifyMissed: raw.notifyMissed !== false,
+      watchdog: raw.watchdog !== false
     };
   }
   function dockStorePath() {
@@ -6839,7 +6847,13 @@ var BZW_dock = (() => {
             return false;
           }
         } : void 0,
-        unlink: typeof fs.unlinkSync === "function" ? (p) => fs.unlinkSync(p) : void 0
+        unlink: typeof fs.unlinkSync === "function" ? (p) => fs.unlinkSync(p) : void 0,
+        mkdir: typeof fs.mkdirSync === "function" ? (p) => {
+          try {
+            fs.mkdirSync(p, { recursive: true });
+          } catch (e) {
+          }
+        } : void 0
       };
     } catch (e) {
       return null;
@@ -7867,7 +7881,183 @@ var BZW_dock = (() => {
     };
   }
 
+  // src/dock/watchdog.ts
+  var WATCHDOG_DIRNAME = "bz-dock-watch";
+  var WATCHDOG_LEASE_FILENAME = "lease.json";
+  var WATCHDOG_STATUS_FILENAME = "status.json";
+  var WATCHDOG_QUEUE_FILENAME = "pending.json";
+  var WATCHDOG_CONFIG_FILENAME = "config.json";
+  var WATCHDOG_CONTRACT_VERSION = 1;
+  function processEnv() {
+    var _a;
+    try {
+      const p = globalThis.process;
+      return (_a = p == null ? void 0 : p.env) != null ? _a : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function watchdogDirOf(env = processEnv()) {
+    var _a, _b, _c;
+    const local = (_a = env.LOCALAPPDATA) == null ? void 0 : _a.trim();
+    if (local) return joinPath(local, WATCHDOG_DIRNAME);
+    const home = ((_b = env.USERPROFILE) == null ? void 0 : _b.trim()) || ((_c = env.HOME) == null ? void 0 : _c.trim());
+    if (home) return joinPath(joinPath(joinPath(home, "AppData"), "Local"), WATCHDOG_DIRNAME);
+    return WATCHDOG_DIRNAME;
+  }
+  function watchdogPathOf(name, env = processEnv()) {
+    return joinPath(watchdogDirOf(env), name);
+  }
+  function depsOf(d = {}) {
+    var _a, _b;
+    return {
+      env: (_a = d.env) != null ? _a : processEnv(),
+      fs: d.fs !== void 0 ? d.fs : currentFs(),
+      now: (_b = d.now) != null ? _b : Date.now()
+    };
+  }
+  function isPlainObject4(v) {
+    return !!v && typeof v === "object" && !Array.isArray(v);
+  }
+  function writeAtomic(fs, dir, path, data) {
+    ensureDir(fs, dir);
+    if (fs.rename) {
+      const tmp = `${path}.tmp`;
+      fs.writeText(tmp, data);
+      fs.rename(tmp, path);
+      return;
+    }
+    fs.writeText(path, data);
+  }
+  function ensureDir(fs, dir) {
+    var _a;
+    (_a = fs.mkdir) == null ? void 0 : _a.call(fs, dir);
+  }
+  function writeWatchdogLease(opts = {}) {
+    var _a, _b;
+    const { fs, now } = depsOf(opts);
+    if (!fs) return false;
+    const payload = {
+      v: WATCHDOG_CONTRACT_VERSION,
+      owner: "bz-plugin",
+      pid: processPid(),
+      at: new Date(now).toISOString(),
+      tickMs: (_a = opts.tickMs) != null ? _a : 6e4
+    };
+    const vault = (_b = opts.vault) == null ? void 0 : _b.trim();
+    if (vault) payload.vault = vault.replace(/[\\/]+$/, "");
+    try {
+      const dir = watchdogDirOf(opts.env);
+      writeAtomic(fs, dir, joinPath(dir, WATCHDOG_LEASE_FILENAME), JSON.stringify(payload, null, 2));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function processPid() {
+    try {
+      const p = globalThis.process;
+      return typeof (p == null ? void 0 : p.pid) === "number" && p.pid > 0 ? p.pid : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function parseRunNote(raw) {
+    if (!isPlainObject4(raw)) return null;
+    const toolId = typeof raw.toolId === "string" ? raw.toolId : "";
+    const at = typeof raw.at === "string" ? raw.at : "";
+    if (!toolId || !at) return null;
+    const note = { toolId, at, ok: raw.ok === true };
+    if (typeof raw.name === "string" && raw.name) note.name = raw.name;
+    if (typeof raw.message === "string" && raw.message) note.message = raw.message;
+    if (typeof raw.kind === "string" && raw.kind) note.kind = raw.kind;
+    return note;
+  }
+  function readWatchdogStatus(opts = {}) {
+    const { fs } = depsOf(opts);
+    if (!fs) return null;
+    const raw = fs.readText(watchdogPathOf(WATCHDOG_STATUS_FILENAME, opts.env));
+    if (raw === null) return null;
+    let obj;
+    try {
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+    if (!isPlainObject4(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION) return null;
+    if (typeof obj.at !== "string" || typeof obj.pid !== "number") return null;
+    const mode = obj.mode === "watch" || obj.mode === "defer" || obj.mode === "off" ? obj.mode : "off";
+    const out = {
+      v: WATCHDOG_CONTRACT_VERSION,
+      pid: obj.pid,
+      startedAt: typeof obj.startedAt === "string" ? obj.startedAt : obj.at,
+      at: obj.at,
+      mode,
+      runsSinceBoot: typeof obj.runsSinceBoot === "number" && obj.runsSinceBoot >= 0 ? obj.runsSinceBoot : 0
+    };
+    if (typeof obj.vault === "string") out.vault = obj.vault;
+    if (typeof obj.core === "string") out.core = obj.core;
+    if (typeof obj.lastError === "string" && obj.lastError) out.lastError = obj.lastError;
+    const last = parseRunNote(obj.lastRun);
+    if (last) out.lastRun = last;
+    return out;
+  }
+  function isWatchdogAlive(status, now = Date.now(), toleranceMs = 9e4) {
+    const at = Date.parse(status.at);
+    return Number.isFinite(at) && now - at <= toleranceMs;
+  }
+  function isWatchdogInstalled(opts = {}) {
+    const { fs } = depsOf(opts);
+    if (!fs) return false;
+    const path = watchdogPathOf(WATCHDOG_CONFIG_FILENAME, opts.env);
+    return fs.exists ? fs.exists(path) : fs.readText(path) !== null;
+  }
+  function readWatchdogQueue(opts = {}) {
+    const { fs } = depsOf(opts);
+    if (!fs) return [];
+    const raw = fs.readText(watchdogPathOf(WATCHDOG_QUEUE_FILENAME, opts.env));
+    if (raw === null) return [];
+    let obj;
+    try {
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return [];
+    }
+    if (!isPlainObject4(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION || !Array.isArray(obj.items)) return [];
+    const out = [];
+    for (const item of obj.items) {
+      const note = parseRunNote(item);
+      if (note) out.push(note);
+    }
+    return out.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  }
+  function consumeWatchdogQueue(played, opts = {}) {
+    const { fs } = depsOf(opts);
+    if (!fs || !played.length) return;
+    const path = watchdogPathOf(WATCHDOG_QUEUE_FILENAME, opts.env);
+    const raw = fs.readText(path);
+    if (raw === null) return;
+    let obj;
+    try {
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+    if (!isPlainObject4(obj) || !Array.isArray(obj.items)) return;
+    const playedKeys = new Set(played.map((n) => `${n.at}\0${n.toolId}`));
+    const rest = obj.items.filter((item) => {
+      const note = parseRunNote(item);
+      return !note || !playedKeys.has(`${note.at}\0${note.toolId}`);
+    });
+    const payload = { v: WATCHDOG_CONTRACT_VERSION, items: rest };
+    try {
+      writeAtomic(fs, watchdogDirOf(opts.env), path, JSON.stringify(payload, null, 2));
+    } catch (e) {
+    }
+  }
+
   // src/dock/scheduler.ts
+  var TICK_MS = 6e4;
   var FAIL_COOLDOWN_MS = 15 * 6e4;
   var BREAKER_THRESHOLD = 3;
   var RUN_TIMEOUT_MS = 10 * 6e4;
@@ -7885,6 +8075,10 @@ var BZW_dock = (() => {
   var kickQueued = false;
   function globalAutoOn() {
     return readDockSwitch("autoRun");
+  }
+  function writeLease() {
+    const vault = app ? vaultBasePath(app) : void 0;
+    writeWatchdogLease({ vault, tickMs: TICK_MS });
   }
   function kickDockScheduler() {
     if (app === null) return;
@@ -7982,6 +8176,7 @@ var BZW_dock = (() => {
     if (ticking) return;
     ticking = true;
     try {
+      writeLease();
       try {
         await loadDockStore();
       } catch (e) {
@@ -8266,13 +8461,15 @@ var BZW_dock = (() => {
     head.append(brand, title, pipe, sub, sp, btns);
     const kpi = el("div", "bz-dock-kpi");
     kpi.id = "bz-dock-kpi";
+    const watchbar = el("div", "bz-dock-watchbar");
+    watchbar.id = "bz-dock-watchbar";
     const runbar = el("div", "bz-dock-runbar");
     runbar.id = "bz-dock-runbar";
     const bar = el("div", "bz-dock-bar");
     bar.id = "bz-dock-bar";
     const body = el("div", "bz-dock-body");
     body.id = "bz-dock-body";
-    frame.append(head, kpi, runbar, bar, body);
+    frame.append(head, kpi, watchbar, runbar, bar, body);
     ov.appendChild(frame);
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closeDock();
@@ -8283,6 +8480,10 @@ var BZW_dock = (() => {
   function kpiEl() {
     var _a;
     return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-kpi")) != null ? _a : null;
+  }
+  function watchbarEl() {
+    var _a;
+    return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-watchbar")) != null ? _a : null;
   }
   function runbarEl() {
     var _a;
@@ -8303,6 +8504,7 @@ var BZW_dock = (() => {
     try {
       await loadDockStore();
       views = await loadToolViews(hostApp);
+      replayWatchdogRuns();
       runDueNotifications();
     } catch (e) {
       console.warn("[dock] 载入工具视图失败", e);
@@ -8311,6 +8513,38 @@ var BZW_dock = (() => {
       refreshing = false;
       render();
     }
+  }
+  function errorKindOf(kind) {
+    switch (kind) {
+      case "auth":
+      case "network":
+      case "config":
+      case "timeout":
+      case "aborted":
+      case "unknown":
+        return kind;
+      default:
+        return "unknown";
+    }
+  }
+  var REPLAY_NOTIFY_MAX = 5;
+  function replayWatchdogRuns() {
+    if (!readDockSwitch("notifyMissed")) return;
+    const items = readWatchdogQueue();
+    if (!items.length) return;
+    const played = items.slice();
+    for (const it of items.slice(0, REPLAY_NOTIFY_MAX)) {
+      const name = it.name || it.toolId;
+      const when = relTime(it.at);
+      if (it.ok) {
+        notify(`${name} 完成（值守，${when}）`, { type: "success" });
+        continue;
+      }
+      notify(`${name} 失败（值守，${when}）：${errorHint(errorKindOf(it.kind))}`, { type: "error" });
+    }
+    const rest = items.length - REPLAY_NOTIFY_MAX;
+    if (rest > 0) notify(`另有 ${rest} 次离线运行，去工具坞看记录`, { type: "info" });
+    consumeWatchdogQueue(played);
   }
   function runDueNotifications() {
     if (!readDockSwitch("notifyMissed")) return;
@@ -8340,9 +8574,42 @@ var BZW_dock = (() => {
   function render() {
     renderHead();
     renderKpi();
+    renderWatch();
     renderRunbar();
     renderBar();
     renderBody();
+  }
+  function renderWatch() {
+    const host = watchbarEl();
+    if (!host) return;
+    host.innerHTML = "";
+    if (!isWatchdogInstalled()) {
+      host.classList.add("is-off");
+      return;
+    }
+    host.classList.remove("is-off");
+    const st = readWatchdogStatus();
+    const alive = st !== null && isWatchdogAlive(st);
+    const tone = !st || !alive ? "is-down" : st.mode === "watch" ? "is-on" : st.mode === "defer" ? "is-idle" : "is-shut";
+    const text = !st || !alive ? "值守进程没在运行" : st.mode === "watch" ? "离线值守中" : st.mode === "defer" ? "值守待命（Obsidian 在值守）" : "离线值守已关";
+    const row = el("div", `bz-dock-wb ${tone}`);
+    row.appendChild(el("span", "bz-dock-wb-dot"));
+    row.appendChild(el("span", "bz-dock-wb-text", text));
+    const meta = el("div", "bz-dock-wb-meta");
+    if (st) {
+      meta.appendChild(el("span", "bz-dock-wb-fact", `心跳 ${relTime(st.at)}`));
+      meta.appendChild(el("span", "bz-dock-wb-fact", `本次开机跑了 ${st.runsSinceBoot} 次`));
+      if (st.lastRun) {
+        const n = st.lastRun.name || st.lastRun.toolId;
+        const mark = st.lastRun.ok ? "成功" : "失败";
+        meta.appendChild(el("span", `bz-dock-wb-fact${st.lastRun.ok ? "" : " is-bad"}`, `上次 ${n} ${mark}`));
+      }
+      if (st.core) meta.appendChild(el("span", "bz-dock-wb-fact", `值守件 ${st.core}`));
+    } else {
+      meta.appendChild(el("span", "bz-dock-wb-fact", "还没有心跳 —— 计划任务可能没跑起来"));
+    }
+    row.appendChild(meta);
+    host.appendChild(row);
   }
   function renderKpi() {
     const host = kpiEl();

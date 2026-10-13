@@ -115,6 +115,42 @@
   white-space: nowrap;
 }
 
+/* ---------- 值守条（ADR-0242） ----------
+   装了 dock-watch 才出现：Obsidian 关着时由它按**同一份**规则表跑（判据是同一份 ruleDue）。
+   **只读** —— 开关在「设置 → 工具坞 → 自动运行」，这里不摆第二个控件说同一件事。
+   四种点色：在守 / 让位（Obsidian 在）/ 被开关关掉 / 进程没跑起来。 */
+.bz-dock-watchbar { flex: none; display: flex; flex-direction: column; }
+.bz-dock-watchbar.is-off { display: none; }
+.bz-dock-wb {
+  display: flex;
+  align-items: center;
+  gap: var(--bz-space-sm);
+  padding: var(--bz-space-sm) var(--bz-space-lg);
+  border-bottom: 1px solid var(--bz-border);
+}
+.bz-dock-wb-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--bz-radius-full);
+  background: var(--bz-text-3);
+}
+.bz-dock-wb.is-on .bz-dock-wb-dot { background: var(--bz-success); }
+.bz-dock-wb.is-down .bz-dock-wb-dot { background: var(--bz-warning); }
+.bz-dock-wb.is-shut .bz-dock-wb-dot { background: var(--bz-text-3); }
+.bz-dock-wb-text { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); }
+.bz-dock-wb.is-down .bz-dock-wb-text { color: var(--bz-warning); }
+.bz-dock-wb-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--bz-space-md);
+  overflow: hidden;
+}
+.bz-dock-wb-fact { font-size: var(--bz-font-caption); color: var(--bz-text-3); white-space: nowrap; }
+.bz-dock-wb-fact.is-bad { color: var(--bz-danger); }
+
 /* ---------- 面板顶层执行进度 ----------
    只画**在场**运行（bz 亲手启动的）。自动化工具是离场跑，永远不进这里 ——
    拿不到实时进度就不画进度条，这条是 UI 约束，不是样式偏好。 */

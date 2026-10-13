@@ -14,7 +14,7 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 ## 硬约束（看见就是错）
 - 样式源只有 `src/<域>/styles.css`（根 `styles.css` 是聚合产物）。域内禁 `scrollbar-width: thin/auto`、禁自绘 thumb、禁运行时注入 `<style>`、禁内联视觉样式。唯一例外：远端皮肤包只在 `src/core/skin-pack.ts` 单一注入点（ADR-0199），要扩先开 ADR。
 - 域 UI 的唯一真理源是与评审壳共用的实现源码；两侧不一致 = 缺陷，改源码，别改壳、别改产物。未定稿的探索稿只写 `.scratch/<名>/`。
-- 不手改生成物：根 `main.js` / `styles.css`、`changelog-data.ts`、`prototypes/**/prototype-*.js`、`downloads/manifest.json`、`downloads/skins/`。
+- 不手改生成物：根 `main.js` / `styles.css`、`changelog-data.ts`、`prototypes/**/prototype-*.js`、`downloads/manifest.json`、`downloads/skins/`、`tools/dock-watch/dock-core.cjs`（+ 同目录 `core-version.json`）。
 - 命令 ID `bz-<域>-<动作>`；通知正文不带 emoji（新语义查 `src/core/notice.ts` 的 ICONS）。
 - 改动走 worktree（仓库外，从最新 master 分叉）；**worktree 内不构建**——产物直出本机 vault（`esbuild.config.mjs` 硬编码）与仓库根。
 
@@ -27,6 +27,7 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 - Git Bash 里 pnpm 起不来（shim 把路径解析成 `D:\d\...`）→ 用 PowerShell，或 `node node_modules/<包>/…` 直调。
 - `git worktree remove` 后常残留 `node_modules`，要另删。**删前必须先 `cmd /c rmdir` 掉 worktree 里的 `node_modules` junction**——worktree 的 junction 指向主仓 node_modules 时，remove/remove --force 会穿透删除主仓 `.pnpm` 里的包（表层包还在、深处依赖悬空，测试报 Cannot find module）；穿透后 `pnpm install` 修不回（workspace 状态文件误判 up to date），要 `rm -rf node_modules && pnpm install` 整体重建（store 硬链接，很快）。
 - 皮肤顺序固定：`skin-pack → changelog → manifest`（`manifest` 对已出版的 css 现算 sha256，顺序错则插件端校验不过）。
+- 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
 
 ## 提交
 Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。提交后跑 `pnpm changelog`。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `pnpm run build` → 子代理 review → 清 worktree。
@@ -40,6 +41,7 @@ Conventional Commits，**提交信息即更新日志正文**（写法 `docs/chan
 | 域职责、术语、口径 | `CONTEXT.md` |
 | 单源域名单 | `build-preview.mjs` 的 `PREVIEW_DOMAINS` / `BEHAVIOR_DOMAINS` |
 | 皮肤清单 | `scripts/skins.catalog.json` |
+| 离线值守（Obsidian 关着也跑） | `tools/dock-watch/README.md`（装法/排障）· 租约与状态接口 `src/dock/watchdog.ts` · ADR-0242 |
 | 写一个接入工具坞的外部脚本 | `docs/dock-tool-guide.md`（声明文件 / 参数值文件 / 四行协议 / 运行记录） |
 
 本文与代码冲突时以代码为准，并顺手改这里。历史注释里的「铁律 N」是旧编号，按内容找，别按号找。

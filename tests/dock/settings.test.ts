@@ -31,6 +31,7 @@ import { MockVault } from '../mock-vault';
 import { __resetDockStoreForTests, loadDockStore, readTrustMap } from '../../src/dock/store';
 import { setDockFs } from '../../src/dock/declaration';
 import { runSignature } from '../../src/dock/registry';
+import { WATCHDOG_CONFIG_FILENAME, watchdogPathOf } from '../../src/dock/watchdog';
 import type { SettingsRow } from '../../src/core/settings-schema';
 
 // 本文件跑在 node 环境（无 DOM）：通知层的 toast 渲染会碰 document，替成空探针。
@@ -100,8 +101,31 @@ describe('工具坞设置 schema', () => {
     expect(notice.icon).toBe('bell');
     expect(trust.icon).toBe('shield-check');
     expect(tools.rows).toHaveLength(1);
-    expect(autoRun.rows).toHaveLength(1);
+    // 自动运行组 = 总闸 + 「离线值守」（ADR-0242）。后者**装没装值守件决定它是开关还是一句话**，
+    // 所以这里只钉住「1~2 行」，形态由下一条用例盯
+    expect(autoRun.rows.length).toBeGreaterThanOrEqual(1);
+    expect(autoRun.rows.length).toBeLessThanOrEqual(2);
     expect(notice.rows).toHaveLength(1);
+  });
+
+  it('离线值守行：没装值守件是一句话，装了才是开关（拨了没反应的开关是骗人）', () => {
+    const bare = schema.groups[1].rows[1] as InfoRow;
+    expect(bare.type).toBe('info');
+    expect(bare.name).toBe('离线值守');
+    expect(bare.desc).toContain('还没装值守进程');
+
+    // 值守件装上了（值守目录里出现 config.json —— 安装脚本写的那个）→ 同一位置换成开关
+    const installPath = watchdogPathOf(WATCHDOG_CONFIG_FILENAME);
+    const backup = TOOL_FILES[installPath];
+    TOOL_FILES[installPath] = '{"v":1}';
+    const installed = dockSettingsSchema().groups[1].rows[1] as ToggleRow;
+    expect(installed.type).toBe('toggle');
+    expect(installed.name).toBe('离线值守');
+    expect(installed.binding).toBeTruthy(); // 走三函数绑定（值住 dock.json，不在插件设置里）
+
+    if (backup === undefined) delete TOOL_FILES[installPath];
+    else TOOL_FILES[installPath] = backup;
+    expect((dockSettingsSchema().groups[1].rows[1] as InfoRow).type).toBe('info'); // 复原
   });
 
   it('登记行 = info + 单个「打开工具坞」强调钮（管理入口在面板，不在设置页）', () => {

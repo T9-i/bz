@@ -74,6 +74,13 @@ export interface DockFs {
   exists?(path: string): boolean;
   /** 删除文件（可选；缺省实现带 unlinkSync，桩可不给 —— 调用方跳过旧名清理） */
   unlink?(path: string): void;
+  /**
+   * 递归建目录（可选；缺省实现带 `mkdirSync(p, {recursive:true})`，已存在即静默）。
+   *
+   * 这是给**值守目录**（`%LOCALAPPDATA%\bz-dock-watch`）准备的 —— 它可能整个不存在，
+   * 首次写租约前得先建出来（工具目录那边不必建：声明文件在，目录就在）。
+   */
+  mkdir?(path: string): void;
 }
 
 let injectedFs: DockFs | null | undefined;
@@ -95,6 +102,7 @@ function defaultDockFs(): DockFs | null {
       statSync?(p: string): { isFile(): boolean };
       renameSync?(a: string, b: string): void;
       unlinkSync?(p: string): void;
+      mkdirSync?(p: string, o?: { recursive?: boolean }): void;
     };
     return {
       readText: (p) => {
@@ -122,6 +130,16 @@ function defaultDockFs(): DockFs | null {
             }
           : undefined,
       unlink: typeof fs.unlinkSync === 'function' ? (p) => fs.unlinkSync!(p) : undefined,
+      mkdir:
+        typeof fs.mkdirSync === 'function'
+          ? (p) => {
+              try {
+                fs.mkdirSync!(p, { recursive: true });
+              } catch {
+                /* 已存在 / 无权 —— 由随后的那次写入去暴露真问题 */
+              }
+            }
+          : undefined,
     };
   } catch {
     return null;

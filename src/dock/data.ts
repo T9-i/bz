@@ -298,11 +298,13 @@ export async function recordRunSuccess(id: string, finishedAt: string): Promise<
 // ==================== 全域开关（面板数据 · 住 `dock.json`） ====================
 
 /**
- * 读一个全域开关 —— `autoRun` = 自动运行总闸（关掉 = 声明了节奏也只手动），
- * `notifyMissed` = 漏跑提醒。两者缺省都是**开**（键缺失/形态不对即开）。
+ * 读一个全域开关 —— `autoRun` = 自动运行总闸（关掉 = 声明了规则也只手动）、
+ * `notifyMissed` = 漏跑提醒、`watchdog` = 离线值守（装好值守进程后，Obsidian 关着也跑，
+ * ADR-0242：它只管离场那一半，值守进程自己也读 `autoRun`，两个都开才真的离场跑）。
+ * 三者缺省都是**开**（键缺失/形态不对即开）。
  *
  * 同步读（走内存快照）：设置行的 `get` 与调度器每轮的判据都是同步口径，
- * 不能为了两个布尔把这两处都改成异步链。
+ * 不能为了几个布尔把这两处都改成异步链。
  */
 export function readDockSwitch(key: DockSwitchKey): boolean {
   return dockStoreSnapshot()[key] !== false;

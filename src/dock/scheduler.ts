@@ -34,7 +34,8 @@ import { ruleDue, type DockRule, type DockTrigger, type RuleEvent } from './rule
 // ui 与 scheduler 互相引用（ui 里改完规则会 kick 调度器；这里的通知要直达工具详情）——
 // 双方都只在函数体内调用对方，模块顶层互不取值，ESM 循环在此安全
 import { openDockTool } from './ui';
-import { errorHint, liveRunOf, runTool, stopRun, type DockRunOutcome } from './runner';
+import { errorHint, liveRunOf, runTool, stopRun, vaultBasePath, type DockRunOutcome } from './runner';
+import { clearWatchdogLease, writeWatchdogLease } from './watchdog';
 
 // ==================== 参数 ====================
 
@@ -91,14 +92,29 @@ export function startDockScheduler(a: App, unloaded: () => boolean): void {
   app = a;
   isUnloaded = unloaded;
   sessionStart = Date.now();
+  // 立刻声明「在场」（ADR-0242）：首拍还要等 STARTUP_DELAY_MS，这段窗口里别让值守进程抢一拍
+  writeLease();
   startupTimer = setTimeout(() => {
     void tick();
     tickTimer = setInterval(() => void tick(), TICK_MS);
   }, STARTUP_DELAY_MS);
 }
 
+/**
+ * 给值守进程（`dock-watch`，ADR-0242）留一张「插件在场」的票 —— 它看到票就让位。
+ *
+ * 写在 tick 最前面、**不受总闸影响**：「插件在场」是事实，跟自动运行开不开是两件事
+ * （值守进程自己会查那份开关）。失败静默：写不进去只意味着它可能多跑一次，不该炸调度。
+ */
+function writeLease(): void {
+  const vault = app ? vaultBasePath(app) : undefined;
+  writeWatchdogLease({ vault, tickMs: TICK_MS });
+}
+
 /** 停调度（幂等）：清定时器、退总线订阅、复位会话态。**不杀在跑的子进程** */
 export function stopDockScheduler(): void {
+  // 撤票要在复位会话态之前：撤掉即「插件已离场」，值守进程下一拍立刻接管（不必等 TTL 过期）
+  clearWatchdogLease();
   if (startupTimer !== null) {
     clearTimeout(startupTimer);
     startupTimer = null;
@@ -253,6 +269,7 @@ async function tick(): Promise<void> {
   if (ticking) return; // 防重入（一分钟一拍，慢的一拍没走完就跳过）
   ticking = true;
   try {
+    writeLease(); // 续票：这一拍我还在（总闸关着也续 —— 「在场」与「自动运行」无关）
     // 面板数据（含总闸）现读：外部改了 `dock.json` 也在下一拍生效
     try {
       await loadDockStore();

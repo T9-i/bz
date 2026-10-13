@@ -1,4 +1,4 @@
-/* 源指纹 089d7bddbdfab6a3 · 仓内输入 79 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 b0cf1e01faed1a97 · 仓内输入 79 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/cinema/fake-sim.ts","prototypes/cinema/fake/fake-obsidian.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/douban-queue.ts","src/cinema/index.ts","src/cinema/layouts/midnight/render.ts","src/cinema/motion.ts","src/cinema/recommend.ts","src/cinema/render.ts","src/cinema/seasons.ts","src/cinema/shared.ts","src/cinema/state.ts","src/cinema/type-decide.ts","src/cinema/ui.ts","src/cinema/yearbook/data.ts","src/cinema/yearbook/engine.ts","src/cinema/yearbook/index.ts","src/cinema/yearbook/kits.ts","src/cinema/yearbook/motions.ts","src/cinema/yearbook/scenes.ts","src/core/ai.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/landscape.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/cinema/fake-sim.ts → window.BZW_cinema（行为单源预览包，issue 245/ADR-0106） */
 var BZW_cinema = (() => {
@@ -12620,9 +12620,9 @@ tags:
       notice(`找不到笔记：${it.name}`, "warning");
       return;
     }
-    void app.workspace.openLinkText(stripMdExt(path), "", false, { active: true });
+    void app.workspace.openLinkText(stripMdExt(path), "", false, { active: true }).then(() => closeOverlay());
   }
-  function itemActions(it, sec, app) {
+  function itemActions(it, sec, app, opts = {}) {
     const out = [{ icon: ICON.eye, label: "打开详情", run: () => openDetail(sec, it, app) }];
     if (it.status !== STATUS_WATCHING && it.status !== STATUS_WATCHED) {
       out.push({ icon: ICON.play, label: "标记在看", run: () => void markStatus(it, "在看", app) });
@@ -12641,7 +12641,7 @@ tags:
     out.push(...listExitActs([it], app));
     if (it.mergeInto) {
       out.push({ icon: ICON.merge, label: `移出合集「${it.mergeInto}」`, run: () => void setMergeInto(it, null, app) });
-    } else {
+    } else if (!opts.inSeries) {
       out.push({ icon: ICON.merge, label: "归入合集…", run: () => openSeriesPick(sec, it, app) });
     }
     out.push(
@@ -13050,8 +13050,8 @@ tags:
       });
     });
   }
-  function itemSheetTarget(it, sec, app) {
-    return { acts: itemActions(it, sec, app), head: sheetHeadEl2(it, posterUrl(it, app)) };
+  function itemSheetTarget(it, sec, app, opts = {}) {
+    return { acts: itemActions(it, sec, app, opts), head: sheetHeadEl2(it, posterUrl(it, app)) };
   }
   function seriesSheetTarget(card, sec, app) {
     return { acts: seriesActs(card, sec, app), head: seriesSheetHeadEl(card, posterUrl(card.face, app)) };
@@ -13450,13 +13450,13 @@ tags:
         e.preventDefault();
         const it = rowItem(row);
         if (!it || !hoverCapable2()) return;
-        openItemMenu(e.clientX, e.clientY, toItemActions(deferClose(itemActions(it, sec, app), close)), true, MENU_SKIN);
+        openItemMenu(e.clientX, e.clientY, toItemActions(deferClose(itemActions(it, sec, app, { inSeries: true }), close)), true, MENU_SKIN);
         resetItemMenuClickGuard();
       });
       if (mobile) {
         longPress(row, () => {
           const it = rowItem(row);
-          if (it) openSheet(sec, itemSheetTarget(it, sec, app), close);
+          if (it) openSheet(sec, itemSheetTarget(it, sec, app, { inSeries: true }), close);
         });
       }
     });

@@ -6,10 +6,12 @@
  * （「导入哪份声明」）也只走面板内「导入声明」，不做设置页行编辑 —— 一旦能从别处直接改命令，
  * 「打开别人的 vault」就等于「在他机器上执行任意命令」（ADR-0235 决策）。
  *
- * 于是本页只有四件**全域**的事，前三件是开关/入口，第四件是**信任**：
+ * 于是本页只有这几件**全域**的事，前三件是开关/入口，最后一件是**信任**：
  *  1. 去哪儿管工具（打开面板）；
  *  2. 自动跑不跑（`dock.json` 的 `autoRun`，ADR-0236）；
  *  3. 漏跑提不提醒（`dock.json` 的 `notifyMissed`）；
+ *  3b. 离场跑不跑（`dock.json` 的 `watchdog`，ADR-0242）—— 装没装值守进程决定这一条
+ *     是**开关**还是**一句说明**（「一个控件按状态只出一条」，不并列）。
  *  4. 哪些命令已被授权在本机执行（**插件设置**的 `dockTrust`，ADR-0239）。
  *     这一组只做两件事：**撤销**（就地撤，立刻生效）与**授权**（按声明当前那条命令授）。
  *     两边的列表都只显示命令文本，不给「手写一条命令」的入口 —— 授权对象永远是声明文件里
@@ -31,6 +33,7 @@ import {
 } from './data';
 import { readDeclaration, resolveRun, type ResolvedRun } from './declaration';
 import { loadDockStore, persistDockStore, type DockSwitchKey } from './store';
+import { isWatchdogInstalled } from './watchdog';
 
 /**
  * 两个全域开关的绑定 —— 值住面板数据 `dock.json`（ADR-0239），不在插件设置里，
@@ -51,6 +54,35 @@ function switchBinding(key: DockSwitchKey) {
       await persistDockStore();
     },
   };
+}
+
+// ==================== 离线值守（ADR-0242） ====================
+
+/**
+ * 「离线值守」那一行 —— **装没装决定它是开关还是一句话**（一个控件按状态只出一条）：
+ * 没装值守进程时给个开关是骗人（拨了没反应），所以换成一句说明 + 安装位置。
+ *
+ * 装没装的判据是值守目录里有没有 `config.json`（安装脚本写的），不是插件设置里的标记：
+ * 后者会在「装了又手工删掉」之后说谎。
+ */
+function watchdogRows(): SettingsRow[] {
+  if (!isWatchdogInstalled()) {
+    return [
+      {
+        type: 'info',
+        name: '离线值守',
+        desc: '还没装值守进程 —— Obsidian 关着时不会自动跑（装法：tools/dock-watch/install.ps1）',
+      },
+    ];
+  }
+  return [
+    {
+      type: 'toggle',
+      name: '离线值守',
+      desc: 'Obsidian 关着时由值守进程按同一份规则表跑（要求工具已信任、自动运行总闸开着）',
+      binding: switchBinding('watchdog'),
+    },
+  ];
 }
 
 // ==================== 信任组（ADR-0239） ====================
@@ -167,9 +199,10 @@ export function dockSettingsSchema(): SettingsSchema {
           {
             type: 'toggle',
             name: '启动后自动运行',
-            desc: 'Obsidian 就绪后，bz 按各工具声明的节奏触发它：到点跑、该跑没跑就补跑。关掉则全部只手点',
+            desc: 'Obsidian 就绪后，bz 按各工具声明的规则触发它：到点跑、该跑没跑就补跑。关掉则全部只手点',
             binding: switchBinding('autoRun'),
           },
+          ...watchdogRows(),
         ],
       },
       {

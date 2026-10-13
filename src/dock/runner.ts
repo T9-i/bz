@@ -55,8 +55,9 @@ export function setDockRuntimeDeps(d: ExternalToolDeps | undefined): void {
  *
  * Obsidian 的类型里 `app.vault.adapter` 没有这个面，所以只能窄取；收在这一个函数里，
  * 免得每个调用点各写一遍 `as unknown as {...}` 长链（那种链一改就散架，还盖住了真正的意图）。
+ * 导出是因为**值守租约**（`scheduler` → `watchdog`）也要它 —— 同一件事别取两处。
  */
-function vaultBasePath(app: App): string | undefined {
+export function vaultBasePath(app: App): string | undefined {
   const adapter = (app.vault as unknown as { adapter?: { getBasePath?: () => string } }).adapter;
   try {
     return adapter?.getBasePath?.();

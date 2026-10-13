@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { buildStyles, watchStyles } from "./scripts/build-css.mjs";
 import { buildPreview, PREVIEW_DOMAINS } from "./scripts/build-preview.mjs";
+import { buildDockWatch } from "./scripts/build-dock-watch.mjs";
 
 const prod = process.argv[2] === "production";
 
@@ -39,6 +40,7 @@ function copyStatic() {
 
 if (prod) {
   await context.rebuild();
+  await buildDockWatch(); // ADR-0242：值守进程的判据核心（tools/dock-watch/dock-core.cjs，生成物入 git）
   await buildPreview(); // ADR-0104：域渲染纯层 → prototype-render.js（评审壳预览包，提交入 git）
   buildStyles(); // 铁律 9：聚合 src/**/styles.css → 根 styles.css（并同步插件目录）
   copyStatic();

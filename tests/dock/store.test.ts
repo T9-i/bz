@@ -71,10 +71,12 @@ describe('工具坞面板数据（dock.json + dockTrust）', () => {
       runState: {},
       autoRun: true,
       notifyMissed: true,
+      watchdog: true,
     });
     expect(readToolEntries()).toEqual([]);
     expect(readDockSwitch('autoRun')).toBe(true);
     expect(readDockSwitch('notifyMissed')).toBe(true);
+    expect(readDockSwitch('watchdog')).toBe(true);
   });
 
   it('老库迁移：四键读旧删旧；登记项进 dock.json；信任摘出来留在设置', () => {

@@ -1,5 +1,5 @@
-/* 源指纹 c17e7c95d759500f · 仓内输入 323 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 7ca0e0a5012ccb11 · 仓内输入 324 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
   var __create = Object.create;
@@ -8599,7 +8599,7 @@ var BZW_home = (() => {
       const d = opts.defaultValue;
       return typeof d === "function" ? d() : d === void 0 ? [] : d;
     };
-    async function ensureDir3(app2) {
+    async function ensureDir4(app2) {
       const d = filePath.substring(0, filePath.lastIndexOf("/"));
       if (!d || app2.vault.getAbstractFileByPath(d)) return;
       if (await diskPathExists(app2, d)) return;
@@ -8611,7 +8611,7 @@ var BZW_home = (() => {
       }
     }
     async function createIfMissing(app2, content) {
-      await ensureDir3(app2);
+      await ensureDir4(app2);
       try {
         await app2.vault.create(filePath, content);
         return true;
@@ -55999,7 +55999,7 @@ GitHub 仓库：${ghInfo.title}
     const roots = /* @__PURE__ */ new Map();
     const childOf = /* @__PURE__ */ new Map();
     const nodeOf = /* @__PURE__ */ new Map();
-    const ensureDir3 = (dir) => {
+    const ensureDir4 = (dir) => {
       let node = nodeOf.get(dir);
       if (node) return node;
       const segs = dir.split("/").filter(Boolean);
@@ -56014,7 +56014,7 @@ GitHub 仓库：${ghInfo.title}
       if (segs.length === 1) {
         roots.set(dir, node);
       } else {
-        const parent = ensureDir3(segs.slice(0, -1).join("/"));
+        const parent = ensureDir4(segs.slice(0, -1).join("/"));
         const siblings = childOf.get(parent.path) || [];
         siblings.push(node);
         childOf.set(parent.path, siblings);
@@ -56024,7 +56024,7 @@ GitHub 仓库：${ghInfo.title}
     for (const [path, entry] of Object.entries(meta.notes)) {
       const idx = path.lastIndexOf("/");
       const dir = idx === -1 ? "（根目录）" : path.slice(0, idx);
-      let cursor = ensureDir3(dir);
+      let cursor = ensureDir4(dir);
       while (cursor) {
         cursor.notes++;
         cursor.chunks += entry.chunks.length;
@@ -64485,7 +64485,14 @@ GitHub 仓库：${ghInfo.title}
 
   // src/dock/store.ts
   function defaults() {
-    return { v: DOCK_STORE_VERSION, tools: [], runState: {}, autoRun: true, notifyMissed: true };
+    return {
+      v: DOCK_STORE_VERSION,
+      tools: [],
+      runState: {},
+      autoRun: true,
+      notifyMissed: true,
+      watchdog: true
+    };
   }
   function isPlainObject3(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
@@ -64497,9 +64504,10 @@ GitHub 仓库：${ghInfo.title}
       v: DOCK_STORE_VERSION,
       tools: Array.isArray(raw.tools) ? raw.tools : [],
       runState: isPlainObject3(raw.runState) ? raw.runState : {},
-      // 两个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
+      // 三个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
       autoRun: raw.autoRun !== false,
-      notifyMissed: raw.notifyMissed !== false
+      notifyMissed: raw.notifyMissed !== false,
+      watchdog: raw.watchdog !== false
     };
   }
   function dockStorePath() {
@@ -65236,7 +65244,13 @@ GitHub 仓库：${ghInfo.title}
             return false;
           }
         } : void 0,
-        unlink: typeof fs.unlinkSync === "function" ? (p) => fs.unlinkSync(p) : void 0
+        unlink: typeof fs.unlinkSync === "function" ? (p) => fs.unlinkSync(p) : void 0,
+        mkdir: typeof fs.mkdirSync === "function" ? (p) => {
+          try {
+            fs.mkdirSync(p, { recursive: true });
+          } catch (e) {
+          }
+        } : void 0
       };
     } catch (e) {
       return null;
@@ -66306,9 +66320,194 @@ GitHub 仓库：${ghInfo.title}
     }
   });
 
+  // src/dock/watchdog.ts
+  function processEnv() {
+    var _a2;
+    try {
+      const p = globalThis.process;
+      return (_a2 = p == null ? void 0 : p.env) != null ? _a2 : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function watchdogDirOf(env = processEnv()) {
+    var _a2, _b2, _c;
+    const local = (_a2 = env.LOCALAPPDATA) == null ? void 0 : _a2.trim();
+    if (local) return joinPath(local, WATCHDOG_DIRNAME);
+    const home = ((_b2 = env.USERPROFILE) == null ? void 0 : _b2.trim()) || ((_c = env.HOME) == null ? void 0 : _c.trim());
+    if (home) return joinPath(joinPath(joinPath(home, "AppData"), "Local"), WATCHDOG_DIRNAME);
+    return WATCHDOG_DIRNAME;
+  }
+  function watchdogPathOf(name, env = processEnv()) {
+    return joinPath(watchdogDirOf(env), name);
+  }
+  function depsOf2(d = {}) {
+    var _a2, _b2;
+    return {
+      env: (_a2 = d.env) != null ? _a2 : processEnv(),
+      fs: d.fs !== void 0 ? d.fs : currentFs(),
+      now: (_b2 = d.now) != null ? _b2 : Date.now()
+    };
+  }
+  function isPlainObject6(v) {
+    return !!v && typeof v === "object" && !Array.isArray(v);
+  }
+  function writeAtomic(fs, dir, path, data) {
+    ensureDir3(fs, dir);
+    if (fs.rename) {
+      const tmp = `${path}.tmp`;
+      fs.writeText(tmp, data);
+      fs.rename(tmp, path);
+      return;
+    }
+    fs.writeText(path, data);
+  }
+  function ensureDir3(fs, dir) {
+    var _a2;
+    (_a2 = fs.mkdir) == null ? void 0 : _a2.call(fs, dir);
+  }
+  function writeWatchdogLease(opts = {}) {
+    var _a2, _b2;
+    const { fs, now } = depsOf2(opts);
+    if (!fs) return false;
+    const payload = {
+      v: WATCHDOG_CONTRACT_VERSION,
+      owner: "bz-plugin",
+      pid: processPid(),
+      at: new Date(now).toISOString(),
+      tickMs: (_a2 = opts.tickMs) != null ? _a2 : 6e4
+    };
+    const vault = (_b2 = opts.vault) == null ? void 0 : _b2.trim();
+    if (vault) payload.vault = vault.replace(/[\\/]+$/, "");
+    try {
+      const dir = watchdogDirOf(opts.env);
+      writeAtomic(fs, dir, joinPath(dir, WATCHDOG_LEASE_FILENAME), JSON.stringify(payload, null, 2));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function processPid() {
+    try {
+      const p = globalThis.process;
+      return typeof (p == null ? void 0 : p.pid) === "number" && p.pid > 0 ? p.pid : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function parseRunNote(raw) {
+    if (!isPlainObject6(raw)) return null;
+    const toolId = typeof raw.toolId === "string" ? raw.toolId : "";
+    const at4 = typeof raw.at === "string" ? raw.at : "";
+    if (!toolId || !at4) return null;
+    const note = { toolId, at: at4, ok: raw.ok === true };
+    if (typeof raw.name === "string" && raw.name) note.name = raw.name;
+    if (typeof raw.message === "string" && raw.message) note.message = raw.message;
+    if (typeof raw.kind === "string" && raw.kind) note.kind = raw.kind;
+    return note;
+  }
+  function readWatchdogStatus(opts = {}) {
+    const { fs } = depsOf2(opts);
+    if (!fs) return null;
+    const raw = fs.readText(watchdogPathOf(WATCHDOG_STATUS_FILENAME, opts.env));
+    if (raw === null) return null;
+    let obj;
+    try {
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+    if (!isPlainObject6(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION) return null;
+    if (typeof obj.at !== "string" || typeof obj.pid !== "number") return null;
+    const mode = obj.mode === "watch" || obj.mode === "defer" || obj.mode === "off" ? obj.mode : "off";
+    const out = {
+      v: WATCHDOG_CONTRACT_VERSION,
+      pid: obj.pid,
+      startedAt: typeof obj.startedAt === "string" ? obj.startedAt : obj.at,
+      at: obj.at,
+      mode,
+      runsSinceBoot: typeof obj.runsSinceBoot === "number" && obj.runsSinceBoot >= 0 ? obj.runsSinceBoot : 0
+    };
+    if (typeof obj.vault === "string") out.vault = obj.vault;
+    if (typeof obj.core === "string") out.core = obj.core;
+    if (typeof obj.lastError === "string" && obj.lastError) out.lastError = obj.lastError;
+    const last = parseRunNote(obj.lastRun);
+    if (last) out.lastRun = last;
+    return out;
+  }
+  function isWatchdogAlive(status, now = Date.now(), toleranceMs = 9e4) {
+    const at4 = Date.parse(status.at);
+    return Number.isFinite(at4) && now - at4 <= toleranceMs;
+  }
+  function isWatchdogInstalled(opts = {}) {
+    const { fs } = depsOf2(opts);
+    if (!fs) return false;
+    const path = watchdogPathOf(WATCHDOG_CONFIG_FILENAME, opts.env);
+    return fs.exists ? fs.exists(path) : fs.readText(path) !== null;
+  }
+  function readWatchdogQueue(opts = {}) {
+    const { fs } = depsOf2(opts);
+    if (!fs) return [];
+    const raw = fs.readText(watchdogPathOf(WATCHDOG_QUEUE_FILENAME, opts.env));
+    if (raw === null) return [];
+    let obj;
+    try {
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return [];
+    }
+    if (!isPlainObject6(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION || !Array.isArray(obj.items)) return [];
+    const out = [];
+    for (const item of obj.items) {
+      const note = parseRunNote(item);
+      if (note) out.push(note);
+    }
+    return out.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  }
+  function consumeWatchdogQueue(played, opts = {}) {
+    const { fs } = depsOf2(opts);
+    if (!fs || !played.length) return;
+    const path = watchdogPathOf(WATCHDOG_QUEUE_FILENAME, opts.env);
+    const raw = fs.readText(path);
+    if (raw === null) return;
+    let obj;
+    try {
+      obj = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+    if (!isPlainObject6(obj) || !Array.isArray(obj.items)) return;
+    const playedKeys = new Set(played.map((n) => `${n.at}\0${n.toolId}`));
+    const rest = obj.items.filter((item) => {
+      const note = parseRunNote(item);
+      return !note || !playedKeys.has(`${note.at}\0${note.toolId}`);
+    });
+    const payload = { v: WATCHDOG_CONTRACT_VERSION, items: rest };
+    try {
+      writeAtomic(fs, watchdogDirOf(opts.env), path, JSON.stringify(payload, null, 2));
+    } catch (e) {
+    }
+  }
+  var WATCHDOG_DIRNAME, WATCHDOG_LEASE_FILENAME, WATCHDOG_STATUS_FILENAME, WATCHDOG_QUEUE_FILENAME, WATCHDOG_CONFIG_FILENAME, WATCHDOG_CONTRACT_VERSION;
+  var init_watchdog = __esm({
+    "src/dock/watchdog.ts"() {
+      init_declaration();
+      WATCHDOG_DIRNAME = "bz-dock-watch";
+      WATCHDOG_LEASE_FILENAME = "lease.json";
+      WATCHDOG_STATUS_FILENAME = "status.json";
+      WATCHDOG_QUEUE_FILENAME = "pending.json";
+      WATCHDOG_CONFIG_FILENAME = "config.json";
+      WATCHDOG_CONTRACT_VERSION = 1;
+    }
+  });
+
   // src/dock/scheduler.ts
   function globalAutoOn() {
     return readDockSwitch("autoRun");
+  }
+  function writeLease() {
+    const vault = app ? vaultBasePath(app) : void 0;
+    writeWatchdogLease({ vault, tickMs: TICK_MS });
   }
   function kickDockScheduler() {
     if (app === null) return;
@@ -66404,6 +66603,7 @@ GitHub 仓库：${ghInfo.title}
     if (ticking) return;
     ticking = true;
     try {
+      writeLease();
       try {
         await loadDockStore();
       } catch (e) {
@@ -66523,7 +66723,7 @@ GitHub 仓库：${ghInfo.title}
     notifyDockEvent({ kind: "tool-fail", toolId: entry.id });
     return "fail";
   }
-  var FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, RUN_TIMEOUT_MS, VAULT_CHANNELS, app, isUnloaded, sessionStart, inFlight, cooldownUntil, chain2, warnedParams, pendingEvents, subscriptions, ticking, kickQueued, valueCache, VALUE_TTL_MS;
+  var TICK_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, RUN_TIMEOUT_MS, VAULT_CHANNELS, app, isUnloaded, sessionStart, inFlight, cooldownUntil, chain2, warnedParams, pendingEvents, subscriptions, ticking, kickQueued, valueCache, VALUE_TTL_MS;
   var init_scheduler = __esm({
     "src/dock/scheduler.ts"() {
       init_fake_obsidian();
@@ -66535,6 +66735,8 @@ GitHub 仓库：${ghInfo.title}
       init_rules();
       init_ui13();
       init_runner();
+      init_watchdog();
+      TICK_MS = 6e4;
       FAIL_COOLDOWN_MS = 15 * 6e4;
       BREAKER_THRESHOLD = 3;
       RUN_TIMEOUT_MS = 10 * 6e4;
@@ -66688,13 +66890,15 @@ GitHub 仓库：${ghInfo.title}
     head.append(brand, title, pipe, sub, sp, btns);
     const kpi = el2("div", "bz-dock-kpi");
     kpi.id = "bz-dock-kpi";
+    const watchbar = el2("div", "bz-dock-watchbar");
+    watchbar.id = "bz-dock-watchbar";
     const runbar = el2("div", "bz-dock-runbar");
     runbar.id = "bz-dock-runbar";
     const bar = el2("div", "bz-dock-bar");
     bar.id = "bz-dock-bar";
     const body = el2("div", "bz-dock-body");
     body.id = "bz-dock-body";
-    frame2.append(head, kpi, runbar, bar, body);
+    frame2.append(head, kpi, watchbar, runbar, bar, body);
     ov.appendChild(frame2);
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closeDock();
@@ -66705,6 +66909,10 @@ GitHub 仓库：${ghInfo.title}
   function kpiEl() {
     var _a2;
     return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-kpi")) != null ? _a2 : null;
+  }
+  function watchbarEl() {
+    var _a2;
+    return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-watchbar")) != null ? _a2 : null;
   }
   function runbarEl() {
     var _a2;
@@ -66725,6 +66933,7 @@ GitHub 仓库：${ghInfo.title}
     try {
       await loadDockStore();
       views = await loadToolViews(hostApp2);
+      replayWatchdogRuns();
       runDueNotifications();
     } catch (e) {
       console.warn("[dock] 载入工具视图失败", e);
@@ -66733,6 +66942,37 @@ GitHub 仓库：${ghInfo.title}
       refreshing = false;
       render2();
     }
+  }
+  function errorKindOf(kind) {
+    switch (kind) {
+      case "auth":
+      case "network":
+      case "config":
+      case "timeout":
+      case "aborted":
+      case "unknown":
+        return kind;
+      default:
+        return "unknown";
+    }
+  }
+  function replayWatchdogRuns() {
+    if (!readDockSwitch("notifyMissed")) return;
+    const items = readWatchdogQueue();
+    if (!items.length) return;
+    const played = items.slice();
+    for (const it of items.slice(0, REPLAY_NOTIFY_MAX)) {
+      const name = it.name || it.toolId;
+      const when = relTime(it.at);
+      if (it.ok) {
+        notify(`${name} 完成（值守，${when}）`, { type: "success" });
+        continue;
+      }
+      notify(`${name} 失败（值守，${when}）：${errorHint(errorKindOf(it.kind))}`, { type: "error" });
+    }
+    const rest = items.length - REPLAY_NOTIFY_MAX;
+    if (rest > 0) notify(`另有 ${rest} 次离线运行，去工具坞看记录`, { type: "info" });
+    consumeWatchdogQueue(played);
   }
   function runDueNotifications() {
     if (!readDockSwitch("notifyMissed")) return;
@@ -66762,9 +67002,42 @@ GitHub 仓库：${ghInfo.title}
   function render2() {
     renderHead();
     renderKpi();
+    renderWatch();
     renderRunbar();
     renderBar();
     renderBody3();
+  }
+  function renderWatch() {
+    const host = watchbarEl();
+    if (!host) return;
+    host.innerHTML = "";
+    if (!isWatchdogInstalled()) {
+      host.classList.add("is-off");
+      return;
+    }
+    host.classList.remove("is-off");
+    const st = readWatchdogStatus();
+    const alive = st !== null && isWatchdogAlive(st);
+    const tone = !st || !alive ? "is-down" : st.mode === "watch" ? "is-on" : st.mode === "defer" ? "is-idle" : "is-shut";
+    const text2 = !st || !alive ? "值守进程没在运行" : st.mode === "watch" ? "离线值守中" : st.mode === "defer" ? "值守待命（Obsidian 在值守）" : "离线值守已关";
+    const row = el2("div", `bz-dock-wb ${tone}`);
+    row.appendChild(el2("span", "bz-dock-wb-dot"));
+    row.appendChild(el2("span", "bz-dock-wb-text", text2));
+    const meta = el2("div", "bz-dock-wb-meta");
+    if (st) {
+      meta.appendChild(el2("span", "bz-dock-wb-fact", `心跳 ${relTime(st.at)}`));
+      meta.appendChild(el2("span", "bz-dock-wb-fact", `本次开机跑了 ${st.runsSinceBoot} 次`));
+      if (st.lastRun) {
+        const n = st.lastRun.name || st.lastRun.toolId;
+        const mark = st.lastRun.ok ? "成功" : "失败";
+        meta.appendChild(el2("span", `bz-dock-wb-fact${st.lastRun.ok ? "" : " is-bad"}`, `上次 ${n} ${mark}`));
+      }
+      if (st.core) meta.appendChild(el2("span", "bz-dock-wb-fact", `值守件 ${st.core}`));
+    } else {
+      meta.appendChild(el2("span", "bz-dock-wb-fact", "还没有心跳 —— 计划任务可能没跑起来"));
+    }
+    row.appendChild(meta);
+    host.appendChild(row);
   }
   function renderKpi() {
     const host = kpiEl();
@@ -68304,7 +68577,7 @@ GitHub 仓库：${ghInfo.title}
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName2(v)}`);
   }
-  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2;
+  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, REPLAY_NOTIFY_MAX;
   var init_ui13 = __esm({
     "src/dock/ui.ts"() {
       init_fake_obsidian();
@@ -68325,6 +68598,7 @@ GitHub 仓库：${ghInfo.title}
       init_scheduler();
       init_rules();
       init_declaration();
+      init_watchdog();
       init_schedule();
       hostApp2 = null;
       overlay2 = null;
@@ -68341,6 +68615,7 @@ GitHub 仓库：${ghInfo.title}
       dueNotified = /* @__PURE__ */ new Set();
       OVERLAY_ID2 = "bz-dock-mask";
       FRAME_ID2 = "bz-dock-panel";
+      REPLAY_NOTIFY_MAX = 5;
     }
   });
 
@@ -68363,6 +68638,25 @@ GitHub 仓库：${ghInfo.title}
         await persistDockStore();
       }
     };
+  }
+  function watchdogRows() {
+    if (!isWatchdogInstalled()) {
+      return [
+        {
+          type: "info",
+          name: "离线值守",
+          desc: "还没装值守进程 —— Obsidian 关着时不会自动跑（装法：tools/dock-watch/install.ps1）"
+        }
+      ];
+    }
+    return [
+      {
+        type: "toggle",
+        name: "离线值守",
+        desc: "Obsidian 关着时由值守进程按同一份规则表跑（要求工具已信任、自动运行总闸开着）",
+        binding: switchBinding("watchdog")
+      }
+    ];
   }
   function resolvedRunOf(entry) {
     var _a2, _b2;
@@ -68462,9 +68756,10 @@ GitHub 仓库：${ghInfo.title}
             {
               type: "toggle",
               name: "启动后自动运行",
-              desc: "Obsidian 就绪后，bz 按各工具声明的节奏触发它：到点跑、该跑没跑就补跑。关掉则全部只手点",
+              desc: "Obsidian 就绪后，bz 按各工具声明的规则触发它：到点跑、该跑没跑就补跑。关掉则全部只手点",
               binding: switchBinding("autoRun")
-            }
+            },
+            ...watchdogRows()
           ]
         },
         {
@@ -68495,6 +68790,7 @@ GitHub 仓库：${ghInfo.title}
       init_data16();
       init_declaration();
       init_store2();
+      init_watchdog();
     }
   });
 

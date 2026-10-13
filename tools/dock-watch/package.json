@@ -1,0 +1,40 @@
+{
+  "name": "@jwbz/dock-watch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "工具坞值守进程——Obsidian 关着时，替它按同一份规则表跑外部工具（判据复用 src/dock 的 ruleDue，打包进 dock-core.cjs）",
+  "main": "watch.js",
+  "bin": {
+    "bz-dock-watch": "./cli.js"
+  },
+  "files": [
+    "cli.js",
+    "watch.js",
+    "decide.js",
+    "ledger.js",
+    "launch.js",
+    "runtime.js",
+    "dock-core.cjs",
+    "core-version.json",
+    "install.ps1",
+    "uninstall.ps1",
+    "test/"
+  ],
+  "scripts": {
+    "start": "node cli.js",
+    "once": "node cli.js --once",
+    "status": "node cli.js --status",
+    "check": "node --check cli.js && node --check watch.js && node --check decide.js && node --check ledger.js && node --check launch.js && node --check runtime.js",
+    "test": "npm run check && node --test \"test/*.test.mjs\""
+  },
+  "keywords": [
+    "obsidian",
+    "dock",
+    "watchdog",
+    "scheduler"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
