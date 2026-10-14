@@ -1,4 +1,4 @@
-<#
+﻿<#
 卸载工具坞值守进程（ADR-0242）。
 
 默认只做「停掉并注销自启」——配置、状态与日志都留着（重装即可继续，也便于事后翻日志）。
@@ -38,7 +38,7 @@ if (Test-Path -LiteralPath $lockFile) {
   Write-Host '· 没有锁文件，说明它当前没在跑'
 }
 
-# ---------- 2. 注销计划任务 ----------
+# ---------- 2. 注销自启动（计划任务，或回退时用的「启动」文件夹） ----------
 
 $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($task) {
@@ -46,6 +46,13 @@ if ($task) {
   Write-Host "✓ 已注销计划任务：$TaskName"
 } else {
   Write-Host "· 没有名为 $TaskName 的计划任务"
+}
+
+# install.ps1 注册计划任务被拒时会回退到「启动」文件夹 —— 两条路都要清，否则卸完还会自启
+$startupVbs = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\$TaskName.vbs"
+if (Test-Path -LiteralPath $startupVbs) {
+  Remove-Item -LiteralPath $startupVbs -Force
+  Write-Host "✓ 已删除启动文件夹里的启动器：$startupVbs"
 }
 
 # ---------- 3. 收拾目录 ----------

@@ -18,6 +18,9 @@ powershell -ExecutionPolicy Bypass -File tools/dock-watch/install.ps1
 1. 写下 `%LOCALAPPDATA%\bz-dock-watch\config.json`（服务哪个 vault、多久一拍）；
 2. 生成 `watch.vbs` —— 隐藏窗口的启动包装（node 是控制台程序，直接挂计划任务会闪黑框）；
 3. 注册**登录自启**的计划任务 `bz-dock-watch`（失败重试 3 次，不限最长运行时间）；
+   **注册被拒时**（标准用户上常见：`Register-ScheduledTask` 要提升的权限）自动回退到
+   「启动」文件夹 `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\` ——
+   同样是登录即启动，不需要管理员；
 4. 立刻起一次，并打印一句 `--status` 的命令。
 
 不给 `-Vault` 时它从 Obsidian 自己的库列表里挑**最近打开的那个**，并把挑中的路径打印出来。

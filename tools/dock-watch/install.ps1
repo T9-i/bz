@@ -1,10 +1,14 @@
-<#
+﻿<#
 工具坞值守进程的安装脚本（ADR-0242）。
 
-做三件事，一次做完：
+做四件事，一次做完：
   1. 写下 `%LOCALAPPDATA%\bz-dock-watch\config.json`（告诉值守进程服务哪个 vault、多久一拍）；
   2. 生成 `watch.vbs` —— **隐藏窗口**的启动包装（node 是控制台程序，直接挂计划任务会闪黑框）；
-  3. 注册登录自启的计划任务（当前用户权限，不需要管理员）。
+  3. 注册登录自启的计划任务（当前用户权限，不需要管理员）；
+  4. 注册被拒时（标准用户上常见）**回退到「启动」文件夹** —— 同样是登录自启，不需要管理员。
+
+注：本文件必须存成 **UTF-8 with BOM**。PowerShell 5.1 按系统代码页读脚本，
+无 BOM 的含中文脚本会整篇解析失败（报"字符串缺少终止符"那类莫名其妙的错）。
 
 用法（PowerShell 里跑，不需要管理员）：
   powershell -ExecutionPolicy Bypass -File install.ps1
@@ -124,31 +128,55 @@ Write-Host "✓ 启动器：$vbsPath"
 # ---------- 5. 注册计划任务 ----------
 
 if ($NoTask) {
-  Write-Host '· 跳过了计划任务注册（-NoTask）' -ForegroundColor DarkGray
+  Write-Host '· 跳过了自启动注册（-NoTask）' -ForegroundColor DarkGray
 } else {
-  $action = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "`"$vbsPath`""
-  $trigger = New-ScheduledTaskTrigger -AtLogOn
-  $settings = New-ScheduledTaskSettingsSet `
-    -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries `
-    -StartWhenAvailable `
-    -RestartCount 3 `
-    -RestartInterval (New-TimeSpan -Minutes 1) `
-    -ExecutionTimeLimit ([TimeSpan]::Zero)
-  $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
+  # 首选：计划任务（看得见、可 Start/Stop、失败重试 3 次）
+  try {
+    $action = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "`"$vbsPath`""
+    $trigger = New-ScheduledTaskTrigger -AtLogOn
+    $settings = New-ScheduledTaskSettingsSet `
+      -AllowStartIfOnBatteries `
+      -DontStopIfGoingOnBatteries `
+      -StartWhenAvailable `
+      -RestartCount 3 `
+      -RestartInterval (New-TimeSpan -Minutes 1) `
+      -ExecutionTimeLimit ([TimeSpan]::Zero)
+    $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
 
-  Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
-    -Description 'bz 工具坞值守：Obsidian 关着时按同一份规则表跑外部工具（判据复用插件的 ruleDue）' -Force | Out-Null
-  Write-Host "✓ 计划任务：$TaskName（登录时启动，隐藏窗口，失败重试 3 次）"
+    Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
+      -Description 'bz 工具坞值守：Obsidian 关着时按同一份规则表跑外部工具（判据复用插件的 ruleDue）' `
+      -Force -ErrorAction Stop | Out-Null
+    Write-Host "✓ 计划任务：$TaskName（登录时启动，隐藏窗口，失败重试 3 次）"
+    $script:taskOk = $true
+  } catch {
+    Write-Host "! 注册计划任务失败：$($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host '  常见原因：当前不是管理员（Register-ScheduledTask 要提升的权限）。改用「启动」文件夹。' -ForegroundColor DarkGray
+    $script:taskOk = $false
+  }
+
+  # 回退：启动文件夹（标准用户可写，同样是登录自启）
+  if (-not $script:taskOk) {
+    $startup = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Startup'
+    New-Item -ItemType Directory -Force -Path $startup | Out-Null
+    $startupVbs = Join-Path $startup "$TaskName.vbs"
+    Copy-Item -LiteralPath $vbsPath -Destination $startupVbs -Force
+    Write-Host "✓ 启动文件夹：$startupVbs"
+    Write-Host '  （登录即启动，隐藏窗口。卸载时 uninstall.ps1 会一并清掉）' -ForegroundColor DarkGray
+  }
 }
 
 if (-not $NoStart) {
   if ($NoTask) {
     Write-Host '· 直接起一次（前台验证）：' -ForegroundColor DarkGray
     & $Node $cliPath --once
-  } else {
+  } elseif ($script:taskOk) {
     Start-ScheduledTask -TaskName $TaskName
     Write-Host '✓ 已起一次。看它认不认得你的规则表：' -ForegroundColor Green
+    Write-Host "  & `"$Node`" `"$cliPath`" --status"
+  } else {
+    # 没有计划任务可 Start：直接用 node 起一个隐藏窗口的常驻进程
+    Start-Process -FilePath $Node -ArgumentList "`"$cliPath`"" -WindowStyle Hidden
+    Write-Host '✓ 已起一次（隐藏窗口的常驻进程）。看它认不认得你的规则表：' -ForegroundColor Green
     Write-Host "  & `"$Node`" `"$cliPath`" --status"
   }
 }

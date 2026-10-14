@@ -9,6 +9,13 @@
 **它不是工具坞工具**（工具是被调度方，它是调度方），所以不写 `manifest.json`、不进登记表。
 _Avoid_: 守护进程, 后台服务, 定时任务
 
+**自启动通道 (autostart channel)**:
+值守「登录即启动」的两条路：计划任务 `bz-dock-watch`（首选，看得见、可 Start/Stop、失败重试 3 次），
+以及注册被拒（标准用户上 `Register-ScheduledTask` 要提升的权限）时回退的
+「启动」文件夹 `%APPDATA%\...\Startup\bz-dock-watch.vbs`。两者都指向同一份 `watch.vbs`，
+卸载时两条都要清。
+_Avoid_: 计划任务（那只覆盖首选那条）、开机启动项
+
 **租约 (lease)**:
 `%LOCALAPPDATA%\bz-dock-watch\lease.json` —— 插件写的「我在场」声明（pid + 时刻 + vault）。
 值守看到一份新鲜的、且属于**本 vault** 的租约就让位。它是两个调度者之间唯一的仲裁物。
