@@ -1,4 +1,4 @@
-/* 源指纹 649b432844b929ea · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 d27f11dbef3bb57a · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -6818,6 +6818,7 @@ var BZW_dock = (() => {
   var RUNS_FILENAME = "runs.json";
   var RUNS_FILENAME_LEGACY = "dock.runs.json";
   var MAIN_ENTRY_FILENAME = "main.mjs";
+  var PANEL_FILENAME = "panel.html";
   var DOCK_SETTINGS_VERSION = 1;
   var injectedFs;
   function setDockFs(fs) {
@@ -6879,6 +6880,9 @@ var BZW_dock = (() => {
   }
   function runsPathFor(declPath) {
     return joinPath(dirOf(declPath), RUNS_FILENAME);
+  }
+  function panelPathFor(declPath) {
+    return joinPath(dirOf(declPath), PANEL_FILENAME);
   }
   function aliasOf(p, from, to) {
     var _a;
@@ -6977,6 +6981,11 @@ var BZW_dock = (() => {
     var _a;
     if (!fs) return null;
     return (_a = fs.readText(runsPathFor(declPath))) != null ? _a : fs.readText(joinPath(dirOf(declPath), RUNS_FILENAME_LEGACY));
+  }
+  function readPanelText(declPath, fs = currentFs()) {
+    if (!fs) return null;
+    const text = fs.readText(panelPathFor(declPath));
+    return text === null || text.trim() === "" ? null : text;
   }
 
   // src/dock/schedule.ts
@@ -9563,11 +9572,77 @@ var BZW_dock = (() => {
     }
     wrap.appendChild(meta);
     wrap.appendChild(autoSection(v));
+    const board = boardSection(v);
+    if (board) wrap.appendChild(board);
     const cols = el("div", "bz-dock-cols");
     cols.appendChild(runPane(v));
     cols.appendChild(histPane(v));
     wrap.appendChild(cols);
     body.appendChild(wrap);
+  }
+  var BOARD_MAX_BYTES = 512 * 1024;
+  var BOARD_MAX_HEIGHT = 520;
+  var BOARD_THEME_VARS = [
+    "--bz-surface-0",
+    "--bz-surface-1",
+    "--bz-surface-2",
+    "--bz-surface-3",
+    "--bz-text-1",
+    "--bz-text-2",
+    "--bz-text-3",
+    "--bz-border",
+    "--bz-brand",
+    "--bz-success",
+    "--bz-warning",
+    "--bz-danger",
+    "--bz-radius-sm",
+    "--bz-radius-md",
+    "--bz-font-ui",
+    "--bz-font-mono",
+    "--bz-space-xs",
+    "--bz-space-sm",
+    "--bz-space-md",
+    "--bz-space-lg"
+  ];
+  function boardThemeCss() {
+    const cs = getComputedStyle(document.body);
+    const decls = BOARD_THEME_VARS.map((name) => {
+      const value = cs.getPropertyValue(name).trim();
+      return value ? `${name}:${value}` : "";
+    }).filter(Boolean);
+    return decls.length ? `:root{${decls.join(";")}}` : "";
+  }
+  function fitBoardHeight(frame) {
+    var _a, _b, _c, _d;
+    const doc = frame.contentDocument;
+    if (!doc) return;
+    const h = Math.max((_b = (_a = doc.documentElement) == null ? void 0 : _a.scrollHeight) != null ? _b : 0, (_d = (_c = doc.body) == null ? void 0 : _c.scrollHeight) != null ? _d : 0);
+    if (h > 0) frame.style.height = `${Math.min(h, BOARD_MAX_HEIGHT)}px`;
+  }
+  function boardSection(v) {
+    const html = readPanelText(v.declPath);
+    if (html === null) return null;
+    const host = el("div", "bz-dock-board");
+    host.appendChild(el("h3", "bz-dock-pane-title", "展示板"));
+    if (html.length > BOARD_MAX_BYTES) {
+      host.appendChild(
+        el(
+          "div",
+          "bz-dock-board-warn",
+          `panel.html 有 ${Math.round(html.length / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`
+        )
+      );
+      return host;
+    }
+    const frame = document.createElement("iframe");
+    frame.className = "bz-dock-board-frame";
+    frame.setAttribute("sandbox", "allow-same-origin");
+    frame.setAttribute("title", `${displayName(v)} 的展示板`);
+    const base = "html,body{margin:0;padding:12px;box-sizing:border-box;background:transparent;color:var(--bz-text-1);font-family:var(--bz-font-ui);font-size:13px;line-height:1.6;overflow:auto}";
+    frame.srcdoc = `<style>${boardThemeCss()}${base}</style>${html}`;
+    frame.addEventListener("load", () => fitBoardHeight(frame));
+    host.appendChild(frame);
+    return host;
   }
   function toolStats(v) {
     const host = el("div", "bz-dock-kpi bz-dock-toolstats");

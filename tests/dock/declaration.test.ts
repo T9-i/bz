@@ -18,11 +18,14 @@ import {
   DECLARATION_FILENAME_LEGACY,
   DOCK_SETTINGS_VERSION,
   MAIN_ENTRY_FILENAME,
+  PANEL_FILENAME,
   SETTINGS_FILENAME,
   RUNS_FILENAME,
   dirOf,
   joinPath,
+  panelPathFor,
   readDeclaration,
+  readPanelText,
   readRunsText,
   readSettings,
   resolveRun,
@@ -86,13 +89,42 @@ describe('路径助手', () => {
     expect(joinPath('', 'x.json')).toBe('x.json');
   });
 
-  it('两份文件都固定在声明文件同目录（工具目录 = 声明文件所在目录）', () => {
+  it('几份文件都固定在声明文件同目录（工具目录 = 声明文件所在目录）', () => {
     expect(toolDirOf(DECL)).toBe(DIR);
     expect(settingsPathFor(DECL)).toBe(`${DIR}/${SETTINGS_FILENAME}`);
+    expect(panelPathFor(DECL)).toBe(`${DIR}/${PANEL_FILENAME}`);
     expect(DECLARATION_FILENAME).toBe('manifest.json');
     expect(SETTINGS_FILENAME).toBe('data.json');
     expect(RUNS_FILENAME).toBe('runs.json');
     expect(MAIN_ENTRY_FILENAME).toBe('main.mjs');
+    expect(PANEL_FILENAME).toBe('panel.html');
+  });
+});
+
+describe('readPanelText（展示板，ADR-0243）', () => {
+  const memFs = (files: Record<string, string>): DockFs => ({
+    readText: (p) => (p in files ? files[p] : null),
+    writeText: () => {
+      throw new Error('展示板是工具写的，bz 只读');
+    },
+  });
+
+  it('有内容就原样读出来（含换行与中文，不做任何加工）', () => {
+    const html = '<div class="score">今日积分 <b>52</b></div>\n';
+    const fs = memFs({ [`${DIR}/${PANEL_FILENAME}`]: html });
+    expect(readPanelText(DECL, fs)).toBe(html);
+  });
+
+  it('文件不在 → null（「没画展示板」，详情页那一块整块不出现）', () => {
+    expect(readPanelText(DECL, memFs({}))).toBeNull();
+  });
+
+  it('只有空白也算没画 —— 不留一个空框在那儿', () => {
+    expect(readPanelText(DECL, memFs({ [`${DIR}/${PANEL_FILENAME}`]: '  \n\t ' }))).toBeNull();
+  });
+
+  it('没有 fs（移动端）→ null，不假装读到了空展示板', () => {
+    expect(readPanelText(DECL, null)).toBeNull();
   });
 });
 

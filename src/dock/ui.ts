@@ -92,6 +92,7 @@ import {
 import {
   DECLARATION_FILENAME,
   readDeclaration,
+  readPanelText,
   resolveRun,
   type ResolvedRun,
 } from './declaration';
@@ -1773,11 +1774,117 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
   wrap.appendChild(meta);
   wrap.appendChild(autoSection(v));
 
+  // 展示板：工具自己画的一块，整宽放在两栏之上（详情页里第一眼看的就是「它给我看了什么」）
+  const board = boardSection(v);
+  if (board) wrap.appendChild(board);
+
   const cols = el('div', 'bz-dock-cols');
   cols.appendChild(runPane(v));
   cols.appendChild(histPane(v));
   wrap.appendChild(cols);
   body.appendChild(wrap);
+}
+
+// ---------- 展示板（工具自己画的那一块，ADR-0243） ----------
+
+/**
+ * 展示板文件的上限。面板不是浏览器：几百 KB 的文档灌进 srcdoc 会把「打开详情页」拖成秒级，
+ * 而展示板是「一眼看完的几行数」—— 想放长文该去写手册，不是塞这里。超了就不渲染并说清楚。
+ */
+const BOARD_MAX_BYTES = 512 * 1024;
+
+/** 展示板的高度上限（px）：超了让 iframe 自己滚，免得把参数表单和运行按钮挤到屏幕外 */
+const BOARD_MAX_HEIGHT = 520;
+
+/**
+ * 灌给展示板的主题变量 —— 只挑「画一块内容」够用的那一小撮。
+ * 给全套等于把面板内部 token 变成公开 API（日后重构得先问过所有工具），而这一小撮已经够
+ * 脚本画出「像是面板的一部分」的东西：底色/文字/描边/品牌色/圆角/字体/间距。
+ */
+const BOARD_THEME_VARS = [
+  '--bz-surface-0',
+  '--bz-surface-1',
+  '--bz-surface-2',
+  '--bz-surface-3',
+  '--bz-text-1',
+  '--bz-text-2',
+  '--bz-text-3',
+  '--bz-border',
+  '--bz-brand',
+  '--bz-success',
+  '--bz-warning',
+  '--bz-danger',
+  '--bz-radius-sm',
+  '--bz-radius-md',
+  '--bz-font-ui',
+  '--bz-font-mono',
+  '--bz-space-xs',
+  '--bz-space-sm',
+  '--bz-space-md',
+  '--bz-space-lg',
+];
+
+/** 把当前主题的变量抽成一段 CSS（一个都读不到就空串，展示板退回自己的默认样式） */
+function boardThemeCss(): string {
+  const cs = getComputedStyle(document.body);
+  const decls = BOARD_THEME_VARS.map((name) => {
+    const value = cs.getPropertyValue(name).trim();
+    return value ? `${name}:${value}` : '';
+  }).filter(Boolean);
+  return decls.length ? `:root{${decls.join(';')}}` : '';
+}
+
+/** 把 iframe 撑到内容那么高（sandbox 带 allow-same-origin 才读得到它自己的文档） */
+function fitBoardHeight(frame: HTMLIFrameElement): void {
+  const doc = frame.contentDocument;
+  if (!doc) return;
+  const h = Math.max(doc.documentElement?.scrollHeight ?? 0, doc.body?.scrollHeight ?? 0);
+  if (h > 0) frame.style.height = `${Math.min(h, BOARD_MAX_HEIGHT)}px`;
+}
+
+/**
+ * 展示板（ADR-0243）：工具目录里的 `panel.html`。工具自己画，详情页把它内嵌在「自动运行」
+ * 与「运行台 / 运行记录」之间，整宽。文件没有（或只有空白）就整块不出现。
+ *
+ * **为什么是沙箱 iframe，而不是净化后直接插进 DOM**：
+ *  - 直接插，一段 `<style>` 就会串到整个面板，一个没闭合的标签就会把后面的 DOM 吃掉；
+ *  - iframe 天然把这两样挡在框里，展示板的样式也只能影响它自己；
+ *  - `sandbox="allow-same-origin"` 但**刻意不给 `allow-scripts`** —— 里头的 `<script>`、
+ *    `on*` 属性、`javascript:` URL 一律不执行。这不是「不信写脚本的人」（他本来就能在本机跑
+ *    命令，防他毫无意义），而是别让一块展示区变成「面板里能跑任意代码」的口子 ——
+ *    哪天换个人来维护，这条口子一定会被当成能力用。
+ *  - 带 `allow-same-origin` 只是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度）。
+ */
+function boardSection(v: DockToolView): HTMLElement | null {
+  const html = readPanelText(v.declPath);
+  if (html === null) return null;
+
+  const host = el('div', 'bz-dock-board');
+  host.appendChild(el('h3', 'bz-dock-pane-title', '展示板'));
+
+  if (html.length > BOARD_MAX_BYTES) {
+    host.appendChild(
+      el(
+        'div',
+        'bz-dock-board-warn',
+        `panel.html 有 ${Math.round(html.length / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`,
+      ),
+    );
+    return host;
+  }
+
+  const frame = document.createElement('iframe');
+  frame.className = 'bz-dock-board-frame';
+  frame.setAttribute('sandbox', 'allow-same-origin');
+  frame.setAttribute('title', `${displayName(v)} 的展示板`);
+  // 面板给展示板的基线（撑满 + 跟随主题 + 一点内边距）：展示板自己写的样式盖得掉这些
+  const base =
+    'html,body{margin:0;padding:12px;box-sizing:border-box;background:transparent;' +
+    'color:var(--bz-text-1);font-family:var(--bz-font-ui);font-size:13px;line-height:1.6;overflow:auto}';
+  frame.srcdoc = `<style>${boardThemeCss()}${base}</style>${html}`;
+  frame.addEventListener('load', () => fitBoardHeight(frame));
+  host.appendChild(frame);
+  return host;
 }
 
 /**

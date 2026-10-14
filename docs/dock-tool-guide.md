@@ -2,16 +2,17 @@
 
 **读者：要写一个能被 bz「工具坞」登记、运行、观测的外部脚本的 agent 或人。**
 
-你写三件事：**一份 `manifest.json` 声明自己是谁、有哪些参数、该怎么跑；运行时按四行协议往 stdout 说话；再自己往目录里写一份运行记录。** 不 import 任何 bz 代码，bz 也不关心你脚本里是什么。
+你写三件事：**一份 `manifest.json` 声明自己是谁、有哪些参数、该怎么跑；运行时按四行协议往 stdout 说话；再自己往目录里写一份运行记录。** 想让详情页里也显示点自己的东西（积分、今日条数……），可以再画一块**展示板**（§5）。不 import 任何 bz 代码，bz 也不关心你脚本里是什么。
 
 真理源：`src/dock/schema.ts`（校验）、`src/dock/declaration.ts`（文件与路径）、`src/core/external-tool.ts`（协议）、`src/dock/runner.ts`（拉起与环境变量）、`src/dock/rules.ts` + `src/dock/scheduler.ts`（规则表与自动触发）、`src/dock/watchdog.ts`（离线值守的租约与状态）。**本文与代码冲突以代码为准**，并顺手改这里。
 
-## 0. 四份文件，四个写者
+## 0. 五份文件，四个写者
 
 | 文件 | 位置 | 谁写 | 内容 |
 |---|---|---|---|
 | `manifest.json` | 工具目录 | **你**（手写） | id / 名字 / 参数表 / 怎么跑 / 种子节奏 |
 | `runs.json` | 工具目录 | **你**（运行时写） | 每次运行一条记录 |
+| `panel.html` | 工具目录 | **你**（手写或运行时写） | 详情页里那块展示板，爱画什么画什么（§5） |
 | `data.json` | 工具目录 | **bz** | 用户填的参数值（凭据的家，不在 vault 里） |
 | 登记项（含规则表、信任） | bz 数据目录的 `dock.json` | **bz** | 跟你无关 |
 
@@ -212,7 +213,68 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 
 判据是**谁启动**：bz 拉起的都是在场（含自动触发，实时回显、能停止）；**值守进程**在 Obsidian 关着时拉起 = 离场（只有记录，没有 stdout）。**所以 `info` / `result` 一定要写进记录**，否则离场那次就丢了。
 
-## 5. 示例：照着抄
+## 5. 展示板：给工具一块画布
+
+详情页「运行台」上方有一块**整宽**区域，内容完全由你决定：工具目录里有 `panel.html` 就渲染它，
+没有（或只有空白）就整块不出现。签到脚本在这儿显示「本月积分 530」、抓取脚本显示「今日入库 12 条」，
+都是它。
+
+### 5.1 最小的一个
+
+`panel.html`（与 `manifest.json` 同目录）：
+
+```html
+<div style="display:flex;align-items:baseline;gap:8px">
+  <span style="font-size:28px;font-weight:600;color:var(--bz-brand)">530</span>
+  <span style="color:var(--bz-text-3);font-size:12px">本月积分</span>
+</div>
+```
+
+写完就有了 —— 不用在 `manifest.json` 里声明什么，也不用通知 bz。
+
+### 5.2 三条硬约束
+
+**① 沙箱里没有 JavaScript。** 面板用一个 `sandbox="allow-same-origin"` 的 iframe 装它，
+**不给 `allow-scripts`**：里头的 `<script>`、`onclick` 这类属性、`javascript:` 链接
+**一律不会执行**，也不报错，就是静静地不跑。内容要更新就**重写文件** —— 脚本跑完把新数字写进去，
+面板在运行结束后会自动重读。
+
+**② 单文件自包含。** 相对路径解析不到你的工具目录（外面套着一层 iframe）——
+图片、字体、额外的 CSS 都得内联（图片用 `data:` URI）。`<style>` 标签**可以**用，它只影响框内。
+
+**③ 上限 512 KB / 520 px。** 超 512 KB 不渲染（面板不是浏览器，别拿它当第二个手册）；
+内容高过 520 px 的部分在框内滚动，不会把运行台的参数表单挤到屏幕外。
+
+### 5.3 跟着主题走
+
+面板会把自己当前的 CSS 变量灌进框里，直接用就是，深浅色自动跟随：
+
+| 变量 | 用途 |
+|---|---|
+| `--bz-text-1` / `--bz-text-2` / `--bz-text-3` | 主 / 次 / 弱文字 |
+| `--bz-surface-0` … `--bz-surface-3` | 四档底色（0 最深） |
+| `--bz-border` | 描边色 |
+| `--bz-brand` / `--bz-success` / `--bz-warning` / `--bz-danger` | 品牌 / 成功 / 警告 / 危险 |
+| `--bz-radius-sm` / `--bz-radius-md` | 圆角 |
+| `--bz-font-ui` / `--bz-font-mono` | 字体 |
+| `--bz-space-xs` … `--bz-space-lg` | 间距 |
+
+框的默认样式是「透明底 + 12px 内边距 + 13px 字号 + 1.6 行高」，你的 `<style>` 盖得掉。
+**只灌了这些** —— 面板内部还有别的变量，别依赖它们（那些不是给你的，会变）。
+
+### 5.4 谁来写、什么时候写
+
+**你写，bz 只读**（同 `runs.json`）。数据变了就重写：
+
+```js
+// 跑完拿到结果之后
+fs.writeFileSync(path.join(DIR, 'panel.html'), renderPanel({ points: 530 }));
+```
+
+**原子写**（tmp + rename）—— 与记录同一条纪律：面板随时可能正在读它，写到一半的 HTML
+会让展示板当场崩一下。静态展示板也可以在交付时手写一份，之后由脚本按需更新。
+
+## 6. 示例：照着抄
 
 **完整可跑的样板**（四行协议 + 原子写记录 + exitCode 收尾，三件事都在里面）：
 
@@ -225,7 +287,7 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 3. 收尾**一定**写一条记录（含 `status` / `startedAt` / `message`，失败补 `error.kind`）：tmp + rename，`runs` 截到 200 条。
 4. 用 `process.exitCode = 1` / `sys.exit(1)` 收尾 —— **不要 `process.exit()`**，stdout 走管道是异步的，立刻退出会截断输出。
 
-## 6. 不要做
+## 7. 不要做
 
 - 不要让 id 与 `runs.json` 的 `tool` 不一致。
 - 不要把 `secret` 写进记录的 `params`。
@@ -242,8 +304,11 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 - 别 try/catch 吞掉异常后 `exit 0`（bz 会判成功）。
 - 别在脚本里做「今天跑过了就跳过」以外的调度判断 —— 该不该跑是 bz 的活。
 - 改了 `run` 段记得去详情页重新确认信任，否则表现为「突然不跑了」。
+- 别指望 `panel.html` 里的 `<script>` 会跑（沙箱不给 `allow-scripts`，见 §5.2）—— 它不执行，
+  也不报错，静静地什么都不发生。
+- 别在 `panel.html` 里引外部资源（相对路径与 `file://` 都拿不到，见 §5.2）—— 要什么就内联进去。
 
-## 7. 提交前自检
+## 8. 提交前自检
 
 1. `manifest.json` 能 `JSON.parse`，`v===1`、id 合法、`name` 非空。
 2. id 与记录里的 `tool` 逐字一致。
@@ -257,10 +322,11 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 10. 参数表逐项自问：用户看到能凭自己填对吗？填不对的回脚本里写死。
 11. **从面板点一次「运行」验证传参链**，别只靠命令行自测 —— 手工传参容易顺手用了和 `key` 不同拼写的名字（连字符 vs 下划线），把不一致正好盖住（实例见 2.2）。
 
-## 8. 相关
+## 9. 相关
 
 - **参考实现**：`E:\Obsidian\叫我包仔\CONFIG\SCRIPTS\DockTools\iamtxt-signin\`（`manifest.json` + `main.mjs`，接口写死、参数只留 Cookie）。工具放 vault 内只是这位用户的习惯 —— 放 vault 外一样能登记。
 - 源码：契约 `src/dock/schema.ts` · 文件路径 `src/dock/declaration.ts` · 协议 `src/core/external-tool.ts` · 拉起与环境变量 `src/dock/runner.ts` · 规则表 `src/dock/rules.ts` · 调度与熔断 `src/dock/scheduler.ts`
 - **离线值守**：进程本体与装法 `tools/dock-watch/README.md` · 租约与状态接口 `src/dock/watchdog.ts` · 判据打包面 `src/dock/watch-core.ts`（改判据要重跑 `node scripts/build-dock-watch.mjs`）
+- **展示板**：文件名与读取 `src/dock/declaration.ts` 的 `PANEL_FILENAME` / `readPanelText` · 渲染 `src/dock/ui.ts` 的 `boardSection`（沙箱口径与主题变量清单都在那一段注释里）
 - 面板数据住**数据目录** `dock.json`（ADR-0239）；**信任住本机插件设置** —— 换 vault / 换机器要重新确认。
-- ADR：0235（声明文件自描述）、0236（bz 调度 + 记录归工具目录）、0237（文件名对齐插件惯例 + `main.mjs`）、0239（面板数据搬出插件设置、信任留本机）、0242（离线值守：判据复用 + 租约互斥）
+- ADR：0235（声明文件自描述）、0236（bz 调度 + 记录归工具目录）、0237（文件名对齐插件惯例 + `main.mjs`）、0239（面板数据搬出插件设置、信任留本机）、0242（离线值守：判据复用 + 租约互斥）、0243（展示板：脚本画 `panel.html`，沙箱 iframe 内嵌）

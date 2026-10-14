@@ -57,6 +57,12 @@ export const RUNS_FILENAME_LEGACY = 'dock.runs.json';
 /** 约定入口文件名：声明没写 `run` 段时，目录里有它就视为 `node main.mjs`（ADR-0237） */
 export const MAIN_ENTRY_FILENAME = 'main.mjs';
 
+/**
+ * 展示板文件名（**工具写、bz 只读**，ADR-0243）：工具自己画的一块内容，详情页里内嵌在
+ * 「运行台」上方那块区域。单文件自包含 —— 样式与图片都要内联进去，外链在这个语境里拿不到。
+ */
+export const PANEL_FILENAME = 'panel.html';
+
 /** 设置文件版本（不认识的版本视为没有值，不猜） */
 export const DOCK_SETTINGS_VERSION = 1;
 
@@ -177,6 +183,11 @@ export function settingsPathFor(declPath: string): string {
 /** 运行记录路径 = 声明文件同目录 + `runs.json`（`BZ_DOCK_RUNS_FILE` 注入的就是它） */
 export function runsPathFor(declPath: string): string {
   return joinPath(dirOf(declPath), RUNS_FILENAME);
+}
+
+/** 展示板路径（与声明同址；工具自己往里写，bz 只读） */
+export function panelPathFor(declPath: string): string {
+  return joinPath(dirOf(declPath), PANEL_FILENAME);
 }
 
 /** 工具目录（声明文件所在目录） */
@@ -387,4 +398,16 @@ export function readRunsText(declPath: string, fs: DockFs | null = currentFs()):
     fs.readText(runsPathFor(declPath)) ??
     fs.readText(joinPath(dirOf(declPath), RUNS_FILENAME_LEGACY))
   );
+}
+
+/**
+ * 读展示板原文（**只读**，同 `readRunsText` 的理由 —— bz 一写就成了第二个写者）。
+ *
+ * 没有 / 读不到 / 只有空白 = null：对详情页来说「这个工具没画展示板」与「画了个空的」
+ * 是同一件事 —— 那一块整块不出现，不留一个空框在那儿。
+ */
+export function readPanelText(declPath: string, fs: DockFs | null = currentFs()): string | null {
+  if (!fs) return null;
+  const text = fs.readText(panelPathFor(declPath));
+  return text === null || text.trim() === '' ? null : text;
 }

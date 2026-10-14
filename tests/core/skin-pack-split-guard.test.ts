@@ -6,6 +6,11 @@
  * ADR-0199 只为一件事开例外：**远端皮肤包**。例外一旦有第二处使用就废了，所以这里把它
  * 焊死：全仓除 `src/core/skin-pack.ts` 外，任何 `.ts` 都不许构造/注入 `<style>`。
  *
+ * 唯一的收窄（ADR-0243）：`<style>` 出现在 **`srcdoc=` 那一行**时放行 —— 那种写法进的是
+ * iframe 的**沙箱文档**，影响不到面板，与铁律 4 防的方向（域拿运行时样式绕过设计系统、
+ * 污染宿主文档）正好相反。判据是**逐行**的：同一个文件里另加一处「插进宿主文档」的
+ * `<style>` 照样被拦，所以这不算开白名单。
+ *
  * 同时跑两支迁移/出版脚本的 `--check`：切分器残留（源里还留着该搬走的皮肤规则）与
  * 出版产物落后（改了皮没重出版）都是**静默失效**，必须在这里拦下。
  */
@@ -46,6 +51,14 @@ const STYLE_INJECTION = [
   /insertAdjacentHTML\([^)]*<style/i,
 ];
 
+/**
+ * 这一行是不是「进沙箱文档」的那种写法（ADR-0243）：`<style>` 与 `srcdoc=` 同处一行。
+ *
+ * `srcdoc` 只可能是 iframe 的属性，所以这个判据实际锁定的是「拼进 srcdoc 的字符串」，
+ * 而不是「往宿主文档塞样式」——后者不会跟 `srcdoc` 出现在同一行。
+ */
+const isSandboxStyleLine = (line: string): boolean => /<style[\s>]/i.test(line) && /\bsrcdoc\b/.test(line);
+
 const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
 
 describe('唯一注入点守卫（铁律 4 / ADR-0199）', () => {
@@ -55,7 +68,10 @@ describe('唯一注入点守卫（铁律 4 / ADR-0199）', () => {
       if (rel === INJECTION_OWNER) continue;
       const code = stripComments(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
       for (const re of STYLE_INJECTION) {
-        if (re.test(code)) {
+        // 命中还不够，得看**命中的那几行长什么样**：全部落在 `srcdoc=` 那一行才算进沙箱文档
+        // （ADR-0243）；漏一行就照旧算破例。
+        const hits = code.split('\n').filter((line) => re.test(line));
+        if (hits.length > 0 && !hits.every(isSandboxStyleLine)) {
           offenders.push(`${rel}（命中 ${re}）`);
           break;
         }

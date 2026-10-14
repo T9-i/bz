@@ -26,11 +26,11 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 ## 坑
 - Git Bash 里 pnpm 起不来（shim 把路径解析成 `D:\d\...`）→ 用 PowerShell，或 `node node_modules/<包>/…` 直调。
 - `git worktree remove` 后常残留 `node_modules`，要另删。**删前必须先 `cmd /c rmdir` 掉 worktree 里的 `node_modules` junction**——worktree 的 junction 指向主仓 node_modules 时，remove/remove --force 会穿透删除主仓 `.pnpm` 里的包（表层包还在、深处依赖悬空，测试报 Cannot find module）；穿透后 `pnpm install` 修不回（workspace 状态文件误判 up to date），要 `rm -rf node_modules && pnpm install` 整体重建（store 硬链接，很快）。
-- 皮肤顺序固定：`skin-pack → changelog → manifest`（`manifest` 对已出版的 css 现算 sha256，顺序错则插件端校验不过）。
+- 皮肤顺序固定：`skin-pack → changelog → manifest`（`manifest` 对已出版的 css 现算 sha256，顺序错则插件端校验不过）。**少跑 `manifest` = 清单永远停在上一版**（`changelog` 重出了出版页、sha256 却没跟着算），而且只有跑门禁时 `skin-pack-split-guard` 才会说话。
 - 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
 
 ## 提交
-Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。提交后跑 `pnpm changelog`。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `pnpm run build` → 子代理 review → 清 worktree。
+Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `skin-pack` → `changelog` → `manifest` → `build`（四步都要，前三个顺序固定）→ 子代理 review → 清 worktree。
 
 占 issues / ADR 编号前先查主仓库最新号；拍板结论进 `.scratch/memo-suite-plugin/spec.md`，决策进 `docs/adr/` 并同步 `CONTEXT.md`。
 
@@ -42,6 +42,6 @@ Conventional Commits，**提交信息即更新日志正文**（写法 `docs/chan
 | 单源域名单 | `build-preview.mjs` 的 `PREVIEW_DOMAINS` / `BEHAVIOR_DOMAINS` |
 | 皮肤清单 | `scripts/skins.catalog.json` |
 | 离线值守（Obsidian 关着也跑） | `tools/dock-watch/README.md`（装法/排障）· 租约与状态接口 `src/dock/watchdog.ts` · ADR-0242 |
-| 写一个接入工具坞的外部脚本 | `docs/dock-tool-guide.md`（声明文件 / 参数值文件 / 四行协议 / 运行记录） |
+| 写一个接入工具坞的外部脚本 | `docs/dock-tool-guide.md`（声明文件 / 参数值文件 / 四行协议 / 运行记录 / 展示板 `panel.html`） |
 
 本文与代码冲突时以代码为准，并顺手改这里。历史注释里的「铁律 N」是旧编号，按内容找，别按号找。
