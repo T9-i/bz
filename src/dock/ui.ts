@@ -1727,6 +1727,11 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
     wrap.appendChild(box);
   }
 
+  // 展示板**排在最前**：详情页第一眼该看到的是「这个工具给我看了什么」，而不是它怎么跑、
+  // 上次跑成什么样。工具没画（目录里没有 panel.html）就没有这一块，其余照旧往下排。
+  const board = boardSection(v);
+  if (board) wrap.appendChild(board);
+
   // 统计：**当前脚本**的（全局四格只在列表页有）
   wrap.appendChild(toolStats(v));
 
@@ -1773,10 +1778,6 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
   }
   wrap.appendChild(meta);
   wrap.appendChild(autoSection(v));
-
-  // 展示板：工具自己画的一块，整宽放在两栏之上（详情页里第一眼看的就是「它给我看了什么」）
-  const board = boardSection(v);
-  if (board) wrap.appendChild(board);
 
   const cols = el('div', 'bz-dock-cols');
   cols.appendChild(runPane(v));
@@ -1880,7 +1881,8 @@ function boardSection(v: DockToolView): HTMLElement | null {
   if (html === null) return null;
 
   const host = el('div', 'bz-dock-board');
-  host.appendChild(el('h3', 'bz-dock-pane-title', '展示板'));
+  // **不给标题**：这块就是「工具自己画的东西」，摆在最前、一眼就该看出来是什么 ——
+  // 再写个「展示板」是面板在自说自话（iframe 的 `title` 属性留给读屏，那里需要一个名字）
 
   // 按**字节**算：字符串的 `length` 是 UTF-16 码元数，中文一个码元要占三字节 —— 拿码元当上限
   // 等于对中文内容把门槛放成三倍，而展示板恰恰最可能是中文写的
