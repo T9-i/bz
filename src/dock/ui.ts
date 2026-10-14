@@ -31,7 +31,7 @@ import { topifyZ } from '../core/z-order';
 import { escManager } from '../core/esc-manager';
 import { trapPanelFocus } from '../core/ui/focus-trap';
 import { notice, notify } from '../core/notice';
-import { uiBtn, uiIconBtn, uiBtnRow, uiChip, uiChoice, uiEmpty, uiField, uiInput, uiModal, uiProgress, uiSearch, uiSelect, uiSwitch, uiIcon } from '../core/ui';
+import { uiBtn, uiIconBtn, uiBtnRow, uiChip, uiChoice, uiDialogActions, uiEmpty, uiField, uiInput, uiModal, uiProgress, uiSearch, uiSelect, uiSwitch, uiIcon } from '../core/ui';
 import { bindFormSubmit } from '../core/ui/modal';
 import { openFlowDialog } from '../core/flow-dialog';
 import { pickSystemFiles, pickSystemFolder } from '../core/path-picker';
@@ -2599,8 +2599,13 @@ async function reloadDeclaration(v: DockToolView): Promise<void> {
   await refresh();
 }
 
-/** 节奏 → 人话（只认节奏对象本身；**声明那份与用户覆盖那份共用这一份口径**，免得两处措辞漂开） */
-function scheduleTextOf(s: DockSchedule | undefined): string {
+/**
+ * 节奏 → 人话（只认节奏对象本身；**声明那份与用户覆盖那份共用这一份口径**，免得两处措辞漂开）。
+ *
+ * `withNote: false` 给信任框用：`note` 是工具作者写给使用者的提示（「模拟器关着会自动拉起」…），
+ * 详情页该显示，但在信任框那一行里会和后面的前提说明叠成两个连着的括号，像一句话念了两遍。
+ */
+function scheduleTextOf(s: DockSchedule | undefined, withNote = true): string {
   if (!s) return '未声明';
   const base: Record<string, string> = {
     daily: '每天一次',
@@ -2611,13 +2616,8 @@ function scheduleTextOf(s: DockSchedule | undefined): string {
   };
   const parts = [base[s.kind] ?? s.kind];
   if (s.kind === 'daily' && s.hour !== undefined) parts.push(`${String(s.hour).padStart(2, '0')}:00 前`);
-  if (s.note) parts.push(`（${s.note}）`);
+  if (withNote && s.note) parts.push(`（${s.note}）`);
   return parts.join('');
-}
-
-/** 声明里那份节奏的人话（保留旧签名，内部转调 `scheduleTextOf`） */
-function scheduleText(m: DockManifest): string {
-  return scheduleTextOf(m.schedule);
 }
 
 /** 到期时刻 → 人话（当天说「今天 HH:MM」，跨天说「M-D HH:MM」） */
@@ -2640,42 +2640,105 @@ function runTextOf(run: ResolvedRun | null): string {
 /**
  * 信任确认（spec D7：加一次，长期有效；不做每次执行前确认）。
  *
- * 对话框里摆的全是**从声明里读到的事实** —— 用户是在核对，不是在填空。顺序也对：
- * 这些内容是在建立信任**之前**显示出来的，因为读声明本来就只需要读一个文件。
+ * 这一框**不是「是/否」问句，是一张核对表** —— 用户在做的是核对「这东西会跑什么」。
+ * 所以它不走 `openFlowDialog`：那个组件的 `message` 是一段散文（`\n` → `<br>`，整体居中、
+ * 400px 窄卡、全篇一个字号），一句话能摆下，九行事实摆进去就成了一坨 —— 路径按词居中折行、
+ * 「会跑什么」和「免责说明」一样重，等于没有重点（issue 543）。
+ * 改域内自绘 `uiModal`，与规则编辑框同一套壳（`.bz-dock-rulemodal` 先例）。
+ *
+ * 层级按**决策要用到的顺序**排，不按字段顺序：
+ *   ① 它是什么（名 + 一句描述）
+ *   ② 会跑什么 —— 等宽代码块。信任的对象就是这条命令，所以它是这屏的重点，不是备注；
+ *   ③ 配套事实（工作目录 / 声明文件 / 节奏 / 参数）：标签定宽、值左对齐，路径等宽且允许任意断行
+ *      （路径没有空格，按词折行必然折出参差的居中块）；
+ *   ④ 信任语义：最弱一档，一条分隔线隔开，不再和事实抢注意力。
  */
-async function confirmTrust(
+function confirmTrust(
   manifest: DockManifest,
   declPath: string,
   run: ResolvedRun | null,
   title: string,
   accept: string,
 ): Promise<boolean> {
-  // 增量构造：只跳过**缺席的可选行**（描述 / cwd），刻意的空行分段必须活着 ——
-  // 一把梭的 `.filter(s => s !== '')` 会把分隔空行一并吃掉，核对信息挤成一坨
-  const lines: string[] = [manifest.name];
-  if (manifest.description) lines.push(manifest.description);
-  lines.push('', `会跑：${runTextOf(run)}`);
-  if (run?.cwd) lines.push(`工作目录：${run.cwd}`);
-  lines.push(`声明文件：${declPath}`, '');
-  lines.push(
-    manifest.schedule
-      ? `节奏：${scheduleText(manifest)}（自动化；bz 会在它开着时按节奏跑）`
-      : '节奏：未声明（手动）',
+  // 旧 openFlowDialog 自带「新框顶替旧框」，同时只会有一个；uiModal 不会，显式挡一道。
+  // 返回 false = 没确认 → 导入中止，是安全的那一侧。
+  if (document.querySelector('.bz-dock-trustmodal')) return Promise.resolve(false);
+
+  const body = el('div', 'bz-dock-trust');
+
+  // ① 它是什么
+  const who = el('div', 'bz-dock-trust-who');
+  who.appendChild(el('div', 'bz-dock-trust-name', manifest.name));
+  if (manifest.description) who.appendChild(el('div', 'bz-dock-trust-desc', manifest.description));
+  body.appendChild(who);
+
+  // ② 会跑什么 —— 这屏的重点
+  const runSec = el('div', 'bz-dock-trust-runsec');
+  runSec.appendChild(el('div', 'bz-dock-trust-runlabel', '会跑什么'));
+  const runText = runTextOf(run);
+  const cmd = el('code', 'bz-dock-trust-cmd', runText);
+  cmd.title = runText; // 命令很长被折行时，悬停仍能看全
+  runSec.appendChild(cmd);
+  body.appendChild(runSec);
+
+  // ③ 配套事实：标签定宽一列对齐，值左对齐起 —— 扫读的是值，不是居中散开的碎句子
+  const facts = el('div', 'bz-dock-trust-facts');
+  const fact = (label: string, value: string, isPath = false): void => {
+    const row = el('div', 'bz-dock-trust-fact');
+    row.appendChild(el('span', 'bz-dock-trust-factk', label));
+    const v = el('span', `bz-dock-trust-factv${isPath ? ' is-path' : ''}`, value);
+    v.title = value;
+    row.appendChild(v);
+    facts.appendChild(row);
+  };
+  if (run?.cwd) fact('工作目录', run.cwd, true);
+  fact('声明文件', declPath, true);
+  // withNote=false：作者那句提示留给详情页，不在这里和下面的前提挤成两个括号
+  fact('节奏', manifest.schedule ? scheduleTextOf(manifest.schedule, false) : '未声明（只手动跑）');
+  fact('参数', `${manifest.params.length} 个`);
+  body.appendChild(facts);
+
+  // ④ 信任语义：弱化小字。三句都是前提，一句都不能省 ——
+  // 这是安全框，省略就会变成「我到底在同意什么」（旧文案里「读声明不需要信任」那句要留着：
+  // 它解释了为什么用户是在文件已经被读完之后才被问）
+  body.appendChild(
+    el(
+      'div',
+      'bz-dock-trust-note',
+      '读声明不需要信任，建立之后工具坞才会运行它。' +
+        '信任的对象是「那条命令」——建立一次长期有效，命令变了会重新问。' +
+        '节奏取声明里的默认值（可在工具详情页改），bz 开着的时候才会按它跑。',
+    ),
   );
-  lines.push(`参数：${manifest.params.length} 个`, '');
-  lines.push(
-    '建立信任之后工具坞才会运行它（读声明不需要信任）。信任的对象是「那条命令」，',
-    '建立一次长期有效；以后命令变了会重新问一次。',
-  );
-  const v = await openFlowDialog({
-    title,
-    message: lines.join('\n'),
-    actions: [
-      { label: '取消', value: 'cancel' },
-      { label: accept, value: 'ok', cta: true },
-    ],
+
+  return new Promise<boolean>((resolve) => {
+    let closeRef: () => void = () => undefined;
+    // 先 resolve 再 close：close 会触发 onClose（= 取消），先 resolve 才拿得到本次这个答案
+    const settle = (v: boolean): void => {
+      resolve(v);
+      closeRef();
+    };
+    // 焦点与旧流程框一致：落在主动作（回车 = 接受）。刻意不改这条语义 —— 只改排版，
+    // 顺手把「回车确认」换成「回车取消」是另一个决定，不该夹带进来。
+    const actions = uiDialogActions({
+      cancelText: '取消',
+      okText: accept,
+      onCancel: () => settle(false),
+      onOk: () => settle(true),
+    });
+    body.appendChild(actions.row);
+
+    const { close } = uiModal({
+      head: true,
+      title,
+      content: body,
+      maxWidth: 520, // 比确认框的 400 宽：这一屏要摆两条完整路径
+      className: 'bz-dock-trustmodal',
+      onClose: () => resolve(false), // 遮罩 / ESC = 取消
+    });
+    closeRef = close;
+    actions.okBtn.focus();
   });
-  return v === 'ok';
 }
 
 // ==================== 登记（导入声明 / 重新导入 / 停用 / 移除） ====================

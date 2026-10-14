@@ -662,6 +662,74 @@
   border-top: 1px solid var(--bz-border);
 }
 
+/* ---------- 信任确认框（导入声明那一屏的核对表） ----------
+   issue 543：这一框原先走 core openFlowDialog，而那个组件把 message 当**一段散文**渲染
+   —— 整体居中、400px 窄卡、全篇一个字号字重，`<br>` 只是换行不构成层级。一句话摆得下，
+   九行事实摆进去就成一坨：路径按词居中折行、命令与免责说明一样重、看的人找不到重点。
+   核对表被排成散文，就没人能核对 —— 所以改域内自绘（`.bz-dock-rulemodal` 同一套壳）。
+   层级按「决策要用到的顺序」：它是什么 → 会跑什么 → 配套事实 → 信任语义。
+   全部左对齐：这一次读的是**键值**，居中的多行键值最难扫。 */
+.bz-dock-trustmodal { padding: var(--bz-space-xl); }
+.bz-dock-trust {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bz-space-lg);
+  text-align: left;
+}
+
+/* ① 它是什么 */
+.bz-dock-trust-who { display: flex; flex-direction: column; gap: var(--bz-space-xs); }
+/* 比弹窗标题（15px）高一档 —— 这屏真正的主角是「哪个工具」，标题只是流程名 */
+.bz-dock-trust-name { font-size: var(--bz-font-title); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); }
+.bz-dock-trust-desc { font-size: var(--bz-font-label); color: var(--bz-text-2); line-height: var(--bz-leading-normal); }
+
+/* ② 会跑什么 —— 这屏的重点。信任的对象就是这条命令，所以给它一块代码底 */
+.bz-dock-trust-runsec { display: flex; flex-direction: column; }
+.bz-dock-trust-runlabel {
+  font-size: var(--bz-font-meta);
+  font-weight: var(--bz-weight-semibold);
+  color: var(--bz-text-3);
+  letter-spacing: 0.04em;
+  margin-bottom: var(--bz-space-sm);
+}
+.bz-dock-trust-cmd {
+  display: block;
+  padding: var(--bz-space-sm) var(--bz-space-md);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-surface-2);
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-label);
+  color: var(--bz-text-1);
+  overflow-wrap: anywhere; /* 命令/路径没有空格，按词折行会折出参差的破口 */
+}
+
+/* ③ 配套事实：标签定宽一列对齐，值左对齐起 */
+.bz-dock-trust-facts { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+.bz-dock-trust-fact {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  gap: var(--bz-space-md);
+  align-items: baseline;
+}
+.bz-dock-trust-factk { font-size: var(--bz-font-meta); color: var(--bz-text-3); }
+.bz-dock-trust-factv { font-size: var(--bz-font-label); color: var(--bz-text-1); overflow-wrap: anywhere; }
+/* 路径比正文低一档、等宽：它们是「去哪儿查」，不是要读的内容 —— 但完整可见，不做省略号截断 */
+.bz-dock-trust-factv.is-path {
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-2);
+}
+
+/* ④ 信任语义：最弱一档，一条发丝线隔开，不与事实抢注意力 */
+.bz-dock-trust-note {
+  padding-top: var(--bz-space-md);
+  border-top: 1px solid var(--bz-border);
+  font-size: var(--bz-font-meta);
+  line-height: var(--bz-leading-normal);
+  color: var(--bz-text-3);
+}
+
 /* 在场运行台 */
 .bz-dock-live {
   display: flex;
@@ -803,4 +871,8 @@
   .bz-dock-toolstats .bz-dock-kpi-tile:nth-child(2n) { border-right: 1px solid var(--bz-border); }
   .bz-dock-toolstats .bz-dock-kpi-tile:last-child { border-right: 0; }
   .bz-dock-toolstats .bz-dock-kpi-tile { border-bottom: 0; }
+  /* 信任框：标签改到值上方独占一行 —— 窄屏里「5.5em 标签列」会吃掉大半宽度，
+     路径本来就长，再让它跟标签挤一行就只能反复折行。 */
+  .bz-dock-trustmodal { padding: var(--bz-space-lg); }
+  .bz-dock-trust-fact { grid-template-columns: minmax(0, 1fr); gap: 2px; align-items: start; }
 }

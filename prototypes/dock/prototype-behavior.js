@@ -1,4 +1,4 @@
-/* 源指纹 9274b99f3e3357c3 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 b82e036e64c03c4b · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -4856,6 +4856,12 @@ var BZW_dock = (() => {
     row.className = cls.join(" ");
     buttons.forEach((x) => row.appendChild(x));
     return row;
+  }
+  function uiDialogActions(opts) {
+    const cancel = uiBtn({ label: opts.cancelText || "取消", onClick: opts.onCancel });
+    const ok = uiBtn({ label: opts.okText, tone: opts.okTone || "primary", onClick: opts.onOk });
+    const row = uiBtnRow([cancel, ok]);
+    return { row, cancelBtn: cancel, okBtn: ok };
   }
 
   // src/core/ui/chip.ts
@@ -10168,7 +10174,7 @@ var BZW_dock = (() => {
     notice(`声明已重新读取：${m.params.length} 个参数`, "success");
     await refresh();
   }
-  function scheduleTextOf(s) {
+  function scheduleTextOf(s, withNote = true) {
     var _a;
     if (!s) return "未声明";
     const base = {
@@ -10180,39 +10186,74 @@ var BZW_dock = (() => {
     };
     const parts = [(_a = base[s.kind]) != null ? _a : s.kind];
     if (s.kind === "daily" && s.hour !== void 0) parts.push(`${String(s.hour).padStart(2, "0")}:00 前`);
-    if (s.note) parts.push(`（${s.note}）`);
+    if (withNote && s.note) parts.push(`（${s.note}）`);
     return parts.join("");
-  }
-  function scheduleText(m) {
-    return scheduleTextOf(m.schedule);
   }
   function runTextOf(run) {
     if (!run) return "没写怎么跑（既无 run 段，目录里也没有 main.mjs）";
     return [run.cmd, ...run.args].join(" ");
   }
-  async function confirmTrust(manifest, declPath, run, title, accept) {
-    const lines = [manifest.name];
-    if (manifest.description) lines.push(manifest.description);
-    lines.push("", `会跑：${runTextOf(run)}`);
-    if (run == null ? void 0 : run.cwd) lines.push(`工作目录：${run.cwd}`);
-    lines.push(`声明文件：${declPath}`, "");
-    lines.push(
-      manifest.schedule ? `节奏：${scheduleText(manifest)}（自动化；bz 会在它开着时按节奏跑）` : "节奏：未声明（手动）"
+  function confirmTrust(manifest, declPath, run, title, accept) {
+    if (document.querySelector(".bz-dock-trustmodal")) return Promise.resolve(false);
+    const body = el("div", "bz-dock-trust");
+    const who = el("div", "bz-dock-trust-who");
+    who.appendChild(el("div", "bz-dock-trust-name", manifest.name));
+    if (manifest.description) who.appendChild(el("div", "bz-dock-trust-desc", manifest.description));
+    body.appendChild(who);
+    const runSec = el("div", "bz-dock-trust-runsec");
+    runSec.appendChild(el("div", "bz-dock-trust-runlabel", "会跑什么"));
+    const runText = runTextOf(run);
+    const cmd = el("code", "bz-dock-trust-cmd", runText);
+    cmd.title = runText;
+    runSec.appendChild(cmd);
+    body.appendChild(runSec);
+    const facts = el("div", "bz-dock-trust-facts");
+    const fact = (label, value, isPath = false) => {
+      const row = el("div", "bz-dock-trust-fact");
+      row.appendChild(el("span", "bz-dock-trust-factk", label));
+      const v = el("span", `bz-dock-trust-factv${isPath ? " is-path" : ""}`, value);
+      v.title = value;
+      row.appendChild(v);
+      facts.appendChild(row);
+    };
+    if (run == null ? void 0 : run.cwd) fact("工作目录", run.cwd, true);
+    fact("声明文件", declPath, true);
+    fact("节奏", manifest.schedule ? scheduleTextOf(manifest.schedule, false) : "未声明（只手动跑）");
+    fact("参数", `${manifest.params.length} 个`);
+    body.appendChild(facts);
+    body.appendChild(
+      el(
+        "div",
+        "bz-dock-trust-note",
+        "读声明不需要信任，建立之后工具坞才会运行它。信任的对象是「那条命令」——建立一次长期有效，命令变了会重新问。节奏取声明里的默认值（可在工具详情页改），bz 开着的时候才会按它跑。"
+      )
     );
-    lines.push(`参数：${manifest.params.length} 个`, "");
-    lines.push(
-      "建立信任之后工具坞才会运行它（读声明不需要信任）。信任的对象是「那条命令」，",
-      "建立一次长期有效；以后命令变了会重新问一次。"
-    );
-    const v = await openFlowDialog({
-      title,
-      message: lines.join("\n"),
-      actions: [
-        { label: "取消", value: "cancel" },
-        { label: accept, value: "ok", cta: true }
-      ]
+    return new Promise((resolve) => {
+      let closeRef = () => void 0;
+      const settle = (v) => {
+        resolve(v);
+        closeRef();
+      };
+      const actions = uiDialogActions({
+        cancelText: "取消",
+        okText: accept,
+        onCancel: () => settle(false),
+        onOk: () => settle(true)
+      });
+      body.appendChild(actions.row);
+      const { close } = uiModal({
+        head: true,
+        title,
+        content: body,
+        maxWidth: 520,
+        // 比确认框的 400 宽：这一屏要摆两条完整路径
+        className: "bz-dock-trustmodal",
+        onClose: () => resolve(false)
+        // 遮罩 / ESC = 取消
+      });
+      closeRef = close;
+      actions.okBtn.focus();
     });
-    return v === "ok";
   }
   async function applyTrust(entry, manifest, declPath, run, opts) {
     const ok = await confirmTrust(manifest, declPath, run, opts.title, opts.accept);
