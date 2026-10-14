@@ -26565,16 +26565,17 @@ canvas { display: block; }
   overflow-wrap: anywhere; /* 命令/路径没有空格，按词折行会折出参差的破口 */
 }
 
-/* ③ 配套事实：标签定宽一列对齐，值左对齐起 */
-.bz-dock-trust-facts { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+/* ③ 配套事实：标签定宽一列对齐，值左对齐起。结构是 dl > div > (dt + dd)，
+   所以要把宿主对 dl/dd 的默认外边距压平 —— 不压的话 dd 会带 40px 起始内缩。 */
+.bz-dock-trust-facts { display: flex; flex-direction: column; gap: var(--bz-space-sm); margin: 0; }
 .bz-dock-trust-fact {
   display: grid;
   grid-template-columns: 5.5em minmax(0, 1fr);
   gap: var(--bz-space-md);
   align-items: baseline;
 }
-.bz-dock-trust-factk { font-size: var(--bz-font-meta); color: var(--bz-text-3); }
-.bz-dock-trust-factv { font-size: var(--bz-font-label); color: var(--bz-text-1); overflow-wrap: anywhere; }
+.bz-dock-trust-factk { margin: 0; font-size: var(--bz-font-meta); color: var(--bz-text-3); }
+.bz-dock-trust-factv { margin: 0; font-size: var(--bz-font-label); color: var(--bz-text-1); overflow-wrap: anywhere; }
 /* 路径比正文低一档、等宽：它们是「去哪儿查」，不是要读的内容 —— 但完整可见，不做省略号截断 */
 .bz-dock-trust-factv.is-path {
   font-family: var(--bz-font-mono);
