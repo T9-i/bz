@@ -2681,12 +2681,14 @@ function confirmTrust(
   runSec.appendChild(cmd);
   body.appendChild(runSec);
 
-  // ③ 配套事实：标签定宽一列对齐，值左对齐起 —— 扫读的是值，不是居中散开的碎句子
-  const facts = el('div', 'bz-dock-trust-facts');
+  // ③ 配套事实：标签定宽一列对齐，值左对齐起 —— 扫读的是值，不是居中散开的碎句子。
+  // 用 dl/dt/dd 而不是 div/span：读屏能把「声明文件」和它的值播报成一对键值。
+  // （HTML5 允许 `<dl>` 的子项是包着 dt/dd 的 `<div>`，所以这里的分组不违规。）
+  const facts = el('dl', 'bz-dock-trust-facts');
   const fact = (label: string, value: string, isPath = false): void => {
     const row = el('div', 'bz-dock-trust-fact');
-    row.appendChild(el('span', 'bz-dock-trust-factk', label));
-    const v = el('span', `bz-dock-trust-factv${isPath ? ' is-path' : ''}`, value);
+    row.appendChild(el('dt', 'bz-dock-trust-factk', label));
+    const v = el('dd', `bz-dock-trust-factv${isPath ? ' is-path' : ''}`, value);
     v.title = value;
     row.appendChild(v);
     facts.appendChild(row);
@@ -2712,9 +2714,13 @@ function confirmTrust(
   );
 
   return new Promise<boolean>((resolve) => {
+    let settled = false;
     let closeRef: () => void = () => undefined;
-    // 先 resolve 再 close：close 会触发 onClose（= 取消），先 resolve 才拿得到本次这个答案
+    // 先 resolve 再 close：close 会触发 onClose（= 取消），先 resolve 才拿得到本次这个答案。
+    // settled 守卫是防重构踩雷的 —— 现在靠的是 Promise 只认第一次 resolve，太隐晦。
     const settle = (v: boolean): void => {
+      if (settled) return;
+      settled = true;
       resolve(v);
       closeRef();
     };
