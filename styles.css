@@ -26068,6 +26068,20 @@ canvas { display: block; }
   white-space: nowrap;
 }
 
+/* ---------- 展示板（工具自己画的那一块，ADR-0243）----------
+   内容是工具写的 `panel.html`，装在一个沙箱 iframe 里 —— 它的样式只能影响框内，
+   所以这里只管框本身（描边 + 圆角 + 底色 + 高度）。框里的观感由展示板自己带，
+   面板只往框里灌一组主题变量（见 ui.ts 的 boardThemeCss）。 */
+.bz-dock-board { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+.bz-dock-board-frame {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  background: var(--bz-surface-1);
+}
+.bz-dock-board-warn { font-size: var(--bz-font-caption); color: var(--bz-warning); }
+
 /* ---------- 面板顶层执行进度 ----------
    只画**在场**运行（bz 亲手启动的）。自动化工具是离场跑，永远不进这里 ——
    拿不到实时进度就不画进度条，这条是 UI 约束，不是样式偏好。 */
