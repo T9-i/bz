@@ -254,6 +254,17 @@ describe('待播报队列', () => {
     expect(items.map((i) => i.toolId)).toEqual(['a', 'b']);
   });
 
+  it('时刻不可解析的条目也当坏条目丢掉 —— 简报的排序与区间端点全拿它比', () => {
+    const fs = memFs({
+      [watchdogPathOf(WATCHDOG_QUEUE_FILENAME, ENV)]: q([
+        note('a', '2026-10-14T01:00:00.000Z'),
+        { toolId: 'b', at: '昨天', ok: true },
+        { toolId: 'c', at: '', ok: true },
+      ]),
+    });
+    expect(readWatchdogQueue({ env: ENV, fs }).map((i) => i.toolId)).toEqual(['a']);
+  });
+
   it('补报后只删自己播过的那几条 —— 值守进程正追加的新条目必须留着', () => {
     const playedNote = note('a', '2026-10-14T01:00:00.000Z');
     const fs = memFs({
@@ -342,5 +353,13 @@ describe('离线简报（面板弹窗的数据面）', () => {
   it('名字读不到就退 id（简报上宁可显示 id，也不要空着）', () => {
     const rep = summarizeWatchdogRuns([{ toolId: 'ghost', at: '2026-10-14T01:00:00Z', ok: true }])!;
     expect(rep.rows[0].name).toBe('ghost');
+  });
+
+  it('队列里同一条重复出现就按两条计 —— 简报如实反映队列里有什么，不在这里去重', () => {
+    const rep = summarizeWatchdogRuns([
+      run('a', '2026-10-14T01:00:00Z', true),
+      run('a', '2026-10-14T01:00:00Z', true),
+    ])!;
+    expect([rep.runs, rep.rows[0].runs]).toEqual([2, 2]);
   });
 });

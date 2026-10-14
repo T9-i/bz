@@ -268,6 +268,9 @@ function parseRunNote(raw: unknown): WatchdogRunNote | null {
   const toolId = typeof raw.toolId === 'string' ? raw.toolId : '';
   const at = typeof raw.at === 'string' ? raw.at : '';
   if (!toolId || !at) return null;
+  // 时刻还得能解析：简报的排序、区间端点、每行的「最近一次」全拿它比 —— 一条 `at: "昨天"`
+  // 混进来会让整份简报乱序，不如当场按坏条目丢掉（读侧一律「脏值不猜」）。
+  if (!Number.isFinite(Date.parse(at))) return null;
   const note: WatchdogRunNote = { toolId, at, ok: raw.ok === true };
   if (typeof raw.name === 'string' && raw.name) note.name = raw.name;
   if (typeof raw.message === 'string' && raw.message) note.message = raw.message;

@@ -8,7 +8,7 @@
  * | `config.json` | 安装脚本 | vault 根 / 拍间隔 —— 本进程的输入 |
  * | `lease.json` | **bz 插件** | 「插件在场」的声明；本进程读它决定让位 |
  * | `status.json` | 本进程 | 每拍刷新的体检快照（插件面板读它画卡片） |
- * | `pending.json` | 本进程追加 | 离线跑过什么，等插件起来补报 |
+ * | `pending.json` | 本进程追加 | 离线跑过什么；插件首次打开面板时弹一次简报，读完即删 |
  * | `watch.lock` | 本进程 | 单实例锁（计划任务有可能重复拉起） |
  * | `logs/watch.log` | 本进程 | 值守日志（只在有事件时写，不复述每一拍） |
  *
@@ -247,7 +247,7 @@ function writeStatus(patch, env = process.env) {
   return next;
 }
 
-// ==================== 待播报队列（本进程追加、插件补报后删） ====================
+// ==================== 待播报队列（本进程追加、插件读它弹简报后删） ====================
 
 function readQueue(env = process.env) {
   const raw = readJson(fileOf('pending.json', env));

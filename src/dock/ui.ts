@@ -487,8 +487,11 @@ function showOfflineReportIfAny(): void {
   const items = readWatchdogQueue();
   if (!items.length) return;
   const report = summarizeWatchdogRuns(items);
+  if (!report) return;
+  // 先弹再消费：消费是静默写盘，万一弹这一步出岔子，队列还在 —— 下次启动还能再交代一遍。
+  // 反过来的代价不对等：先删的话，弹崩就等于「这几天那次离线运行从此没人知道」。
+  openOfflineReport(report);
   consumeWatchdogQueue(items);
-  if (report) openOfflineReport(report);
 }
 
 /** 简报里的时间戳：`MM-DD HH:MM`（这段区间本来就跨天，相对时间读不出先后） */

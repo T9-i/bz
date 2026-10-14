@@ -1,4 +1,4 @@
-/* 源指纹 f68c753693a8a5c1 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 649b432844b929ea · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -7967,6 +7967,7 @@ var BZW_dock = (() => {
     const toolId = typeof raw.toolId === "string" ? raw.toolId : "";
     const at = typeof raw.at === "string" ? raw.at : "";
     if (!toolId || !at) return null;
+    if (!Number.isFinite(Date.parse(at))) return null;
     const note = { toolId, at, ok: raw.ok === true };
     if (typeof raw.name === "string" && raw.name) note.name = raw.name;
     if (typeof raw.message === "string" && raw.message) note.message = raw.message;
@@ -8583,8 +8584,9 @@ var BZW_dock = (() => {
     const items = readWatchdogQueue();
     if (!items.length) return;
     const report = summarizeWatchdogRuns(items);
+    if (!report) return;
+    openOfflineReport(report);
     consumeWatchdogQueue(items);
-    if (report) openOfflineReport(report);
   }
   function shortStamp(iso2) {
     const t = Date.parse(iso2);
