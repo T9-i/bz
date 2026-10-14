@@ -1,4 +1,4 @@
-/* 源指纹 d27f11dbef3bb57a · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 c2fc82694969280e · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -9604,13 +9604,22 @@ var BZW_dock = (() => {
     "--bz-space-md",
     "--bz-space-lg"
   ];
-  function boardThemeCss() {
+  function boardBaseStyle() {
     const cs = getComputedStyle(document.body);
-    const decls = BOARD_THEME_VARS.map((name) => {
+    const parts = BOARD_THEME_VARS.map((name) => {
       const value = cs.getPropertyValue(name).trim();
       return value ? `${name}:${value}` : "";
     }).filter(Boolean);
-    return decls.length ? `:root{${decls.join(";")}}` : "";
+    parts.push(
+      "margin:0",
+      "padding:var(--bz-space-md)",
+      "background:transparent",
+      "color:var(--bz-text-1)",
+      "font-family:var(--bz-font-ui)",
+      "font-size:var(--bz-font-label)",
+      "line-height:1.6"
+    );
+    return parts.join(";");
   }
   function fitBoardHeight(frame) {
     var _a, _b, _c, _d;
@@ -9624,12 +9633,13 @@ var BZW_dock = (() => {
     if (html === null) return null;
     const host = el("div", "bz-dock-board");
     host.appendChild(el("h3", "bz-dock-pane-title", "展示板"));
-    if (html.length > BOARD_MAX_BYTES) {
+    const bytes = new TextEncoder().encode(html).length;
+    if (bytes > BOARD_MAX_BYTES) {
       host.appendChild(
         el(
           "div",
           "bz-dock-board-warn",
-          `panel.html 有 ${Math.round(html.length / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`
+          `panel.html 有 ${Math.round(bytes / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`
         )
       );
       return host;
@@ -9638,8 +9648,7 @@ var BZW_dock = (() => {
     frame.className = "bz-dock-board-frame";
     frame.setAttribute("sandbox", "allow-same-origin");
     frame.setAttribute("title", `${displayName(v)} 的展示板`);
-    const base = "html,body{margin:0;padding:12px;box-sizing:border-box;background:transparent;color:var(--bz-text-1);font-family:var(--bz-font-ui);font-size:13px;line-height:1.6;overflow:auto}";
-    frame.srcdoc = `<style>${boardThemeCss()}${base}</style>${html}`;
+    frame.srcdoc = `<body style="${boardBaseStyle()}">${html}</body>`;
     frame.addEventListener("load", () => fitBoardHeight(frame));
     host.appendChild(frame);
     return host;

@@ -1824,14 +1824,34 @@ const BOARD_THEME_VARS = [
   '--bz-space-lg',
 ];
 
-/** 把当前主题的变量抽成一段 CSS（一个都读不到就空串，展示板退回自己的默认样式） */
-function boardThemeCss(): string {
+/**
+ * 灌给展示板的主题变量 + 基线样式，合成一个 `style` 属性的值（变量一个都读不到就只剩基线，
+ * 展示板退回自己的默认观感）。
+ *
+ * 走 `style` 属性而不是拼一段 `<style>`：自定义属性本来就是这么传的，够用；而且这样本模块里
+ * 一处 `<style>` 字面量都没有 —— 铁律 4 的唯一注入点守卫（ADR-0199）不必为它开第二个口子。
+ *
+ * 代价要认：内联 `style` 的优先级高于任何选择器，所以**展示板没法用普通规则改这几条基线**
+ * （要改得用 `!important`）—— 这也正是为什么基线只留最必要的几条，其余都交给展示板自己。
+ */
+function boardBaseStyle(): string {
   const cs = getComputedStyle(document.body);
-  const decls = BOARD_THEME_VARS.map((name) => {
+  const parts = BOARD_THEME_VARS.map((name) => {
     const value = cs.getPropertyValue(name).trim();
     return value ? `${name}:${value}` : '';
   }).filter(Boolean);
-  return decls.length ? `:root{${decls.join(';')}}` : '';
+  // 基线：撑满 + 跟随主题 + 一点内边距。`margin:0` 与 `background:transparent` 是**必需**的
+  // （body 默认 8px 外边距、iframe 内容默认白底），另几条只是给个合理默认观感
+  parts.push(
+    'margin:0',
+    'padding:var(--bz-space-md)',
+    'background:transparent',
+    'color:var(--bz-text-1)',
+    'font-family:var(--bz-font-ui)',
+    'font-size:var(--bz-font-label)',
+    'line-height:1.6',
+  );
+  return parts.join(';');
 }
 
 /** 把 iframe 撑到内容那么高（sandbox 带 allow-same-origin 才读得到它自己的文档） */
@@ -1862,12 +1882,15 @@ function boardSection(v: DockToolView): HTMLElement | null {
   const host = el('div', 'bz-dock-board');
   host.appendChild(el('h3', 'bz-dock-pane-title', '展示板'));
 
-  if (html.length > BOARD_MAX_BYTES) {
+  // 按**字节**算：字符串的 `length` 是 UTF-16 码元数，中文一个码元要占三字节 —— 拿码元当上限
+  // 等于对中文内容把门槛放成三倍，而展示板恰恰最可能是中文写的
+  const bytes = new TextEncoder().encode(html).length;
+  if (bytes > BOARD_MAX_BYTES) {
     host.appendChild(
       el(
         'div',
         'bz-dock-board-warn',
-        `panel.html 有 ${Math.round(html.length / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`,
+        `panel.html 有 ${Math.round(bytes / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`,
       ),
     );
     return host;
@@ -1877,11 +1900,9 @@ function boardSection(v: DockToolView): HTMLElement | null {
   frame.className = 'bz-dock-board-frame';
   frame.setAttribute('sandbox', 'allow-same-origin');
   frame.setAttribute('title', `${displayName(v)} 的展示板`);
-  // 面板给展示板的基线（撑满 + 跟随主题 + 一点内边距）：展示板自己写的样式盖得掉这些
-  const base =
-    'html,body{margin:0;padding:12px;box-sizing:border-box;background:transparent;' +
-    'color:var(--bz-text-1);font-family:var(--bz-font-ui);font-size:13px;line-height:1.6;overflow:auto}';
-  frame.srcdoc = `<style>${boardThemeCss()}${base}</style>${html}`;
+  // 展示板写**片段**就行（不必 `<!doctype html><html><body>`）—— 这里裹一层 body 承载基线；
+  // 作者递了整份文档也能用（浏览器会忽略内层的 body 标签，属性以这一层为准）
+  frame.srcdoc = `<body style="${boardBaseStyle()}">${html}</body>`;
   frame.addEventListener('load', () => fitBoardHeight(frame));
   host.appendChild(frame);
   return host;
