@@ -1,4 +1,4 @@
-/* 源指纹 160fe5217a001594 · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 f3aea22261c8db68 · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/memo/fake-sim.ts","prototypes/memo/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/file-sync.ts","src/memo/reminder.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/memo/fake-sim.ts → window.BZW_memo（行为单源预览包，issue 245/ADR-0106） */
 var BZW_memo = (() => {
@@ -65974,6 +65974,55 @@ ${n.content.slice(0, 2e3)}
     } catch (e) {
     }
   }
+  function summarizeWatchdogRuns(items) {
+    if (!items.length) return null;
+    const byTool = /* @__PURE__ */ new Map();
+    let ok = 0;
+    for (const it of items) {
+      const runOk = it.ok === true;
+      if (runOk) ok += 1;
+      const cur = byTool.get(it.toolId);
+      if (!cur) {
+        const row = {
+          toolId: it.toolId,
+          name: it.name || it.toolId,
+          runs: 1,
+          ok: runOk ? 1 : 0,
+          fail: runOk ? 0 : 1,
+          lastAt: it.at,
+          lastOk: runOk
+        };
+        if (it.message) row.message = it.message;
+        if (!runOk && it.kind) row.kind = it.kind;
+        byTool.set(it.toolId, row);
+        continue;
+      }
+      cur.runs += 1;
+      if (runOk) cur.ok += 1;
+      else cur.fail += 1;
+      if (Date.parse(it.at) >= Date.parse(cur.lastAt)) {
+        cur.lastAt = it.at;
+        cur.lastOk = runOk;
+        if (it.message) cur.message = it.message;
+        else delete cur.message;
+        if (!runOk && it.kind) cur.kind = it.kind;
+        else delete cur.kind;
+      }
+    }
+    const rows = [...byTool.values()].sort((a, b) => {
+      if (a.fail > 0 !== b.fail > 0) return a.fail > 0 ? -1 : 1;
+      return Date.parse(b.lastAt) - Date.parse(a.lastAt);
+    });
+    const byTime = [...items].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+    return {
+      runs: items.length,
+      ok,
+      fail: items.length - ok,
+      from: byTime[0].at,
+      to: byTime[byTime.length - 1].at,
+      rows
+    };
+  }
   var WATCHDOG_DIRNAME, WATCHDOG_LEASE_FILENAME, WATCHDOG_STATUS_FILENAME, WATCHDOG_QUEUE_FILENAME, WATCHDOG_CONFIG_FILENAME, WATCHDOG_CONTRACT_VERSION;
   var init_watchdog = __esm({
     "src/dock/watchdog.ts"() {
@@ -66419,7 +66468,6 @@ ${n.content.slice(0, 2e3)}
     try {
       await loadDockStore();
       views = await loadToolViews(hostApp2);
-      replayWatchdogRuns();
       runDueNotifications();
     } catch (e) {
       console.warn("[dock] 载入工具视图失败", e);
@@ -66427,6 +66475,7 @@ ${n.content.slice(0, 2e3)}
     } finally {
       refreshing = false;
       render2();
+      showOfflineReportIfAny();
     }
   }
   function errorKindOf(kind) {
@@ -66442,23 +66491,57 @@ ${n.content.slice(0, 2e3)}
         return "unknown";
     }
   }
-  function replayWatchdogRuns() {
-    if (!readDockSwitch("notifyMissed")) return;
+  function showOfflineReportIfAny() {
+    if (offlineReportDone) return;
+    offlineReportDone = true;
     const items = readWatchdogQueue();
     if (!items.length) return;
-    const played = items.slice();
-    for (const it of items.slice(0, REPLAY_NOTIFY_MAX)) {
-      const name = it.name || it.toolId;
-      const when = relTime(it.at);
-      if (it.ok) {
-        notify(`${name} 完成（值守，${when}）`, { type: "success" });
-        continue;
-      }
-      notify(`${name} 失败（值守，${when}）：${errorHint(errorKindOf(it.kind))}`, { type: "error" });
+    const report = summarizeWatchdogRuns(items);
+    consumeWatchdogQueue(items);
+    if (report) openOfflineReport(report);
+  }
+  function shortStamp(iso) {
+    const t = Date.parse(iso);
+    if (!Number.isFinite(t)) return iso;
+    const d = new Date(t);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function reportRowFact(row) {
+    return row.fail === 0 ? `${row.runs} 次 · 全成功` : `${row.runs} 次 · ${row.fail} 次失败`;
+  }
+  function openOfflineReport(report) {
+    const box = el2("div", "bz-dock-rep");
+    const sum = el2("div", "bz-dock-rep-sum");
+    sum.appendChild(el2("div", "bz-dock-rep-lead", `Obsidian 关闭期间跑了 ${report.runs} 次`));
+    const tally = el2("div", "bz-dock-rep-tally");
+    tally.appendChild(el2("span", "bz-dock-rep-ok", `${report.ok} 成功`));
+    if (report.fail > 0) tally.appendChild(el2("span", "bz-dock-rep-bad", `${report.fail} 失败`));
+    const days = Math.max(1, Math.ceil((Date.parse(report.to) - Date.parse(report.from)) / 864e5));
+    tally.appendChild(
+      el2(
+        "span",
+        "bz-dock-rep-span",
+        `${shortStamp(report.from)} → ${shortStamp(report.to)}${days > 1 ? ` · 跨 ${days} 天` : ""}`
+      )
+    );
+    sum.appendChild(tally);
+    box.appendChild(sum);
+    const list = el2("div", "bz-dock-rep-list");
+    for (const row of report.rows) {
+      const bad = row.fail > 0;
+      const item = el2("div", `bz-dock-rep-item${bad ? " is-bad" : ""}`);
+      const line = el2("div", "bz-dock-rep-line");
+      line.appendChild(el2("span", "bz-dock-rep-dot"));
+      line.appendChild(el2("span", "bz-dock-rep-name", row.name));
+      line.appendChild(el2("span", "bz-dock-rep-fact", reportRowFact(row)));
+      item.appendChild(line);
+      const detail = bad ? `${shortStamp(row.lastAt)} · ${row.message || errorHint(errorKindOf(row.kind))}` : `${shortStamp(row.lastAt)}${row.message ? ` · ${row.message}` : ""}`;
+      item.appendChild(el2("div", "bz-dock-rep-detail", detail));
+      list.appendChild(item);
     }
-    const rest = items.length - REPLAY_NOTIFY_MAX;
-    if (rest > 0) notify(`另有 ${rest} 次离线运行，去工具坞看记录`, { type: "info" });
-    consumeWatchdogQueue(played);
+    box.appendChild(list);
+    uiModal({ head: true, title: "离线简报", maxWidth: 460, content: box });
   }
   function runDueNotifications() {
     if (!readDockSwitch("notifyMissed")) return;
@@ -68063,7 +68146,7 @@ ${n.content.slice(0, 2e3)}
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName2(v)}`);
   }
-  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, REPLAY_NOTIFY_MAX;
+  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, offlineReportDone;
   var init_ui12 = __esm({
     "src/dock/ui.ts"() {
       init_fake_obsidian();
@@ -68101,7 +68184,7 @@ ${n.content.slice(0, 2e3)}
       dueNotified = /* @__PURE__ */ new Set();
       OVERLAY_ID2 = "bz-dock-mask";
       FRAME_ID2 = "bz-dock-panel";
-      REPLAY_NOTIFY_MAX = 5;
+      offlineReportDone = false;
     }
   });
 

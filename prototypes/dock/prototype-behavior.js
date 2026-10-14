@@ -1,4 +1,4 @@
-/* 源指纹 04a6116b331ab0d7 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 f68c753693a8a5c1 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -8055,6 +8055,55 @@ var BZW_dock = (() => {
     } catch (e) {
     }
   }
+  function summarizeWatchdogRuns(items) {
+    if (!items.length) return null;
+    const byTool = /* @__PURE__ */ new Map();
+    let ok = 0;
+    for (const it of items) {
+      const runOk = it.ok === true;
+      if (runOk) ok += 1;
+      const cur = byTool.get(it.toolId);
+      if (!cur) {
+        const row = {
+          toolId: it.toolId,
+          name: it.name || it.toolId,
+          runs: 1,
+          ok: runOk ? 1 : 0,
+          fail: runOk ? 0 : 1,
+          lastAt: it.at,
+          lastOk: runOk
+        };
+        if (it.message) row.message = it.message;
+        if (!runOk && it.kind) row.kind = it.kind;
+        byTool.set(it.toolId, row);
+        continue;
+      }
+      cur.runs += 1;
+      if (runOk) cur.ok += 1;
+      else cur.fail += 1;
+      if (Date.parse(it.at) >= Date.parse(cur.lastAt)) {
+        cur.lastAt = it.at;
+        cur.lastOk = runOk;
+        if (it.message) cur.message = it.message;
+        else delete cur.message;
+        if (!runOk && it.kind) cur.kind = it.kind;
+        else delete cur.kind;
+      }
+    }
+    const rows = [...byTool.values()].sort((a, b) => {
+      if (a.fail > 0 !== b.fail > 0) return a.fail > 0 ? -1 : 1;
+      return Date.parse(b.lastAt) - Date.parse(a.lastAt);
+    });
+    const byTime = [...items].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+    return {
+      runs: items.length,
+      ok,
+      fail: items.length - ok,
+      from: byTime[0].at,
+      to: byTime[byTime.length - 1].at,
+      rows
+    };
+  }
 
   // src/dock/scheduler.ts
   var TICK_MS = 6e4;
@@ -8504,7 +8553,6 @@ var BZW_dock = (() => {
     try {
       await loadDockStore();
       views = await loadToolViews(hostApp);
-      replayWatchdogRuns();
       runDueNotifications();
     } catch (e) {
       console.warn("[dock] 载入工具视图失败", e);
@@ -8512,6 +8560,7 @@ var BZW_dock = (() => {
     } finally {
       refreshing = false;
       render();
+      showOfflineReportIfAny();
     }
   }
   function errorKindOf(kind) {
@@ -8527,24 +8576,58 @@ var BZW_dock = (() => {
         return "unknown";
     }
   }
-  var REPLAY_NOTIFY_MAX = 5;
-  function replayWatchdogRuns() {
-    if (!readDockSwitch("notifyMissed")) return;
+  var offlineReportDone = false;
+  function showOfflineReportIfAny() {
+    if (offlineReportDone) return;
+    offlineReportDone = true;
     const items = readWatchdogQueue();
     if (!items.length) return;
-    const played = items.slice();
-    for (const it of items.slice(0, REPLAY_NOTIFY_MAX)) {
-      const name = it.name || it.toolId;
-      const when = relTime(it.at);
-      if (it.ok) {
-        notify(`${name} 完成（值守，${when}）`, { type: "success" });
-        continue;
-      }
-      notify(`${name} 失败（值守，${when}）：${errorHint(errorKindOf(it.kind))}`, { type: "error" });
+    const report = summarizeWatchdogRuns(items);
+    consumeWatchdogQueue(items);
+    if (report) openOfflineReport(report);
+  }
+  function shortStamp(iso2) {
+    const t = Date.parse(iso2);
+    if (!Number.isFinite(t)) return iso2;
+    const d = new Date(t);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function reportRowFact(row) {
+    return row.fail === 0 ? `${row.runs} 次 · 全成功` : `${row.runs} 次 · ${row.fail} 次失败`;
+  }
+  function openOfflineReport(report) {
+    const box = el("div", "bz-dock-rep");
+    const sum = el("div", "bz-dock-rep-sum");
+    sum.appendChild(el("div", "bz-dock-rep-lead", `Obsidian 关闭期间跑了 ${report.runs} 次`));
+    const tally = el("div", "bz-dock-rep-tally");
+    tally.appendChild(el("span", "bz-dock-rep-ok", `${report.ok} 成功`));
+    if (report.fail > 0) tally.appendChild(el("span", "bz-dock-rep-bad", `${report.fail} 失败`));
+    const days = Math.max(1, Math.ceil((Date.parse(report.to) - Date.parse(report.from)) / 864e5));
+    tally.appendChild(
+      el(
+        "span",
+        "bz-dock-rep-span",
+        `${shortStamp(report.from)} → ${shortStamp(report.to)}${days > 1 ? ` · 跨 ${days} 天` : ""}`
+      )
+    );
+    sum.appendChild(tally);
+    box.appendChild(sum);
+    const list = el("div", "bz-dock-rep-list");
+    for (const row of report.rows) {
+      const bad = row.fail > 0;
+      const item = el("div", `bz-dock-rep-item${bad ? " is-bad" : ""}`);
+      const line = el("div", "bz-dock-rep-line");
+      line.appendChild(el("span", "bz-dock-rep-dot"));
+      line.appendChild(el("span", "bz-dock-rep-name", row.name));
+      line.appendChild(el("span", "bz-dock-rep-fact", reportRowFact(row)));
+      item.appendChild(line);
+      const detail = bad ? `${shortStamp(row.lastAt)} · ${row.message || errorHint(errorKindOf(row.kind))}` : `${shortStamp(row.lastAt)}${row.message ? ` · ${row.message}` : ""}`;
+      item.appendChild(el("div", "bz-dock-rep-detail", detail));
+      list.appendChild(item);
     }
-    const rest = items.length - REPLAY_NOTIFY_MAX;
-    if (rest > 0) notify(`另有 ${rest} 次离线运行，去工具坞看记录`, { type: "info" });
-    consumeWatchdogQueue(played);
+    box.appendChild(list);
+    uiModal({ head: true, title: "离线简报", maxWidth: 460, content: box });
   }
   function runDueNotifications() {
     if (!readDockSwitch("notifyMissed")) return;

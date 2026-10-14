@@ -151,6 +151,62 @@
 .bz-dock-wb-fact { font-size: var(--bz-font-caption); color: var(--bz-text-3); white-space: nowrap; }
 .bz-dock-wb-fact.is-bad { color: var(--bz-danger); }
 
+/* ---------- 离线简报（ADR-0242）----------
+   打开面板时的一次性交代：Obsidian 关着那段值守进程替你跑了什么。
+   由一个居中模态承载（core 的 `uiModal`），弹完即从队列消费 —— 所以这一块没有常驻形态，
+   也没有任何操作按钮：看完关掉就结束了。 */
+.bz-dock-rep { display: flex; flex-direction: column; gap: var(--bz-space-md); }
+.bz-dock-rep-sum { display: flex; flex-direction: column; gap: 2px; }
+.bz-dock-rep-lead { font-size: var(--bz-font-body); color: var(--bz-text-1); }
+.bz-dock-rep-tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bz-space-sm);
+  font-size: var(--bz-font-caption);
+}
+.bz-dock-rep-ok { color: var(--bz-success); }
+.bz-dock-rep-bad { color: var(--bz-danger); }
+.bz-dock-rep-span { color: var(--bz-text-3); }
+
+/* 一行一个工具：底色比弹窗降一档 + 1px 边，是本域列表项的既有口径 */
+.bz-dock-rep-list { display: flex; flex-direction: column; gap: var(--bz-space-xs); }
+.bz-dock-rep-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--bz-space-sm);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-surface-2);
+}
+.bz-dock-rep-line { display: flex; align-items: center; gap: var(--bz-space-sm); }
+.bz-dock-rep-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--bz-radius-full);
+  background: var(--bz-success);
+}
+.bz-dock-rep-item.is-bad .bz-dock-rep-dot { background: var(--bz-danger); }
+.bz-dock-rep-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-1);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bz-dock-rep-fact { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-rep-item.is-bad .bz-dock-rep-fact { color: var(--bz-danger); }
+.bz-dock-rep-detail {
+  overflow: hidden;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---------- 面板顶层执行进度 ----------
    只画**在场**运行（bz 亲手启动的）。自动化工具是离场跑，永远不进这里 ——
    拿不到实时进度就不画进度条，这条是 UI 约束，不是样式偏好。 */

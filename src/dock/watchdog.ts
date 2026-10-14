@@ -384,3 +384,93 @@ export function consumeWatchdogQueue(played: readonly WatchdogRunNote[], opts: W
     /* 删不掉就留着：下次启动再补报一遍，比丢一条强 */
   }
 }
+
+// ==================== 离线简报（面板弹窗用） ====================
+
+/** 简报里的一行 —— 一个工具在这段离场期间的账 */
+export interface WatchdogReportRow {
+  toolId: string;
+  /** 展示名（声明里的名字；读不到就退 id） */
+  name: string;
+  runs: number;
+  ok: number;
+  fail: number;
+  /** 这一行**最近一次**的时刻 */
+  lastAt: string;
+  lastOk: boolean;
+  /** 最近一次的那句话（工具自己写的 `message`） */
+  message?: string;
+  /** 最近一次失败的分类（工具的 `error.kind`）；最近一次成功就没有 */
+  kind?: string;
+}
+
+/** 一次「Obsidian 关着那段时间」的执行简报 */
+export interface WatchdogReport {
+  runs: number;
+  ok: number;
+  fail: number;
+  /** 区间端点 = 队列里最早 / 最晚那两条的时刻 —— 是**事实**，不去猜插件何时离场 */
+  from: string;
+  to: string;
+  /** 有失败的排前面，其余按最近一次倒序（出事的那几行不该沉在下面） */
+  rows: WatchdogReportRow[];
+}
+
+/**
+ * 把待播报队列聚成一份简报。**空输入 → null**（没有离场运行就不该弹窗）。
+ *
+ * 入参按时刻升序（`readWatchdogQueue` 的口径），但「最近一次」不按数组下标猜 —— 直接比时刻，
+ * 免得日后有人改了队列的排序口径就把每行的摘要换成旧的那条。
+ */
+export function summarizeWatchdogRuns(items: readonly WatchdogRunNote[]): WatchdogReport | null {
+  if (!items.length) return null;
+  const byTool = new Map<string, WatchdogReportRow>();
+  let ok = 0;
+  for (const it of items) {
+    const runOk = it.ok === true;
+    if (runOk) ok += 1;
+    const cur = byTool.get(it.toolId);
+    if (!cur) {
+      const row: WatchdogReportRow = {
+        toolId: it.toolId,
+        name: it.name || it.toolId,
+        runs: 1,
+        ok: runOk ? 1 : 0,
+        fail: runOk ? 0 : 1,
+        lastAt: it.at,
+        lastOk: runOk,
+      };
+      if (it.message) row.message = it.message;
+      if (!runOk && it.kind) row.kind = it.kind;
+      byTool.set(it.toolId, row);
+      continue;
+    }
+    cur.runs += 1;
+    if (runOk) cur.ok += 1;
+    else cur.fail += 1;
+    if (Date.parse(it.at) >= Date.parse(cur.lastAt)) {
+      cur.lastAt = it.at;
+      cur.lastOk = runOk;
+      // 「最近一次」的摘要要跟着换而不是叠加 —— 旧那句留着就是错的信息
+      if (it.message) cur.message = it.message;
+      else delete cur.message;
+      if (!runOk && it.kind) cur.kind = it.kind;
+      else delete cur.kind;
+    }
+  }
+  const rows = [...byTool.values()].sort((a, b) => {
+    if ((a.fail > 0) !== (b.fail > 0)) return a.fail > 0 ? -1 : 1;
+    return Date.parse(b.lastAt) - Date.parse(a.lastAt);
+  });
+  // 区间端点自己排一遍（不假定调用方给了升序），但**原样回传** `at` —— 时刻的格式是队列的事，
+  // 这里重新格式化只会让同一份数据在两个地方长得不一样
+  const byTime = [...items].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  return {
+    runs: items.length,
+    ok,
+    fail: items.length - ok,
+    from: byTime[0].at,
+    to: byTime[byTime.length - 1].at,
+    rows,
+  };
+}

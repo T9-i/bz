@@ -101,7 +101,9 @@ import {
   isWatchdogInstalled,
   readWatchdogQueue,
   readWatchdogStatus,
-  type WatchdogRunNote,
+  summarizeWatchdogRuns,
+  type WatchdogReport,
+  type WatchdogReportRow,
 } from './watchdog';
 import {
   EDITABLE_SCHEDULE_KINDS,
@@ -436,7 +438,6 @@ async function refresh(): Promise<void> {
     // 也能在下次打开时生效（ADR-0239；与声明文件的「不缓存」同一条精神）
     await loadDockStore();
     views = await loadToolViews(hostApp);
-    replayWatchdogRuns();
     runDueNotifications();
   } catch (e) {
     console.warn('[dock] 载入工具视图失败', e);
@@ -444,6 +445,8 @@ async function refresh(): Promise<void> {
   } finally {
     refreshing = false;
     render();
+    // 离线简报在面板画完之后弹：它是盖在面板上的独立弹窗，先有底再弹才不闪
+    showOfflineReportIfAny();
   }
 }
 
@@ -465,36 +468,85 @@ function errorKindOf(kind: string | undefined): DockErrorKind {
   }
 }
 
-/** 一次补报最多单发几条；多出来的合并成一条汇总 */
-const REPLAY_NOTIFY_MAX = 5;
+/** 本次会话交代过离线简报没有 —— 弹过一次就定住（队列同时被消费，下次启动自然没得弹） */
+let offlineReportDone = false;
 
 /**
- * 值守进程在 Obsidian 关着时跑过的那些，起来后补报一次（ADR-0242）。
+ * 「Obsidian 关着那段，值守进程替你跑了什么」—— 打开工具坞面板时用**独立弹窗**交代一次（ADR-0242）。
  *
- * 开关用**「漏跑提醒」那一把**（`notifyMissed`）：它管的就是「发生过的事有没有被告知」，
- * 离场跑成什么样正属于这一类，为此再开一个开关只是同一个问题问两遍。
+ * 形态是弹窗而不是逐条通知：好几天的账拆成五条 toast 再加一句「另有 N 次」，既糊脸又读不出全貌，
+ * 而「这段时间成没成、哪个工具掉了」正是要一眼看完的东西。
  *
- * 补报完把那几条从队列里删掉 —— 走 `consumeWatchdogQueue`（**先重读再删，只删自己播过的**：
- * 值守进程可能正在追加新条目，整文件覆写会把它们一起抹掉）。
- * 一次最多单发 5 条：开机被 20 条通知糊脸和被 1 条糊脸是两种体验。
+ * 队列在弹窗时就被消费（`consumeWatchdogQueue`：**先重读再删、只删自己播过的** —— 值守进程可能
+ * 正在追加新条目，整文件覆写会把它们一起抹掉）。所以这是**首次打开**的一次性交代：看完即入账，
+ * 下次启动不再弹。不设第二把开关 —— 主动打开面板才看得到的东西不是「提醒」，不受 `notifyMissed` 管。
  */
-function replayWatchdogRuns(): void {
-  if (!readDockSwitch('notifyMissed')) return;
+function showOfflineReportIfAny(): void {
+  if (offlineReportDone) return;
+  offlineReportDone = true;
   const items = readWatchdogQueue();
   if (!items.length) return;
-  const played: WatchdogRunNote[] = items.slice(); // 全部消费，但只播前几条
-  for (const it of items.slice(0, REPLAY_NOTIFY_MAX)) {
-    const name = it.name || it.toolId;
-    const when = relTime(it.at);
-    if (it.ok) {
-      notify(`${name} 完成（值守，${when}）`, { type: 'success' });
-      continue;
-    }
-    notify(`${name} 失败（值守，${when}）：${errorHint(errorKindOf(it.kind))}`, { type: 'error' });
+  const report = summarizeWatchdogRuns(items);
+  consumeWatchdogQueue(items);
+  if (report) openOfflineReport(report);
+}
+
+/** 简报里的时间戳：`MM-DD HH:MM`（这段区间本来就跨天，相对时间读不出先后） */
+function shortStamp(iso: string): string {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return iso;
+  const d = new Date(t);
+  const p = (n: number): string => String(n).padStart(2, '0');
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/** 一行右边的账：跑了几次、成没成 */
+function reportRowFact(row: WatchdogReportRow): string {
+  return row.fail === 0 ? `${row.runs} 次 · 全成功` : `${row.runs} 次 · ${row.fail} 次失败`;
+}
+
+/**
+ * 弹离线简报。**纯只读**：关掉（点遮罩 / ESC）就结束了，不给任何后续动作按钮 ——
+ * 该不该重跑由每个工具自己的规则表说了算，这里只负责「这几天发生了什么」。
+ */
+function openOfflineReport(report: WatchdogReport): void {
+  const box = el('div', 'bz-dock-rep');
+
+  const sum = el('div', 'bz-dock-rep-sum');
+  sum.appendChild(el('div', 'bz-dock-rep-lead', `Obsidian 关闭期间跑了 ${report.runs} 次`));
+  const tally = el('div', 'bz-dock-rep-tally');
+  tally.appendChild(el('span', 'bz-dock-rep-ok', `${report.ok} 成功`));
+  if (report.fail > 0) tally.appendChild(el('span', 'bz-dock-rep-bad', `${report.fail} 失败`));
+  const days = Math.max(1, Math.ceil((Date.parse(report.to) - Date.parse(report.from)) / 86_400_000));
+  tally.appendChild(
+    el(
+      'span',
+      'bz-dock-rep-span',
+      `${shortStamp(report.from)} → ${shortStamp(report.to)}${days > 1 ? ` · 跨 ${days} 天` : ''}`,
+    ),
+  );
+  sum.appendChild(tally);
+  box.appendChild(sum);
+
+  const list = el('div', 'bz-dock-rep-list');
+  for (const row of report.rows) {
+    const bad = row.fail > 0;
+    const item = el('div', `bz-dock-rep-item${bad ? ' is-bad' : ''}`);
+    const line = el('div', 'bz-dock-rep-line');
+    line.appendChild(el('span', 'bz-dock-rep-dot'));
+    line.appendChild(el('span', 'bz-dock-rep-name', row.name));
+    line.appendChild(el('span', 'bz-dock-rep-fact', reportRowFact(row)));
+    item.appendChild(line);
+    // 第二行：最近一次什么时候、说了什么。失败优先说原因 —— 工具自己写的那句，没有再按 kind 兜提示语
+    const detail = bad
+      ? `${shortStamp(row.lastAt)} · ${row.message || errorHint(errorKindOf(row.kind))}`
+      : `${shortStamp(row.lastAt)}${row.message ? ` · ${row.message}` : ''}`;
+    item.appendChild(el('div', 'bz-dock-rep-detail', detail));
+    list.appendChild(item);
   }
-  const rest = items.length - REPLAY_NOTIFY_MAX;
-  if (rest > 0) notify(`另有 ${rest} 次离线运行，去工具坞看记录`, { type: 'info' });
-  consumeWatchdogQueue(played);
+  box.appendChild(list);
+
+  uiModal({ head: true, title: '离线简报', maxWidth: 460, content: box });
 }
 
 /**

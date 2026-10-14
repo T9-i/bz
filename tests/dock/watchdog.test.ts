@@ -24,10 +24,12 @@ import {
   readWatchdogLease,
   readWatchdogQueue,
   readWatchdogStatus,
+  summarizeWatchdogRuns,
   watchdogDirOf,
   watchdogPathOf,
   writeWatchdogLease,
   type WatchdogEnv,
+  type WatchdogRunNote,
   type WatchdogStatus,
 } from '../../src/dock/watchdog';
 import { setDockFs, type DockFs } from '../../src/dock/declaration';
@@ -268,5 +270,77 @@ describe('待播报队列', () => {
     fs.files[watchdogPathOf(WATCHDOG_QUEUE_FILENAME, ENV)] = '半截 JSON';
     expect(readWatchdogQueue({ env: ENV, fs })).toEqual([]);
     consumeWatchdogQueue([{ toolId: 'a', at: 'x', ok: true }], { env: ENV, fs });
+  });
+});
+
+describe('离线简报（面板弹窗的数据面）', () => {
+  const run = (toolId: string, at: string, ok: boolean, extra: Partial<WatchdogRunNote> = {}): WatchdogRunNote => ({
+    toolId,
+    name: toolId,
+    at,
+    ok,
+    ...extra,
+  });
+
+  it('队列是空的 → null（没离场跑过就不该弹窗）', () => {
+    expect(summarizeWatchdogRuns([])).toBeNull();
+  });
+
+  it('按工具分组：次数、成败、区间端点', () => {
+    const rep = summarizeWatchdogRuns([
+      run('a', '2026-10-11T01:00:00Z', true),
+      run('a', '2026-10-12T01:00:00Z', true),
+      run('b', '2026-10-13T01:00:00Z', false, { message: '登录态失效', kind: 'auth' }),
+    ]);
+    expect(rep).not.toBeNull();
+    expect(rep!.runs).toBe(3);
+    expect(rep!.ok).toBe(2);
+    expect(rep!.fail).toBe(1);
+    expect(rep!.from).toBe('2026-10-11T01:00:00Z');
+    expect(rep!.to).toBe('2026-10-13T01:00:00Z');
+    expect(rep!.rows).toHaveLength(2);
+    const a = rep!.rows.find((r) => r.toolId === 'a')!;
+    expect([a.runs, a.ok, a.fail]).toEqual([2, 2, 0]);
+    const b = rep!.rows.find((r) => r.toolId === 'b')!;
+    expect([b.runs, b.ok, b.fail, b.lastOk]).toEqual([1, 0, 1, false]);
+  });
+
+  it('出过事的工具排最前 —— 哪怕它最后一次跑得比谁都早', () => {
+    const rep = summarizeWatchdogRuns([
+      run('a', '2026-10-13T01:00:00Z', true),
+      run('b', '2026-10-11T01:00:00Z', false),
+    ])!;
+    expect(rep.rows.map((r) => r.toolId)).toEqual(['b', 'a']);
+  });
+
+  it('一行的「最近一次」按时刻取，不按数组下标 —— 队列日后换了排序口径也不会说错话', () => {
+    const rep = summarizeWatchdogRuns([
+      run('a', '2026-10-11T01:00:00Z', true, { message: '旧的' }),
+      run('a', '2026-10-13T01:00:00Z', false, { message: '新的', kind: 'network' }),
+      run('a', '2026-10-12T01:00:00Z', true, { message: '中间的' }),
+    ])!;
+    const row = rep.rows[0];
+    expect([row.runs, row.ok, row.fail]).toEqual([3, 2, 1]);
+    expect(row.lastAt).toBe('2026-10-13T01:00:00Z');
+    expect(row.lastOk).toBe(false);
+    expect(row.message).toBe('新的');
+    expect(row.kind).toBe('network');
+  });
+
+  it('最近一次是成功 → 不再留着上一回的失败原因（那句摘要就是错的信息）', () => {
+    const rep = summarizeWatchdogRuns([
+      run('a', '2026-10-11T01:00:00Z', false, { message: '登录态失效', kind: 'auth' }),
+      run('a', '2026-10-12T01:00:00Z', true, { message: '签到成功' }),
+    ])!;
+    const row = rep.rows[0];
+    expect(row.lastOk).toBe(true);
+    expect(row.message).toBe('签到成功');
+    expect(row.kind).toBeUndefined();
+    expect(row.fail).toBe(1); // 但这一行确实失败过一次，账簿上要留着
+  });
+
+  it('名字读不到就退 id（简报上宁可显示 id，也不要空着）', () => {
+    const rep = summarizeWatchdogRuns([{ toolId: 'ghost', at: '2026-10-14T01:00:00Z', ok: true }])!;
+    expect(rep.rows[0].name).toBe('ghost');
   });
 });
