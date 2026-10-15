@@ -91,9 +91,12 @@ describe('两个框都不自滚（滚动交回宿主）', () => {
     // 曾经的两个上限常量：展示板 520px / 询问框正文 360px
     expect(src).not.toMatch(/BOARD_MAX_HEIGHT/);
     expect(src).not.toMatch(/ASK_HTML_MAX_HEIGHT/);
-    // fitFrameHeight 只按内容量高，不做 Math.min 封顶
-    const fn = src.slice(src.indexOf('function fitFrameHeight'), src.indexOf('function fitFrameHeight') + 600);
-    expect(fn).toContain('frame.style.height = `${h}px`');
-    expect(fn).not.toContain('Math.min');
+    // fitFrameHeight 只按内容量高，不做 Math.min 封顶。
+    // 只守「赋值了高度」+「没有封顶」—— 锁死写法（模板字符串 / 加号）会让等价改写误报红。
+    const at = src.indexOf('function fitFrameHeight');
+    expect(at, '找不到 fitFrameHeight').toBeGreaterThan(0);
+    const fn = src.slice(at, at + 900);
+    expect(fn).toMatch(/\.style\.height\s*=/);
+    expect(fn).not.toMatch(/Math\.min/);
   });
 });
