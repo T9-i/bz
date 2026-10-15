@@ -16,13 +16,23 @@ import * as nodeCp from 'node:child_process';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { FORCE_KILL_GRACE_MS, parseBzLine, BzLineSplitter, runExternalTool } from '../../src/core/external-tool';
-import type { ExternalToolCallbacks } from '../../src/core/external-tool';
+import { FORCE_KILL_GRACE_MS, parseBzLine, BzLineSplitter, runExternalTool, ASK_TIMEOUT_DEFAULT_SEC, ASK_TIMEOUT_MAX_SEC, ASK_TIMEOUT_MIN_SEC } from '../../src/core/external-tool';
+import type { BzAskRequest, ExternalToolCallbacks } from '../../src/core/external-tool';
 
 /** 假子进程（同知识盒 processor.test.ts 口径）：stdout/stderr 可 emit；kill 可断言 */
 class FakeChild extends EventEmitter {
   stdout = new EventEmitter();
   stderr = new EventEmitter();
+  /** 假 stdin：写进来的东西全记账（answer 回程断言用）；destroyed 可手动置位模拟管道已关 */
+  stdin = {
+    destroyed: false,
+    writableEnded: false,
+    written: [] as string[],
+    write(s: string) {
+      this.written.push(s);
+      return true;
+    },
+  };
   kill = vi.fn(() => true);
 }
 
@@ -89,6 +99,75 @@ describe('四行协议解析 parseBzLine', () => {
   it('step 文案与协议前缀间多空格容忍；未知字段保留在 info/result 体里', () => {
     expect(parseBzLine('[bz-step]   下载中')).toEqual({ kind: 'step', text: '下载中' });
     expect(parseBzLine('[bz-info] {"title":"T","extra":1}')).toEqual({ kind: 'info', data: { title: 'T', extra: 1 } });
+  });
+
+  // ---- [bz-ask]：工具跑到一半问人（回程是 [bz-answer]，见下面那个 describe） ----
+  it('[bz-ask] 解析成询问事件；缺 id / 缺标题 / 体坏 → 整行忽略（问不出答案的问句不许进 UI）', () => {
+    expect(parseBzLine('[bz-ask] {"id":"apply","title":"写入 Steam 分类","body":"3 款"}')).toEqual({
+      kind: 'ask',
+      ask: { id: 'apply', title: '写入 Steam 分类', body: '3 款', confirmText: '确认', cancelText: '取消', timeoutSec: ASK_TIMEOUT_DEFAULT_SEC },
+    });
+    expect(parseBzLine('[bz-ask] {"title":"缺 id"}')).toBeNull();
+    expect(parseBzLine('[bz-ask] {"id":"x"}')).toBeNull(); // 缺标题：弹窗没有主语
+    expect(parseBzLine('[bz-ask] {"id":"  ","title":"t"}')).toBeNull(); // 纯空白 id
+    expect(parseBzLine('[bz-ask] not-json')).toBeNull();
+    expect(parseBzLine('[bz-ask] [1]')).toBeNull(); // 数组体不收
+  });
+
+  it('[bz-ask] 钮文案原样收；超时夹在 [10,600]：工具给 0 或 1e9 都是没想清楚，UI 不照单全收', () => {
+    const ask = (s: string): BzAskRequest | null => {
+      const ev = parseBzLine(s);
+      return ev && ev.kind === 'ask' ? ev.ask : null;
+    };
+    expect(ask('[bz-ask] {"id":"a","title":"t","confirmText":"写入","cancelText":"算了"}')).toMatchObject({
+      confirmText: '写入', cancelText: '算了',
+    });
+    expect(ask('[bz-ask] {"id":"a","title":"t","timeoutSec":0}')?.timeoutSec).toBe(ASK_TIMEOUT_MIN_SEC);
+    expect(ask('[bz-ask] {"id":"a","title":"t","timeoutSec":99999}')?.timeoutSec).toBe(ASK_TIMEOUT_MAX_SEC);
+    expect(ask('[bz-ask] {"id":"a","title":"t","timeoutSec":"300"}')?.timeoutSec).toBe(ASK_TIMEOUT_DEFAULT_SEC); // 字符串不采信
+    expect(ask('[bz-ask] {"id":"a","title":"t"}')?.body).toBe(''); // 没正文也要能弹（标题即问句）
+  });
+});
+
+describe('询问回程：[bz-ask] 出去，[bz-answer] 回来', () => {
+  it('interactive 才开 stdin；ask 事件交给 onAsk，answer 写回一行带 id 的答案', () => {
+    const child = new FakeChild();
+    const cp = { spawn: vi.fn(() => child) };
+    const { cb } = makeRecorder();
+    const asks: BzAskRequest[] = [];
+    cb.onAsk = (r) => asks.push(r);
+    const h = runExternalTool({ cmd: 'steam', interactive: true }, cb, { cp });
+    // 默认那批工具仍然拿 'ignore'：给所有人开管道，等于让顺手读了 stdin 的工具凭空挂住
+    expect(cp.spawn).toHaveBeenCalledWith('steam', [], expect.objectContaining({ stdio: ['pipe', 'pipe', 'pipe'] }));
+    child.stdout.emit('data', Buffer.from('[bz-ask] {"id":"apply","title":"写入 Steam 分类","body":"3 款\\n会关掉 Steam"}\n'));
+    expect(asks).toHaveLength(1);
+    expect(asks[0]).toMatchObject({ id: 'apply', title: '写入 Steam 分类', body: '3 款\n会关掉 Steam' });
+    h.answer?.('apply', true);
+    expect(child.stdin.written).toEqual(['[bz-answer] {"id":"apply","ok":true}\n']);
+    h.answer?.('apply', false);
+    expect(child.stdin.written[1]).toBe('[bz-answer] {"id":"apply","ok":false}\n');
+  });
+
+  it('非交互运行 / 管道已关 / 进程已退 → answer 静默丢弃，不抛（收尾路径不该反过来炸调用方）', () => {
+    const plain = new FakeChild();
+    (plain as unknown as { stdin: unknown }).stdin = null; // stdio[0]='ignore' 的真身形态
+    const h1 = runExternalTool({ cmd: 'x' }, makeRecorder().cb, { cp: { spawn: vi.fn(() => plain) } });
+    expect(() => h1.answer?.('a', true)).not.toThrow();
+
+    const dead = new FakeChild();
+    dead.stdin.destroyed = true;
+    const h2 = runExternalTool({ cmd: 'x', interactive: true }, makeRecorder().cb, { cp: { spawn: vi.fn(() => dead) } });
+    expect(() => h2.answer?.('a', true)).not.toThrow();
+    expect(dead.stdin.written).toHaveLength(0);
+  });
+
+  it('没给 onAsk 的工具壳：ask 行不炸，答案无人给（桥接层负责回 false，见 dock/runner）', () => {
+    const child = new FakeChild();
+    const { cb } = makeRecorder();
+    const h = runExternalTool({ cmd: 'x', interactive: true }, cb, { cp: { spawn: vi.fn(() => child) } });
+    expect(() => child.stdout.emit('data', Buffer.from('[bz-ask] {"id":"a","title":"t"}\n'))).not.toThrow();
+    expect(child.stdin.written).toHaveLength(0); // 没人应答 = 没有回程，工具侧靠自己的超时收场
+    expect(h.done).toBeInstanceOf(Promise);
   });
 });
 

@@ -6,6 +6,25 @@
  *   [bz-p] {"phase":"download","pct":35}    → 阶段进度行：pct 0-100，null=该阶段不可估（绝不假报）
  *   [bz-info] {...}                         → 解析信息行：JSON 体原样交给 onInfo
  *   [bz-result] {...}                       → 交付结果行：JSON 体原样交给 onResult
+ *   [bz-ask] {"id":"apply",...}             → 询问行：**工具问人**，人要一个回答（见下）
+ *
+ * ---------- 询问（ask）：工具跑到一半想请用户拍板 ----------
+ *
+ * 四行协议是单向的（工具 → bz）。可有些动作非经人点头不可（例：把分类写进 Steam，得先关
+ * Steam），让人事后去翻清单再手动执行，体验是割裂的。所以补一条**回程**：
+ *
+ *   工具 stdout：[bz-ask] {"id":"apply","title":"…","body":"…","confirmText":"写入",
+ *                          "cancelText":"取消","timeoutSec":300}
+ *   bz 弹窗 → 人点按钮 / 超时
+ *   插件 stdin：[bz-answer] {"id":"apply","ok":true}      ← handle.answer() 写这一行
+ *
+ * 三条纪律：
+ *  1) **只有声明了 interactive 的运行才开 stdin**（`spec.interactive`）。默认 stdio[0] 仍是
+ *     'ignore'：给所有工具无差别开管道，等于让「不小心读了 stdin 的工具」凭空挂住。
+ *  2) **工具侧必须有超时与 EOF 兜底**。bz 十分钟后强杀，但更强的是工具自己：等不到回答
+ *     就当「取消」，写一条记录体面退出——不写任何东西。人不在电脑前时，这条是唯一正确的结局。
+ *  3) **没人应答 = 取消，不是同意**。自动触发（调度器拉起）的场合没有 onAsk，桥接层会立刻
+ *     回 false。宁可不写，也不擅自替用户做决定。
  *
  * 本模块职责：进程生命周期（spawn / stop（含 3 秒未退升级强杀整树）/ 终结分流）、stdout 逐行解析（跨 chunk 行缓冲、
  * 多字节安全、超长行截断）、畸形行容错（坏协议行忽略、非协议行透传）、stderr 尾部收集
@@ -22,9 +41,56 @@ export type BzToolEvent =
   | { kind: 'progress'; phase: string | null; pct: number | null }
   | { kind: 'info'; data: Record<string, unknown> }
   | { kind: 'result'; data: Record<string, unknown> }
+  | { kind: 'ask'; ask: BzAskRequest }
   | { kind: 'raw'; text: string };
 
-const BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result)\]/;
+/** 工具向用户提的一个问题（[bz-ask] 的体）。字段缺失一律退回缺省，坏体整行忽略 */
+export interface BzAskRequest {
+  /** 配对用的标识，回程 [bz-answer] 原样带回；空 = 畸形行，忽略 */
+  id: string;
+  title: string;
+  /** 正文（多行用 \n）；UI 逐段渲染，**不当 HTML**（工具输出不可信） */
+  body: string;
+  /** 确认钮文案（缺省「确认」） */
+  confirmText: string;
+  /** 取消钮文案（缺省「取消」） */
+  cancelText: string;
+  /** UI 侧自动取消的秒数（缺省 ASK_TIMEOUT_DEFAULT_SEC，夹在 [10,600]） */
+  timeoutSec: number;
+}
+
+/** 超时缺省：工具侧也各自兜底，这里只是 UI 没人理时的收口 */
+export const ASK_TIMEOUT_DEFAULT_SEC = 300;
+export const ASK_TIMEOUT_MIN_SEC = 10;
+export const ASK_TIMEOUT_MAX_SEC = 600;
+
+const BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
+
+/**
+ * 把 [bz-ask] 的体收成规整的询问对象；不合规（无 id / 无标题 / 体不是对象）返回 null。
+ *
+ * 超时刻意要夹：工具给 0 或 1e9 都是没想清楚，UI 不能照单全收——前者弹窗一闪而过，后者
+ * 把一次运行挂成永不结算。
+ */
+export function parseAskBody(body: Record<string, unknown>): BzAskRequest | null {
+  const id = typeof body.id === 'string' ? body.id.trim() : '';
+  if (!id) return null;
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  if (!title) return null;
+  const raw = typeof body.body === 'string' ? body.body : '';
+  const sec = Number(body.timeoutSec);
+  const timeoutSec = Number.isFinite(sec)
+    ? Math.min(ASK_TIMEOUT_MAX_SEC, Math.max(ASK_TIMEOUT_MIN_SEC, Math.floor(sec)))
+    : ASK_TIMEOUT_DEFAULT_SEC;
+  return {
+    id,
+    title,
+    body: raw,
+    confirmText: typeof body.confirmText === 'string' && body.confirmText.trim() ? body.confirmText.trim() : '确认',
+    cancelText: typeof body.cancelText === 'string' && body.cancelText.trim() ? body.cancelText.trim() : '取消',
+    timeoutSec,
+  };
+}
 
 /**
  * 解析单行协议输出。永不抛异常。
@@ -55,6 +121,11 @@ export function parseBzLine(line: string): BzToolEvent | null {
     case 'info': {
       const info = parseJsonObject(body);
       return info ? { kind: 'info', data: info } : null;
+    }
+    case 'ask': {
+      const b = parseJsonObject(body);
+      const ask = b ? parseAskBody(b) : null;
+      return ask ? { kind: 'ask', ask } : null;
     }
     default: {
       const r = parseJsonObject(body);
@@ -149,6 +220,11 @@ export interface ExternalToolSpec {
   cwd?: string;
   /** 子进程环境变量（缺省继承宿主） */
   env?: Record<string, string>;
+  /**
+   * 开交互：stdio 的 stdin 由 'ignore' 改为 'pipe'，工具可以用 [bz-ask] 问人、读 [bz-answer]。
+   * 默认关——见文件头「询问」那一节的第 1 条纪律。
+   */
+  interactive?: boolean;
 }
 
 export interface ExternalToolCallbacks {
@@ -162,6 +238,12 @@ export interface ExternalToolCallbacks {
   onResult(data: Record<string, unknown>): void;
   /** 非协议输出透传（可选：日志/透显用；畸形协议行不进这里——它们被忽略） */
   onRaw?(text: string): void;
+  /**
+   * [bz-ask] 工具问人。同步返回，**不要求**当场给答案：弹窗是异步的，答完调用方自己
+   * 调 `handle.answer(id, ok)` 写回 stdin。没提供这个回调 / 抛错 = 这次运行**没人应答**，
+   * 桥接层必须回 `ok:false`（取消）——工具擅自往下走的口子一律不留。
+   */
+  onAsk?(req: BzAskRequest): void;
 }
 
 /** 进程终结结果（done 永不 reject，调用方按 ok / stopped / error 三态分流） */
@@ -181,6 +263,14 @@ export interface ExternalToolOutcome {
 export interface ExternalToolHandle {
   /** 停止在跑进程（幂等）；温和 kill 约 3 秒（FORCE_KILL_GRACE_MS）没退干净会升级强杀整棵树；停止后的终结一律按 stopped 算 */
   stop(): void;
+  /**
+   * 回答工具的一个 [bz-ask]：往 stdin 写一行 `[bz-answer] {"id":..,"ok":..}`。
+   * 非交互运行 / 管道已关 / 进程已退 → 静默丢弃（不抛）：这是收尾路径，不该反过来炸调用方。
+   *
+   * 可选项是给**假壳**留的（people 那些测试壳只跑单向协议，没有回程这一说）——
+   * 真身 `runExternalTool` 恒返回它，dock 侧用 `handle.answer?.(...)` 调，不判空也炸不了。
+   */
+  answer?(id: string, ok: boolean): void;
   /** 进程终结 Promise（永不 reject） */
   done: Promise<ExternalToolOutcome>;
 }
@@ -265,6 +355,9 @@ export function runExternalTool(spec: ExternalToolSpec, cb: ExternalToolCallback
       case 'result':
         cb.onResult(ev.data);
         break;
+      case 'ask':
+        cb.onAsk?.(ev.ask);
+        break;
       case 'raw':
         if (cb.onRaw) cb.onRaw(ev.text);
         break;
@@ -273,17 +366,23 @@ export function runExternalTool(spec: ExternalToolSpec, cb: ExternalToolCallback
 
   if (!cp) {
     settle({ ok: false, stopped: false, code: null, stderr: '', error: new Error('仅桌面端可用：外部工具需要 Node.js 子进程') });
-    return { stop: () => {}, done };
+    return { stop: () => {}, answer: () => {}, done };
   }
 
-  const spawnOpts: any = { shell: !!spec.shell, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] };
+  const spawnOpts: any = {
+    shell: !!spec.shell,
+    windowsHide: true,
+    // stdin 只在交互运行下开 pipe（见 spec.interactive 的说明）：给所有工具无差别开管道，
+    // 等于让一个「顺手读了 stdin」的工具凭空挂住——而它本来只是想要 /dev/null。
+    stdio: [spec.interactive ? 'pipe' : 'ignore', 'pipe', 'pipe'],
+  };
   if (spec.cwd) spawnOpts.cwd = spec.cwd;
   if (spec.env) spawnOpts.env = spec.env;
   try {
     child = cp.spawn(spec.cmd, spec.args || [], spawnOpts);
   } catch (e: any) {
     settle({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${e?.message || String(e)}`) });
-    return { stop: () => {}, done };
+    return { stop: () => {}, answer: () => {}, done };
   }
 
   child.stdout?.on('data', (d: string | Buffer) => {
@@ -406,6 +505,17 @@ export function runExternalTool(spec: ExternalToolSpec, cb: ExternalToolCallback
       if (settled || stopped) return; // 幂等：重复 stop 不再补 kill、不重排强杀
       stopped = true;
       stopChild();
+    },
+    answer: (id: string, ok: boolean) => {
+      const s = child?.stdin;
+      if (!s || s.destroyed || s.writableEnded) return; // 非交互 / 管道已关：没处可答
+      try {
+        // 与出去的四行协议同一个前缀口径：`[bz-answer] {"id":..,"ok":..}`。
+        // 带前缀是为了让工具侧能认得出、也认得出「不是」（比如被人手喂进来的一行）。
+        s.write(`[bz-answer] ${JSON.stringify({ id, ok: !!ok })}\n`);
+      } catch {
+        /* 进程正在退，写不进去就算了 */
+      }
     },
     done,
   };

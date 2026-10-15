@@ -33,6 +33,7 @@ import { trapPanelFocus } from '../core/ui/focus-trap';
 import { notice, notify } from '../core/notice';
 import { uiBtn, uiIconBtn, uiBtnRow, uiChip, uiChoice, uiDialogActions, uiEmpty, uiField, uiInput, uiModal, uiProgress, uiSearch, uiSelect, uiSwitch, uiIcon } from '../core/ui';
 import { bindFormSubmit } from '../core/ui/modal';
+import type { BzAskRequest } from '../core/external-tool';
 import { openFlowDialog } from '../core/flow-dialog';
 import { pickSystemFiles, pickSystemFolder } from '../core/path-picker';
 import { attachItemActions, type ItemAction } from '../core/item-actions';
@@ -2447,13 +2448,97 @@ async function runFlow(v: DockToolView): Promise<void> {
 }
 
 /** 四行协议 → 现场视图刷新：runFlow 与直跑命令共用一份回调形状（onDone 各自不同） */
-function liveCallbacks(id: string): Pick<DockRunCallbacks, 'onStep' | 'onProgress' | 'onInfo' | 'onResult'> {
+function liveCallbacks(id: string): Pick<DockRunCallbacks, 'onStep' | 'onProgress' | 'onInfo' | 'onResult' | 'onAsk'> {
   return {
     onStep: () => updateLive(id),
     onProgress: () => updateLive(id),
     onInfo: () => updateLive(id),
     onResult: () => updateLive(id),
+    // 工具问人：刷新一次（运行台要显示「在等你拍板」），然后弹窗等答案
+    onAsk: (req) => {
+      updateLive(id);
+      return confirmAsk(req);
+    },
   };
+}
+
+/**
+ * 工具跑到一半请用户拍板（[bz-ask] 的那一屏）。
+ *
+ * 与信任框是两种东西，别混用：信任框核对的是「这东西会跑什么」，是**启动前**的一次性授权；
+ * 这一框是**运行中**的一次具体动作要不要做（例：把分类写进 Steam，得先关 Steam），
+ * 每次跑都要重新问——所以正文由工具给，bz 只管摆得清楚、并把答案原样回给它。
+ *
+ * 两个刻意的设计：
+ *  - **正文按 \n 分成段落渲染，绝不 innerHTML**。工具输出是外部进程的产物，当 HTML 插进来
+ *    等于给每个工具发一张 XSS 通行证（bili-dl 那类会打印远端标题的工具尤其明显）。
+ *  - **超时 = 取消，不是确认**，并把倒计时摆在按钮旁。人不在电脑前时，悬着的一次运行
+ *    会把队列堵到 bz 十分钟强杀；「没人应答就当同意」更是没有第二种解释的错。
+ */
+function confirmAsk(req: BzAskRequest): Promise<boolean> {
+  // 同信任框：uiModal 不自带「新框顶替旧框」，同时只留一个；已有的那个还在等人，返回 false
+  // 让这一个立刻收场（两个都等 = 两个都会超时，还让人分不清该点哪个）。
+  if (document.querySelector('.bz-dock-askmodal')) return Promise.resolve(false);
+
+  const body = el('div', 'bz-dock-ask');
+  const paras = String(req.body ?? '')
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const p of paras) body.appendChild(el('p', 'bz-dock-ask-p', p));
+  if (!paras.length) body.appendChild(el('p', 'bz-dock-ask-p', '（工具没说要做什么）'));
+
+  return new Promise<boolean>((resolve) => {
+    let settled = false;
+    let closeRef: () => void = () => undefined;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let tick: ReturnType<typeof setInterval> | null = null;
+    const stopClocks = (): void => {
+      if (timer !== null) { clearTimeout(timer); timer = null; }
+      if (tick !== null) { clearInterval(tick); tick = null; }
+    };
+    const settle = (v: boolean): void => {
+      if (settled) return;
+      settled = true;
+      stopClocks();
+      resolve(v);
+      closeRef();
+    };
+
+    const left = el('span', 'bz-dock-ask-left', `${req.timeoutSec}`);
+    const countdown = el('div', 'bz-dock-ask-clock');
+    countdown.append('不操作就取消，还剩 ', left, ' 秒');
+
+    const actions = uiDialogActions({
+      cancelText: req.cancelText,
+      okText: req.confirmText,
+      onCancel: () => settle(false),
+      onOk: () => settle(true),
+    });
+    actions.row.appendChild(countdown);
+    body.appendChild(actions.row);
+
+    const { close } = uiModal({
+      head: true,
+      title: req.title,
+      content: body,
+      maxWidth: 460,
+      className: 'bz-dock-askmodal',
+      onClose: () => settle(false), // 遮罩 / ESC = 取消
+    });
+    closeRef = close;
+
+    const deadline = Date.now() + req.timeoutSec * 1000;
+    tick = setInterval(() => {
+      const s = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      left.textContent = String(s);
+    }, 1000);
+    timer = setTimeout(() => settle(false), req.timeoutSec * 1000);
+
+    // 焦点落在**取消**：这一框的默认动作是「不改任何东西」，回车不该替用户拍板。
+    // （信任框那边落在主动作，是因为它核对完就是要放行；这里是另一件事。）
+    actions.cancelBtn?.focus?.();
+  });
 }
 
 /** 熔断恢复 + 立即补跑，一步到位：恢复是清台账，补跑走手动同一条路（全部门槛照过） */

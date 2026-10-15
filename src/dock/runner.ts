@@ -24,6 +24,7 @@ import type { App } from 'obsidian';
 import { notify } from '../core/notice';
 import {
   runExternalTool,
+  type BzAskRequest,
   type ExternalToolDeps,
   type ExternalToolHandle,
   type ExternalToolOutcome,
@@ -132,6 +133,12 @@ export interface DockRunCallbacks {
   onProgress?(phase: string | null, pct: number | null): void;
   onInfo?(data: Record<string, unknown>): void;
   onResult?(data: Record<string, unknown>): void;
+  /**
+   * 工具问人（[bz-ask]）：弹窗、等用户拍板，返回 true=确认 / false=取消。
+   * **不提供 = 无人应答**，桥接层立即回 false（取消）——自动触发的场合没有 UI 可问，
+   * 而「没人答应就当同意」是最危险的一种默认值。
+   */
+  onAsk?(req: BzAskRequest): Promise<boolean> | boolean;
   /** 权威终结包（四行协议 + 过程态都在里面） */
   onDone?(outcome: DockRunOutcome, run: DockLiveRun): void;
 }
@@ -220,6 +227,9 @@ export function runTool(
     shell: launch.shell,
     cwd: launch.cwd,
     env: dockEnvOf(entry, app, opts.trigger ?? 'manual'),
+    // 只有这次运行**有人可问**（调用方给了 onAsk）才开 stdin。给不开交互的运行开管道，
+    // 只是多一条没人写的管道；反过来（开了却没人答）才是事故——所以这两个开关必须同一件事。
+    interactive: typeof cb.onAsk === 'function',
   };
 
   const steps: DockRunStep[] = [];
@@ -250,6 +260,25 @@ export function runTool(
       onRaw: (t) => {
         rawTail.push(t);
         if (rawTail.length > 200) rawTail.shift();
+      },
+      // 询问的回程：弹窗是异步的，这里只负责把「答案」写回工具。
+      // 两条兜底——没人可问、或弹窗那头抛错——都落到 `false`（取消），
+      // 并顺手把这件事说进步骤流：否则用户只看到工具自己认输了，不知道其实是没问着人。
+      onAsk: (req) => {
+        const ask = cb.onAsk;
+        if (typeof ask !== 'function') {
+          steps.push({ text: `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`, at: new Date().toISOString(), status: 'ok' });
+          cb.onStep?.(`工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`);
+          handle.answer?.(req.id, false);
+          return;
+        }
+        void Promise.resolve()
+          .then(() => ask(req))
+          .then((yes) => handle.answer?.(req.id, !!yes))
+          .catch((e) => {
+            steps.push({ text: `询问「${req.title}」的弹窗出了岔子（${e?.message ?? e}）—— 按取消处理`, at: new Date().toISOString(), status: 'ok' });
+            handle.answer?.(req.id, false);
+          });
       },
     },
     deps,

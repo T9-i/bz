@@ -731,6 +731,28 @@
   color: var(--bz-text-3);
 }
 
+/* ---------- 运行中询问（[bz-ask]）----------
+   与信任框同壳不同事：信任框核对「会跑什么」，这一框问「这一下要不要做」。
+   正文由工具给，是外部进程的输出 —— 只当文本渲染，所以这里的排版目标很单纯：
+   让几段话看起来像一份待确认的说明，而不是一坨挤在一起的字。 */
+.bz-dock-askmodal { padding: var(--bz-space-xl); }
+.bz-dock-ask { display: flex; flex-direction: column; gap: var(--bz-space-md); text-align: left; }
+.bz-dock-ask-p {
+  margin: 0;
+  font-size: var(--bz-font-label);
+  line-height: var(--bz-leading-normal);
+  color: var(--bz-text-1);
+  overflow-wrap: anywhere;
+}
+/* 倒计时：与按钮同一行右侧，最弱一档 —— 它是「超时会怎么收场」的说明，不是要读的数字 */
+.bz-dock-ask-clock {
+  margin-left: auto;
+  align-self: center;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-3);
+}
+.bz-dock-ask-left { font-variant-numeric: tabular-nums; }
+
 /* 在场运行台 */
 .bz-dock-live {
   display: flex;

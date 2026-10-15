@@ -9,10 +9,18 @@
  * 修法不是「把相对路径改绝对」，而是**记录改住工具目录**（spec D9/D10 修订）：路径由声明文件
  * 的位置推出，天生绝对，也天生与 vault 无关。外部进程拿到的路径一律必须绝对。
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { EventEmitter } from 'events';
 import type { App } from 'obsidian';
-import { dockEnvOf, reconcileWithRecord, type DockRunOutcome } from '../../src/dock/runner';
+import {
+  dockEnvOf,
+  reconcileWithRecord,
+  runTool,
+  setDockRuntimeDeps,
+  type DockRunOutcome,
+} from '../../src/dock/runner';
 import { setDockFs } from '../../src/dock/declaration';
+import type { DockToolEntry } from '../../src/dock/data';
 
 const ENTRY = { id: 'iamtxt-signin', path: 'E:/tools/daily-signin/manifest.json' };
 
@@ -162,5 +170,88 @@ describe('reconcileWithRecord —— 通知之前跟工具的记录对一次账'
     );
     expect(reconcileWithRecord(inferred(), ENTRY.path).ok).toBe(false);
     setDockFs(undefined);
+  });
+});
+
+// ==================== 询问的桥接（[bz-ask] → 人 → [bz-answer]） ====================
+
+const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 0));
+
+/** 假子进程：stdout 可投喂，stdin 记账（断言回程那一行） */
+class FakeProc extends EventEmitter {
+  stdout = new EventEmitter();
+  stderr = new EventEmitter();
+  pid = 4242;
+  stdin = {
+    destroyed: false,
+    writableEnded: false,
+    written: [] as string[],
+    write(s: string) {
+      this.written.push(s);
+      return true;
+    },
+  };
+  kill = vi.fn(() => true);
+}
+
+const LAUNCH = { cmd: 'steam-classify', args: ['main.mjs'], cwd: 'E:/tools/steam-classify', shell: false };
+const ENTRY2: DockToolEntry = { id: 'steam-classify', path: 'E:/tools/steam-classify/manifest.json' };
+
+/**
+ * 钉的是一条**安全纪律**，不是功能：工具问人时若这一侧没人可问（自动触发没有 UI），
+ * 答案是**取消**——「没人应答就当同意」没有第二种解释，那等于让一个无人值守的运行
+ * 替用户关掉 Steam 并改他的库。
+ */
+describe('runTool 的询问桥接 —— 没人应答 = 取消', () => {
+  it('没给 onAsk：立刻回 ok:false，并把「没人可问」说进步骤流（否则用户只看到工具自己认输了）', async () => {
+    const child = new FakeProc();
+    setDockRuntimeDeps({ cp: { spawn: () => child } as never });
+    const steps: string[] = [];
+    const run = runTool(fakeApp(), ENTRY2, LAUNCH, { params: [] }, {}, { onStep: (t) => steps.push(t) });
+    child.stdout.emit('data', Buffer.from('[bz-ask] {"id":"apply","title":"写入 Steam 分类","body":"3 款"}\n'));
+    expect(child.stdin.written).toEqual(['[bz-answer] {"id":"apply","ok":false}\n']);
+    expect(steps.some((s) => s.includes('没人可问'))).toBe(true);
+    child.emit('close', 0);
+    await run.done;
+    setDockRuntimeDeps(undefined);
+  });
+
+  it('给了 onAsk：答案原样回给工具（确认 / 取消都不改写；弹窗抛错也落到取消）', async () => {
+    // ① 确认
+    const child = new FakeProc();
+    setDockRuntimeDeps({ cp: { spawn: () => child } as never });
+    const run = runTool(fakeApp(), ENTRY2, LAUNCH, { params: [] }, {}, { onAsk: () => true });
+    child.stdout.emit('data', Buffer.from('[bz-ask] {"id":"apply","title":"写入 Steam 分类"}\n'));
+    await tick(); // 桥接是异步回写的（弹窗天然异步）
+    expect(child.stdin.written).toEqual(['[bz-answer] {"id":"apply","ok":true}\n']);
+    child.emit('close', 0);
+    await run.done;
+
+    // ② 弹窗那头自己炸了 → 也不能让工具悬着等
+    const child2 = new FakeProc();
+    setDockRuntimeDeps({ cp: { spawn: () => child2 } as never });
+    const run2 = runTool(fakeApp(), ENTRY2, LAUNCH, { params: [] }, {}, {
+      onAsk: () => {
+        throw new Error('弹窗没了');
+      },
+    });
+    child2.stdout.emit('data', Buffer.from('[bz-ask] {"id":"apply","title":"写入 Steam 分类"}\n'));
+    await tick();
+    expect(child2.stdin.written).toEqual(['[bz-answer] {"id":"apply","ok":false}\n']);
+    child2.emit('close', 0);
+    await run2.done;
+    setDockRuntimeDeps(undefined);
+  });
+
+  it('interactive 只在有人可问时打开：不给 onAsk 的运行不该白开一条 stdin 管道', () => {
+    const spawn = vi.fn(() => new FakeProc());
+    setDockRuntimeDeps({ cp: { spawn } as never });
+    runTool(fakeApp(), ENTRY2, LAUNCH, { params: [] }, {}, {});
+    expect(spawn).toHaveBeenCalledWith(LAUNCH.cmd, LAUNCH.args, expect.objectContaining({ stdio: ['ignore', 'pipe', 'pipe'] }));
+    const spawn2 = vi.fn(() => new FakeProc());
+    setDockRuntimeDeps({ cp: { spawn: spawn2 } as never });
+    runTool(fakeApp(), ENTRY2, LAUNCH, { params: [] }, {}, { onAsk: () => false });
+    expect(spawn2).toHaveBeenCalledWith(LAUNCH.cmd, LAUNCH.args, expect.objectContaining({ stdio: ['pipe', 'pipe', 'pipe'] }));
+    setDockRuntimeDeps(undefined);
   });
 });
