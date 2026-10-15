@@ -1,4 +1,4 @@
-/* 源指纹 56d33a65169e47d5 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 9030ae1325282189 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -9718,8 +9718,6 @@ var BZW_dock = (() => {
       "padding:var(--bz-space-md)",
       "background:transparent",
       "color:var(--bz-text-1)",
-      // ADR-0122 同款：只隐藏条，不动 overflow（滚动照旧，只是没有那根原生条）
-      "scrollbar-width:none",
       "font-family:var(--bz-font-ui)",
       "font-size:var(--bz-font-label)",
       "line-height:1.6"
@@ -9729,19 +9727,35 @@ var BZW_dock = (() => {
   function escapeStyleAttr(v) {
     return v.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
   }
+  function frameRootStyle() {
+    return "scrollbar-width:none";
+  }
   function fitFrameHeight(frame) {
-    var _a, _b, _c, _d;
     const doc = frame.contentDocument;
     if (!doc) return;
-    const h = Math.max((_b = (_a = doc.documentElement) == null ? void 0 : _a.scrollHeight) != null ? _b : 0, (_d = (_c = doc.body) == null ? void 0 : _c.scrollHeight) != null ? _d : 0);
-    if (h > 0) frame.style.height = `${h}px`;
+    let last = -1;
+    const measure = () => {
+      var _a, _b, _c, _d;
+      const h = Math.max((_b = (_a = doc.documentElement) == null ? void 0 : _a.scrollHeight) != null ? _b : 0, (_d = (_c = doc.body) == null ? void 0 : _c.scrollHeight) != null ? _d : 0);
+      if (h > 0 && Math.abs(h - last) > 1) {
+        last = h;
+        frame.style.height = `${h}px`;
+      }
+    };
+    measure();
+    try {
+      const ro = new ResizeObserver(measure);
+      if (doc.body) ro.observe(doc.body);
+      ro.observe(doc.documentElement);
+    } catch (e) {
+    }
   }
   function sandboxFrame(html, className, title) {
     const frame = document.createElement("iframe");
     frame.className = className;
     frame.setAttribute("sandbox", "allow-same-origin");
     frame.setAttribute("title", title);
-    frame.srcdoc = `<body style="${frameBaseStyle()}">${html}</body>`;
+    frame.srcdoc = `<html style="${frameRootStyle()}"><body style="${frameBaseStyle()}">${html}</body></html>`;
     frame.addEventListener("load", () => fitFrameHeight(frame));
     return frame;
   }

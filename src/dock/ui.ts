@@ -1841,8 +1841,12 @@ const BOARD_THEME_VARS = [
  *
  * **滚动条也有、但只隐藏条**：框里是**独立文档**，core 那条界面级隐藏滚动条的通杀规则
  * （ADR-0122，选择器按 `bz-` 前缀枚举）**够不着它** —— CSS 不跨文档。而「隐藏条、保留滚动」
- * 是 bz 界面的既有口径，所以在这里补上 `scrollbar-width: none`（不是薄条、不是自绘，是隐藏）。
- * 这也是唯一能进框的通道：走 `style` 属性，不新增 `<style>` 注入点（铁律 4）。
+ * 是 bz 界面的既有口径，所以在这里补上（不是薄条、不是自绘，是隐藏）。这也是唯一能进框的通道：
+ * 走 `style` 属性，不新增 `<style>` 注入点（铁律 4）。
+ *
+ * **挂根元素、不是挂 body**（无头实测 2026-10-15）：框里的滚动条是**视口滚动条**，归根元素管；
+ * 而 `scrollbar-width` **不继承**，挂在 `<body>` 上对它是无效的（实测条占位仍是 15px，挂到
+ * `<html>` 上才是 0px）。所以那条在 `frameRootStyle()`，别往这条基线里加。
  *
  * 代价要认：内联 `style` 的优先级高于任何选择器，所以**框里没法用普通规则改这几条基线**
  * （要改得用 `!important`）—— 这也正是为什么基线只留最必要的几条，其余都交给框里自己。
@@ -1860,8 +1864,6 @@ export function frameBaseStyle(): string {
     'padding:var(--bz-space-md)',
     'background:transparent',
     'color:var(--bz-text-1)',
-    // ADR-0122 同款：只隐藏条，不动 overflow（滚动照旧，只是没有那根原生条）
-    'scrollbar-width:none',
     'font-family:var(--bz-font-ui)',
     'font-size:var(--bz-font-label)',
     'line-height:1.6',
@@ -1878,21 +1880,54 @@ export function escapeStyleAttr(v: string): string {
 }
 
 /**
+ * 框文档**根元素**（`<html>`）上那一条：隐藏框自己的滚动条（ADR-0122「只隐藏条、保留滚动」同款）。
+ *
+ * 为什么单独一条、而且必须挂在根上：框里的滚动条是**视口滚动条**，归 `<html>` 管；而
+ * `scrollbar-width` **不继承**，挂在 `<body>` 上对它无效（2026-10-15 无头实测：挂 body 条占位
+ * 仍是 15px，挂 html 才是 0px）。所以别把这条并进 `frameBaseStyle()`（那是 body 基线）。
+ *
+ * 为什么不能靠 core 那条界面级规则：它是 CSS，跨不过文档边界（iframe 是独立文档），够不着框里。
+ */
+export function frameRootStyle(): string {
+  return 'scrollbar-width:none';
+}
+
+/**
  * 把 iframe 撑到**内容那么高**（不封顶）—— sandbox 带 allow-same-origin 才读得到它自己的文档。
  *
  * **为什么不封顶**：封了就会在框里长出一条原生滚动条（Windows 上还带上下箭头，与宿主观感完全
  * 不是一回事）—— 而那是**框内滚动**，样式管不着、也没法跟着主题走。框跟着内容长、滚动交给外面
- * 那层（展示板是面板的内容区 `.bz-dock-body`，询问框是弹窗正文区）之后，滚动条是宿主自己的，
- * 框里永远干干净净（2026-10-15 用户报「都不显示滚动条」）。
+ * 那层（展示板是面板的内容区 `.bz-dock-body`，询问框是弹窗正文区）之后，滚动条是宿主自己的。
+ * 代价要认：展示板理论上能长到任意高（512 KB 上限只管体积），所以它仍是「一眼看完的几行数」。
  *
- * 代价要认：展示板理论上能长到任意高（512 KB 上限只管体积）。所以它仍是「一眼看完的几行数」，
- * 想铺长文该去写手册。
+ * **为什么不能只量一次**（2026-10-15 用户报「还是有滚动条」，无头实测出两条）：
+ *  - **量到 0**：面板**关着**的时候也会渲染（刷新 / 运行结束后的重渲染），而 `display:none` 的框里
+ *    文档没有布局 —— `scrollHeight` 量出来是 0（实测）。只量一次、又只认 > 0 的值，这一帧之后就
+ *    再也不纠正，框停在默认 150px、内容溢出、框里长出一根原生条。
+ *  - **量短了**：emoji / 字体在 load 之后才落地，内容会长高；量到的旧高度就短了那么一点 ——
+ *    溢出的那一点点正好够长出一条条（截图里拇指几乎顶满轨道，就是这么来的）。
+ *
+ * 所以：立刻量一次 + `ResizeObserver` 跟着框内文档的尺寸走（隐藏时它不派发，一旦显示、布局
+ * 从 0 变成真高度，它会派发 —— 这正是「关着渲染」那条路需要的）。
  */
-function fitFrameHeight(frame: HTMLIFrameElement): void {
+export function fitFrameHeight(frame: HTMLIFrameElement): void {
   const doc = frame.contentDocument;
   if (!doc) return;
-  const h = Math.max(doc.documentElement?.scrollHeight ?? 0, doc.body?.scrollHeight ?? 0);
-  if (h > 0) frame.style.height = `${h}px`;
+  let last = -1;
+  const measure = (): void => {
+    const h = Math.max(doc.documentElement?.scrollHeight ?? 0, doc.body?.scrollHeight ?? 0);
+    // 差 1px 不动它：否则「量高 → 框变高 → 框内重排 → 再量」会互相追着改
+    if (h > 0 && Math.abs(h - last) > 1) {
+      last = h;
+      frame.style.height = `${h}px`;
+    }
+  };
+  measure();
+  try {
+    const ro = new ResizeObserver(measure);
+    if (doc.body) ro.observe(doc.body);
+    ro.observe(doc.documentElement);
+  } catch { /* 没有 ResizeObserver 的老环境：只留上面那一次，行为与本条之前一致 */ }
 }
 
 /**
@@ -1912,9 +1947,9 @@ function sandboxFrame(html: string, className: string, title: string): HTMLIFram
   frame.className = className;
   frame.setAttribute('sandbox', 'allow-same-origin');
   frame.setAttribute('title', title);
-  // 框里写**片段**就行（不必 `<!doctype html><html><body>`）—— 这里裹一层 body 承载基线；
-  // 作者递了整份文档也能用（浏览器会忽略内层的 body 标签，属性以这一层为准）
-  frame.srcdoc = `<body style="${frameBaseStyle()}">${html}</body>`;
+  // 框里写**片段**就行（不必 `<!doctype html><html><body>`）—— 外层裹的 `<html>` 挂根上的那条
+  // （隐藏根滚动条），`<body>` 承载主题基线；作者递了整份文档也能用（内层标签的属性以这一层为准）
+  frame.srcdoc = `<html style="${frameRootStyle()}"><body style="${frameBaseStyle()}">${html}</body></html>`;
   frame.addEventListener('load', () => fitFrameHeight(frame));
   return frame;
 }

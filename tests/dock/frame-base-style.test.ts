@@ -1,20 +1,24 @@
 // @vitest-environment jsdom
 /**
- * 沙箱框基线的转义守卫（2026-10-15）
+ * 沙箱框这条线上的守卫（2026-10-15）——三件事，都是「用户看得见、但没人守就会悄悄回潮」的：
  *
- * 背景：`frameBaseStyle()` 把主题变量拼进 `style="…"` 灌给 iframe 内容（展示板 ADR-0243、
- * 询问框正文 ADR-0244）。而主题变量里有一个**带引号**的值：
+ * ① **转义**：`frameBaseStyle()` 把主题变量拼进 `style="…"` 灌给 iframe 内容（展示板 ADR-0243、
+ *    询问框正文 ADR-0244）。主题变量里有一个**带引号**的值：
  *
- *   --bz-font-ui: -apple-system, "Segoe UI", system-ui, "PingFang SC", …
+ *      --bz-font-ui: -apple-system, "Segoe UI", system-ui, "PingFang SC", …
  *
- * 原样拼进去，HTML 属性在第一个 `"` 处提前收尾 —— 后面的声明（`--bz-font-mono`、`--bz-space-*`
- * 与整条基线）全变成杂属性丢掉，框里退回 8px 边距 + Times + 16px。
- * 界面不报错、也不缺内容，只是「变丑了一点」—— 这类缺陷只能靠断言钉住。
+ *    原样拼进去，HTML 属性在第一个 `"` 处提前收尾 —— 后面的声明（`--bz-font-mono`、`--bz-space-*`
+ *    与整条基线）全变成杂属性丢掉，框里退回 8px 边距 + Times + 16px。
  *
- * 所以这份测试两段：① 值确实被转义；② 转义之后**后面的声明还在**（不转义就是在这里红的）。
+ * ② **隐藏条**：那条挂框文档的**根元素**上，不在 body 基线上（`scrollbar-width` 不继承，
+ *    挂 body 实测无效）。
+ *
+ * ③ **量高**：量到 0（面板关着时渲染）要能在之后补上，内容变高要跟上，且不许互相追着改。
+ *
+ * 三件都「界面不报错、也不缺内容，只是难看了/多了根条」—— 只能靠断言钉住。
  */
-import { afterEach, describe, expect, it } from 'vitest';
-import { escapeStyleAttr, frameBaseStyle } from '../../src/dock/ui';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { escapeStyleAttr, fitFrameHeight, frameBaseStyle, frameRootStyle } from '../../src/dock/ui';
 
 /** 与 tokens.css 的真实取值同形（引号是重点，值本身随皮肤变） */
 const FONT_UI = '-apple-system, "Segoe UI", system-ui, "PingFang SC", sans-serif';
@@ -31,10 +35,11 @@ describe('沙箱框基线的转义', () => {
     expect(escapeStyleAttr('12px')).toBe('12px');
   });
 
-  it('框里也隐藏滚动条（ADR-0122 同款）：只隐藏条，不动 overflow', () => {
+  it('隐藏条那条挂在**根元素**上，不在 body 基线上（挂 body 无效 —— 不继承，实测条占位 15px）', () => {
+    expect(frameRootStyle()).toBe('scrollbar-width:none');
     const css = frameBaseStyle();
-    expect(css).toMatch(/scrollbar-width:\s*none/);
-    // 铁律那条 ADR-0122 只做一半：隐藏条、保留滚动 —— 基线里不许出现 overflow
+    expect(css).not.toMatch(/scrollbar-width/);
+    // ADR-0122 那条只做一半：隐藏条、保留滚动 —— 基线里不许出现 overflow
     expect(css).not.toContain('overflow');
   });
 
@@ -60,5 +65,65 @@ describe('沙箱框基线的转义', () => {
     // 带引号那条自己也没被啃掉
     expect(css).toContain('Segoe UI&quot;');
     expect(css).not.toMatch(/Segoe UI"/);
+  });
+});
+
+describe('沙箱框量高：量到 0 之后要能补，内容变高要跟上', () => {
+  /** 捕获 ResizeObserver 实例，方便手动触发它的回调 */
+  const callbacks: Array<() => void> = [];
+  class FakeResizeObserver {
+    constructor(cb: () => void) { callbacks.push(cb); }
+    observe(): void { /* 记下回调就够了 */ }
+    disconnect(): void { /* 不用 */ }
+  }
+  /** 造一个「框内文档高度可拨」的框（jsdom 不做布局，高度只能自己拨） */
+  function fakeFrame(getH: () => number): HTMLIFrameElement {
+    const frame = document.createElement('iframe');
+    document.body.appendChild(frame);
+    const doc = frame.contentDocument as Document;
+    for (const el of [doc.body, doc.documentElement]) {
+      Object.defineProperty(el, 'scrollHeight', { configurable: true, get: getH });
+    }
+    return frame;
+  }
+  const fire = (): void => { for (const cb of callbacks) cb(); };
+
+  afterEach(() => {
+    callbacks.length = 0;
+    vi.unstubAllGlobals();
+  });
+
+  it('面板关着时渲染 → 量到 0 不设高；显示之后（ResizeObserver 派发）补上真高度', () => {
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+    let h = 0;
+    const frame = fakeFrame(() => h);
+
+    fitFrameHeight(frame);
+    expect(frame.style.height).toBe('');   // 量到 0：宁可保持默认，也不设成 0
+    h = 300;
+    fire();                                 // 一旦显示，布局从 0 变成真高度 → 回调派发
+    expect(frame.style.height).toBe('300px');
+  });
+
+  it('内容后续长高要跟上（emoji / 字体在 load 之后落地）；差 1px 不动它（免得互相追着改）', () => {
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+    let h = 300;
+    const frame = fakeFrame(() => h);
+
+    fitFrameHeight(frame);
+    expect(frame.style.height).toBe('300px');
+    h = 301;
+    fire();
+    expect(frame.style.height).toBe('300px');  // 1px 内不动：否则「量高 → 框变高 → 框内重排 → 再量」会绕圈
+    h = 420;
+    fire();
+    expect(frame.style.height).toBe('420px');
+  });
+
+  it('没有 ResizeObserver 的老环境：不抛，退化成「只量一次」', () => {
+    vi.stubGlobal('ResizeObserver', undefined);
+    const frame = fakeFrame(() => 260);
+    expect(() => fitFrameHeight(frame)).not.toThrow();
+    expect(frame.style.height).toBe('260px');
   });
 });
