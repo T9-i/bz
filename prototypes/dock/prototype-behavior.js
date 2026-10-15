@@ -1,4 +1,4 @@
-/* 源指纹 26fbb4dad3bfefed · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 5d2b81155c0c6342 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -7434,7 +7434,27 @@ var BZW_dock = (() => {
   }
 
   // src/core/external-tool.ts
-  var BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result)\]/;
+  var ASK_TIMEOUT_DEFAULT_SEC = 300;
+  var ASK_TIMEOUT_MIN_SEC = 10;
+  var ASK_TIMEOUT_MAX_SEC = 600;
+  var BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
+  function parseAskBody(body) {
+    const id = typeof body.id === "string" ? body.id.trim() : "";
+    if (!id) return null;
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    if (!title) return null;
+    const raw = typeof body.body === "string" ? body.body : "";
+    const sec = Number(body.timeoutSec);
+    const timeoutSec = Number.isFinite(sec) ? Math.min(ASK_TIMEOUT_MAX_SEC, Math.max(ASK_TIMEOUT_MIN_SEC, Math.floor(sec))) : ASK_TIMEOUT_DEFAULT_SEC;
+    return {
+      id,
+      title,
+      body: raw,
+      confirmText: typeof body.confirmText === "string" && body.confirmText.trim() ? body.confirmText.trim() : "确认",
+      cancelText: typeof body.cancelText === "string" && body.cancelText.trim() ? body.cancelText.trim() : "取消",
+      timeoutSec
+    };
+  }
   function parseBzLine(line) {
     const text = line.endsWith("\r") ? line.slice(0, -1) : line;
     const m = text.match(BZ_LINE_PREFIX_RE);
@@ -7459,6 +7479,11 @@ var BZW_dock = (() => {
       case "info": {
         const info = parseJsonObject(body);
         return info ? { kind: "info", data: info } : null;
+      }
+      case "ask": {
+        const b = parseJsonObject(body);
+        const ask = b ? parseAskBody(b) : null;
+        return ask ? { kind: "ask", ask } : null;
       }
       default: {
         const r = parseJsonObject(body);
@@ -7566,6 +7591,7 @@ var BZW_dock = (() => {
       if (stderrTail.length > STDERR_TAIL_CHARS) stderrTail = stderrTail.slice(-STDERR_TAIL_CHARS);
     };
     const dispatchLine = (line) => {
+      var _a2;
       const ev = parseBzLine(line);
       if (!ev) return;
       switch (ev.kind) {
@@ -7581,6 +7607,9 @@ var BZW_dock = (() => {
         case "result":
           cb.onResult(ev.data);
           break;
+        case "ask":
+          (_a2 = cb.onAsk) == null ? void 0 : _a2.call(cb, ev.ask);
+          break;
         case "raw":
           if (cb.onRaw) cb.onRaw(ev.text);
           break;
@@ -7589,9 +7618,16 @@ var BZW_dock = (() => {
     if (!cp) {
       settle({ ok: false, stopped: false, code: null, stderr: "", error: new Error("仅桌面端可用：外部工具需要 Node.js 子进程") });
       return { stop: () => {
+      }, answer: () => {
       }, done };
     }
-    const spawnOpts = { shell: !!spec.shell, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] };
+    const spawnOpts = {
+      shell: !!spec.shell,
+      windowsHide: true,
+      // stdin 只在交互运行下开 pipe（见 spec.interactive 的说明）：给所有工具无差别开管道，
+      // 等于让一个「顺手读了 stdin」的工具凭空挂住——而它本来只是想要 /dev/null。
+      stdio: [spec.interactive ? "pipe" : "ignore", "pipe", "pipe"]
+    };
     if (spec.cwd) spawnOpts.cwd = spec.cwd;
     if (spec.env) spawnOpts.env = spec.env;
     try {
@@ -7599,6 +7635,7 @@ var BZW_dock = (() => {
     } catch (e) {
       settle({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${(e == null ? void 0 : e.message) || String(e)}`) });
       return { stop: () => {
+      }, answer: () => {
       }, done };
     }
     (_a = child.stdout) == null ? void 0 : _a.on("data", (d) => {
@@ -7679,6 +7716,15 @@ var BZW_dock = (() => {
         stopped = true;
         stopChild();
       },
+      answer: (id, ok) => {
+        const s = child == null ? void 0 : child.stdin;
+        if (!s || s.destroyed || s.writableEnded) return;
+        try {
+          s.write(`[bz-answer] ${JSON.stringify({ id, ok: !!ok })}
+`);
+        } catch (e) {
+        }
+      },
       done
     };
   }
@@ -7742,7 +7788,10 @@ var BZW_dock = (() => {
       args: [...launch.args, ...buildArgs(manifest != null ? manifest : { params: [] }, values)],
       shell: launch.shell,
       cwd: launch.cwd,
-      env: dockEnvOf(entry, app2, (_a = opts.trigger) != null ? _a : "manual")
+      env: dockEnvOf(entry, app2, (_a = opts.trigger) != null ? _a : "manual"),
+      // 只有这次运行**有人可问**（调用方给了 onAsk）才开 stdin。给不开交互的运行开管道，
+      // 只是多一条没人写的管道；反过来（开了却没人答）才是事故——所以这两个开关必须同一件事。
+      interactive: typeof cb.onAsk === "function"
     };
     const steps = [];
     const infos = [];
@@ -7775,6 +7824,27 @@ var BZW_dock = (() => {
         onRaw: (t) => {
           rawTail.push(t);
           if (rawTail.length > 200) rawTail.shift();
+        },
+        // 询问的回程：弹窗是异步的，这里只负责把「答案」写回工具。
+        // 两条兜底——没人可问、或弹窗那头抛错——都落到 `false`（取消），
+        // 并顺手把这件事说进步骤流：否则用户只看到工具自己认输了，不知道其实是没问着人。
+        onAsk: (req) => {
+          var _a2, _b;
+          const ask = cb.onAsk;
+          if (typeof ask !== "function") {
+            steps.push({ text: `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
+            (_a2 = cb.onStep) == null ? void 0 : _a2.call(cb, `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`);
+            (_b = handle.answer) == null ? void 0 : _b.call(handle, req.id, false);
+            return;
+          }
+          void Promise.resolve().then(() => ask(req)).then((yes) => {
+            var _a3;
+            return (_a3 = handle.answer) == null ? void 0 : _a3.call(handle, req.id, !!yes);
+          }).catch((e) => {
+            var _a3, _b2;
+            steps.push({ text: `询问「${req.title}」的弹窗出了岔子（${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}）—— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
+            (_b2 = handle.answer) == null ? void 0 : _b2.call(handle, req.id, false);
+          });
         }
       },
       deps
@@ -10156,8 +10226,73 @@ var BZW_dock = (() => {
       onStep: () => updateLive(id),
       onProgress: () => updateLive(id),
       onInfo: () => updateLive(id),
-      onResult: () => updateLive(id)
+      onResult: () => updateLive(id),
+      // 工具问人：刷新一次（运行台要显示「在等你拍板」），然后弹窗等答案
+      onAsk: (req) => {
+        updateLive(id);
+        return confirmAsk(req);
+      }
     };
+  }
+  function confirmAsk(req) {
+    var _a;
+    if (document.querySelector(".bz-dock-askmodal")) return Promise.resolve(false);
+    const body = el("div", "bz-dock-ask");
+    const paras = String((_a = req.body) != null ? _a : "").split("\n").map((s) => s.trim()).filter(Boolean);
+    for (const p of paras) body.appendChild(el("p", "bz-dock-ask-p", p));
+    if (!paras.length) body.appendChild(el("p", "bz-dock-ask-p", "（工具没说要做什么）"));
+    return new Promise((resolve) => {
+      var _a2, _b;
+      let settled = false;
+      let closeRef = () => void 0;
+      let timer = null;
+      let tick2 = null;
+      const stopClocks = () => {
+        if (timer !== null) {
+          clearTimeout(timer);
+          timer = null;
+        }
+        if (tick2 !== null) {
+          clearInterval(tick2);
+          tick2 = null;
+        }
+      };
+      const settle = (v) => {
+        if (settled) return;
+        settled = true;
+        stopClocks();
+        resolve(v);
+        closeRef();
+      };
+      const left = el("span", "bz-dock-ask-left", `${req.timeoutSec}`);
+      const countdown = el("div", "bz-dock-ask-clock");
+      countdown.append("不操作就取消，还剩 ", left, " 秒");
+      const actions = uiDialogActions({
+        cancelText: req.cancelText,
+        okText: req.confirmText,
+        onCancel: () => settle(false),
+        onOk: () => settle(true)
+      });
+      actions.row.appendChild(countdown);
+      body.appendChild(actions.row);
+      const { close } = uiModal({
+        head: true,
+        title: req.title,
+        content: body,
+        maxWidth: 460,
+        className: "bz-dock-askmodal",
+        onClose: () => settle(false)
+        // 遮罩 / ESC = 取消
+      });
+      closeRef = close;
+      const deadline = Date.now() + req.timeoutSec * 1e3;
+      tick2 = setInterval(() => {
+        const s = Math.max(0, Math.ceil((deadline - Date.now()) / 1e3));
+        left.textContent = String(s);
+      }, 1e3);
+      timer = setTimeout(() => settle(false), req.timeoutSec * 1e3);
+      (_b = (_a2 = actions.cancelBtn) == null ? void 0 : _a2.focus) == null ? void 0 : _b.call(_a2);
+    });
   }
   async function resumeAndRetry(v) {
     await patchRunState(v.entry.id, null);
