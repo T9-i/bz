@@ -105,13 +105,30 @@ describe('四行协议解析 parseBzLine', () => {
   it('[bz-ask] 解析成询问事件；缺 id / 缺标题 / 体坏 → 整行忽略（问不出答案的问句不许进 UI）', () => {
     expect(parseBzLine('[bz-ask] {"id":"apply","title":"写入 Steam 分类","body":"3 款"}')).toEqual({
       kind: 'ask',
-      ask: { id: 'apply', title: '写入 Steam 分类', body: '3 款', confirmText: '确认', cancelText: '取消', timeoutSec: ASK_TIMEOUT_DEFAULT_SEC },
+      ask: { id: 'apply', title: '写入 Steam 分类', body: '3 款', bodyHtml: '', confirmText: '确认', cancelText: '取消', timeoutSec: ASK_TIMEOUT_DEFAULT_SEC },
     });
     expect(parseBzLine('[bz-ask] {"title":"缺 id"}')).toBeNull();
     expect(parseBzLine('[bz-ask] {"id":"x"}')).toBeNull(); // 缺标题：弹窗没有主语
     expect(parseBzLine('[bz-ask] {"id":"  ","title":"t"}')).toBeNull(); // 纯空白 id
     expect(parseBzLine('[bz-ask] not-json')).toBeNull();
     expect(parseBzLine('[bz-ask] [1]')).toBeNull(); // 数组体不收
+  });
+
+  it('[bz-ask] bodyHtml 只认字符串且去首尾空白；没给 / 给了别的类型都是空串（UI 据此退回纯文本）', () => {
+    const ask = (s: string): BzAskRequest | null => {
+      const ev = parseBzLine(s);
+      return ev && ev.kind === 'ask' ? ev.ask : null;
+    };
+    // 两样都给：两个字段都原样收（谁胜由 UI 定，解析层不替它决定）
+    expect(ask('[bz-ask] {"id":"a","title":"t","body":"纯文本兜底","bodyHtml":"<b>hi</b>"}')).toMatchObject({
+      body: '纯文本兜底',
+      bodyHtml: '<b>hi</b>',
+    });
+    // 带换行的多行 HTML：JSON 转义进来，解析后还原（工具不必自己压成一行）
+    expect(ask('[bz-ask] {"id":"a","title":"t","bodyHtml":"<p>一</p>\\n<p>二</p>"}')?.bodyHtml).toBe('<p>一</p>\n<p>二</p>');
+    expect(ask('[bz-ask] {"id":"a","title":"t","bodyHtml":"  "}')?.bodyHtml).toBe(''); // 纯空白 = 没给
+    expect(ask('[bz-ask] {"id":"a","title":"t","bodyHtml":123}')?.bodyHtml).toBe(''); // 不是字符串：不收
+    expect(ask('[bz-ask] {"id":"a","title":"t"}')?.bodyHtml).toBe('');
   });
 
   it('[bz-ask] 钮文案原样收；超时夹在 [10,600]：工具给 0 或 1e9 都是没想清楚，UI 不照单全收', () => {

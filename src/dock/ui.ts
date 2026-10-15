@@ -1827,16 +1827,19 @@ const BOARD_THEME_VARS = [
 ];
 
 /**
- * 灌给展示板的主题变量 + 基线样式，合成一个 `style` 属性的值（变量一个都读不到就只剩基线，
- * 展示板退回自己的默认观感）。
+ * 灌给 iframe 内容的主题变量 + 基线样式，合成一个 `style` 属性的值（变量一个都读不到就只剩基线，
+ * 框里退回自己的默认观感）。
+ *
+ * 两个消费者共用它：展示板（`panel.html`，ADR-0243）与询问框的 HTML 正文（ADR-0244）。
+ * 它们想要的是同一件事 ——「画出来的东西像是面板的一部分」，所以口径只有这一份。
  *
  * 走 `style` 属性而不是拼一段 `<style>`：自定义属性本来就是这么传的，够用；而且这样本模块里
  * 一处 `<style>` 字面量都没有 —— 铁律 4 的唯一注入点守卫（ADR-0199）不必为它开第二个口子。
  *
- * 代价要认：内联 `style` 的优先级高于任何选择器，所以**展示板没法用普通规则改这几条基线**
- * （要改得用 `!important`）—— 这也正是为什么基线只留最必要的几条，其余都交给展示板自己。
+ * 代价要认：内联 `style` 的优先级高于任何选择器，所以**框里没法用普通规则改这几条基线**
+ * （要改得用 `!important`）—— 这也正是为什么基线只留最必要的几条，其余都交给框里自己。
  */
-function boardBaseStyle(): string {
+function frameBaseStyle(): string {
   const cs = getComputedStyle(document.body);
   const parts = BOARD_THEME_VARS.map((name) => {
     const value = cs.getPropertyValue(name).trim();
@@ -1856,26 +1859,41 @@ function boardBaseStyle(): string {
   return parts.join(';');
 }
 
-/** 把 iframe 撑到内容那么高（sandbox 带 allow-same-origin 才读得到它自己的文档） */
-function fitBoardHeight(frame: HTMLIFrameElement): void {
+/** 把 iframe 撑到内容那么高，封顶 `maxHeight`（超了框内滚）—— sandbox 带 allow-same-origin 才读得到它自己的文档 */
+function fitFrameHeight(frame: HTMLIFrameElement, maxHeight: number): void {
   const doc = frame.contentDocument;
   if (!doc) return;
   const h = Math.max(doc.documentElement?.scrollHeight ?? 0, doc.body?.scrollHeight ?? 0);
-  if (h > 0) frame.style.height = `${Math.min(h, BOARD_MAX_HEIGHT)}px`;
+  if (h > 0) frame.style.height = `${Math.min(h, maxHeight)}px`;
+}
+
+/**
+ * 报告（HTML 片段）装进一个沙箱 iframe —— 展示板与询问框的 HTML 正文共用这一段。
+ *
+ * **为什么是沙箱 iframe，而不是净化后直接插进 DOM**：
+ *  - 直接插，一段 `<style>` 就会串到整个面板，一个没闭合的标签就会把后面的 DOM 吃掉；
+ *  - iframe 天然把这两样挡在框里，框里的样式也只能影响它自己；
+ *  - `sandbox="allow-same-origin"` 但**刻意不给 `allow-scripts`** —— 里头的 `<script>`、
+ *    `on*` 属性、`javascript:` URL 一律不执行。这不是「不信写脚本的人」（他本来就能在本机跑
+ *    命令，防他毫无意义），而是别让一块内容区变成「面板里能跑任意代码」的口子 ——
+ *    哪天换个人来维护，这条口子一定会被当成能力用。
+ *  - 带 `allow-same-origin` 只是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度）。
+ */
+function sandboxFrame(html: string, className: string, title: string, maxHeight: number): HTMLIFrameElement {
+  const frame = document.createElement('iframe');
+  frame.className = className;
+  frame.setAttribute('sandbox', 'allow-same-origin');
+  frame.setAttribute('title', title);
+  // 框里写**片段**就行（不必 `<!doctype html><html><body>`）—— 这里裹一层 body 承载基线；
+  // 作者递了整份文档也能用（浏览器会忽略内层的 body 标签，属性以这一层为准）
+  frame.srcdoc = `<body style="${frameBaseStyle()}">${html}</body>`;
+  frame.addEventListener('load', () => fitFrameHeight(frame, maxHeight));
+  return frame;
 }
 
 /**
  * 展示板（ADR-0243）：工具目录里的 `panel.html`。工具自己画，详情页把它内嵌在「自动运行」
  * 与「运行台 / 运行记录」之间，整宽。文件没有（或只有空白）就整块不出现。
- *
- * **为什么是沙箱 iframe，而不是净化后直接插进 DOM**：
- *  - 直接插，一段 `<style>` 就会串到整个面板，一个没闭合的标签就会把后面的 DOM 吃掉；
- *  - iframe 天然把这两样挡在框里，展示板的样式也只能影响它自己；
- *  - `sandbox="allow-same-origin"` 但**刻意不给 `allow-scripts`** —— 里头的 `<script>`、
- *    `on*` 属性、`javascript:` URL 一律不执行。这不是「不信写脚本的人」（他本来就能在本机跑
- *    命令，防他毫无意义），而是别让一块展示区变成「面板里能跑任意代码」的口子 ——
- *    哪天换个人来维护，这条口子一定会被当成能力用。
- *  - 带 `allow-same-origin` 只是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度）。
  */
 function boardSection(v: DockToolView): HTMLElement | null {
   const html = readPanelText(v.declPath);
@@ -1899,15 +1917,7 @@ function boardSection(v: DockToolView): HTMLElement | null {
     return host;
   }
 
-  const frame = document.createElement('iframe');
-  frame.className = 'bz-dock-board-frame';
-  frame.setAttribute('sandbox', 'allow-same-origin');
-  frame.setAttribute('title', `${displayName(v)} 的展示板`);
-  // 展示板写**片段**就行（不必 `<!doctype html><html><body>`）—— 这里裹一层 body 承载基线；
-  // 作者递了整份文档也能用（浏览器会忽略内层的 body 标签，属性以这一层为准）
-  frame.srcdoc = `<body style="${boardBaseStyle()}">${html}</body>`;
-  frame.addEventListener('load', () => fitBoardHeight(frame));
-  host.appendChild(frame);
+  host.appendChild(sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`, BOARD_MAX_HEIGHT));
   return host;
 }
 
@@ -2462,6 +2472,46 @@ function liveCallbacks(id: string): Pick<DockRunCallbacks, 'onStep' | 'onProgres
   };
 }
 
+/** 纯文本正文的框宽（够放一段说明） */
+const ASK_MODAL_WIDTH = 460;
+/** HTML 正文的框宽：工具常要摆一张「分类 → 游戏」的表，多这点宽度能明显少折行 */
+const ASK_HTML_MODAL_WIDTH = 560;
+/**
+ * HTML 正文的字节上限（128 KB）。一个弹窗正文不该有展示板那么大 —— 那说明它把该写进手册的
+ * 东西塞进来了；超了退回纯文本 `body` 并**明说**（静默退回最难查：工具以为版式生效了，
+ * 人看到的是一坨源码标签）。
+ */
+const ASK_HTML_MAX_BYTES = 128 * 1024;
+/** HTML 正文的高度上限（px）：超了框内滚 —— 弹窗不能长到把按钮与倒计时挤出屏幕 */
+const ASK_HTML_MAX_HEIGHT = 360;
+
+/**
+ * 那一块正文：HTML 优先（沙箱 iframe），没给就逐段渲染纯文本。
+ * `framed` 告诉调用方走的是哪条路 —— 框宽不一样（HTML 那份要宽一些）。
+ */
+function askBody(req: BzAskRequest): { el: HTMLElement; framed: boolean } {
+  const host = el('div', 'bz-dock-ask');
+  const html = String(req.bodyHtml ?? '').trim();
+  if (html) {
+    const bytes = new TextEncoder().encode(html).length;
+    if (bytes <= ASK_HTML_MAX_BYTES) {
+      host.appendChild(sandboxFrame(html, 'bz-dock-ask-frame', req.title, ASK_HTML_MAX_HEIGHT));
+      return { el: host, framed: true };
+    }
+    host.appendChild(el('p', 'bz-dock-ask-p',
+      `工具给的正文有 ${Math.round(bytes / 1024)} KB，超过 ${ASK_HTML_MAX_BYTES / 1024} KB 就不按 HTML 渲染了，退回纯文本。`));
+  }
+  const paras = String(req.body ?? '')
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (!paras.length) {
+    host.appendChild(el('p', 'bz-dock-ask-p', html ? '（HTML 正文超上限，工具也没给纯文本）' : '（工具没说要做什么）'));
+  }
+  for (const p of paras) host.appendChild(el('p', 'bz-dock-ask-p', p));
+  return { el: host, framed: false };
+}
+
 /**
  * 工具跑到一半请用户拍板（[bz-ask] 的那一屏）。
  *
@@ -2470,8 +2520,10 @@ function liveCallbacks(id: string): Pick<DockRunCallbacks, 'onStep' | 'onProgres
  * 每次跑都要重新问——所以正文由工具给，bz 只管摆得清楚、并把答案原样回给它。
  *
  * 两个刻意的设计：
- *  - **正文按 \n 分成段落渲染，绝不 innerHTML**。工具输出是外部进程的产物，当 HTML 插进来
- *    等于给每个工具发一张 XSS 通行证（bili-dl 那类会打印远端标题的工具尤其明显）。
+ *  - **工具写的东西永远不进面板 DOM**。纯文本正文按 \n 分成段落**当文本**渲染（`textContent`），
+ *    不是 innerHTML —— 工具输出是外部进程的产物，当 HTML 插进来等于给每个工具发一张 XSS 通行证
+ *    （bili-dl 那类会打印远端标题的工具尤其明显）。要摆表格、分组、自己的版式的，走 `bodyHtml`：
+ *    装在**沙箱 iframe**（不给 `allow-scripts`，同展示板 ADR-0243/0244）里画，样式与标签都关在框内。
  *  - **超时 = 取消，不是确认**，并把倒计时摆在按钮旁。人不在电脑前时，悬着的一次运行
  *    会把队列堵到 bz 十分钟强杀；「没人应答就当同意」更是没有第二种解释的错。
  */
@@ -2480,13 +2532,7 @@ function confirmAsk(req: BzAskRequest): Promise<boolean> {
   // 让这一个立刻收场（两个都等 = 两个都会超时，还让人分不清该点哪个）。
   if (document.querySelector('.bz-dock-askmodal')) return Promise.resolve(false);
 
-  const body = el('div', 'bz-dock-ask');
-  const paras = String(req.body ?? '')
-    .split('\n')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  for (const p of paras) body.appendChild(el('p', 'bz-dock-ask-p', p));
-  if (!paras.length) body.appendChild(el('p', 'bz-dock-ask-p', '（工具没说要做什么）'));
+  const { el: body, framed } = askBody(req);
 
   return new Promise<boolean>((resolve) => {
     let settled = false;
@@ -2522,7 +2568,7 @@ function confirmAsk(req: BzAskRequest): Promise<boolean> {
       head: true,
       title: req.title,
       content: body,
-      maxWidth: 460,
+      maxWidth: framed ? ASK_HTML_MODAL_WIDTH : ASK_MODAL_WIDTH,
       className: 'bz-dock-askmodal',
       onClose: () => settle(false), // 遮罩 / ESC = 取消
     });

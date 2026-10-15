@@ -18,6 +18,10 @@
  *   bz 弹窗 → 人点按钮 / 超时
  *   插件 stdin：[bz-answer] {"id":"apply","ok":true}      ← handle.answer() 写这一行
  *
+ * 正文有两种给法（ADR-0244）：`body` 是纯文本（逐段渲染），`bodyHtml` 是一段 HTML 片段
+ * （装在沙箱 iframe 里，**不给 allow-scripts**，同展示板 ADR-0243）—— 想摆表格 / 分组 / 自己的
+ * 版式就给后者，两样都给时 HTML 胜。按钮与倒计时永远归 bz，工具画的只是那一块内容。
+ *
  * 三条纪律：
  *  1) **只有声明了 interactive 的运行才开 stdin**（`spec.interactive`）。默认 stdio[0] 仍是
  *     'ignore'：给所有工具无差别开管道，等于让「不小心读了 stdin 的工具」凭空挂住。
@@ -49,8 +53,17 @@ export interface BzAskRequest {
   /** 配对用的标识，回程 [bz-answer] 原样带回；空 = 畸形行，忽略 */
   id: string;
   title: string;
-  /** 正文（多行用 \n）；UI 逐段渲染，**不当 HTML**（工具输出不可信） */
+  /** 正文（多行用 `\n`）；UI 逐段渲染，**不当 HTML**（工具输出不可信）。
+   *  给了 `bodyHtml` 时它只当兜底（记录、HTML 太大被退回时用） */
   body: string;
+  /**
+   * HTML 正文（可空）。非空即**优先**，装在沙箱 iframe 里渲染 —— 工具要摆表格、分组、
+   * 自己的版式时给这个（ADR-0244）。空串 = 没给，UI 退回逐段渲染 `body`。
+   *
+   * 与 `body` 同一个来源、同一份信任：内容都是外部进程写的，所以框里**没有 JavaScript**
+   * （不带 `allow-scripts`，`<script>` / `on*` / `javascript:` 一律不执行），样式也只能
+   * 影响框内。上限见 `dock/ui.ts`（超了退回纯文本 `body`，不静默）。 */
+  bodyHtml: string;
   /** 确认钮文案（缺省「确认」） */
   confirmText: string;
   /** 取消钮文案（缺省「取消」） */
@@ -78,6 +91,7 @@ export function parseAskBody(body: Record<string, unknown>): BzAskRequest | null
   const title = typeof body.title === 'string' ? body.title.trim() : '';
   if (!title) return null;
   const raw = typeof body.body === 'string' ? body.body : '';
+  const html = typeof body.bodyHtml === 'string' ? body.bodyHtml.trim() : '';
   const sec = Number(body.timeoutSec);
   const timeoutSec = Number.isFinite(sec)
     ? Math.min(ASK_TIMEOUT_MAX_SEC, Math.max(ASK_TIMEOUT_MIN_SEC, Math.floor(sec)))
@@ -86,6 +100,7 @@ export function parseAskBody(body: Record<string, unknown>): BzAskRequest | null
     id,
     title,
     body: raw,
+    bodyHtml: html,
     confirmText: typeof body.confirmText === 'string' && body.confirmText.trim() ? body.confirmText.trim() : '确认',
     cancelText: typeof body.cancelText === 'string' && body.cancelText.trim() ? body.cancelText.trim() : '取消',
     timeoutSec,
