@@ -26596,10 +26596,32 @@ canvas { display: block; }
    与信任框同壳不同事：信任框核对「会跑什么」，这一框问「这一下要不要做」。
    正文由工具给（ADR-0244），两条路：纯文本按段渲染（只当文本，**不当 HTML**），
    或者一段 HTML 装在沙箱 iframe 里（工具自己排版式）。所以这里的排版目标分两半：
-   纯文本要「像一份待确认的说明」，HTML 那份只管框本身（描边 + 圆角 + 底色 + 宽度）——
-   框里的观感由工具自己带，与展示板同一形制。 */
-.bz-dock-askmodal { padding: var(--bz-space-xl); }
-.bz-dock-ask { display: flex; flex-direction: column; gap: var(--bz-space-md); text-align: left; }
+   纯文本要「像一份待确认的说明」，HTML 那份只管外面的框（描边 + 圆角 + 底色 + 宽度）——
+   框里的观感由工具自己带，与展示板同一形制。
+
+   **滚动归属**（2026-10-15）：正文区自滚，不是沙箱框自滚。框里滚出来的原生滚动条样式管不着、
+   也不跟主题（用户报「不显示滚动条」就是这个）；而**框跟着内容长**、超一屏时由外面那层滚，
+   滚动条就是宿主的，按钮行也还钉在下面。同 memo 编辑弹窗那套（`.bz-memo-editor-popup`）：
+   弹窗整体 overflow hidden → 中间那层 flex:1 + overflow-y auto → 动作行留在滚动区外。 */
+.bz-dock-askmodal { padding: var(--bz-space-xl); overflow: hidden; }
+.bz-dock-askmodal .bz-dialog-body { flex: 1 1 auto; min-height: 0; }
+.bz-dock-ask {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bz-space-md);
+  text-align: left;
+}
+/* 正文区（唯一滚动容器）；`is-framed` 时才加皮 —— 纯文本那一路本来就不该被框起来 */
+.bz-dock-ask-pane { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.bz-dock-ask-pane.is-framed {
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  background: var(--bz-surface-1);
+}
+/* 动作行留在滚动区外（钉底）—— 它不该跟着正文滚走 */
+.bz-dock-ask > .bz-btn-row { flex: none; }
 .bz-dock-ask-p {
   margin: 0;
   font-size: var(--bz-font-label);
@@ -26607,13 +26629,8 @@ canvas { display: block; }
   color: var(--bz-text-1);
   overflow-wrap: anywhere;
 }
-.bz-dock-ask-frame {
-  display: block;
-  width: 100%;
-  border: 1px solid var(--bz-border);
-  border-radius: var(--bz-radius-md);
-  background: var(--bz-surface-1);
-}
+/* 描边与底色在 `.bz-dock-ask-pane` 上（框会跟内容一样高，它自己的边框迟早滚出视线） */
+.bz-dock-ask-frame { display: block; width: 100%; }
 /* 倒计时：与按钮同一行右侧，最弱一档 —— 它是「超时会怎么收场」的说明，不是要读的数字 */
 .bz-dock-ask-clock {
   margin-left: auto;
