@@ -1,4 +1,4 @@
-/* 源指纹 fc75f3c6b07a096f · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 055a1afe231e9632 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -9685,7 +9685,6 @@ var BZW_dock = (() => {
     body.appendChild(wrap);
   }
   var BOARD_MAX_BYTES = 512 * 1024;
-  var BOARD_MAX_HEIGHT = 520;
   var BOARD_THEME_VARS = [
     "--bz-surface-0",
     "--bz-surface-1",
@@ -9728,20 +9727,20 @@ var BZW_dock = (() => {
   function escapeStyleAttr(v) {
     return v.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
   }
-  function fitFrameHeight(frame, maxHeight) {
+  function fitFrameHeight(frame) {
     var _a, _b, _c, _d;
     const doc = frame.contentDocument;
     if (!doc) return;
     const h = Math.max((_b = (_a = doc.documentElement) == null ? void 0 : _a.scrollHeight) != null ? _b : 0, (_d = (_c = doc.body) == null ? void 0 : _c.scrollHeight) != null ? _d : 0);
-    if (h > 0) frame.style.height = `${Math.min(h, maxHeight)}px`;
+    if (h > 0) frame.style.height = `${h}px`;
   }
-  function sandboxFrame(html, className, title, maxHeight) {
+  function sandboxFrame(html, className, title) {
     const frame = document.createElement("iframe");
     frame.className = className;
     frame.setAttribute("sandbox", "allow-same-origin");
     frame.setAttribute("title", title);
     frame.srcdoc = `<body style="${frameBaseStyle()}">${html}</body>`;
-    frame.addEventListener("load", () => fitFrameHeight(frame, maxHeight));
+    frame.addEventListener("load", () => fitFrameHeight(frame));
     return frame;
   }
   function boardSection(v) {
@@ -9759,7 +9758,7 @@ var BZW_dock = (() => {
       );
       return host;
     }
-    host.appendChild(sandboxFrame(html, "bz-dock-board-frame", `${displayName(v)} 的展示板`, BOARD_MAX_HEIGHT));
+    host.appendChild(sandboxFrame(html, "bz-dock-board-frame", `${displayName(v)} 的展示板`));
     return host;
   }
   function toolStats(v) {
@@ -10245,18 +10244,20 @@ var BZW_dock = (() => {
   var ASK_MODAL_WIDTH = 460;
   var ASK_HTML_MODAL_WIDTH = 560;
   var ASK_HTML_MAX_BYTES = 128 * 1024;
-  var ASK_HTML_MAX_HEIGHT = 360;
   function askBody(req) {
     var _a, _b;
     const host = el("div", "bz-dock-ask");
+    const pane = el("div", "bz-dock-ask-pane");
+    host.appendChild(pane);
     const html = String((_a = req.bodyHtml) != null ? _a : "").trim();
     if (html) {
       const bytes = new TextEncoder().encode(html).length;
       if (bytes <= ASK_HTML_MAX_BYTES) {
-        host.appendChild(sandboxFrame(html, "bz-dock-ask-frame", req.title, ASK_HTML_MAX_HEIGHT));
+        pane.classList.add("is-framed");
+        pane.appendChild(sandboxFrame(html, "bz-dock-ask-frame", req.title));
         return { el: host, framed: true };
       }
-      host.appendChild(el(
+      pane.appendChild(el(
         "p",
         "bz-dock-ask-p",
         `工具给的正文有 ${Math.round(bytes / 1024)} KB，超过 ${ASK_HTML_MAX_BYTES / 1024} KB 就不按 HTML 渲染了，退回纯文本。`
@@ -10264,9 +10265,9 @@ var BZW_dock = (() => {
     }
     const paras = String((_b = req.body) != null ? _b : "").split("\n").map((s) => s.trim()).filter(Boolean);
     if (!paras.length) {
-      host.appendChild(el("p", "bz-dock-ask-p", html ? "（HTML 正文超上限，工具也没给纯文本）" : "（工具没说要做什么）"));
+      pane.appendChild(el("p", "bz-dock-ask-p", html ? "（HTML 正文超上限，工具也没给纯文本）" : "（工具没说要做什么）"));
     }
-    for (const p of paras) host.appendChild(el("p", "bz-dock-ask-p", p));
+    for (const p of paras) pane.appendChild(el("p", "bz-dock-ask-p", p));
     return { el: host, framed: false };
   }
   function confirmAsk(req) {
