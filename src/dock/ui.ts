@@ -1795,9 +1795,6 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
  */
 const BOARD_MAX_BYTES = 512 * 1024;
 
-/** 展示板的高度上限（px）：超了让 iframe 自己滚，免得把参数表单和运行按钮挤到屏幕外 */
-const BOARD_MAX_HEIGHT = 520;
-
 /**
  * 灌给展示板的主题变量 —— 只挑「画一块内容」够用的那一小撮。
  * 给全套等于把面板内部 token 变成公开 API（日后重构得先问过所有工具），而这一小撮已经够
@@ -1873,12 +1870,22 @@ export function escapeStyleAttr(v: string): string {
   return v.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
-/** 把 iframe 撑到内容那么高，封顶 `maxHeight`（超了框内滚）—— sandbox 带 allow-same-origin 才读得到它自己的文档 */
-function fitFrameHeight(frame: HTMLIFrameElement, maxHeight: number): void {
+/**
+ * 把 iframe 撑到**内容那么高**（不封顶）—— sandbox 带 allow-same-origin 才读得到它自己的文档。
+ *
+ * **为什么不封顶**：封了就会在框里长出一条原生滚动条（Windows 上还带上下箭头，与宿主观感完全
+ * 不是一回事）—— 而那是**框内滚动**，样式管不着、也没法跟着主题走。框跟着内容长、滚动交给外面
+ * 那层（展示板是面板的内容区 `.bz-dock-body`，询问框是弹窗正文区）之后，滚动条是宿主自己的，
+ * 框里永远干干净净（2026-10-15 用户报「都不显示滚动条」）。
+ *
+ * 代价要认：展示板理论上能长到任意高（512 KB 上限只管体积）。所以它仍是「一眼看完的几行数」，
+ * 想铺长文该去写手册。
+ */
+function fitFrameHeight(frame: HTMLIFrameElement): void {
   const doc = frame.contentDocument;
   if (!doc) return;
   const h = Math.max(doc.documentElement?.scrollHeight ?? 0, doc.body?.scrollHeight ?? 0);
-  if (h > 0) frame.style.height = `${Math.min(h, maxHeight)}px`;
+  if (h > 0) frame.style.height = `${h}px`;
 }
 
 /**
@@ -1893,7 +1900,7 @@ function fitFrameHeight(frame: HTMLIFrameElement, maxHeight: number): void {
  *    哪天换个人来维护，这条口子一定会被当成能力用。
  *  - 带 `allow-same-origin` 只是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度）。
  */
-function sandboxFrame(html: string, className: string, title: string, maxHeight: number): HTMLIFrameElement {
+function sandboxFrame(html: string, className: string, title: string): HTMLIFrameElement {
   const frame = document.createElement('iframe');
   frame.className = className;
   frame.setAttribute('sandbox', 'allow-same-origin');
@@ -1901,7 +1908,7 @@ function sandboxFrame(html: string, className: string, title: string, maxHeight:
   // 框里写**片段**就行（不必 `<!doctype html><html><body>`）—— 这里裹一层 body 承载基线；
   // 作者递了整份文档也能用（浏览器会忽略内层的 body 标签，属性以这一层为准）
   frame.srcdoc = `<body style="${frameBaseStyle()}">${html}</body>`;
-  frame.addEventListener('load', () => fitFrameHeight(frame, maxHeight));
+  frame.addEventListener('load', () => fitFrameHeight(frame));
   return frame;
 }
 
@@ -1931,7 +1938,7 @@ function boardSection(v: DockToolView): HTMLElement | null {
     return host;
   }
 
-  host.appendChild(sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`, BOARD_MAX_HEIGHT));
+  host.appendChild(sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`));
   return host;
 }
 
@@ -2496,23 +2503,29 @@ const ASK_HTML_MODAL_WIDTH = 560;
  * 人看到的是一坨源码标签）。
  */
 const ASK_HTML_MAX_BYTES = 128 * 1024;
-/** HTML 正文的高度上限（px）：超了框内滚 —— 弹窗不能长到把按钮与倒计时挤出屏幕 */
-const ASK_HTML_MAX_HEIGHT = 360;
 
 /**
  * 那一块正文：HTML 优先（沙箱 iframe），没给就逐段渲染纯文本。
  * `framed` 告诉调用方走的是哪条路 —— 框宽不一样（HTML 那份要宽一些）。
+ *
+ * **正文区是滚动容器，不是框自己滚**（2026-10-15 用户报「都不显示滚动条」）：框跟着内容长到
+ * 内容那么高，长过弹窗上限时由这一层滚 —— 滚动条于是是宿主自己的（细、跟主题），按钮行还钉在
+ * 下面。同 `memo` 的编辑弹窗（`.bz-memo-editor-popup`）那一套。
  */
-function askBody(req: BzAskRequest): { el: HTMLElement; framed: boolean } {
+export function askBody(req: BzAskRequest): { el: HTMLElement; framed: boolean } {
   const host = el('div', 'bz-dock-ask');
+  // 正文区：`is-framed` 时才画描边与底色 —— 纯文本那一路本来就不该被框起来
+  const pane = el('div', 'bz-dock-ask-pane');
+  host.appendChild(pane);
   const html = String(req.bodyHtml ?? '').trim();
   if (html) {
     const bytes = new TextEncoder().encode(html).length;
     if (bytes <= ASK_HTML_MAX_BYTES) {
-      host.appendChild(sandboxFrame(html, 'bz-dock-ask-frame', req.title, ASK_HTML_MAX_HEIGHT));
+      pane.classList.add('is-framed');
+      pane.appendChild(sandboxFrame(html, 'bz-dock-ask-frame', req.title));
       return { el: host, framed: true };
     }
-    host.appendChild(el('p', 'bz-dock-ask-p',
+    pane.appendChild(el('p', 'bz-dock-ask-p',
       `工具给的正文有 ${Math.round(bytes / 1024)} KB，超过 ${ASK_HTML_MAX_BYTES / 1024} KB 就不按 HTML 渲染了，退回纯文本。`));
   }
   const paras = String(req.body ?? '')
@@ -2520,9 +2533,9 @@ function askBody(req: BzAskRequest): { el: HTMLElement; framed: boolean } {
     .map((s) => s.trim())
     .filter(Boolean);
   if (!paras.length) {
-    host.appendChild(el('p', 'bz-dock-ask-p', html ? '（HTML 正文超上限，工具也没给纯文本）' : '（工具没说要做什么）'));
+    pane.appendChild(el('p', 'bz-dock-ask-p', html ? '（HTML 正文超上限，工具也没给纯文本）' : '（工具没说要做什么）'));
   }
-  for (const p of paras) host.appendChild(el('p', 'bz-dock-ask-p', p));
+  for (const p of paras) pane.appendChild(el('p', 'bz-dock-ask-p', p));
   return { el: host, framed: false };
 }
 
