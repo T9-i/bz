@@ -53,6 +53,8 @@ describe('询问框正文：HTML 那一路', () => {
     expect(sandbox).not.toContain('allow-scripts');
     expect(frame.getAttribute('title')).toBe('把分类写进 Steam'); // 读屏要一个名字
     expect(frame.getAttribute('srcdoc') ?? '').toContain('<p>x</p>');
+    // 框文档的**根元素**带「隐藏滚动条」那条 —— core 的界面级规则跨不过文档边界（ADR-0122 够不着框里）
+    expect(frame.getAttribute('srcdoc') ?? '').toMatch(/<html style="[^"]*scrollbar-width:none/);
   });
 
   it('超字节上限：退回纯文本（框不出现、正文区也不加皮），并把原因写在框里', () => {
