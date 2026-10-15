@@ -31,6 +31,13 @@ describe('沙箱框基线的转义', () => {
     expect(escapeStyleAttr('12px')).toBe('12px');
   });
 
+  it('框里也隐藏滚动条（ADR-0122 同款）：只隐藏条，不动 overflow', () => {
+    const css = frameBaseStyle();
+    expect(css).toMatch(/scrollbar-width:\s*none/);
+    // 铁律那条 ADR-0122 只做一半：隐藏条、保留滚动 —— 基线里不许出现 overflow
+    expect(css).not.toContain('overflow');
+  });
+
   it('基线灌进 style 属性后，font-size / line-height / margin 都还在（不转义就全丢）', () => {
     document.body.style.setProperty('--bz-text-1', '#e8e8ec');
     document.body.style.setProperty('--bz-font-ui', FONT_UI);

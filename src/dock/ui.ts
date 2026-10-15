@@ -1839,6 +1839,11 @@ const BOARD_THEME_VARS = [
  * 走 `style` 属性而不是拼一段 `<style>`：自定义属性本来就是这么传的，够用；而且这样本模块里
  * 一处 `<style>` 字面量都没有 —— 铁律 4 的唯一注入点守卫（ADR-0199）不必为它开第二个口子。
  *
+ * **滚动条也有、但只隐藏条**：框里是**独立文档**，core 那条界面级隐藏滚动条的通杀规则
+ * （ADR-0122，选择器按 `bz-` 前缀枚举）**够不着它** —— CSS 不跨文档。而「隐藏条、保留滚动」
+ * 是 bz 界面的既有口径，所以在这里补上 `scrollbar-width: none`（不是薄条、不是自绘，是隐藏）。
+ * 这也是唯一能进框的通道：走 `style` 属性，不新增 `<style>` 注入点（铁律 4）。
+ *
  * 代价要认：内联 `style` 的优先级高于任何选择器，所以**框里没法用普通规则改这几条基线**
  * （要改得用 `!important`）—— 这也正是为什么基线只留最必要的几条，其余都交给框里自己。
  */
@@ -1855,6 +1860,8 @@ export function frameBaseStyle(): string {
     'padding:var(--bz-space-md)',
     'background:transparent',
     'color:var(--bz-text-1)',
+    // ADR-0122 同款：只隐藏条，不动 overflow（滚动照旧，只是没有那根原生条）
+    'scrollbar-width:none',
     'font-family:var(--bz-font-ui)',
     'font-size:var(--bz-font-label)',
     'line-height:1.6',
