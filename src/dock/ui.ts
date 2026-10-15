@@ -1833,17 +1833,23 @@ const BOARD_THEME_VARS = [
  * 两个消费者共用它：展示板（`panel.html`，ADR-0243）与询问框的 HTML 正文（ADR-0244）。
  * 它们想要的是同一件事 ——「画出来的东西像是面板的一部分」，所以口径只有这一份。
  *
+ * **值必须转义**：主题变量里有 `--bz-font-ui: -apple-system, "Segoe UI", …` 这种**带引号**的值，
+ * 原样拼进 `style="…"` 会让属性在第一个 `"` 处提前收尾 —— 它后面的声明（`--bz-font-mono`、
+ * `--bz-space-*` 与整条基线：margin / padding / color / font-family / font-size / line-height）
+ * 全被当成杂属性丢掉，框里退回 8px 边距、Times、16px（ADR-0243 起就埋着，2026-10-15 做询问框时
+ * 端到端验出来的）。**这条转义不是防注入，是让后面的声明还能生效** —— 别删。
+ *
  * 走 `style` 属性而不是拼一段 `<style>`：自定义属性本来就是这么传的，够用；而且这样本模块里
  * 一处 `<style>` 字面量都没有 —— 铁律 4 的唯一注入点守卫（ADR-0199）不必为它开第二个口子。
  *
  * 代价要认：内联 `style` 的优先级高于任何选择器，所以**框里没法用普通规则改这几条基线**
  * （要改得用 `!important`）—— 这也正是为什么基线只留最必要的几条，其余都交给框里自己。
  */
-function frameBaseStyle(): string {
+export function frameBaseStyle(): string {
   const cs = getComputedStyle(document.body);
   const parts = BOARD_THEME_VARS.map((name) => {
     const value = cs.getPropertyValue(name).trim();
-    return value ? `${name}:${value}` : '';
+    return value ? `${name}:${escapeStyleAttr(value)}` : '';
   }).filter(Boolean);
   // 基线：撑满 + 跟随主题 + 一点内边距。`margin:0` 与 `background:transparent` 是**必需**的
   // （body 默认 8px 外边距、iframe 内容默认白底），另几条只是给个合理默认观感
@@ -1857,6 +1863,14 @@ function frameBaseStyle(): string {
     'line-height:1.6',
   );
   return parts.join(';');
+}
+
+/**
+ * 一个值要塞进双引号包的 HTML 属性时的转义。只两样要管：`&`（不然 `&quot;` 这类会被二次解码）
+ * 与 `"`（不然属性提前收尾 —— 见 frameBaseStyle 的注释）。
+ */
+export function escapeStyleAttr(v: string): string {
+  return v.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
 /** 把 iframe 撑到内容那么高，封顶 `maxHeight`（超了框内滚）—— sandbox 带 allow-same-origin 才读得到它自己的文档 */

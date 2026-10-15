@@ -92,6 +92,8 @@ iframe 把这两样天然关在框里：展示板的样式只能影响它自己�
 
 - 新增：`declaration.ts` 的 `PANEL_FILENAME` / `panelPathFor` / `readPanelText`；
   `ui.ts` 的 `boardSection` / `boardBaseStyle` / `fitBoardHeight`；`styles.css` 的 `.bz-dock-board*`。
+  （三个 ui.ts 私有函数在 ADR-0244 起被询问框正文共用，改名 `frameBaseStyle` / `fitFrameHeight` /
+  抽出 `sandboxFrame`。）
 - 工具目录多一个可选文件；**老工具零迁移** —— 没有这个文件的工具，详情页与改动前一模一样。
 - 契约文档 `docs/dock-tool-guide.md` 加第 5 份文件（工具写的第 3 份）。
 - **铁律 4（唯一注入点）没有被触碰**：主题变量与基线走 `style` 属性，本模块里没有 `<style>`
