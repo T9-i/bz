@@ -26594,8 +26594,10 @@ canvas { display: block; }
 
 /* ---------- 运行中询问（[bz-ask]）----------
    与信任框同壳不同事：信任框核对「会跑什么」，这一框问「这一下要不要做」。
-   正文由工具给，是外部进程的输出 —— 只当文本渲染，所以这里的排版目标很单纯：
-   让几段话看起来像一份待确认的说明，而不是一坨挤在一起的字。 */
+   正文由工具给（ADR-0244），两条路：纯文本按段渲染（只当文本，**不当 HTML**），
+   或者一段 HTML 装在沙箱 iframe 里（工具自己排版式）。所以这里的排版目标分两半：
+   纯文本要「像一份待确认的说明」，HTML 那份只管框本身（描边 + 圆角 + 底色 + 宽度）——
+   框里的观感由工具自己带，与展示板同一形制。 */
 .bz-dock-askmodal { padding: var(--bz-space-xl); }
 .bz-dock-ask { display: flex; flex-direction: column; gap: var(--bz-space-md); text-align: left; }
 .bz-dock-ask-p {
@@ -26604,6 +26606,13 @@ canvas { display: block; }
   line-height: var(--bz-leading-normal);
   color: var(--bz-text-1);
   overflow-wrap: anywhere;
+}
+.bz-dock-ask-frame {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  background: var(--bz-surface-1);
 }
 /* 倒计时：与按钮同一行右侧，最弱一档 —— 它是「超时会怎么收场」的说明，不是要读的数字 */
 .bz-dock-ask-clock {
