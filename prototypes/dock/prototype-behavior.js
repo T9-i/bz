@@ -1,4 +1,4 @@
-/* 源指纹 7b54c7fb283f6201 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 26fbb4dad3bfefed · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -7806,8 +7806,9 @@ var BZW_dock = (() => {
       };
       live2.delete(entry.id);
       if (rawTail.length) lastRawTails.set(entry.id, rawTail.slice(-50));
-      (_a2 = cb.onDone) == null ? void 0 : _a2.call(cb, outcome, run);
-      return outcome;
+      const settled = reconcileWithRecord(outcome, entry.path);
+      (_a2 = cb.onDone) == null ? void 0 : _a2.call(cb, settled, run);
+      return settled;
     });
     live2.set(entry.id, run);
     return run;
@@ -7817,6 +7818,30 @@ var BZW_dock = (() => {
     if (o.ok) return "unknown";
     if (o.code === null) return "config";
     return "unknown";
+  }
+  var RECORD_MATCH_GRACE_MS = 2e3;
+  function reconcileWithRecord(outcome, declPath) {
+    var _a, _b, _c;
+    if (outcome.stopped) return outcome;
+    const file = parseRunsFileText(readRunsText(declPath));
+    if (!file) return outcome;
+    const runStart = Date.parse(outcome.startedAt);
+    if (!Number.isFinite(runStart)) return outcome;
+    let best = null;
+    for (const r of (_a = file == null ? void 0 : file.runs) != null ? _a : []) {
+      const t = Date.parse(r.startedAt);
+      if (!Number.isFinite(t) || t < runStart - RECORD_MATCH_GRACE_MS) continue;
+      if (!best || t > Date.parse(best.startedAt)) best = r;
+    }
+    if (!best) return { ...outcome, recordStatus: null };
+    const ok = best.status === "ok";
+    return {
+      ...outcome,
+      ok,
+      kind: ok ? "unknown" : (_c = (_b = best.error) == null ? void 0 : _b.kind) != null ? _c : "unknown",
+      recordStatus: best.status,
+      recordMessage: best.message
+    };
   }
   function statusText(status) {
     switch (status) {
@@ -7861,7 +7886,8 @@ var BZW_dock = (() => {
       notify(`${name} 已中止`, { type: "warning", action });
       return;
     }
-    notify(`${name} 失败：${errorHint(outcome.kind)}`, { type: "error", action });
+    const hint = outcome.recordStatus === null ? "工具没留下这次运行的记录，多半没跑到写记录那一步；它的启动报错在控制台" : errorHint(outcome.kind);
+    notify(`${name} 失败：${hint}`, { type: "error", action });
   }
   function initialValuesOf(params, stored = {}) {
     const out = {};

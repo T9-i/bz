@@ -31,14 +31,17 @@ import {
 } from '../core/external-tool';
 import {
   buildArgs,
+  parseRunsFileText,
   type DockErrorKind,
   type DockManifest,
   type DockParam,
   type DockProgress,
+  type DockRunRecord,
+  type DockRunStatus,
   type DockRunStep,
 } from './schema';
 import type { DockToolEntry } from './data';
-import { runsPathFor, type ResolvedRun } from './declaration';
+import { readRunsText, runsPathFor, type ResolvedRun } from './declaration';
 
 /** 注入缝（插件侧 null = 真身） */
 let deps: ExternalToolDeps | undefined;
@@ -115,6 +118,13 @@ export interface DockRunOutcome {
   startedAt: string;
   finishedAt: string;
   durationMs: number;
+  /**
+   * 工具自己那条记录的状态。`null` = **没找到属于本次运行的记录**（不是「读不到这个工具的记录」，
+   * 是这次运行没留下）。undefined = 压根没去对账（构造方不是 runTool）。
+   */
+  recordStatus?: DockRunStatus | null;
+  /** 工具那条记录里给人类看的一句话 —— 用它当通知正文比 bz 的推断准 */
+  recordMessage?: string;
 }
 
 export interface DockRunCallbacks {
@@ -272,8 +282,10 @@ export function runTool(
     };
     live.delete(entry.id);
     if (rawTail.length) lastRawTails.set(entry.id, rawTail.slice(-50)); // 尾部留给详情页回看
-    cb.onDone?.(outcome, run);
-    return outcome;
+    // 退出码只是 bz 的推断 —— 通知之前先跟工具自己那条记录对一次账（见 reconcileWithRecord）
+    const settled = reconcileWithRecord(outcome, entry.path);
+    cb.onDone?.(settled, run);
+    return settled;
   });
 
   live.set(entry.id, run);
@@ -284,12 +296,57 @@ export function runTool(
  * 终结结果 → 失败分类。
  * 注意：这是 bz 侧的**推断**，供在场运行时立刻给出可操作提示；权威分类在工具自己写的
  * 运行记录里（`error.kind`）。两者不一致时以记录为准 —— 工具比 bz 更知道自己死在哪儿。
+ * （那句「以记录为准」由 `reconcileWithRecord` 兑现：此前这里只写了这句承诺，从没真读过记录。）
  */
 function classify(o: ExternalToolOutcome): DockErrorKind {
   if (o.stopped) return 'aborted';
   if (o.ok) return 'unknown';
   if (o.code === null) return 'config'; // 压根没起来 = 命令/工作目录配错了
   return 'unknown';
+}
+
+/** 对账时认「属于本次运行」的时间余量：工具起跑时刻只会晚于 bz，留点余量吸收时钟/落盘次序 */
+const RECORD_MATCH_GRACE_MS = 2000;
+
+/**
+ * 用**工具自己写的那条记录**校正 bz 的退出码推断。
+ *
+ * 为什么必须做：`classify()` 的注释一直承诺「两者不一致时以记录为准 —— 工具比 bz 更知道自己
+ * 死在哪儿」，但这里此前**从没读过记录**，判断完全建立在退出码上。于是「工具记录写着成功、
+ * 进程却以非零退出」（或反过来）时，通知讲的是错的那一边 —— 还把人支去「看运行记录里的
+ * stderr 尾部」，而那份记录里明明写着成功。误报就是这么来的（issue 544）。
+ *
+ * 只认**属于本次运行**的那条（`startedAt` 不早于本次起跑时刻）：拿不到记录、解析不出、
+ * 时间对不上 —— 一律原样返回 bz 的推断，**绝不拿上一条记录充数**（那会把上一次的成功
+ * 报成这一次的结果，比误报一个字更糟）。
+ *
+ * `stopped` 不参与对账：用户点了停止就是停止，工具那边写了什么记录都不改变「是他掐的」。
+ */
+export function reconcileWithRecord(outcome: DockRunOutcome, declPath: string): DockRunOutcome {
+  if (outcome.stopped) return outcome;
+
+  const file = parseRunsFileText(readRunsText(declPath));
+  // 读不到 / 坏 JSON → 是「问不出」，不是「这次没留记录」。两者对通知含义不同，别混成一个值。
+  if (!file) return outcome;
+  const runStart = Date.parse(outcome.startedAt);
+  if (!Number.isFinite(runStart)) return outcome;
+
+  let best: DockRunRecord | null = null;
+  for (const r of file?.runs ?? []) {
+    const t = Date.parse(r.startedAt);
+    if (!Number.isFinite(t) || t < runStart - RECORD_MATCH_GRACE_MS) continue;
+    if (!best || t > Date.parse(best.startedAt)) best = r; // 同一次起跑可能留多条 → 取最晚那条
+  }
+  if (!best) return { ...outcome, recordStatus: null };
+
+  const ok = best.status === 'ok';
+  return {
+    ...outcome,
+    ok,
+    kind: ok ? 'unknown' : (best.error?.kind ?? 'unknown'),
+    recordStatus: best.status,
+    recordMessage: best.message,
+  };
 }
 
 /** 状态文案（不带 emoji；通知正文口径） */
@@ -344,8 +401,14 @@ export function notifyRunOutcome(
     notify(`${name} 已中止`, { type: 'warning', action });
     return;
   }
-  // 分类提示比「失败了」有用得多：`config` 直接指向「命令/目录配错了」
-  notify(`${name} 失败：${errorHint(outcome.kind)}`, { type: 'error', action });
+  // 分类提示比「失败了」有用得多：`config` 直接指向「命令/目录配错了」。
+  // 例外：记录里**根本没有这次运行** —— 那「看记录里的 stderr 尾部」就是把人支去一个不存在的东西，
+  // 直说这件事本身更有用（工具多半没跑到写记录那一步）。
+  const hint =
+    outcome.recordStatus === null
+      ? '工具没留下这次运行的记录，多半没跑到写记录那一步；它的启动报错在控制台'
+      : errorHint(outcome.kind);
+  notify(`${name} 失败：${hint}`, { type: 'error', action });
 }
 
 /**
