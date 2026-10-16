@@ -236,6 +236,9 @@ describe('效率#1：标签过滤 + 频次前置 + sticky 底栏', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/diary/styles.css'), 'utf8');
     expect(css.match(/\.bz-diary-chip-scroll\s*\{([^}]*)\}/)![1]).toContain('overflow-y: auto');
     expect(css.match(/\.bz-diary-dialog-foot\s*\{([^}]*)\}/)![1]).toContain('flex-shrink: 0');
+    // 过滤框壳 = core .bz-search 带 flex:1（给横向工具行的），本表单是纵向 flex 容器，必须覆盖回
+    // 按内容定高，否则纵轴上参与分剩余空间（issue 548 同型，encrypt 移动壳是那次的实症）
+    expect(css.match(/\.bz-diary-tag-filter\s*\{([^}]*)\}/)![1]).toContain('flex: none');
   });
 });
 

@@ -1283,7 +1283,12 @@
   color: var(--text-muted);
   font-weight: 500;
 }
+/* 过滤框壳 = core .bz-search，自带 flex:1（basis 0 + grow 1）——那是给横向工具行写的。
+   本框挂在 .bz-diary-form（纵向 flex 容器）下，不覆盖就在纵轴上参与分剩余空间：
+   容器高度由内容决定时它被压到 min-content 高（≈ 输入框自然高，看着正常），
+   一旦表单壳将来拿到确定高度就会和 chip 滚动区平分、被撑高（同 issue 548）。按内容定高。 */
 .bz-diary-tag-filter {
+  flex: none;
   margin-bottom: var(--bz-space-sm);
 }
 

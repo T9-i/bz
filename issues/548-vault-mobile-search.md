@@ -40,18 +40,32 @@
 剩余纵轴空间归 `.bz-vault-mbody` 独占。桌面侧不受影响（那条规则在 `@media (max-width: 768px)` 内，
 桌面列表头的 `.bz-vault-lc-head` 本身就是 `display:flex` 横向行，`flex:1` 语义正确）。
 
+同型点（diary 标签过滤框，见上表）同样一行：`src/diary/styles.css` 的 `.bz-diary-tag-filter` 加
+`flex: none;`。
+
 ## 同型排查
 
-全仓 `.bz-search` / `uiSearch` 的落点过了一遍，只有移动壳这一处是"纵向 flex 直系孩子"：
+判据是「谁是 `flex-direction: column` 容器的**直系**孩子」。全仓 `.bz-search` / `uiSearch` 的落点：
 
 | 落点 | 父容器 | 判定 |
 |---|---|---|
 | `encrypt` 移动壳 `.bz-vault-msearch` | `.bz-vault-mob`（**column**） | 实症 → 本 issue |
+| `diary` 标签过滤框 `.bz-diary-tag-filter` | `.bz-diary-form`（**column**，`src/diary/styles.css`） | 同型 → 一并覆盖 `flex: none` |
 | `encrypt` 桌面列表头 | `.bz-vault-lc-head`（flex row） | 安全 |
 | `memo` `.bz-memo-search` | `.bz-toolrow`（flex row） | 安全 |
 | `clipbook` `.bz-clip-head-search` | `.bz-clip-head-strip`（flex row） | 安全 |
 | `belongings` 海报版 | `.bz-toolrow`（flex row） | 安全 |
-| `gameshelf` / `dock` / `diary` 的 `uiSearch` | 工具行 / 对话框行 | 安全 |
+| `dock` | `.bz-dock-search`（block，外层 `.bz-dock-bar` 是行） | 安全 |
+| `gameshelf` | `.bz-gs-searchwrap`（block，外层 `.bz-gs-tools` 是行） | 安全 |
+
+**订正**：初版排查只扫了 `.bz-search` 字面量，漏了 `uiSearch` 工厂的调用点 —— `diary` 的标签过滤框
+（`src/diary/ui/dialogs.ts:111` 给 `uiSearch` 产物加 `.bz-diary-tag-filter` 类）就是这么漏掉的，
+初版"日记对话框父容器都是横向行"的说法是错的。补进上表，修法同移动壳。
+
+diary 那一处**目前没有显症**：`.bz-diary-form` 的高度由内容决定（chip 区是 `flex: 1 1 auto`，表单壳
+没有确定高度），`flex: basis 0` 的结果只是把框压到 min-content 高 ≈ 输入框自然高，看上去是正常的；
+一旦表单壳将来拿到确定高度，它就会和 chip 区平分纵轴而撑高。所以按"同一根因同一修法"一并覆盖，
+观感预期不变。（这条是 CSS 推导，未做渲染实测。）
 
 ## 刻意没做
 

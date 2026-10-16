@@ -70,8 +70,10 @@ describe('encrypt 批 D：移动端 @media 恢复（issue 346 回归）', () => 
     // core .bz-search 的 flex:1（basis:0 + grow:1）是给横向工具行「水平撑满」写的；
     // 移动壳 .bz-vault-mob 是纵向 flex 容器，不覆盖就会与 .bz-vault-mbody 平分纵轴剩余空间，
     // 整框被撑成数百 px，绝对定位的放大镜（top:50%）随之飘到中段（issue 548 截图）。
+    // 锁整条规则（id 前缀 + 规则体起手就是 flex:none），不放宽成「块内某处出现过 flex: none」——
+    // 否则注释里写一句同名占位就能让这条守卫假绿
     const block = mediaBlock('.bz-vault-msearch {');
-    expect(block).toMatch(/\.bz-search\.bz-vault-msearch \{[^}]*flex: none;/);
+    expect(block).toMatch(/#bz-encrypt-popup \.bz-search\.bz-vault-msearch \{ flex: none;/);
   });
 
   it('密码本残留零回潮：全文件无 .bz-pwv-* 段', () => {
