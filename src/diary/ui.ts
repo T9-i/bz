@@ -396,8 +396,6 @@ export class DiaryAppController {
   private lightboxEl!: HTMLElement;
   private lbPhotoEl!: HTMLElement;
   private lbMediaEl!: HTMLElement;
-  private lbCapEl!: HTMLElement;
-  private lbCountEl!: HTMLElement;
   private toastEl!: HTMLElement;
   private fallbackEl!: HTMLElement;
   /** 开册进度（纸条 + 进度条 + 读数）：读盘期间摆在桌上，成册即收 */
@@ -552,8 +550,6 @@ export class DiaryAppController {
     this.lightboxEl = q('.bz-diary-lightbox');
     this.lbPhotoEl = q('.bz-diary-lb-photo');
     this.lbMediaEl = q('.bz-diary-lb-media');
-    this.lbCapEl = q('.bz-diary-lb-cap');
-    this.lbCountEl = q('.bz-diary-lb-count');
     this.toastEl = q('.bz-diary-toast');
     this.fallbackEl = q('.bz-diary-fallback');
     this.closeEl = q('.bz-diary-close');
@@ -853,7 +849,7 @@ export class DiaryAppController {
     ru.setEnd(el, el.childNodes.length);
     ru.deleteContents();
 
-    down.className = el.className.replace('bz-diary-p-indent', 'bz-diary-p-cont');
+    /* 上下两半同为 `.bz-diary-b-para`（首行缩进已退役，2026-10-16：续块不必再换类） */
     down.dataset.eid = el.dataset.eid || '';
     probe.insertBefore(down, el.nextSibling);
     return [el, down, this.blockHeightOf(down)];
@@ -1637,7 +1633,7 @@ export class DiaryAppController {
       .split(/\r?\n+/)
       .map((s) => s.trim())
       .filter(Boolean)
-      .map((s) => `<div class="bz-diary-b-para bz-diary-p-indent">${inlineMd(s)}</div>`)
+      .map((s) => `<div class="bz-diary-b-para">${inlineMd(s)}</div>`)
       .join('');
   }
 
@@ -1715,9 +1711,8 @@ export class DiaryAppController {
     }
     /* 确定性微旋角（类，非内联）：原型是 `style.setProperty('--lb-tilt', …)` */
     this.lbPhotoEl.className = `bz-diary-lb-photo ${tiltClassOf(this.lbIdx + 3)}`;
-    const cap = p.media.name.split('/').pop() || '';
-    this.lbCapEl.textContent = `${p.entry.date} ${p.entry.time} · ${cap}`;
-    this.lbCountEl.textContent = `${this.lbIdx + 1} / ${this.photoRefs.length}`;
+    /* 大屏里**一个字都不出**（用户拍板 2026-10-16）：底部原来的「日期 时间 · 文件名」题注
+       与「第 n / N 张」计数一并退役 —— 看照片时就只看照片。 */
   }
 
   private closeLightbox(): void {

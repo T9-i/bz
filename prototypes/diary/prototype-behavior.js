@@ -1,4 +1,4 @@
-/* 源指纹 45ff479b05c7cfbc · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 4d7e4ae728fe2fd9 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/motion.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/datetime-picker.ts","src/diary/ui/dialogs.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/diary/fake-sim.ts → window.BZW_diary（行为单源预览包，issue 245/ADR-0106） */
 var BZW_diary = (() => {
@@ -15991,22 +15991,7 @@ ${String(review).trim()}`;
       blocks.push(b);
     };
     const pushPara = (s) => {
-      if (s.length <= 240) {
-        emit({ t: "para", text: s });
-        return;
-      }
-      let cur = "";
-      let first = true;
-      const segs = s.split(/(?<=[。!?;~」”…])/);
-      for (const seg of segs) {
-        cur += seg;
-        if (cur.length > 200) {
-          emit({ t: "para", text: cur, cont: !first });
-          first = false;
-          cur = "";
-        }
-      }
-      if (cur) emit({ t: "para", text: cur, cont: !first });
+      emit({ t: "para", text: s });
     };
     while (i < lines.length) {
       const line = lines[i];
@@ -16133,7 +16118,7 @@ ${String(review).trim()}`;
     return '<div class="bz-diary-exlibris" data-eid="' + esc(e.id || "") + '">' + cover + '<div class="bz-diary-ex-main"><div class="bz-diary-ex-title">《' + esc(x.title || "") + '》</div><div class="bz-diary-ex-author">' + byline + '</div><div class="bz-diary-ex-review">' + inlineMd(x.review || "") + '</div><div class="bz-diary-ex-date">读毕 ' + esc(e.date) + " · " + esc(e.emoji) + "</div></div></div>";
   }
   function paraHTML(b, e) {
-    return '<div class="bz-diary-b-para ' + (b.cont ? "bz-diary-p-cont" : "bz-diary-p-indent") + '" data-eid="' + esc(e.id || "") + '">' + inlineMd(b.text) + "</div>";
+    return '<div class="bz-diary-b-para" data-eid="' + esc(e.id || "") + '">' + inlineMd(b.text) + "</div>";
   }
   function envelopeHTML(e) {
     return '<div class="bz-diary-b-envelope"><div class="bz-diary-envelope" data-eid="' + esc(e.id || "") + '"><div class="bz-diary-env-body"><div class="bz-diary-env-flap"></div><div class="bz-diary-env-split"><i class="bz-diary-es-l"></i><i class="bz-diary-es-r"></i></div><div class="bz-diary-env-wax">🔐</div><div class="bz-diary-env-label">火漆封缄 · 拆信需主密码</div></div><span class="bz-diary-env-reseal">重新封缄</span></div></div>';
@@ -16172,7 +16157,7 @@ ${String(review).trim()}`;
             break;
           case "para": {
             const t = stripHashInto(b.text, []);
-            if (t.trim()) out.push(paraHTML({ text: t, cont: b.cont }, e));
+            if (t.trim()) out.push(paraHTML({ text: t }, e));
             break;
           }
           case "head":
@@ -16351,15 +16336,14 @@ ${String(review).trim()}`;
     </div>
   </div>
 
-  <!-- 灯箱：相片显影 -->
+  <!-- 灯箱：相片显影。图/视频之外**不摆任何文字**（用户拍板 2026-10-16）：
+       原题注（日期 时间 · 文件名）与「第 n / N 张」计数已退役，只留左右两枚翻页钮 -->
   <div class="bz-diary-lightbox" hidden>
     <figure class="bz-diary-lb-photo">
       <div class="bz-diary-lb-media"></div>
-      <figcaption class="bz-diary-lb-cap"></figcaption>
     </figure>
     <div class="bz-diary-lb-nav bz-diary-lb-prev">◂</div>
     <div class="bz-diary-lb-nav bz-diary-lb-next">▸</div>
-    <div class="bz-diary-lb-count"></div>
   </div>
 
   <div class="bz-diary-toast" hidden></div>
@@ -17372,8 +17356,6 @@ ${x.review || ""}`;
       this.lightboxEl = q(".bz-diary-lightbox");
       this.lbPhotoEl = q(".bz-diary-lb-photo");
       this.lbMediaEl = q(".bz-diary-lb-media");
-      this.lbCapEl = q(".bz-diary-lb-cap");
-      this.lbCountEl = q(".bz-diary-lb-count");
       this.toastEl = q(".bz-diary-toast");
       this.fallbackEl = q(".bz-diary-fallback");
       this.closeEl = q(".bz-diary-close");
@@ -17634,7 +17616,6 @@ ${x.review || ""}`;
       ru.setStart(up[0], up[1]);
       ru.setEnd(el, el.childNodes.length);
       ru.deleteContents();
-      down.className = el.className.replace("bz-diary-p-indent", "bz-diary-p-cont");
       down.dataset.eid = el.dataset.eid || "";
       probe.insertBefore(down, el.nextSibling);
       return [el, down, this.blockHeightOf(down)];
@@ -18265,7 +18246,7 @@ ${x.review || ""}`;
     }
     /** 长文 → 纸上的段落 */
     sheetParas(text) {
-      return String(text || "").split(/\r?\n+/).map((s) => s.trim()).filter(Boolean).map((s) => `<div class="bz-diary-b-para bz-diary-p-indent">${inlineMd(s)}</div>`).join("");
+      return String(text || "").split(/\r?\n+/).map((s) => s.trim()).filter(Boolean).map((s) => `<div class="bz-diary-b-para">${inlineMd(s)}</div>`).join("");
     }
     /** 影评 / 书评全文纸 */
     openReviewSheet(e) {
@@ -18331,9 +18312,6 @@ ${x.review || ""}`;
         this.lbMediaEl.appendChild(img);
       }
       this.lbPhotoEl.className = `bz-diary-lb-photo ${tiltClassOf(this.lbIdx + 3)}`;
-      const cap = p.media.name.split("/").pop() || "";
-      this.lbCapEl.textContent = `${p.entry.date} ${p.entry.time} · ${cap}`;
-      this.lbCountEl.textContent = `${this.lbIdx + 1} / ${this.photoRefs.length}`;
     }
     closeLightbox() {
       if (!this.lightboxEl) return;

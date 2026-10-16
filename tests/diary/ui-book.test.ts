@@ -1148,15 +1148,18 @@ describe('DiaryAppController · 条目动作走真写层', () => {
     expect(q('.bz-diary-sheet-body').textContent).toContain('值得一读');
   });
 
-  it('照片点开进灯箱：题注带日期与文件名，序号对分子/分母，左右键步进', async () => {
+  it('照片点开进灯箱：只有图，一个字都不出（题注与计数已退役）', async () => {
     await openBook();
     const photo = q('.bz-diary-photo');
     expect(photo.dataset.lb).toBe('0');
     photo.click();
     expect(q('.bz-diary-lightbox').hidden).toBe(false);
-    expect(q('.bz-diary-lb-count').textContent).toBe('1 / 1');
-    expect(q('.bz-diary-lb-cap').textContent).toContain('2026-08-19 23:02 · photo.jpg');
     expect(q('.bz-diary-lb-media img')).toBeTruthy();
+    // 大屏里不带任何文字：白卡上零字，整层除左右两枚翻页箭头外零字（标记里的缩进空白不算）
+    expect(q('.bz-diary-lb-photo').textContent?.trim()).toBe('');
+    expect(q('.bz-diary-lightbox').textContent?.replace(/[◂▸]/g, '').trim()).toBe('');
+    expect(document.querySelector('.bz-diary-lb-cap')).toBeNull();
+    expect(document.querySelector('.bz-diary-lb-count')).toBeNull();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     expect(q('.bz-diary-lightbox').hidden).toBe(true);
   });

@@ -105,7 +105,7 @@ export function inlineMd(s: string): string {
 // ===== 块切分（正文段的 markdown → 块序列） =====
 
 export type Block =
-  | { t: 'para'; text: string; cont?: boolean }
+  | { t: 'para'; text: string }
   | { t: 'blank'; n: number }
   | { t: 'head'; level: number; text: string }
   | { t: 'quote'; text: string }
@@ -132,24 +132,14 @@ export function splitTextBlocks(text: string): Block[] {
     }
     blocks.push(b);
   };
-  /* 超长段落按句读硬切；切出来的续块不缩进（缩进只表示原文真有的新段） */
+  /* 一段就是一块，**不按字数硬切**（用户拍板 2026-10-16）。
+     旧版把超过 240 字的段落按句读切成 ~200 字的续块（续块换 `bz-diary-p-cont` 不缩进），
+     于是原文的**一段**在册子里变成好几块、每块各起一行 —— 真机症状就是「正文莫名其妙换行」。
+     实测本机 vault：1244 篇 / 2837 段里有 43 段超 240 字，最长 1256 字会被切成 6 块。
+     换行交给排版自己：窄屏纸面自然折行；跨页档真要切开时走 `splitParagraph`
+     （Range 二分，按页尾实际高度切），不再预先制造段界。 */
   const pushPara = (s: string) => {
-    if (s.length <= 240) {
-      emit({ t: 'para', text: s });
-      return;
-    }
-    let cur = '';
-    let first = true;
-    const segs = s.split(/(?<=[。!?;~」”…])/);
-    for (const seg of segs) {
-      cur += seg;
-      if (cur.length > 200) {
-        emit({ t: 'para', text: cur, cont: !first });
-        first = false;
-        cur = '';
-      }
-    }
-    if (cur) emit({ t: 'para', text: cur, cont: !first });
+    emit({ t: 'para', text: s });
   };
   while (i < lines.length) {
     const line = lines[i];
@@ -404,15 +394,9 @@ export function exlibrisHTML(e: WallEntry, ctx: RenderCtx): string {
 
 // ===== 段块 =====
 
-function paraHTML(b: { text: string; cont?: boolean }, e: WallEntry): string {
+function paraHTML(b: { text: string }, e: WallEntry): string {
   return (
-    '<div class="bz-diary-b-para ' +
-    (b.cont ? 'bz-diary-p-cont' : 'bz-diary-p-indent') +
-    '" data-eid="' +
-    esc(e.id || '') +
-    '">' +
-    inlineMd(b.text) +
-    '</div>'
+    '<div class="bz-diary-b-para" data-eid="' + esc(e.id || '') + '">' + inlineMd(b.text) + '</div>'
   );
 }
 
@@ -486,7 +470,7 @@ export function entryBlockHTMLs(
           break;
         case 'para': {
           const t = stripHashInto(b.text, []);
-          if (t.trim()) out.push(paraHTML({ text: t, cont: b.cont }, e));
+          if (t.trim()) out.push(paraHTML({ text: t }, e));
           break;
         }
         case 'head':
@@ -728,15 +712,14 @@ export function bookPanelHTML(): string {
     </div>
   </div>
 
-  <!-- 灯箱：相片显影 -->
+  <!-- 灯箱：相片显影。图/视频之外**不摆任何文字**（用户拍板 2026-10-16）：
+       原题注（日期 时间 · 文件名）与「第 n / N 张」计数已退役，只留左右两枚翻页钮 -->
   <div class="bz-diary-lightbox" hidden>
     <figure class="bz-diary-lb-photo">
       <div class="bz-diary-lb-media"></div>
-      <figcaption class="bz-diary-lb-cap"></figcaption>
     </figure>
     <div class="bz-diary-lb-nav bz-diary-lb-prev">◂</div>
     <div class="bz-diary-lb-nav bz-diary-lb-next">▸</div>
-    <div class="bz-diary-lb-count"></div>
   </div>
 
   <div class="bz-diary-toast" hidden></div>

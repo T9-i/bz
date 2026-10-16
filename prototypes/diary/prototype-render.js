@@ -1,4 +1,4 @@
-/* 源指纹 05060fea83fcb11e · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 2a56267c9f53dc63 · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["src/core/ui/str.ts","src/diary/render.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — src/diary/render.ts → window.BZR_diary（评审壳预览包，ADR-0104） */
 var BZR_diary = (() => {
@@ -119,22 +119,7 @@ var BZR_diary = (() => {
       blocks.push(b);
     };
     const pushPara = (s) => {
-      if (s.length <= 240) {
-        emit({ t: "para", text: s });
-        return;
-      }
-      let cur = "";
-      let first = true;
-      const segs = s.split(/(?<=[。!?;~」”…])/);
-      for (const seg of segs) {
-        cur += seg;
-        if (cur.length > 200) {
-          emit({ t: "para", text: cur, cont: !first });
-          first = false;
-          cur = "";
-        }
-      }
-      if (cur) emit({ t: "para", text: cur, cont: !first });
+      emit({ t: "para", text: s });
     };
     while (i < lines.length) {
       const line = lines[i];
@@ -261,7 +246,7 @@ var BZR_diary = (() => {
     return '<div class="bz-diary-exlibris" data-eid="' + esc(e.id || "") + '">' + cover + '<div class="bz-diary-ex-main"><div class="bz-diary-ex-title">《' + esc(x.title || "") + '》</div><div class="bz-diary-ex-author">' + byline + '</div><div class="bz-diary-ex-review">' + inlineMd(x.review || "") + '</div><div class="bz-diary-ex-date">读毕 ' + esc(e.date) + " · " + esc(e.emoji) + "</div></div></div>";
   }
   function paraHTML(b, e) {
-    return '<div class="bz-diary-b-para ' + (b.cont ? "bz-diary-p-cont" : "bz-diary-p-indent") + '" data-eid="' + esc(e.id || "") + '">' + inlineMd(b.text) + "</div>";
+    return '<div class="bz-diary-b-para" data-eid="' + esc(e.id || "") + '">' + inlineMd(b.text) + "</div>";
   }
   function envelopeHTML(e) {
     return '<div class="bz-diary-b-envelope"><div class="bz-diary-envelope" data-eid="' + esc(e.id || "") + '"><div class="bz-diary-env-body"><div class="bz-diary-env-flap"></div><div class="bz-diary-env-split"><i class="bz-diary-es-l"></i><i class="bz-diary-es-r"></i></div><div class="bz-diary-env-wax">🔐</div><div class="bz-diary-env-label">火漆封缄 · 拆信需主密码</div></div><span class="bz-diary-env-reseal">重新封缄</span></div></div>';
@@ -300,7 +285,7 @@ var BZR_diary = (() => {
             break;
           case "para": {
             const t = stripHashInto(b.text, []);
-            if (t.trim()) out.push(paraHTML({ text: t, cont: b.cont }, e));
+            if (t.trim()) out.push(paraHTML({ text: t }, e));
             break;
           }
           case "head":
@@ -479,15 +464,14 @@ var BZR_diary = (() => {
     </div>
   </div>
 
-  <!-- 灯箱：相片显影 -->
+  <!-- 灯箱：相片显影。图/视频之外**不摆任何文字**（用户拍板 2026-10-16）：
+       原题注（日期 时间 · 文件名）与「第 n / N 张」计数已退役，只留左右两枚翻页钮 -->
   <div class="bz-diary-lightbox" hidden>
     <figure class="bz-diary-lb-photo">
       <div class="bz-diary-lb-media"></div>
-      <figcaption class="bz-diary-lb-cap"></figcaption>
     </figure>
     <div class="bz-diary-lb-nav bz-diary-lb-prev">◂</div>
     <div class="bz-diary-lb-nav bz-diary-lb-next">▸</div>
-    <div class="bz-diary-lb-count"></div>
   </div>
 
   <div class="bz-diary-toast" hidden></div>

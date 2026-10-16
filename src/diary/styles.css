@@ -525,13 +525,13 @@
 .bz-diary-b-blank.bz-diary-blank-2 { height: 52px; }
 .bz-diary-b-blank.bz-diary-blank-3 { height: 78px; }
 
-/* 正文排版(段距为 0:分段语义交给首行缩进,段中跨页续排才严丝合缝) */
+/* 正文排版：段距 0，**首行不缩进**（用户拍板 2026-10-16）。
+   段与段的距离只由原文的空行块（`.bz-diary-b-blank`）给出 —— 原文一段就排一段，
+   段首不再顶那 2em；段中跨页续排也不必再靠「续块不缩进」区分，那个类一并退役。 */
 .bz-diary-b-para {
   font-size: 16.5px; line-height: 27px; color: var(--bz-diary-ink);
   text-align: justify; margin: 0;
 }
-.bz-diary-b-para.bz-diary-p-indent { text-indent: 2em; }
-.bz-diary-b-para.bz-diary-p-cont { text-indent: 0; }
 /* 段中大标题(条目正文里的 ## 小标题)。
    上 16 / 下 6:标题是"另起一段"的信号,得跟上面一段正文分开;
    下面只留 6 —— 它管着的那段正文要贴紧它,不能也拉开。 */
@@ -1058,7 +1058,7 @@
 }
 .bz-diary-lightbox[hidden] { display: none; }
 .bz-diary-lb-photo {
-  background: #fdfcf7; padding: 16px 16px 12px;
+  background: #fdfcf7; padding: 16px;
   box-shadow: 0 40px 90px rgba(0,0,0,.7);
   transform: rotate(0deg);
   animation: bz-diary-lbPick .38s cubic-bezier(.25, 1.2, .4, 1) both;
@@ -1075,13 +1075,12 @@
 @keyframes bz-diary-lbPick { from { transform: scale(.4) rotate(6deg); opacity: 0; } }
 .bz-diary-lb-media { position: relative; background: #111; }
 /* 照片按**容器**收边,不按视口 —— 外层 .lb-photo 是 min(86vw,1000px) 再减 32px 内边距,
-   图若按 86vw 取宽,会比它宽 32px 顶出白卡(卡纸两侧被切、说明文字相对图片偏心)。
+   图若按 86vw 取宽,会比它宽 32px 顶出白卡(卡纸两侧被切)。
    max-height 仍是视口比例:竖图靠它收高。 */
 .bz-diary-lb-media img, .bz-diary-lb-media video {
   display: block; max-width: 100%; max-height: 74vh; object-fit: contain;
   animation: bz-diary-develop 1s ease both;
 }
-.bz-diary-lb-cap { text-align: center;  font-size: 16px; color: var(--bz-diary-ink-soft); padding-top: 10px; letter-spacing: 1px; }
 .bz-diary-lb-nav {
   position: absolute; top: 50%; transform: translateY(-50%);
   width: 52px; height: 52px; border-radius: 50%;
@@ -1096,7 +1095,8 @@
 }
 .bz-diary-lb-prev { left: 4vw; }
 .bz-diary-lb-next { right: 4vw; }
-.bz-diary-lb-count { position: absolute; bottom: 4vh; left: 50%; transform: translateX(-50%); color: #bfae8e;  font-size: 15px; letter-spacing: 2px; }
+/* 灯箱里没有题注与计数（.bz-diary-lb-cap / .bz-diary-lb-count 两条规则已随元素
+   一并退役，2026-10-16 用户拍板：大屏只看图，不出一个字） */
 
 /* 引导便签与「那年今日」明信片已整件退役（开册就往桌上摆的非请求物件，与「只要日记本本身」
    冲突）——原 .bz-diary-hint / .bz-diary-postcard 两套规则一并摘除 */
