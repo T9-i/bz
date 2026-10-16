@@ -4842,6 +4842,10 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   font-size: 25px; line-height: 1; color: #463617;
   text-shadow: 0 1px 0 rgba(255,255,255,.5);
 }
+/* 文具自带两套面孔：桌面档是「象牙纸签上一个墨字」（下面那行 <b>），窄屏档是「一枚图标」
+   （纯层两样都吐，由媒体查询决定露哪一套——单源 markup，两个运行端各取所需）。
+   桌面档这一屏没有纸签可插图标，故此处恒藏。 */
+.bz-diary-tl .bz-ic { display: none; }
 @media (hover: hover) {
 
 .bz-diary-tl:hover { transform: rotate(0) translateY(-6px); box-shadow: 0 8px 14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.6); }
@@ -5125,10 +5129,30 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
 }
 .bz-diary-scene.bz-diary-single .bz-diary-page-item::after { display: none; }
 
+/* ---------- 窄屏「日卷」（2026-10-16 用户拍板：窄屏不要翻页） ----------
+   一天一卷，一次只在屏上摆一卷（其余 display:none，换天是纯显隐、不重建不重排）。
+   窄屏**不走 StPageFlip**（ui.ts 的 buildDayStack），所以这里没有 --left/--right 书脊、
+   没有页码、没有翻页钮 —— 只有一个能正常上下滚的纸面。 */
+.bz-diary-days { position: absolute; inset: 0; }
+.bz-diary-day {
+  position: absolute; inset: 0; display: none; overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .35), transparent 30px),
+    linear-gradient(90deg, var(--bz-diary-paper), var(--bz-diary-paper-2));
+  box-shadow: inset 0 0 46px rgba(120, 90, 40, .1);
+}
+.bz-diary-day.bz-diary-day-on { display: block; }
+.bz-diary-day::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: var(--bz-diary-paper-noise); background-size: 180px;
+  opacity: .5; mix-blend-mode: multiply;
+}
+
 /* 触屏档收回正文的选择豁免（issue 217 同款教训）：便签菜单在触屏上唯一入口是长按，
-   正文若可选中，系统文本选择浮标会掐死长按计时 → 菜单永不出。桌面保留选中复制。 */
+   正文若可选中，系统文本选择浮标会掐死长按计时 → 菜单永不出。桌面保留选中复制。
+   窄屏的日卷 `.bz-diary-day` 是同一个角色（2026-10-16 起窄屏的纸面就是它），一并收回。 */
 @media (pointer: coarse) {
-  .bz-diary-page-item { user-select: none; -webkit-user-select: none; }
+  .bz-diary-page-item, .bz-diary-day { user-select: none; -webkit-user-select: none; }
 }
 
 /* ---------- 丝带书签:整块去掉(2026-10-02)----------
@@ -5809,25 +5833,86 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
    书就不居中了——实测窗口 ≤1120px 必现） */
 @media (max-width: 720px) {
   .bz-diary-scene {
-    /* 移动端书页铺满整屏：顶部留 44px 给刘海屏安全区（用户拍板），底边贴窗底 */
-    --bz-diary-pg-w: 100vw; --bz-diary-pg-h: calc(100vh - 44px);
-    --bz-diary-pg-pad-t: 56px; --bz-diary-pg-pad-x: 34px; --bz-diary-pg-pad-b: 76px;
+    /* 移动端整本铺满整屏（用户拍板 2026-10-16）：上沿顶到窗顶、下沿贴窗底，
+       顶部那 44px 不再是「透出宿主的空白」，而是书自己的纸面（正文与关闭钮往下让开它）。
+       页宽**必须与书宽同源**：`--pg-w` 同时喂 `.bz-diary-book` 的宽、离屏测量盒 `.bz-diary-probe`
+       的宽、以及 ui.ts 的 `pageWidth()`（它读书宽做单页/跨页的除法）。
+       1.8 版曾把它写成 `100vw`，比书宽宽出一圈 → StPageFlip 那个按**宿主宽度**折算的 aspect 盒
+       算成 947 而非 871，纸面被整体下推 38px、正文按错宽度分页、滚轮/方向键翻页（库的 corner 判据）全废。
+       2026-10-16「C 稿」拍板后**重新**写成 `100vw`：paper 左右通栏铺满，不再露桌面底；
+       此时书宽 === 视口宽，与 pageWidth() 已同源，1.8 版那个错位不会再发生。 */
+    --bz-diary-pg-w: 100vw; --bz-diary-pg-h: 100vh;
+    /* 页头收窄（日号 76→54、内边距左右 34→26）换回正文宽度 */
+    --bz-diary-pg-pad-t: 58px; --bz-diary-pg-pad-x: 26px;
+    /* 页底只让位给一件东西：贴底的通栏玻璃工具条（约 58px），再留一口气。
+       窄屏没有页码、没有翻页钮（用户拍板 2026-10-16 全去掉）。
+       安全区也要算进去 —— 分页读数取自这个变量的计算值（ui.ts 量 probe 的 paddingBottom）。 */
+    --bz-diary-pg-pad-b: calc(74px + env(safe-area-inset-bottom, 0px));
   }
-  /* 居中公式 50% - pg-h/2 只留得出 22px，补 22px 才钉在 44px 安全区上 */
-  .bz-diary-book { width: var(--bz-diary-pg-w); top: calc(50% + 22px); }
+  /* 书顶顶到窗顶：不再有 50% - pg-h/2 那 22px 的补偿 */
+  .bz-diary-book { width: var(--bz-diary-pg-w); top: 50%; }
+
+  /* ---------- 页头：整体矮 42px ----------
+     只收页头自己，不动页内边距的来源（--pg-pad-t 在上面那组变量里）。
+     `.dstamp` 是 flex + gap 16，故这里收 gap 而不是另给左外边距（给就是双份间距）。 */
+  .bz-diary-dstamp { gap: 10px; padding: 4px 2px 2px; }
+  .bz-diary-ds-day { font-size: 54px; }
+  .bz-diary-ds-side { padding-bottom: 4px; gap: 2px; }
+  .bz-diary-ds-side b { font-size: 17px; letter-spacing: 4px; }
+  .bz-diary-ds-side i { font-size: 13px; }
+  .bz-diary-ds-side em { font-size: 12px; }
+  .bz-diary-ds-year { font-size: 13px; padding-bottom: 6px; }
+  .bz-diary-ds-wave { margin: 2px 0 12px; }
+
   /* 书签条:窄屏没有"书外那 26px"可用,原来的 right:2px 是直接压在正文右缘上。
-     改成从**书顶**翻出来 —— 书顶到窗口顶有 12vh 的余量,不盖任何字 */
-  .bz-diary-filter-tab { right: -8px; top: -20px; }
-  .bz-diary-ds-day { font-size: 56px; }
-  /* 书铺满后下沿没有余量可挂，文具改钉在窗底、浮在纸上（页底内边距已放到 76px 让位） */
-  .bz-diary-tools { top: auto; bottom: 14px; gap: 5px; padding: 7px 8px; }
-  .bz-diary-tl { width: 40px; height: 36px; }
-  .bz-diary-tl b { font-size: 19px; }
-  /* 触屏没有 hover:mousemove 驱动的 .show 永远开不了 → 这一屏文具直接常驻 */
-  .bz-diary-tools { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
-  /* 收起钮收一档塞进顶部 44px 安全条：书从第 44px 起铺满，钮压在书上会挡字 */
-  .bz-diary-close { top: 6px; right: 12px; width: 32px; height: 32px; }
-  .bz-diary-close .bz-ic { width: 16px; height: 16px; }}
+     书顶已经顶到窗顶,不能再从书顶翻出来（`top:-20px` 会整条出屏）——改从右上角下方翻出来,
+     起点压在关闭钮底下（84px = 钮底 74px + 一道缝），两条竖向物件不打架 */
+  .bz-diary-filter-tab { right: -8px; top: 84px; }
+
+  /* ---------- 关闭钮：黄铜圆牌 → 一枚素圆点 ----------
+     仍钉在距顶 44px（`max(44px, env(safe-area-inset-top))` 兼顾刘海屏的真安全区）。
+     不会挡字：正文右缘 = 书右沿 412 - 页右内边距 26 = 386，钮左缘 = 412 - 14 - 30 = 368。 */
+  .bz-diary-close {
+    top: max(44px, env(safe-area-inset-top, 0px)); right: 14px; width: 30px; height: 30px;
+    border: 1px solid rgba(80, 60, 30, .2); background: rgba(246, 239, 221, .62);
+    color: var(--bz-diary-ink-soft); box-shadow: none;
+  }
+  .bz-diary-close .bz-ic { width: 15px; height: 15px; }
+
+  /* ---------- 工具条：浮在纸上的木牌 → 贴底通栏玻璃条 ----------
+     四件文具平铺成一排，各占等分宽度；纸签的纸纹、印泥色侧条、随手歪的角度都不再适用
+     （一块玻璃上没有「签」）。这一栏按用户拍板只留图标，字藏起来（见下面 b / .bz-ic 那两条）。 */
+  .bz-diary-scene .bz-diary-tools,
+  .bz-diary-scene .bz-diary-tools.bz-diary-show {
+    top: auto; bottom: 0; left: 0; right: 0; width: auto;
+    gap: 0; padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    border-radius: 0; border-top: 1px solid rgba(80, 60, 30, .16);
+    background: linear-gradient(to top, rgba(246, 239, 221, .97), rgba(246, 239, 221, .8));
+    box-shadow: 0 -6px 18px -10px rgba(30, 20, 8, .5);
+    opacity: 1; pointer-events: auto; transform: none;
+  }
+  .bz-diary-scene .bz-diary-tools::before { display: none; }
+  /* 这里**不写** `:hover` 那一支：本段在文件里排在基类的 `@media (hover:hover)` 之后，
+     同为 (0,2,0) 权重、后写的赢 —— 于是窄窗带鼠标时「压下去那点位移」也被一并关掉，
+     而全仓的触屏粘滞范式（:hover 一律要包在 @media (hover:hover) 里）不用破例。 */
+  .bz-diary-scene .bz-diary-tl {
+    flex: 1; width: auto; height: 46px; border-radius: 10px;
+    background: none; box-shadow: none; transform: none;
+  }
+  .bz-diary-scene .bz-diary-tl::before, .bz-diary-scene .bz-diary-tl::after { display: none; }
+  /* 玻璃条上只留图标（用户拍板 2026-10-16）：纸签那套「一个墨字」没有签可依，
+     字符缩到 20px 也只是四个小字；图标在这条 46px 高的栏里既认得出、又不用挤字距。 */
+  .bz-diary-scene .bz-diary-tl b { display: none; }
+  .bz-diary-scene .bz-diary-tl .bz-ic {
+    display: block; width: 22px; height: 22px; color: var(--bz-diary-ink-soft);
+  }
+  .bz-diary-scene .bz-diary-tl:active { background: rgba(120, 90, 40, .09); }
+
+  /* 纸里的正文在纸上正常滚（用户拍板 2026-10-16「用户可以正常滚动页面」）。
+     一天一卷，一天装不下就滚完再说 —— 滚到顶 / 底再继续滚才换上下一天
+     （判在 ui.ts bindChrome 的滚轮/触摸边判里）。 */
+  .bz-diary-scene .bz-diary-page-inner { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+}
 
 /* 扉页整页已废:书名/目录/印章那套随"目录改由书口索引抽纸承担"一并删掉,
    书打开第一页(page-item,无 toc-page 类)就是最近那篇 */
