@@ -12557,8 +12557,12 @@ canvas { display: block; }
   #bz-encrypt-popup .bz-vault-mbar .bz-vault-mobclose { color: var(--bz-text-2); display: flex; }
   #bz-encrypt-popup .bz-vault-mbar .bz-vault-mobclose svg { width: 18px; height: 18px; }
   /* 呈报#60/E4 收编：壳样式（surface/border/图标定位/input 基线）单源 core .bz-search；
-     此处只留移动布局——外边距 + 44px 触达高（.bz-search 的 relative/flex:1 由 core 供） */
-  #bz-encrypt-popup .bz-search.bz-vault-msearch { margin: var(--bz-space-xs) 14px var(--bz-space-sm); min-height: 44px; }
+     此处只留移动布局——外边距 + 44px 触达高 + 覆盖 core 的 flex:1。
+     core .bz-search 的 flex:1（flex-basis:0 + grow:1）是给横向工具行「水平撑满」用的；
+     本块是纵向 flex 容器，flex:1 会把它和 .bz-vault-mbody 拉到平分纵轴剩余空间——
+     整框被撑成数百 px，绝对定位的放大镜（top:50%）跟着飘到中段（issue 548）。
+     故此处显式 flex:none，按内容（input 44px）定高。 */
+  #bz-encrypt-popup .bz-search.bz-vault-msearch { flex: none; margin: var(--bz-space-xs) 14px var(--bz-space-sm); min-height: 44px; }
   #bz-encrypt-popup .bz-vault-msearch .bz-input { height: 44px; }
   #bz-encrypt-popup .bz-vault-mseg { display: flex; gap: 6px; margin: 2px 14px 10px; padding: var(--bz-space-xs); background: var(--bz-surface-hover); border: 1px solid var(--bz-border); border-radius: var(--bz-radius-md); }
   #bz-encrypt-popup .bz-vault-mseg .sg { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 44px; text-align: center; padding: 7px 0; border-radius: 9px; font-size: var(--bz-font-meta); font-weight: 600; color: var(--bz-text-2); cursor: pointer; }
