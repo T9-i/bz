@@ -22,8 +22,13 @@ describe('移动端长按手势 vs 书页选中豁免（ADR-0230）', () => {
     const blocks = [...css.matchAll(/@media\s*\(pointer:\s*coarse\)\s*\{([^}]*)\}/g)].map((m) => m[1]);
     expect(blocks.length, '域内应有 pointer:coarse 块').toBeGreaterThan(0);
     const joined = blocks.join('\n');
+    // 选择器可能是列表（`.bz-diary-page-item, .bz-diary-day { … }`），故类名与 `{` 之间允许有别的选择器
     expect(joined, '触屏下页容器必须 user-select:none').toMatch(
-      /\.bz-diary-page-item\s*\{[^}]*user-select:\s*none/
+      /\.bz-diary-page-item[^{}]*\{[^}]*user-select:\s*none/
+    );
+    // 窄屏的日卷是同一角色（2026-10-16 起窄屏纸面 = .bz-diary-day），也要收回
+    expect(joined, '触屏下日卷也必须 user-select:none').toMatch(
+      /\.bz-diary-day[^{}]*\{[^}]*user-select:\s*none/
     );
     // -webkit- 前缀同时给（Obsidian 移动端 WebView 的旧内核）
     expect(joined).toMatch(/-webkit-user-select:\s*none/);

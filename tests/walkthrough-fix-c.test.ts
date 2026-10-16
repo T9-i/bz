@@ -268,19 +268,42 @@ describe('批 C-19：settings-panel 移动列表项名归档', () => {
 });
 
 describe('批 C-20：diary 矮窗兜底（ADR-0230 书页界面换代后口径）', () => {
-  it('矮窗把书高收到 min(700px, 100vh-180px)；窄屏书页铺满整屏、顶部留 44px 安全区', () => {
+  it('矮窗把书高收到 min(700px, 100vh-180px)；窄屏整本铺满整屏、顶部 44px 是书自己的纸面', () => {
     const css = repo('src/diary/styles.css');
     // 桌面矮窗：书高上限 700px，且底下留 180px 给「文具托」（它挂在遮罩上、按书沿定位，不是书的一部分）
     expect(css).toMatch(
       /@media \(min-width: 721px\) and \(max-height: 900px\)\s*\{\s*\.bz-diary-scene\s*\{\s*--bz-diary-pg-h: min\(700px, calc\(100vh - 180px\)\);\s*\}\s*\}/
     );
-    // 窄屏（≤720px）改铺满：页宽 100vw、页高 100vh - 44px（刘海屏安全区），
-    // 书顶钉在 44px（居中公式只留得出 22px，故 top 补 22px），文具改钉窗底
+    // 窄屏（≤720px）「C 稿」拍板（2026-10-16，取代「顶部留 44px 空条」那版）：
+    // 纸**左右通栏铺满**（100vw，不再露桌面底），页头收窄、正文内边距 34 → 26，
+    // 底部工具条由浮在纸上的木牌改成贴底通栏玻璃条。
+    // 页宽仍与书宽同源（ui.ts 的 pageWidth() 读的就是书宽），故 1.8 版那次
+    // 「100vw 与 JS 里 0.92 不同源」的 aspect 盒错位不会再发生。
     expect(css).toMatch(/--bz-diary-pg-w: 100vw/);
-    expect(css).toMatch(/--bz-diary-pg-h: calc\(100vh - 44px\)/);
-    expect(css).toMatch(/--bz-diary-pg-pad-b: 76px/);
-    expect(css).toMatch(/\.bz-diary-book\s*\{[^}]*top: calc\(50% \+ 22px\)/);
-    expect(css).toMatch(/\.bz-diary-tools\s*\{[^}]*bottom: 14px/);
+    expect(css).toMatch(/--bz-diary-pg-h: 100vh/);
+    expect(css).toMatch(/--bz-diary-pg-pad-t: 58px/);
+    expect(css).toMatch(/--bz-diary-pg-pad-x: 26px/);
+    expect(css).toMatch(/--bz-diary-pg-pad-b: calc\(74px \+ env\(safe-area-inset-bottom, 0px\)\)/);
+    expect(css).toMatch(/\.bz-diary-book\s*\{[^}]*top: 50%/);
+    expect(css).not.toMatch(/--bz-diary-pg-w: min\(92vw, 480px\)/);
+    // 页头收窄：日号 76 → 54
+    expect(css).toMatch(/\.bz-diary-ds-day\s*\{\s*font-size: 54px;\s*\}/);
+    // 收起钮仍按 44px 顶距避让刘海/状态栏，但由黄铜圆牌收成一枚素圆点
+    expect(css).toMatch(
+      /\.bz-diary-close\s*\{\s*top: max\(44px, env\(safe-area-inset-top, 0px\)\); right: 14px; width: 30px; height: 30px;/
+    );
+    // 工具条改贴底通栏玻璃条（不再浮在纸上）
+    expect(css).toMatch(/\.bz-diary-scene \.bz-diary-tools[\s\S]*?bottom: 0; left: 0; right: 0;/);
+    // 工具条上只留图标：纸签那个墨字藏起来（桌面档反过来，两套面孔同一份 markup）
+    expect(css).toMatch(/\.bz-diary-scene \.bz-diary-tl b\s*\{\s*display: none;\s*\}/);
+    expect(css).toMatch(/\.bz-diary-tl \.bz-ic\s*\{\s*display: none;\s*\}/);
+    // 窄屏纸里的正文正常滚（用户拍板「用户可以正常滚动页面」，滚到顶/底才换上下一天）
+    expect(css).toMatch(/\.bz-diary-scene \.bz-diary-page-inner\s*\{\s*overflow-y: auto;/);
+    // 书签条不能再从书顶翻出去（书顶已顶到窗顶，`top:-20px` 会整条出屏），改挂关闭钮底下
+    expect(css).toMatch(/\.bz-diary-filter-tab\s*\{\s*right: -8px; top: 84px;\s*\}/);
+    // 窄屏不要页码、不要翻页钮：那两样连同页脚一并拆掉，不许回流
+    expect(css).not.toContain('.bz-diary-pf-btn');
+    expect(css).not.toContain('.bz-diary-page-foot');
     // 回忆墙那张「自己压顶」的面板卡已退役：.bz-diary-desk 现在是全屏遮罩层（token 底色 + blur，点它收起）
     const desk = rule(css, '.bz-diary-desk');
     expect(desk, '缺 .bz-diary-desk 规则').not.toBeNull();

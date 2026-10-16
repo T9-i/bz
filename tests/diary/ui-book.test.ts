@@ -625,8 +625,10 @@ describe('DiaryAppController · 首屏与建书', () => {
     expect(rec.opts.showCover).toBe(false);
     expect(rec.opts.disableFlipByClick).toBe(true);
     expect(rec.opts.showPageCorners).toBe(false);
-    // 620 太拖（原型里翻一页像等半拍），按手感收到 380
-    expect(rec.opts.flippingTime).toBe(380);
+    // 620 太拖（原型里翻一页像等半拍），按手感收到 380 → 240（用户拍板「动画简单为主」）
+    expect(rec.opts.flippingTime).toBe(240);
+    // 翻页阴影整件关掉：那道扫过纸面的深影是每帧重算渐变的主要开销
+    expect(rec.opts.drawShadow).toBe(false);
     expect(rec.opts.size).toBe('fixed');
     // 页内元素真的装进了页容器
     expect(rec.items[0].querySelector('.bz-diary-b-daystamp')).toBeTruthy();
@@ -634,6 +636,34 @@ describe('DiaryAppController · 首屏与建书', () => {
     expect(rec.items[0].querySelector('.bz-diary-page-no')).toBeTruthy();
     expect(rec.items[1].querySelector('.bz-diary-page-no')).toBeNull();
     expect(rec.items[2].querySelector('.bz-diary-page-no')).toBeTruthy();
+  });
+
+  it('窄屏建日卷：一天一卷、页号即天号、不走 StPageFlip、无页码无翻页钮', async () => {
+    const c = await openBook();
+    const before = flipRecords.length;
+    window.innerWidth = 412;
+    window.dispatchEvent(new Event('resize'));
+    await vi.waitFor(() => expect(qa('.bz-diary-day').length).toBeGreaterThan(0));
+
+    expect(flipRecords.length).toBe(before); // 一只 StPageFlip 都没建：窄屏没有翻页这回事
+    expect(qa('.bz-diary-page-item').length).toBe(0);
+    const secs = qa('.bz-diary-day');
+    expect(secs.length).toBeGreaterThan(1);
+    expect(qa('.bz-diary-day.bz-diary-day-on').length).toBe(1); // 一次只在屏上摆一卷
+    for (const s of secs) {
+      // 一天一卷：每卷只有一枚日戳（分页那条路会一天铺成好几页，这里不会）
+      expect(s.querySelectorAll('.bz-diary-b-daystamp').length).toBe(1);
+    }
+    // this.pages 在窄屏 = 天列表（页号即天号），书口索引 / 台历跳日那几条按页号算的路照旧可用
+    expect((c as unknown as { pages: unknown[] }).pages.length).toBe(secs.length);
+    // 页码与翻页钮都去掉（用户拍板：移动端不要）
+    expect(q('.bz-diary-page-no')).toBeNull();
+    expect(q('[data-pf]')).toBeNull();
+
+    window.innerWidth = 1024;
+    window.dispatchEvent(new Event('resize'));
+    await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(before));
+    expect(qa('.bz-diary-day').length).toBe(0); // 日卷已拆，回到跨页书
   });
 
   it('书口年份染色：跨年才画，色阶类按年序轮转（几何走内联，颜色走类）', async () => {
@@ -658,7 +688,7 @@ describe('DiaryAppController · 首屏与建书', () => {
     expect(qa('.bz-diary-page-item').length).toBe(3);
   });
 
-  it('窄屏（≤720px）翻档单页模式，根上挂 bz-diary-single；宽回来再翻回跨页', async () => {
+  it('窄屏（≤720px）改走日卷、不再建 StPageFlip；宽回来再建跨页书', async () => {
     await openBook();
     expect(lastFlip().opts.usePortrait).toBe(false);
     expect(q('.bz-diary-scene').classList.contains('bz-diary-single')).toBe(false);
@@ -666,15 +696,18 @@ describe('DiaryAppController · 首屏与建书', () => {
     const before = flipRecords.length;
     window.innerWidth = 600;
     window.dispatchEvent(new Event('resize'));
-    await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(before));
-    expect(lastFlip().opts.usePortrait).toBe(true);
+    await vi.waitFor(() => expect(qa('.bz-diary-day').length).toBeGreaterThan(0));
+    // 窄屏不建库（用户拍板 2026-10-16：不要翻页特效，一天一卷自己滚）
+    expect(flipRecords.length).toBe(before);
     expect(q('.bz-diary-scene').classList.contains('bz-diary-single')).toBe(true);
+    expect(qa('.bz-diary-page-item').length).toBe(0);
+    expect(qa('.bz-diary-day.bz-diary-day-on').length).toBe(1);
 
-    const after = flipRecords.length;
     window.innerWidth = 1024;
     window.dispatchEvent(new Event('resize'));
-    await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(after));
+    await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(before));
     expect(lastFlip().opts.usePortrait).toBe(false);
+    expect(qa('.bz-diary-day').length).toBe(0);
   });
 
   it('滚轮翻页节流；键盘 ← → 翻页；Esc 无浮层时翻回最新', async () => {

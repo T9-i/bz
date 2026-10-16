@@ -646,10 +646,10 @@ export function bookPanelHTML(): string {
          文具共四件：写 / 找 / 跳 / 类 —— 原型第五件「抹（抹掉全部本地涂改）」处置见 ADR-0230
          决策 9：那是探索稿 localStorage 覆盖层专有的概念，单源没有对应的真对象，故不搬。 -->
     <div class="bz-diary-tools">
-      <span class="bz-diary-tl" data-tact="pencil" title="写一篇"><b>写</b></span>
-      <span class="bz-diary-tl" data-tact="lens" title="找一找"><b>找</b></span>
-      <span class="bz-diary-tl" data-tact="calendar" title="跳日子"><b>跳</b></span>
-      <span class="bz-diary-tl" data-tact="stickers" title="按类翻"><b>类</b></span>
+      <span class="bz-diary-tl" data-tact="pencil" title="写一篇">${iconSpan('pen-line')}<b>写</b></span>
+      <span class="bz-diary-tl" data-tact="lens" title="找一找">${iconSpan('search')}<b>找</b></span>
+      <span class="bz-diary-tl" data-tact="calendar" title="跳日子">${iconSpan('calendar')}<b>跳</b></span>
+      <span class="bz-diary-tl" data-tact="stickers" title="按类翻">${iconSpan('tags')}<b>类</b></span>
     </div>
 
     <!-- 明信片（那年今日）与引导便签已整件退役：开册就往桌上摆的非请求物件，

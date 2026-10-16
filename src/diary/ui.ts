@@ -29,6 +29,7 @@
  */
 import { type App, type EventRef } from 'obsidian';
 import { PageFlip } from './vendor/page-flip.browser.js';
+import { guardIdleWrites } from './flip-idle-guard';
 import { registerPanelEsc, unregisterPanelEsc } from '../core/esc-manager';
 import { topifyZ } from '../core/dom';
 import { notice } from '../core/notice';
@@ -93,16 +94,18 @@ import { mountIcons, uiProgress } from '../core/ui';
 
 /** 窄屏单页断点——**与 styles.css 的 `@media (max-width: 720px)` 必须一致**（两侧都改） */
 const SINGLE_MAX_W = 720;
-/** StPageFlip 翻页动画时长（原型 620ms 实测偏拖沓，收到 380ms） */
-const FLIP_TIME_MS = 380;
+/** StPageFlip 翻页动画时长。用户拍板 2026-10-16「动画简单为主」：620 → 380 → 240，
+ *  再配 `drawShadow: false`，转向就成了「快、平」的一下，不再有那道扫过纸面的深影 */
+const FLIP_TIME_MS = 240;
 /** 页尾能塞下一刀的最小剩余高度：比这更矮就不切，直接换页（切出来两行字没有意义） */
 const PAGE_CUT_MIN_PX = 84;
 /** 日戳不孤行：本页剩余空间装不下「日戳 + 一点点内容」就提前换页 */
 const DAYSTAMP_KEEP_PX = 96;
 /** 域事件/vault 变更后的整册回刷防抖 */
 const REFRESH_DEBOUNCE_MS = 400;
-/** 滚轮翻页节流 */
-const WHEEL_LOCK_MS = 560;
+/** 滚轮翻页节流。跟着翻页时长一起收（380+180 → 240+80）：节流窗该是「动画走完 + 一口气的余量」，
+ *  否则滚轮连滚时每一下都卡在上一段的收尾上，读起来是顿的而不是连的 */
+const WHEEL_LOCK_MS = 320;
 /** 进度纸条的显示延时：读得快（预热缓存命中）就不摆这一下，免得闪一闪 */
 const LOADING_SHOW_DELAY_MS = 120;
 /**
@@ -423,6 +426,11 @@ export class DiaryAppController {
   private pages: Page[] = [];
   private cursor = 0;
   private single = false;
+  /** 窄屏档的日卷：一天一卷，`daySections[dayIdx]` 是唯一显出来的那一卷。
+   *  窄屏 **this.pages 也是一天一页**（见 groupByDay），所以页号 === 天号，
+   *  书口索引 / 台历跳日 / 检索定位那几条按页号算的路不用另写一套。 */
+  private daySections: HTMLElement[] = [];
+  private dayIdx = 0;
   private filterTag: string | null = null;
   private search: { kw: string | null; hits: { pi: number; el: HTMLElement }[]; i: number } = {
     kw: null,
@@ -442,11 +450,23 @@ export class DiaryAppController {
   private toolsRaf = 0;
   private toolsShown = false;
   private lastSingle = false;
-  private lastW = 0;
-  private lastH = 0;
+  /** 上一次重排时量的书盒（宽/高）——视口变化的判据，见 onResize */
+  private lastBookW = 0;
+  private lastBookH = 0;
+  /** 写作内页摊着时被让路的那次视口变化（软键盘），纸收走再补排 */
+  private resizePending = false;
   private resizeTimer: ReturnType<typeof setTimeout> | null = null;
   private encMediaCache = new Map<string, Promise<string | null>>();
   private lastSpreadCount = 0;
+  /**
+   * 「下一次重排落回册首（最新那一篇）」的待办旗。
+   *
+   * 完工（落笔）后那一次回刷是**防抖**来的：等它跑起来时，`cursor` 可能已被别处写脏
+   * （库的翻页动画在重排前那一刻收尾、旧实例的 `flip` 回调迟到），于是 `keepRatio` 按比例
+   * 把书停在半路——用户看到的是「回了最新那页，可我刚写的内容不在」。
+   * 写完一篇就该落第 0 页，这条意图不该靠一个可被第三方改写的游标去推断，故显式记一笔。
+   */
+  private pendingHome = false;
   private cal = { year: 2026, month: 1 };
   /** 台历当前模式：跳日（文具「跳」）或写作内页的改日子·时辰 */
   private calMode: 'jump' | 'write' = 'jump';
@@ -580,11 +600,19 @@ export class DiaryAppController {
     return mediaSrc(app, name);
   }
 
-  /** 页宽（单页模式跟视口走；桌面读 CSS 变量）——离屏测量盒与 StPageFlip 建书**共用这一个值** */
+  /**
+   * 页宽——离屏测量盒与 StPageFlip 建书**共用这一个值**。
+   *
+   * **单一真理源 = CSS 排出来的书宽**：跨页档书宽 = `--bz-diary-pg-w × 2`，单页档被覆盖成 `--bz-diary-pg-w`，
+   * 所以这里只按模式做一次除法，不再在 JS 里另存一份口径。
+   * 原先单页档写死 `min(innerWidth * 0.92, 480)`：与 `.bz-diary-flipbook` 宿主宽度一旦不等
+   * （移动端 CSS 曾改成 `100vw`），StPageFlip 那个按**宿主宽度**折算的 aspect 盒就算错——
+   * 纸面被整体下推、正文按错宽度分页、滚轮/方向键翻页全废（见 styles.css 移动端段的注）。
+   */
   private pageWidth(): number {
-    if (typeof window !== 'undefined' && window.innerWidth <= SINGLE_MAX_W) {
-      return Math.min(window.innerWidth * 0.92, 480);
-    }
+    const bw = this.bookEl?.clientWidth || 0;
+    if (bw > 0) return this.single ? bw : bw / 2;
+    // 建 DOM 之前、或环境量不出几何（jsdom）：退回域根上的变量，CSS 仍是源
     const w = parseFloat(this.cssVar('--bz-diary-pg-w'));
     return Number.isFinite(w) && w > 0 ? w : 520;
   }
@@ -697,25 +725,40 @@ export class DiaryAppController {
       this.pushEntryBlocks(flow, e, ctx);
     }
 
-    // 2) 一次 reflow 全量测量（读完 offsetHeight 再读 margin，不会再触发一次布局）
-    for (const f of flow) probe.appendChild(f.el);
-    void probe.offsetHeight;
-    for (const f of flow) f.h = this.blockHeightOf(f.el);
+    if (single) {
+      /* 窄屏不切页（用户拍板 2026-10-16「一次展示一天的日记」）：一天一卷，块原样留着 ——
+         不量高度、不切段、不拆页。反正窄屏不走 StPageFlip，一天的内容整体放进那一卷，
+         放得下就放着、放不下就由卷自己滚（样式里 `.bz-diary-page-inner` 是可滚的）。
+         顺带省掉整整一轮逐块 reflow：成册 200+ 页时这一步是最大的单笔开销，
+         而且它读出来的高度在窄屏根本没人用。 */
+      this.pages = this.groupByDay(flow);
+    } else {
+      // 2) 一次 reflow 全量测量（读完 offsetHeight 再读 margin，不会再触发一次布局）
+      for (const f of flow) probe.appendChild(f.el);
+      void probe.offsetHeight;
+      for (const f of flow) f.h = this.blockHeightOf(f.el);
 
-    // 3) 切页
-    this.pages = paginateFlow(
-      flow,
-      availH,
-      (el, avail) => this.splitParagraph(el, avail, probe),
-      (el) => this.blockHeightOf(el),
-      (el, maxH) => this.fitMedia(el, maxH)
-    );
+      // 3) 切页
+      this.pages = paginateFlow(
+        flow,
+        availH,
+        (el, avail) => this.splitParagraph(el, avail, probe),
+        (el) => this.blockHeightOf(el),
+        (el, maxH) => this.fitMedia(el, maxH)
+      );
+    }
     probe.innerHTML = '';
     probe.remove();
 
     this.renderEdgeMarks();
 
     // 4) 目标页：保比例，否则落第一页（最新排在最前，第一页就是最新）
+    /* 写完一篇的回刷：无论 `keepRatio` 传了什么、`cursor` 现在是多少，都落册首 */
+    if (this.pendingHome) {
+      this.pendingHome = false;
+      keepRatio = false;
+      this.cursor = 0;
+    }
     const last = Math.max(0, this.pages.length - 1);
     let target = 0;
     if (keepRatio && this.lastSpreadCount > 1) {
@@ -724,6 +767,10 @@ export class DiaryAppController {
     this.lastSpreadCount = this.pages.length;
     this.buildBook(Math.max(0, Math.min(last, target)));
     this.refreshBookRect();
+    /* 记账：这一册就是按**这个**书盒排出来的（onResize 拿它判「要不要重排」，
+       跟写作内页让路/补排那条路都能对上，见 onResize 的注） */
+    this.lastBookW = this.bookEl?.clientWidth || 0;
+    this.lastBookH = this.bookEl?.clientHeight || 0;
     /* 这一册现在与「已加载数据 + 当前锁态 + 当前筛选」严格对应 ⇒ 重开册子可以走快路 */
     this.bookFresh = true;
     this.layoutUnlocked = isUnlocked();
@@ -814,6 +861,13 @@ export class DiaryAppController {
 
   /** 建 StPageFlip 书：页元素 → 库，翻页动画/拖拽/纸张弯曲全交库 */
   private buildBook(targetPage: number): void {
+    /* 窄屏走「日卷」，与 StPageFlip 无关（用户拍板 2026-10-16）：
+       不要翻页 —— 去掉翻页特效、一次给一天的日记、卷里正常滚动、滚到顶/底换上下一天。 */
+    if (this.single) {
+      this.buildDayStack(targetPage);
+      return;
+    }
+    this.daySections = []; // 从窄屏宽回来：日卷已由 relayout 的 blockEl 清空带走，引用一并放掉
     const host = this.flipHost;
     if (this.flip) {
       try {
@@ -852,7 +906,11 @@ export class DiaryAppController {
       height: pgH,
       size: 'fixed',
       usePortrait: this.single,
-      maxShadowOpacity: 0.5,
+      /* 翻页阴影整件关掉（用户拍板 2026-10-16「动画简单为主」）：那道扫过纸面的深影是
+         拟物感的主要来源，也是每帧重算渐变的主要开销。关了之后只剩位置/角度在动，
+         配 240ms 就是一记干净的转向。maxShadowOpacity 留着不读（库先看 drawShadow）。 */
+      drawShadow: false,
+      maxShadowOpacity: 0.12,
       showCover: false, // 没有封面页：直接按跨页排（0=左，1=右）
       mobileScrollSupport: false,
       flippingTime: FLIP_TIME_MS,
@@ -861,12 +919,96 @@ export class DiaryAppController {
       showPageCorners: false,
     });
     this.flip.loadFromHTML(items);
+    /* 装空转守卫（issue 549）：库的渲染器是无条件 rAF 死循环，每帧给所有非当前页重写
+       `style.cssText = "display:none"` —— 215 页实测 36720 次 style 变更/秒。
+       守卫只省「写同一个值」，观感逐像素不变；装不上（换库版本/替身）就原样不拦。 */
+    guardIdleWrites(this.flip);
     this.flip.turnToPage(Math.max(0, targetPage));
     this.flip.on('flip', (e) => {
       this.cursor = e.data;
     });
     this.cursor = Math.max(0, targetPage);
     this.afterPagesBuilt(host);
+  }
+
+  /**
+   * 窄屏档把块流按天分组：**一天一页**（日戳那一块带 `data-date`，它是一天的头一块）。
+   * 于是窄屏的 `this.pages` 就等于「天列表」、页号即天号，
+   * 书口索引 / 台历跳日 / 检索定位那几条按页号算的路原样可用，不必另写一套。
+   * 顺带一个好处：分页那条路会**逐行切开长段落**（`splitParagraph` 改的是原元素），
+   * 而这里不切 —— 手机上一天就是完整的一天，不该被纸边切在句子中间。
+   */
+  private groupByDay(flow: FlowItem[]): Page[] {
+    const out: Page[] = [];
+    for (const f of flow) {
+      if (f.el.getAttribute('data-date') || !out.length) out.push([]);
+      out[out.length - 1].push(f.el);
+    }
+    return out.length ? out.filter((p) => p.length) : [[]];
+  }
+
+  /**
+   * 窄屏建日卷：一天一卷，一次只在屏上放一卷（其余 `display:none`，切换是纯显隐，
+   * 不重建、不重排）。卷里内容原样、可正常滚动；滚到顶 / 底再继续滚才换上下一天
+   * （判在 `bindChrome` 的滚轮/触摸边判里，落在 `turnPage`）。
+   */
+  private buildDayStack(targetDay: number): void {
+    const host = this.flipHost;
+    if (this.flip) {
+      try {
+        this.flip.destroy();
+      } catch {
+        /* 重复销毁无害 */
+      }
+      this.flip = null;
+    }
+    /* 上一轮窄屏/桌面来回切时可能留下库的容器，一并清掉（库的 destroy 会摘走它） */
+    this.blockEl.innerHTML = '';
+    if (host) this.blockEl.appendChild(host);
+    host.innerHTML = '';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'bz-diary-days';
+    for (let di = 0; di < this.pages.length; di++) {
+      const sec = document.createElement('section');
+      sec.className = 'bz-diary-day';
+      const inner = document.createElement('div');
+      inner.className = 'bz-diary-page-inner';
+      for (const el of this.pages[di]) inner.appendChild(el);
+      sec.appendChild(inner);
+      wrap.appendChild(sec);
+    }
+    host.appendChild(wrap);
+
+    this.daySections = [...wrap.children] as HTMLElement[];
+    this.dayIdx = -1; // 逼 setDay 走一次完整赋值
+    this.setDay(Math.max(0, targetDay), 'top');
+    this.cursor = this.dayIdx;
+    this.afterPagesBuilt(wrap);
+  }
+
+  /**
+   * 换到第 i 天。`place` 决定新卷停在哪儿：
+   * - `'top'`（往下滚过来的）→ 落在这一天的开头；
+   * - `'bottom'`（往上滚过来的）→ 落在这一天的末尾，
+   *   于是「一直往下滚」就是一页连一页地读下去，不会每次都跳回开头。
+   * 切换是纯显隐，不给任何过渡（用户拍板「去掉翻页特效」）。
+   */
+  private setDay(i: number, place: 'top' | 'bottom' | 'keep' = 'top'): void {
+    const last = this.daySections.length - 1;
+    if (last < 0) return;
+    const next = Math.max(0, Math.min(last, i));
+    const changed = next !== this.dayIdx;
+    this.dayIdx = next;
+    this.cursor = next;
+    if (changed) {
+      for (let k = 0; k < this.daySections.length; k++) {
+        this.daySections[k].classList.toggle('bz-diary-day-on', k === next);
+      }
+    }
+    if (place === 'keep') return;
+    const sc = this.daySections[next].firstElementChild as HTMLElement | null;
+    if (sc) sc.scrollTop = place === 'bottom' ? sc.scrollHeight : 0;
   }
 
   /** 每次建书后要重挂的东西：显影 / 媒体失败态 / 录音卡 */
@@ -876,7 +1018,16 @@ export class DiaryAppController {
     this.bindAudios(scope);
   }
 
+  /** 往后 / 往前一条：跨页档翻一张纸（StPageFlip），窄屏档换一天（日卷，无过渡） */
   private turnPage(dir: 1 | -1): void {
+    if (this.single) {
+      if (!this.daySections.length) return;
+      if (this.writeGuard()) return; // 草稿摊在纸上：这一天还没写完，不该换走
+      const at = this.dayIdx + dir;
+      if (at < 0 || at > this.daySections.length - 1) return;
+      this.setDay(at, dir > 0 ? 'top' : 'bottom');
+      return;
+    }
     if (!this.flip) return;
     if (this.writeGuard()) return; // 草稿在纸上：这一页还没写完，不该翻过去
     if (dir > 0) this.flip.flipNext();
@@ -884,9 +1035,16 @@ export class DiaryAppController {
   }
 
   private jumpToPage(pi: number): void {
-    if (!this.flip || !this.pages.length) return;
+    if (!this.pages.length) return;
     if (this.writeGuard()) return; // 写作内页摊着：索引/台历的跳转也先让路（落笔后自会回到最新那页）
-    this.flip.turnToPage(Math.max(0, Math.min(this.pages.length - 1, pi)));
+    const at = Math.max(0, Math.min(this.pages.length - 1, pi));
+    if (this.single) {
+      /* 窄屏页号即天号，跳「页」就是跳「天」 */
+      this.setDay(at, 'top');
+      return;
+    }
+    if (!this.flip) return;
+    this.flip.turnToPage(at);
   }
 
   // ============================================================
@@ -1154,15 +1312,27 @@ export class DiaryAppController {
   // ============================================================
 
   private bindChrome(): void {
-    /* 四角点击翻页已按用户要求取消：翻页只留 拖拽 / 滚轮 / ← → 三条路 */
+    /* 四角点击翻页已按用户要求取消；窄屏更没有「翻页」这回事——那边滚到顶/底换一天 */
     this.bookEl.addEventListener(
       'wheel',
       (ev: WheelEvent) => {
-        if (!this.flip) return;
+        if (!this.flip && !this.single) return;
         /* 写作内页就摆在书里：纸上的滚轮该滚正文 / 贴纸行，不是翻页。
            这一条必须在 `preventDefault()` **之前**——反过来会把纸上的滚动一起吃掉，
            长正文就成了滚不动的一段（且每次还弹一句「先落笔」）。 */
         if ((ev.target as HTMLElement | null)?.closest?.('.bz-diary-wsp')) return;
+        /* 「滚到当天日记的顶 / 底，再滚才换上下一天」（用户拍板 2026-10-16）：
+           窄屏一天一卷、卷自己可滚；先把滚轮让给卷，滚到头这一滚才转成换天。
+           一天本来就装得下（常见）时 scrollHeight === clientHeight，两侧都判成「到头」，
+           于是「一滚就换天」，不会出现滚不动又换不了的死角。跨页档同理（内容不可滚，
+           恒判成到头，回到过去的「一滚就翻」）。 */
+        const sc = (ev.target as HTMLElement | null)?.closest?.('.bz-diary-page-inner');
+        if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+          const atTop = sc.scrollTop <= 0;
+          const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+          if (ev.deltaY > 0 && !atBottom) return; // 这一天还有下文：这一滚先归它
+          if (ev.deltaY < 0 && !atTop) return; // 这一天还有上文：这一滚先归它
+        }
         ev.preventDefault();
         const now = Date.now();
         if (now - this.wheelLock < WHEEL_LOCK_MS) return;
@@ -1170,6 +1340,43 @@ export class DiaryAppController {
         this.turnPage(ev.deltaY > 0 ? 1 : -1);
       },
       { passive: false }
+    );
+
+    /* 触屏同一条规矩：卷里滚到头之后**再竖向滑**才换天（要求竖向位移是横向的 1.6 倍以上，
+       所以不会跟任何横向手势打架）。注意这里不要求「内容溢出」——窄屏没有别的换天手势，
+       短的一天（装得下）也必须能靠这一滑换走。 */
+    let ty = 0;
+    let tx = 0;
+    this.bookEl.addEventListener(
+      'touchstart',
+      (ev: TouchEvent) => {
+        const t = ev.touches[0];
+        if (!t) return;
+        ty = t.clientY;
+        tx = t.clientX;
+      },
+      { passive: true }
+    );
+    this.bookEl.addEventListener(
+      'touchend',
+      (ev: TouchEvent) => {
+        if (!this.flip && !this.single) return;
+        if ((ev.target as HTMLElement | null)?.closest?.('.bz-diary-wsp')) return;
+        const t = ev.changedTouches[0];
+        if (!t) return;
+        const dy = ty - t.clientY;
+        const dx = t.clientX - tx;
+        if (Math.abs(dy) < 40 || Math.abs(dy) < Math.abs(dx) * 1.6) return;
+        const sc = (ev.target as HTMLElement | null)?.closest?.('.bz-diary-page-inner');
+        if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+          const atTop = sc.scrollTop <= 0;
+          const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+          if (dy > 0 && !atBottom) return; // 还有下文：这一滑先归这一天
+          if (dy < 0 && !atTop) return; // 还有上文：这一滑先归这一天
+        }
+        this.turnPage(dy > 0 ? 1 : -1); // 往上滑到头 → 下一天；往下滑到头 → 上一天
+      },
+      { passive: true }
     );
 
     /* Esc 必须排在「输入框早退」之前：纸条一打开就自动聚焦输入框，
@@ -1202,10 +1409,12 @@ export class DiaryAppController {
       void this.requestClose();
     });
 
-    /* 窗口高矮会改书高（--pg-h 的短屏规则），书高变了必须重排，不能只盯宽度 */
+    /* 窗口高矮会改书高（--pg-h 的短屏规则），书高变了必须重排，不能只盯宽度。
+       判据用**书盒**而不是窗口尺寸：分页的输入只有「书宽 / 书高 / 页内边距 / 单页模式」，
+       前三个都由书盒与媒体查询决定 —— 见 onResize */
     this.lastSingle = typeof window !== 'undefined' && window.innerWidth <= SINGLE_MAX_W;
-    this.lastW = typeof window !== 'undefined' ? window.innerWidth : 0;
-    this.lastH = typeof window !== 'undefined' ? window.innerHeight : 0;
+    this.lastBookW = this.bookEl?.clientWidth || 0;
+    this.lastBookH = this.bookEl?.clientHeight || 0;
     window.addEventListener('resize', this.onResize);
   }
 
@@ -1235,14 +1444,24 @@ export class DiaryAppController {
       this.resizeTimer = null;
       this.applyBookZoom();
       const s = window.innerWidth <= SINGLE_MAX_W;
-      const h = window.innerHeight;
-      const w = window.innerWidth;
-      const hChanged = Math.abs(h - this.lastH) > 40;
-      /* 单页模式页宽跟着视口走：**宽度变了也得重排**，否则库还按旧宽摆页、CSS 已把书缩了 */
-      const wChanged = s && Math.abs(w - this.lastW) > 16;
-      this.lastH = h;
-      this.lastW = w;
-      if (s !== this.lastSingle || hChanged || wChanged) {
+      /* 写作内页摊着（移动端软键盘开着）时，这一屏的几何抖动不该拿整册重排去接：
+         纸是盖在书页上的一层浮层，底下那本册子这几十毫秒里没人看，而一次全量成册
+         在真机上是几百毫秒的冻结。记一笔，纸收走时补排（见 dropWrite）。 */
+      if (this.hasDraft()) {
+        this.resizePending = true;
+        return;
+      }
+      /* 判据用**书盒**（宽/高）而不是窗口尺寸：分页的输入只有「书宽 / 书高 / 页内边距 /
+         单页模式」，前三个都由书盒与媒体查询决定，页宽更是直接 = 书宽（见 pageWidth）。
+         按窗口高判会白跑：软键盘弹出只改 `window.innerHeight`，而书高是 CSS 的 `--pg-h`
+         （移动端 100vh、桌面读短屏规则），根本没变。
+         快照 `lastBookW/H` 由 `relayout()` 落定（**不是这里**）：写作内页会把这一屏的变化
+         让路到收纸之后补排，若在这里记账，补排用的书高与账本就对不上了 ——
+         「915 → 键盘 480（让路）→ 收纸补排 348 页 → 回到 915」这一串会漏掉最后那次。 */
+      const bookW = this.bookEl?.clientWidth || 0;
+      const bookH = this.bookEl?.clientHeight || 0;
+      const geomChanged = Math.abs(bookW - this.lastBookW) > 1 || Math.abs(bookH - this.lastBookH) > 1;
+      if (s !== this.lastSingle || geomChanged) {
         this.lastSingle = s;
         this.relayout(true);
       } else this.refreshBookRect();
@@ -1302,7 +1521,7 @@ export class DiaryAppController {
     }
     /* 没有扉页可「合上」：ESC 分两步收尾——先翻回最新那一页，再关掉整本
        （此前只翻回第 0 页就停住，等于面板永远关不掉：整屏场景里再没有别的出口） */
-    if (this.flip && this.cursor > 0) {
+    if ((this.flip || this.daySections.length) && this.cursor > 0) {
       this.jumpToPage(0);
       this.toast('翻到最新');
       return;
@@ -2454,6 +2673,12 @@ export class DiaryAppController {
     this.draft = null;
     this.wspAreaEl.value = '';
     this.wspEl.hidden = true;
+    /* 写作期间被让路的视口变化（软键盘）在这里补一次排：走同一条防抖回刷，
+       与「落笔」那次 `diary:entry-added` 的刷新合并成一次，不各排一遍整册 */
+    if (this.resizePending) {
+      this.resizePending = false;
+      this.scheduleRelayout();
+    }
   }
 
   /**
@@ -2479,7 +2704,11 @@ export class DiaryAppController {
     try {
       await addEntry(d.date, d.time, d.tags.length ? d.tags : ['日记'], text);
       this.dropWrite();
+      /* 回册首：这一跳是眼下的反馈，`pendingHome` 是紧随其后那次防抖回刷的落点——
+         两者都钉在「最新那篇 = 第 0 页」上，免得刚写完却停在半路（见 pendingHome 注释）。 */
+      this.pendingHome = true;
       this.jumpToPage(0);
+      this.cursor = 0;
       this.toast('记下了，盖个章');
       return true;
     } catch (e) {
@@ -2833,7 +3062,8 @@ export class DiaryAppController {
       this._subs.push(
         onDomainEvent(ch, () => {
           if (this.root?.style.display !== 'flex') return;
-          this.scheduleRelayout();
+          /* 新落一篇 → 这一轮回刷落册首（最新那篇就在第 0 页）；其余四通道保阅读位置 */
+          this.scheduleRelayout(ch === 'diary:entry-added');
         })
       );
     }
@@ -2921,8 +3151,10 @@ export class DiaryAppController {
     this._vaultRefs = [];
   }
 
-  /** 防抖整册回刷（域事件与 vault 变更共用；重入时后一次覆盖前一次） */
-  private scheduleRelayout(): void {
+  /** 防抖整册回刷（域事件与 vault 变更共用；重入时后一次覆盖前一次）。
+   *  `home=true`（写完一篇）：这一轮回刷必定落回册首，见 `pendingHome`。 */
+  private scheduleRelayout(home = false): void {
+    if (home) this.pendingHome = true;
     if (this.modifyTimer !== null) clearTimeout(this.modifyTimer);
     this.modifyTimer = setTimeout(() => {
       this.modifyTimer = null;
@@ -3218,6 +3450,8 @@ export class DiaryAppController {
     this.photoRefs = [];
     this.photoIndex.clear();
     this.pages = [];
+    this.daySections = [];
+    this.dayIdx = 0;
     this.entries = [];
     this.bookFresh = false; // DOM 都要拆了，快路的凭据跟着作废
     this.draft = null;

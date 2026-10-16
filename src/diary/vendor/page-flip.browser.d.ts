@@ -19,8 +19,10 @@ export interface PageFlipSettings {
   size?: 'fixed' | 'stretch';
   /** 竖屏单页模式（窄屏开） */
   usePortrait?: boolean;
-  /** 翻页阴影最深值 */
+  /** 翻页阴影最深值（`drawShadow: false` 时这个值不被读） */
   maxShadowOpacity?: number;
+  /** 画不画翻页阴影。本域置 `false`：翻页走「够快、够平」的朴素转向（用户拍板 2026-10-16） */
+  drawShadow?: boolean;
   /** 首页/末页是否当硬封面单页显示（本域无封面页，恒 false） */
   showCover?: boolean;
   /** 移动端内容滚动支持（false：交还页面滚动） */
@@ -60,6 +62,13 @@ export declare class PageFlip {
 
   /** 总页数 */
   getPageCount(): number;
+
+  /**
+   * 渲染器实例（issue 549 的空转守卫要拿它改写 `clear()`）。
+   * 返回 `unknown` 而不是声明一堂内部结构：库没公开这个对象，**它的形状归 `flip-idle-guard.ts`
+   * 一家解释**，这里只负责「这个方法存在、返回个对象」。
+   */
+  getRender(): unknown;
 
   /** 销毁实例——**会把容器整个从 DOM 摘掉**，宿主需自行把容器放回去 */
   destroy(): void;
