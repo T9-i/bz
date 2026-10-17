@@ -232,8 +232,8 @@ async function runOne(config, settings, state, watcher, view) {
 
   const note = launch.readRunNote(view, startedMs);
   const message = (note && typeof note.message === 'string' && note.message) || fallbackMessage(outcome);
-  const kind = note && note.error && typeof note.error.kind === 'string' ? note.error.kind : undefined;
-  const ok = outcome.ok === true;
+  const ok = resolveOk(outcome, note);
+  const kind = !ok && note && note.error && typeof note.error.kind === 'string' ? note.error.kind : undefined;
 
   if (ok) {
     await ledger.recordRunSuccess(config, settings, view.id, outcome.finishedAt);
@@ -243,6 +243,9 @@ async function runOne(config, settings, state, watcher, view) {
       delete view.runState.pausedAt;
     }
     rt.log(`跑完 ${view.name}：成功（${Math.round(outcome.durationMs / 1000)} 秒）`);
+    // 记录说成功、退出码却不干净：少见但真会发生（工具硬退时崩在 libuv 收尾上）。
+    // 判决以记录为准，但把这条线索留在日志里 —— 否则「工具其实崩了」永远没人看见。
+    if (outcome.ok !== true) rt.log(`  退出码 ${outcome.code === null ? '未知' : outcome.code}，但工具记录写的是成功 —— 以记录为准`);
   } else {
     const failures = ((view.runState && view.runState.consecutiveFailures) || 0) + 1;
     const trip = failures >= BREAKER_THRESHOLD;
@@ -263,6 +266,25 @@ async function runOne(config, settings, state, watcher, view) {
   rt.appendQueue(state.lastRun);
   writeStatus(config, state, 'watch');
   return { kind: ok ? 'tool-ok' : 'tool-fail', toolId: view.id };
+}
+
+/**
+ * 这次跑算不算成功 —— 退出码只是**推断**，工具自己那条记录才是判决。
+ *
+ * 口径与 `runner.ts` 的 `reconcileWithRecord` 逐条对齐（那是 issue 544 在插件侧补的那道对账）：
+ *  - 有本次记录 → 看它的 `status`（`ok` 才算成功）；
+ *  - 没记录 / `status` 不是字符串 → 回落退出码（问不出就别猜）；
+ *  - `stopped`（超时强杀）不参与对账 —— 是 bz 掐的，工具写了什么都不改变这个事实。
+ *
+ * 为什么值守这一侧也必须对账：工具用 `process.exit()` 硬退时，Windows 上偶发 libuv 收尾断言
+ * （`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`），记录明明写着「签到成功」，
+ * 进程却以非零码收场。只看退出码就会把成功报成失败 —— 而「在面板里成功、关掉 Obsidian
+ * 就失败」正是 ADR-0242 最贵的那种缺陷（issue 552）。
+ */
+function resolveOk(outcome, note) {
+  if (outcome.stopped) return false;
+  if (!note || typeof note.status !== 'string') return outcome.ok === true;
+  return note.status === 'ok';
 }
 
 /** 工具没写记录（崩在写之前）时按退出码兜一句话 —— 只兜事实，不猜原因 */

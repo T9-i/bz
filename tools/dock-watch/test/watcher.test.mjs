@@ -62,7 +62,7 @@ function makeWorld(opts = {}) {
       2,
     ),
   );
-  fs.writeFileSync(path.join(toolDir, 'main.mjs'), FAKE_TOOL);
+  fs.writeFileSync(path.join(toolDir, 'main.mjs'), opts.toolSource || FAKE_TOOL);
 
   const run = { cmd: process.execPath, args: ['main.mjs'], cwd: toolDir, shell: false };
   const trust = opts.trusted === false ? {} : { hello: { at: new Date().toISOString(), run: core.runSignature(run) } };
@@ -197,6 +197,69 @@ test('到点就照跑：命中规则、拉起工具、记账写回、进待播�
     world.cleanup();
   }
 });
+
+test('工具记录写成功、进程却非零退出：判决以记录为准，不报失败（issue 552）', async () => {
+  // 现场来自 2026-10-17 那次离场运行：iamtxt 签到成功、记录 status=ok，
+  // 但 process.exit() 在 Windows 上撞了 libuv 收尾断言，退出码非零 —— 简报因此说「失败」。
+  const world = makeWorld({ toolSource: fakeToolScript('ok', 1, '签到成功') });
+  try {
+    await tickOnce(world);
+
+    const dock = readDock(world);
+    assert.equal(dock.runState.hello.lastAttemptOk, true, '记录说成功，台账就该记成功');
+    assert.equal(dock.runState.hello.consecutiveFailures, 0, '误报的失败不能攒成熔断');
+
+    const queue = rt.readQueue();
+    assert.equal(queue.length, 1);
+    assert.equal(queue[0].ok, true);
+    assert.equal(queue[0].message, '签到成功', '摘要与成败自相矛盾，正是这个缺陷最刺眼的样子');
+  } finally {
+    world.cleanup();
+  }
+});
+
+test('工具记录写失败、进程却退出 0：同样以记录为准（反向也要对账）', async () => {
+  const world = makeWorld({ toolSource: fakeToolScript('failed', 0, '接口响应认不出来') });
+  try {
+    await tickOnce(world);
+
+    const dock = readDock(world);
+    assert.equal(dock.runState.hello.lastAttemptOk, false);
+    assert.equal(dock.runState.hello.consecutiveFailures, 1);
+
+    const queue = rt.readQueue();
+    assert.equal(queue[0].ok, false);
+    assert.equal(queue[0].message, '接口响应认不出来');
+  } finally {
+    world.cleanup();
+  }
+});
+
+test('本次没留记录时仍按退出码兜（问不出就别猜）', async () => {
+  const world = makeWorld({ toolSource: 'process.exitCode = 0;' });
+  try {
+    await tickOnce(world);
+    const queue = rt.readQueue();
+    assert.equal(queue[0].ok, true);
+    assert.equal(queue[0].message, '退出码 0', '没记录就只报事实，不编原因');
+  } finally {
+    world.cleanup();
+  }
+});
+
+/** 假工具：先落一条记录（status / message 由用例给），再按给定退出码收场 —— 造「记录与退出码打架」 */
+function fakeToolScript(status, exitCode, message) {
+  return `
+import fs from 'node:fs';
+const runsFile = process.env.BZ_DOCK_RUNS_FILE;
+const startedAt = new Date().toISOString();
+const record = { status: '${status}', startedAt, finishedAt: new Date().toISOString(), message: '${message}' };
+const tmp = runsFile + '.' + process.pid + '.tmp';
+fs.writeFileSync(tmp, JSON.stringify({ v: 1, tool: 'hello', runs: [record] }, null, 2));
+fs.renameSync(tmp, runsFile);
+process.exitCode = ${exitCode};
+`;
+}
 
 test('同一拍只跑一次：记账之后不会重复命中', async () => {
   const world = makeWorld();

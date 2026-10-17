@@ -186,6 +186,9 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 
 - 非协议行原样透传为日志；坏行静默忽略（永不抛）；CRLF 会剥 `\r`；单行上限 1 MiB。
 - 退出码 0 且未被停止 = `ok`；被停止 = `stopped`；其它 = `failed`，**stderr 尾部 2KB** 会被留下展示 —— 把最有用的话写在最后。
+- **成败的最终判决不在退出码，在你写的 `status`**（契约 §4.3）：有本次记录时以记录为准，退出码只在
+  「这次没留记录」时兜底。所以**记录一定要写**，而且要在结束前写完 —— 记录说成功、进程却以非零码
+  收场时，bz 按记录判成功（同时把退出码留在日志里）。反过来记录说失败、退出码是 0，也按失败算。
 - 不需要支持任何子命令；声明不从 stdout 吐。
 
 ### 4.3 `runs.json`（你写、bz 只读）
@@ -334,6 +337,9 @@ fs.writeFileSync(path.join(DIR, 'panel.html'), renderPanel({ points: 530 }));
 2. 干活时用 stdout 发 `[bz-step]` / `[bz-p]` / `[bz-info]` / `[bz-result]`（各一行，JSON 体）。
 3. 收尾**一定**写一条记录（含 `status` / `startedAt` / `message`，失败补 `error.kind`）：tmp + rename，`runs` 截到 200 条。
 4. 用 `process.exitCode = 1` / `sys.exit(1)` 收尾 —— **不要 `process.exit()`**，stdout 走管道是异步的，立刻退出会截断输出。
+   真踩过（iamtxt 签到，issue 552）：`process.exit()` 在 Windows 上偶发 libuv 收尾断言
+   （`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`），进程以非零码收场 ——
+   看起来像工具崩了，其实活全干完了。改 `process.exitCode` 就不会撞上。
 
 ## 7. 不要做
 

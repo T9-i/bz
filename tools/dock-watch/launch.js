@@ -153,22 +153,36 @@ function runTool(view, config, opts = {}) {
 }
 
 /**
+ * 认「属于本次运行」的时间余量 —— **与 `runner.ts` 的 `RECORD_MATCH_GRACE_MS` 同值**。
+ *
+ * 这里曾经是 60 秒，理由是「工具有的系统时钟/时区处理会把 startedAt 写得略有偏差」。但那个
+ * 理由换来的是一个更糟的后果：进程没起来（命令配错、spawn 失败）时，上一分钟内刚跑成的那条
+ * 记录会被当成本次的结果 —— 报成功比报失败更难查。宁可认不出（回落退出码），也不冒认。
+ */
+const RECORD_MATCH_GRACE_MS = 2000;
+
+/**
  * 回读工具自己写的运行记录，取**本次**那一条。
  *
  * 「本次」的判据是启动时刻 —— 工具没写记录时（比如它崩在写记录之前）不能把**上一次**那条
  * 当成这次的结论，那会让用户看到一条对不上的旧消息。判不出就返回 null，由调用方按退出码兜一句。
+ *
+ * 同一次起跑可能留多条（工具手滑写了两次）：**取 startedAt 最晚的那条**，不按数组下标猜 ——
+ * 入库次序不该决定判决（同 `runner.ts` `reconcileWithRecord` 的口径）。
  */
 function readRunNote(view, startedMs) {
   const raw = core.readRunsText(view.declPath);
   if (raw === null) return null;
   const file = core.parseRunsFileText(raw, view.id);
   if (!file || !Array.isArray(file.runs) || !file.runs.length) return null;
-  const last = file.runs[0];
-  if (!last || typeof last.startedAt !== 'string') return null;
-  const at = Date.parse(last.startedAt);
-  // 容 1 分钟：工具有的系统时钟/时区处理会把 startedAt 写得略有偏差
-  if (!Number.isFinite(at) || at < startedMs - 60000) return null;
-  return last;
+  let best = null;
+  for (const r of file.runs) {
+    if (!r || typeof r.startedAt !== 'string') continue;
+    const at = Date.parse(r.startedAt);
+    if (!Number.isFinite(at) || at < startedMs - RECORD_MATCH_GRACE_MS) continue;
+    if (!best || at > Date.parse(best.startedAt)) best = r;
+  }
+  return best;
 }
 
 module.exports = { RUN_TIMEOUT_MS, envOf, runTool, readRunNote, killTree };
