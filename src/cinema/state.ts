@@ -153,4 +153,35 @@ export function resetCinemaState(): void {
   M.aiResult = null;
   M.aiError = null;
   M.aiBase = null;
+  selfWrites.clear();
+}
+
+// ---------- 自写登记（issue 555：后台刷新读旧缓存把新值盖回去） ----------
+
+/** 自写回灌守卫窗口（ms）：面板自己写盘后这么久内，后台刷新不再因同一个文件的 modify 事件重建。
+ *  写盘路径本来就「内存先行 + 立刻 renderAll」，重建不但白做，还会用**写前那份 metadataCache**
+ *  把新值盖回旧值（Obsidian 的 metadataCache 解析是异步的，300ms 防抖不保证解析已完成）。
+ *  窗口只挡「自己刚写的那一个文件」，外部编辑照旧重建。 */
+export const SELF_WRITE_GUARD_MS = 1500;
+
+/** 路径 → 最近一次「面板自己写盘」的时刻（Date.now()） */
+const selfWrites = new Map<string, number>();
+
+/** 登记一次面板自写（写盘成功后调用；值 = 完成时刻） */
+export function noteSelfWrite(path: string, now = Date.now()): void {
+  if (!path) return;
+  selfWrites.set(path, now);
+  // 顺手清过期项：这张表只增不删会随会话无限长（每部片改一次就一条）
+  for (const [p, at] of selfWrites) if (now - at > SELF_WRITE_GUARD_MS) selfWrites.delete(p);
+}
+
+/** 该路径是否落在自写窗口内（后台刷新据此跳过这次重建） */
+export function isRecentSelfWrite(path: string, now = Date.now()): boolean {
+  const at = selfWrites.get(path);
+  if (at === undefined) return false;
+  if (now - at > SELF_WRITE_GUARD_MS) {
+    selfWrites.delete(path);
+    return false;
+  }
+  return true;
 }
