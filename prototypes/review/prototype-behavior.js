@@ -1,4 +1,4 @@
-/* 源指纹 63435e719cd411ab · 仓内输入 301 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 b5042a9e658f4481 · 仓内输入 301 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/review/fake-sim.ts","prototypes/review/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/review/fake-sim.ts → window.BZW_review（行为单源预览包，issue 245/ADR-0106） */
 var BZW_review = (() => {
@@ -65661,6 +65661,16 @@ GitHub 仓库：${ghInfo.title}
             fs.mkdirSync(p, { recursive: true });
           } catch (e) {
           }
+        } : void 0,
+        readdir: typeof fs.readdirSync === "function" ? (p) => {
+          try {
+            return fs.readdirSync(p, { withFileTypes: true }).map((d) => ({
+              name: d.name,
+              dir: d.isDirectory()
+            }));
+          } catch (e) {
+            return null;
+          }
         } : void 0
       };
     } catch (e) {
@@ -65740,6 +65750,26 @@ GitHub 仓库：${ghInfo.title}
     const conventionalRun = manifest.run || !hasMainEntry(dirOf(usedPath), fs) ? void 0 : { cmd: "node", args: [MAIN_ENTRY_FILENAME] };
     return { ok: true, manifest, path: usedPath, conventionalRun };
   }
+  function findDeclarationFiles(root, fs = currentFs()) {
+    if (!(fs == null ? void 0 : fs.readdir)) return [];
+    const out = [];
+    let dirs = 0;
+    const walk = (dir, depth) => {
+      if (depth > SCAN_MAX_DEPTH || dirs++ >= SCAN_MAX_DIRS) return;
+      const entries = fs.readdir(dir);
+      if (!entries) return;
+      const files = new Set(entries.filter((e) => !e.dir).map((e) => e.name));
+      const decl = files.has(DECLARATION_FILENAME) ? DECLARATION_FILENAME : files.has(DECLARATION_FILENAME_LEGACY) ? DECLARATION_FILENAME_LEGACY : null;
+      if (decl) out.push(joinPath(dir, decl));
+      for (const e of entries) {
+        if (!e.dir) continue;
+        if (e.name.startsWith(".") || SCAN_SKIP_DIRS.has(e.name)) continue;
+        walk(joinPath(dir, e.name), depth + 1);
+      }
+    };
+    walk(root.replace(/[\\/]+$/, ""), 0);
+    return out.sort((a, b) => a.localeCompare(b));
+  }
   function isPlainObject5(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
   }
@@ -65794,7 +65824,7 @@ GitHub 仓库：${ghInfo.title}
     const text2 = fs.readText(panelPathFor(declPath));
     return text2 === null || text2.trim() === "" ? null : text2;
   }
-  var DECLARATION_FILENAME, DECLARATION_FILENAME_LEGACY, SETTINGS_FILENAME, SETTINGS_FILENAME_LEGACY, RUNS_FILENAME, RUNS_FILENAME_LEGACY, MAIN_ENTRY_FILENAME, PANEL_FILENAME, DOCK_SETTINGS_VERSION, injectedFs;
+  var DECLARATION_FILENAME, DECLARATION_FILENAME_LEGACY, SETTINGS_FILENAME, SETTINGS_FILENAME_LEGACY, RUNS_FILENAME, RUNS_FILENAME_LEGACY, MAIN_ENTRY_FILENAME, PANEL_FILENAME, DOCK_SETTINGS_VERSION, injectedFs, SCAN_MAX_DEPTH, SCAN_MAX_DIRS, SCAN_SKIP_DIRS;
   var init_declaration = __esm({
     "src/dock/declaration.ts"() {
       init_schema2();
@@ -65807,6 +65837,9 @@ GitHub 仓库：${ghInfo.title}
       MAIN_ENTRY_FILENAME = "main.mjs";
       PANEL_FILENAME = "panel.html";
       DOCK_SETTINGS_VERSION = 1;
+      SCAN_MAX_DEPTH = 3;
+      SCAN_MAX_DIRS = 500;
+      SCAN_SKIP_DIRS = /* @__PURE__ */ new Set(["node_modules", ".git", ".obsidian"]);
     }
   });
 
@@ -66633,8 +66666,16 @@ GitHub 仓库：${ghInfo.title}
     var _a2;
     (_a2 = live2.get(toolId)) == null ? void 0 : _a2.handle.stop();
   }
+  function notifyLiveChanged() {
+    for (const fn of liveListeners) {
+      try {
+        fn();
+      } catch (e) {
+      }
+    }
+  }
   function runTool(app2, entry, launch, manifest, values, cb = {}, opts = {}) {
-    var _a2;
+    var _a2, _b2;
     const startedAtDate = /* @__PURE__ */ new Date();
     const startedAt = startedAtDate.toISOString();
     const rawTail = [];
@@ -66684,21 +66725,21 @@ GitHub 仓库：${ghInfo.title}
         // 两条兜底——没人可问、或弹窗那头抛错——都落到 `false`（取消），
         // 并顺手把这件事说进步骤流：否则用户只看到工具自己认输了，不知道其实是没问着人。
         onAsk: (req) => {
-          var _a3, _b2;
+          var _a3, _b3;
           const ask = cb.onAsk;
           if (typeof ask !== "function") {
             steps.push({ text: `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
             (_a3 = cb.onStep) == null ? void 0 : _a3.call(cb, `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`);
-            (_b2 = handle.answer) == null ? void 0 : _b2.call(handle, req.id, false);
+            (_b3 = handle.answer) == null ? void 0 : _b3.call(handle, req.id, false);
             return;
           }
           void Promise.resolve().then(() => ask(req)).then((yes) => {
             var _a4;
             return (_a4 = handle.answer) == null ? void 0 : _a4.call(handle, req.id, !!yes);
           }).catch((e) => {
-            var _a4, _b3;
+            var _a4, _b4;
             steps.push({ text: `询问「${req.title}」的弹窗出了岔子（${(_a4 = e == null ? void 0 : e.message) != null ? _a4 : e}）—— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
-            (_b3 = handle.answer) == null ? void 0 : _b3.call(handle, req.id, false);
+            (_b4 = handle.answer) == null ? void 0 : _b4.call(handle, req.id, false);
           });
         }
       },
@@ -66712,6 +66753,7 @@ GitHub 仓库：${ghInfo.title}
       infos,
       result,
       rawTail,
+      estimatedSec: (_b2 = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _b2.estimatedSec,
       handle,
       done: void 0
     };
@@ -66730,12 +66772,14 @@ GitHub 仓库：${ghInfo.title}
         durationMs: new Date(finishedAt).getTime() - startedAtDate.getTime()
       };
       live2.delete(entry.id);
+      notifyLiveChanged();
       if (rawTail.length) lastRawTails.set(entry.id, rawTail.slice(-50));
       const settled = reconcileWithRecord(outcome, entry.path);
       (_a3 = cb.onDone) == null ? void 0 : _a3.call(cb, settled, run);
       return settled;
     });
     live2.set(entry.id, run);
+    notifyLiveChanged();
     return run;
   }
   function classify(o) {
@@ -66825,7 +66869,7 @@ GitHub 仓库：${ghInfo.title}
     }
     return out;
   }
-  var deps, live2, lastRawTails, RECORD_MATCH_GRACE_MS;
+  var deps, live2, liveListeners, lastRawTails, RECORD_MATCH_GRACE_MS;
   var init_runner = __esm({
     "src/dock/runner.ts"() {
       init_notice();
@@ -66833,6 +66877,7 @@ GitHub 仓库：${ghInfo.title}
       init_schema2();
       init_declaration();
       live2 = /* @__PURE__ */ new Map();
+      liveListeners = /* @__PURE__ */ new Set();
       lastRawTails = /* @__PURE__ */ new Map();
       RECORD_MATCH_GRACE_MS = 2e3;
     }
@@ -66924,39 +66969,6 @@ GitHub 仓库：${ghInfo.title}
     if (typeof raw.message === "string" && raw.message) note.message = raw.message;
     if (typeof raw.kind === "string" && raw.kind) note.kind = raw.kind;
     return note;
-  }
-  function readWatchdogStatus(opts = {}) {
-    const { fs } = depsOf2(opts);
-    if (!fs) return null;
-    const raw = fs.readText(watchdogPathOf(WATCHDOG_STATUS_FILENAME, opts.env));
-    if (raw === null) return null;
-    let obj;
-    try {
-      obj = JSON.parse(raw);
-    } catch (e) {
-      return null;
-    }
-    if (!isPlainObject6(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION) return null;
-    if (typeof obj.at !== "string" || typeof obj.pid !== "number") return null;
-    const mode = obj.mode === "watch" || obj.mode === "defer" || obj.mode === "off" ? obj.mode : "off";
-    const out = {
-      v: WATCHDOG_CONTRACT_VERSION,
-      pid: obj.pid,
-      startedAt: typeof obj.startedAt === "string" ? obj.startedAt : obj.at,
-      at: obj.at,
-      mode,
-      runsSinceBoot: typeof obj.runsSinceBoot === "number" && obj.runsSinceBoot >= 0 ? obj.runsSinceBoot : 0
-    };
-    if (typeof obj.vault === "string") out.vault = obj.vault;
-    if (typeof obj.core === "string") out.core = obj.core;
-    if (typeof obj.lastError === "string" && obj.lastError) out.lastError = obj.lastError;
-    const last = parseRunNote(obj.lastRun);
-    if (last) out.lastRun = last;
-    return out;
-  }
-  function isWatchdogAlive(status, now = Date.now(), toleranceMs = 9e4) {
-    const at3 = Date.parse(status.at);
-    return Number.isFinite(at3) && now - at3 <= toleranceMs;
   }
   function isWatchdogInstalled(opts = {}) {
     const { fs } = depsOf2(opts);
@@ -67056,13 +67068,12 @@ GitHub 仓库：${ghInfo.title}
       rows
     };
   }
-  var WATCHDOG_DIRNAME, WATCHDOG_LEASE_FILENAME, WATCHDOG_STATUS_FILENAME, WATCHDOG_QUEUE_FILENAME, WATCHDOG_CONFIG_FILENAME, WATCHDOG_CONTRACT_VERSION;
+  var WATCHDOG_DIRNAME, WATCHDOG_LEASE_FILENAME, WATCHDOG_QUEUE_FILENAME, WATCHDOG_CONFIG_FILENAME, WATCHDOG_CONTRACT_VERSION;
   var init_watchdog = __esm({
     "src/dock/watchdog.ts"() {
       init_declaration();
       WATCHDOG_DIRNAME = "bz-dock-watch";
       WATCHDOG_LEASE_FILENAME = "lease.json";
-      WATCHDOG_STATUS_FILENAME = "status.json";
       WATCHDOG_QUEUE_FILENAME = "pending.json";
       WATCHDOG_CONFIG_FILENAME = "config.json";
       WATCHDOG_CONTRACT_VERSION = 1;
@@ -67458,15 +67469,13 @@ GitHub 仓库：${ghInfo.title}
     head.append(brand, title, pipe, sub, sp, btns);
     const kpi = el2("div", "bz-dock-kpi");
     kpi.id = "bz-dock-kpi";
-    const watchbar = el2("div", "bz-dock-watchbar");
-    watchbar.id = "bz-dock-watchbar";
     const runbar = el2("div", "bz-dock-runbar");
     runbar.id = "bz-dock-runbar";
     const bar = el2("div", "bz-dock-bar");
     bar.id = "bz-dock-bar";
     const body = el2("div", "bz-dock-body");
     body.id = "bz-dock-body";
-    frame2.append(head, kpi, watchbar, runbar, bar, body);
+    frame2.append(head, kpi, runbar, bar, body);
     ov.appendChild(frame2);
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closeDock();
@@ -67477,10 +67486,6 @@ GitHub 仓库：${ghInfo.title}
   function kpiEl() {
     var _a2;
     return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-kpi")) != null ? _a2 : null;
-  }
-  function watchbarEl() {
-    var _a2;
-    return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-watchbar")) != null ? _a2 : null;
   }
   function runbarEl() {
     var _a2;
@@ -67605,42 +67610,10 @@ GitHub 仓库：${ghInfo.title}
   function render2() {
     renderHead();
     renderKpi();
-    renderWatch();
     renderRunbar();
     renderBar();
     renderBody3();
-  }
-  function renderWatch() {
-    const host = watchbarEl();
-    if (!host) return;
-    host.innerHTML = "";
-    if (!isWatchdogInstalled()) {
-      host.classList.add("is-off");
-      return;
-    }
-    host.classList.remove("is-off");
-    const st = readWatchdogStatus();
-    const alive = st !== null && isWatchdogAlive(st);
-    const tone = !st || !alive ? "is-down" : st.mode === "watch" ? "is-on" : st.mode === "defer" ? "is-idle" : "is-shut";
-    const text2 = !st || !alive ? "值守进程没在运行" : st.mode === "watch" ? "离线值守中" : st.mode === "defer" ? "值守待命（Obsidian 在值守）" : "离线值守已关";
-    const row = el2("div", `bz-dock-wb ${tone}`);
-    row.appendChild(el2("span", "bz-dock-wb-dot"));
-    row.appendChild(el2("span", "bz-dock-wb-text", text2));
-    const meta = el2("div", "bz-dock-wb-meta");
-    if (st) {
-      meta.appendChild(el2("span", "bz-dock-wb-fact", `心跳 ${relTime(st.at)}`));
-      meta.appendChild(el2("span", "bz-dock-wb-fact", `本次开机跑了 ${st.runsSinceBoot} 次`));
-      if (st.lastRun) {
-        const n = st.lastRun.name || st.lastRun.toolId;
-        const mark = st.lastRun.ok ? "成功" : "失败";
-        meta.appendChild(el2("span", `bz-dock-wb-fact${st.lastRun.ok ? "" : " is-bad"}`, `上次 ${n} ${mark}`));
-      }
-      if (st.core) meta.appendChild(el2("span", "bz-dock-wb-fact", `值守件 ${st.core}`));
-    } else {
-      meta.appendChild(el2("span", "bz-dock-wb-fact", "还没有心跳 —— 计划任务可能没跑起来"));
-    }
-    row.appendChild(meta);
-    host.appendChild(row);
+    ensureLiveTick();
   }
   function renderKpi() {
     const host = kpiEl();
@@ -67806,7 +67779,7 @@ GitHub 仓库：${ghInfo.title}
       }),
       uiIconBtn({
         icon: "plus",
-        title: "导入工具声明",
+        title: "导入工具（选文件夹）",
         onClick: () => importToolFlow()
       }),
       uiIconBtn({
@@ -67909,9 +67882,9 @@ GitHub 仓库：${ghInfo.title}
         uiEmpty({
           icon: "square-terminal",
           title: "还没有外部工具",
-          desc: "选一个工具的声明文件（manifest.json），工具坞就知道它叫什么、有哪些参数、该怎么跑；运行记录也归它收口",
+          desc: "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口",
           actions: uiBtnRow(
-            [uiBtn({ label: "导入声明文件", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
+            [uiBtn({ label: "导入工具", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
             { center: true }
           )
         })
@@ -68065,7 +68038,7 @@ GitHub 仓库：${ghInfo.title}
     if ((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) {
       acts.push({ icon: "play", label: "恢复并立即重试", onClick: () => void resumeAndRetry(v) });
     }
-    acts.push({ icon: "pencil", label: "重新导入声明", onClick: () => void importToolFlow(v.entry) });
+    acts.push({ icon: "pencil", label: "重新导入", onClick: () => void importToolFlow(v.entry) });
     acts.push({
       icon: "trash-2",
       label: v.entry.enabled === false ? "启用" : "停用",
@@ -68730,8 +68703,35 @@ GitHub 仓库：${ghInfo.title}
     renderLiveInto(host, id);
     return host;
   }
+  function elapsedText(ms) {
+    const s = Math.max(0, Math.round(ms / 1e3));
+    if (s < 60) return `${s} 秒`;
+    const m = Math.floor(s / 60);
+    return `${m} 分 ${s - m * 60} 秒`;
+  }
+  function ensureLiveTick() {
+    if (liveTick !== null || !liveRunsAll().length) return;
+    liveTick = setInterval(() => {
+      const runs = liveRunsAll();
+      if (!runs.length) {
+        stopLiveTick();
+        renderRunbar();
+        return;
+      }
+      for (const r of runs) {
+        overlay2 == null ? void 0 : overlay2.querySelectorAll(`.bz-dock-live[data-tool="${r.toolId}"]`).forEach((h) => renderLiveInto(h, r.toolId));
+      }
+      renderRunbar();
+    }, 5e3);
+  }
+  function stopLiveTick() {
+    if (liveTick !== null) {
+      clearInterval(liveTick);
+      liveTick = null;
+    }
+  }
   function renderLiveInto(host, id) {
-    var _a2;
+    var _a2, _b2;
     host.innerHTML = "";
     const run = liveRunOf(id);
     if (!run) {
@@ -68742,7 +68742,20 @@ GitHub 仓库：${ghInfo.title}
     host.appendChild(el2("div", "bz-dock-live-head", "正在跑（bz 亲手启动的，所以有实时进度）"));
     const ptxt = run.progress.phase ? `${run.progress.phase}${run.progress.pct === null ? "" : ` ${Math.round(run.progress.pct)}%`}` : "进行中";
     host.appendChild(el2("div", "bz-dock-live-phase", ptxt));
-    const bar = uiProgress({ value: (_a2 = run.progress.pct) != null ? _a2 : 0 });
+    const est = run.estimatedSec;
+    if (est !== void 0 && est > 0) {
+      const elapsed = Date.now() - ((_a2 = timeOf(run.startedAt)) != null ? _a2 : Date.now());
+      if (elapsed > est * 1e3 * 3) {
+        host.appendChild(
+          el2(
+            "div",
+            "bz-dock-live-hint",
+            `已跑 ${elapsedText(elapsed)}，超过声明预估的 ${est} 秒不少 —— 可能卡住了，必要时点停止`
+          )
+        );
+      }
+    }
+    const bar = uiProgress({ value: (_b2 = run.progress.pct) != null ? _b2 : 0 });
     if (run.progress.pct === null) bar.el.classList.add("is-indeterminate");
     host.appendChild(bar.el);
     const steps = el2("ol", "bz-dock-steps");
@@ -68794,9 +68807,19 @@ GitHub 仓库：${ghInfo.title}
   }
   function resetValues(v) {
     var _a2;
+    const prev = { ...valuesOf(v) };
     draftValues.set(v.entry.id, initialValuesOf((_a2 = v.manifest) == null ? void 0 : _a2.params));
     saveValuesNow(v);
     render2();
+    notifyUndo(
+      "已重置参数",
+      () => {
+        draftValues.set(v.entry.id, prev);
+        saveValuesNow(v);
+        render2();
+      },
+      { type: "info" }
+    );
   }
   function paramRow(p, values, v) {
     var _a2, _b2, _c, _d;
@@ -69160,6 +69183,7 @@ GitHub 仓库：${ghInfo.title}
     const hosts = overlay2 == null ? void 0 : overlay2.querySelectorAll(`.bz-dock-live[data-tool="${id}"]`);
     hosts == null ? void 0 : hosts.forEach((h) => renderLiveInto(h, id));
     renderRunbar();
+    ensureLiveTick();
   }
   async function reloadDeclaration(v) {
     var _a2, _b2, _c;
@@ -69283,18 +69307,60 @@ GitHub 仓库：${ghInfo.title}
     await persist(readToolEntries().map((e) => e.id === entry.id ? next : e), `已信任 ${manifest.name}`);
     return true;
   }
+  function chooseDeclaration(root, paths) {
+    return new Promise((resolve2) => {
+      var _a2;
+      const box = el2("div", "bz-dock-pick");
+      let settled = false;
+      let close = () => {
+      };
+      const finish = (p) => {
+        if (settled) return;
+        settled = true;
+        close();
+        resolve2(p);
+      };
+      for (const p of paths) {
+        const res = readDeclaration(p);
+        const rel = relPathOf(root, p);
+        const row = el2("button", "bz-dock-pickrow");
+        row.type = "button";
+        row.appendChild(el2("span", "bz-dock-pickname", ((_a2 = res.manifest) == null ? void 0 : _a2.name) || rel));
+        row.appendChild(el2("span", "bz-dock-pickpath", rel));
+        row.addEventListener("click", () => finish(p));
+        box.appendChild(row);
+      }
+      const modal = uiModal({
+        head: true,
+        title: `找到 ${paths.length} 个工具，选一个`,
+        content: box,
+        maxWidth: 460,
+        className: "bz-dock-pickmodal",
+        onClose: () => finish(null)
+      });
+      close = modal.close;
+    });
+  }
+  function relPathOf(root, p) {
+    const a = root.replace(/[\\/]+$/, "");
+    const b = p.replace(/[\\/]+$/, "");
+    return b.startsWith(`${a}/`) ? b.slice(a.length + 1) : b;
+  }
   async function importToolFlow(entry) {
     var _a2, _b2;
     if (!canRun()) {
       notice("导入声明需要桌面端（要读本机文件）", "warning");
       return;
     }
-    const picked = await pickSystemFiles(
-      entry ? "重新选择该工具的声明文件" : `选择工具声明（${DECLARATION_FILENAME}）`,
-      [{ name: "工具声明", ext: ["json"] }]
-    );
-    if (!picked.length) return;
-    const declPath = picked[0];
+    const dir = await pickSystemFolder();
+    if (!dir) return;
+    const found = findDeclarationFiles(dir);
+    if (!found.length) {
+      notice(`这个文件夹里没找到 ${DECLARATION_FILENAME}（或旧名 dock.json）`, "warning");
+      return;
+    }
+    const declPath = found.length === 1 ? found[0] : await chooseDeclaration(dir, found);
+    if (!declPath) return;
     const res = readDeclaration(declPath);
     if (!res.ok || !res.manifest) {
       notice((_a2 = res.error) != null ? _a2 : "声明读不到", "error");
@@ -69377,7 +69443,7 @@ GitHub 仓库：${ghInfo.title}
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName2(v)}`);
   }
-  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, offlineReportDone, BOARD_MAX_BYTES, BOARD_THEME_VARS, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
+  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, offlineReportDone, BOARD_MAX_BYTES, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
   var init_ui13 = __esm({
     "src/dock/ui.ts"() {
       init_fake_obsidian();
@@ -69439,6 +69505,7 @@ GitHub 仓库：${ghInfo.title}
         "--bz-space-md",
         "--bz-space-lg"
       ];
+      liveTick = null;
       ASK_MODAL_WIDTH = 460;
       ASK_HTML_MODAL_WIDTH = 560;
       ASK_HTML_MAX_BYTES = 128 * 1024;

@@ -665,6 +665,16 @@ function defaultDockFs() {
           fs.mkdirSync(p, { recursive: true });
         } catch {
         }
+      } : void 0,
+      readdir: typeof fs.readdirSync === "function" ? (p) => {
+        try {
+          return fs.readdirSync(p, { withFileTypes: true }).map((d) => ({
+            name: d.name,
+            dir: d.isDirectory()
+          }));
+        } catch {
+          return null;
+        }
       } : void 0
     };
   } catch {

@@ -1,5 +1,5 @@
-/* 源指纹 9030ae1325282189 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
+/* 源指纹 f232cd605cb950ad · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __create = Object.create;
@@ -14,6 +14,9 @@ var BZW_dock = (() => {
     if (typeof require !== "undefined") return require.apply(this, arguments);
     throw Error('Dynamic require of "' + x + '" is not supported');
   });
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
   var __commonJS = (cb, mod) => function __require2() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -38,6 +41,1639 @@ var BZW_dock = (() => {
     mod
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // prototypes/dock/fake/fake-obsidian.ts
+  function setIcon(container, iconId) {
+    var _a;
+    const d = typeof window !== "undefined" && ((_a = window.DOCK_ICONS) == null ? void 0 : _a[iconId]) || "";
+    if (!d) return;
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.innerHTML = d;
+    container.replaceChildren(svg);
+  }
+  var Platform, FakeVault, FakeApp;
+  var init_fake_obsidian = __esm({
+    "prototypes/dock/fake/fake-obsidian.ts"() {
+      Platform = {
+        isMobile: typeof window !== "undefined" && window.innerWidth <= 768,
+        isDesktop: true,
+        isDesktopApp: true,
+        isMobileApp: false
+      };
+      FakeVault = class _FakeVault {
+        constructor() {
+          this.listeners = /* @__PURE__ */ new Map();
+          if (typeof window !== "undefined") {
+            window.addEventListener("storage", (e) => {
+              var _a;
+              if (!e.key || !e.key.startsWith("bz-sim:")) return;
+              const path = e.key.slice("bz-sim:".length);
+              for (const cb of (_a = this.listeners.get("modify")) != null ? _a : []) cb({ path });
+            });
+          }
+        }
+        static key(path) {
+          return "bz-sim:" + path;
+        }
+        getAbstractFileByPath(path) {
+          const raw = localStorage.getItem(_FakeVault.key(path));
+          return raw == null ? null : { path, content: raw };
+        }
+        async read(f) {
+          return f.content;
+        }
+        async modify(f, content) {
+          f.content = content;
+          localStorage.setItem(_FakeVault.key(f.path), content);
+        }
+        async create(path, content) {
+          const f = { path, content };
+          localStorage.setItem(_FakeVault.key(path), content);
+          return f;
+        }
+        async createFolder(_path) {
+          return void 0;
+        }
+        on(evt, cb) {
+          var _a, _b;
+          if (!this.listeners.has(evt)) this.listeners.set(evt, []);
+          this.listeners.get(evt).push(cb);
+          return { ref: (_b = (_a = crypto.randomUUID) == null ? void 0 : _a.call(crypto)) != null ? _b : String(Math.random()) };
+        }
+        offref(_ref) {
+          this.listeners.clear();
+        }
+      };
+      FakeApp = class {
+        constructor() {
+          this.vault = new FakeVault();
+        }
+      };
+    }
+  });
+
+  // src/core/app.ts
+  function setApp(app2) {
+    _app = app2;
+  }
+  function getApp() {
+    if (!_app) {
+      throw new Error("bz: app 未初始化（setApp 未调用）");
+    }
+    return _app;
+  }
+  var _app;
+  var init_app = __esm({
+    "src/core/app.ts"() {
+      _app = null;
+    }
+  });
+
+  // src/core/settings-provider.ts
+  function setSettingsProvider(fn) {
+    _provider = fn;
+  }
+  function setSettingsSaver(fn) {
+    _saver = fn;
+  }
+  function saveSettings() {
+    return _saver ? _saver() : Promise.resolve();
+  }
+  function tryGetSettings() {
+    return _provider ? _provider() : {};
+  }
+  var _provider, _saver;
+  var init_settings_provider = __esm({
+    "src/core/settings-provider.ts"() {
+      _provider = null;
+      _saver = null;
+    }
+  });
+
+  // src/core/z-order.ts
+  function syncAlwaysOnTop() {
+    for (const el2 of alwaysOnTop) {
+      if (!el2.isConnected) {
+        alwaysOnTop.delete(el2);
+        continue;
+      }
+      el2.style.zIndex = String(zCounter);
+    }
+  }
+  function allocZBlock(n) {
+    const base = ++zCounter;
+    zCounter += n - 1;
+    zCounter++;
+    syncAlwaysOnTop();
+    return base;
+  }
+  function allocZ() {
+    return allocZBlock(1);
+  }
+  function topifyZ(...els) {
+    const live3 = els.filter((el2) => !!el2);
+    if (live3.length === 0) return;
+    const base = allocZBlock(live3.length);
+    live3.forEach((el2, i) => {
+      el2.style.zIndex = String(base + i);
+    });
+  }
+  var zCounter, alwaysOnTop;
+  var init_z_order = __esm({
+    "src/core/z-order.ts"() {
+      zCounter = 1e5;
+      alwaysOnTop = /* @__PURE__ */ new Set();
+    }
+  });
+
+  // src/core/notice.ts
+  function maxVisible() {
+    const v = Number(noticePref("noticeMaxVisible"));
+    return v === 3 || v === 8 ? v : MAX_VISIBLE_DEFAULT;
+  }
+  function notice(msg, type, duration) {
+    notify(msg, { type: type || "info", duration });
+  }
+  function notifyUndo(msg, onUndo, opts) {
+    return notify(msg, {
+      type: opts && opts.type || "delete",
+      duration: opts && opts.duration !== void 0 ? opts.duration : UNDO_DURATION_MS,
+      action: { label: "撤销", onClick: onUndo }
+    });
+  }
+  function notifyActionError(err, action, opts) {
+    const msg = err instanceof Error ? err.message : String(err);
+    notify(`${action}失败：${msg}，请重试`, {
+      type: "error",
+      action: (opts == null ? void 0 : opts.onRetry) ? { label: "重试", onClick: opts.onRetry } : void 0
+    });
+  }
+  function isMobileView() {
+    return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(MOBILE_QUERY).matches;
+  }
+  function defaultVariant() {
+    if (isMobileView()) return "drop";
+    const pos = noticePref("noticePosition");
+    return pos === "top-left" || pos === "bottom-left" ? "slide-left" : "slide-right";
+  }
+  function noticePref(key) {
+    var _a;
+    try {
+      const v = (_a = tryGetSettings()) == null ? void 0 : _a[key];
+      return typeof v === "string" ? v : void 0;
+    } catch (e) {
+      return void 0;
+    }
+  }
+  function durationGear() {
+    const v = noticePref("noticeDuration");
+    if (v === "quick") return { base: 2e3, persistent: false };
+    if (v === "relaxed") return { base: 5e3, persistent: false };
+    if (v === "persistent") return { base: 3e3, persistent: true };
+    return { base: 3e3, persistent: false };
+  }
+  function defaultDuration(type) {
+    const base = durationGear().base;
+    return type === "error" ? base + 2e3 : base;
+  }
+  function suppressedByLevel(kind, opts) {
+    const level = noticePref("noticeLevel");
+    if (level !== "important" && level !== "error") return false;
+    if (kind === "progress") return false;
+    if (opts && (opts.action || opts.actions && opts.actions.length > 0)) return false;
+    if (level === "error") return kind !== "error";
+    return kind !== "warning" && kind !== "error";
+  }
+  function applyPositionClass(container) {
+    const pos = noticePref("noticePosition");
+    container.classList.remove(...POSITION_CLASSES);
+    const cls = pos === "bottom-right" || pos === "bottom-left" || pos === "top-left" ? `bz-notice-pos--${pos}` : "";
+    if (cls) container.classList.add(cls);
+  }
+  function calcDuration(text, base) {
+    const len = text.length;
+    if (len <= SHORT_THRESHOLD) return base;
+    const extra = (len - SHORT_THRESHOLD) * PER_CHAR_MS;
+    return Math.min(base + extra, 15e3);
+  }
+  function ensureContainer() {
+    let container = document.getElementById("bz-notice-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "bz-notice-container";
+      document.body.appendChild(container);
+    }
+    return container;
+  }
+  function removeInternal(n) {
+    if (n.timer !== null) {
+      window.clearTimeout(n.timer);
+      n.timer = null;
+    }
+    const i = live.indexOf(n);
+    if (i !== -1) live.splice(i, 1);
+    if (n.el.parentNode) n.el.parentNode.removeChild(n.el);
+  }
+  function evictOldest() {
+    let quota = live.length - maxVisible() + 1;
+    for (let i = 0; quota > 0 && i < live.length; ) {
+      const candidate = live[i];
+      if (candidate.persistent) {
+        i++;
+        continue;
+      }
+      removeInternal(candidate);
+      quota--;
+    }
+  }
+  function applyTypeToEl(n, kind) {
+    const isProgressNow = kind === "progress";
+    n.el.classList.remove(
+      "bz-notice--info",
+      "bz-notice--success",
+      "bz-notice--warning",
+      "bz-notice--error",
+      "bz-notice--pause",
+      "bz-notice--delete",
+      "bz-notice--restore",
+      "bz-notice--archive",
+      "bz-notice--progress"
+    );
+    n.el.classList.add("bz-notice--" + (isProgressNow ? "progress" : kind));
+    n.iconEl.innerHTML = "";
+    if (isProgressNow) {
+      n.iconEl.innerHTML = SPINNER_SVG;
+    } else {
+      n.iconEl.textContent = ICONS[kind];
+    }
+    n.isProgress = isProgressNow;
+  }
+  function hideNow(n) {
+    if (n.timer !== null) {
+      window.clearTimeout(n.timer);
+      n.timer = null;
+    }
+    if (!n.el.classList.contains("bz-notice--leaving")) {
+      n.el.classList.add("bz-notice--leaving");
+      const out = OUT_CLASS[n.variant];
+      if (out) n.el.classList.add(out);
+      window.setTimeout(() => removeInternal(n), LEAVE_MS);
+    }
+  }
+  function armTimer(n, kind, explicitDuration, text) {
+    if (n.timer !== null) {
+      window.clearTimeout(n.timer);
+      n.timer = null;
+    }
+    n.persistent = false;
+    if (kind === "progress") {
+      if (explicitDuration !== void 0 && explicitDuration > 0) {
+        n.timer = window.setTimeout(() => hideNow(n), explicitDuration);
+      } else {
+        n.persistent = true;
+      }
+    } else {
+      const base = defaultDuration(kind);
+      const dur = explicitDuration !== void 0 ? explicitDuration : text ? calcDuration(text, base) : base;
+      if (dur <= 0) {
+        n.persistent = true;
+      } else if (explicitDuration === void 0 && durationGear().persistent) {
+      } else {
+        n.timer = window.setTimeout(() => hideNow(n), dur);
+      }
+    }
+  }
+  function noopHandle() {
+    return {
+      el: document.createElement("div"),
+      setMessage() {
+      },
+      setProgress() {
+      },
+      setType() {
+      },
+      setAction() {
+      },
+      hide() {
+      }
+    };
+  }
+  function appendActionBtn(n, action) {
+    const btn = document.createElement("span");
+    btn.className = "bz-notice-action";
+    btn.setAttribute("role", "button");
+    btn.tabIndex = 0;
+    btn.textContent = action.label;
+    const fire = (e) => {
+      e.stopPropagation();
+      if (action.onClick) action.onClick();
+      hideNow(n);
+    };
+    btn.addEventListener("click", fire);
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fire(e);
+      }
+    });
+    n.el.appendChild(btn);
+  }
+  function makeHandle(n) {
+    return {
+      el: n.el,
+      setMessage(text) {
+        n.msgEl.textContent = text;
+      },
+      setType(t) {
+        applyTypeToEl(n, t);
+        armTimer(n, t, void 0, n.msgEl.textContent || void 0);
+      },
+      setProgress(pct) {
+        if (!n.progressEl) return;
+        if (pct === -1) {
+          n.progressEl.classList.add("bz-notice-progress--indeterminate");
+          return;
+        }
+        n.progressEl.classList.remove("bz-notice-progress--indeterminate");
+        const clamped = Math.max(0, Math.min(100, pct));
+        n.progressEl.style.width = clamped + "%";
+        if (clamped >= 100) n.progressEl.classList.add("bz-notice-progress--done");
+        else n.progressEl.classList.remove("bz-notice-progress--done");
+      },
+      setAction(actions) {
+        const list = Array.isArray(actions) ? actions : [actions];
+        const existing = new Set(
+          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el2) => el2.textContent || "")
+        );
+        for (const a of list) {
+          if (existing.has(a.label)) continue;
+          appendActionBtn(n, a);
+          existing.add(a.label);
+        }
+      },
+      hide() {
+        hideNow(n);
+      }
+    };
+  }
+  function notify(msg, opts) {
+    const kind = opts && opts.type || "info";
+    if (suppressedByLevel(kind, opts)) return noopHandle();
+    const isProgress = kind === "progress";
+    const type = isProgress ? "info" : kind;
+    const variant = opts && opts.variant || defaultVariant();
+    const container = ensureContainer();
+    applyPositionClass(container);
+    if (opts && opts.dedupeKey) {
+      const key = opts.dedupeKey;
+      const r = recent[key];
+      const now = Date.now();
+      if (r && r.n && r.n.el.isConnected) {
+        r.n.msgEl.textContent = msg;
+        if (r.n.isProgress !== isProgress || r.n.el.classList.contains("bz-notice--" + type) === false) {
+          applyTypeToEl(r.n, kind);
+        }
+        const mergeActions = [];
+        if (opts.action) mergeActions.push(opts.action);
+        if (opts.actions) mergeActions.push(...opts.actions);
+        armTimer(r.n, kind, opts.duration, msg);
+        const merged = makeHandle(r.n);
+        if (mergeActions.length) merged.setAction(mergeActions);
+        return merged;
+      }
+      if (r && now - r.at < DEDUPE_WINDOW_MS) {
+        return noopHandle();
+      }
+      recent[key] = { at: now, n: null };
+    }
+    evictOldest();
+    const el2 = document.createElement("div");
+    el2.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
+    el2.setAttribute("role", "status");
+    el2.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    const icon = document.createElement("div");
+    icon.className = "bz-notice-icon";
+    if (isProgress) {
+      icon.innerHTML = SPINNER_SVG;
+    } else {
+      icon.textContent = ICONS[type];
+    }
+    el2.appendChild(icon);
+    const body = document.createElement("div");
+    body.className = "bz-notice-body";
+    if (opts && opts.title) {
+      const titleEl = document.createElement("div");
+      titleEl.className = "bz-notice-title";
+      titleEl.textContent = opts.title;
+      body.appendChild(titleEl);
+    }
+    const msgEl = document.createElement("div");
+    msgEl.className = "bz-notice-msg";
+    msgEl.textContent = msg;
+    body.appendChild(msgEl);
+    el2.appendChild(body);
+    let progressEl = null;
+    if (isProgress) {
+      progressEl = document.createElement("div");
+      progressEl.className = "bz-notice-progress";
+      el2.appendChild(progressEl);
+    }
+    const n = { el: el2, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
+    const actions = [];
+    if (opts && opts.action) actions.push(opts.action);
+    if (opts && opts.actions) {
+      for (const a of opts.actions) {
+        if (!actions.some((x) => x.label === a.label)) actions.push(a);
+      }
+    }
+    for (const a of actions) appendActionBtn(n, a);
+    el2.addEventListener("click", () => hideNow(n));
+    container.style.zIndex = String(allocZ());
+    container.appendChild(el2);
+    live.push(n);
+    if (opts && opts.dedupeKey) {
+      const r = recent[opts.dedupeKey];
+      if (r) r.n = n;
+    }
+    const fullText = (opts && opts.title ? opts.title + " " : "") + msg;
+    armTimer(n, kind, opts && opts.duration, fullText);
+    return makeHandle(n);
+  }
+  var MAX_VISIBLE_DEFAULT, LEAVE_MS, DEDUPE_WINDOW_MS, MOBILE_QUERY, ICONS, SPINNER_SVG, UNDO_DURATION_MS, OUT_CLASS, POSITION_CLASSES, PER_CHAR_MS, SHORT_THRESHOLD, live, recent;
+  var init_notice = __esm({
+    "src/core/notice.ts"() {
+      init_z_order();
+      init_settings_provider();
+      MAX_VISIBLE_DEFAULT = 5;
+      LEAVE_MS = 200;
+      DEDUPE_WINDOW_MS = 3e4;
+      MOBILE_QUERY = "(max-width: 768px)";
+      ICONS = {
+        info: "ℹ️",
+        success: "✅",
+        warning: "⚠️",
+        error: "❌",
+        pause: "⏸️",
+        delete: "🗑️",
+        restore: "↩️",
+        archive: "📁"
+      };
+      SPINNER_SVG = '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></svg>';
+      UNDO_DURATION_MS = 6e3;
+      OUT_CLASS = {
+        drop: "bz-notice--out-drop",
+        pop: "bz-notice--out-pop",
+        "slide-left": "bz-notice--out-left",
+        "slide-right": "bz-notice--out-right",
+        bounce: "bz-notice--out-fade",
+        shake: "bz-notice--out-fade"
+      };
+      POSITION_CLASSES = ["bz-notice-pos--bottom-right", "bz-notice-pos--bottom-left", "bz-notice-pos--top-left"];
+      PER_CHAR_MS = 60;
+      SHORT_THRESHOLD = 20;
+      live = [];
+      recent = {};
+    }
+  });
+
+  // src/core/dom.ts
+  function longPress(el2, cb, dur, filter) {
+    if (!dur) dur = 500;
+    let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
+    let suppressClick = false;
+    const M = 10;
+    function start(e) {
+      if (filter && !filter(e)) return;
+      if (e.button !== void 0 && e.button !== 0) return;
+      fired = false;
+      moved = false;
+      if (e.touches && e.touches.length) {
+        const t = e.touches[0];
+        sx = t.clientX;
+        sy = t.clientY;
+        touching = true;
+      }
+      timer = setTimeout(function() {
+        timer = null;
+        fired = true;
+        cb(e);
+      }, dur);
+    }
+    function cancel() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+    function move(e) {
+      if (!timer || !touching || !e.touches || !e.touches.length) return;
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - sx) > M || Math.abs(t.clientY - sy) > M) {
+        moved = true;
+        cancel();
+      }
+    }
+    function endFromTouch() {
+      if (fired) suppressClick = true;
+      touching = false;
+      cancel();
+    }
+    function endFromMouse() {
+      touching = false;
+      cancel();
+    }
+    function onClick(e) {
+      if (suppressClick) {
+        suppressClick = false;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }
+    el2.addEventListener("mousedown", start);
+    el2.addEventListener("mouseup", endFromMouse);
+    el2.addEventListener("mouseleave", endFromMouse);
+    el2.addEventListener("touchstart", start, { passive: true });
+    el2.addEventListener("touchend", endFromTouch);
+    el2.addEventListener("touchmove", move, { passive: true });
+    el2.addEventListener("touchcancel", endFromTouch);
+    el2.addEventListener("click", onClick, true);
+  }
+  var init_dom = __esm({
+    "src/core/dom.ts"() {
+      init_notice();
+      init_z_order();
+    }
+  });
+
+  // src/core/esc-manager.ts
+  var escManager;
+  var init_esc_manager = __esm({
+    "src/core/esc-manager.ts"() {
+      escManager = (() => {
+        const layers = [];
+        let disabled = false;
+        const onKeydown = (e) => {
+          if (disabled) return;
+          if (e.key !== "Escape") return;
+          for (let i = layers.length - 1; i >= 0; i--) {
+            const L = layers[i];
+            try {
+              if (L.isVisible()) {
+                L.close();
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return;
+              }
+            } catch (err) {
+              layers.splice(i, 1);
+            }
+          }
+        };
+        if (typeof document !== "undefined") {
+          document.addEventListener("keydown", onKeydown);
+        }
+        return {
+          register(id, layer) {
+            for (let i = layers.length - 1; i >= 0; i--) {
+              if (layers[i].id === id && !layers[i].isVisible()) layers.splice(i, 1);
+            }
+            const rec = Object.assign({ id }, layer);
+            layers.push(rec);
+            return {
+              unregister: () => {
+                const i = layers.indexOf(rec);
+                if (i !== -1) layers.splice(i, 1);
+              }
+            };
+          },
+          /** 插件卸载时软关（N1）：只置 disabled 旗标——不摘 document 监听（模块 IIFE
+           *  常驻单例，Obsidian 禁用→再启用不重新求值，摘了就全站 ESC 永久失效）、
+           *  不清 layers（重启用后旧层由 isVisible 判活自愈）。恢复走 arm()。 */
+          destroy() {
+            disabled = true;
+          },
+          /** 插件（重）启用时恢复 ESC 处理（main.ts onload 调用；幂等） */
+          arm() {
+            disabled = false;
+          }
+        };
+      })();
+    }
+  });
+
+  // src/core/path-picker.ts
+  function setSystemFolderPicker(fn) {
+    systemPickerImpl = fn;
+  }
+  function requireNode(moduleName) {
+    var _a;
+    try {
+      const w = window;
+      return w.require ? (_a = w.require(moduleName)) != null ? _a : null : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function normalizeSystemPath(p) {
+    const s = String(p != null ? p : "").trim().replace(/\\/g, "/");
+    return s.length > 1 ? s.replace(/\/+$/, "") : s;
+  }
+  function parentDirOf(filePath) {
+    const s = String(filePath).replace(/\\/g, "/");
+    const i = s.lastIndexOf("/");
+    return i <= 0 ? s : s.slice(0, i);
+  }
+  function fileDiskPath(f) {
+    var _a, _b;
+    const legacy = f.path;
+    if (typeof legacy === "string" && legacy) return legacy;
+    const webUtils = (_a = requireNode("electron")) == null ? void 0 : _a.webUtils;
+    if (webUtils == null ? void 0 : webUtils.getPathForFile) {
+      try {
+        return String((_b = webUtils.getPathForFile(f)) != null ? _b : "");
+      } catch (e) {
+      }
+    }
+    return "";
+  }
+  function pickDirViaInput() {
+    return new Promise((resolve) => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.setAttribute("webkitdirectory", "");
+      input.setAttribute("directory", "");
+      input.style.display = "none";
+      document.body.appendChild(input);
+      let settled = false;
+      const finish = (v) => {
+        if (settled) return;
+        settled = true;
+        window.removeEventListener("focus", onFocus);
+        input.remove();
+        resolve(v);
+      };
+      const onFocus = () => {
+        window.setTimeout(() => {
+          var _a;
+          const f = (_a = input.files) == null ? void 0 : _a[0];
+          if (!f) finish(null);
+        }, 200);
+      };
+      input.addEventListener("change", () => {
+        var _a;
+        const f = (_a = input.files) == null ? void 0 : _a[0];
+        const p = f ? fileDiskPath(f) : "";
+        finish(p ? parentDirOf(p) : null);
+      });
+      window.addEventListener("focus", onFocus);
+      input.click();
+    });
+  }
+  async function nativePickSystemFolder() {
+    var _a, _b, _c, _d;
+    const remote = (_c = (_b = requireNode("@electron/remote")) != null ? _b : (_a = requireNode("electron")) == null ? void 0 : _a.remote) != null ? _c : null;
+    const dialog = remote == null ? void 0 : remote.dialog;
+    if (dialog == null ? void 0 : dialog.showOpenDialog) {
+      const res = await dialog.showOpenDialog({
+        title: "选择文件夹",
+        properties: ["openDirectory", "dontAddToRecent"]
+      });
+      const picked = (_d = res == null ? void 0 : res.filePaths) == null ? void 0 : _d[0];
+      if (picked && !(res == null ? void 0 : res.canceled)) return normalizeSystemPath(picked);
+      return null;
+    }
+    return pickDirViaInput();
+  }
+  async function pickSystemFolder() {
+    try {
+      const pick = systemPickerImpl != null ? systemPickerImpl : nativePickSystemFolder;
+      const dir = await pick();
+      return dir ? normalizeSystemPath(dir) : null;
+    } catch (e) {
+      notifyActionError(e, "选择文件夹");
+      return null;
+    }
+  }
+  async function pickSystemFiles(title, filters) {
+    var _a, _b, _c, _d;
+    const remote = (_c = (_b = requireNode("@electron/remote")) != null ? _b : (_a = requireNode("electron")) == null ? void 0 : _a.remote) != null ? _c : null;
+    const dialog = remote == null ? void 0 : remote.dialog;
+    if (!(dialog == null ? void 0 : dialog.showOpenDialog)) return [];
+    try {
+      const res = await dialog.showOpenDialog({
+        title,
+        properties: ["openFile", "multiSelections", "dontAddToRecent"],
+        // Electron 认 extensions 字段（PickFilesFilter.ext 是域侧叫法，这里做一次映射）
+        filters: filters.map((f) => ({ name: f.name, extensions: f.ext }))
+      });
+      if (res == null ? void 0 : res.canceled) return [];
+      return ((_d = res == null ? void 0 : res.filePaths) != null ? _d : []).map((p) => normalizeSystemPath(p)).filter(Boolean);
+    } catch (e) {
+      notifyActionError(e, "选择文件");
+      return [];
+    }
+  }
+  var systemPickerImpl;
+  var init_path_picker = __esm({
+    "src/core/path-picker.ts"() {
+      init_fake_obsidian();
+      init_app();
+      init_dom();
+      init_esc_manager();
+      init_notice();
+      systemPickerImpl = null;
+    }
+  });
+
+  // src/core/mobile.ts
+  function isMobileEnv() {
+    return typeof Platform !== "undefined" && !!Platform.isMobile;
+  }
+  var init_mobile = __esm({
+    "src/core/mobile.ts"() {
+      init_fake_obsidian();
+    }
+  });
+
+  // src/core/ui/focus-trap.ts
+  function isHidden(el2) {
+    let cur = el2;
+    while (cur && cur !== document.body) {
+      if (cur.classList.contains("bz-setting-hidden")) return true;
+      if (cur.style.display === "none") return true;
+      cur = cur.parentElement;
+    }
+    return false;
+  }
+  function firstFocusable(container) {
+    const list = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el2) => {
+      if (isHidden(el2)) return false;
+      if (isMobileEnv()) {
+        const tag = el2.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return false;
+      }
+      return true;
+    });
+    return list[0] || null;
+  }
+  function trapFocus(container) {
+    const onKeydown = (e) => {
+      if (e.key !== "Tab") return;
+      const items = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
+        (el2) => !isHidden(el2) && !el2.hasAttribute("disabled")
+      );
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      const inside = active instanceof Node && active !== container && container.contains(active);
+      if (e.shiftKey) {
+        if (active === first || !inside) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !inside) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    container.addEventListener("keydown", onKeydown);
+    return () => container.removeEventListener("keydown", onKeydown);
+  }
+  function trapPanelFocus(panel) {
+    panel.classList.add(PANEL_FOCUS_CLASS);
+    if (!panel.hasAttribute("tabindex")) panel.setAttribute("tabindex", "-1");
+    const release = trapFocus(panel);
+    panel.focus({ preventScroll: true });
+    return release;
+  }
+  var FOCUSABLE_SELECTOR, PANEL_FOCUS_CLASS;
+  var init_focus_trap = __esm({
+    "src/core/ui/focus-trap.ts"() {
+      init_mobile();
+      FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      PANEL_FOCUS_CLASS = "bz-panel-focushost";
+    }
+  });
+
+  // src/core/ui/icon.ts
+  function uiIcon(name, extraClass = "") {
+    const i = document.createElement("span");
+    i.className = "bz-ic" + (extraClass ? " " + extraClass : "");
+    setIcon(i, name);
+    return i;
+  }
+  var init_icon = __esm({
+    "src/core/ui/icon.ts"() {
+      init_fake_obsidian();
+    }
+  });
+
+  // src/core/ui/icons.ts
+  var init_icons = __esm({
+    "src/core/ui/icons.ts"() {
+      init_fake_obsidian();
+    }
+  });
+
+  // src/core/ui/button.ts
+  function uiBtn(opts) {
+    const b = document.createElement("button");
+    b.type = "button";
+    const cls = ["bz-btn"];
+    if (opts.tone && opts.tone !== "default") cls.push(`bz-btn--${opts.tone}`);
+    if (opts.size && opts.size !== "md") cls.push(`bz-btn--${opts.size}`);
+    if (opts.chip) cls.push("bz-btn--chip");
+    if (opts.on) cls.push("is-on");
+    if (opts.className) cls.push(opts.className);
+    b.className = cls.join(" ");
+    if (opts.title) b.title = opts.title;
+    if (opts.disabled) b.disabled = true;
+    if (opts.icon) {
+      if (opts.chip) {
+        const chip = document.createElement("span");
+        chip.className = "bz-btn-chip";
+        chip.appendChild(uiIcon(opts.icon));
+        b.appendChild(chip);
+      } else {
+        b.appendChild(uiIcon(opts.icon));
+      }
+    }
+    if (opts.label) {
+      const span = document.createElement("span");
+      span.textContent = opts.label;
+      b.appendChild(span);
+    }
+    if (opts.onClick) b.addEventListener("click", opts.onClick);
+    return b;
+  }
+  function uiIconBtn(opts) {
+    const b = document.createElement("button");
+    b.type = "button";
+    const cls = ["bz-icon-btn"];
+    if (opts.on) cls.push("bz-icon-btn--on");
+    if (opts.lg) cls.push("bz-icon-btn--lg");
+    if (opts.xs) cls.push("bz-icon-btn--xs");
+    if (opts.close) cls.push("bz-icon-btn--close");
+    if (opts.className) cls.push(opts.className);
+    b.className = cls.join(" ");
+    if (opts.title) b.title = opts.title;
+    if (opts.disabled) b.disabled = true;
+    if (opts.danger) b.setAttribute("data-danger", "");
+    b.appendChild(uiIcon(opts.icon));
+    if (opts.onClick) b.addEventListener("click", opts.onClick);
+    return b;
+  }
+  function uiBtnRow(buttons, opts) {
+    const row = document.createElement("div");
+    const cls = ["bz-btn-row"];
+    if (opts == null ? void 0 : opts.center) cls.push("bz-btn-row--center");
+    if (opts == null ? void 0 : opts.grow) cls.push("bz-btn-row--grow");
+    row.className = cls.join(" ");
+    buttons.forEach((x) => row.appendChild(x));
+    return row;
+  }
+  function uiDialogActions(opts) {
+    const cancel = uiBtn({ label: opts.cancelText || "取消", onClick: opts.onCancel });
+    const ok = uiBtn({ label: opts.okText, tone: opts.okTone || "primary", onClick: opts.onOk });
+    const row = uiBtnRow([cancel, ok]);
+    return { row, cancelBtn: cancel, okBtn: ok };
+  }
+  var init_button = __esm({
+    "src/core/ui/button.ts"() {
+      init_icon();
+    }
+  });
+
+  // src/core/ui/chip.ts
+  function uiChip(opts) {
+    const c = document.createElement("button");
+    c.type = "button";
+    const cls = ["bz-chip"];
+    const pressed = opts.selected !== void 0 ? !!opts.selected : opts.selectedSoft !== void 0 ? !!opts.selectedSoft : null;
+    if (opts.selected) cls.push("bz-chip--on");
+    else if (opts.selectedSoft) cls.push("bz-chip--sel");
+    if (opts.locked) cls.push("bz-chip--locked");
+    c.className = cls.join(" ");
+    if (pressed !== null) c.setAttribute("aria-pressed", String(pressed));
+    if (opts.title) c.title = opts.title;
+    if (opts.disabled) c.disabled = true;
+    if (opts.icon) c.appendChild(uiIcon(opts.icon));
+    const label = document.createElement("span");
+    label.textContent = opts.label;
+    c.appendChild(label);
+    if (typeof opts.count === "number") {
+      const cnt = document.createElement("span");
+      cnt.className = "bz-chip-cnt";
+      cnt.textContent = String(opts.count);
+      c.appendChild(cnt);
+    }
+    if (opts.removable && !opts.locked) {
+      const x = document.createElement("span");
+      x.className = "bz-chip-x";
+      x.setAttribute("role", "button");
+      x.setAttribute("aria-label", `移除 ${opts.label}`);
+      x.tabIndex = 0;
+      x.appendChild(uiIcon("x"));
+      x.addEventListener("click", (e) => {
+        var _a;
+        e.stopPropagation();
+        (_a = opts.onRemove) == null ? void 0 : _a.call(opts);
+      });
+      x.addEventListener("keydown", (e) => {
+        var _a;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          (_a = opts.onRemove) == null ? void 0 : _a.call(opts);
+        }
+      });
+      c.appendChild(x);
+    }
+    if (opts.onClick) c.addEventListener("click", () => {
+      var _a;
+      return (_a = opts.onClick) == null ? void 0 : _a.call(opts);
+    });
+    return c;
+  }
+  var init_chip = __esm({
+    "src/core/ui/chip.ts"() {
+      init_icon();
+    }
+  });
+
+  // src/core/ui/setlist.ts
+  var init_setlist = __esm({
+    "src/core/ui/setlist.ts"() {
+    }
+  });
+
+  // src/core/ui/field.ts
+  function uiInput(opts) {
+    const inp = document.createElement("input");
+    inp.className = "bz-input" + (opts.error ? " bz-input--error" : "");
+    inp.type = opts.type || "text";
+    if (opts.placeholder) inp.placeholder = opts.placeholder;
+    if (opts.value !== void 0) inp.value = opts.value;
+    if (opts.disabled) inp.disabled = true;
+    if (opts.onInput) inp.addEventListener("input", () => {
+      var _a;
+      return (_a = opts.onInput) == null ? void 0 : _a.call(opts, inp.value);
+    });
+    return inp;
+  }
+  function isLabelable(ctrl) {
+    const tag = ctrl.tagName;
+    if (tag === "BUTTON" || tag === "SELECT" || tag === "TEXTAREA") return true;
+    if (tag === "INPUT") return ctrl.type !== "hidden";
+    return false;
+  }
+  function uiField(opts) {
+    const wrap = isLabelable(opts.control) ? document.createElement("label") : document.createElement("div");
+    wrap.className = "bz-field";
+    if (opts.label) {
+      const l = document.createElement("span");
+      l.className = "bz-field-label";
+      l.textContent = opts.label;
+      wrap.appendChild(l);
+    }
+    wrap.appendChild(opts.control);
+    if (opts.error) {
+      if (opts.control.classList.contains("bz-input")) opts.control.classList.add("bz-input--error");
+      const e = document.createElement("span");
+      e.className = "bz-field-error";
+      e.textContent = opts.error;
+      wrap.appendChild(e);
+    } else if (opts.desc) {
+      const d = document.createElement("span");
+      d.className = "bz-field-desc";
+      d.textContent = opts.desc;
+      wrap.appendChild(d);
+    }
+    return wrap;
+  }
+  var init_field = __esm({
+    "src/core/ui/field.ts"() {
+    }
+  });
+
+  // src/core/ui/slider.ts
+  var init_slider = __esm({
+    "src/core/ui/slider.ts"() {
+    }
+  });
+
+  // src/core/ui/empty.ts
+  function uiEmpty(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-empty";
+    if (opts.icon) {
+      const ic = uiIcon(opts.icon);
+      ic.classList.add("bz-empty-ic");
+      el2.appendChild(ic);
+    }
+    const t = document.createElement("div");
+    t.className = "bz-empty-title";
+    t.textContent = opts.title;
+    el2.appendChild(t);
+    if (opts.desc) {
+      const d = document.createElement("div");
+      d.className = "bz-empty-desc";
+      d.textContent = opts.desc;
+      el2.appendChild(d);
+    }
+    if (opts.actions) el2.appendChild(opts.actions);
+    return el2;
+  }
+  var init_empty = __esm({
+    "src/core/ui/empty.ts"() {
+      init_icon();
+    }
+  });
+
+  // src/core/ui/segmented.ts
+  var init_segmented = __esm({
+    "src/core/ui/segmented.ts"() {
+    }
+  });
+
+  // src/core/ui/choice.ts
+  function uiChoice(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-choice" + (opts.float ? " bz-choice--float" : "") + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "radiogroup");
+    el2.setAttribute("aria-label", opts.label || "");
+    const btns = /* @__PURE__ */ new Map();
+    let cur = opts.value;
+    const seg = document.createElement("span");
+    seg.className = "bz-choice-seg";
+    let segRAF = 0;
+    let segTries = 0;
+    const syncSeg = (animate) => {
+      if (!opts.float) return;
+      const on = el2.querySelector(".bz-choice-btn.is-on");
+      if (!on) return;
+      const tb = el2.getBoundingClientRect();
+      const bb = on.getBoundingClientRect();
+      if (!el2.isConnected || !tb.width || !bb.width) {
+        if (segTries++ > 120) return;
+        cancelAnimationFrame(segRAF);
+        segRAF = requestAnimationFrame(() => syncSeg(false));
+        return;
+      }
+      segTries = 0;
+      if (!animate) seg.style.transition = "none";
+      seg.style.width = `${bb.width}px`;
+      seg.style.transform = `translateX(${bb.left - tb.left}px)`;
+      if (!animate) {
+        void seg.offsetWidth;
+        seg.style.transition = "";
+      }
+    };
+    const onWinResize = () => {
+      if (!el2.isConnected) {
+        window.removeEventListener("resize", onWinResize);
+        return;
+      }
+      syncSeg(false);
+    };
+    if (opts.float) {
+      window.addEventListener("resize", onWinResize);
+    }
+    opts.options.forEach((o) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "bz-choice-btn" + (o.value === opts.value ? " is-on" : "");
+      b.dataset.value = String(o.value);
+      b.setAttribute("role", "radio");
+      b.setAttribute("aria-checked", String(o.value === opts.value));
+      if (o.dot) {
+        const d = document.createElement("span");
+        d.className = "bz-choice-dot";
+        d.style.background = o.dot;
+        b.appendChild(d);
+      }
+      b.appendChild(document.createTextNode(o.label));
+      b.addEventListener("click", () => {
+        setValue(o.value);
+        opts.onChange(o.value);
+      });
+      b.addEventListener("keydown", (e) => {
+        var _a;
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+        e.preventDefault();
+        const vals = opts.options.map((x) => x.value);
+        const curIdx = vals.indexOf(cur);
+        const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+        const nextIdx = (curIdx + delta + vals.length) % vals.length;
+        setValue(vals[nextIdx]);
+        opts.onChange(vals[nextIdx]);
+        (_a = btns.get(vals[nextIdx])) == null ? void 0 : _a.focus();
+      });
+      btns.set(o.value, b);
+      el2.appendChild(b);
+    });
+    if (opts.float) el2.appendChild(seg);
+    function setValue(v) {
+      cur = v;
+      btns.forEach((b, k) => {
+        const on = k === v;
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-checked", String(on));
+      });
+      if (opts.float) syncSeg(true);
+    }
+    syncSeg(false);
+    const detach = () => {
+      cancelAnimationFrame(segRAF);
+      window.removeEventListener("resize", onWinResize);
+    };
+    return { el: el2, setValue, detach };
+  }
+  var init_choice = __esm({
+    "src/core/ui/choice.ts"() {
+    }
+  });
+
+  // src/core/ui/cardpick.ts
+  var init_cardpick = __esm({
+    "src/core/ui/cardpick.ts"() {
+    }
+  });
+
+  // src/core/ui/switch.ts
+  function uiSwitch(opts) {
+    const el2 = document.createElement("span");
+    el2.className = "bz-sw" + (opts.checked ? " on" : "") + (opts.disabled ? " is-disabled" : "");
+    el2.setAttribute("role", "switch");
+    el2.setAttribute("aria-checked", String(!!opts.checked));
+    el2.setAttribute("aria-disabled", String(!!opts.disabled));
+    el2.tabIndex = opts.disabled ? -1 : 0;
+    const setChecked = (v) => {
+      el2.classList.toggle("on", v);
+      el2.setAttribute("aria-checked", String(v));
+    };
+    const setDisabled = (v) => {
+      el2.classList.toggle("is-disabled", v);
+      el2.setAttribute("aria-disabled", String(v));
+      el2.tabIndex = v ? -1 : 0;
+    };
+    const enabled = () => !el2.classList.contains("is-disabled");
+    const toggle = () => {
+      var _a;
+      if (!enabled()) return;
+      const next = !el2.classList.contains("on");
+      setChecked(next);
+      (_a = opts.onChange) == null ? void 0 : _a.call(opts, next);
+    };
+    el2.addEventListener("click", toggle);
+    el2.addEventListener("keydown", (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        toggle();
+      }
+    });
+    return { el: el2, setChecked, setDisabled };
+  }
+  var init_switch = __esm({
+    "src/core/ui/switch.ts"() {
+    }
+  });
+
+  // src/core/ui/select.ts
+  function uiSelect(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-select" + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "listbox");
+    el2.setAttribute("aria-expanded", "false");
+    el2.tabIndex = 0;
+    const val = document.createElement("span");
+    val.className = "bz-select-val";
+    el2.appendChild(val);
+    el2.appendChild(uiIcon("chevron-down", "bz-select-car"));
+    let current = opts.value;
+    let menu = null;
+    let escHandle2 = null;
+    const labelOf = (v) => {
+      const o = opts.options.find((x) => x.value === v);
+      return o ? o.label : "";
+    };
+    const renderVal = () => {
+      val.textContent = labelOf(current) || opts.placeholder || "";
+    };
+    renderVal();
+    const close = (notify2 = true) => {
+      var _a;
+      if (menu) {
+        menu.remove();
+        menu = null;
+      }
+      if (escHandle2) {
+        escHandle2.unregister();
+        escHandle2 = null;
+      }
+      el2.classList.remove("open");
+      el2.setAttribute("aria-expanded", "false");
+      if (notify2) (_a = opts.onOpenChange) == null ? void 0 : _a.call(opts, false);
+    };
+    const open = () => {
+      var _a;
+      close(false);
+      el2.classList.add("open");
+      el2.setAttribute("aria-expanded", "true");
+      (_a = opts.onOpenChange) == null ? void 0 : _a.call(opts, true);
+      const m = document.createElement("div");
+      m.className = "bz-select-menu";
+      m.setAttribute("role", "listbox");
+      menu = m;
+      opts.options.forEach((o, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "bz-select-item" + (o.value === current ? " is-on" : "");
+        b.setAttribute("role", "option");
+        b.setAttribute("aria-selected", String(o.value === current));
+        b.dataset.index = String(i);
+        const span = document.createElement("span");
+        span.textContent = o.label;
+        b.appendChild(span);
+        b.appendChild(uiIcon("check", "bz-select-item-ck"));
+        b.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          setValue(o.value);
+          opts.onChange(o.value);
+          close();
+        });
+        m.appendChild(b);
+      });
+      el2.appendChild(m);
+      for (let round = 0; round < 3; round++) {
+        let delta = 0;
+        m.querySelectorAll(".bz-select-item > span").forEach((sp) => {
+          delta = Math.max(delta, sp.scrollWidth - sp.clientWidth);
+        });
+        if (delta <= 0) break;
+        const cs = getComputedStyle(m);
+        const border = (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.borderRightWidth) || 0);
+        m.style.minWidth = `${m.clientWidth + delta - border}px`;
+      }
+      const vw = window.innerWidth || document.documentElement.clientWidth;
+      const rect = m.getBoundingClientRect();
+      const over = Math.ceil(rect.right - vw) + 2;
+      if (over > 0) {
+        m.style.right = `${over}px`;
+        if (m.getBoundingClientRect().left < 2) m.style.right = "";
+      }
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const mRect = m.getBoundingClientRect();
+      const need = mRect.height || m.offsetHeight;
+      const spaceBelow = vh - mRect.bottom;
+      if (need > 0 && spaceBelow < need && spaceBelow < mRect.top) {
+        m.classList.add("is-flip-up");
+      }
+      escHandle2 = escManager.register("bz-ui-select", {
+        isVisible: () => !!menu && menu.isConnected,
+        close: () => close()
+      });
+    };
+    const setValue = (v) => {
+      current = v;
+      renderVal();
+      if (menu) {
+        opts.options.forEach((o, i) => {
+          const item = menu == null ? void 0 : menu.querySelectorAll(".bz-select-item")[i];
+          if (!item) return;
+          const on = o.value === v;
+          item.classList.toggle("is-on", on);
+          item.setAttribute("aria-selected", String(on));
+        });
+      }
+    };
+    const moveFocus = (delta) => {
+      if (!menu) return;
+      const curIdx = opts.options.findIndex((o) => o.value === current);
+      const nextIdx = Math.min(opts.options.length - 1, Math.max(0, (curIdx < 0 ? 0 : curIdx) + delta));
+      opts.options.forEach((o, i) => {
+        const item = menu == null ? void 0 : menu.querySelectorAll(".bz-select-item")[i];
+        if (!item) return;
+        const on = i === nextIdx;
+        item.classList.toggle("is-on", on);
+        item.setAttribute("aria-selected", String(on));
+      });
+    };
+    el2.addEventListener("click", () => {
+      if (menu) close();
+      else open();
+    });
+    el2.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (menu) {
+          const on = menu == null ? void 0 : menu.querySelector(".bz-select-item.is-on");
+          if (on && on !== el2) {
+            const v = opts.options[Number(on.dataset.index)];
+            if (v) {
+              setValue(v.value);
+              opts.onChange(v.value);
+            }
+          }
+          close();
+        } else open();
+      } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!menu) open();
+        moveFocus(e.key === "ArrowDown" ? 1 : -1);
+      } else if (e.key === "Escape") {
+        e.stopPropagation();
+        close();
+      }
+    });
+    const onDocClick = (e) => {
+      if (menu && !el2.contains(e.target)) close();
+    };
+    document.addEventListener("click", onDocClick);
+    return {
+      el: el2,
+      setValue,
+      detach: () => {
+        document.removeEventListener("click", onDocClick);
+        close(false);
+      }
+    };
+  }
+  var init_select = __esm({
+    "src/core/ui/select.ts"() {
+      init_icon();
+      init_esc_manager();
+    }
+  });
+
+  // src/core/ui/search.ts
+  function uiSearch(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-search";
+    el2.appendChild(uiIcon("search"));
+    const input = uiInput({
+      placeholder: opts.placeholder,
+      value: opts.value,
+      onInput: opts.onInput
+    });
+    el2.appendChild(input);
+    let clearBtn = null;
+    if (opts.clearable !== false) {
+      clearBtn = document.createElement("button");
+      clearBtn.type = "button";
+      clearBtn.className = "bz-search-clear";
+      clearBtn.title = "清除搜索";
+      clearBtn.setAttribute("aria-label", "清除搜索");
+      clearBtn.hidden = !input.value.trim();
+      clearBtn.appendChild(uiIcon("x"));
+      clearBtn.addEventListener("click", () => {
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus();
+      });
+      input.addEventListener("input", () => {
+        if (clearBtn) clearBtn.hidden = !input.value.trim();
+      });
+      el2.appendChild(clearBtn);
+    }
+    const syncClear = () => {
+      if (clearBtn) clearBtn.hidden = !input.value.trim();
+    };
+    const setValue = (v) => {
+      input.value = v;
+      syncClear();
+    };
+    return { el: el2, input, setValue, syncClear };
+  }
+  var init_search = __esm({
+    "src/core/ui/search.ts"() {
+      init_icon();
+      init_field();
+    }
+  });
+
+  // src/core/ui/mainhead.ts
+  var init_mainhead = __esm({
+    "src/core/ui/mainhead.ts"() {
+      init_button();
+    }
+  });
+
+  // src/core/ui/rail.ts
+  var init_rail = __esm({
+    "src/core/ui/rail.ts"() {
+      init_fake_obsidian();
+      init_icon();
+    }
+  });
+
+  // src/core/ui/mobstrip.ts
+  var init_mobstrip = __esm({
+    "src/core/ui/mobstrip.ts"() {
+    }
+  });
+
+  // src/core/ui/stat.ts
+  var init_stat = __esm({
+    "src/core/ui/stat.ts"() {
+      init_icon();
+    }
+  });
+
+  // src/core/ui/progress.ts
+  function uiProgress(opts = {}) {
+    const el2 = document.createElement("div");
+    const cls = ["bz-progress"];
+    if (opts.thin) cls.push("bz-progress--thin");
+    if (opts.tone) cls.push(`bz-progress--${opts.tone}`);
+    el2.className = cls.join(" ");
+    const fill = document.createElement("i");
+    el2.appendChild(fill);
+    const setValue = (n) => {
+      const v = Math.min(100, Math.max(0, Number(n) || 0));
+      fill.style.width = v + "%";
+    };
+    if (opts.value !== void 0) setValue(opts.value);
+    return { el: el2, setValue };
+  }
+  var init_progress = __esm({
+    "src/core/ui/progress.ts"() {
+    }
+  });
+
+  // src/core/ui/popover.ts
+  var init_popover = __esm({
+    "src/core/ui/popover.ts"() {
+      init_icon();
+      init_esc_manager();
+    }
+  });
+
+  // src/core/ui/help-tip.ts
+  var init_help_tip = __esm({
+    "src/core/ui/help-tip.ts"() {
+      init_esc_manager();
+      init_z_order();
+    }
+  });
+
+  // src/core/ui/suggest.ts
+  var init_suggest = __esm({
+    "src/core/ui/suggest.ts"() {
+    }
+  });
+
+  // src/core/ui/lightbox.ts
+  var init_lightbox = __esm({
+    "src/core/ui/lightbox.ts"() {
+      init_icon();
+      init_esc_manager();
+      init_z_order();
+    }
+  });
+
+  // src/core/ui/modal.ts
+  function bindFormSubmit(popup, onSubmit) {
+    popup.addEventListener("keydown", (e) => {
+      if (e.defaultPrevented || e.isComposing) return;
+      if (e.key !== "Enter") return;
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      onSubmit();
+    });
+    popup.addEventListener("keypress", (e) => {
+      if (e.defaultPrevented) return;
+      if (e.key !== "Enter" || e.ctrlKey || e.metaKey) return;
+      const t = e.target;
+      if (!(t instanceof HTMLInputElement)) return;
+      if (t.dataset.bzNoFormSubmit !== void 0) return;
+      e.preventDefault();
+      onSubmit();
+    });
+  }
+  function uiModal(opts) {
+    var _a;
+    const prevActive = document.activeElement;
+    const focusEnabled = opts.autofocus !== false;
+    const mask = document.createElement("div");
+    mask.className = "bz-overlay-mask";
+    mask.style.zIndex = String(allocZ());
+    const popup = document.createElement("div");
+    popup.className = "bz-overlay-popup" + (opts.className ? " " + opts.className : "");
+    if (opts.maxWidth) popup.style.maxWidth = `min(${opts.maxWidth}px, calc(100vw - 32px))`;
+    popup.setAttribute("role", "dialog");
+    popup.setAttribute("aria-modal", "true");
+    if (opts.title) popup.setAttribute("aria-label", opts.title);
+    if (opts.head) {
+      const head = document.createElement("div");
+      head.className = "bz-dialog-head";
+      const title = document.createElement("span");
+      title.className = "bz-dialog-title";
+      title.textContent = opts.title || "";
+      head.appendChild(title);
+      popup.appendChild(head);
+    }
+    const body = document.createElement("div");
+    body.className = "bz-dialog-body";
+    if (typeof opts.content === "string") body.innerHTML = opts.content;
+    else body.appendChild(opts.content);
+    popup.appendChild(body);
+    mask.appendChild(popup);
+    let closed = false;
+    let escHandle2 = null;
+    const releaseTrap = focusEnabled ? trapFocus(popup) : null;
+    function close() {
+      var _a2;
+      if (closed) return;
+      closed = true;
+      liveModals.delete(close);
+      releaseTrap == null ? void 0 : releaseTrap();
+      mask.remove();
+      escHandle2 == null ? void 0 : escHandle2.unregister();
+      if (focusEnabled && prevActive instanceof HTMLElement && prevActive.isConnected) {
+        prevActive.focus();
+      }
+      (_a2 = opts.onClose) == null ? void 0 : _a2.call(opts);
+    }
+    const attemptClose = () => {
+      if (opts.requestClose) opts.requestClose();
+      else close();
+    };
+    mask.addEventListener("click", (e) => {
+      if (e.target === mask) attemptClose();
+    });
+    escHandle2 = escManager.register("bz-modal", {
+      isVisible: () => mask.isConnected,
+      close: attemptClose
+    });
+    document.body.appendChild(mask);
+    if (focusEnabled) (_a = firstFocusable(popup)) == null ? void 0 : _a.focus();
+    liveModals.add(close);
+    return { mask, popup, close };
+  }
+  var liveModals;
+  var init_modal = __esm({
+    "src/core/ui/modal.ts"() {
+      init_esc_manager();
+      init_z_order();
+      init_focus_trap();
+      liveModals = /* @__PURE__ */ new Set();
+    }
+  });
+
+  // src/core/ui/resize.ts
+  var init_resize = __esm({
+    "src/core/ui/resize.ts"() {
+      init_dom();
+    }
+  });
+
+  // src/core/ui/splitter.ts
+  var init_splitter = __esm({
+    "src/core/ui/splitter.ts"() {
+      init_dom();
+    }
+  });
+
+  // src/core/ui/index.ts
+  var init_ui = __esm({
+    "src/core/ui/index.ts"() {
+      init_icon();
+      init_icons();
+      init_button();
+      init_chip();
+      init_setlist();
+      init_field();
+      init_slider();
+      init_empty();
+      init_segmented();
+      init_choice();
+      init_cardpick();
+      init_switch();
+      init_select();
+      init_search();
+      init_mainhead();
+      init_rail();
+      init_mobstrip();
+      init_stat();
+      init_progress();
+      init_popover();
+      init_help_tip();
+      init_suggest();
+      init_lightbox();
+      init_modal();
+      init_resize();
+      init_splitter();
+    }
+  });
 
   // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
@@ -4028,1392 +5664,12 @@ var BZW_dock = (() => {
     }
   });
 
-  // prototypes/dock/fake-sim.ts
-  var fake_sim_exports = {};
-  __export(fake_sim_exports, {
-    bootDockSim: () => bootDockSim,
-    closeDockPanel: () => closeDock,
-    openDockPanel: () => openDockPanel,
-    resetDockSim: () => resetDockSim,
-    unloadDockSim: () => unloadDockSim
+  // src/core/http.ts
+  var init_http = __esm({
+    "src/core/http.ts"() {
+      init_fake_obsidian();
+    }
   });
-
-  // prototypes/dock/fake/fake-obsidian.ts
-  var Platform = {
-    isMobile: typeof window !== "undefined" && window.innerWidth <= 768,
-    isDesktop: true,
-    isDesktopApp: true,
-    isMobileApp: false
-  };
-  function setIcon(container, iconId) {
-    var _a;
-    const d = typeof window !== "undefined" && ((_a = window.DOCK_ICONS) == null ? void 0 : _a[iconId]) || "";
-    if (!d) return;
-    const ns = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(ns, "svg");
-    svg.setAttribute("viewBox", "0 0 24 24");
-    svg.setAttribute("fill", "none");
-    svg.setAttribute("stroke", "currentColor");
-    svg.setAttribute("stroke-width", "2");
-    svg.setAttribute("stroke-linecap", "round");
-    svg.setAttribute("stroke-linejoin", "round");
-    svg.innerHTML = d;
-    container.replaceChildren(svg);
-  }
-  var FakeVault = class _FakeVault {
-    constructor() {
-      this.listeners = /* @__PURE__ */ new Map();
-      if (typeof window !== "undefined") {
-        window.addEventListener("storage", (e) => {
-          var _a;
-          if (!e.key || !e.key.startsWith("bz-sim:")) return;
-          const path = e.key.slice("bz-sim:".length);
-          for (const cb of (_a = this.listeners.get("modify")) != null ? _a : []) cb({ path });
-        });
-      }
-    }
-    static key(path) {
-      return "bz-sim:" + path;
-    }
-    getAbstractFileByPath(path) {
-      const raw = localStorage.getItem(_FakeVault.key(path));
-      return raw == null ? null : { path, content: raw };
-    }
-    async read(f) {
-      return f.content;
-    }
-    async modify(f, content) {
-      f.content = content;
-      localStorage.setItem(_FakeVault.key(f.path), content);
-    }
-    async create(path, content) {
-      const f = { path, content };
-      localStorage.setItem(_FakeVault.key(path), content);
-      return f;
-    }
-    async createFolder(_path) {
-      return void 0;
-    }
-    on(evt, cb) {
-      var _a, _b;
-      if (!this.listeners.has(evt)) this.listeners.set(evt, []);
-      this.listeners.get(evt).push(cb);
-      return { ref: (_b = (_a = crypto.randomUUID) == null ? void 0 : _a.call(crypto)) != null ? _b : String(Math.random()) };
-    }
-    offref(_ref) {
-      this.listeners.clear();
-    }
-  };
-  var FakeApp = class {
-    constructor() {
-      this.vault = new FakeVault();
-    }
-  };
-
-  // src/core/app.ts
-  var _app = null;
-  function setApp(app2) {
-    _app = app2;
-  }
-  function getApp() {
-    if (!_app) {
-      throw new Error("bz: app 未初始化（setApp 未调用）");
-    }
-    return _app;
-  }
-
-  // src/core/settings-provider.ts
-  var _provider = null;
-  var _saver = null;
-  function setSettingsProvider(fn) {
-    _provider = fn;
-  }
-  function setSettingsSaver(fn) {
-    _saver = fn;
-  }
-  function saveSettings() {
-    return _saver ? _saver() : Promise.resolve();
-  }
-  function tryGetSettings() {
-    return _provider ? _provider() : {};
-  }
-
-  // src/core/z-order.ts
-  var zCounter = 1e5;
-  var alwaysOnTop = /* @__PURE__ */ new Set();
-  function syncAlwaysOnTop() {
-    for (const el2 of alwaysOnTop) {
-      if (!el2.isConnected) {
-        alwaysOnTop.delete(el2);
-        continue;
-      }
-      el2.style.zIndex = String(zCounter);
-    }
-  }
-  function allocZBlock(n) {
-    const base = ++zCounter;
-    zCounter += n - 1;
-    zCounter++;
-    syncAlwaysOnTop();
-    return base;
-  }
-  function allocZ() {
-    return allocZBlock(1);
-  }
-  function topifyZ(...els) {
-    const live3 = els.filter((el2) => !!el2);
-    if (live3.length === 0) return;
-    const base = allocZBlock(live3.length);
-    live3.forEach((el2, i) => {
-      el2.style.zIndex = String(base + i);
-    });
-  }
-
-  // src/core/notice.ts
-  var MAX_VISIBLE_DEFAULT = 5;
-  function maxVisible() {
-    const v = Number(noticePref("noticeMaxVisible"));
-    return v === 3 || v === 8 ? v : MAX_VISIBLE_DEFAULT;
-  }
-  var LEAVE_MS = 200;
-  var DEDUPE_WINDOW_MS = 3e4;
-  var MOBILE_QUERY = "(max-width: 768px)";
-  var ICONS = {
-    info: "ℹ️",
-    success: "✅",
-    warning: "⚠️",
-    error: "❌",
-    pause: "⏸️",
-    delete: "🗑️",
-    restore: "↩️",
-    archive: "📁"
-  };
-  var SPINNER_SVG = '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></svg>';
-  function notice(msg, type, duration) {
-    notify(msg, { type: type || "info", duration });
-  }
-  function notifyActionError(err, action, opts) {
-    const msg = err instanceof Error ? err.message : String(err);
-    notify(`${action}失败：${msg}，请重试`, {
-      type: "error",
-      action: (opts == null ? void 0 : opts.onRetry) ? { label: "重试", onClick: opts.onRetry } : void 0
-    });
-  }
-  function isMobileView() {
-    return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(MOBILE_QUERY).matches;
-  }
-  function defaultVariant() {
-    if (isMobileView()) return "drop";
-    const pos = noticePref("noticePosition");
-    return pos === "top-left" || pos === "bottom-left" ? "slide-left" : "slide-right";
-  }
-  var OUT_CLASS = {
-    drop: "bz-notice--out-drop",
-    pop: "bz-notice--out-pop",
-    "slide-left": "bz-notice--out-left",
-    "slide-right": "bz-notice--out-right",
-    bounce: "bz-notice--out-fade",
-    shake: "bz-notice--out-fade"
-  };
-  function noticePref(key) {
-    var _a;
-    try {
-      const v = (_a = tryGetSettings()) == null ? void 0 : _a[key];
-      return typeof v === "string" ? v : void 0;
-    } catch (e) {
-      return void 0;
-    }
-  }
-  function durationGear() {
-    const v = noticePref("noticeDuration");
-    if (v === "quick") return { base: 2e3, persistent: false };
-    if (v === "relaxed") return { base: 5e3, persistent: false };
-    if (v === "persistent") return { base: 3e3, persistent: true };
-    return { base: 3e3, persistent: false };
-  }
-  function defaultDuration(type) {
-    const base = durationGear().base;
-    return type === "error" ? base + 2e3 : base;
-  }
-  function suppressedByLevel(kind, opts) {
-    const level = noticePref("noticeLevel");
-    if (level !== "important" && level !== "error") return false;
-    if (kind === "progress") return false;
-    if (opts && (opts.action || opts.actions && opts.actions.length > 0)) return false;
-    if (level === "error") return kind !== "error";
-    return kind !== "warning" && kind !== "error";
-  }
-  var POSITION_CLASSES = ["bz-notice-pos--bottom-right", "bz-notice-pos--bottom-left", "bz-notice-pos--top-left"];
-  function applyPositionClass(container) {
-    const pos = noticePref("noticePosition");
-    container.classList.remove(...POSITION_CLASSES);
-    const cls = pos === "bottom-right" || pos === "bottom-left" || pos === "top-left" ? `bz-notice-pos--${pos}` : "";
-    if (cls) container.classList.add(cls);
-  }
-  var PER_CHAR_MS = 60;
-  var SHORT_THRESHOLD = 20;
-  function calcDuration(text, base) {
-    const len = text.length;
-    if (len <= SHORT_THRESHOLD) return base;
-    const extra = (len - SHORT_THRESHOLD) * PER_CHAR_MS;
-    return Math.min(base + extra, 15e3);
-  }
-  function ensureContainer() {
-    let container = document.getElementById("bz-notice-container");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "bz-notice-container";
-      document.body.appendChild(container);
-    }
-    return container;
-  }
-  var live = [];
-  var recent = {};
-  function removeInternal(n) {
-    if (n.timer !== null) {
-      window.clearTimeout(n.timer);
-      n.timer = null;
-    }
-    const i = live.indexOf(n);
-    if (i !== -1) live.splice(i, 1);
-    if (n.el.parentNode) n.el.parentNode.removeChild(n.el);
-  }
-  function evictOldest() {
-    let quota = live.length - maxVisible() + 1;
-    for (let i = 0; quota > 0 && i < live.length; ) {
-      const candidate = live[i];
-      if (candidate.persistent) {
-        i++;
-        continue;
-      }
-      removeInternal(candidate);
-      quota--;
-    }
-  }
-  function applyTypeToEl(n, kind) {
-    const isProgressNow = kind === "progress";
-    n.el.classList.remove(
-      "bz-notice--info",
-      "bz-notice--success",
-      "bz-notice--warning",
-      "bz-notice--error",
-      "bz-notice--pause",
-      "bz-notice--delete",
-      "bz-notice--restore",
-      "bz-notice--archive",
-      "bz-notice--progress"
-    );
-    n.el.classList.add("bz-notice--" + (isProgressNow ? "progress" : kind));
-    n.iconEl.innerHTML = "";
-    if (isProgressNow) {
-      n.iconEl.innerHTML = SPINNER_SVG;
-    } else {
-      n.iconEl.textContent = ICONS[kind];
-    }
-    n.isProgress = isProgressNow;
-  }
-  function hideNow(n) {
-    if (n.timer !== null) {
-      window.clearTimeout(n.timer);
-      n.timer = null;
-    }
-    if (!n.el.classList.contains("bz-notice--leaving")) {
-      n.el.classList.add("bz-notice--leaving");
-      const out = OUT_CLASS[n.variant];
-      if (out) n.el.classList.add(out);
-      window.setTimeout(() => removeInternal(n), LEAVE_MS);
-    }
-  }
-  function armTimer(n, kind, explicitDuration, text) {
-    if (n.timer !== null) {
-      window.clearTimeout(n.timer);
-      n.timer = null;
-    }
-    n.persistent = false;
-    if (kind === "progress") {
-      if (explicitDuration !== void 0 && explicitDuration > 0) {
-        n.timer = window.setTimeout(() => hideNow(n), explicitDuration);
-      } else {
-        n.persistent = true;
-      }
-    } else {
-      const base = defaultDuration(kind);
-      const dur = explicitDuration !== void 0 ? explicitDuration : text ? calcDuration(text, base) : base;
-      if (dur <= 0) {
-        n.persistent = true;
-      } else if (explicitDuration === void 0 && durationGear().persistent) {
-      } else {
-        n.timer = window.setTimeout(() => hideNow(n), dur);
-      }
-    }
-  }
-  function noopHandle() {
-    return {
-      el: document.createElement("div"),
-      setMessage() {
-      },
-      setProgress() {
-      },
-      setType() {
-      },
-      setAction() {
-      },
-      hide() {
-      }
-    };
-  }
-  function appendActionBtn(n, action) {
-    const btn = document.createElement("span");
-    btn.className = "bz-notice-action";
-    btn.setAttribute("role", "button");
-    btn.tabIndex = 0;
-    btn.textContent = action.label;
-    const fire = (e) => {
-      e.stopPropagation();
-      if (action.onClick) action.onClick();
-      hideNow(n);
-    };
-    btn.addEventListener("click", fire);
-    btn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        fire(e);
-      }
-    });
-    n.el.appendChild(btn);
-  }
-  function makeHandle(n) {
-    return {
-      el: n.el,
-      setMessage(text) {
-        n.msgEl.textContent = text;
-      },
-      setType(t) {
-        applyTypeToEl(n, t);
-        armTimer(n, t, void 0, n.msgEl.textContent || void 0);
-      },
-      setProgress(pct) {
-        if (!n.progressEl) return;
-        if (pct === -1) {
-          n.progressEl.classList.add("bz-notice-progress--indeterminate");
-          return;
-        }
-        n.progressEl.classList.remove("bz-notice-progress--indeterminate");
-        const clamped = Math.max(0, Math.min(100, pct));
-        n.progressEl.style.width = clamped + "%";
-        if (clamped >= 100) n.progressEl.classList.add("bz-notice-progress--done");
-        else n.progressEl.classList.remove("bz-notice-progress--done");
-      },
-      setAction(actions) {
-        const list = Array.isArray(actions) ? actions : [actions];
-        const existing = new Set(
-          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el2) => el2.textContent || "")
-        );
-        for (const a of list) {
-          if (existing.has(a.label)) continue;
-          appendActionBtn(n, a);
-          existing.add(a.label);
-        }
-      },
-      hide() {
-        hideNow(n);
-      }
-    };
-  }
-  function notify(msg, opts) {
-    const kind = opts && opts.type || "info";
-    if (suppressedByLevel(kind, opts)) return noopHandle();
-    const isProgress = kind === "progress";
-    const type = isProgress ? "info" : kind;
-    const variant = opts && opts.variant || defaultVariant();
-    const container = ensureContainer();
-    applyPositionClass(container);
-    if (opts && opts.dedupeKey) {
-      const key = opts.dedupeKey;
-      const r = recent[key];
-      const now = Date.now();
-      if (r && r.n && r.n.el.isConnected) {
-        r.n.msgEl.textContent = msg;
-        if (r.n.isProgress !== isProgress || r.n.el.classList.contains("bz-notice--" + type) === false) {
-          applyTypeToEl(r.n, kind);
-        }
-        const mergeActions = [];
-        if (opts.action) mergeActions.push(opts.action);
-        if (opts.actions) mergeActions.push(...opts.actions);
-        armTimer(r.n, kind, opts.duration, msg);
-        const merged = makeHandle(r.n);
-        if (mergeActions.length) merged.setAction(mergeActions);
-        return merged;
-      }
-      if (r && now - r.at < DEDUPE_WINDOW_MS) {
-        return noopHandle();
-      }
-      recent[key] = { at: now, n: null };
-    }
-    evictOldest();
-    const el2 = document.createElement("div");
-    el2.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
-    el2.setAttribute("role", "status");
-    el2.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
-    const icon = document.createElement("div");
-    icon.className = "bz-notice-icon";
-    if (isProgress) {
-      icon.innerHTML = SPINNER_SVG;
-    } else {
-      icon.textContent = ICONS[type];
-    }
-    el2.appendChild(icon);
-    const body = document.createElement("div");
-    body.className = "bz-notice-body";
-    if (opts && opts.title) {
-      const titleEl = document.createElement("div");
-      titleEl.className = "bz-notice-title";
-      titleEl.textContent = opts.title;
-      body.appendChild(titleEl);
-    }
-    const msgEl = document.createElement("div");
-    msgEl.className = "bz-notice-msg";
-    msgEl.textContent = msg;
-    body.appendChild(msgEl);
-    el2.appendChild(body);
-    let progressEl = null;
-    if (isProgress) {
-      progressEl = document.createElement("div");
-      progressEl.className = "bz-notice-progress";
-      el2.appendChild(progressEl);
-    }
-    const n = { el: el2, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
-    const actions = [];
-    if (opts && opts.action) actions.push(opts.action);
-    if (opts && opts.actions) {
-      for (const a of opts.actions) {
-        if (!actions.some((x) => x.label === a.label)) actions.push(a);
-      }
-    }
-    for (const a of actions) appendActionBtn(n, a);
-    el2.addEventListener("click", () => hideNow(n));
-    container.style.zIndex = String(allocZ());
-    container.appendChild(el2);
-    live.push(n);
-    if (opts && opts.dedupeKey) {
-      const r = recent[opts.dedupeKey];
-      if (r) r.n = n;
-    }
-    const fullText = (opts && opts.title ? opts.title + " " : "") + msg;
-    armTimer(n, kind, opts && opts.duration, fullText);
-    return makeHandle(n);
-  }
-
-  // src/core/dom.ts
-  function longPress(el2, cb, dur, filter) {
-    if (!dur) dur = 500;
-    let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
-    let suppressClick = false;
-    const M = 10;
-    function start(e) {
-      if (filter && !filter(e)) return;
-      if (e.button !== void 0 && e.button !== 0) return;
-      fired = false;
-      moved = false;
-      if (e.touches && e.touches.length) {
-        const t = e.touches[0];
-        sx = t.clientX;
-        sy = t.clientY;
-        touching = true;
-      }
-      timer = setTimeout(function() {
-        timer = null;
-        fired = true;
-        cb(e);
-      }, dur);
-    }
-    function cancel() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-    }
-    function move(e) {
-      if (!timer || !touching || !e.touches || !e.touches.length) return;
-      const t = e.touches[0];
-      if (Math.abs(t.clientX - sx) > M || Math.abs(t.clientY - sy) > M) {
-        moved = true;
-        cancel();
-      }
-    }
-    function endFromTouch() {
-      if (fired) suppressClick = true;
-      touching = false;
-      cancel();
-    }
-    function endFromMouse() {
-      touching = false;
-      cancel();
-    }
-    function onClick(e) {
-      if (suppressClick) {
-        suppressClick = false;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-      }
-    }
-    el2.addEventListener("mousedown", start);
-    el2.addEventListener("mouseup", endFromMouse);
-    el2.addEventListener("mouseleave", endFromMouse);
-    el2.addEventListener("touchstart", start, { passive: true });
-    el2.addEventListener("touchend", endFromTouch);
-    el2.addEventListener("touchmove", move, { passive: true });
-    el2.addEventListener("touchcancel", endFromTouch);
-    el2.addEventListener("click", onClick, true);
-  }
-
-  // src/core/esc-manager.ts
-  var escManager = (() => {
-    const layers = [];
-    let disabled = false;
-    const onKeydown = (e) => {
-      if (disabled) return;
-      if (e.key !== "Escape") return;
-      for (let i = layers.length - 1; i >= 0; i--) {
-        const L = layers[i];
-        try {
-          if (L.isVisible()) {
-            L.close();
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return;
-          }
-        } catch (err) {
-          layers.splice(i, 1);
-        }
-      }
-    };
-    if (typeof document !== "undefined") {
-      document.addEventListener("keydown", onKeydown);
-    }
-    return {
-      register(id, layer) {
-        for (let i = layers.length - 1; i >= 0; i--) {
-          if (layers[i].id === id && !layers[i].isVisible()) layers.splice(i, 1);
-        }
-        const rec = Object.assign({ id }, layer);
-        layers.push(rec);
-        return {
-          unregister: () => {
-            const i = layers.indexOf(rec);
-            if (i !== -1) layers.splice(i, 1);
-          }
-        };
-      },
-      /** 插件卸载时软关（N1）：只置 disabled 旗标——不摘 document 监听（模块 IIFE
-       *  常驻单例，Obsidian 禁用→再启用不重新求值，摘了就全站 ESC 永久失效）、
-       *  不清 layers（重启用后旧层由 isVisible 判活自愈）。恢复走 arm()。 */
-      destroy() {
-        disabled = true;
-      },
-      /** 插件（重）启用时恢复 ESC 处理（main.ts onload 调用；幂等） */
-      arm() {
-        disabled = false;
-      }
-    };
-  })();
-
-  // src/core/path-picker.ts
-  var systemPickerImpl = null;
-  function setSystemFolderPicker(fn) {
-    systemPickerImpl = fn;
-  }
-  function requireNode(moduleName) {
-    var _a;
-    try {
-      const w = window;
-      return w.require ? (_a = w.require(moduleName)) != null ? _a : null : null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function normalizeSystemPath(p) {
-    const s = String(p != null ? p : "").trim().replace(/\\/g, "/");
-    return s.length > 1 ? s.replace(/\/+$/, "") : s;
-  }
-  function parentDirOf(filePath) {
-    const s = String(filePath).replace(/\\/g, "/");
-    const i = s.lastIndexOf("/");
-    return i <= 0 ? s : s.slice(0, i);
-  }
-  function fileDiskPath(f) {
-    var _a, _b;
-    const legacy = f.path;
-    if (typeof legacy === "string" && legacy) return legacy;
-    const webUtils = (_a = requireNode("electron")) == null ? void 0 : _a.webUtils;
-    if (webUtils == null ? void 0 : webUtils.getPathForFile) {
-      try {
-        return String((_b = webUtils.getPathForFile(f)) != null ? _b : "");
-      } catch (e) {
-      }
-    }
-    return "";
-  }
-  function pickDirViaInput() {
-    return new Promise((resolve) => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.setAttribute("webkitdirectory", "");
-      input.setAttribute("directory", "");
-      input.style.display = "none";
-      document.body.appendChild(input);
-      let settled = false;
-      const finish = (v) => {
-        if (settled) return;
-        settled = true;
-        window.removeEventListener("focus", onFocus);
-        input.remove();
-        resolve(v);
-      };
-      const onFocus = () => {
-        window.setTimeout(() => {
-          var _a;
-          const f = (_a = input.files) == null ? void 0 : _a[0];
-          if (!f) finish(null);
-        }, 200);
-      };
-      input.addEventListener("change", () => {
-        var _a;
-        const f = (_a = input.files) == null ? void 0 : _a[0];
-        const p = f ? fileDiskPath(f) : "";
-        finish(p ? parentDirOf(p) : null);
-      });
-      window.addEventListener("focus", onFocus);
-      input.click();
-    });
-  }
-  async function nativePickSystemFolder() {
-    var _a, _b, _c, _d;
-    const remote = (_c = (_b = requireNode("@electron/remote")) != null ? _b : (_a = requireNode("electron")) == null ? void 0 : _a.remote) != null ? _c : null;
-    const dialog = remote == null ? void 0 : remote.dialog;
-    if (dialog == null ? void 0 : dialog.showOpenDialog) {
-      const res = await dialog.showOpenDialog({
-        title: "选择文件夹",
-        properties: ["openDirectory", "dontAddToRecent"]
-      });
-      const picked = (_d = res == null ? void 0 : res.filePaths) == null ? void 0 : _d[0];
-      if (picked && !(res == null ? void 0 : res.canceled)) return normalizeSystemPath(picked);
-      return null;
-    }
-    return pickDirViaInput();
-  }
-  async function pickSystemFolder() {
-    try {
-      const pick = systemPickerImpl != null ? systemPickerImpl : nativePickSystemFolder;
-      const dir = await pick();
-      return dir ? normalizeSystemPath(dir) : null;
-    } catch (e) {
-      notifyActionError(e, "选择文件夹");
-      return null;
-    }
-  }
-  async function pickSystemFiles(title, filters) {
-    var _a, _b, _c, _d;
-    const remote = (_c = (_b = requireNode("@electron/remote")) != null ? _b : (_a = requireNode("electron")) == null ? void 0 : _a.remote) != null ? _c : null;
-    const dialog = remote == null ? void 0 : remote.dialog;
-    if (!(dialog == null ? void 0 : dialog.showOpenDialog)) return [];
-    try {
-      const res = await dialog.showOpenDialog({
-        title,
-        properties: ["openFile", "multiSelections", "dontAddToRecent"],
-        // Electron 认 extensions 字段（PickFilesFilter.ext 是域侧叫法，这里做一次映射）
-        filters: filters.map((f) => ({ name: f.name, extensions: f.ext }))
-      });
-      if (res == null ? void 0 : res.canceled) return [];
-      return ((_d = res == null ? void 0 : res.filePaths) != null ? _d : []).map((p) => normalizeSystemPath(p)).filter(Boolean);
-    } catch (e) {
-      notifyActionError(e, "选择文件");
-      return [];
-    }
-  }
-
-  // src/core/mobile.ts
-  function isMobileEnv() {
-    return typeof Platform !== "undefined" && !!Platform.isMobile;
-  }
-
-  // src/core/ui/focus-trap.ts
-  var FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-  function isHidden(el2) {
-    let cur = el2;
-    while (cur && cur !== document.body) {
-      if (cur.classList.contains("bz-setting-hidden")) return true;
-      if (cur.style.display === "none") return true;
-      cur = cur.parentElement;
-    }
-    return false;
-  }
-  function firstFocusable(container) {
-    const list = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el2) => {
-      if (isHidden(el2)) return false;
-      if (isMobileEnv()) {
-        const tag = el2.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return false;
-      }
-      return true;
-    });
-    return list[0] || null;
-  }
-  function trapFocus(container) {
-    const onKeydown = (e) => {
-      if (e.key !== "Tab") return;
-      const items = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
-        (el2) => !isHidden(el2) && !el2.hasAttribute("disabled")
-      );
-      if (!items.length) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-      const inside = active instanceof Node && active !== container && container.contains(active);
-      if (e.shiftKey) {
-        if (active === first || !inside) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else if (active === last || !inside) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    container.addEventListener("keydown", onKeydown);
-    return () => container.removeEventListener("keydown", onKeydown);
-  }
-  var PANEL_FOCUS_CLASS = "bz-panel-focushost";
-  function trapPanelFocus(panel) {
-    panel.classList.add(PANEL_FOCUS_CLASS);
-    if (!panel.hasAttribute("tabindex")) panel.setAttribute("tabindex", "-1");
-    const release = trapFocus(panel);
-    panel.focus({ preventScroll: true });
-    return release;
-  }
-
-  // src/core/ui/icon.ts
-  function uiIcon(name, extraClass = "") {
-    const i = document.createElement("span");
-    i.className = "bz-ic" + (extraClass ? " " + extraClass : "");
-    setIcon(i, name);
-    return i;
-  }
-
-  // src/core/ui/button.ts
-  function uiBtn(opts) {
-    const b = document.createElement("button");
-    b.type = "button";
-    const cls = ["bz-btn"];
-    if (opts.tone && opts.tone !== "default") cls.push(`bz-btn--${opts.tone}`);
-    if (opts.size && opts.size !== "md") cls.push(`bz-btn--${opts.size}`);
-    if (opts.chip) cls.push("bz-btn--chip");
-    if (opts.on) cls.push("is-on");
-    if (opts.className) cls.push(opts.className);
-    b.className = cls.join(" ");
-    if (opts.title) b.title = opts.title;
-    if (opts.disabled) b.disabled = true;
-    if (opts.icon) {
-      if (opts.chip) {
-        const chip = document.createElement("span");
-        chip.className = "bz-btn-chip";
-        chip.appendChild(uiIcon(opts.icon));
-        b.appendChild(chip);
-      } else {
-        b.appendChild(uiIcon(opts.icon));
-      }
-    }
-    if (opts.label) {
-      const span = document.createElement("span");
-      span.textContent = opts.label;
-      b.appendChild(span);
-    }
-    if (opts.onClick) b.addEventListener("click", opts.onClick);
-    return b;
-  }
-  function uiIconBtn(opts) {
-    const b = document.createElement("button");
-    b.type = "button";
-    const cls = ["bz-icon-btn"];
-    if (opts.on) cls.push("bz-icon-btn--on");
-    if (opts.lg) cls.push("bz-icon-btn--lg");
-    if (opts.xs) cls.push("bz-icon-btn--xs");
-    if (opts.close) cls.push("bz-icon-btn--close");
-    if (opts.className) cls.push(opts.className);
-    b.className = cls.join(" ");
-    if (opts.title) b.title = opts.title;
-    if (opts.disabled) b.disabled = true;
-    if (opts.danger) b.setAttribute("data-danger", "");
-    b.appendChild(uiIcon(opts.icon));
-    if (opts.onClick) b.addEventListener("click", opts.onClick);
-    return b;
-  }
-  function uiBtnRow(buttons, opts) {
-    const row = document.createElement("div");
-    const cls = ["bz-btn-row"];
-    if (opts == null ? void 0 : opts.center) cls.push("bz-btn-row--center");
-    if (opts == null ? void 0 : opts.grow) cls.push("bz-btn-row--grow");
-    row.className = cls.join(" ");
-    buttons.forEach((x) => row.appendChild(x));
-    return row;
-  }
-  function uiDialogActions(opts) {
-    const cancel = uiBtn({ label: opts.cancelText || "取消", onClick: opts.onCancel });
-    const ok = uiBtn({ label: opts.okText, tone: opts.okTone || "primary", onClick: opts.onOk });
-    const row = uiBtnRow([cancel, ok]);
-    return { row, cancelBtn: cancel, okBtn: ok };
-  }
-
-  // src/core/ui/chip.ts
-  function uiChip(opts) {
-    const c = document.createElement("button");
-    c.type = "button";
-    const cls = ["bz-chip"];
-    const pressed = opts.selected !== void 0 ? !!opts.selected : opts.selectedSoft !== void 0 ? !!opts.selectedSoft : null;
-    if (opts.selected) cls.push("bz-chip--on");
-    else if (opts.selectedSoft) cls.push("bz-chip--sel");
-    if (opts.locked) cls.push("bz-chip--locked");
-    c.className = cls.join(" ");
-    if (pressed !== null) c.setAttribute("aria-pressed", String(pressed));
-    if (opts.title) c.title = opts.title;
-    if (opts.disabled) c.disabled = true;
-    if (opts.icon) c.appendChild(uiIcon(opts.icon));
-    const label = document.createElement("span");
-    label.textContent = opts.label;
-    c.appendChild(label);
-    if (typeof opts.count === "number") {
-      const cnt = document.createElement("span");
-      cnt.className = "bz-chip-cnt";
-      cnt.textContent = String(opts.count);
-      c.appendChild(cnt);
-    }
-    if (opts.removable && !opts.locked) {
-      const x = document.createElement("span");
-      x.className = "bz-chip-x";
-      x.setAttribute("role", "button");
-      x.setAttribute("aria-label", `移除 ${opts.label}`);
-      x.tabIndex = 0;
-      x.appendChild(uiIcon("x"));
-      x.addEventListener("click", (e) => {
-        var _a;
-        e.stopPropagation();
-        (_a = opts.onRemove) == null ? void 0 : _a.call(opts);
-      });
-      x.addEventListener("keydown", (e) => {
-        var _a;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          e.stopPropagation();
-          (_a = opts.onRemove) == null ? void 0 : _a.call(opts);
-        }
-      });
-      c.appendChild(x);
-    }
-    if (opts.onClick) c.addEventListener("click", () => {
-      var _a;
-      return (_a = opts.onClick) == null ? void 0 : _a.call(opts);
-    });
-    return c;
-  }
-
-  // src/core/ui/field.ts
-  function uiInput(opts) {
-    const inp = document.createElement("input");
-    inp.className = "bz-input" + (opts.error ? " bz-input--error" : "");
-    inp.type = opts.type || "text";
-    if (opts.placeholder) inp.placeholder = opts.placeholder;
-    if (opts.value !== void 0) inp.value = opts.value;
-    if (opts.disabled) inp.disabled = true;
-    if (opts.onInput) inp.addEventListener("input", () => {
-      var _a;
-      return (_a = opts.onInput) == null ? void 0 : _a.call(opts, inp.value);
-    });
-    return inp;
-  }
-  function isLabelable(ctrl) {
-    const tag = ctrl.tagName;
-    if (tag === "BUTTON" || tag === "SELECT" || tag === "TEXTAREA") return true;
-    if (tag === "INPUT") return ctrl.type !== "hidden";
-    return false;
-  }
-  function uiField(opts) {
-    const wrap = isLabelable(opts.control) ? document.createElement("label") : document.createElement("div");
-    wrap.className = "bz-field";
-    if (opts.label) {
-      const l = document.createElement("span");
-      l.className = "bz-field-label";
-      l.textContent = opts.label;
-      wrap.appendChild(l);
-    }
-    wrap.appendChild(opts.control);
-    if (opts.error) {
-      if (opts.control.classList.contains("bz-input")) opts.control.classList.add("bz-input--error");
-      const e = document.createElement("span");
-      e.className = "bz-field-error";
-      e.textContent = opts.error;
-      wrap.appendChild(e);
-    } else if (opts.desc) {
-      const d = document.createElement("span");
-      d.className = "bz-field-desc";
-      d.textContent = opts.desc;
-      wrap.appendChild(d);
-    }
-    return wrap;
-  }
-
-  // src/core/ui/empty.ts
-  function uiEmpty(opts) {
-    const el2 = document.createElement("div");
-    el2.className = "bz-empty";
-    if (opts.icon) {
-      const ic = uiIcon(opts.icon);
-      ic.classList.add("bz-empty-ic");
-      el2.appendChild(ic);
-    }
-    const t = document.createElement("div");
-    t.className = "bz-empty-title";
-    t.textContent = opts.title;
-    el2.appendChild(t);
-    if (opts.desc) {
-      const d = document.createElement("div");
-      d.className = "bz-empty-desc";
-      d.textContent = opts.desc;
-      el2.appendChild(d);
-    }
-    if (opts.actions) el2.appendChild(opts.actions);
-    return el2;
-  }
-
-  // src/core/ui/choice.ts
-  function uiChoice(opts) {
-    const el2 = document.createElement("div");
-    el2.className = "bz-choice" + (opts.float ? " bz-choice--float" : "") + (opts.className ? " " + opts.className : "");
-    el2.setAttribute("role", "radiogroup");
-    el2.setAttribute("aria-label", opts.label || "");
-    const btns = /* @__PURE__ */ new Map();
-    let cur = opts.value;
-    const seg = document.createElement("span");
-    seg.className = "bz-choice-seg";
-    let segRAF = 0;
-    let segTries = 0;
-    const syncSeg = (animate) => {
-      if (!opts.float) return;
-      const on = el2.querySelector(".bz-choice-btn.is-on");
-      if (!on) return;
-      const tb = el2.getBoundingClientRect();
-      const bb = on.getBoundingClientRect();
-      if (!el2.isConnected || !tb.width || !bb.width) {
-        if (segTries++ > 120) return;
-        cancelAnimationFrame(segRAF);
-        segRAF = requestAnimationFrame(() => syncSeg(false));
-        return;
-      }
-      segTries = 0;
-      if (!animate) seg.style.transition = "none";
-      seg.style.width = `${bb.width}px`;
-      seg.style.transform = `translateX(${bb.left - tb.left}px)`;
-      if (!animate) {
-        void seg.offsetWidth;
-        seg.style.transition = "";
-      }
-    };
-    const onWinResize = () => {
-      if (!el2.isConnected) {
-        window.removeEventListener("resize", onWinResize);
-        return;
-      }
-      syncSeg(false);
-    };
-    if (opts.float) {
-      window.addEventListener("resize", onWinResize);
-    }
-    opts.options.forEach((o) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "bz-choice-btn" + (o.value === opts.value ? " is-on" : "");
-      b.dataset.value = String(o.value);
-      b.setAttribute("role", "radio");
-      b.setAttribute("aria-checked", String(o.value === opts.value));
-      if (o.dot) {
-        const d = document.createElement("span");
-        d.className = "bz-choice-dot";
-        d.style.background = o.dot;
-        b.appendChild(d);
-      }
-      b.appendChild(document.createTextNode(o.label));
-      b.addEventListener("click", () => {
-        setValue(o.value);
-        opts.onChange(o.value);
-      });
-      b.addEventListener("keydown", (e) => {
-        var _a;
-        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
-        e.preventDefault();
-        const vals = opts.options.map((x) => x.value);
-        const curIdx = vals.indexOf(cur);
-        const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
-        const nextIdx = (curIdx + delta + vals.length) % vals.length;
-        setValue(vals[nextIdx]);
-        opts.onChange(vals[nextIdx]);
-        (_a = btns.get(vals[nextIdx])) == null ? void 0 : _a.focus();
-      });
-      btns.set(o.value, b);
-      el2.appendChild(b);
-    });
-    if (opts.float) el2.appendChild(seg);
-    function setValue(v) {
-      cur = v;
-      btns.forEach((b, k) => {
-        const on = k === v;
-        b.classList.toggle("is-on", on);
-        b.setAttribute("aria-checked", String(on));
-      });
-      if (opts.float) syncSeg(true);
-    }
-    syncSeg(false);
-    const detach = () => {
-      cancelAnimationFrame(segRAF);
-      window.removeEventListener("resize", onWinResize);
-    };
-    return { el: el2, setValue, detach };
-  }
-
-  // src/core/ui/switch.ts
-  function uiSwitch(opts) {
-    const el2 = document.createElement("span");
-    el2.className = "bz-sw" + (opts.checked ? " on" : "") + (opts.disabled ? " is-disabled" : "");
-    el2.setAttribute("role", "switch");
-    el2.setAttribute("aria-checked", String(!!opts.checked));
-    el2.setAttribute("aria-disabled", String(!!opts.disabled));
-    el2.tabIndex = opts.disabled ? -1 : 0;
-    const setChecked = (v) => {
-      el2.classList.toggle("on", v);
-      el2.setAttribute("aria-checked", String(v));
-    };
-    const setDisabled = (v) => {
-      el2.classList.toggle("is-disabled", v);
-      el2.setAttribute("aria-disabled", String(v));
-      el2.tabIndex = v ? -1 : 0;
-    };
-    const enabled = () => !el2.classList.contains("is-disabled");
-    const toggle = () => {
-      var _a;
-      if (!enabled()) return;
-      const next = !el2.classList.contains("on");
-      setChecked(next);
-      (_a = opts.onChange) == null ? void 0 : _a.call(opts, next);
-    };
-    el2.addEventListener("click", toggle);
-    el2.addEventListener("keydown", (e) => {
-      if (e.key === " " || e.key === "Enter") {
-        e.preventDefault();
-        toggle();
-      }
-    });
-    return { el: el2, setChecked, setDisabled };
-  }
-
-  // src/core/ui/select.ts
-  function uiSelect(opts) {
-    const el2 = document.createElement("div");
-    el2.className = "bz-select" + (opts.className ? " " + opts.className : "");
-    el2.setAttribute("role", "listbox");
-    el2.setAttribute("aria-expanded", "false");
-    el2.tabIndex = 0;
-    const val = document.createElement("span");
-    val.className = "bz-select-val";
-    el2.appendChild(val);
-    el2.appendChild(uiIcon("chevron-down", "bz-select-car"));
-    let current = opts.value;
-    let menu = null;
-    let escHandle2 = null;
-    const labelOf = (v) => {
-      const o = opts.options.find((x) => x.value === v);
-      return o ? o.label : "";
-    };
-    const renderVal = () => {
-      val.textContent = labelOf(current) || opts.placeholder || "";
-    };
-    renderVal();
-    const close = (notify2 = true) => {
-      var _a;
-      if (menu) {
-        menu.remove();
-        menu = null;
-      }
-      if (escHandle2) {
-        escHandle2.unregister();
-        escHandle2 = null;
-      }
-      el2.classList.remove("open");
-      el2.setAttribute("aria-expanded", "false");
-      if (notify2) (_a = opts.onOpenChange) == null ? void 0 : _a.call(opts, false);
-    };
-    const open = () => {
-      var _a;
-      close(false);
-      el2.classList.add("open");
-      el2.setAttribute("aria-expanded", "true");
-      (_a = opts.onOpenChange) == null ? void 0 : _a.call(opts, true);
-      const m = document.createElement("div");
-      m.className = "bz-select-menu";
-      m.setAttribute("role", "listbox");
-      menu = m;
-      opts.options.forEach((o, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "bz-select-item" + (o.value === current ? " is-on" : "");
-        b.setAttribute("role", "option");
-        b.setAttribute("aria-selected", String(o.value === current));
-        b.dataset.index = String(i);
-        const span = document.createElement("span");
-        span.textContent = o.label;
-        b.appendChild(span);
-        b.appendChild(uiIcon("check", "bz-select-item-ck"));
-        b.addEventListener("click", (ev) => {
-          ev.stopPropagation();
-          setValue(o.value);
-          opts.onChange(o.value);
-          close();
-        });
-        m.appendChild(b);
-      });
-      el2.appendChild(m);
-      for (let round = 0; round < 3; round++) {
-        let delta = 0;
-        m.querySelectorAll(".bz-select-item > span").forEach((sp) => {
-          delta = Math.max(delta, sp.scrollWidth - sp.clientWidth);
-        });
-        if (delta <= 0) break;
-        const cs = getComputedStyle(m);
-        const border = (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.borderRightWidth) || 0);
-        m.style.minWidth = `${m.clientWidth + delta - border}px`;
-      }
-      const vw = window.innerWidth || document.documentElement.clientWidth;
-      const rect = m.getBoundingClientRect();
-      const over = Math.ceil(rect.right - vw) + 2;
-      if (over > 0) {
-        m.style.right = `${over}px`;
-        if (m.getBoundingClientRect().left < 2) m.style.right = "";
-      }
-      const vh = window.innerHeight || document.documentElement.clientHeight;
-      const mRect = m.getBoundingClientRect();
-      const need = mRect.height || m.offsetHeight;
-      const spaceBelow = vh - mRect.bottom;
-      if (need > 0 && spaceBelow < need && spaceBelow < mRect.top) {
-        m.classList.add("is-flip-up");
-      }
-      escHandle2 = escManager.register("bz-ui-select", {
-        isVisible: () => !!menu && menu.isConnected,
-        close: () => close()
-      });
-    };
-    const setValue = (v) => {
-      current = v;
-      renderVal();
-      if (menu) {
-        opts.options.forEach((o, i) => {
-          const item = menu == null ? void 0 : menu.querySelectorAll(".bz-select-item")[i];
-          if (!item) return;
-          const on = o.value === v;
-          item.classList.toggle("is-on", on);
-          item.setAttribute("aria-selected", String(on));
-        });
-      }
-    };
-    const moveFocus = (delta) => {
-      if (!menu) return;
-      const curIdx = opts.options.findIndex((o) => o.value === current);
-      const nextIdx = Math.min(opts.options.length - 1, Math.max(0, (curIdx < 0 ? 0 : curIdx) + delta));
-      opts.options.forEach((o, i) => {
-        const item = menu == null ? void 0 : menu.querySelectorAll(".bz-select-item")[i];
-        if (!item) return;
-        const on = i === nextIdx;
-        item.classList.toggle("is-on", on);
-        item.setAttribute("aria-selected", String(on));
-      });
-    };
-    el2.addEventListener("click", () => {
-      if (menu) close();
-      else open();
-    });
-    el2.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        if (menu) {
-          const on = menu == null ? void 0 : menu.querySelector(".bz-select-item.is-on");
-          if (on && on !== el2) {
-            const v = opts.options[Number(on.dataset.index)];
-            if (v) {
-              setValue(v.value);
-              opts.onChange(v.value);
-            }
-          }
-          close();
-        } else open();
-      } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault();
-        if (!menu) open();
-        moveFocus(e.key === "ArrowDown" ? 1 : -1);
-      } else if (e.key === "Escape") {
-        e.stopPropagation();
-        close();
-      }
-    });
-    const onDocClick = (e) => {
-      if (menu && !el2.contains(e.target)) close();
-    };
-    document.addEventListener("click", onDocClick);
-    return {
-      el: el2,
-      setValue,
-      detach: () => {
-        document.removeEventListener("click", onDocClick);
-        close(false);
-      }
-    };
-  }
-
-  // src/core/ui/search.ts
-  function uiSearch(opts) {
-    const el2 = document.createElement("div");
-    el2.className = "bz-search";
-    el2.appendChild(uiIcon("search"));
-    const input = uiInput({
-      placeholder: opts.placeholder,
-      value: opts.value,
-      onInput: opts.onInput
-    });
-    el2.appendChild(input);
-    let clearBtn = null;
-    if (opts.clearable !== false) {
-      clearBtn = document.createElement("button");
-      clearBtn.type = "button";
-      clearBtn.className = "bz-search-clear";
-      clearBtn.title = "清除搜索";
-      clearBtn.setAttribute("aria-label", "清除搜索");
-      clearBtn.hidden = !input.value.trim();
-      clearBtn.appendChild(uiIcon("x"));
-      clearBtn.addEventListener("click", () => {
-        input.value = "";
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.focus();
-      });
-      input.addEventListener("input", () => {
-        if (clearBtn) clearBtn.hidden = !input.value.trim();
-      });
-      el2.appendChild(clearBtn);
-    }
-    const syncClear = () => {
-      if (clearBtn) clearBtn.hidden = !input.value.trim();
-    };
-    const setValue = (v) => {
-      input.value = v;
-      syncClear();
-    };
-    return { el: el2, input, setValue, syncClear };
-  }
-
-  // src/core/ui/progress.ts
-  function uiProgress(opts = {}) {
-    const el2 = document.createElement("div");
-    const cls = ["bz-progress"];
-    if (opts.thin) cls.push("bz-progress--thin");
-    if (opts.tone) cls.push(`bz-progress--${opts.tone}`);
-    el2.className = cls.join(" ");
-    const fill = document.createElement("i");
-    el2.appendChild(fill);
-    const setValue = (n) => {
-      const v = Math.min(100, Math.max(0, Number(n) || 0));
-      fill.style.width = v + "%";
-    };
-    if (opts.value !== void 0) setValue(opts.value);
-    return { el: el2, setValue };
-  }
-
-  // src/core/ui/modal.ts
-  function bindFormSubmit(popup, onSubmit) {
-    popup.addEventListener("keydown", (e) => {
-      if (e.defaultPrevented || e.isComposing) return;
-      if (e.key !== "Enter") return;
-      if (!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault();
-      onSubmit();
-    });
-    popup.addEventListener("keypress", (e) => {
-      if (e.defaultPrevented) return;
-      if (e.key !== "Enter" || e.ctrlKey || e.metaKey) return;
-      const t = e.target;
-      if (!(t instanceof HTMLInputElement)) return;
-      if (t.dataset.bzNoFormSubmit !== void 0) return;
-      e.preventDefault();
-      onSubmit();
-    });
-  }
-  var liveModals = /* @__PURE__ */ new Set();
-  function uiModal(opts) {
-    var _a;
-    const prevActive = document.activeElement;
-    const focusEnabled = opts.autofocus !== false;
-    const mask = document.createElement("div");
-    mask.className = "bz-overlay-mask";
-    mask.style.zIndex = String(allocZ());
-    const popup = document.createElement("div");
-    popup.className = "bz-overlay-popup" + (opts.className ? " " + opts.className : "");
-    if (opts.maxWidth) popup.style.maxWidth = `min(${opts.maxWidth}px, calc(100vw - 32px))`;
-    popup.setAttribute("role", "dialog");
-    popup.setAttribute("aria-modal", "true");
-    if (opts.title) popup.setAttribute("aria-label", opts.title);
-    if (opts.head) {
-      const head = document.createElement("div");
-      head.className = "bz-dialog-head";
-      const title = document.createElement("span");
-      title.className = "bz-dialog-title";
-      title.textContent = opts.title || "";
-      head.appendChild(title);
-      popup.appendChild(head);
-    }
-    const body = document.createElement("div");
-    body.className = "bz-dialog-body";
-    if (typeof opts.content === "string") body.innerHTML = opts.content;
-    else body.appendChild(opts.content);
-    popup.appendChild(body);
-    mask.appendChild(popup);
-    let closed = false;
-    let escHandle2 = null;
-    const releaseTrap = focusEnabled ? trapFocus(popup) : null;
-    function close() {
-      var _a2;
-      if (closed) return;
-      closed = true;
-      liveModals.delete(close);
-      releaseTrap == null ? void 0 : releaseTrap();
-      mask.remove();
-      escHandle2 == null ? void 0 : escHandle2.unregister();
-      if (focusEnabled && prevActive instanceof HTMLElement && prevActive.isConnected) {
-        prevActive.focus();
-      }
-      (_a2 = opts.onClose) == null ? void 0 : _a2.call(opts);
-    }
-    const attemptClose = () => {
-      if (opts.requestClose) opts.requestClose();
-      else close();
-    };
-    mask.addEventListener("click", (e) => {
-      if (e.target === mask) attemptClose();
-    });
-    escHandle2 = escManager.register("bz-modal", {
-      isVisible: () => mask.isConnected,
-      close: attemptClose
-    });
-    document.body.appendChild(mask);
-    if (focusEnabled) (_a = firstFocusable(popup)) == null ? void 0 : _a.focus();
-    liveModals.add(close);
-    return { mask, popup, close };
-  }
-
-  // src/core/utils.ts
-  var import_moment = __toESM(require_moment());
 
   // src/core/ui/str.ts
   function pad2(n) {
@@ -5431,6 +5687,10 @@ var BZW_dock = (() => {
     if (diff < 7 * day) return Math.floor(diff / day) + " 天前";
     return `${d.getMonth() + 1}-${pad2(d.getDate())}`;
   }
+  var init_str = __esm({
+    "src/core/ui/str.ts"() {
+    }
+  });
 
   // src/core/utils.ts
   function escapeHtml(str3) {
@@ -5442,10 +5702,18 @@ var BZW_dock = (() => {
       return "&#39;";
     });
   }
+  var import_moment;
+  var init_utils = __esm({
+    "src/core/utils.ts"() {
+      import_moment = __toESM(require_moment());
+      init_app();
+      init_http();
+      init_str();
+      init_notice();
+    }
+  });
 
   // src/core/flow-dialog.ts
-  var FLOW_DIALOG_CANCEL_ID = "__shared_confirm_cancel__";
-  var FLOW_DIALOG_OK_ID = "__shared_confirm_ok__";
   function buildFlowDialogParts(title, message, actions) {
     var _a;
     let buttons;
@@ -5476,7 +5744,6 @@ var BZW_dock = (() => {
     }).join("") + "</div>";
     return { html, buttons, focusId: buttons[focusIdx].id, dangerPrimary };
   }
-  var activeSettle = null;
   function openFlowDialog(opts) {
     if (!opts.actions || opts.actions.length === 0) {
       return Promise.reject(new Error("openFlowDialog：actions 不能为空"));
@@ -5532,6 +5799,18 @@ var BZW_dock = (() => {
       if (focusBtn) focusBtn.focus();
     });
   }
+  var FLOW_DIALOG_CANCEL_ID, FLOW_DIALOG_OK_ID, activeSettle;
+  var init_flow_dialog = __esm({
+    "src/core/flow-dialog.ts"() {
+      init_esc_manager();
+      init_utils();
+      init_z_order();
+      init_focus_trap();
+      FLOW_DIALOG_CANCEL_ID = "__shared_confirm_cancel__";
+      FLOW_DIALOG_OK_ID = "__shared_confirm_ok__";
+      activeSettle = null;
+    }
+  });
 
   // src/core/item-actions.ts
   function renderIcon(container, iconId) {
@@ -5540,22 +5819,6 @@ var BZW_dock = (() => {
     } catch (e) {
     }
   }
-  var VIEWPORT_PAD = 8;
-  var ANCHOR_GAP = 12;
-  var ITEM_HEIGHT = 30;
-  var MENU_PADDING = 10;
-  var TOUCH_SETTLE_MS = 400;
-  var popupEl = null;
-  var sheetMask = null;
-  var sheetBodyEl = null;
-  var sheetHeadEl = null;
-  var sheetCompanions = /* @__PURE__ */ new Set();
-  var menuEsc = null;
-  var prevFocus = null;
-  var suppressNextClick = false;
-  var residualClickArmed = false;
-  var touchSettlePending = false;
-  var touchSettleTimer = null;
   function inSheetCompanion(target) {
     for (const c of sheetCompanions) {
       if (c.isConnected && c.contains(target)) return true;
@@ -5885,9 +6148,34 @@ var BZW_dock = (() => {
       opts == null ? void 0 : opts.longPressFilter
     );
   }
+  var VIEWPORT_PAD, ANCHOR_GAP, ITEM_HEIGHT, MENU_PADDING, TOUCH_SETTLE_MS, popupEl, sheetMask, sheetBodyEl, sheetHeadEl, sheetCompanions, menuEsc, prevFocus, suppressNextClick, residualClickArmed, touchSettlePending, touchSettleTimer;
+  var init_item_actions = __esm({
+    "src/core/item-actions.ts"() {
+      init_dom();
+      init_esc_manager();
+      init_z_order();
+      init_mobile();
+      init_fake_obsidian();
+      VIEWPORT_PAD = 8;
+      ANCHOR_GAP = 12;
+      ITEM_HEIGHT = 30;
+      MENU_PADDING = 10;
+      TOUCH_SETTLE_MS = 400;
+      popupEl = null;
+      sheetMask = null;
+      sheetBodyEl = null;
+      sheetHeadEl = null;
+      sheetCompanions = /* @__PURE__ */ new Set();
+      menuEsc = null;
+      prevFocus = null;
+      suppressNextClick = false;
+      residualClickArmed = false;
+      touchSettlePending = false;
+      touchSettleTimer = null;
+    }
+  });
 
   // src/core/storage.ts
-  var DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
   function normalizeStorageDir(value) {
     let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\/+$/, "");
     if (/\.json$/i.test(dir)) {
@@ -5904,7 +6192,6 @@ var BZW_dock = (() => {
     const dir = (base || storageDir()).trim().replace(/\/+$/, "");
     return `${dir}/${name}`;
   }
-  var fileTaskQueues = /* @__PURE__ */ new Map();
   function enqueueFileTask(filePath, task) {
     var _a;
     const prev = (_a = fileTaskQueues.get(filePath)) != null ? _a : Promise.resolve();
@@ -5931,9 +6218,6 @@ var BZW_dock = (() => {
       return false;
     }
   }
-  var CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
-  var CORRUPT_NOTIFY_DEDUPE_MS = 3e4;
-  var corruptNotifyAt = /* @__PURE__ */ new Map();
   function corruptStamp(d = /* @__PURE__ */ new Date()) {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
@@ -6104,11 +6388,21 @@ var BZW_dock = (() => {
       }
     };
   }
+  var DEFAULT_STORAGE_DIR, fileTaskQueues, CORRUPT_BACKUP_DIR, CORRUPT_NOTIFY_DEDUPE_MS, corruptNotifyAt;
+  var init_storage = __esm({
+    "src/core/storage.ts"() {
+      init_app();
+      init_settings_provider();
+      init_notice();
+      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+      fileTaskQueues = /* @__PURE__ */ new Map();
+      CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
+      CORRUPT_NOTIFY_DEDUPE_MS = 3e4;
+      corruptNotifyAt = /* @__PURE__ */ new Map();
+    }
+  });
 
   // src/dock/store.ts
-  var DOCK_STORE_VERSION = 1;
-  var DOCK_STORE_FILENAME = "dock.json";
-  var DOCK_TRUST_SETTINGS_KEY = "dockTrust";
   function defaults() {
     return {
       v: DOCK_STORE_VERSION,
@@ -6161,7 +6455,6 @@ var BZW_dock = (() => {
     await saveSettings();
     return true;
   }
-  var snapshot = null;
   function dockStoreSnapshot() {
     return snapshot != null ? snapshot : defaults();
   }
@@ -6194,44 +6487,20 @@ var BZW_dock = (() => {
     setDockStoreMemory(patch);
     await persistDockStore();
   }
+  var DOCK_STORE_VERSION, DOCK_STORE_FILENAME, DOCK_TRUST_SETTINGS_KEY, snapshot;
+  var init_store = __esm({
+    "src/dock/store.ts"() {
+      init_app();
+      init_storage();
+      init_settings_provider();
+      DOCK_STORE_VERSION = 1;
+      DOCK_STORE_FILENAME = "dock.json";
+      DOCK_TRUST_SETTINGS_KEY = "dockTrust";
+      snapshot = null;
+    }
+  });
 
   // src/dock/schema.ts
-  var DOCK_CONTRACT_VERSION = 1;
-  var DOCK_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
-  var DOCK_ID_MAX_LEN = 64;
-  var PARAM_TYPES = /* @__PURE__ */ new Set([
-    "text",
-    "multiline",
-    "number",
-    "bool",
-    "choice",
-    "multichoice",
-    "path",
-    "secret"
-  ]);
-  var SCHEDULE_KINDS = /* @__PURE__ */ new Set([
-    "daily",
-    "weekly",
-    "interval",
-    "on-demand",
-    "unknown"
-  ]);
-  var RUN_STATUSES = /* @__PURE__ */ new Set([
-    "ok",
-    "failed",
-    "stopped",
-    "running",
-    "timeout"
-  ]);
-  var ERROR_KINDS = /* @__PURE__ */ new Set([
-    "auth",
-    "network",
-    "config",
-    "timeout",
-    "aborted",
-    "unknown"
-  ]);
-  var DOCK_RUNS_PER_TOOL_LIMIT = 200;
   function isPlainObject2(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
   }
@@ -6508,30 +6777,49 @@ var BZW_dock = (() => {
     }
     return args;
   }
+  var DOCK_CONTRACT_VERSION, DOCK_ID_RE, DOCK_ID_MAX_LEN, PARAM_TYPES, SCHEDULE_KINDS, RUN_STATUSES, ERROR_KINDS, DOCK_RUNS_PER_TOOL_LIMIT;
+  var init_schema = __esm({
+    "src/dock/schema.ts"() {
+      DOCK_CONTRACT_VERSION = 1;
+      DOCK_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+      DOCK_ID_MAX_LEN = 64;
+      PARAM_TYPES = /* @__PURE__ */ new Set([
+        "text",
+        "multiline",
+        "number",
+        "bool",
+        "choice",
+        "multichoice",
+        "path",
+        "secret"
+      ]);
+      SCHEDULE_KINDS = /* @__PURE__ */ new Set([
+        "daily",
+        "weekly",
+        "interval",
+        "on-demand",
+        "unknown"
+      ]);
+      RUN_STATUSES = /* @__PURE__ */ new Set([
+        "ok",
+        "failed",
+        "stopped",
+        "running",
+        "timeout"
+      ]);
+      ERROR_KINDS = /* @__PURE__ */ new Set([
+        "auth",
+        "network",
+        "config",
+        "timeout",
+        "aborted",
+        "unknown"
+      ]);
+      DOCK_RUNS_PER_TOOL_LIMIT = 200;
+    }
+  });
 
   // src/dock/rules.ts
-  var TRIGGER_KINDS = [
-    "daily",
-    "interval",
-    "on-launch",
-    "panel-open",
-    "tool-ok",
-    "tool-fail",
-    "domain-event",
-    "vault-file",
-    "data-threshold"
-  ];
-  var TRIGGER_LABEL = {
-    daily: "每天某时",
-    interval: "每隔一段时间",
-    "on-launch": "启动 Obsidian 后",
-    "panel-open": "打开工具坞时",
-    "tool-ok": "某个工具成功后",
-    "tool-fail": "某个工具失败后",
-    "domain-event": "某个事件发生时",
-    "vault-file": "某个目录有变动",
-    "data-threshold": "某个数值达到条件"
-  };
   function atSecondsOf(at) {
     if (!at) return void 0;
     const m = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/.exec(at.trim());
@@ -6596,7 +6884,6 @@ var BZW_dock = (() => {
       }
     }
   }
-  var pad22 = (n) => String(n).padStart(2, "0");
   function clockText(at) {
     const sec = atSecondsOf(at);
     if (sec === void 0) return at;
@@ -6770,10 +7057,36 @@ var BZW_dock = (() => {
     }
     return any ? out : void 0;
   }
+  var TRIGGER_KINDS, TRIGGER_LABEL, pad22;
+  var init_rules = __esm({
+    "src/dock/rules.ts"() {
+      TRIGGER_KINDS = [
+        "daily",
+        "interval",
+        "on-launch",
+        "panel-open",
+        "tool-ok",
+        "tool-fail",
+        "domain-event",
+        "vault-file",
+        "data-threshold"
+      ];
+      TRIGGER_LABEL = {
+        daily: "每天某时",
+        interval: "每隔一段时间",
+        "on-launch": "启动 Obsidian 后",
+        "panel-open": "打开工具坞时",
+        "tool-ok": "某个工具成功后",
+        "tool-fail": "某个工具失败后",
+        "domain-event": "某个事件发生时",
+        "vault-file": "某个目录有变动",
+        "data-threshold": "某个数值达到条件"
+      };
+      pad22 = (n) => String(n).padStart(2, "0");
+    }
+  });
 
   // src/dock/registry.ts
-  var TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
-  var TOOL_ID_MAX_LEN = 64;
   function runSignature(run) {
     var _a;
     return [run.cmd, run.shell ? "shell" : "raw", ...(_a = run.args) != null ? _a : []].join("\0");
@@ -6815,18 +7128,17 @@ var BZW_dock = (() => {
     }
     return out;
   }
+  var TOOL_ID_RE, TOOL_ID_MAX_LEN;
+  var init_registry = __esm({
+    "src/dock/registry.ts"() {
+      init_schema();
+      init_rules();
+      TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+      TOOL_ID_MAX_LEN = 64;
+    }
+  });
 
   // src/dock/declaration.ts
-  var DECLARATION_FILENAME = "manifest.json";
-  var DECLARATION_FILENAME_LEGACY = "dock.json";
-  var SETTINGS_FILENAME = "data.json";
-  var SETTINGS_FILENAME_LEGACY = "dock.settings.json";
-  var RUNS_FILENAME = "runs.json";
-  var RUNS_FILENAME_LEGACY = "dock.runs.json";
-  var MAIN_ENTRY_FILENAME = "main.mjs";
-  var PANEL_FILENAME = "panel.html";
-  var DOCK_SETTINGS_VERSION = 1;
-  var injectedFs;
   function setDockFs(fs) {
     injectedFs = fs;
   }
@@ -6859,6 +7171,16 @@ var BZW_dock = (() => {
           try {
             fs.mkdirSync(p, { recursive: true });
           } catch (e) {
+          }
+        } : void 0,
+        readdir: typeof fs.readdirSync === "function" ? (p) => {
+          try {
+            return fs.readdirSync(p, { withFileTypes: true }).map((d) => ({
+              name: d.name,
+              dir: d.isDirectory()
+            }));
+          } catch (e) {
+            return null;
           }
         } : void 0
       };
@@ -6939,6 +7261,26 @@ var BZW_dock = (() => {
     const conventionalRun = manifest.run || !hasMainEntry(dirOf(usedPath), fs) ? void 0 : { cmd: "node", args: [MAIN_ENTRY_FILENAME] };
     return { ok: true, manifest, path: usedPath, conventionalRun };
   }
+  function findDeclarationFiles(root, fs = currentFs()) {
+    if (!(fs == null ? void 0 : fs.readdir)) return [];
+    const out = [];
+    let dirs = 0;
+    const walk = (dir, depth) => {
+      if (depth > SCAN_MAX_DEPTH || dirs++ >= SCAN_MAX_DIRS) return;
+      const entries = fs.readdir(dir);
+      if (!entries) return;
+      const files = new Set(entries.filter((e) => !e.dir).map((e) => e.name));
+      const decl = files.has(DECLARATION_FILENAME) ? DECLARATION_FILENAME : files.has(DECLARATION_FILENAME_LEGACY) ? DECLARATION_FILENAME_LEGACY : null;
+      if (decl) out.push(joinPath(dir, decl));
+      for (const e of entries) {
+        if (!e.dir) continue;
+        if (e.name.startsWith(".") || SCAN_SKIP_DIRS.has(e.name)) continue;
+        walk(joinPath(dir, e.name), depth + 1);
+      }
+    };
+    walk(root.replace(/[\\/]+$/, ""), 0);
+    return out.sort((a, b) => a.localeCompare(b));
+  }
   function isPlainObject3(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
   }
@@ -6993,9 +7335,26 @@ var BZW_dock = (() => {
     const text = fs.readText(panelPathFor(declPath));
     return text === null || text.trim() === "" ? null : text;
   }
+  var DECLARATION_FILENAME, DECLARATION_FILENAME_LEGACY, SETTINGS_FILENAME, SETTINGS_FILENAME_LEGACY, RUNS_FILENAME, RUNS_FILENAME_LEGACY, MAIN_ENTRY_FILENAME, PANEL_FILENAME, DOCK_SETTINGS_VERSION, injectedFs, SCAN_MAX_DEPTH, SCAN_MAX_DIRS, SCAN_SKIP_DIRS;
+  var init_declaration = __esm({
+    "src/dock/declaration.ts"() {
+      init_schema();
+      DECLARATION_FILENAME = "manifest.json";
+      DECLARATION_FILENAME_LEGACY = "dock.json";
+      SETTINGS_FILENAME = "data.json";
+      SETTINGS_FILENAME_LEGACY = "dock.settings.json";
+      RUNS_FILENAME = "runs.json";
+      RUNS_FILENAME_LEGACY = "dock.runs.json";
+      MAIN_ENTRY_FILENAME = "main.mjs";
+      PANEL_FILENAME = "panel.html";
+      DOCK_SETTINGS_VERSION = 1;
+      SCAN_MAX_DEPTH = 3;
+      SCAN_MAX_DIRS = 500;
+      SCAN_SKIP_DIRS = /* @__PURE__ */ new Set(["node_modules", ".git", ".obsidian"]);
+    }
+  });
 
   // src/dock/schedule.ts
-  var TERMINAL = /* @__PURE__ */ new Set(["ok", "failed", "stopped", "timeout"]);
   function triggerOf(schedule) {
     if (!schedule) return "manual";
     return schedule.kind === "on-demand" || schedule.kind === "unknown" ? "manual" : "auto";
@@ -7095,14 +7454,6 @@ var BZW_dock = (() => {
         return { state: "none", detail: "未声明节奏" };
     }
   }
-  var ERROR_KIND_LABEL = {
-    auth: "认证失效",
-    network: "网络异常",
-    config: "配置不对",
-    timeout: "超时",
-    aborted: "被中止",
-    unknown: "未知错误"
-  };
   function overviewOf(items, now = Date.now()) {
     var _a, _b, _c;
     const d = new Date(now);
@@ -7212,6 +7563,20 @@ var BZW_dock = (() => {
     const m = Math.floor(s / 60);
     return `${m} 分 ${Math.round(s - m * 60)} 秒`;
   }
+  var TERMINAL, ERROR_KIND_LABEL;
+  var init_schedule = __esm({
+    "src/dock/schedule.ts"() {
+      TERMINAL = /* @__PURE__ */ new Set(["ok", "failed", "stopped", "timeout"]);
+      ERROR_KIND_LABEL = {
+        auth: "认证失效",
+        network: "网络异常",
+        config: "配置不对",
+        timeout: "超时",
+        aborted: "被中止",
+        unknown: "未知错误"
+      };
+    }
+  });
 
   // src/dock/data.ts
   function runsPathOf(entry) {
@@ -7432,12 +7797,28 @@ var BZW_dock = (() => {
       now
     );
   }
+  var init_data = __esm({
+    "src/dock/data.ts"() {
+      init_store();
+      init_schema();
+      init_registry();
+      init_declaration();
+      init_schedule();
+      init_rules();
+      init_registry();
+    }
+  });
+
+  // src/dock/command.ts
+  var init_command = __esm({
+    "src/dock/command.ts"() {
+      init_declaration();
+      init_data();
+      init_schedule();
+    }
+  });
 
   // src/core/external-tool.ts
-  var ASK_TIMEOUT_DEFAULT_SEC = 300;
-  var ASK_TIMEOUT_MIN_SEC = 10;
-  var ASK_TIMEOUT_MAX_SEC = 600;
-  var BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
   function parseAskBody(body) {
     const id = typeof body.id === "string" ? body.id.trim() : "";
     if (!id) return null;
@@ -7501,59 +7882,6 @@ var BZW_dock = (() => {
       return null;
     }
   }
-  var MAX_LINE_BYTES = 1024 * 1024;
-  var BzLineSplitter = class {
-    constructor(maxLineBytes = MAX_LINE_BYTES) {
-      this.maxLineBytes = maxLineBytes;
-      this.parts = [];
-      this.len = 0;
-      this.overflowed = false;
-    }
-    /** 喂一段 stdout（Buffer 或 string），返回其中切出的完整行（不含行尾符） */
-    push(chunk) {
-      const buf = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
-      const lines = [];
-      let pos = 0;
-      while (pos < buf.length) {
-        const nl = buf.indexOf(10, pos);
-        if (nl === -1) {
-          this.accumulate(buf.subarray(pos));
-          break;
-        }
-        this.accumulate(buf.subarray(pos, nl));
-        lines.push(this.takeLine());
-        pos = nl + 1;
-      }
-      return lines;
-    }
-    /** 进程终结时冲刷残留半行（无残留返回 null）——无尾换行的最后一行靠这里出列 */
-    flush() {
-      return this.len > 0 || this.overflowed ? this.takeLine() : null;
-    }
-    /** 累积字节；超出单行上限后丢弃后续字节（截断语义，待换行时一并出列） */
-    accumulate(part) {
-      if (this.overflowed) return;
-      const room = this.maxLineBytes - this.len;
-      if (part.length <= room) {
-        this.parts.push(part);
-        this.len += part.length;
-      } else {
-        this.parts.push(part.subarray(0, room));
-        this.len = this.maxLineBytes;
-        this.overflowed = true;
-      }
-    }
-    /** 出列一行（overflow 时为截断行）；CRLF 的 \r 在此剥除 */
-    takeLine() {
-      const s = Buffer.concat(this.parts).toString("utf8");
-      this.parts = [];
-      this.len = 0;
-      this.overflowed = false;
-      return s.endsWith("\r") ? s.slice(0, -1) : s;
-    }
-  };
-  var STDERR_TAIL_CHARS = 2048;
-  var FORCE_KILL_GRACE_MS = 3e3;
   function defaultChildProcess() {
     if (typeof window === "undefined") return null;
     const w = window;
@@ -7730,9 +8058,70 @@ var BZW_dock = (() => {
       done
     };
   }
+  var ASK_TIMEOUT_DEFAULT_SEC, ASK_TIMEOUT_MIN_SEC, ASK_TIMEOUT_MAX_SEC, BZ_LINE_PREFIX_RE, MAX_LINE_BYTES, BzLineSplitter, STDERR_TAIL_CHARS, FORCE_KILL_GRACE_MS;
+  var init_external_tool = __esm({
+    "src/core/external-tool.ts"() {
+      ASK_TIMEOUT_DEFAULT_SEC = 300;
+      ASK_TIMEOUT_MIN_SEC = 10;
+      ASK_TIMEOUT_MAX_SEC = 600;
+      BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
+      MAX_LINE_BYTES = 1024 * 1024;
+      BzLineSplitter = class {
+        constructor(maxLineBytes = MAX_LINE_BYTES) {
+          this.maxLineBytes = maxLineBytes;
+          this.parts = [];
+          this.len = 0;
+          this.overflowed = false;
+        }
+        /** 喂一段 stdout（Buffer 或 string），返回其中切出的完整行（不含行尾符） */
+        push(chunk) {
+          const buf = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
+          const lines = [];
+          let pos = 0;
+          while (pos < buf.length) {
+            const nl = buf.indexOf(10, pos);
+            if (nl === -1) {
+              this.accumulate(buf.subarray(pos));
+              break;
+            }
+            this.accumulate(buf.subarray(pos, nl));
+            lines.push(this.takeLine());
+            pos = nl + 1;
+          }
+          return lines;
+        }
+        /** 进程终结时冲刷残留半行（无残留返回 null）——无尾换行的最后一行靠这里出列 */
+        flush() {
+          return this.len > 0 || this.overflowed ? this.takeLine() : null;
+        }
+        /** 累积字节；超出单行上限后丢弃后续字节（截断语义，待换行时一并出列） */
+        accumulate(part) {
+          if (this.overflowed) return;
+          const room = this.maxLineBytes - this.len;
+          if (part.length <= room) {
+            this.parts.push(part);
+            this.len += part.length;
+          } else {
+            this.parts.push(part.subarray(0, room));
+            this.len = this.maxLineBytes;
+            this.overflowed = true;
+          }
+        }
+        /** 出列一行（overflow 时为截断行）；CRLF 的 \r 在此剥除 */
+        takeLine() {
+          const s = Buffer.concat(this.parts).toString("utf8");
+          this.parts = [];
+          this.len = 0;
+          this.overflowed = false;
+          return s.endsWith("\r") ? s.slice(0, -1) : s;
+        }
+      };
+      STDERR_TAIL_CHARS = 2048;
+      FORCE_KILL_GRACE_MS = 3e3;
+    }
+  });
 
   // src/dock/runner.ts
-  var deps;
   function setDockRuntimeDeps(d) {
     deps = d;
   }
@@ -7761,8 +8150,6 @@ var BZW_dock = (() => {
     if (vaultPath) env.BZ_DOCK_VAULT = vaultPath.replace(/[\\/]+$/, "");
     return env;
   }
-  var live2 = /* @__PURE__ */ new Map();
-  var lastRawTails = /* @__PURE__ */ new Map();
   function lastRawTailOf(toolId) {
     return lastRawTails.get(toolId);
   }
@@ -7780,8 +8167,16 @@ var BZW_dock = (() => {
     var _a;
     (_a = live2.get(toolId)) == null ? void 0 : _a.handle.stop();
   }
+  function notifyLiveChanged() {
+    for (const fn of liveListeners) {
+      try {
+        fn();
+      } catch (e) {
+      }
+    }
+  }
   function runTool(app2, entry, launch, manifest, values, cb = {}, opts = {}) {
-    var _a;
+    var _a, _b;
     const startedAtDate = /* @__PURE__ */ new Date();
     const startedAt = startedAtDate.toISOString();
     const rawTail = [];
@@ -7831,21 +8226,21 @@ var BZW_dock = (() => {
         // 两条兜底——没人可问、或弹窗那头抛错——都落到 `false`（取消），
         // 并顺手把这件事说进步骤流：否则用户只看到工具自己认输了，不知道其实是没问着人。
         onAsk: (req) => {
-          var _a2, _b;
+          var _a2, _b2;
           const ask = cb.onAsk;
           if (typeof ask !== "function") {
             steps.push({ text: `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
             (_a2 = cb.onStep) == null ? void 0 : _a2.call(cb, `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`);
-            (_b = handle.answer) == null ? void 0 : _b.call(handle, req.id, false);
+            (_b2 = handle.answer) == null ? void 0 : _b2.call(handle, req.id, false);
             return;
           }
           void Promise.resolve().then(() => ask(req)).then((yes) => {
             var _a3;
             return (_a3 = handle.answer) == null ? void 0 : _a3.call(handle, req.id, !!yes);
           }).catch((e) => {
-            var _a3, _b2;
+            var _a3, _b3;
             steps.push({ text: `询问「${req.title}」的弹窗出了岔子（${(_a3 = e == null ? void 0 : e.message) != null ? _a3 : e}）—— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
-            (_b2 = handle.answer) == null ? void 0 : _b2.call(handle, req.id, false);
+            (_b3 = handle.answer) == null ? void 0 : _b3.call(handle, req.id, false);
           });
         }
       },
@@ -7859,6 +8254,7 @@ var BZW_dock = (() => {
       infos,
       result,
       rawTail,
+      estimatedSec: (_b = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _b.estimatedSec,
       handle,
       done: void 0
     };
@@ -7877,12 +8273,14 @@ var BZW_dock = (() => {
         durationMs: new Date(finishedAt).getTime() - startedAtDate.getTime()
       };
       live2.delete(entry.id);
+      notifyLiveChanged();
       if (rawTail.length) lastRawTails.set(entry.id, rawTail.slice(-50));
       const settled = reconcileWithRecord(outcome, entry.path);
       (_a2 = cb.onDone) == null ? void 0 : _a2.call(cb, settled, run);
       return settled;
     });
     live2.set(entry.id, run);
+    notifyLiveChanged();
     return run;
   }
   function classify(o) {
@@ -7891,7 +8289,6 @@ var BZW_dock = (() => {
     if (o.code === null) return "config";
     return "unknown";
   }
-  var RECORD_MATCH_GRACE_MS = 2e3;
   function reconcileWithRecord(outcome, declPath) {
     var _a, _b, _c;
     if (outcome.stopped) return outcome;
@@ -7973,9 +8370,21 @@ var BZW_dock = (() => {
     }
     return out;
   }
+  var deps, live2, liveListeners, lastRawTails, RECORD_MATCH_GRACE_MS;
+  var init_runner = __esm({
+    "src/dock/runner.ts"() {
+      init_notice();
+      init_external_tool();
+      init_schema();
+      init_declaration();
+      live2 = /* @__PURE__ */ new Map();
+      liveListeners = /* @__PURE__ */ new Set();
+      lastRawTails = /* @__PURE__ */ new Map();
+      RECORD_MATCH_GRACE_MS = 2e3;
+    }
+  });
 
   // src/core/domain-bus.ts
-  var channels = /* @__PURE__ */ new Map();
   function onDomainEvent(channel, handler) {
     let set = channels.get(channel);
     if (!set) {
@@ -7993,14 +8402,14 @@ var BZW_dock = (() => {
       if (cur.size === 0) channels.delete(channel);
     };
   }
+  var channels;
+  var init_domain_bus = __esm({
+    "src/core/domain-bus.ts"() {
+      channels = /* @__PURE__ */ new Map();
+    }
+  });
 
   // src/dock/watchdog.ts
-  var WATCHDOG_DIRNAME = "bz-dock-watch";
-  var WATCHDOG_LEASE_FILENAME = "lease.json";
-  var WATCHDOG_STATUS_FILENAME = "status.json";
-  var WATCHDOG_QUEUE_FILENAME = "pending.json";
-  var WATCHDOG_CONFIG_FILENAME = "config.json";
-  var WATCHDOG_CONTRACT_VERSION = 1;
   function processEnv() {
     var _a;
     try {
@@ -8086,45 +8495,6 @@ var BZW_dock = (() => {
     if (typeof raw.message === "string" && raw.message) note.message = raw.message;
     if (typeof raw.kind === "string" && raw.kind) note.kind = raw.kind;
     return note;
-  }
-  function readWatchdogStatus(opts = {}) {
-    const { fs } = depsOf(opts);
-    if (!fs) return null;
-    const raw = fs.readText(watchdogPathOf(WATCHDOG_STATUS_FILENAME, opts.env));
-    if (raw === null) return null;
-    let obj;
-    try {
-      obj = JSON.parse(raw);
-    } catch (e) {
-      return null;
-    }
-    if (!isPlainObject4(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION) return null;
-    if (typeof obj.at !== "string" || typeof obj.pid !== "number") return null;
-    const mode = obj.mode === "watch" || obj.mode === "defer" || obj.mode === "off" ? obj.mode : "off";
-    const out = {
-      v: WATCHDOG_CONTRACT_VERSION,
-      pid: obj.pid,
-      startedAt: typeof obj.startedAt === "string" ? obj.startedAt : obj.at,
-      at: obj.at,
-      mode,
-      runsSinceBoot: typeof obj.runsSinceBoot === "number" && obj.runsSinceBoot >= 0 ? obj.runsSinceBoot : 0
-    };
-    if (typeof obj.vault === "string") out.vault = obj.vault;
-    if (typeof obj.core === "string") out.core = obj.core;
-    if (typeof obj.lastError === "string" && obj.lastError) out.lastError = obj.lastError;
-    const last = parseRunNote(obj.lastRun);
-    if (last) out.lastRun = last;
-    return out;
-  }
-  function isWatchdogAlive(status, now = Date.now(), toleranceMs = 9e4) {
-    const at = Date.parse(status.at);
-    return Number.isFinite(at) && now - at <= toleranceMs;
-  }
-  function isWatchdogInstalled(opts = {}) {
-    const { fs } = depsOf(opts);
-    if (!fs) return false;
-    const path = watchdogPathOf(WATCHDOG_CONFIG_FILENAME, opts.env);
-    return fs.exists ? fs.exists(path) : fs.readText(path) !== null;
   }
   function readWatchdogQueue(opts = {}) {
     const { fs } = depsOf(opts);
@@ -8218,24 +8588,18 @@ var BZW_dock = (() => {
       rows
     };
   }
+  var WATCHDOG_DIRNAME, WATCHDOG_LEASE_FILENAME, WATCHDOG_QUEUE_FILENAME, WATCHDOG_CONTRACT_VERSION;
+  var init_watchdog = __esm({
+    "src/dock/watchdog.ts"() {
+      init_declaration();
+      WATCHDOG_DIRNAME = "bz-dock-watch";
+      WATCHDOG_LEASE_FILENAME = "lease.json";
+      WATCHDOG_QUEUE_FILENAME = "pending.json";
+      WATCHDOG_CONTRACT_VERSION = 1;
+    }
+  });
 
   // src/dock/scheduler.ts
-  var TICK_MS = 6e4;
-  var FAIL_COOLDOWN_MS = 15 * 6e4;
-  var BREAKER_THRESHOLD = 3;
-  var RUN_TIMEOUT_MS = 10 * 6e4;
-  var VAULT_CHANNELS = ["vault:md-created", "vault:md-modified", "vault:md-deleted"];
-  var app = null;
-  var isUnloaded = null;
-  var sessionStart = 0;
-  var inFlight = /* @__PURE__ */ new Set();
-  var cooldownUntil = /* @__PURE__ */ new Map();
-  var chain = Promise.resolve();
-  var warnedParams = /* @__PURE__ */ new Set();
-  var pendingEvents = [];
-  var subscriptions = /* @__PURE__ */ new Map();
-  var ticking = false;
-  var kickQueued = false;
   function globalAutoOn() {
     return readDockSwitch("autoRun");
   }
@@ -8306,8 +8670,6 @@ var BZW_dock = (() => {
   function remindGate(v) {
     return isEnabled(v.entry) ? null : "disabled";
   }
-  var valueCache = /* @__PURE__ */ new Map();
-  var VALUE_TTL_MS = 1e4;
   async function readJsonNumber(a, path, key) {
     try {
       const raw = await a.vault.adapter.read(path);
@@ -8459,24 +8821,41 @@ var BZW_dock = (() => {
     notifyDockEvent({ kind: "tool-fail", toolId: entry.id });
     return "fail";
   }
+  var TICK_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, RUN_TIMEOUT_MS, VAULT_CHANNELS, app, isUnloaded, sessionStart, inFlight, cooldownUntil, chain, warnedParams, pendingEvents, subscriptions, ticking, kickQueued, valueCache, VALUE_TTL_MS;
+  var init_scheduler = __esm({
+    "src/dock/scheduler.ts"() {
+      init_fake_obsidian();
+      init_notice();
+      init_domain_bus();
+      init_data();
+      init_store();
+      init_schedule();
+      init_rules();
+      init_ui2();
+      init_runner();
+      init_watchdog();
+      TICK_MS = 6e4;
+      FAIL_COOLDOWN_MS = 15 * 6e4;
+      BREAKER_THRESHOLD = 3;
+      RUN_TIMEOUT_MS = 10 * 6e4;
+      VAULT_CHANNELS = ["vault:md-created", "vault:md-modified", "vault:md-deleted"];
+      app = null;
+      isUnloaded = null;
+      sessionStart = 0;
+      inFlight = /* @__PURE__ */ new Set();
+      cooldownUntil = /* @__PURE__ */ new Map();
+      chain = Promise.resolve();
+      warnedParams = /* @__PURE__ */ new Set();
+      pendingEvents = [];
+      subscriptions = /* @__PURE__ */ new Map();
+      ticking = false;
+      kickQueued = false;
+      valueCache = /* @__PURE__ */ new Map();
+      VALUE_TTL_MS = 1e4;
+    }
+  });
 
   // src/dock/ui.ts
-  var hostApp = null;
-  var overlay = null;
-  var escHandle = null;
-  var view = { kind: "list" };
-  var query = "";
-  var searchOpen = false;
-  var kpiFilter = "all";
-  var refreshing = false;
-  var views = [];
-  var draftValues = /* @__PURE__ */ new Map();
-  var valueSaveTimers = /* @__PURE__ */ new Map();
-  var VALUE_SAVE_DEBOUNCE_MS = 500;
-  var dueNotified = /* @__PURE__ */ new Set();
-  var autoDraft = /* @__PURE__ */ new Map();
-  var OVERLAY_ID = "bz-dock-mask";
-  var FRAME_ID = "bz-dock-panel";
   function el(tag, cls, text) {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -8590,6 +8969,7 @@ var BZW_dock = (() => {
   }
   function unloadDock() {
     for (const v of views) saveValuesNow(v);
+    stopLiveTick();
     hostApp = null;
     escHandle == null ? void 0 : escHandle.unregister();
     escHandle = null;
@@ -8624,15 +9004,13 @@ var BZW_dock = (() => {
     head.append(brand, title, pipe, sub, sp, btns);
     const kpi = el("div", "bz-dock-kpi");
     kpi.id = "bz-dock-kpi";
-    const watchbar = el("div", "bz-dock-watchbar");
-    watchbar.id = "bz-dock-watchbar";
     const runbar = el("div", "bz-dock-runbar");
     runbar.id = "bz-dock-runbar";
     const bar = el("div", "bz-dock-bar");
     bar.id = "bz-dock-bar";
     const body = el("div", "bz-dock-body");
     body.id = "bz-dock-body";
-    frame.append(head, kpi, watchbar, runbar, bar, body);
+    frame.append(head, kpi, runbar, bar, body);
     ov.appendChild(frame);
     ov.addEventListener("click", (e) => {
       if (e.target === ov) closeDock();
@@ -8643,10 +9021,6 @@ var BZW_dock = (() => {
   function kpiEl() {
     var _a;
     return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-kpi")) != null ? _a : null;
-  }
-  function watchbarEl() {
-    var _a;
-    return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-watchbar")) != null ? _a : null;
   }
   function runbarEl() {
     var _a;
@@ -8690,7 +9064,6 @@ var BZW_dock = (() => {
         return "unknown";
     }
   }
-  var offlineReportDone = false;
   function showOfflineReportIfAny() {
     if (offlineReportDone) return;
     offlineReportDone = true;
@@ -8772,42 +9145,10 @@ var BZW_dock = (() => {
   function render() {
     renderHead();
     renderKpi();
-    renderWatch();
     renderRunbar();
     renderBar();
     renderBody();
-  }
-  function renderWatch() {
-    const host = watchbarEl();
-    if (!host) return;
-    host.innerHTML = "";
-    if (!isWatchdogInstalled()) {
-      host.classList.add("is-off");
-      return;
-    }
-    host.classList.remove("is-off");
-    const st = readWatchdogStatus();
-    const alive = st !== null && isWatchdogAlive(st);
-    const tone = !st || !alive ? "is-down" : st.mode === "watch" ? "is-on" : st.mode === "defer" ? "is-idle" : "is-shut";
-    const text = !st || !alive ? "值守进程没在运行" : st.mode === "watch" ? "离线值守中" : st.mode === "defer" ? "值守待命（Obsidian 在值守）" : "离线值守已关";
-    const row = el("div", `bz-dock-wb ${tone}`);
-    row.appendChild(el("span", "bz-dock-wb-dot"));
-    row.appendChild(el("span", "bz-dock-wb-text", text));
-    const meta = el("div", "bz-dock-wb-meta");
-    if (st) {
-      meta.appendChild(el("span", "bz-dock-wb-fact", `心跳 ${relTime(st.at)}`));
-      meta.appendChild(el("span", "bz-dock-wb-fact", `本次开机跑了 ${st.runsSinceBoot} 次`));
-      if (st.lastRun) {
-        const n = st.lastRun.name || st.lastRun.toolId;
-        const mark = st.lastRun.ok ? "成功" : "失败";
-        meta.appendChild(el("span", `bz-dock-wb-fact${st.lastRun.ok ? "" : " is-bad"}`, `上次 ${n} ${mark}`));
-      }
-      if (st.core) meta.appendChild(el("span", "bz-dock-wb-fact", `值守件 ${st.core}`));
-    } else {
-      meta.appendChild(el("span", "bz-dock-wb-fact", "还没有心跳 —— 计划任务可能没跑起来"));
-    }
-    row.appendChild(meta);
-    host.appendChild(row);
+    ensureLiveTick();
   }
   function renderKpi() {
     const host = kpiEl();
@@ -8973,7 +9314,7 @@ var BZW_dock = (() => {
       }),
       uiIconBtn({
         icon: "plus",
-        title: "导入工具声明",
+        title: "导入工具（选文件夹）",
         onClick: () => importToolFlow()
       }),
       uiIconBtn({
@@ -9076,9 +9417,9 @@ var BZW_dock = (() => {
         uiEmpty({
           icon: "square-terminal",
           title: "还没有外部工具",
-          desc: "选一个工具的声明文件（manifest.json），工具坞就知道它叫什么、有哪些参数、该怎么跑；运行记录也归它收口",
+          desc: "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口",
           actions: uiBtnRow(
-            [uiBtn({ label: "导入声明文件", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
+            [uiBtn({ label: "导入工具", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
             { center: true }
           )
         })
@@ -9232,7 +9573,7 @@ var BZW_dock = (() => {
     if ((_a = v.runState) == null ? void 0 : _a.pausedAt) {
       acts.push({ icon: "play", label: "恢复并立即重试", onClick: () => void resumeAndRetry(v) });
     }
-    acts.push({ icon: "pencil", label: "重新导入声明", onClick: () => void importToolFlow(v.entry) });
+    acts.push({ icon: "pencil", label: "重新导入", onClick: () => void importToolFlow(v.entry) });
     acts.push({
       icon: "trash-2",
       label: v.entry.enabled === false ? "启用" : "停用",
@@ -9684,29 +10025,6 @@ var BZW_dock = (() => {
     wrap.appendChild(cols);
     body.appendChild(wrap);
   }
-  var BOARD_MAX_BYTES = 512 * 1024;
-  var BOARD_THEME_VARS = [
-    "--bz-surface-0",
-    "--bz-surface-1",
-    "--bz-surface-2",
-    "--bz-surface-3",
-    "--bz-text-1",
-    "--bz-text-2",
-    "--bz-text-3",
-    "--bz-border",
-    "--bz-brand",
-    "--bz-success",
-    "--bz-warning",
-    "--bz-danger",
-    "--bz-radius-sm",
-    "--bz-radius-md",
-    "--bz-font-ui",
-    "--bz-font-mono",
-    "--bz-space-xs",
-    "--bz-space-sm",
-    "--bz-space-md",
-    "--bz-space-lg"
-  ];
   function frameBaseStyle() {
     const cs = getComputedStyle(document.body);
     const parts = BOARD_THEME_VARS.map((name) => {
@@ -9920,8 +10238,35 @@ var BZW_dock = (() => {
     renderLiveInto(host, id);
     return host;
   }
+  function elapsedText(ms) {
+    const s = Math.max(0, Math.round(ms / 1e3));
+    if (s < 60) return `${s} 秒`;
+    const m = Math.floor(s / 60);
+    return `${m} 分 ${s - m * 60} 秒`;
+  }
+  function ensureLiveTick() {
+    if (liveTick !== null || !liveRunsAll().length) return;
+    liveTick = setInterval(() => {
+      const runs = liveRunsAll();
+      if (!runs.length) {
+        stopLiveTick();
+        renderRunbar();
+        return;
+      }
+      for (const r of runs) {
+        overlay == null ? void 0 : overlay.querySelectorAll(`.bz-dock-live[data-tool="${r.toolId}"]`).forEach((h) => renderLiveInto(h, r.toolId));
+      }
+      renderRunbar();
+    }, 5e3);
+  }
+  function stopLiveTick() {
+    if (liveTick !== null) {
+      clearInterval(liveTick);
+      liveTick = null;
+    }
+  }
   function renderLiveInto(host, id) {
-    var _a;
+    var _a, _b;
     host.innerHTML = "";
     const run = liveRunOf(id);
     if (!run) {
@@ -9932,7 +10277,20 @@ var BZW_dock = (() => {
     host.appendChild(el("div", "bz-dock-live-head", "正在跑（bz 亲手启动的，所以有实时进度）"));
     const ptxt = run.progress.phase ? `${run.progress.phase}${run.progress.pct === null ? "" : ` ${Math.round(run.progress.pct)}%`}` : "进行中";
     host.appendChild(el("div", "bz-dock-live-phase", ptxt));
-    const bar = uiProgress({ value: (_a = run.progress.pct) != null ? _a : 0 });
+    const est = run.estimatedSec;
+    if (est !== void 0 && est > 0) {
+      const elapsed = Date.now() - ((_a = timeOf(run.startedAt)) != null ? _a : Date.now());
+      if (elapsed > est * 1e3 * 3) {
+        host.appendChild(
+          el(
+            "div",
+            "bz-dock-live-hint",
+            `已跑 ${elapsedText(elapsed)}，超过声明预估的 ${est} 秒不少 —— 可能卡住了，必要时点停止`
+          )
+        );
+      }
+    }
+    const bar = uiProgress({ value: (_b = run.progress.pct) != null ? _b : 0 });
     if (run.progress.pct === null) bar.el.classList.add("is-indeterminate");
     host.appendChild(bar.el);
     const steps = el("ol", "bz-dock-steps");
@@ -9984,9 +10342,19 @@ var BZW_dock = (() => {
   }
   function resetValues(v) {
     var _a;
+    const prev = { ...valuesOf(v) };
     draftValues.set(v.entry.id, initialValuesOf((_a = v.manifest) == null ? void 0 : _a.params));
     saveValuesNow(v);
     render();
+    notifyUndo(
+      "已重置参数",
+      () => {
+        draftValues.set(v.entry.id, prev);
+        saveValuesNow(v);
+        render();
+      },
+      { type: "info" }
+    );
   }
   function paramRow(p, values, v) {
     var _a, _b, _c, _d;
@@ -10257,9 +10625,6 @@ var BZW_dock = (() => {
       }
     };
   }
-  var ASK_MODAL_WIDTH = 460;
-  var ASK_HTML_MODAL_WIDTH = 560;
-  var ASK_HTML_MAX_BYTES = 128 * 1024;
   function askBody(req) {
     var _a, _b;
     const host = el("div", "bz-dock-ask");
@@ -10353,6 +10718,7 @@ var BZW_dock = (() => {
     const hosts = overlay == null ? void 0 : overlay.querySelectorAll(`.bz-dock-live[data-tool="${id}"]`);
     hosts == null ? void 0 : hosts.forEach((h) => renderLiveInto(h, id));
     renderRunbar();
+    ensureLiveTick();
   }
   async function reloadDeclaration(v) {
     var _a, _b, _c;
@@ -10476,18 +10842,60 @@ var BZW_dock = (() => {
     await persist(readToolEntries().map((e) => e.id === entry.id ? next : e), `已信任 ${manifest.name}`);
     return true;
   }
+  function chooseDeclaration(root, paths) {
+    return new Promise((resolve) => {
+      var _a;
+      const box = el("div", "bz-dock-pick");
+      let settled = false;
+      let close = () => {
+      };
+      const finish = (p) => {
+        if (settled) return;
+        settled = true;
+        close();
+        resolve(p);
+      };
+      for (const p of paths) {
+        const res = readDeclaration(p);
+        const rel = relPathOf(root, p);
+        const row = el("button", "bz-dock-pickrow");
+        row.type = "button";
+        row.appendChild(el("span", "bz-dock-pickname", ((_a = res.manifest) == null ? void 0 : _a.name) || rel));
+        row.appendChild(el("span", "bz-dock-pickpath", rel));
+        row.addEventListener("click", () => finish(p));
+        box.appendChild(row);
+      }
+      const modal = uiModal({
+        head: true,
+        title: `找到 ${paths.length} 个工具，选一个`,
+        content: box,
+        maxWidth: 460,
+        className: "bz-dock-pickmodal",
+        onClose: () => finish(null)
+      });
+      close = modal.close;
+    });
+  }
+  function relPathOf(root, p) {
+    const a = root.replace(/[\\/]+$/, "");
+    const b = p.replace(/[\\/]+$/, "");
+    return b.startsWith(`${a}/`) ? b.slice(a.length + 1) : b;
+  }
   async function importToolFlow(entry) {
     var _a, _b;
     if (!canRun()) {
       notice("导入声明需要桌面端（要读本机文件）", "warning");
       return;
     }
-    const picked = await pickSystemFiles(
-      entry ? "重新选择该工具的声明文件" : `选择工具声明（${DECLARATION_FILENAME}）`,
-      [{ name: "工具声明", ext: ["json"] }]
-    );
-    if (!picked.length) return;
-    const declPath = picked[0];
+    const dir = await pickSystemFolder();
+    if (!dir) return;
+    const found = findDeclarationFiles(dir);
+    if (!found.length) {
+      notice(`这个文件夹里没找到 ${DECLARATION_FILENAME}（或旧名 dock.json）`, "warning");
+      return;
+    }
+    const declPath = found.length === 1 ? found[0] : await chooseDeclaration(dir, found);
+    if (!declPath) return;
     const res = readDeclaration(declPath);
     if (!res.ok || !res.manifest) {
       notice((_a = res.error) != null ? _a : "声明读不到", "error");
@@ -10570,8 +10978,111 @@ var BZW_dock = (() => {
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName(v)}`);
   }
+  var hostApp, overlay, escHandle, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, autoDraft, OVERLAY_ID, FRAME_ID, offlineReportDone, BOARD_MAX_BYTES, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
+  var init_ui2 = __esm({
+    "src/dock/ui.ts"() {
+      init_fake_obsidian();
+      init_z_order();
+      init_esc_manager();
+      init_focus_trap();
+      init_notice();
+      init_ui();
+      init_modal();
+      init_flow_dialog();
+      init_path_picker();
+      init_item_actions();
+      init_str();
+      init_data();
+      init_store();
+      init_command();
+      init_runner();
+      init_scheduler();
+      init_rules();
+      init_declaration();
+      init_watchdog();
+      init_schedule();
+      hostApp = null;
+      overlay = null;
+      escHandle = null;
+      view = { kind: "list" };
+      query = "";
+      searchOpen = false;
+      kpiFilter = "all";
+      refreshing = false;
+      views = [];
+      draftValues = /* @__PURE__ */ new Map();
+      valueSaveTimers = /* @__PURE__ */ new Map();
+      VALUE_SAVE_DEBOUNCE_MS = 500;
+      dueNotified = /* @__PURE__ */ new Set();
+      autoDraft = /* @__PURE__ */ new Map();
+      OVERLAY_ID = "bz-dock-mask";
+      FRAME_ID = "bz-dock-panel";
+      offlineReportDone = false;
+      BOARD_MAX_BYTES = 512 * 1024;
+      BOARD_THEME_VARS = [
+        "--bz-surface-0",
+        "--bz-surface-1",
+        "--bz-surface-2",
+        "--bz-surface-3",
+        "--bz-text-1",
+        "--bz-text-2",
+        "--bz-text-3",
+        "--bz-border",
+        "--bz-brand",
+        "--bz-success",
+        "--bz-warning",
+        "--bz-danger",
+        "--bz-radius-sm",
+        "--bz-radius-md",
+        "--bz-font-ui",
+        "--bz-font-mono",
+        "--bz-space-xs",
+        "--bz-space-sm",
+        "--bz-space-md",
+        "--bz-space-lg"
+      ];
+      liveTick = null;
+      ASK_MODAL_WIDTH = 460;
+      ASK_HTML_MODAL_WIDTH = 560;
+      ASK_HTML_MAX_BYTES = 128 * 1024;
+    }
+  });
 
   // prototypes/dock/fake-sim.ts
+  var fake_sim_exports = {};
+  __export(fake_sim_exports, {
+    bootDockSim: () => bootDockSim,
+    closeDockPanel: () => closeDock,
+    openDockPanel: () => openDockPanel,
+    resetDockSim: () => resetDockSim,
+    unloadDockSim: () => unloadDockSim
+  });
+  init_fake_obsidian();
+  init_app();
+  init_settings_provider();
+  init_path_picker();
+
+  // src/dock/index.ts
+  init_ui2();
+  init_command();
+  init_scheduler();
+
+  // src/dock/statusbar.ts
+  init_fake_obsidian();
+  init_runner();
+
+  // src/dock/index.ts
+  init_runner();
+  init_declaration();
+  init_data();
+  init_store();
+
+  // prototypes/dock/fake-sim.ts
+  init_runner();
+  init_declaration();
+  init_store();
+  init_registry();
+  init_schedule();
   var TOOLS_DIR = "C:/Users/PC/scripts";
   var KEY = "bz-sim:";
   var SEED_MARK = "bz-sim:__dock_seed_v3";

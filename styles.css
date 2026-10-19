@@ -26070,42 +26070,6 @@ canvas { display: block; }
   white-space: nowrap;
 }
 
-/* ---------- 值守条（ADR-0242） ----------
-   装了 dock-watch 才出现：Obsidian 关着时由它按**同一份**规则表跑（判据是同一份 ruleDue）。
-   **只读** —— 开关在「设置 → 工具坞 → 自动运行」，这里不摆第二个控件说同一件事。
-   四种点色：在守 / 让位（Obsidian 在）/ 被开关关掉 / 进程没跑起来。 */
-.bz-dock-watchbar { flex: none; display: flex; flex-direction: column; }
-.bz-dock-watchbar.is-off { display: none; }
-.bz-dock-wb {
-  display: flex;
-  align-items: center;
-  gap: var(--bz-space-sm);
-  padding: var(--bz-space-sm) var(--bz-space-lg);
-  border-bottom: 1px solid var(--bz-border);
-}
-.bz-dock-wb-dot {
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: var(--bz-radius-full);
-  background: var(--bz-text-3);
-}
-.bz-dock-wb.is-on .bz-dock-wb-dot { background: var(--bz-success); }
-.bz-dock-wb.is-down .bz-dock-wb-dot { background: var(--bz-warning); }
-.bz-dock-wb.is-shut .bz-dock-wb-dot { background: var(--bz-text-3); }
-.bz-dock-wb-text { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); }
-.bz-dock-wb.is-down .bz-dock-wb-text { color: var(--bz-warning); }
-.bz-dock-wb-meta {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--bz-space-md);
-  overflow: hidden;
-}
-.bz-dock-wb-fact { font-size: var(--bz-font-caption); color: var(--bz-text-3); white-space: nowrap; }
-.bz-dock-wb-fact.is-bad { color: var(--bz-danger); }
-
 /* ---------- 离线简报（ADR-0242）----------
    打开面板时的一次性交代：Obsidian 关着那段值守进程替你跑了什么。
    由一个居中模态承载（core 的 `uiModal`），弹完即从队列消费 —— 所以这一块没有常驻形态，
@@ -26577,8 +26541,9 @@ canvas { display: block; }
 .bz-dock-rulearrow { flex: none; font-size: var(--bz-font-emphasis); color: var(--bz-text-3); }
 .bz-dock-ruleempty { font-size: var(--bz-font-meta); color: var(--bz-text-3); }
 
-/* 规则编辑弹窗：三节（触发条件 / 执行 / 随机延迟）+ 一行人话回显 */
-.bz-dock-rulemodal .bz-dialog-body { padding: var(--bz-space-lg); }
+/* 规则编辑弹窗：三节（触发条件 / 执行 / 随机延迟）+ 一行人话回显
+   内边距不在这里加 —— 公共壳 `.bz-overlay-popup` 已经给了 --bz-space-lg，再加一层就是双倍，
+   四个工具坞弹窗会各差一档（2026-10-19 统一）。 */
 .bz-dock-ruleform { display: flex; flex-direction: column; gap: var(--bz-space-lg); }
 .bz-dock-ruleformsec { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
 .bz-dock-ruleformlegend {
@@ -26624,7 +26589,6 @@ canvas { display: block; }
    核对表被排成散文，就没人能核对 —— 所以改域内自绘（`.bz-dock-rulemodal` 同一套壳）。
    层级按「决策要用到的顺序」：它是什么 → 会跑什么 → 配套事实 → 信任语义。
    全部左对齐：这一次读的是**键值**，居中的多行键值最难扫。 */
-.bz-dock-trustmodal { padding: var(--bz-space-xl); }
 .bz-dock-trust {
   display: flex;
   flex-direction: column;
@@ -26697,7 +26661,7 @@ canvas { display: block; }
    也不跟主题（用户报「不显示滚动条」就是这个）；而**框跟着内容长**、超一屏时由外面那层滚，
    滚动条就是宿主的，按钮行也还钉在下面。同 memo 编辑弹窗那套（`.bz-memo-editor-popup`）：
    弹窗整体 overflow hidden → 中间那层 flex:1 + overflow-y auto → 动作行留在滚动区外。 */
-.bz-dock-askmodal { padding: var(--bz-space-xl); overflow: hidden; }
+.bz-dock-askmodal { padding: var(--bz-space-lg); overflow: hidden; }
 .bz-dock-askmodal .bz-dialog-body { flex: 1 1 auto; min-height: 0; }
 .bz-dock-ask {
   flex: 1 1 auto;
@@ -26877,6 +26841,60 @@ canvas { display: block; }
   .bz-dock-toolstats .bz-dock-kpi-tile { border-bottom: 0; }
   /* 信任框：标签改到值上方独占一行 —— 窄屏里「5.5em 标签列」会吃掉大半宽度，
      路径本来就长，再让它跟标签挤一行就只能反复折行。 */
-  .bz-dock-trustmodal { padding: var(--bz-space-lg); }
   .bz-dock-trust-fact { grid-template-columns: minmax(0, 1fr); gap: 2px; align-items: start; }
 }
+
+/* ==================== 状态栏（面板没开时的在跑指示） ====================
+   常驻件，不是面板的一部分：面板关着也能看见「有工具在跑」。
+   0 个运行整件隐藏（不为「可能有用」占位），样式对齐番茄钟状态栏的交互基线。 */
+.bz-dock-statusbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bz-space-xs);
+  cursor: pointer;
+  padding: 2px var(--bz-space-xs);
+  border-radius: var(--radius-s, var(--bz-radius-xs));
+  transition: background-color var(--bz-dur-fast) ease, opacity var(--bz-dur-fast) ease;
+}
+.bz-dock-statusbar.is-off { display: none; }
+@media (hover: hover) {
+  .bz-dock-statusbar:hover { background: var(--background-modifier-hover); color: var(--text-normal); }
+}
+.bz-dock-statusbar-icon { display: inline-flex; align-items: center; }
+.bz-dock-statusbar-text { font-size: var(--bz-font-meta); font-variant-numeric: tabular-nums; }
+
+/* ---------- 「比预估慢」提醒（运行时才出现，不占地） ---------- */
+.bz-dock-live-hint {
+  padding: var(--bz-space-xs) var(--bz-space-sm);
+  border: 1px solid color-mix(in srgb, var(--bz-warning) 25%, transparent);
+  border-radius: var(--bz-radius-sm);
+  background: color-mix(in srgb, var(--bz-warning) 8%, transparent);
+  color: var(--bz-warning);
+  font-size: var(--bz-font-caption);
+  line-height: var(--bz-leading-normal);
+}
+
+/* ---------- 一个文件夹里找到多份声明时的选择框 ---------- */
+.bz-dock-pick { display: flex; flex-direction: column; gap: var(--bz-space-xs); max-height: 48vh; overflow-y: auto; }
+.bz-dock-pickrow {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--bz-space-sm) var(--bz-space-md);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-surface-2);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--bz-dur-fast) ease, border-color var(--bz-dur-fast) ease;
+}
+@media (hover: hover) {
+  .bz-dock-pickrow:hover { background: var(--bz-surface-3); border-color: var(--bz-border-strong, var(--bz-border)); }
+}
+.bz-dock-pickname { font-size: var(--bz-font-label); color: var(--bz-text-1); }
+.bz-dock-pickpath { font-size: var(--bz-font-caption); color: var(--bz-text-3); overflow-wrap: anywhere; }
