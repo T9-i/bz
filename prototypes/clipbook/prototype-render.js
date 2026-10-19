@@ -1,4 +1,4 @@
-/* 源指纹 021a476bd33ff94e · 仓内输入 4 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 fe25d23fdab7e478 · 仓内输入 4 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["src/clipbook/render.ts","src/clipbook/report-stats.ts","src/core/chart-palette.ts","src/core/ui/str.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — src/clipbook/render.ts → window.BZR_clipbook（评审壳预览包，ADR-0104） */
 var BZR_clipbook = (() => {
@@ -177,9 +177,10 @@ var BZR_clipbook = (() => {
       <!-- 移动详情 overlay（屏2） -->
       <div class="bz-clip-mob-detail bz-panel-mtop" data-clip-mob-detail style="display:none">
         <div class="bz-clip-mob-detail-top">
-          <span class="bz-clip-mob-d-back" data-clip-mob-back role="button">‹ 返回</span>
-          <div class="bz-clip-mob-detail-title" data-clip-mob-title></div>
+          <!-- 2026-10-19 拍板（memo item-1792395419930）：保存钮移到左、返回移到右——保存是详情页主操作 -->
           <span class="bz-clip-mob-save" data-clip-mob-save role="button">存为剪藏</span>
+          <div class="bz-clip-mob-detail-title" data-clip-mob-title></div>
+          <span class="bz-clip-mob-d-back" data-clip-mob-back role="button">返回 ›</span>
         </div>
         <div class="bz-clip-mob-detail-body" data-clip-mob-detail-body></div>
       </div>
