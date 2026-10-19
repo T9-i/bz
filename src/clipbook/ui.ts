@@ -501,15 +501,42 @@ function buildDom(app: any): void {
     const img = t.closest('img');
     if (img && img.closest('[data-clip-mob-md]')) { e.preventDefault(); showImageSelBar(img as HTMLImageElement); return; }
     if (!t.closest('[data-clip-mob-next]') || !M.cur) return;
-    const grp = mobItemOrder.filter((x) => x.srcName === M.cur!.srcName);
-    const idx = grp.findIndex((x) => x.id === M.cur!.id);
-    const next = grp[idx + 1];
-    if (next) openMobDetail(next.id); else (mobBackBtn as HTMLElement).click();
+    // 章末「读下一则」回目录（显式按钮语义）；同章换篇与滑动共用 stepMobArticle（memo item-1792395419930）
+    if (!stepMobArticle(1)) (mobBackBtn as HTMLElement).click();
   }, true); // capture：同桌面右栏
   // issue 329：划选工具框事件（移动详情正文 + 双端公共层）——mouseup / selectionchange 防抖双端同套
   mobDetailEl!.addEventListener('mouseup', onReaderMouseUp);
   const mobBodyScrollEl = overlayEl.querySelector('[data-clip-mob-detail-body]');
   if (mobBodyScrollEl) mobBodyScrollEl.addEventListener('scroll', hideSelBar, { passive: true });
+  // 移动：正文左右滑动换篇（memo item-1792395419930，2026-10-19 拍板）。
+  // 低灵敏口径：位移 ≥ 96px、横向分量 ≥ 纵向 2 倍、单次 ≤ 700ms，且起手不处于划选态——
+  // 宁可不动，也不让纵向滚正文时误切篇。章首/章末不做任何事（手势是隐式的，不像「读下一则」回目录）。
+  let swipeX = 0;
+  let swipeY = 0;
+  let swipeAt = 0;
+  let swipeArmed = false;
+  mobBodyScrollEl?.addEventListener('touchstart', (e: TouchEvent) => {
+    swipeArmed = false;
+    if (!M.mobDetailOpen || e.touches.length !== 1) return;
+    const sel = document.getSelection();
+    if (sel && !sel.isCollapsed) return; // 正在划选 → 不接管
+    const t0 = e.touches[0];
+    swipeX = t0.clientX;
+    swipeY = t0.clientY;
+    swipeAt = Date.now();
+    swipeArmed = true;
+  }, { passive: true });
+  mobBodyScrollEl?.addEventListener('touchcancel', () => { swipeArmed = false; }, { passive: true });
+  mobBodyScrollEl?.addEventListener('touchend', (e: TouchEvent) => {
+    if (!swipeArmed) return;
+    swipeArmed = false;
+    const t1 = e.changedTouches[0];
+    if (!t1 || Date.now() - swipeAt > 700) return;
+    const dx = t1.clientX - swipeX;
+    const dy = t1.clientY - swipeY;
+    if (Math.abs(dx) < 96 || Math.abs(dx) < Math.abs(dy) * 2) return;
+    stepMobArticle(dx > 0 ? -1 : 1); // 右滑 → 上一篇；左滑 → 下一篇
+  }, { passive: true });
   document.addEventListener('selectionchange', onSelectionChanged);
   document.addEventListener('mousedown', onDocMouseDown, true);
   // issue 341：移动端正文划选——原生长按菜单（剪切/复制/粘贴）与划选工具框同位抢位，
@@ -1762,6 +1789,18 @@ function toggleMobArch(foldEl: HTMLElement): void {
   if (site) {
     if (opening) expandedMobArch.add(key); else expandedMobArch.delete(key);
   }
+}
+
+/** 移动详情同章内换篇（delta=-1 上一篇 / +1 下一篇）；越界返回 false。
+ *  正文左右滑动与「读下一则」共用同一落点（memo item-1792395419930）——两条入口的邻位口径不分叉。 */
+function stepMobArticle(delta: number): boolean {
+  if (!M.cur) return false;
+  const grp = mobItemOrder.filter((x) => x.srcName === M.cur!.srcName);
+  const idx = grp.findIndex((x) => x.id === M.cur!.id);
+  const target = grp[idx + delta];
+  if (!target || target.id === M.cur.id) return false;
+  openMobDetail(target.id);
+  return true;
 }
 
 function openMobDetail(id: string): void {
