@@ -92,15 +92,15 @@ describe('剪藏删除流 × 知识盒 source 降级（issue 336 链路 1）', (
     // trash 前降级：trash 时刻卡片已是外链形态
     expect(cardAtTrash).toHaveLength(1);
     expect(cardAtTrash[0]).toContain(`source: "${CLIP_URL}"`);
-    // 剪藏进系统回收站
-    expect(vault.trashed.some((t) => t.path === CLIP_PATH && t.system)).toBe(true);
+    // 剪藏进库内回收站（.trash，ADR-0245）
+    expect(vault.trashed.some((t) => t.path === CLIP_PATH && t.system === false)).toBe(true);
     // 卡片终态：url 来源 + sourceTitle 零扰动（ADR-0144 物化前两态还原）
     const card = vault.files.get('文献盒/量子.md')!;
     expect(card).toContain(`source: "${CLIP_URL}"`);
     expect(card).toContain('sourceTitle: "页面标题"');
     // 降级通知 + 删除撤销通知
     expect(notify).toHaveBeenCalledWith('已把 1 张知识卡片来源回退为原链接', { type: 'success' });
-    expect(notifyUndo).toHaveBeenCalledWith('已删除剪藏「甲文」（已移入系统回收站）', expect.any(Function));
+    expect(notifyUndo).toHaveBeenCalledWith('已删除剪藏「甲文」（已移入 Obsidian 回收站）', expect.any(Function));
 
     // trash 触发的 md-deleted 消费体：已降级卡片天然不命中（不摘除、不追加通知）
     ensureKnowledgeFileSync(app);
@@ -149,6 +149,6 @@ describe('剪藏删除流 × 知识盒 source 降级（issue 336 链路 1）', (
     await deleteClipNote(clipArticle(vault, CLIP_URL));
 
     expect(vault.trashed.some((t) => t.path === CLIP_PATH)).toBe(true); // 删除未被阻断
-    expect(notifyUndo).toHaveBeenCalledWith('已删除剪藏「甲文」（已移入系统回收站）', expect.any(Function));
+    expect(notifyUndo).toHaveBeenCalledWith('已删除剪藏「甲文」（已移入 Obsidian 回收站）', expect.any(Function));
   });
 });

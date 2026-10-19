@@ -75,11 +75,11 @@ export function showConfirm(loc: DiaryEntryLocator): void {
     className: 'bz-diary-flow-dialog',
     message: isEncrypted
       ? '确定删除这篇加密日记吗？\n\n此操作不可撤销，密文将从保险库永久销毁。'
-      : '确定要删除这篇日记吗？\n\n此操作不可撤销，日记将从笔记中永久删除。',
+      : '确定要删除这篇日记吗？\n\n日记将移入 Obsidian 回收站（.trash），可在回收站恢复。',
     actions: [
       { label: '取消', value: 'cancel' },
-      // danger（issue 291 评审补）：删除日记是不可撤销的（加密分支还会销毁保险库密文），
-      // 主按钮不得高亮——手册 §9/§10 的慎重决策口径
+      // danger（issue 291 评审补）：加密分支不可撤销（销毁保险库密文），普通分支虽进回收站但仍是
+      // 需要慎重的主动作——主按钮不得高亮（手册 §9/§10 的慎重决策口径）
       { label: '删除日记', value: 'ok', cta: true, danger: true },
     ],
   })

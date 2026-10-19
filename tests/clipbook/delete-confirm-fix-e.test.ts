@@ -86,8 +86,8 @@ describe('删除免确认口径（开关 DELETE_WITHOUT_CONFIRM，批 C / consis
     await deleteClipNote(article);
 
     // 两态共同面：删除确实发生 + 撤销兜底在位
-    expect(vault.trashed.some((t) => t.path === CLIP_PATH && t.system)).toBe(true);
-    expect(notifyUndo).toHaveBeenCalledWith('已删除剪藏「待删剪藏」（已移入系统回收站）', expect.any(Function));
+    expect(vault.trashed.some((t) => t.path === CLIP_PATH && t.system === false)).toBe(true);
+    expect(notifyUndo).toHaveBeenCalledWith('已删除剪藏「待删剪藏」（已移入 Obsidian 回收站）', expect.any(Function));
 
     if (DELETE_WITHOUT_CONFIRM) {
       expect(openFlowDialog, '【必须】接了 notifyUndo 的删除不再二次确认（效率整改 5）').not.toHaveBeenCalled();

@@ -28,6 +28,9 @@ _Avoid_: 类型、分类
 
 **影视条目 / 信条目**: 从 `我的/影视`、`我的/信` 目录的 frontmatter 解析出的条目，聚合显示在日记流中。
 
+**笔记删除 (Note Trash)**: 删笔记这件事的唯一口径（ADR-0245，issue 554）——**一律移入 vault 内的 Obsidian 回收站**（`core/note-trash.ts` 的 `trashNote` = `vault.trash(file, false)`），不进系统回收站、更不硬删。踩过的坑：`Vault.trash(file, system)` 的布尔是「是否用**系统**回收站」，全仓曾按直觉写 `true`，连 `tests/mock-vault.ts` 也按反语义打桩，于是线上一直落 Windows 回收站、测试却全绿（用户删《我的团长我的团》后在 Obsidian 回收站里找不到才发现）。**唯一例外**是加密摘明文（`encrypt/data.ts`、日记 `removeDiaryEntries({ purge: true })`）——回收站里留一份明文等于加密白做。json 伴生文件 / `.bak` / 临时文件不在此列。
+_Avoid_: 在域里直接写 `vault.trash(...)` 或 `vault.delete(...)` 删笔记
+
 **加密条目 (Encrypted Entry)**: 正文含 🔐 的条目，面板中隐藏但保留在数据映射中防止写入丢失。
 
 **数据映射 (Diary Data Map)**: 日期 → 条目数组 的内存映射；保存时先更新映射再整体写回文件。

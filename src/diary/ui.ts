@@ -1944,7 +1944,7 @@ export class DiaryAppController {
         removed = await removeDiaryEntries(
           entry.date,
           (x) => x.filePath === entry.filePath && x.time === entry.time && x.lineNumber === entry.lineNumber,
-          { filePath: entry.filePath }
+          { filePath: entry.filePath, purge: true } // 明文收进了保险库：摘除即销毁，不留回收站副本（ADR-0245 例外）
         );
       } catch (err) {
         await this.rollbackEncryptedNote(enc);

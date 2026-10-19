@@ -66,8 +66,8 @@ describe('showConfirm 删除确认（locator 定位）', () => {
 
   it('删除失败（写层抛错）：弹「删除日记失败」错误通知', async () => {
     vault.files.set(ENTRY, ENTRY_TEXT);
-    // 写层故障注入：vault.delete 抛错（删除条目 = 删除其条目文件）
-    (vault as any).delete = async () => {
+    // 写层故障注入：vault.trash 抛错（删除条目 = 条目文件移入库内回收站，ADR-0245）
+    (vault as any).trash = async () => {
       throw new Error('disk error');
     };
     showConfirm(LOC);

@@ -783,7 +783,9 @@ export class SafeManager {
     }
   }
 
-  /** 删除 vault 原文件（非点前缀，走 vault 使 Obsidian 认可删除；幂等） */
+  /** 删除 vault 原文件（非点前缀，走 vault 使 Obsidian 认可删除；幂等）。
+   *  **硬删，刻意不进回收站**（ADR-0245 例外）：这里摘的是刚存进保险库的明文原件，
+   *  回收站里留一份等于加密白做。日常删除笔记请走 core/note-trash 的 trashNote。 */
   private async deleteVaultFile(path: string) {
     const app = getApp();
     const file = app.vault.getAbstractFileByPath(path);

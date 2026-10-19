@@ -103,6 +103,24 @@ describe('removeDiaryEntries（删条目 = 删条目文件）', () => {
     expect(vault.files.get(E2)).toContain('B');
   });
 
+  it('删除 = 移入库内 Obsidian 回收站（.trash），不是系统回收站、不是硬删（ADR-0245）', async () => {
+    makeVault({ [E1]: fm('08:00', ['日记'], 'A') });
+    const n = await removeDiaryEntries(DATE, (e) => e.time === '08:00');
+    expect(n).toBe(1);
+    expect(vault.trashed.at(-1)).toEqual({ path: E1, system: false });
+    expect(vault.files.has('.trash/2401010800.md')).toBe(true);
+    expect(vault.files.has(E1)).toBe(false);
+  });
+
+  it('purge：加密收信后摘明文走硬删，不进回收站（ADR-0245 例外）', async () => {
+    makeVault({ [E1]: fm('08:00', ['日记'], 'A') });
+    const n = await removeDiaryEntries(DATE, (e) => e.time === '08:00', { filePath: E1, purge: true });
+    expect(n).toBe(1);
+    expect(vault.trashed).toHaveLength(0);
+    expect(vault.files.has('.trash/2401010800.md')).toBe(false);
+    expect(vault.files.has(E1)).toBe(false);
+  });
+
   it('0 命中：不删任何文件', async () => {
     makeVault({ [E1]: fm('08:00', ['日记'], 'A') });
     const n = await removeDiaryEntries(DATE, (e) => e.time === '23:59');

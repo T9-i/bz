@@ -183,11 +183,13 @@ export class MockVault {
     this.modifiedPaths.push(file.path);
   }
 
-  /** Obsidian vault.trash 语义：system=true 移入库内 .trash/ 目录（可在回收站恢复），否则永久删除；记录路径供测试断言 */
+  /** Obsidian vault.trash 语义（按真实 API，别凭直觉）：system=true = **系统**回收站（文件离开 vault，
+   *  本夹具不模拟 OS 回收站，只记录调用）；system=false = **库内**回收站，移入 `.trash/`，可恢复。
+   *  ADR-0245 前这里把两者写反了，于是「进库内回收站」的断言其实一直在给系统回收站背书。 */
   trashed: Array<{ path: string; system: boolean }> = [];
   async trash(file: any, system: boolean = true): Promise<void> {
     this.trashed.push({ path: file.path, system });
-    if (system) {
+    if (!system) {
       const name = file.path.split('/').pop()!;
       if (this.files.has(file.path)) {
         const content = this.files.get(file.path)!;

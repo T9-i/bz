@@ -166,7 +166,7 @@ describe('删除免确认直达撤销（效率整改 5）+ CB2 UI 半 catch 链'
     await new Promise((r) => setTimeout(r, 30));
     expect(document.querySelector('#__shared_confirm_popup__')).toBeNull();
     await vi.waitFor(() => {
-      expect(vault.trashed.some((t) => t.path === '归档/网页剪藏/剪藏笔记A.md' && t.system)).toBe(true);
+      expect(vault.trashed.some((t) => t.path === '归档/网页剪藏/剪藏笔记A.md' && t.system === false)).toBe(true);
       expect(vault.files.has('归档/网页剪藏/剪藏笔记A.md')).toBe(false);
     });
     const undoCb = vi.mocked(notifyUndo).mock.calls.find(([msg]) => String(msg).startsWith('已删除剪藏'))![1];
