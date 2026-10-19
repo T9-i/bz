@@ -6,7 +6,7 @@ import type { App } from 'obsidian';
 import { tryGetSettings } from '../core/settings-provider';
 import { onDomainEvent } from '../core/domain-bus';
 import { unregisterPanelEsc } from '../core/esc-manager';
-import { M, resetCinemaState, resolveCinemaFolderPath, DEFAULT_FOLDER } from './state';
+import { M, resetCinemaState, resolveCinemaFolderPath, DEFAULT_FOLDER, isRecentSelfWrite } from './state';
 import { rebuildItems, findPosterRenameTargets } from './data';
 import { createOverlay, closeOverlay, registerEscapeHandler, renderAll, renderSoft, openAddModalDirect, openRandomMovie, openYearbookOverlay } from './ui';
 import { shutdownDoubanQueue, sweepDoubanFetch } from './douban-queue';
@@ -50,6 +50,10 @@ function registerAutoRefresh(app: App): void {
   let timer: ReturnType<typeof setTimeout> | null = null;
   const schedule = (file: { path?: string }) => {
     if (file && file.path && !file.path.startsWith(M.folderPath + '/')) return;
+    // 自写回灌守卫（issue 555）：面板自己刚写的文件，内存已是权威且已 renderAll——此刻
+    // metadataCache 大概率还没解析完（vault 事件先到、缓存后到），一重建就把新值盖回旧值，
+    // 真机表现 =「改完不生效，重开面板才生效」。跳过这一次，外部编辑照旧重建。
+    if (file && file.path && isRecentSelfWrite(file.path)) return;
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
       if (!M.currentOverlay) return;
@@ -63,6 +67,16 @@ function registerAutoRefresh(app: App): void {
   onDomainEvent<{ path: string }>('vault:md-created', (evt) => schedule({ path: evt.path }));
   onDomainEvent<{ path: string }>('vault:md-deleted', (evt) => schedule({ path: evt.path }));
   onDomainEvent<{ path: string }>('vault:md-modified', (evt) => schedule({ path: evt.path }));
+  // 改名不刷新是另一个洞（issue 555 顺手补）：适配层对 rename 只发 renamed 一条、不补发
+  // created/deleted，而上面三个通道都不含它——在文件管理器里给影片改名，面板会一直顶着旧名
+  // 直到重开。两个路径都喂：newPath 盖住「移入本目录」，oldPath 盖住「移出本目录」（后者
+  // 会被前缀过滤掉，故必须先喂 oldPath 再喂 newPath，靠同一计时器合并成一次重建）。
+  const onRenamed = (evt: { oldPath?: string; newPath?: string }) => {
+    schedule({ path: evt?.oldPath });
+    schedule({ path: evt?.newPath });
+  };
+  onDomainEvent<{ oldPath: string; newPath: string }>('vault:md-renamed', onRenamed);
+  onDomainEvent<{ oldPath: string; newPath: string }>('cinema:file-renamed', onRenamed);
 }
 
 // ---------- 海报路径 rename 联动（issue 337 审计#11） ----------

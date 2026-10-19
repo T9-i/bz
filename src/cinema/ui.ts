@@ -34,7 +34,7 @@ import {
   STATUS_WANT, STATUS_WATCHING, STATUS_WATCHED, DEFAULT_RATING,
   getGroupForTag, hasIllegalNameChar, ILLEGAL_NAME_HINT, rewatchCount, avgRating, REWATCH_SHELF,
 } from './constants';
-import { M, type CinemaItem, type CinemaSortMode } from './state';
+import { M, noteSelfWrite, type CinemaItem, type CinemaSortMode } from './state';
 import { loadDoubanNameIndex, searchDoubanNameIndex, normName, type DoubanIndexRow } from '../core/douban-name-index';
 import { rebuildItems, getDisplayItems, normalizeTags, normalizeRewatches, normalizeLists, allLists, refreshDataAndView } from './data';
 import { runAIRecommend, runSimilarRecommend, buildTasteProfile, quickAddWant } from './recommend';
@@ -181,7 +181,7 @@ async function markRewatch(it: CinemaItem, app: App, sec: HTMLElement): Promise<
   const wasOnShelf = it.lists.includes(REWATCH_SHELF);
   if (wasOnShelf) it.lists = it.lists.filter((l) => l !== REWATCH_SHELF);
   try {
-    await app.fileManager.processFrontMatter(it.file, (fm: Record<string, unknown>) => {
+    await writeFm(app, it.file, (fm: Record<string, unknown>) => {
       fm['重看'] = normalizeRewatches(fm['重看']).concat({ at: now, rating });
       fm['观影日期'] = now; // 排序戳：重温即最近一次活动，按观影日期排序时顶到最前
       if (wasOnShelf) {
@@ -232,7 +232,7 @@ async function setListMembership(items: CinemaItem[], list: string, on: boolean,
   });
   try {
     for (const it of changing) {
-      await app.fileManager.processFrontMatter(it.file!, (fm: Record<string, unknown>) => {
+      await writeFm(app, it.file!, (fm: Record<string, unknown>) => {
         const cur = normalizeLists(fm['片单']);
         const next = on
           ? cur.includes(list) ? cur : [...cur, list]
@@ -269,7 +269,7 @@ async function setMergeInto(it: CinemaItem, target: string | null, app: App): Pr
   const prev = it.mergeInto;
   it.mergeInto = target;
   try {
-    await app.fileManager.processFrontMatter(it.file, (fm: Record<string, unknown>) => {
+    await writeFm(app, it.file, (fm: Record<string, unknown>) => {
       if (target) fm['合集'] = target;
       else delete fm['合集'];
     });
@@ -315,7 +315,7 @@ async function renameList(oldName: string, newName: string, app: App): Promise<v
   const targets = M.items.filter((x) => x.lists.includes(oldName) && x.file);
   try {
     for (const x of targets) {
-      await app.fileManager.processFrontMatter(x.file!, (fm: Record<string, unknown>) => {
+      await writeFm(app, x.file!, (fm: Record<string, unknown>) => {
         const cur = normalizeLists(fm['片单']);
         const at = cur.indexOf(oldName);
         if (at >= 0) {
@@ -528,7 +528,7 @@ function openDoubanImport(sec: HTMLElement, app: App): void {
         for (const name of createdNames) {
           const it = M.items.find((x) => x.name === name);
           if (!it?.file) continue;
-          await app.fileManager.processFrontMatter(it.file, (fm: Record<string, unknown>) => {
+          await writeFm(app, it.file, (fm: Record<string, unknown>) => {
             fm['片单收纳'] = true;
             if (validList) {
               const cur = normalizeLists(fm['片单']);
@@ -639,6 +639,19 @@ function itemActions(it: CinemaItem, sec: HTMLElement, app: App, opts: { inSerie
 // ---------- 落盘（数据契约零改动） ----------
 
 /**
+ * 面板写盘唯一入口（issue 555）：`processFrontMatter` + 成功后登记自写。
+ *
+ * 为什么要登记：写盘路径一律「内存先行 → 改内存 → 落盘 → renderAll」，落盘成功后内存就是权威；
+ * 而 Obsidian 的 metadataCache 重新解析是**异步**的，`vault` 的 modify 事件先到、缓存后到。
+ * 后台刷新（300ms 防抖）若在这中间按缓存重扫，会把内存里的新值盖回写前那份——真机上表现为
+ * 「改完面板不生效，关掉重开才对」（重开时缓存早已就绪）。登记后后台刷新跳过这一次重建。
+ */
+async function writeFm(app: App, file: TFile, cb: (fm: Record<string, unknown>) => void): Promise<void> {
+  await app.fileManager.processFrontMatter(file, cb);
+  noteSelfWrite(file.path);
+}
+
+/**
  * 把条目落盘：新增建笔记，编辑/快速状态写 frontmatter（保留海报/豆瓣字段）；
  * 改名走 fileManager.renameFile（自动更新双链）；类型写入 frontmatter tags。
  */
@@ -665,7 +678,7 @@ async function persistItem(item: CinemaItem, app: App, edit?: { prevName: string
     const f = await app.vault.create(filePath, content);
     item.file = f;
     if (item.review || douban || posterRel) {
-      await app.fileManager.processFrontMatter(f, (fm: Record<string, unknown>) => {
+      await writeFm(app, f, (fm: Record<string, unknown>) => {
         if (posterRel) fm['海报'] = posterRel;
         if (item.review) fm['影评'] = item.review;
         // 解析阶段已拿到豆瓣字段 → 建档时直接写入（issue 395）：省掉落盘后再抓一次的往返。
@@ -698,7 +711,7 @@ async function persistItem(item: CinemaItem, app: App, edit?: { prevName: string
       item.file = (app.vault.getAbstractFileByPath(newPath) as CinemaItem['file']) || item.file;
     }
   }
-  await app.fileManager.processFrontMatter(item.file, (fm: Record<string, unknown>) => {
+  await writeFm(app, item.file, (fm: Record<string, unknown>) => {
     // 状态单源键必写（迁移即补键）；评分编码退役：只有真分值落键，-1/0 旧编码顺手摘除
     fm['状态'] = statusText(item.status);
     if (item.rating !== null && item.rating > 0) fm['评分'] = item.rating;

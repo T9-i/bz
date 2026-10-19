@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { YB_TITLE } from '../../src/cinema/yearbook/data';
 import { MockVault, mockAppWithVault, parseFrontmatter } from '../mock-vault';
 import { resetObsidianMocks, hasNotice, Platform, TFile } from '../mock-obsidian-entry';
-import { M, resetCinemaState } from '../../src/cinema/state';
+import { M, resetCinemaState, noteSelfWrite, isRecentSelfWrite, SELF_WRITE_GUARD_MS } from '../../src/cinema/state';
 import { rebuildItems } from '../../src/cinema/data';
 import { runAIRecommend, runSimilarRecommend, quickAddWant, parseRecommendJson } from '../../src/cinema/recommend';
 import { createOverlay, closeOverlay, openAddModalDirect, openRandomMovie, renderAll, renderSoft, openYearbookOverlay, closeYearbookOverlay } from '../../src/cinema/ui';
@@ -431,8 +431,56 @@ tags: [电影]
     expect(vault.files.has('我的/影视/《瑞克和莫蒂》.md')).toBe(false);
   });
 
-  it('编辑改名 → 已存在同名被拦（锁保存按钮 + 写明原因，点不动、不落盘）', async () => {
+  it('自写窗口语义：窗口内跳过、过期即失效、别家文件不受影响（issue 555）', () => {
+    const T = 1_000_000;
+    noteSelfWrite('我的/影视/《甲》.md', T);
+    expect(isRecentSelfWrite('我的/影视/《甲》.md', T + SELF_WRITE_GUARD_MS)).toBe(true);
+    expect(isRecentSelfWrite('我的/影视/《甲》.md', T + SELF_WRITE_GUARD_MS + 1)).toBe(false);
+    expect(isRecentSelfWrite('我的/影视/《乙》.md', T)).toBe(false);
+  });
+
+  // issue 555：面板保存后 300ms 的后台刷新会按 metadataCache 重建，而缓存解析是异步的——
+  // 真机上这一拍读到的常是写前那份，把刚保存的新值盖回旧值（表现：改完不生效，重开才生效）。
+  it('自写回灌守卫：保存后后台刷新读到写前缓存，不把新状态盖回去（issue 555）', async () => {
     const { app, vault } = seedVault();
+    createOverlay(app);
+    const root = document.querySelector('[data-cinema-root]') as HTMLElement;
+    const PATH = '我的/影视/《瑞克和莫蒂》.md'; // 种子状态 = 在看
+    const staleCache = app.metadataCache.getFileCache(vault.file(PATH) as any);
+    clickEl(pcardByName(root, '瑞克和莫蒂'));
+    clickEl((root.querySelector('.cn-modal') as HTMLElement).querySelector('.j-edit'));
+    const form = root.querySelector('.cn-modal') as HTMLElement;
+    clickEl(form.querySelector('[data-f-st="已看"]'));
+    clickEl(form.querySelector('.j-save'));
+    await vi.waitFor(() => expect(hasNotice(/已保存「/)).toBe(true));
+    expect(M.items.find((i) => i.name === '瑞克和莫蒂')!.status).toBe(2);
+    // 真机时序：modify 事件已到、metadataCache 还停在写前那份
+    const mc = app.metadataCache as any;
+    const orig = mc.getFileCache;
+    mc.getFileCache = (f: any) => (f && f.path === PATH ? staleCache : orig.call(mc, f));
+    emitDomainEvent('vault:md-modified', { path: PATH });
+    await new Promise((r) => setTimeout(r, 400)); // 过掉 300ms 防抖窗口
+    mc.getFileCache = orig;
+    expect(M.items.find((i) => i.name === '瑞克和莫蒂')!.status, '自写后的后台重建不许用旧缓存盖回').toBe(2);
+    expect(document.querySelector('[data-cinema-root]')!.textContent).toContain('已看');
+  });
+
+  // issue 555 顺手补：适配层对 rename 只发 renamed 一条，原先影院三个通道都不含它——
+  // 在文件管理器里给影片改名，面板会一直顶着旧名直到重开
+  it('外部改名不重开也刷新：vault:md-renamed 后按新名重建（issue 555）', async () => {
+    const { app, vault } = seedVault();
+    createOverlay(app);
+    const OLD = '我的/影视/《瑞克和莫蒂》.md';
+    const NEW = '我的/影视/《瑞克和莫蒂 第一季》.md';
+    const content = vault.files.get(OLD)!;
+    vault.files.delete(OLD);
+    vault.files.set(NEW, content);
+    emitDomainEvent('vault:md-renamed', { oldPath: OLD, newPath: NEW });
+    await vi.waitFor(() => expect(M.items.some((i) => i.name === '瑞克和莫蒂 第一季')).toBe(true), { timeout: 1500 });
+    expect(M.items.some((i) => i.name === '瑞克和莫蒂')).toBe(false);
+  });
+
+  it('编辑改名 → 已存在同名被拦（锁保存按钮 + 写明原因，点不动、不落盘）', async () => {    const { app, vault } = seedVault();
     createOverlay(app);
     const root = document.querySelector('[data-cinema-root]') as HTMLElement;
     clickEl(pcardByName(root, '瑞克和莫蒂'));
