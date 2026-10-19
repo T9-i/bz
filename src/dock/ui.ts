@@ -30,7 +30,7 @@ import { Platform } from 'obsidian';
 import { topifyZ } from '../core/z-order';
 import { escManager } from '../core/esc-manager';
 import { trapPanelFocus } from '../core/ui/focus-trap';
-import { notice, notify } from '../core/notice';
+import { notice, notify, notifyUndo } from '../core/notice';
 import { uiBtn, uiIconBtn, uiBtnRow, uiChip, uiChoice, uiDialogActions, uiEmpty, uiField, uiInput, uiModal, uiProgress, uiSearch, uiSelect, uiSwitch, uiIcon } from '../core/ui';
 import { bindFormSubmit } from '../core/ui/modal';
 import type { BzAskRequest } from '../core/external-tool';
@@ -92,6 +92,7 @@ import {
 } from './rules';
 import {
   DECLARATION_FILENAME,
+  findDeclarationFiles,
   readDeclaration,
   readPanelText,
   resolveRun,
@@ -99,10 +100,7 @@ import {
 } from './declaration';
 import {
   consumeWatchdogQueue,
-  isWatchdogAlive,
-  isWatchdogInstalled,
   readWatchdogQueue,
-  readWatchdogStatus,
   summarizeWatchdogRuns,
   type WatchdogReport,
   type WatchdogReportRow,
@@ -344,6 +342,7 @@ export function unloadDock(): void {
   // 先把还没落盘的参数草稿写掉再拆 —— 卸载恰好在去抖窗口内时，clearTimeout 会把
   // 最后一次输入静默丢掉（写盘是同步 fs，卸载路径里照常能完成）
   for (const v of views) saveValuesNow(v);
+  stopLiveTick();
   hostApp = null;
   escHandle?.unregister();
   escHandle = null;
@@ -391,9 +390,6 @@ function build(app: App): void {
   const kpi = el('div', 'bz-dock-kpi');
   kpi.id = 'bz-dock-kpi';
 
-  const watchbar = el('div', 'bz-dock-watchbar');
-  watchbar.id = 'bz-dock-watchbar';
-
   const runbar = el('div', 'bz-dock-runbar');
   runbar.id = 'bz-dock-runbar';
 
@@ -403,7 +399,7 @@ function build(app: App): void {
   const body = el('div', 'bz-dock-body');
   body.id = 'bz-dock-body';
 
-  frame.append(head, kpi, watchbar, runbar, bar, body);
+  frame.append(head, kpi, runbar, bar, body);
   ov.appendChild(frame);
   ov.addEventListener('click', (e) => {
     if (e.target === ov) closeDock();
@@ -415,9 +411,6 @@ function build(app: App): void {
 
 function kpiEl(): HTMLElement | null {
   return overlay?.querySelector<HTMLElement>('#bz-dock-kpi') ?? null;
-}
-function watchbarEl(): HTMLElement | null {
-  return overlay?.querySelector<HTMLElement>('#bz-dock-watchbar') ?? null;
 }
 function runbarEl(): HTMLElement | null {
   return overlay?.querySelector<HTMLElement>('#bz-dock-runbar') ?? null;
@@ -601,66 +594,10 @@ function willAutoRun(v: DockToolView): boolean {
 function render(): void {
   renderHead();
   renderKpi();
-  renderWatch();
   renderRunbar();
   renderBar();
   renderBody();
-}
-
-/**
- * 值守条（ADR-0242）：装了值守进程才出现，**没装整条隐藏** —— 一个可选件不该在面板上占位。
- *
- * 只读：状态、本次开机跑了几次、上次跑成什么样。**不给开关** —— 「离线值守」的开在心里
- * 「设置 → 工具坞 → 自动运行」那一行（开关只有一处，面板与设置不并列同一件事）。
- */
-function renderWatch(): void {
-  const host = watchbarEl();
-  if (!host) return;
-  host.innerHTML = '';
-  if (!isWatchdogInstalled()) {
-    host.classList.add('is-off');
-    return;
-  }
-  host.classList.remove('is-off');
-
-  const st = readWatchdogStatus();
-  const alive = st !== null && isWatchdogAlive(st);
-  // 四种色调各有其意：在守 / 让位 / 被开关关掉 / 进程根本没跑起来
-  const tone = !st || !alive
-    ? 'is-down'
-    : st.mode === 'watch'
-      ? 'is-on'
-      : st.mode === 'defer'
-        ? 'is-idle'
-        : 'is-shut';
-  const text = !st || !alive
-    ? '值守进程没在运行'
-    : st.mode === 'watch'
-      ? '离线值守中'
-      : st.mode === 'defer'
-        ? '值守待命（Obsidian 在值守）'
-        : '离线值守已关';
-
-  const row = el('div', `bz-dock-wb ${tone}`);
-  row.appendChild(el('span', 'bz-dock-wb-dot'));
-  row.appendChild(el('span', 'bz-dock-wb-text', text));
-
-  // 右半边是事实，不是状态：心跳、本次开机跑了几次、上次那一次
-  const meta = el('div', 'bz-dock-wb-meta');
-  if (st) {
-    meta.appendChild(el('span', 'bz-dock-wb-fact', `心跳 ${relTime(st.at)}`));
-    meta.appendChild(el('span', 'bz-dock-wb-fact', `本次开机跑了 ${st.runsSinceBoot} 次`));
-    if (st.lastRun) {
-      const n = st.lastRun.name || st.lastRun.toolId;
-      const mark = st.lastRun.ok ? '成功' : '失败';
-      meta.appendChild(el('span', `bz-dock-wb-fact${st.lastRun.ok ? '' : ' is-bad'}`, `上次 ${n} ${mark}`));
-    }
-    if (st.core) meta.appendChild(el('span', 'bz-dock-wb-fact', `值守件 ${st.core}`));
-  } else {
-    meta.appendChild(el('span', 'bz-dock-wb-fact', '还没有心跳 —— 计划任务可能没跑起来'));
-  }
-  row.appendChild(meta);
-  host.appendChild(row);
+  ensureLiveTick(); // 面板开着且有东西在跑时，才挂那口 5 秒的拍
 }
 
 /**
@@ -872,7 +809,7 @@ function renderHead(): void {
     }),
     uiIconBtn({
       icon: 'plus',
-      title: '导入工具声明',
+      title: '导入工具（选文件夹）',
       onClick: () => importToolFlow(),
     }),
     uiIconBtn({
@@ -1010,9 +947,9 @@ function renderList(body: HTMLElement): void {
       uiEmpty({
         icon: 'square-terminal',
         title: '还没有外部工具',
-        desc: '选一个工具的声明文件（manifest.json），工具坞就知道它叫什么、有哪些参数、该怎么跑；运行记录也归它收口',
+        desc: '选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口',
         actions: uiBtnRow(
-          [uiBtn({ label: '导入声明文件', icon: 'file-input', tone: 'primary', onClick: () => importToolFlow() })],
+          [uiBtn({ label: '导入工具', icon: 'file-input', tone: 'primary', onClick: () => importToolFlow() })],
           { center: true },
         ),
       }),
@@ -1184,7 +1121,7 @@ function cardActions(v: DockToolView): ItemAction[] {
   if (v.runState?.pausedAt) {
     acts.push({ icon: 'play', label: '恢复并立即重试', onClick: () => void resumeAndRetry(v) });
   }
-  acts.push({ icon: 'pencil', label: '重新导入声明', onClick: () => void importToolFlow(v.entry) });
+  acts.push({ icon: 'pencil', label: '重新导入', onClick: () => void importToolFlow(v.entry) });
   acts.push({
     icon: 'trash-2',
     label: v.entry.enabled === false ? '启用' : '停用',
@@ -2153,6 +2090,47 @@ function liveHost(id: string): HTMLElement {
   return host;
 }
 
+/** 已跑多久（人话）。只给「比预估慢」那一行用，口径与运行记录的 durationText 一致 */
+function elapsedText(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  if (s < 60) return `${s} 秒`;
+  const m = Math.floor(s / 60);
+  return `${m} 分 ${s - m * 60} 秒`;
+}
+
+/**
+ * 运行中的轻量拍。
+ *
+ * 为什么需要：`renderLiveInto` 平时只在工具吐出新步骤/进度时被调 —— 真卡住的工具**什么都不会吐**，
+ * 于是「比预估慢」那条提醒永远没机会出现。这里每 5 秒把在跑的几格重画一次，只在有名册时启动。
+ */
+let liveTick: ReturnType<typeof setInterval> | null = null;
+
+function ensureLiveTick(): void {
+  if (liveTick !== null || !liveRunsAll().length) return;
+  liveTick = setInterval(() => {
+    const runs = liveRunsAll();
+    if (!runs.length) {
+      stopLiveTick();
+      renderRunbar();
+      return;
+    }
+    for (const r of runs) {
+      overlay
+        ?.querySelectorAll<HTMLElement>(`.bz-dock-live[data-tool="${r.toolId}"]`)
+        .forEach((h) => renderLiveInto(h, r.toolId));
+    }
+    renderRunbar();
+  }, 5_000);
+}
+
+function stopLiveTick(): void {
+  if (liveTick !== null) {
+    clearInterval(liveTick);
+    liveTick = null;
+  }
+}
+
 function renderLiveInto(host: HTMLElement, id: string): void {
   host.innerHTML = '';
   const run = liveRunOf(id);
@@ -2167,6 +2145,24 @@ function renderLiveInto(host: HTMLElement, id: string): void {
     ? `${run.progress.phase}${run.progress.pct === null ? '' : ` ${Math.round(run.progress.pct)}%`}`
     : '进行中';
   host.appendChild(el('div', 'bz-dock-live-phase', ptxt));
+
+  // 「比预估慢」：声明里写了 estimatedSec 才有判据（没写就不猜）。3 倍是个粗阈值 ——
+  // 签到 20 秒的工具跑到 1 分钟就该提醒，而备份半小时的工具跑到 90 分钟才算异常。
+  // 不自动中止：慢不等于死，掐不掐由人判断。
+  const est = run.estimatedSec;
+  if (est !== undefined && est > 0) {
+    const elapsed = Date.now() - (timeOf(run.startedAt) ?? Date.now());
+    if (elapsed > est * 1000 * 3) {
+      host.appendChild(
+        el(
+          'div',
+          'bz-dock-live-hint',
+          `已跑 ${elapsedText(elapsed)}，超过声明预估的 ${est} 秒不少 —— 可能卡住了，必要时点停止`,
+        ),
+      );
+    }
+  }
+
   // pct 为 null = 该阶段不可估 —— 画的是不确定态条纹，不是假进度
   const bar = uiProgress({ value: run.progress.pct ?? 0 });
   if (run.progress.pct === null) bar.el.classList.add('is-indeterminate');
@@ -2233,9 +2229,21 @@ function saveValuesNow(v: DockToolView): void {
 
 /** 重置参数：清掉已存的值，回到声明默认（不是「清空表单」—— 声明给了默认就回默认） */
 function resetValues(v: DockToolView): void {
+  // cookie / 路径这类值手填很贵，误点一次就全没了 —— 先留一份草稿快照，重置后给 6 秒撤销窗口。
+  // 不走「确认框」：这是可逆操作，事后反悔比事前打断更省事（core 的删除口径同理）。
+  const prev = { ...valuesOf(v) };
   draftValues.set(v.entry.id, initialValuesOf(v.manifest?.params));
   saveValuesNow(v);
   render();
+  notifyUndo(
+    '已重置参数',
+    () => {
+      draftValues.set(v.entry.id, prev);
+      saveValuesNow(v);
+      render();
+    },
+    { type: 'info' },
+  );
 }
 
 function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView): HTMLElement {
@@ -2669,6 +2677,7 @@ function updateLive(id: string): void {
   const hosts = overlay?.querySelectorAll<HTMLElement>(`.bz-dock-live[data-tool="${id}"]`);
   hosts?.forEach((h) => renderLiveInto(h, id));
   renderRunbar(); // 顶层进度条与详情里的运行台是同一次运行的两个视角，一起动
+  ensureLiveTick();
 }
 
 // ==================== 直达运行命令（bz-dock-run-<id>） ====================
@@ -2973,25 +2982,80 @@ async function applyTrust(
 }
 
 /**
- * 导入一份工具声明 —— **唯一的登记入口，而且只有一个输入：声明文件在哪**。
+ * 一个文件夹里找到多份声明时，让用户挑一份（**不猜**：选错工具比多一次点击贵得多）。
  *
- * 标题 / 描述 / 图标 / 参数 / 节奏 / 启动命令全部读自那个文件，所以这里没有「填表单」。
- * 用户看到的是「它会跑什么」的核对，不是「请你告诉我它是什么」的问卷 —— 后者要求用户
- * 知道签到接口 URL 那种只有写脚本的人才知道的事。
+ * 行上的主文案取声明里的 `name`；读不出来就退回相对路径 —— 一份坏声明不该挡住同目录里
+ * 其它能导入的工具。取消（按钮 / 遮罩 / ESC）→ null，导入中止。
+ */
+function chooseDeclaration(root: string, paths: string[]): Promise<string | null> {
+  return new Promise((resolve) => {
+    const box = el('div', 'bz-dock-pick');
+    let settled = false;
+    let close = (): void => {};
+
+    const finish = (p: string | null): void => {
+      if (settled) return;
+      settled = true;
+      close();
+      resolve(p);
+    };
+
+    for (const p of paths) {
+      const res = readDeclaration(p);
+      const rel = relPathOf(root, p);
+      const row = el('button', 'bz-dock-pickrow');
+      row.type = 'button';
+      row.appendChild(el('span', 'bz-dock-pickname', res.manifest?.name || rel));
+      row.appendChild(el('span', 'bz-dock-pickpath', rel));
+      row.addEventListener('click', () => finish(p));
+      box.appendChild(row);
+    }
+
+    const modal = uiModal({
+      head: true,
+      title: `找到 ${paths.length} 个工具，选一个`,
+      content: box,
+      maxWidth: 460,
+      className: 'bz-dock-pickmodal',
+      onClose: () => finish(null),
+    });
+    close = modal.close;
+  });
+}
+
+/** 相对路径（只用于文案；不在同一棵树下就原样返回） */
+function relPathOf(root: string, p: string): string {
+  const a = root.replace(/[\\/]+$/, '');
+  const b = p.replace(/[\\/]+$/, '');
+  return b.startsWith(`${a}/`) ? b.slice(a.length + 1) : b;
+}
+
+/**
+ * 导入一份工具声明 —— **唯一的登记入口，输入只有一个：工具文件夹在哪**。
  *
- * 传 `entry` 表示重新导入某个已登记的工具（换文件，或文件内容变了想刷新）。
+ * 用户想的是「导入这个工具」，手里有的是那个工具目录 —— 不该被要求知道声明文件叫什么、
+ * 更不该在文件对话框里一层层导航到 `manifest.json` 本身。所以这里选**文件夹**，
+ * 声明由 `findDeclarationFiles` 递归找（同目录新名优先）。找到多份时让用户挑，不猜。
+ *
+ * 标题 / 描述 / 图标 / 参数 / 节奏 / 启动命令全部读自那份声明，所以这里没有「填表单」。
+ * 用户看到的是「它会跑什么」的核对，不是「请你告诉我它是什么」的问卷。
+ *
+ * 传 `entry` 表示重新导入某个已登记的工具（换目录，或文件内容变了想刷新）。
  */
 async function importToolFlow(entry?: DockToolEntry): Promise<void> {
   if (!canRun()) {
     notice('导入声明需要桌面端（要读本机文件）', 'warning');
     return;
   }
-  const picked = await pickSystemFiles(
-    entry ? '重新选择该工具的声明文件' : `选择工具声明（${DECLARATION_FILENAME}）`,
-    [{ name: '工具声明', ext: ['json'] }],
-  );
-  if (!picked.length) return;
-  const declPath = picked[0];
+  const dir = await pickSystemFolder();
+  if (!dir) return;
+  const found = findDeclarationFiles(dir);
+  if (!found.length) {
+    notice(`这个文件夹里没找到 ${DECLARATION_FILENAME}（或旧名 dock.json）`, 'warning');
+    return;
+  }
+  const declPath = found.length === 1 ? found[0] : await chooseDeclaration(dir, found);
+  if (!declPath) return;
 
   const res = readDeclaration(declPath);
   if (!res.ok || !res.manifest) {

@@ -12,6 +12,8 @@ export { openDock, closeDock, unloadDock, ensureDock, runToolDirect } from './ui
 export { judgeDirectRun, dockToolLabel } from './command';
 /** 调度器（D1 修订：bz 亲自调度自动化工具；关着 Obsidian 时不会跑） */
 export { startDockScheduler, stopDockScheduler, kickDockScheduler } from './scheduler';
+/** 状态栏：面板没开时也能看见「有工具在跑」，点击直达面板 */
+export { mountDockStatusBar, unmountDockStatusBar } from './statusbar';
 /** 执行依赖注入缝（评审壳/测试塞假 child_process；插件侧不调用） */
 export { setDockRuntimeDeps } from './runner';
 /** fs 注入缝（评审壳/测试塞假 fs —— 声明文件与参数值住在工具目录，是 vault 外的路径） */

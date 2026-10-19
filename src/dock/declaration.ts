@@ -87,6 +87,13 @@ export interface DockFs {
    * 首次写租约前得先建出来（工具目录那边不必建：声明文件在，目录就在）。
    */
   mkdir?(path: string): void;
+  /**
+   * 列一层目录（可选）。返回 `{ name, dir }`；读不到返回 null。
+   *
+   * 只有「选文件夹 → 自动找声明」这一条路需要它；其余路径都按约定直接拼，不必列举。
+   * 缺省实现来自 node 的 `readdirSync(withFileTypes)`，测试桩不给就当作不支持（返回空）。
+   */
+  readdir?(path: string): { name: string; dir: boolean }[] | null;
 }
 
 let injectedFs: DockFs | null | undefined;
@@ -109,6 +116,7 @@ function defaultDockFs(): DockFs | null {
       renameSync?(a: string, b: string): void;
       unlinkSync?(p: string): void;
       mkdirSync?(p: string, o?: { recursive?: boolean }): void;
+      readdirSync?(p: string, o: { withFileTypes: boolean }): { name: string; isDirectory(): boolean }[];
     };
     return {
       readText: (p) => {
@@ -143,6 +151,19 @@ function defaultDockFs(): DockFs | null {
                 fs.mkdirSync!(p, { recursive: true });
               } catch {
                 /* 已存在 / 无权 —— 由随后的那次写入去暴露真问题 */
+              }
+            }
+          : undefined,
+      readdir:
+        typeof fs.readdirSync === 'function'
+          ? (p) => {
+              try {
+                return fs.readdirSync!(p, { withFileTypes: true }).map((d) => ({
+                  name: d.name,
+                  dir: d.isDirectory(),
+                }));
+              } catch {
+                return null;
               }
             }
           : undefined,
@@ -298,6 +319,51 @@ export function readDeclaration(declPath: string, fs: DockFs | null = currentFs(
       ? undefined
       : { cmd: 'node', args: [MAIN_ENTRY_FILENAME] };
   return { ok: true, manifest, path: usedPath, conventionalRun };
+}
+
+// ==================== 从文件夹找声明（导入用） ====================
+
+/** 扫描深度上限：`dock-tools/<工具>/manifest.json` 是 1 层，留到 3 层够用又不至于扫进用户主目录 */
+const SCAN_MAX_DEPTH = 3;
+/** 目录数上限：选错一个巨大的目录时别把界面卡住（找到的前几百个够了，再多也没人挑） */
+const SCAN_MAX_DIRS = 500;
+/** 不往这些目录里钻 */
+const SCAN_SKIP_DIRS = new Set(['node_modules', '.git', '.obsidian']);
+
+/**
+ * 在一个文件夹里找声明文件（递归，深度与目录数都有上限）。
+ *
+ * 为什么要有：原来的导入必须先导航到 `manifest.json` 本身 —— 用户想的是「导入这个工具」，
+ * 手里有的是那个工具文件夹，不该被要求知道声明叫什么。找到的路径按字典序返回；
+ * 同一目录里新旧两个名字都在时**只认新名**（与 `readDeclaration` 的优先级一致）。
+ *
+ * 读不到目录（桩没有 readdir / 无权限）→ 空数组，由调用方说人话。
+ */
+export function findDeclarationFiles(root: string, fs: DockFs | null = currentFs()): string[] {
+  if (!fs?.readdir) return [];
+  const out: string[] = [];
+  let dirs = 0;
+
+  const walk = (dir: string, depth: number): void => {
+    if (depth > SCAN_MAX_DEPTH || dirs++ >= SCAN_MAX_DIRS) return;
+    const entries = fs.readdir!(dir);
+    if (!entries) return;
+    const files = new Set(entries.filter((e) => !e.dir).map((e) => e.name));
+    const decl = files.has(DECLARATION_FILENAME)
+      ? DECLARATION_FILENAME
+      : files.has(DECLARATION_FILENAME_LEGACY)
+        ? DECLARATION_FILENAME_LEGACY
+        : null;
+    if (decl) out.push(joinPath(dir, decl));
+    for (const e of entries) {
+      if (!e.dir) continue;
+      if (e.name.startsWith('.') || SCAN_SKIP_DIRS.has(e.name)) continue;
+      walk(joinPath(dir, e.name), depth + 1);
+    }
+  };
+
+  walk(root.replace(/[\\/]+$/, ''), 0);
+  return out.sort((a, b) => a.localeCompare(b));
 }
 
 // ==================== 参数值（工具侧设置文件） ====================

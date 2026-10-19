@@ -104,6 +104,8 @@ export interface DockLiveRun {
   result: unknown;
   /** 原始输出尾部（诊断用；不入运行记录） */
   rawTail: string[];
+  /** 声明里的预估耗时（秒）——面板据此判「比预估慢」，缺省 = 不判 */
+  estimatedSec?: number;
   handle: ExternalToolHandle;
   done: Promise<DockRunOutcome>;
 }
@@ -146,6 +148,9 @@ export interface DockRunCallbacks {
 /** 在场运行中的会话（toolId → 内存态）—— 面板重建后可重新挂上，不丢进度 */
 const live = new Map<string, DockLiveRun>();
 
+/** 名册变化的订阅者（状态栏）—— 只在起跑与收尾时各叫一次，不逐秒打扰 */
+const liveListeners = new Set<() => void>();
+
 /**
  * 上一次现场运行的原始输出尾部（toolId → 尾部若干行）。
  *
@@ -186,6 +191,29 @@ export function stopRun(toolId: string): void {
 }
 
 /**
+ * 订阅「在场运行名册变了」（起跑 / 收尾各一次）。
+ *
+ * 存在的理由只有一个：状态栏要在**面板没开**的时候也知道有东西在跑 —— 那是本模块之外
+ * 唯一需要这份名册变化的地方，别再让调用方各写一份轮询。
+ */
+export function onLiveRunsChanged(fn: () => void): () => void {
+  liveListeners.add(fn);
+  return () => {
+    liveListeners.delete(fn);
+  };
+}
+
+function notifyLiveChanged(): void {
+  for (const fn of liveListeners) {
+    try {
+      fn();
+    } catch {
+      /* 订阅方自己出错不该影响运行 */
+    }
+  }
+}
+
+/**
  * 启动一个工具（**在场**形态）。
  *
  * 前置条件由调用方保证（声明里有 `run`、已信任、桌面端）；`values` 是用户在参数表单里填的值，
@@ -212,7 +240,7 @@ export function runTool(
   app: App,
   entry: DockToolEntry,
   launch: ResolvedRun,
-  manifest: Pick<DockManifest, 'params'> | null,
+  manifest: Pick<DockManifest, 'params' | 'runtime'> | null,
   values: Record<string, unknown>,
   cb: DockRunCallbacks = {},
   opts: DockRunOpts = {},
@@ -292,6 +320,7 @@ export function runTool(
     infos,
     result,
     rawTail,
+    estimatedSec: manifest?.runtime?.estimatedSec,
     handle,
     done: undefined as unknown as Promise<DockRunOutcome>,
   } as DockLiveRun;
@@ -310,6 +339,7 @@ export function runTool(
       durationMs: new Date(finishedAt).getTime() - startedAtDate.getTime(),
     };
     live.delete(entry.id);
+    notifyLiveChanged();
     if (rawTail.length) lastRawTails.set(entry.id, rawTail.slice(-50)); // 尾部留给详情页回看
     // 退出码只是 bz 的推断 —— 通知之前先跟工具自己那条记录对一次账（见 reconcileWithRecord）
     const settled = reconcileWithRecord(outcome, entry.path);
@@ -318,6 +348,7 @@ export function runTool(
   });
 
   live.set(entry.id, run);
+  notifyLiveChanged();
   return run;
 }
 

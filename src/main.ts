@@ -102,6 +102,8 @@ import {
   readToolEntries,
   loadDockStore,
   migrateLegacyDockSettings,
+  mountDockStatusBar,
+  unmountDockStatusBar,
 } from './dock';
 
 /** 命令表：id/name 统一命名（spec「命令 id 全清单」第 9 轮：bz-<域>-<动作>）。
@@ -407,6 +409,9 @@ export default class BzPlugin extends Plugin {
     // 保险库状态栏（补丁2：锁状态提示，点击打开面板；解锁态由 encrypt Controller 接管刷新）
     mountEncryptStatusBar(this.addStatusBarItem());
 
+    // 工具坞状态栏：面板没开也看得见「有工具在跑」，点击打开面板
+    mountDockStatusBar(this.addStatusBarItem(), this.app);
+
     // 设置页
     this.addSettingTab(new BzSettingTab(this.app, this));
 
@@ -492,6 +497,7 @@ export default class BzPlugin extends Plugin {
     escManager.destroy();
     unmountPomodoroStatusBar();
     unmountEncryptStatusBar();
+    unmountDockStatusBar();
     unloadPomodoro();
     unloadMemo();
     unloadFileSync();

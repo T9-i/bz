@@ -22,6 +22,7 @@ import {
   SETTINGS_FILENAME,
   RUNS_FILENAME,
   dirOf,
+  findDeclarationFiles,
   joinPath,
   panelPathFor,
   readDeclaration,
@@ -429,5 +430,64 @@ describe('readRunsText', () => {
   it('两名都不在 → null（调用方降级为「还没有记录」，不抛）', () => {
     expect(readRunsText(DECL, memFs({}))).toBeNull();
     expect(readRunsText(DECL, null)).toBeNull();
+  });
+});
+
+// ==================== 选文件夹 → 找声明 ====================
+
+/** 目录树假 fs：只实现 readdir（这一条路只列目录，不读内容） */
+function treeFs(tree: Record<string, { files?: string[]; dirs?: string[] }>): DockFs {
+  return {
+    readText: () => null,
+    writeText: () => {},
+    readdir: (p) => {
+      const node = tree[p];
+      if (!node) return null;
+      return [
+        ...(node.files ?? []).map((name) => ({ name, dir: false })),
+        ...(node.dirs ?? []).map((name) => ({ name, dir: true })),
+      ];
+    },
+  };
+}
+
+describe('findDeclarationFiles', () => {
+  it('工具目录本身就是选中的文件夹 → 找到它的声明', () => {
+    const fs = treeFs({ 'C:/tools/signin': { files: ['manifest.json', 'main.mjs'] } });
+    expect(findDeclarationFiles('C:/tools/signin', fs)).toEqual(['C:/tools/signin/manifest.json']);
+  });
+
+  it('选中上一层 → 逐个子目录都找到（按路径排序）', () => {
+    const fs = treeFs({
+      'C:/tools': { dirs: ['b-tool', 'a-tool'] },
+      'C:/tools/a-tool': { files: ['manifest.json'] },
+      'C:/tools/b-tool': { files: ['manifest.json'] },
+    });
+    expect(findDeclarationFiles('C:/tools', fs)).toEqual([
+      'C:/tools/a-tool/manifest.json',
+      'C:/tools/b-tool/manifest.json',
+    ]);
+  });
+
+  it('同一目录新旧名都在 → 只认新名（与 readDeclaration 的优先级一致）', () => {
+    const fs = treeFs({
+      'C:/tools/x': { files: [DECLARATION_FILENAME_LEGACY, DECLARATION_FILENAME] },
+    });
+    expect(findDeclarationFiles('C:/tools/x', fs)).toEqual([`C:/tools/x/${DECLARATION_FILENAME}`]);
+  });
+
+  it('跳过 node_modules 与隐藏目录', () => {
+    const fs = treeFs({
+      'C:/tools': { dirs: ['node_modules', '.git', 'real'] },
+      'C:/tools/node_modules/pkg': { files: ['manifest.json'] },
+      'C:/tools/.git': { files: ['manifest.json'] },
+      'C:/tools/real': { files: ['manifest.json'] },
+    });
+    expect(findDeclarationFiles('C:/tools', fs)).toEqual(['C:/tools/real/manifest.json']);
+  });
+
+  it('桩没有 readdir / 目录读不到 → 空数组（调用方说人话）', () => {
+    expect(findDeclarationFiles('C:/tools', memFs({}))).toEqual([]);
+    expect(findDeclarationFiles('C:/tools', treeFs({}))).toEqual([]);
   });
 });
