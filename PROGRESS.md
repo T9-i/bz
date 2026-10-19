@@ -700,3 +700,15 @@
 - [x] 例外：加密摘明文（`encrypt/data.ts`、日记 `purge: true`）保持硬删，回收站不留明文
 - [x] 夹具语义按真实 API 重写；剪藏 4 处断言改 `system === false`；日记补 `.trash` 落位与 `purge` 两条用例
 - [x] 门禁：全量 600 文件 / 9251 例通过，tsc 干净；主仓四步产物已重出（skin-pack / changelog / manifest / build）
+
+## Issue 555 — 影院保存后面板不生效，必须重开
+
+**状态：已交付**（2026-10-19，worktree `cinema-refresh`）
+
+- [x] 根因：写盘路径内存先行 + renderAll 本已生效，但 300ms 后 `registerAutoRefresh` 的 `rebuildItems`
+      读 `metadataCache` 重建 —— Obsidian 缓存解析异步，这一拍拿到写前那份 frontmatter，把新值盖回旧值
+- [x] 自写登记 `state.noteSelfWrite` / `isRecentSelfWrite`（1500ms 窗口），`resetCinemaState` 一并清
+- [x] 写盘统一入口 `ui.writeFm`（processFrontMatter + 成功后登记），面板 7 处直写全改走它
+- [x] 后台刷新对自写文件跳过这一次重建（外部编辑照旧）；顺手补 `renamed` 通道（改名不再要重开）
+- [x] 测试：自写回灌守卫（去掉守卫即红）、外部改名刷新、窗口语义三例
+- [x] 门禁：全量 600 文件 / 9254 例通过，tsc 干净；主仓四步产物已重出

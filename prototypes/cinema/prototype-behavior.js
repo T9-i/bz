@@ -1,4 +1,4 @@
-/* 源指纹 66d416697e75cb8c · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 774039890658a4a6 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/cinema/fake-sim.ts","prototypes/cinema/fake/fake-obsidian.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/douban-queue.ts","src/cinema/index.ts","src/cinema/layouts/midnight/render.ts","src/cinema/motion.ts","src/cinema/recommend.ts","src/cinema/render.ts","src/cinema/seasons.ts","src/cinema/shared.ts","src/cinema/state.ts","src/cinema/type-decide.ts","src/cinema/ui.ts","src/cinema/yearbook/data.ts","src/cinema/yearbook/engine.ts","src/cinema/yearbook/index.ts","src/cinema/yearbook/kits.ts","src/cinema/yearbook/motions.ts","src/cinema/yearbook/scenes.ts","src/core/ai.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/landscape.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/cinema/fake-sim.ts → window.BZW_cinema（行为单源预览包，issue 245/ADR-0106） */
 var BZW_cinema = (() => {
@@ -5319,6 +5319,22 @@ var BZW_cinema = (() => {
     aiError: null,
     aiBase: null
   };
+  var SELF_WRITE_GUARD_MS = 1500;
+  var selfWrites = /* @__PURE__ */ new Map();
+  function noteSelfWrite(path, now = Date.now()) {
+    if (!path) return;
+    selfWrites.set(path, now);
+    for (const [p, at2] of selfWrites) if (now - at2 > SELF_WRITE_GUARD_MS) selfWrites.delete(p);
+  }
+  function isRecentSelfWrite(path, now = Date.now()) {
+    const at2 = selfWrites.get(path);
+    if (at2 === void 0) return false;
+    if (now - at2 > SELF_WRITE_GUARD_MS) {
+      selfWrites.delete(path);
+      return false;
+    }
+    return true;
+  }
 
   // src/cinema/constants.ts
   var STATUS_WANT = 0;
@@ -12287,7 +12303,7 @@ tags:
     const wasOnShelf = it.lists.includes(REWATCH_SHELF);
     if (wasOnShelf) it.lists = it.lists.filter((l) => l !== REWATCH_SHELF);
     try {
-      await app.fileManager.processFrontMatter(it.file, (fm) => {
+      await writeFm(app, it.file, (fm) => {
         fm["重看"] = normalizeRewatches(fm["重看"]).concat({ at: now, rating });
         fm["观影日期"] = now;
         if (wasOnShelf) {
@@ -12328,7 +12344,7 @@ tags:
     });
     try {
       for (const it of changing) {
-        await app.fileManager.processFrontMatter(it.file, (fm) => {
+        await writeFm(app, it.file, (fm) => {
           const cur = normalizeLists(fm["片单"]);
           const next = on ? cur.includes(list) ? cur : [...cur, list] : cur.filter((l) => l !== list);
           if (next.length) fm["片单"] = next;
@@ -12357,7 +12373,7 @@ tags:
     const prev = it.mergeInto;
     it.mergeInto = target;
     try {
-      await app.fileManager.processFrontMatter(it.file, (fm) => {
+      await writeFm(app, it.file, (fm) => {
         if (target) fm["合集"] = target;
         else delete fm["合集"];
       });
@@ -12394,7 +12410,7 @@ tags:
     const targets = M.items.filter((x) => x.lists.includes(oldName) && x.file);
     try {
       for (const x of targets) {
-        await app.fileManager.processFrontMatter(x.file, (fm) => {
+        await writeFm(app, x.file, (fm) => {
           const cur = normalizeLists(fm["片单"]);
           const at2 = cur.indexOf(oldName);
           if (at2 >= 0) {
@@ -12588,7 +12604,7 @@ tags:
           for (const name of createdNames) {
             const it = M.items.find((x) => x.name === name);
             if (!(it == null ? void 0 : it.file)) continue;
-            await app.fileManager.processFrontMatter(it.file, (fm) => {
+            await writeFm(app, it.file, (fm) => {
               fm["片单收纳"] = true;
               if (validList) {
                 const cur = normalizeLists(fm["片单"]);
@@ -12658,6 +12674,10 @@ tags:
     );
     return out;
   }
+  async function writeFm(app, file, cb) {
+    await app.fileManager.processFrontMatter(file, cb);
+    noteSelfWrite(file.path);
+  }
   async function persistItem(item, app, edit, douban, posterRel) {
     if (!item.file) {
       const folder = M.folderPath;
@@ -12683,7 +12703,7 @@ tags:
       const f = await app.vault.create(filePath, content);
       item.file = f;
       if (item.review || douban || posterRel) {
-        await app.fileManager.processFrontMatter(f, (fm) => {
+        await writeFm(app, f, (fm) => {
           var _a, _b, _c, _d, _e;
           if (posterRel) fm["海报"] = posterRel;
           if (item.review) fm["影评"] = item.review;
@@ -12715,7 +12735,7 @@ tags:
         item.file = app.vault.getAbstractFileByPath(newPath) || item.file;
       }
     }
-    await app.fileManager.processFrontMatter(item.file, (fm) => {
+    await writeFm(app, item.file, (fm) => {
       fm["状态"] = statusText(item.status);
       if (item.rating !== null && item.rating > 0) fm["评分"] = item.rating;
       else if (fm["评分"] !== void 0) delete fm["评分"];
@@ -14706,6 +14726,7 @@ tags:
     let timer = null;
     const schedule = (file) => {
       if (file && file.path && !file.path.startsWith(M.folderPath + "/")) return;
+      if (file && file.path && isRecentSelfWrite(file.path)) return;
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
         if (!M.currentOverlay) return;
@@ -14719,6 +14740,12 @@ tags:
     onDomainEvent("vault:md-created", (evt) => schedule({ path: evt.path }));
     onDomainEvent("vault:md-deleted", (evt) => schedule({ path: evt.path }));
     onDomainEvent("vault:md-modified", (evt) => schedule({ path: evt.path }));
+    const onRenamed = (evt) => {
+      schedule({ path: evt == null ? void 0 : evt.oldPath });
+      schedule({ path: evt == null ? void 0 : evt.newPath });
+    };
+    onDomainEvent("vault:md-renamed", onRenamed);
+    onDomainEvent("cinema:file-renamed", onRenamed);
   }
   var POSTER_RENAME_DEBOUNCE_MS = 300;
   var posterSyncRegistered = false;
