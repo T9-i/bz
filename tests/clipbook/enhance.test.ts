@@ -266,7 +266,7 @@ describe('误标/误删可撤销（enh 包 5）', () => {
 
   // 翻转（效率整改 5 同口径）：原用例先断言「删除剪藏」确认框三段式文案再点确定；
   // 免确认后点删除直接 trash，确认框断言退役，保留 trash + 撤销重建链断言
-  it('删除剪藏免确认：vault.trash 移入系统回收站，撤销后原路径恢复（效率整改 5）', async () => {
+  it('删除剪藏免确认：vault.trash 移入库内回收站（.trash），撤销后原路径恢复（效率整改 5）', async () => {
     const { vault } = await openDesktop();
     const clipRow = [...document.querySelectorAll('.bz-rail-item')].find((r) => r.textContent!.includes('剪藏本')) as HTMLElement;
     clipRow.click();
@@ -276,16 +276,16 @@ describe('误标/误删可撤销（enh 包 5）', () => {
     const delBtn = [...menu.querySelectorAll('.bz-item-menu-item')].find((b) => b.textContent!.trim() === '删除') as HTMLElement;
     delBtn.click();
     await vi.advanceTimersByTimeAsync(30);
-    // 免确认：确认框不出现，直接进系统回收站
+    // 免确认：确认框不出现，直接进库内回收站
     expect(document.querySelector('#__shared_confirm_popup__')).toBeNull();
     await vi.waitFor(() => {
-      expect(vault.trashed.some((t) => t.path === '归档/网页剪藏/剪藏笔记A.md' && t.system)).toBe(true);
+      expect(vault.trashed.some((t) => t.path === '归档/网页剪藏/剪藏笔记A.md' && t.system === false)).toBe(true);
       expect(vault.files.has('归档/网页剪藏/剪藏笔记A.md')).toBe(false);
     });
     // 撤销通知带对象名
     await vi.waitFor(() => {
       const msg = document.querySelector('.bz-notice-msg') as HTMLElement;
-      expect(msg.textContent).toBe('已删除剪藏「剪藏笔记A」（已移入系统回收站）');
+      expect(msg.textContent).toBe('已删除剪藏「剪藏笔记A」（已移入 Obsidian 回收站）');
     });
     // 通知撤销 → 原路径重建
     const noticeAction = await vi.waitFor(() => document.querySelector('.bz-notice-action') as HTMLElement);

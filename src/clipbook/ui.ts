@@ -27,6 +27,7 @@
  */
 import { Component, MarkdownRenderer, TFile } from 'obsidian';
 import { getApp } from '../core/app';
+import { trashNote } from '../core/note-trash';
 import { notice, notifyActionError, notifySaveError, notifyUndo } from '../core/notice';
 import { uiBtn, uiEmpty, uiResizable, uiVSplitter, mountIcons } from '../core/ui';
 import { cmpZh, debounce, formatRelativeTime, localDayKey, openExternalUrl } from '../core/utils';
@@ -1549,7 +1550,7 @@ async function undoDeleteNews(rawBefore: any): Promise<void> {
 }
 
 /** 删除剪藏笔记（效率整改 5 免确认 + issue 336/ADR-0149 trash 前 source 降级）：
- *  文件级删除进系统回收站 + 内容快照撤销原路径重建，双兜底覆盖误删，不再前置确认。
+ *  文件级删除进 Obsidian 回收站（ADR-0245）+ 内容快照撤销原路径重建，双兜底覆盖误删，不再前置确认。
  *  导出仅供删除流集成测试复用（真实入口 = 条目动作菜单的删除项）。 */
 export async function deleteClipNote(a: ClipArticle): Promise<void> {
   const note = a.note as ClipNote | undefined;
@@ -1569,10 +1570,10 @@ export async function deleteClipNote(a: ClipArticle): Promise<void> {
       } catch (e) {
         console.warn('[剪藏本] 知识卡片来源回退失败（接受，静默）', e);
       }
-      await getApp().vault.trash(note.file, true); // 系统回收站（enh 包 5：替代硬删除）
+      await trashNote(getApp(), note.file); // 库内回收站（ADR-0245：替代硬删除，也不再走系统回收站）
       clipBodyCache.delete(path);
       void clearArticleTracking(a.id).catch(() => { /* 侧写残留无害，不阻断删除 */ });
-      notifyUndo(`已删除剪藏「${a.title}」（已移入系统回收站）`, () => void undoTrashClip(path, content));
+      notifyUndo(`已删除剪藏「${a.title}」（已移入 Obsidian 回收站）`, () => void undoTrashClip(path, content));
       motionSnipGhost(clipCardEl(a.id)); // 动效：剪走（剪藏条目同样从目录被剪下）
       await refreshAfterAction();
     } catch (e) {

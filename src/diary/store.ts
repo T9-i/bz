@@ -8,7 +8,8 @@
  * - 新建（addEntry）：按日期串行（队列键 = `<目录>/<date>` 伪路径），队内取空闲文件名
  *   （撞名循环，同刻第二篇落 `-2` 后缀）后 vault.create——先建后写全程在同一串行键内，无同刻竞态；
  * - 改标签（updateDiaryTags）：只重写 frontmatter，正文一字不动；
- * - 删除（removeDiaryEntries）：条目文件整文件删除（删除条目 = 删除其文件）。
+ * - 删除（removeDiaryEntries）：条目文件整文件移入 Obsidian 回收站（ADR-0245：整篇删除 = 整个条目文件进
+ *   `.trash`，可翻回；早期实现是 vault.delete 硬删，删错即没）。
  * 磁盘同步即守卫：读盘失败抛 DiaryFileReadError 中止任务（D1：视为空文件会删掉整篇日记）；
  * 文件存在但解析不出条目（文件名非条目形状/日期非法，frontmatter 损坏已由文件名降级兜住）
  * 抛 UnparsedLineError 拒处理——直接写会永久抹掉原文。运行时宽（降级）、体检严（repair lint）。
@@ -16,6 +17,7 @@
  * 本模块不碰 DOM、不挂监听。
  */
 import { getApp } from '../core/app';
+import { trashNote } from '../core/note-trash';
 import { notify } from '../core/notice';
 import { emitDomainEvent } from '../core/domain-bus';
 import { enqueueFileTask } from '../core/storage';
@@ -114,6 +116,9 @@ function extraFrontmatterLines(content: string): string[] {
 export interface DateWriteOptions {
   /** 目标条目文件完整 vault 路径（定位到具体文件时必传） */
   filePath?: string;
+  /** 销毁而非回收（ADR-0245 唯一例外：明文收进保险库后摘除原条目文件——
+   *  回收站里留一份明文等于加密白做）。只有加密流程传它，日常删除一律不传 */
+  purge?: boolean;
 }
 
 /** 枚举某日期的全部条目文件路径（日记目录下平铺 + 子目录递归场景，basename 形状 + 日期双重过滤） */
@@ -242,7 +247,8 @@ export async function addEntry(
 
 /**
  * 删除匹配条目（定位谓词由调用方闭包，locator 行号兜底语义沿用）。
- * 命中即整文件删除；解析失败/不匹配的文件跳过不动。返回删除条数。
+ * 命中即整文件移入 Obsidian 回收站（`opts.purge` 时销毁，仅供加密收信后摘明文）；
+ * 解析失败/不匹配的文件跳过不动。返回删除条数。
  */
 export async function removeDiaryEntries(
   dateStr: string,
@@ -257,7 +263,9 @@ export async function removeDiaryEntries(
         // 写在队列回调词法区域内（D3 直写守门契约内实现）：守卫读 + 删除文件一气呵成
         const { file, entry } = await readEntryCtxInQueue(p);
         if (!file || !entry || !match(entry)) return false;
-        await getApp().vault.delete(file);
+        const app = getApp();
+        if (opts?.purge) await app.vault.delete(file); // 明文摘除：不进回收站（ADR-0245 例外）
+        else await trashNote(app, file);
         if (diaryDataMap) diaryDataMap.delete(p);
         return true;
       });

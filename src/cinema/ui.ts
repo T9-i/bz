@@ -14,6 +14,7 @@
 import type { App, IconName } from 'obsidian';
 import { TFile } from 'obsidian';
 import { notice, notifySaveError } from '../core/notice';
+import { trashNote } from '../core/note-trash';
 import { openFlowDialog } from '../core/flow-dialog';
 import { emitDomainEvent } from '../core/domain-bus';
 import { escManager, registerPanelEsc, unregisterPanelEsc } from '../core/esc-manager';
@@ -2332,7 +2333,7 @@ function openConfirm(item: CinemaItem, app: App): void {
   void openFlowDialog({
     title: '删除影视',
     // message 经 core escapeHtml（片名注入防护），\n 渲染为 <br> 分行
-    message: `确定删除「${item.name}」吗？\n将移入系统回收站，可在回收站恢复`,
+    message: `确定删除「${item.name}」吗？\n将移入 Obsidian 回收站（.trash），可在回收站恢复`,
     // 流程框挂 document.body、不在面板树内：cn-skin 取午夜场调色板（菜单/抽屉皮肤同一通道），
     // bz-cinema-flow-dialog = 本域确认框专属类；删除是危险主动作 → core 另挂 bz-flow-dialog--danger
     className: 'cn-skin bz-cinema-flow-dialog',
@@ -2344,7 +2345,7 @@ function openConfirm(item: CinemaItem, app: App): void {
     if (v !== 'ok') return;
     if (item.file) {
       try {
-        await app.vault.trash(item.file, true);
+        await trashNote(app, item.file);
       } catch (e) {
         console.error('删除影视笔记失败:', e);
         notice('删除失败：文件可能被占用，请重试', 'error');
