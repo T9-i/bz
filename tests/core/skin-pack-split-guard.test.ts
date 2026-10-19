@@ -18,6 +18,23 @@ import { describe, expect, it } from 'vitest';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 /** 唯一被允许注入的模块（ADR-0199 决策 4） */
 const INJECTION_OWNER = 'src/core/skin-pack.ts';
+/**
+ * 第二处例外（2026-10-20，ADR-0243 补记）：展示板沙箱框**内部文档**的滚动条样式。
+ *
+ * 它和 ADR-0199 不是一回事：那份管的是**插件自己的 UI**（静态、单源、可审查），
+ * 而这里写的是别人递进来的 iframe 文档 —— 框里的原生滚动条只有 `<style>` 改得动，
+ * `style` 属性写不了伪元素，core 的界面级规则（ADR-0122）又跨不过文档边界。
+ *
+ * 所以例外开了，但**掐死范围**：这个文件里只准出现一个 `<style>`，内容只准是滚动条声明，
+ * 选择器只准落在 html / body 及其 `::-webkit-scrollbar` 上。想拿它顺手改框里别的样式，
+ * 下面那条断言会红。
+ */
+const FRAME_DOC_OWNER = 'src/dock/ui.ts';
+const FRAME_CSS_CONST = 'FRAME_SCROLLBAR_CSS';
+/** 框文档样式里允许出现的属性（全是滚动条相关，别的一项不准有） */
+const FRAME_CSS_ALLOWED_PROPS = new Set(['scrollbar-width', '-ms-overflow-style', 'display', 'width', 'height']);
+/** 属性 display/width/height 只准写在伪元素选择器上 */
+const PSEUDO_ONLY_PROPS = new Set(['display', 'width', 'height']);
 
 /** 列出 src 下所有 .ts */
 function allSources(dir = path.join(ROOT, 'src'), out: string[] = []): string[] {
@@ -49,10 +66,10 @@ const STYLE_INJECTION = [
 const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
 
 describe('唯一注入点守卫（铁律 4 / ADR-0199）', () => {
-  it(`${INJECTION_OWNER} 之外，src 下没有任何 <style> 注入`, () => {
+  it(`${INJECTION_OWNER} 之外，src 下没有任何 <style> 注入（${FRAME_DOC_OWNER} 见下一条）`, () => {
     const offenders: string[] = [];
     for (const rel of allSources()) {
-      if (rel === INJECTION_OWNER) continue;
+      if (rel === INJECTION_OWNER || rel === FRAME_DOC_OWNER) continue;
       const code = stripComments(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
       for (const re of STYLE_INJECTION) {
         if (re.test(code)) {
@@ -62,6 +79,46 @@ describe('唯一注入点守卫（铁律 4 / ADR-0199）', () => {
       }
     }
     expect(offenders, `运行时注入 <style> 只允许在 ${INJECTION_OWNER}（要第二处请另开 ADR）`).toEqual([]);
+  });
+
+  it(`第二处例外只准碰滚动条：${FRAME_DOC_OWNER} 里的 ${FRAME_CSS_CONST}`, () => {
+    const code = stripComments(fs.readFileSync(path.join(ROOT, FRAME_DOC_OWNER), 'utf8'));
+
+    // ① 整个文件只准有一个 <style>
+    expect(code.match(/<style[\s>]/gi)?.length, '一个文件里不许有第二个 <style>').toBe(1);
+
+    // ② 它必须是那条常量的值，不是随手拼在别处的
+    const at = code.indexOf(`const ${FRAME_CSS_CONST}`);
+    expect(at, `找不到 ${FRAME_CSS_CONST}`).toBeGreaterThan(0);
+    const styleAt = code.indexOf('<style>', at);
+    const styleEnd = code.indexOf('</style>', styleAt);
+    expect(styleAt, `${FRAME_CSS_CONST} 里没有 <style>`).toBeGreaterThan(at);
+    expect(styleEnd).toBeGreaterThan(styleAt);
+
+    // ③ 里面只准有滚动条声明，且 display/width/height 只准挂在伪元素上
+    //    常量是多段字符串拼的（读源码文本会读到 `' +` 这种记号），先把字面量拼回真值再解析
+    const raw = code.slice(at, styleEnd + '</style>'.length);
+    const css = [...raw.matchAll(/'([^']*)'/g)].map((m) => m[1]).join('');
+    const inner = css.replace(/^<style>/, '').replace(/<\/style>$/, '');
+    const rules = [...inner.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+    expect(rules.length, '解析不出规则，写法可能变了').toBeGreaterThan(0);
+    for (const [, selector, body] of rules) {
+      const sels = selector.split(',').map((s) => s.trim()).filter(Boolean);
+      for (const sel of sels) {
+        expect(sel, `选择器越界：${sel}`).toMatch(/^(html|body)(::-webkit-scrollbar)?$/);
+      }
+      for (const decl of body.split(';').map((d) => d.trim()).filter(Boolean)) {
+        const [prop, ...rest] = decl.split(':').map((s) => s.trim());
+        expect(FRAME_CSS_ALLOWED_PROPS.has(prop), `属性越界：${prop}`).toBe(true);
+        expect(rest.join(':'), `声明写坏了：${decl}`).not.toBe('');
+        if (PSEUDO_ONLY_PROPS.has(prop)) {
+          expect(sels.every((s) => s.includes('::-webkit-scrollbar')), `${prop} 只准写在伪元素上`).toBe(true);
+        }
+      }
+    }
+
+    // ④ 真的注进了框文档（写在常量里却没被用 = 等于没写）
+    expect(code).toMatch(/srcdoc\s*=[\s\S]{0,200}\$\{FRAME_SCROLLBAR_CSS\}/);
   });
 
   it('唯一注入点确实存在且真的在注入（防守卫把「功能被删」当干净）', () => {

@@ -114,15 +114,31 @@ iframe 把这两样天然关在框里：展示板的样式只能影响它自己�
 上面那条「框跟着内容长」的代价兑现了：一个列几十条游戏的展示板会把详情页顶成一堵墙，
 要滚到很下面才看得到「运行记录」。所以上限**加回来**，取 560 px。
 
-**这次为什么不会再露出原生滚动条**：2026-10-15 补记里挂到框文档根元素上的 `scrollbar-width: none`
-已经在了 —— 那才是当年真正的病根。条被隐藏之后，框内滚动只剩「滚得动但看不见条」这一种表现，
-正是列表想要的。实现方式是 `frame.style.maxHeight`（CSS 压住 `fitFrameHeight` 写的 inline height），
-`fitFrameHeight` 本身仍然只按内容量高、不做 `Math.min` —— 询问框没有同样的需求，不能跟着被封。
+**上限挂在框上（`frame.style.maxHeight`），滚动也在框内。** 不进 CSS 是为了让「高度与滚动」
+只在一处：`fitFrameHeight` 照旧按内容量高（不做 `Math.min`，询问框不受影响），CSS 的 `max-height`
+压得住它写的 inline height，超出的部分由框自己滚。
+
+**条必须藏住 —— 否则上限一加就重蹈 2026-10-15。** 那次的处理是「框文档根元素挂
+`scrollbar-width: none`」，但它只在 Chromium 121+ 生效；这台 Obsidian 的 Electron 更老，
+那条**静默无效**（用户第二次贴图，条还在）。所以补 `::-webkit-scrollbar`，两条一起上：
+`scrollbar-width` / `-ms-overflow-style` 走新版本，`::-webkit-scrollbar` 兜老版本。
+两者合起来就是 `src/dock/ui.ts` 的 `FRAME_SCROLLBAR_CSS`，注入在 srcdoc 的 `<head>` 里。
+
+**这是铁律 4 的第二处例外，也是唯一一处**（2026-10-20 由用户明确放行）。它与 ADR-0199
+不是一回事：那份管的是**插件自己的 UI**（静态、单源、可审查），而这里写的是工具递进来的
+**另一个文档** —— 框里的原生滚动条只能靠 `<style>` 改，`style` 属性写不了伪元素，
+core 的界面级规则（ADR-0122）跨不过文档边界。范围被测试掐死：
+`tests/core/skin-pack-split-guard.test.ts` 要求这个文件里**只有一个** `<style>`、
+内容只准是滚动条声明、选择器只准落在 `html` / `body` 及其 `::-webkit-scrollbar` 上。
+想拿它顺手改框里别的样式，守卫会红。
 
 **外链**：展示板里「直达商店页」是刚需，而 `target=_blank` 在没有 `allow-popups` 的沙箱里
-是**静默**失败的（不报错、点了没反应）。沙箱串改成
-`allow-same-origin allow-popups allow-popups-to-escape-sandbox`（仅展示板；询问框不变）。
-后一个 flag 不能少：少了新标签页会继承沙箱，目标站点自己的 JS 全废。
+是**静默**失败的（不报错、点了没反应）。两道保险：
+① 沙箱串加 `allow-same-origin allow-popups allow-popups-to-escape-sandbox`（仅展示板）；
+后一个 flag 不能少 —— 少了新标签页继承沙箱，目标站点自己的 JS 全废。
+② 框是同源的，外面再加一层 `wireExternalLinks` 监听：拦下 `a[href]` 的点击、`preventDefault`，
+用 `shell.openExternal` 交给系统浏览器。Electron 里 `window.open` 开不开、开到哪儿全看宿主版本，
+只靠 flag 不保险。
 边界没松：仍然没有 `allow-scripts`、没有 `allow-top-navigation` —— 框里跑不了脚本，也顶不掉面板。
 
 **代价**：滚动条不可见，用户得知道这块能滚。展示板作者该在末尾写一句「还有多少条」。
