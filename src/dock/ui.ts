@@ -1736,6 +1736,19 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
 const BOARD_MAX_BYTES = 512 * 1024;
 
 /**
+ * 展示板高度上限（2026-10-20 补）：内容再多也不让这块把详情页顶到几千像素。
+ *
+ * 这条**推翻过两次**，别急着改回去：
+ *  - 2026-10-15 之前有 520 px 上限，超了在框内滚 —— 用户报「展示窗口不显示滚动条」，
+ *    原因是框里滚出来的是**原生**滚动条（样式管不着、不跟主题）。于是改成「框跟着内容长」。
+ *  - 现在改回来，是因为框文档的**根元素**已经挂了 `scrollbar-width:none`（同一条补记），
+ *    框内滚动**不出滚动条**了；上限才有意义 —— 没有它，一个列几十条游戏的展示板就是一堵墙。
+ *
+ * 代价要认：滚动条不可见，用户得知道这块能滚（面板自己该在末尾给一句提示）。
+ */
+const BOARD_MAX_HEIGHT = 560;
+
+/**
  * 灌给展示板的主题变量 —— 只挑「画一块内容」够用的那一小撮。
  * 给全套等于把面板内部 token 变成公开 API（日后重构得先问过所有工具），而这一小撮已经够
  * 脚本画出「像是面板的一部分」的东西：底色/文字/描边/品牌色/圆角/字体/间距。
@@ -1882,11 +1895,28 @@ export function fitFrameHeight(frame: HTMLIFrameElement): void {
  *    哪天换个人来维护，这条口子一定会被当成能力用。
  *  - 带 `allow-same-origin` 只是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度）。
  */
-function sandboxFrame(html: string, className: string, title: string): HTMLIFrameElement {
+function sandboxFrame(
+  html: string,
+  className: string,
+  title: string,
+  opts: { maxHeight?: number; allowPopups?: boolean } = {},
+): HTMLIFrameElement {
   const frame = document.createElement('iframe');
   frame.className = className;
-  frame.setAttribute('sandbox', 'allow-same-origin');
+  // allow-popups：工具想在展示板里放**外链**（比如直达商店页）就得有它，否则 `target=_blank`
+  // 会被沙箱静默吃掉 —— 点了没反应也不报错。配套的 allow-popups-to-escape-sandbox 不能少：
+  // 少了的话新标签页继承这层沙箱，目标站点自己的 JS 全废，开出来是个残页。
+  // **仍然不给** allow-scripts / allow-top-navigation：框里跑不了脚本，也顶不掉整个面板。
+  frame.setAttribute(
+    'sandbox',
+    opts.allowPopups
+      ? 'allow-same-origin allow-popups allow-popups-to-escape-sandbox'
+      : 'allow-same-origin',
+  );
   frame.setAttribute('title', title);
+  // max-height 挂在元素上：`fitFrameHeight` 写的是 inline height，CSS 的 max-height 照样压得住，
+  // 超出的内容由框自己滚（框文档根元素隐藏滚动条，见 BOARD_MAX_HEIGHT 的说明）
+  if (opts.maxHeight) frame.style.maxHeight = `${opts.maxHeight}px`;
   // 框里写**片段**就行（不必 `<!doctype html><html><body>`）—— 外层裹的 `<html>` 挂根上的那条
   // （隐藏根滚动条），`<body>` 承载主题基线；作者递了整份文档也能用（内层标签的属性以这一层为准）
   frame.srcdoc = `<html style="${frameRootStyle()}"><body style="${frameBaseStyle()}">${html}</body></html>`;
@@ -1920,7 +1950,12 @@ function boardSection(v: DockToolView): HTMLElement | null {
     return host;
   }
 
-  host.appendChild(sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`));
+  host.appendChild(
+    sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`, {
+      maxHeight: BOARD_MAX_HEIGHT,
+      allowPopups: true,
+    }),
+  );
   return host;
 }
 

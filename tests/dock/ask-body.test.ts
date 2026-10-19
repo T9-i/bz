@@ -88,13 +88,14 @@ describe('询问框正文：纯文本那一路', () => {
 });
 
 describe('两个框都不自滚（滚动交回宿主）', () => {
-  it('src/dock/ui.ts 里没有写死的高度上限（一写死，框里就会长滚动条）', () => {
+  it('询问框仍然没有写死上限；展示板的上限只挂在框元素上，fitFrameHeight 不做封顶', () => {
     const src = readFileSync(path.join(ROOT, 'src/dock/ui.ts'), 'utf8');
-    // 曾经的两个上限常量：展示板 520px / 询问框正文 360px
-    expect(src).not.toMatch(/BOARD_MAX_HEIGHT/);
+    // 2026-10-15 取消过两个上限常量：展示板 520px / 询问框正文 360px。
+    // 2026-10-20 展示板那边又加回来了（BOARD_MAX_HEIGHT，走 frame.style.maxHeight）——
+    // 因为框文档根元素已经隐藏滚动条，框内滚动不再露原生滚动条；
+    // 询问框**没有**这个理由，它的上限仍然不许回来。
     expect(src).not.toMatch(/ASK_HTML_MAX_HEIGHT/);
-    // fitFrameHeight 只按内容量高，不做 Math.min 封顶。
-    // 只守「赋值了高度」+「没有封顶」—— 锁死写法（模板字符串 / 加号）会让等价改写误报红。
+    // 上限不许进 fitFrameHeight：那里封顶就等于把询问框也一起封了
     const at = src.indexOf('function fitFrameHeight');
     expect(at, '找不到 fitFrameHeight').toBeGreaterThan(0);
     const fn = src.slice(at, at + 900);
