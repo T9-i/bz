@@ -1736,17 +1736,35 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
 const BOARD_MAX_BYTES = 512 * 1024;
 
 /**
- * 展示板高度上限（2026-10-20 补）：内容再多也不让这块把详情页顶到几千像素。
+ * 展示板的可视高度上限（2026-10-20 补）：内容再多，这块也只占这么高，超了在框内滚。
  *
- * 这条**推翻过两次**，别急着改回去：
- *  - 2026-10-15 之前有 520 px 上限，超了在框内滚 —— 用户报「展示窗口不显示滚动条」，
- *    原因是框里滚出来的是**原生**滚动条（样式管不着、不跟主题）。于是改成「框跟着内容长」。
- *  - 现在改回来，是因为框文档的**根元素**已经挂了 `scrollbar-width:none`（同一条补记），
- *    框内滚动**不出滚动条**了；上限才有意义 —— 没有它，一个列几十条游戏的展示板就是一堵墙。
+ * 这条**反复过两次**，别急着改回去：
+ *  - 2026-10-15 之前有 520 px 上限，压矮 iframe 让框自己滚 —— 框里长出一根**原生**滚动条
+ *    （带箭头、不跟主题），用户报「展示窗口有滚动条」，上限被废。
+ *  - 现在上限回来，同时把那条滚动条**在框文档里藏掉**（见 FRAME_SCROLLBAR_CSS）——
+ *    两次抱怨是同一个病根：条没藏住。藏住了，压矮就是对的：滚动只在框内发生，
+ *    外面的详情页不会因为一块展示板被顶成一堵墙。
  *
- * 代价要认：滚动条不可见，用户得知道这块能滚（面板自己该在末尾给一句提示）。
+ * 为什么不套一层外层滚动容器：滚的是外层时，鼠标停在框里滚不动（轮子事件落在框文档里），
+ * 手感是坏的。高度与滚动都归框自己管，不分两处。
  */
 const BOARD_MAX_HEIGHT = 560;
+
+/**
+ * 框文档里的滚动条样式（2026-10-20 补·铁律 4 的第二处、也是**唯一**一处例外）
+ *
+ * `scrollbar-width:none` 只在 Chromium 121+ 生效 —— 用户这台 Obsidian 的 Electron 更老，
+ * 那条**静默无效**：上限一加，框里立刻长出带箭头的原生滚动条（用户第二次报滚动条）。
+ * `::-webkit-scrollbar` 从老版本起就认，两条一起上才稳。
+ *
+ * 为什么只能注入 `<style>`：`style` 属性写不了伪元素，core 里那套界面级隐藏规则（ADR-0122）
+ * 跨不过文档边界。作用域严格限定在**沙箱框文档内部**，碰不到插件自己的 UI —— 
+ * 所以它不违反「插件 UI 样式只从 styles.css 来」的本意（ADR-0199 管的是插件 UI，
+ * 不是别人递进来的 iframe 文档）。改这里之前先读 ADR-0243 的补记。
+ */
+const FRAME_SCROLLBAR_CSS =
+  '<style>html,body{scrollbar-width:none;-ms-overflow-style:none}' +
+  'html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}</style>';
 
 /**
  * 灌给展示板的主题变量 —— 只挑「画一块内容」够用的那一小撮。
@@ -1907,6 +1925,7 @@ function sandboxFrame(
   // 会被沙箱静默吃掉 —— 点了没反应也不报错。配套的 allow-popups-to-escape-sandbox 不能少：
   // 少了的话新标签页继承这层沙箱，目标站点自己的 JS 全废，开出来是个残页。
   // **仍然不给** allow-scripts / allow-top-navigation：框里跑不了脚本，也顶不掉整个面板。
+  // （另外还有 wireExternalLinks 在外面兜一层 —— 光靠这个 flag，宿主不一定真开。）
   frame.setAttribute(
     'sandbox',
     opts.allowPopups
@@ -1914,14 +1933,49 @@ function sandboxFrame(
       : 'allow-same-origin',
   );
   frame.setAttribute('title', title);
-  // max-height 挂在元素上：`fitFrameHeight` 写的是 inline height，CSS 的 max-height 照样压得住，
-  // 超出的内容由框自己滚（框文档根元素隐藏滚动条，见 BOARD_MAX_HEIGHT 的说明）
+  // max-height 挂在元素上：`fitFrameHeight` 写的是 inline height，CSS 的 max-height 照样压得住；
+  // 超出的部分由框自己滚，条已被 FRAME_SCROLLBAR_CSS 藏掉
   if (opts.maxHeight) frame.style.maxHeight = `${opts.maxHeight}px`;
   // 框里写**片段**就行（不必 `<!doctype html><html><body>`）—— 外层裹的 `<html>` 挂根上的那条
   // （隐藏根滚动条），`<body>` 承载主题基线；作者递了整份文档也能用（内层标签的属性以这一层为准）
-  frame.srcdoc = `<html style="${frameRootStyle()}"><body style="${frameBaseStyle()}">${html}</body></html>`;
-  frame.addEventListener('load', () => fitFrameHeight(frame));
+  frame.srcdoc =
+    `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head>` +
+    `<body style="${frameBaseStyle()}">${html}</body></html>`;
+  frame.addEventListener('load', () => {
+    fitFrameHeight(frame);
+    if (opts.allowPopups) wireExternalLinks(frame);
+  });
   return frame;
+}
+
+/**
+ * 展示板里的外链交给系统浏览器（2026-10-20）
+ *
+ * 只靠沙箱的 `allow-popups` 不保险：Electron 里 `target=_blank` 走的是 Obsidian 自己的
+ * window.open 处理，开不开、开到哪儿全看宿主版本，用户看到的就是「点了没反应」。
+ * 而框是**同源**的（allow-same-origin），外面直接能挂监听 —— 于是拦下点击自己开，
+ * `shell.openExternal` 一定走默认浏览器。capture 阶段拦，preventDefault 之后宿主不会再补一次。
+ */
+function wireExternalLinks(frame: HTMLIFrameElement): void {
+  const doc = frame.contentDocument;
+  if (!doc) return;
+  doc.addEventListener(
+    'click',
+    (ev) => {
+      const target = ev.target as HTMLElement | null;
+      const a = target && typeof target.closest === 'function' ? target.closest('a[href]') : null;
+      if (!a) return;
+      const href = a.getAttribute('href') ?? '';
+      if (!/^https?:\/\//i.test(href)) return;
+      ev.preventDefault();
+      const shell = (window as unknown as {
+        require?: (id: string) => { shell?: { openExternal(url: string): void } };
+      }).require?.('electron')?.shell;
+      if (shell) shell.openExternal(href);
+      else window.open(href, '_blank', 'noopener');
+    },
+    true,
+  );
 }
 
 /**

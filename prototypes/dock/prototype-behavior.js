@@ -1,4 +1,4 @@
-/* 源指纹 f35c0854f24d144b · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 7cb2a9730eba2364 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -1675,9 +1675,9 @@ var BZW_dock = (() => {
     }
   });
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -10069,14 +10069,41 @@ var BZW_dock = (() => {
     } catch (e) {
     }
   }
-  function sandboxFrame(html, className, title) {
+  function sandboxFrame(html, className, title, opts = {}) {
     const frame = document.createElement("iframe");
     frame.className = className;
-    frame.setAttribute("sandbox", "allow-same-origin");
+    frame.setAttribute(
+      "sandbox",
+      opts.allowPopups ? "allow-same-origin allow-popups allow-popups-to-escape-sandbox" : "allow-same-origin"
+    );
     frame.setAttribute("title", title);
-    frame.srcdoc = `<html style="${frameRootStyle()}"><body style="${frameBaseStyle()}">${html}</body></html>`;
-    frame.addEventListener("load", () => fitFrameHeight(frame));
+    if (opts.maxHeight) frame.style.maxHeight = `${opts.maxHeight}px`;
+    frame.srcdoc = `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head><body style="${frameBaseStyle()}">${html}</body></html>`;
+    frame.addEventListener("load", () => {
+      fitFrameHeight(frame);
+      if (opts.allowPopups) wireExternalLinks(frame);
+    });
     return frame;
+  }
+  function wireExternalLinks(frame) {
+    const doc = frame.contentDocument;
+    if (!doc) return;
+    doc.addEventListener(
+      "click",
+      (ev) => {
+        var _a, _b, _c;
+        const target = ev.target;
+        const a = target && typeof target.closest === "function" ? target.closest("a[href]") : null;
+        if (!a) return;
+        const href = (_a = a.getAttribute("href")) != null ? _a : "";
+        if (!/^https?:\/\//i.test(href)) return;
+        ev.preventDefault();
+        const shell = (_c = (_b = window.require) == null ? void 0 : _b.call(window, "electron")) == null ? void 0 : _c.shell;
+        if (shell) shell.openExternal(href);
+        else window.open(href, "_blank", "noopener");
+      },
+      true
+    );
   }
   function boardSection(v) {
     const html = readPanelText(v.declPath);
@@ -10093,7 +10120,12 @@ var BZW_dock = (() => {
       );
       return host;
     }
-    host.appendChild(sandboxFrame(html, "bz-dock-board-frame", `${displayName(v)} 的展示板`));
+    host.appendChild(
+      sandboxFrame(html, "bz-dock-board-frame", `${displayName(v)} 的展示板`, {
+        maxHeight: BOARD_MAX_HEIGHT,
+        allowPopups: true
+      })
+    );
     return host;
   }
   function toolStats(v) {
@@ -10979,7 +11011,7 @@ var BZW_dock = (() => {
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName(v)}`);
   }
-  var hostApp, overlay, escHandle, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, autoDraft, OVERLAY_ID, FRAME_ID, offlineReportDone, BOARD_MAX_BYTES, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
+  var hostApp, overlay, escHandle, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, autoDraft, OVERLAY_ID, FRAME_ID, offlineReportDone, BOARD_MAX_BYTES, BOARD_MAX_HEIGHT, FRAME_SCROLLBAR_CSS, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
   var init_ui2 = __esm({
     "src/dock/ui.ts"() {
       init_fake_obsidian();
@@ -11020,6 +11052,8 @@ var BZW_dock = (() => {
       FRAME_ID = "bz-dock-panel";
       offlineReportDone = false;
       BOARD_MAX_BYTES = 512 * 1024;
+      BOARD_MAX_HEIGHT = 560;
+      FRAME_SCROLLBAR_CSS = "<style>html,body{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}</style>";
       BOARD_THEME_VARS = [
         "--bz-surface-0",
         "--bz-surface-1",

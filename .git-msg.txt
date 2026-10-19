@@ -1,0 +1,11 @@
+fix(dock): 展示板封顶 560px 且滚动条藏进框文档 —— 长短列表都按一块高度显示，外链改走系统浏览器
+
+- 展示板 iframe 挂 `maxHeight: 560`（`frame.style.maxHeight`），`fitFrameHeight` 仍只按内容量高，
+  询问框不受影响
+- 滚动条在**框文档**里藏：`FRAME_SCROLLBAR_CSS` 同时写 `scrollbar-width` / `-ms-overflow-style`
+  和 `::-webkit-scrollbar` —— 老 Electron 不认前者，只写它等于没写（上次就是这么翻的车）
+- 铁律 4 开第二处例外（ADR-0243 补记）：作用域仅 iframe 文档，`skin-pack-split-guard` 掐死范围
+  （只准一个 `<style>`、只准滚动条声明、选择器只准 html/body 及其伪元素）
+- 外链两道保险：沙箱加 `allow-popups` + `allow-popups-to-escape-sandbox`，外面再用
+  `wireExternalLinks` 拦点击交给 `shell.openExternal`
+- 同步 ADR-0243 补记、工具坞指南、AGENTS.md 的例外条款、预览产物

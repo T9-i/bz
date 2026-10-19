@@ -6,7 +6,8 @@
  *
  * ① **高度有上限**：内容再多也只到 `BOARD_MAX_HEIGHT`，超了在框内滚。
  *    2026-10-15 曾经取消过上限（那时框内滚动会露出一根原生滚动条），
- *    后来框文档根元素挂了 `scrollbar-width:none`，滚动条不再出现，上限才改回来。
+ *    现在上限回来了，条件是**条必须在框文档里藏掉**（`FRAME_SCROLLBAR_CSS`）——
+ *    两次抱怨其实是同一个病根：条没藏住。
  *
  * ② **允许开外链**：`allow-popups` + `allow-popups-to-escape-sandbox`。
  *    少了第一个，`target=_blank` 被沙箱静默吃掉（点了没反应也不报错）；
@@ -42,5 +43,20 @@ describe('展示板外框', () => {
 
   it('上限挂在 frame 元素上（inline height 压得住，max-height 也压得住）', () => {
     expect(src).toMatch(/frame\.style\.maxHeight\s*=\s*`\$\{opts\.maxHeight\}px`/);
+  });
+
+  // 滚动条不藏在宿主这一层：框自己滚，条由框文档里的 FRAME_SCROLLBAR_CSS 藏掉。
+  // 那份注入的边界由 tests/core/skin-pack-split-guard.test.ts 掐死（只准滚动条声明）。
+  it('框文档里带了隐藏滚动条的样式（老 Electron 不认 scrollbar-width，靠 ::-webkit-scrollbar 兜底）', () => {
+    expect(src).toMatch(/FRAME_SCROLLBAR_CSS[\s\S]{0,300}::-webkit-scrollbar/);
+    expect(src).toMatch(/srcdoc\s*=[\s\S]{0,200}\$\{FRAME_SCROLLBAR_CSS\}/);
+  });
+
+  it('外链由外面接管（openExternal），不只指望沙箱的 allow-popups', () => {
+    expect(src).toMatch(/function wireExternalLinks/);
+    expect(src).toContain("closest('a[href]')");
+    expect(src).toContain('openExternal');
+    // 只在展示板那一路挂；询问框不碰
+    expect(src).toMatch(/if \(opts\.allowPopups\) wireExternalLinks\(frame\)/);
   });
 });
