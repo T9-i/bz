@@ -327,6 +327,9 @@ export function openDock(app: App): void {
 
 export function closeDock(): void {
   overlay?.classList.add('is-off');
+  // 面板不可见了，那口 5 秒的重绘拍就没有观众了（状态栏自己会在运行结束时收起）。
+  // 重开时 `openDock` → `render` → `ensureLiveTick` 会重新挂上。
+  stopLiveTick();
 }
 
 /**
