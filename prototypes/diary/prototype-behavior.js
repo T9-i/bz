@@ -1,5 +1,5 @@
-/* 源指纹 4d7e4ae728fe2fd9 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/motion.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/datetime-picker.ts","src/diary/ui/dialogs.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
+/* 源指纹 788ce56e63973128 · 仓内输入 81 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/motion.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/datetime-picker.ts","src/diary/ui/dialogs.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/diary/fake-sim.ts → window.BZW_diary（行为单源预览包，issue 245/ADR-0106） */
 var BZW_diary = (() => {
   var __create = Object.create;
@@ -10258,7 +10258,9 @@ var BZW_diary = (() => {
             if (a.hasPreview) await this.deleteSafeFile(a.previewRef);
           }
         }
-        /** 删除 vault 原文件（非点前缀，走 vault 使 Obsidian 认可删除；幂等） */
+        /** 删除 vault 原文件（非点前缀，走 vault 使 Obsidian 认可删除；幂等）。
+         *  **硬删，刻意不进回收站**（ADR-0245 例外）：这里摘的是刚存进保险库的明文原件，
+         *  回收站里留一份等于加密白做。日常删除笔记请走 core/note-trash 的 trashNote。 */
         async deleteVaultFile(path) {
           const app = getApp();
           const file = app.vault.getAbstractFileByPath(path);
@@ -16375,6 +16377,13 @@ ${String(review).trim()}`;
 
   // src/diary/store.ts
   init_app();
+
+  // src/core/note-trash.ts
+  async function trashNote(app, file) {
+    await app.vault.trash(file, false);
+  }
+
+  // src/diary/store.ts
   init_notice();
   init_domain_bus();
   init_storage();
@@ -16540,7 +16549,9 @@ ${String(review).trim()}`;
         const del = await enqueueFileTask(p, async () => {
           const { file, entry } = await readEntryCtxInQueue(p);
           if (!file || !entry || !match(entry)) return false;
-          await getApp().vault.delete(file);
+          const app = getApp();
+          if (opts == null ? void 0 : opts.purge) await app.vault.delete(file);
+          else await trashNote(app, file);
           if (diaryDataMap) diaryDataMap.delete(p);
           return true;
         });
@@ -16685,11 +16696,11 @@ ${String(review).trim()}`;
       // 皮肤类串走域侧惯例（bz-<域>-flow-dialog）：撕页这张是「桌上撕下来的一角纸」，
       // 不是 core 通用流程框
       className: "bz-diary-flow-dialog",
-      message: isEncrypted ? "确定删除这篇加密日记吗？\n\n此操作不可撤销，密文将从保险库永久销毁。" : "确定要删除这篇日记吗？\n\n此操作不可撤销，日记将从笔记中永久删除。",
+      message: isEncrypted ? "确定删除这篇加密日记吗？\n\n此操作不可撤销，密文将从保险库永久销毁。" : "确定要删除这篇日记吗？\n\n日记将移入 Obsidian 回收站（.trash），可在回收站恢复。",
       actions: [
         { label: "取消", value: "cancel" },
-        // danger（issue 291 评审补）：删除日记是不可撤销的（加密分支还会销毁保险库密文），
-        // 主按钮不得高亮——手册 §9/§10 的慎重决策口径
+        // danger（issue 291 评审补）：加密分支不可撤销（销毁保险库密文），普通分支虽进回收站但仍是
+        // 需要慎重的主动作——主按钮不得高亮（手册 §9/§10 的慎重决策口径）
         { label: "删除日记", value: "ok", cta: true, danger: true }
       ]
     }).then(async (v) => {
@@ -18519,7 +18530,8 @@ ${x.review || ""}`;
           removed = await removeDiaryEntries(
             entry.date,
             (x) => x.filePath === entry.filePath && x.time === entry.time && x.lineNumber === entry.lineNumber,
-            { filePath: entry.filePath }
+            { filePath: entry.filePath, purge: true }
+            // 明文收进了保险库：摘除即销毁，不留回收站副本（ADR-0245 例外）
           );
         } catch (err) {
           await this.rollbackEncryptedNote(enc);

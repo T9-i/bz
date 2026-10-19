@@ -688,3 +688,15 @@
 - [x] 第 3 条（保存后前进的下一篇未跳顶部/未标已读）与 `zrurtk` 同因，`865fbac9` 已修；本轮复跑四条回归全绿，按已修回写
 - [x] 门禁：clipbook 539 例 + affected 1514 例全绿，tsc 干净；主仓四步产物已重出
 - [x] 闭环：memo.json `completed` + smartcat 行为流条目已写（Obsidian 未运行）
+
+## Issue 554 — 笔记删除一律进 Obsidian 库内回收站（.trash）
+
+**状态：已交付**（2026-10-19，worktree `note-trash`，ADR-0245）
+
+- [x] 根因：`Vault.trash(file, system)` 的布尔是「是否用系统回收站」；影院 / 剪藏 / 收藏全写 `true`，
+      日记 `vault.delete` 更是硬删；`tests/mock-vault.ts` 还按反语义打桩，测试一直给系统回收站背书
+- [x] 新增 `src/core/note-trash.ts`（`trashNote` = `vault.trash(file, false)`）作笔记删除唯一入口
+- [x] 接入影院详情删除 / 剪藏删除 / 日记条目删除；文案统一改「Obsidian 回收站」
+- [x] 例外：加密摘明文（`encrypt/data.ts`、日记 `purge: true`）保持硬删，回收站不留明文
+- [x] 夹具语义按真实 API 重写；剪藏 4 处断言改 `system === false`；日记补 `.trash` 落位与 `purge` 两条用例
+- [x] 门禁：全量 600 文件 / 9251 例通过，tsc 干净；主仓四步产物已重出（skin-pack / changelog / manifest / build）
