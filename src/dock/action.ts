@@ -23,6 +23,19 @@ const TEXT_MAX_LEN = 200;
 /** 多值最多几个（`?appid=1,2,3...`） */
 const MANY_MAX = 50;
 
+/**
+ * `text` 里一个都不收的字符。
+ *
+ * 为什么连这些也要掐：声明里写了 `shell: true` 的工具（Windows 的 .cmd / .bat 必须这么写），
+ * `spawn` 在 shell 模式下**只是把 args 拼成一行字符串**，不做转义 —— 值里一个 `&` 就能接上
+ * 第二条命令。而 `text` 的用途本来就是「简单的标识符 / 名字」，不缺这些字符；
+ * 真要传带标点的长文本，该走脚本自己的参数文件，不该从展示板的 href 里过。
+ *
+ * `%` 是 cmd 的变量展开、`^` 是转义符、`!` 是延迟展开，同样收掉。
+ * 空格**留着**：shell 模式下它只会把值拆成两个参数（行为错，但不会注入）。
+ */
+const TEXT_BANNED_RE = /[&|<>^%!"'`\\;$(){}\[\]]/;
+
 /** 从 href 里解析出来的东西：动作 id + 原始参数（值已 decode，未校验） */
 export interface ParsedActRef {
   id: string;
@@ -62,16 +75,18 @@ export type ActArgsResult =
   | { ok: true; values: Record<string, string> }
   | { ok: false; reason: string };
 
-/** 单个值的校验。`appid` 只收数字；`text` 掐长度、禁控制字符、禁以 `-` 开头 */
+/** 单个值的校验。`appid` 只收数字；`text` 掐长度、禁控制字符、禁 shell 元字符、禁以 `-` 开头 */
 function checkValue(type: DockActionArg['type'], v: string): string | null {
   if (type === 'appid') {
     return /^\d{1,10}$/.test(v) ? v : null;
   }
   // text：不能以 `-` 开头（否则在 shell:true 的声明里会被当成另一个开关），
-  // 不能带控制字符与换行，长度掐上限。不做 HTML 转义 —— 它只进命令行，不进 DOM。
+  // 不能带控制字符与换行（换行在 cmd 里等于命令分隔），不能带 shell 元字符（见 TEXT_BANNED_RE）。
+  // 不做 HTML 转义 —— 它只进命令行，不进 DOM。
   if (v.length === 0 || v.length > TEXT_MAX_LEN) return null;
   if (/^-/.test(v)) return null;
   if (/[\u0000-\u001f\u007f]/.test(v)) return null;
+  if (TEXT_BANNED_RE.test(v)) return null;
   return v;
 }
 
