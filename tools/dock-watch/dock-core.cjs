@@ -75,6 +75,9 @@ var SCHEDULE_KINDS = /* @__PURE__ */ new Set([
   "on-demand",
   "unknown"
 ]);
+var DOCK_ACTION_ID_RE = /^[a-z0-9][a-z0-9:._-]*$/;
+var DOCK_ACTION_ID_MAX_LEN = 64;
+var ACTION_ARG_TYPES = /* @__PURE__ */ new Set(["appid", "text"]);
 var RUN_STATUSES = /* @__PURE__ */ new Set([
   "ok",
   "failed",
@@ -178,6 +181,49 @@ function parseSchedule(raw) {
   if (everyHours !== void 0 && everyHours > 0) s.everyHours = everyHours;
   return s;
 }
+var ARG_NAME_RE = /^[a-z][a-z0-9_]*$/;
+var ARG_PLACEHOLDER_RE = /\{\{([a-z][a-z0-9_]*)\}\}/g;
+function parseAction(raw) {
+  if (!isPlainObject(raw)) return null;
+  const out = { ...raw };
+  const argSpecs = {};
+  if (isPlainObject(raw.args)) {
+    for (const [key, v] of Object.entries(raw.args)) {
+      if (!ARG_NAME_RE.test(key)) continue;
+      if (!isPlainObject(v)) continue;
+      const type = str(v.type);
+      if (!type || !ACTION_ARG_TYPES.has(type)) continue;
+      const spec = { type };
+      const many = bool(v.many);
+      if (many !== void 0) spec.many = many;
+      argSpecs[key] = spec;
+    }
+  }
+  if (Object.keys(argSpecs).length) out.args = argSpecs;
+  else delete out.args;
+  if (isPlainObject(raw.run) && Array.isArray(raw.run.args)) {
+    const tpl = raw.run.args.filter((x) => typeof x === "string");
+    const declared = new Set(Object.keys(argSpecs));
+    const ok = tpl.every((t) => [...t.matchAll(ARG_PLACEHOLDER_RE)].every((m) => declared.has(m[1])));
+    if (!ok) return null;
+    if (tpl.length) out.run = { args: tpl };
+    else delete out.run;
+  } else {
+    delete out.run;
+  }
+  if (!out.run) return null;
+  return out;
+}
+function parseActions(raw) {
+  if (!isPlainObject(raw)) return void 0;
+  const out = {};
+  for (const [id, v] of Object.entries(raw)) {
+    if (id.length > DOCK_ACTION_ID_MAX_LEN || !DOCK_ACTION_ID_RE.test(id)) continue;
+    const parsed = parseAction(v);
+    if (parsed) out[id] = parsed;
+  }
+  return Object.keys(out).length ? out : void 0;
+}
 function parseManifest(raw) {
   if (!isPlainObject(raw)) return null;
   if (raw.v !== DOCK_CONTRACT_VERSION) return null;
@@ -229,6 +275,9 @@ function parseManifest(raw) {
   const schedule = parseSchedule(raw.schedule);
   if (schedule) out.schedule = schedule;
   else delete out.schedule;
+  const actions = parseActions(raw.actions);
+  if (actions) out.actions = actions;
+  else delete out.actions;
   if (isPlainObject(raw.runtime)) {
     const estimatedSec = num(raw.runtime.estimatedSec);
     out.runtime = estimatedSec !== void 0 && estimatedSec > 0 ? { estimatedSec } : {};
@@ -514,7 +563,7 @@ function parseTrigger(raw) {
       return null;
   }
 }
-function parseAction(raw) {
+function parseAction2(raw) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const r = raw;
   if (r.kind === "remind") {
@@ -532,7 +581,7 @@ function parseRule(raw) {
   if (!id) return null;
   const trigger = parseTrigger(r.trigger);
   if (!trigger) return null;
-  const out = { id, trigger, action: parseAction(r.action) ?? defaultAction() };
+  const out = { id, trigger, action: parseAction2(r.action) ?? defaultAction() };
   const name = str2(r.name);
   if (name) out.name = name;
   if (typeof r.enabled === "boolean") out.enabled = r.enabled;

@@ -1,5 +1,5 @@
-/* 源指纹 83388abf7084fd35 · 仓内输入 326 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 96423ad31565f68e · 仓内输入 327 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
   var __create = Object.create;
@@ -42,9 +42,9 @@ var BZW_home = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -64716,6 +64716,47 @@ GitHub 仓库：${ghInfo.title}
     if (everyHours !== void 0 && everyHours > 0) s.everyHours = everyHours;
     return s;
   }
+  function parseAction(raw) {
+    if (!isPlainObject4(raw)) return null;
+    const out = { ...raw };
+    const argSpecs = {};
+    if (isPlainObject4(raw.args)) {
+      for (const [key, v] of Object.entries(raw.args)) {
+        if (!ARG_NAME_RE.test(key)) continue;
+        if (!isPlainObject4(v)) continue;
+        const type = str2(v.type);
+        if (!type || !ACTION_ARG_TYPES.has(type)) continue;
+        const spec = { type };
+        const many = bool2(v.many);
+        if (many !== void 0) spec.many = many;
+        argSpecs[key] = spec;
+      }
+    }
+    if (Object.keys(argSpecs).length) out.args = argSpecs;
+    else delete out.args;
+    if (isPlainObject4(raw.run) && Array.isArray(raw.run.args)) {
+      const tpl = raw.run.args.filter((x) => typeof x === "string");
+      const declared = new Set(Object.keys(argSpecs));
+      const ok = tpl.every((t) => [...t.matchAll(ARG_PLACEHOLDER_RE)].every((m) => declared.has(m[1])));
+      if (!ok) return null;
+      if (tpl.length) out.run = { args: tpl };
+      else delete out.run;
+    } else {
+      delete out.run;
+    }
+    if (!out.run) return null;
+    return out;
+  }
+  function parseActions(raw) {
+    if (!isPlainObject4(raw)) return void 0;
+    const out = {};
+    for (const [id, v] of Object.entries(raw)) {
+      if (id.length > DOCK_ACTION_ID_MAX_LEN || !DOCK_ACTION_ID_RE.test(id)) continue;
+      const parsed = parseAction(v);
+      if (parsed) out[id] = parsed;
+    }
+    return Object.keys(out).length ? out : void 0;
+  }
   function parseManifest(raw) {
     var _a2, _b2;
     if (!isPlainObject4(raw)) return null;
@@ -64768,6 +64809,9 @@ GitHub 仓库：${ghInfo.title}
     const schedule = parseSchedule(raw.schedule);
     if (schedule) out.schedule = schedule;
     else delete out.schedule;
+    const actions = parseActions(raw.actions);
+    if (actions) out.actions = actions;
+    else delete out.actions;
     if (isPlainObject4(raw.runtime)) {
       const estimatedSec = num2(raw.runtime.estimatedSec);
       out.runtime = estimatedSec !== void 0 && estimatedSec > 0 ? { estimatedSec } : {};
@@ -64904,7 +64948,7 @@ GitHub 仓库：${ghInfo.title}
     }
     return args;
   }
-  var DOCK_CONTRACT_VERSION, DOCK_ID_RE, DOCK_ID_MAX_LEN, PARAM_TYPES, SCHEDULE_KINDS, RUN_STATUSES, ERROR_KINDS, DOCK_RUNS_PER_TOOL_LIMIT;
+  var DOCK_CONTRACT_VERSION, DOCK_ID_RE, DOCK_ID_MAX_LEN, PARAM_TYPES, SCHEDULE_KINDS, DOCK_ACTION_ID_RE, DOCK_ACTION_ID_MAX_LEN, ACTION_ARG_TYPES, RUN_STATUSES, ERROR_KINDS, DOCK_RUNS_PER_TOOL_LIMIT, ARG_NAME_RE, ARG_PLACEHOLDER_RE;
   var init_schema2 = __esm({
     "src/dock/schema.ts"() {
       DOCK_CONTRACT_VERSION = 1;
@@ -64927,6 +64971,9 @@ GitHub 仓库：${ghInfo.title}
         "on-demand",
         "unknown"
       ]);
+      DOCK_ACTION_ID_RE = /^[a-z0-9][a-z0-9:._-]*$/;
+      DOCK_ACTION_ID_MAX_LEN = 64;
+      ACTION_ARG_TYPES = /* @__PURE__ */ new Set(["appid", "text"]);
       RUN_STATUSES = /* @__PURE__ */ new Set([
         "ok",
         "failed",
@@ -64943,6 +64990,8 @@ GitHub 仓库：${ghInfo.title}
         "unknown"
       ]);
       DOCK_RUNS_PER_TOOL_LIMIT = 200;
+      ARG_NAME_RE = /^[a-z][a-z0-9_]*$/;
+      ARG_PLACEHOLDER_RE = /\{\{([a-z][a-z0-9_]*)\}\}/g;
     }
   });
 
@@ -65132,7 +65181,7 @@ GitHub 仓库：${ghInfo.title}
         return null;
     }
   }
-  function parseAction(raw) {
+  function parseAction2(raw) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
     const r = raw;
     if (r.kind === "remind") {
@@ -65151,7 +65200,7 @@ GitHub 仓库：${ghInfo.title}
     if (!id) return null;
     const trigger = parseTrigger(r.trigger);
     if (!trigger) return null;
-    const out = { id, trigger, action: (_a2 = parseAction(r.action)) != null ? _a2 : defaultAction() };
+    const out = { id, trigger, action: (_a2 = parseAction2(r.action)) != null ? _a2 : defaultAction() };
     const name = str3(r.name);
     if (name) out.name = name;
     if (typeof r.enabled === "boolean") out.enabled = r.enabled;
@@ -65946,6 +65995,71 @@ GitHub 仓库：${ghInfo.title}
     }
   });
 
+  // src/dock/action.ts
+  function parseActHref(href) {
+    const s = String(href != null ? href : "").trim();
+    if (!s.startsWith(ACT_HREF_PREFIX)) return null;
+    const body = s.slice(ACT_HREF_PREFIX.length);
+    if (!body) return null;
+    const q3 = body.indexOf("?");
+    const rawId = (q3 < 0 ? body : body.slice(0, q3)).trim();
+    if (!rawId || rawId.length > 64 || !DOCK_ACTION_ID_RE.test(rawId)) return null;
+    const args = {};
+    if (q3 >= 0) {
+      const sp = new URLSearchParams(body.slice(q3 + 1));
+      for (const [k, v] of sp) {
+        if (!(k in args)) args[k] = v;
+      }
+    }
+    return { id: rawId, args };
+  }
+  function checkValue(type, v) {
+    if (type === "appid") {
+      return /^\d{1,10}$/.test(v) ? v : null;
+    }
+    if (v.length === 0 || v.length > TEXT_MAX_LEN) return null;
+    if (/^-/.test(v)) return null;
+    if (/[\u0000-\u001f\u007f]/.test(v)) return null;
+    return v;
+  }
+  function resolveActArgs(spec, raw) {
+    var _a2;
+    const declared = (_a2 = spec.args) != null ? _a2 : {};
+    const out = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if (!(k in declared)) return { ok: false, reason: `动作没声明参数「${k}」` };
+      const arg = declared[k];
+      const list = arg.many ? v.split(",") : [v];
+      if (list.length > MANY_MAX) return { ok: false, reason: `参数「${k}」一次最多 ${MANY_MAX} 个` };
+      const checked = [];
+      for (const item of list) {
+        const one = checkValue(arg.type, item.trim());
+        if (one === null) return { ok: false, reason: `参数「${k}」的取值不合法：${item.slice(0, 40)}` };
+        checked.push(one);
+      }
+      out[k] = checked.join(",");
+    }
+    return { ok: true, values: out };
+  }
+  function buildActArgs(spec, values) {
+    var _a2;
+    const tpl = (_a2 = spec.run) == null ? void 0 : _a2.args;
+    if (!tpl || !tpl.length) return [];
+    return tpl.map((t) => t.replace(/\{\{([a-z][a-z0-9_]*)\}\}/g, (_m, name) => {
+      var _a3;
+      return (_a3 = values[name]) != null ? _a3 : "";
+    }));
+  }
+  var ACT_HREF_PREFIX, TEXT_MAX_LEN, MANY_MAX;
+  var init_action = __esm({
+    "src/dock/action.ts"() {
+      init_schema2();
+      ACT_HREF_PREFIX = "#bz-act:";
+      TEXT_MAX_LEN = 200;
+      MANY_MAX = 50;
+    }
+  });
+
   // src/dock/command.ts
   var init_command = __esm({
     "src/dock/command.ts"() {
@@ -66310,16 +66424,16 @@ GitHub 仓库：${ghInfo.title}
     }
   }
   function runTool(app2, entry, launch, manifest, values, cb = {}, opts = {}) {
-    var _a2, _b2;
+    var _a2, _b2, _c;
     const startedAtDate = /* @__PURE__ */ new Date();
     const startedAt = startedAtDate.toISOString();
     const rawTail = [];
     const spec = {
       cmd: launch.cmd,
-      args: [...launch.args, ...buildArgs(manifest != null ? manifest : { params: [] }, values)],
+      args: [...launch.args, ...buildArgs(manifest != null ? manifest : { params: [] }, values), ...(_a2 = opts.extraArgs) != null ? _a2 : []],
       shell: launch.shell,
       cwd: launch.cwd,
-      env: dockEnvOf(entry, app2, (_a2 = opts.trigger) != null ? _a2 : "manual"),
+      env: dockEnvOf(entry, app2, (_b2 = opts.trigger) != null ? _b2 : "manual"),
       // 只有这次运行**有人可问**（调用方给了 onAsk）才开 stdin。给不开交互的运行开管道，
       // 只是多一条没人写的管道；反过来（开了却没人答）才是事故——所以这两个开关必须同一件事。
       interactive: typeof cb.onAsk === "function"
@@ -66388,7 +66502,7 @@ GitHub 仓库：${ghInfo.title}
       infos,
       result,
       rawTail,
-      estimatedSec: (_b2 = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _b2.estimatedSec,
+      estimatedSec: (_c = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _c.estimatedSec,
       handle,
       done: void 0
     };
@@ -68251,11 +68365,11 @@ GitHub 仓库：${ghInfo.title}
     frame2.srcdoc = `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head><body style="${frameBaseStyle()}">${html}</body></html>`;
     frame2.addEventListener("load", () => {
       fitFrameHeight(frame2);
-      if (opts.allowPopups) wireExternalLinks(frame2);
+      if (opts.allowPopups || opts.onAct) wireExternalLinks(frame2, opts.onAct);
     });
     return frame2;
   }
-  function wireExternalLinks(frame2) {
+  function wireExternalLinks(frame2, onAct) {
     const doc = frame2.contentDocument;
     if (!doc) return;
     doc.addEventListener(
@@ -68266,6 +68380,12 @@ GitHub 仓库：${ghInfo.title}
         const a = target && typeof target.closest === "function" ? target.closest("a[href]") : null;
         if (!a) return;
         const href = (_a2 = a.getAttribute("href")) != null ? _a2 : "";
+        const act = onAct ? parseActHref(href) : null;
+        if (act) {
+          ev.preventDefault();
+          onAct(act);
+          return;
+        }
         if (!/^https?:\/\//i.test(href)) return;
         ev.preventDefault();
         const shell = (_c = (_b2 = window.require) == null ? void 0 : _b2.call(window, "electron")) == null ? void 0 : _c.shell;
@@ -68276,6 +68396,7 @@ GitHub 仓库：${ghInfo.title}
     );
   }
   function boardSection(v) {
+    var _a2;
     const html = readPanelText(v.declPath);
     if (html === null) return null;
     const host = el2("div", "bz-dock-board");
@@ -68293,7 +68414,9 @@ GitHub 仓库：${ghInfo.title}
     host.appendChild(
       sandboxFrame(html, "bz-dock-board-frame", `${displayName2(v)} 的展示板`, {
         maxHeight: BOARD_MAX_HEIGHT,
-        allowPopups: true
+        allowPopups: true,
+        // 声明里没写 actions 就不拦（省得把「点了没反应」造出来）
+        onAct: ((_a2 = v.manifest) == null ? void 0 : _a2.actions) ? (ref) => void runBoardAction(v, ref) : void 0
       })
     );
     return host;
@@ -68796,7 +68919,7 @@ GitHub 仓库：${ghInfo.title}
     b.appendChild(pre);
     return b;
   }
-  async function runFlow(v) {
+  async function runFlow(v, opts = {}) {
     var _a2;
     if (!hostApp2) return;
     if (!canRun()) {
@@ -68829,8 +68952,22 @@ GitHub 仓库：${ghInfo.title}
         void refresh2();
         updateLive(v.entry.id);
       }
-    });
+    }, opts.extraArgs ? { extraArgs: opts.extraArgs } : {});
     render2();
+  }
+  async function runBoardAction(v, ref) {
+    var _a2, _b2;
+    const spec = (_b2 = (_a2 = v.manifest) == null ? void 0 : _a2.actions) == null ? void 0 : _b2[ref.id];
+    if (!spec) {
+      notice(`展示板引用了一个没声明的动作：${ref.id}`, "warning");
+      return;
+    }
+    const checked = resolveActArgs(spec, ref.args);
+    if (!checked.ok) {
+      notice(`动作 ${ref.id} 没有执行：${checked.reason}`, "warning");
+      return;
+    }
+    await runFlow(v, { extraArgs: buildActArgs(spec, checked.values) });
   }
   function liveCallbacks(id) {
     return {
@@ -69214,6 +69351,7 @@ GitHub 仓库：${ghInfo.title}
       init_str();
       init_data16();
       init_store2();
+      init_action();
       init_command();
       init_runner();
       init_scheduler();

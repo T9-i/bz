@@ -1,5 +1,5 @@
-/* 源指纹 16fbefb0ed086cfc · 仓内输入 61 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
+/* 源指纹 c3b3dff0dbd6c215 · 仓内输入 62 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __create = Object.create;
@@ -1675,9 +1675,9 @@ var BZW_dock = (() => {
     }
   });
 
-  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -6589,6 +6589,47 @@ var BZW_dock = (() => {
     if (everyHours !== void 0 && everyHours > 0) s.everyHours = everyHours;
     return s;
   }
+  function parseAction(raw) {
+    if (!isPlainObject2(raw)) return null;
+    const out = { ...raw };
+    const argSpecs = {};
+    if (isPlainObject2(raw.args)) {
+      for (const [key, v] of Object.entries(raw.args)) {
+        if (!ARG_NAME_RE.test(key)) continue;
+        if (!isPlainObject2(v)) continue;
+        const type = str(v.type);
+        if (!type || !ACTION_ARG_TYPES.has(type)) continue;
+        const spec = { type };
+        const many = bool(v.many);
+        if (many !== void 0) spec.many = many;
+        argSpecs[key] = spec;
+      }
+    }
+    if (Object.keys(argSpecs).length) out.args = argSpecs;
+    else delete out.args;
+    if (isPlainObject2(raw.run) && Array.isArray(raw.run.args)) {
+      const tpl = raw.run.args.filter((x) => typeof x === "string");
+      const declared = new Set(Object.keys(argSpecs));
+      const ok = tpl.every((t) => [...t.matchAll(ARG_PLACEHOLDER_RE)].every((m) => declared.has(m[1])));
+      if (!ok) return null;
+      if (tpl.length) out.run = { args: tpl };
+      else delete out.run;
+    } else {
+      delete out.run;
+    }
+    if (!out.run) return null;
+    return out;
+  }
+  function parseActions(raw) {
+    if (!isPlainObject2(raw)) return void 0;
+    const out = {};
+    for (const [id, v] of Object.entries(raw)) {
+      if (id.length > DOCK_ACTION_ID_MAX_LEN || !DOCK_ACTION_ID_RE.test(id)) continue;
+      const parsed = parseAction(v);
+      if (parsed) out[id] = parsed;
+    }
+    return Object.keys(out).length ? out : void 0;
+  }
   function parseManifest(raw) {
     var _a, _b;
     if (!isPlainObject2(raw)) return null;
@@ -6641,6 +6682,9 @@ var BZW_dock = (() => {
     const schedule = parseSchedule(raw.schedule);
     if (schedule) out.schedule = schedule;
     else delete out.schedule;
+    const actions = parseActions(raw.actions);
+    if (actions) out.actions = actions;
+    else delete out.actions;
     if (isPlainObject2(raw.runtime)) {
       const estimatedSec = num(raw.runtime.estimatedSec);
       out.runtime = estimatedSec !== void 0 && estimatedSec > 0 ? { estimatedSec } : {};
@@ -6777,7 +6821,7 @@ var BZW_dock = (() => {
     }
     return args;
   }
-  var DOCK_CONTRACT_VERSION, DOCK_ID_RE, DOCK_ID_MAX_LEN, PARAM_TYPES, SCHEDULE_KINDS, RUN_STATUSES, ERROR_KINDS, DOCK_RUNS_PER_TOOL_LIMIT;
+  var DOCK_CONTRACT_VERSION, DOCK_ID_RE, DOCK_ID_MAX_LEN, PARAM_TYPES, SCHEDULE_KINDS, DOCK_ACTION_ID_RE, DOCK_ACTION_ID_MAX_LEN, ACTION_ARG_TYPES, RUN_STATUSES, ERROR_KINDS, DOCK_RUNS_PER_TOOL_LIMIT, ARG_NAME_RE, ARG_PLACEHOLDER_RE;
   var init_schema = __esm({
     "src/dock/schema.ts"() {
       DOCK_CONTRACT_VERSION = 1;
@@ -6800,6 +6844,9 @@ var BZW_dock = (() => {
         "on-demand",
         "unknown"
       ]);
+      DOCK_ACTION_ID_RE = /^[a-z0-9][a-z0-9:._-]*$/;
+      DOCK_ACTION_ID_MAX_LEN = 64;
+      ACTION_ARG_TYPES = /* @__PURE__ */ new Set(["appid", "text"]);
       RUN_STATUSES = /* @__PURE__ */ new Set([
         "ok",
         "failed",
@@ -6816,6 +6863,8 @@ var BZW_dock = (() => {
         "unknown"
       ]);
       DOCK_RUNS_PER_TOOL_LIMIT = 200;
+      ARG_NAME_RE = /^[a-z][a-z0-9_]*$/;
+      ARG_PLACEHOLDER_RE = /\{\{([a-z][a-z0-9_]*)\}\}/g;
     }
   });
 
@@ -7005,7 +7054,7 @@ var BZW_dock = (() => {
         return null;
     }
   }
-  function parseAction(raw) {
+  function parseAction2(raw) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
     const r = raw;
     if (r.kind === "remind") {
@@ -7024,7 +7073,7 @@ var BZW_dock = (() => {
     if (!id) return null;
     const trigger = parseTrigger(r.trigger);
     if (!trigger) return null;
-    const out = { id, trigger, action: (_a = parseAction(r.action)) != null ? _a : defaultAction() };
+    const out = { id, trigger, action: (_a = parseAction2(r.action)) != null ? _a : defaultAction() };
     const name = str2(r.name);
     if (name) out.name = name;
     if (typeof r.enabled === "boolean") out.enabled = r.enabled;
@@ -7809,6 +7858,71 @@ var BZW_dock = (() => {
     }
   });
 
+  // src/dock/action.ts
+  function parseActHref(href) {
+    const s = String(href != null ? href : "").trim();
+    if (!s.startsWith(ACT_HREF_PREFIX)) return null;
+    const body = s.slice(ACT_HREF_PREFIX.length);
+    if (!body) return null;
+    const q = body.indexOf("?");
+    const rawId = (q < 0 ? body : body.slice(0, q)).trim();
+    if (!rawId || rawId.length > 64 || !DOCK_ACTION_ID_RE.test(rawId)) return null;
+    const args = {};
+    if (q >= 0) {
+      const sp = new URLSearchParams(body.slice(q + 1));
+      for (const [k, v] of sp) {
+        if (!(k in args)) args[k] = v;
+      }
+    }
+    return { id: rawId, args };
+  }
+  function checkValue(type, v) {
+    if (type === "appid") {
+      return /^\d{1,10}$/.test(v) ? v : null;
+    }
+    if (v.length === 0 || v.length > TEXT_MAX_LEN) return null;
+    if (/^-/.test(v)) return null;
+    if (/[\u0000-\u001f\u007f]/.test(v)) return null;
+    return v;
+  }
+  function resolveActArgs(spec, raw) {
+    var _a;
+    const declared = (_a = spec.args) != null ? _a : {};
+    const out = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if (!(k in declared)) return { ok: false, reason: `动作没声明参数「${k}」` };
+      const arg = declared[k];
+      const list = arg.many ? v.split(",") : [v];
+      if (list.length > MANY_MAX) return { ok: false, reason: `参数「${k}」一次最多 ${MANY_MAX} 个` };
+      const checked = [];
+      for (const item of list) {
+        const one = checkValue(arg.type, item.trim());
+        if (one === null) return { ok: false, reason: `参数「${k}」的取值不合法：${item.slice(0, 40)}` };
+        checked.push(one);
+      }
+      out[k] = checked.join(",");
+    }
+    return { ok: true, values: out };
+  }
+  function buildActArgs(spec, values) {
+    var _a;
+    const tpl = (_a = spec.run) == null ? void 0 : _a.args;
+    if (!tpl || !tpl.length) return [];
+    return tpl.map((t) => t.replace(/\{\{([a-z][a-z0-9_]*)\}\}/g, (_m, name) => {
+      var _a2;
+      return (_a2 = values[name]) != null ? _a2 : "";
+    }));
+  }
+  var ACT_HREF_PREFIX, TEXT_MAX_LEN, MANY_MAX;
+  var init_action = __esm({
+    "src/dock/action.ts"() {
+      init_schema();
+      ACT_HREF_PREFIX = "#bz-act:";
+      TEXT_MAX_LEN = 200;
+      MANY_MAX = 50;
+    }
+  });
+
   // src/dock/command.ts
   var init_command = __esm({
     "src/dock/command.ts"() {
@@ -8176,16 +8290,16 @@ var BZW_dock = (() => {
     }
   }
   function runTool(app2, entry, launch, manifest, values, cb = {}, opts = {}) {
-    var _a, _b;
+    var _a, _b, _c;
     const startedAtDate = /* @__PURE__ */ new Date();
     const startedAt = startedAtDate.toISOString();
     const rawTail = [];
     const spec = {
       cmd: launch.cmd,
-      args: [...launch.args, ...buildArgs(manifest != null ? manifest : { params: [] }, values)],
+      args: [...launch.args, ...buildArgs(manifest != null ? manifest : { params: [] }, values), ...(_a = opts.extraArgs) != null ? _a : []],
       shell: launch.shell,
       cwd: launch.cwd,
-      env: dockEnvOf(entry, app2, (_a = opts.trigger) != null ? _a : "manual"),
+      env: dockEnvOf(entry, app2, (_b = opts.trigger) != null ? _b : "manual"),
       // 只有这次运行**有人可问**（调用方给了 onAsk）才开 stdin。给不开交互的运行开管道，
       // 只是多一条没人写的管道；反过来（开了却没人答）才是事故——所以这两个开关必须同一件事。
       interactive: typeof cb.onAsk === "function"
@@ -8254,7 +8368,7 @@ var BZW_dock = (() => {
       infos,
       result,
       rawTail,
-      estimatedSec: (_b = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _b.estimatedSec,
+      estimatedSec: (_c = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _c.estimatedSec,
       handle,
       done: void 0
     };
@@ -10151,11 +10265,11 @@ var BZW_dock = (() => {
     frame.srcdoc = `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head><body style="${frameBaseStyle()}">${html}</body></html>`;
     frame.addEventListener("load", () => {
       fitFrameHeight(frame);
-      if (opts.allowPopups) wireExternalLinks(frame);
+      if (opts.allowPopups || opts.onAct) wireExternalLinks(frame, opts.onAct);
     });
     return frame;
   }
-  function wireExternalLinks(frame) {
+  function wireExternalLinks(frame, onAct) {
     const doc = frame.contentDocument;
     if (!doc) return;
     doc.addEventListener(
@@ -10166,6 +10280,12 @@ var BZW_dock = (() => {
         const a = target && typeof target.closest === "function" ? target.closest("a[href]") : null;
         if (!a) return;
         const href = (_a = a.getAttribute("href")) != null ? _a : "";
+        const act = onAct ? parseActHref(href) : null;
+        if (act) {
+          ev.preventDefault();
+          onAct(act);
+          return;
+        }
         if (!/^https?:\/\//i.test(href)) return;
         ev.preventDefault();
         const shell = (_c = (_b = window.require) == null ? void 0 : _b.call(window, "electron")) == null ? void 0 : _c.shell;
@@ -10176,6 +10296,7 @@ var BZW_dock = (() => {
     );
   }
   function boardSection(v) {
+    var _a;
     const html = readPanelText(v.declPath);
     if (html === null) return null;
     const host = el("div", "bz-dock-board");
@@ -10193,7 +10314,9 @@ var BZW_dock = (() => {
     host.appendChild(
       sandboxFrame(html, "bz-dock-board-frame", `${displayName(v)} 的展示板`, {
         maxHeight: BOARD_MAX_HEIGHT,
-        allowPopups: true
+        allowPopups: true,
+        // 声明里没写 actions 就不拦（省得把「点了没反应」造出来）
+        onAct: ((_a = v.manifest) == null ? void 0 : _a.actions) ? (ref) => void runBoardAction(v, ref) : void 0
       })
     );
     return host;
@@ -10696,7 +10819,7 @@ var BZW_dock = (() => {
     b.appendChild(pre);
     return b;
   }
-  async function runFlow(v) {
+  async function runFlow(v, opts = {}) {
     var _a;
     if (!hostApp) return;
     if (!canRun()) {
@@ -10729,8 +10852,22 @@ var BZW_dock = (() => {
         void refresh();
         updateLive(v.entry.id);
       }
-    });
+    }, opts.extraArgs ? { extraArgs: opts.extraArgs } : {});
     render();
+  }
+  async function runBoardAction(v, ref) {
+    var _a, _b;
+    const spec = (_b = (_a = v.manifest) == null ? void 0 : _a.actions) == null ? void 0 : _b[ref.id];
+    if (!spec) {
+      notice(`展示板引用了一个没声明的动作：${ref.id}`, "warning");
+      return;
+    }
+    const checked = resolveActArgs(spec, ref.args);
+    if (!checked.ok) {
+      notice(`动作 ${ref.id} 没有执行：${checked.reason}`, "warning");
+      return;
+    }
+    await runFlow(v, { extraArgs: buildActArgs(spec, checked.values) });
   }
   function liveCallbacks(id) {
     return {
@@ -11114,6 +11251,7 @@ var BZW_dock = (() => {
       init_str();
       init_data();
       init_store();
+      init_action();
       init_command();
       init_runner();
       init_scheduler();
