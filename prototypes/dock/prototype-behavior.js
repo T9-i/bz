@@ -1,5 +1,5 @@
-/* 源指纹 af3f5c61d343465f · 仓内输入 62 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
+/* 源指纹 a2617d03520cacd0 · 仓内输入 63 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/tool-state.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __create = Object.create;
@@ -6402,106 +6402,8 @@ var BZW_dock = (() => {
     }
   });
 
-  // src/dock/store.ts
-  function defaults() {
-    return {
-      v: DOCK_STORE_VERSION,
-      tools: [],
-      runState: {},
-      autoRun: true,
-      notifyMissed: true,
-      watchdog: true
-    };
-  }
-  function isPlainObject(v) {
-    return !!v && typeof v === "object" && !Array.isArray(v);
-  }
-  function normalizeDockStore(raw) {
-    if (!isPlainObject(raw)) return defaults();
-    if (raw.v !== DOCK_STORE_VERSION) return defaults();
-    return {
-      v: DOCK_STORE_VERSION,
-      tools: Array.isArray(raw.tools) ? raw.tools : [],
-      runState: isPlainObject(raw.runState) ? raw.runState : {},
-      // 三个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
-      autoRun: raw.autoRun !== false,
-      notifyMissed: raw.notifyMissed !== false,
-      watchdog: raw.watchdog !== false
-    };
-  }
-  function dockStorePath() {
-    return storageFile(DOCK_STORE_FILENAME);
-  }
-  function readTrustMap() {
-    var _a;
-    const raw = (_a = tryGetSettings()) == null ? void 0 : _a[DOCK_TRUST_SETTINGS_KEY];
-    if (!isPlainObject(raw)) return {};
-    const out = {};
-    for (const [id, v] of Object.entries(raw)) {
-      if (!isPlainObject(v)) continue;
-      const at = v.at;
-      if (typeof at !== "string" || at === "") continue;
-      const run = typeof v.run === "string" && v.run !== "" ? v.run : void 0;
-      out[id] = run !== void 0 ? { at, run } : { at };
-    }
-    return out;
-  }
-  async function writeTrustMap(map) {
-    const before = JSON.stringify(readTrustMap());
-    const after = JSON.stringify(map);
-    if (before === after) return false;
-    const s = tryGetSettings();
-    s[DOCK_TRUST_SETTINGS_KEY] = map;
-    await saveSettings();
-    return true;
-  }
-  function dockStoreSnapshot() {
-    return snapshot != null ? snapshot : defaults();
-  }
-  function store() {
-    return jsonFileStore(dockStorePath(), {
-      defaultValue: defaults,
-      // 写前比对：面板开关反复点、台账无变化时不刷 mtime（Syncthing 止血）
-      writeIfChanged: true
-    });
-  }
-  async function loadDockStore(seed) {
-    const path = dockStorePath();
-    const app2 = getApp();
-    const existed = !!app2.vault.getAbstractFileByPath(path) || await diskPathExists(app2, path);
-    const raw = await store().read();
-    const next = !existed && seed ? seed : normalizeDockStore(raw);
-    if (!existed && seed) await store().write(next);
-    snapshot = next;
-    return next;
-  }
-  function setDockStoreMemory(patch) {
-    snapshot = { ...dockStoreSnapshot(), ...patch, v: DOCK_STORE_VERSION };
-  }
-  async function persistDockStore() {
-    await enqueueFileTask(dockStorePath(), async () => {
-      await store().write(dockStoreSnapshot());
-    });
-  }
-  async function mutateDockStore(patch) {
-    setDockStoreMemory(patch);
-    await persistDockStore();
-  }
-  var DOCK_STORE_VERSION, DOCK_STORE_FILENAME, DOCK_TRUST_SETTINGS_KEY, snapshot;
-  var init_store = __esm({
-    "src/dock/store.ts"() {
-      init_app();
-      init_storage();
-      init_settings_provider();
-      DOCK_STORE_VERSION = 1;
-      DOCK_STORE_FILENAME = "dock.json";
-      DOCK_TRUST_SETTINGS_KEY = "dockTrust";
-      snapshot = null;
-    }
-  });
-
   // src/dock/schema.ts
-  function isPlainObject2(v) {
+  function isPlainObject(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
   }
   function str(v) {
@@ -6526,14 +6428,14 @@ var BZW_dock = (() => {
     if (trimmed.trim() === "") return null;
     try {
       const v = JSON.parse(trimmed);
-      return isPlainObject2(v) ? v : null;
+      return isPlainObject(v) ? v : null;
     } catch (e) {
       return null;
     }
   }
   function parseParam(raw) {
     var _a;
-    if (!isPlainObject2(raw)) return null;
+    if (!isPlainObject(raw)) return null;
     const key = nonEmptyStr(raw.key);
     const label = nonEmptyStr(raw.label);
     const type = str(raw.type);
@@ -6543,7 +6445,7 @@ var BZW_dock = (() => {
       if (Array.isArray(raw.options)) {
         const kept = [];
         for (const o of raw.options) {
-          if (!isPlainObject2(o)) continue;
+          if (!isPlainObject(o)) continue;
           const value = str(o.value);
           if (value === void 0) continue;
           kept.push({ value, label: (_a = nonEmptyStr(o.label)) != null ? _a : value });
@@ -6575,7 +6477,7 @@ var BZW_dock = (() => {
     return out;
   }
   function parseSchedule(raw) {
-    if (!isPlainObject2(raw)) return void 0;
+    if (!isPlainObject(raw)) return void 0;
     const kind = str(raw.kind);
     if (!kind || !SCHEDULE_KINDS.has(kind)) return void 0;
     const s = { kind };
@@ -6590,13 +6492,13 @@ var BZW_dock = (() => {
     return s;
   }
   function parseAction(raw) {
-    if (!isPlainObject2(raw)) return null;
+    if (!isPlainObject(raw)) return null;
     const out = { ...raw };
     const argSpecs = {};
-    if (isPlainObject2(raw.args)) {
+    if (isPlainObject(raw.args)) {
       for (const [key, v] of Object.entries(raw.args)) {
         if (!ARG_NAME_RE.test(key)) continue;
-        if (!isPlainObject2(v)) continue;
+        if (!isPlainObject(v)) continue;
         const type = str(v.type);
         if (!type || !ACTION_ARG_TYPES.has(type)) continue;
         const spec = { type };
@@ -6607,7 +6509,7 @@ var BZW_dock = (() => {
     }
     if (Object.keys(argSpecs).length) out.args = argSpecs;
     else delete out.args;
-    if (isPlainObject2(raw.run) && Array.isArray(raw.run.args)) {
+    if (isPlainObject(raw.run) && Array.isArray(raw.run.args)) {
       const tpl = raw.run.args.filter((x) => typeof x === "string");
       const declared = new Set(Object.keys(argSpecs));
       const ok = tpl.every((t) => [...t.matchAll(ARG_PLACEHOLDER_RE)].every((m) => declared.has(m[1])));
@@ -6621,7 +6523,7 @@ var BZW_dock = (() => {
     return out;
   }
   function parseActions(raw) {
-    if (!isPlainObject2(raw)) return void 0;
+    if (!isPlainObject(raw)) return void 0;
     const out = {};
     for (const [id, v] of Object.entries(raw)) {
       if (id.length > DOCK_ACTION_ID_MAX_LEN || !DOCK_ACTION_ID_RE.test(id)) continue;
@@ -6632,7 +6534,7 @@ var BZW_dock = (() => {
   }
   function parseManifest(raw) {
     var _a, _b;
-    if (!isPlainObject2(raw)) return null;
+    if (!isPlainObject(raw)) return null;
     if (raw.v !== DOCK_CONTRACT_VERSION) return null;
     const id = str(raw.id);
     if (!id || id.length > DOCK_ID_MAX_LEN || !DOCK_ID_RE.test(id)) return null;
@@ -6660,7 +6562,7 @@ var BZW_dock = (() => {
     if (Array.isArray(raw.produces)) {
       out.produces = raw.produces.filter((x) => typeof x === "string");
     }
-    if (isPlainObject2(raw.run)) {
+    if (isPlainObject(raw.run)) {
       const cmd = (_a = nonEmptyStr(raw.run.cmd)) == null ? void 0 : _a.trim();
       if (cmd) {
         const r = { cmd };
@@ -6685,7 +6587,7 @@ var BZW_dock = (() => {
     const actions = parseActions(raw.actions);
     if (actions) out.actions = actions;
     else delete out.actions;
-    if (isPlainObject2(raw.runtime)) {
+    if (isPlainObject(raw.runtime)) {
       const estimatedSec = num(raw.runtime.estimatedSec);
       out.runtime = estimatedSec !== void 0 && estimatedSec > 0 ? { estimatedSec } : {};
     } else {
@@ -6695,7 +6597,7 @@ var BZW_dock = (() => {
   }
   function parseRunRecord(raw) {
     var _a, _b;
-    if (!isPlainObject2(raw)) return null;
+    if (!isPlainObject(raw)) return null;
     const startedAt = nonEmptyStr(raw.startedAt);
     const status = str(raw.status);
     if (!startedAt || !status || !RUN_STATUSES.has(status)) return null;
@@ -6707,12 +6609,12 @@ var BZW_dock = (() => {
     else out.exitCode = num(raw.exitCode);
     out.durationMs = num(raw.durationMs);
     out.message = nonEmptyStr(raw.message);
-    if (isPlainObject2(raw.params)) out.params = raw.params;
+    if (isPlainObject(raw.params)) out.params = raw.params;
     else delete out.params;
     if (Array.isArray(raw.steps)) {
       const steps = [];
       for (const s of raw.steps) {
-        if (!isPlainObject2(s)) continue;
+        if (!isPlainObject(s)) continue;
         const text = nonEmptyStr(s.text);
         if (!text) continue;
         const step = { text };
@@ -6727,7 +6629,7 @@ var BZW_dock = (() => {
     } else {
       delete out.steps;
     }
-    if (isPlainObject2(raw.progress)) {
+    if (isPlainObject(raw.progress)) {
       const phase = (_b = nonEmptyStr(raw.progress.phase)) != null ? _b : null;
       const pctRaw = raw.progress.pct;
       const pct = typeof pctRaw === "number" && Number.isFinite(pctRaw) ? pctRaw : null;
@@ -6737,7 +6639,7 @@ var BZW_dock = (() => {
     }
     if (!Array.isArray(raw.info)) delete out.info;
     if (!("result" in raw)) delete out.result;
-    if (isPlainObject2(raw.metrics)) {
+    if (isPlainObject(raw.metrics)) {
       const metrics = {};
       for (const [k, v] of Object.entries(raw.metrics)) {
         const n = num(v);
@@ -6751,7 +6653,7 @@ var BZW_dock = (() => {
     if (Array.isArray(raw.artifacts)) {
       const artifacts = [];
       for (const a of raw.artifacts) {
-        if (!isPlainObject2(a)) continue;
+        if (!isPlainObject(a)) continue;
         const path = nonEmptyStr(a.path);
         if (!path) continue;
         const label = nonEmptyStr(a.label);
@@ -6762,7 +6664,7 @@ var BZW_dock = (() => {
     } else {
       delete out.artifacts;
     }
-    if (isPlainObject2(raw.error)) {
+    if (isPlainObject(raw.error)) {
       const kindRaw = str(raw.error.kind);
       const kind = kindRaw && ERROR_KINDS.has(kindRaw) ? kindRaw : "unknown";
       const error = { kind };
@@ -6777,7 +6679,7 @@ var BZW_dock = (() => {
     return out;
   }
   function parseRunsFile(raw, expectToolId) {
-    if (!isPlainObject2(raw)) return null;
+    if (!isPlainObject(raw)) return null;
     if (raw.v !== DOCK_CONTRACT_VERSION) return null;
     const tool = str(raw.tool);
     if (!tool) return null;
@@ -7135,55 +7037,66 @@ var BZW_dock = (() => {
     }
   });
 
-  // src/dock/registry.ts
-  function runSignature(run) {
-    var _a;
-    return [run.cmd, run.shell ? "shell" : "raw", ...(_a = run.args) != null ? _a : []].join("\0");
+  // src/dock/tool-state.ts
+  function isPlainObject2(v) {
+    return !!v && typeof v === "object" && !Array.isArray(v);
   }
-  function parseToolEntry(raw) {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-    const r = raw;
-    const id = typeof r.id === "string" ? r.id.trim() : "";
-    const path = typeof r.path === "string" ? r.path.trim() : "";
-    if (!id || id.length > TOOL_ID_MAX_LEN || !TOOL_ID_RE.test(id)) return null;
-    if (!path) return null;
-    const out = { id, path };
-    if (typeof r.enabled === "boolean") out.enabled = r.enabled;
-    if (typeof r.trustedAt === "string" && r.trustedAt.trim()) out.trustedAt = r.trustedAt.trim();
-    if (typeof r.trustedRun === "string" && r.trustedRun !== "") out.trustedRun = r.trustedRun;
-    if (typeof r.autoRun === "boolean") out.autoRun = r.autoRun;
-    const rules = parseRules(r.rules);
+  function parseRunState(raw) {
+    if (!isPlainObject2(raw)) return {};
+    const out = {};
+    if (typeof raw.lastAttemptAt === "string" && raw.lastAttemptAt !== "") out.lastAttemptAt = raw.lastAttemptAt;
+    if (typeof raw.lastAttemptOk === "boolean") out.lastAttemptOk = raw.lastAttemptOk;
+    if (typeof raw.consecutiveFailures === "number" && Number.isInteger(raw.consecutiveFailures) && raw.consecutiveFailures > 0) {
+      out.consecutiveFailures = raw.consecutiveFailures;
+    }
+    if (typeof raw.pausedAt === "string" && raw.pausedAt !== "") out.pausedAt = raw.pausedAt;
+    return out;
+  }
+  function parseToolState(raw, toolId) {
+    if (!isPlainObject2(raw)) return null;
+    if (raw.v !== TOOL_STATE_VERSION) return null;
+    if (typeof raw.tool !== "string" || raw.tool !== toolId) return null;
+    const out = {};
+    if (typeof raw.enabled === "boolean") out.enabled = raw.enabled;
+    if (typeof raw.autoRun === "boolean") out.autoRun = raw.autoRun;
+    const rules = parseRules(raw.rules);
     if (rules.length) out.rules = rules;
-    const ruleState = parseRuleState(r.ruleState);
+    const ruleState = parseRuleState(raw.ruleState);
     if (ruleState) out.ruleState = ruleState;
-    const override = parseSchedule(r.scheduleOverride);
+    const runState = parseRunState(raw.runState);
+    if (Object.keys(runState).length) out.runState = runState;
+    const override = parseSchedule(raw.scheduleOverride);
     if (override) {
       out.scheduleOverride = override;
-      if (typeof r.overrideDeclSig === "string" && r.overrideDeclSig !== "") {
-        out.overrideDeclSig = r.overrideDeclSig;
+      if (typeof raw.overrideDeclSig === "string" && raw.overrideDeclSig !== "") {
+        out.overrideDeclSig = raw.overrideDeclSig;
       }
     }
     return out;
   }
-  function parseToolEntries(raw) {
-    if (!Array.isArray(raw)) return [];
-    const out = [];
-    const seen = /* @__PURE__ */ new Set();
-    for (const item of raw) {
-      const parsed = parseToolEntry(item);
-      if (!parsed || seen.has(parsed.id)) continue;
-      seen.add(parsed.id);
-      out.push(parsed);
+  function toolStateOf(entry) {
+    const out = {};
+    if (typeof entry.enabled === "boolean") out.enabled = entry.enabled;
+    if (typeof entry.autoRun === "boolean") out.autoRun = entry.autoRun;
+    if (entry.scheduleOverride) {
+      out.scheduleOverride = entry.scheduleOverride;
+      if (entry.overrideDeclSig !== void 0) out.overrideDeclSig = entry.overrideDeclSig;
     }
+    if (entry.rules && entry.rules.length) out.rules = entry.rules;
+    if (entry.ruleState) out.ruleState = entry.ruleState;
+    if (entry.runState && Object.keys(entry.runState).length) out.runState = entry.runState;
     return out;
   }
-  var TOOL_ID_RE, TOOL_ID_MAX_LEN;
-  var init_registry = __esm({
-    "src/dock/registry.ts"() {
-      init_schema();
+  function toolStateFileOf(toolId, state) {
+    return { v: TOOL_STATE_VERSION, tool: toolId, ...toolStateOf(state) };
+  }
+  var TOOL_STATE_FILENAME, TOOL_STATE_VERSION;
+  var init_tool_state = __esm({
+    "src/dock/tool-state.ts"() {
       init_rules();
-      TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
-      TOOL_ID_MAX_LEN = 64;
+      init_schema();
+      TOOL_STATE_FILENAME = "dock-state.json";
+      TOOL_STATE_VERSION = 1;
     }
   });
 
@@ -7260,6 +7173,9 @@ var BZW_dock = (() => {
   }
   function panelPathFor(declPath) {
     return joinPath(dirOf(declPath), PANEL_FILENAME);
+  }
+  function toolStatePathFor(declPath) {
+    return joinPath(dirOf(declPath), TOOL_STATE_FILENAME);
   }
   function aliasOf(p, from, to) {
     var _a;
@@ -7374,6 +7290,54 @@ var BZW_dock = (() => {
     }
     return true;
   }
+  function readToolState(declPath, toolId, fs = currentFs()) {
+    var _a;
+    if (!fs) return {};
+    const text = fs.readText(toolStatePathFor(declPath));
+    if (text === null) return {};
+    const raw = parseJsonObjectText(text);
+    return (_a = parseToolState(raw, toolId)) != null ? _a : {};
+  }
+  function writeToolState(declPath, toolId, state, fs = currentFs()) {
+    if (!fs) return false;
+    const target = toolStatePathFor(declPath);
+    const keep = {};
+    try {
+      const prev = parseJsonObjectText(fs.readText(target));
+      if (prev) for (const [k, v] of Object.entries(prev)) keep[k] = v;
+    } catch (e) {
+    }
+    const fresh = toolStateFileOf(toolId, state);
+    const next = { ...keep, ...fresh };
+    for (const k of [
+      "enabled",
+      "autoRun",
+      "scheduleOverride",
+      "overrideDeclSig",
+      "rules",
+      "ruleState",
+      "runState"
+    ]) {
+      if (!(k in fresh)) delete next[k];
+    }
+    const text = JSON.stringify(next, null, 2);
+    try {
+      if (fs.readText(target) === text) return false;
+    } catch (e) {
+    }
+    try {
+      if (fs.rename) {
+        const tmp = `${target}.tmp`;
+        fs.writeText(tmp, text);
+        fs.rename(tmp, target);
+      } else {
+        fs.writeText(target, text);
+      }
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
   function readRunsText(declPath, fs = currentFs()) {
     var _a;
     if (!fs) return null;
@@ -7388,6 +7352,7 @@ var BZW_dock = (() => {
   var init_declaration = __esm({
     "src/dock/declaration.ts"() {
       init_schema();
+      init_tool_state();
       DECLARATION_FILENAME = "manifest.json";
       DECLARATION_FILENAME_LEGACY = "dock.json";
       SETTINGS_FILENAME = "data.json";
@@ -7400,6 +7365,238 @@ var BZW_dock = (() => {
       SCAN_MAX_DEPTH = 3;
       SCAN_MAX_DIRS = 500;
       SCAN_SKIP_DIRS = /* @__PURE__ */ new Set(["node_modules", ".git", ".obsidian"]);
+    }
+  });
+
+  // src/dock/store.ts
+  function defaults() {
+    return {
+      v: DOCK_STORE_VERSION,
+      tools: [],
+      runState: {},
+      autoRun: true,
+      notifyMissed: true,
+      watchdog: true
+    };
+  }
+  function isPlainObject4(v) {
+    return !!v && typeof v === "object" && !Array.isArray(v);
+  }
+  function normalizeDockStore(raw) {
+    if (!isPlainObject4(raw)) return defaults();
+    if (raw.v !== 1 && raw.v !== DOCK_STORE_VERSION) return defaults();
+    return {
+      v: DOCK_STORE_VERSION,
+      tools: Array.isArray(raw.tools) ? raw.tools : [],
+      runState: isPlainObject4(raw.runState) ? raw.runState : {},
+      // 三个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
+      autoRun: raw.autoRun !== false,
+      notifyMissed: raw.notifyMissed !== false,
+      watchdog: raw.watchdog !== false
+    };
+  }
+  function diskFileOf(snapshot2) {
+    const tools = [];
+    for (const raw of snapshot2.tools) {
+      if (!isPlainObject4(raw)) continue;
+      const id = typeof raw.id === "string" ? raw.id : "";
+      const path = typeof raw.path === "string" ? raw.path : "";
+      if (!id || !path) continue;
+      tools.push({ id, path });
+    }
+    return {
+      v: DOCK_STORE_VERSION,
+      tools,
+      autoRun: snapshot2.autoRun,
+      notifyMissed: snapshot2.notifyMissed,
+      watchdog: snapshot2.watchdog
+    };
+  }
+  function dockStorePath() {
+    return storageFile(DOCK_STORE_FILENAME);
+  }
+  function readTrustMap() {
+    var _a;
+    const raw = (_a = tryGetSettings()) == null ? void 0 : _a[DOCK_TRUST_SETTINGS_KEY];
+    if (!isPlainObject4(raw)) return {};
+    const out = {};
+    for (const [id, v] of Object.entries(raw)) {
+      if (!isPlainObject4(v)) continue;
+      const at = v.at;
+      if (typeof at !== "string" || at === "") continue;
+      const run = typeof v.run === "string" && v.run !== "" ? v.run : void 0;
+      out[id] = run !== void 0 ? { at, run } : { at };
+    }
+    return out;
+  }
+  async function writeTrustMap(map) {
+    const before = JSON.stringify(readTrustMap());
+    const after = JSON.stringify(map);
+    if (before === after) return false;
+    const s = tryGetSettings();
+    s[DOCK_TRUST_SETTINGS_KEY] = map;
+    await saveSettings();
+    return true;
+  }
+  function dockStoreSnapshot() {
+    return snapshot != null ? snapshot : defaults();
+  }
+  function store() {
+    return jsonFileStore(dockStorePath(), {
+      defaultValue: () => diskFileOf(defaults()),
+      // 写前比对：面板开关反复点、台账无变化时不刷 mtime（Syncthing 止血）
+      writeIfChanged: true
+    });
+  }
+  async function persistToolStates(ids) {
+    const snap = dockStoreSnapshot();
+    const want = ids ? new Set(ids) : null;
+    for (const raw of snap.tools) {
+      if (!isPlainObject4(raw)) continue;
+      const id = typeof raw.id === "string" ? raw.id : "";
+      const path = typeof raw.path === "string" ? raw.path : "";
+      if (!id || !path) continue;
+      if (want && !want.has(id)) continue;
+      const merged = { ...raw };
+      const runState = snap.runState[id];
+      writeToolState(path, id, toolStateOf({
+        ...merged,
+        runState: isPlainObject4(runState) ? runState : void 0
+      }));
+    }
+  }
+  function hydrate(indexFile) {
+    const tools = [];
+    const runState = { ...indexFile.runState };
+    for (const raw of indexFile.tools) {
+      if (!isPlainObject4(raw)) {
+        tools.push(raw);
+        continue;
+      }
+      const id = typeof raw.id === "string" ? raw.id : "";
+      const path = typeof raw.path === "string" ? raw.path : "";
+      if (!id || !path) {
+        tools.push(raw);
+        continue;
+      }
+      const state = readToolState(path, id);
+      if (state.runState && Object.keys(state.runState).length) runState[id] = state.runState;
+      const merged = { ...raw, ...state };
+      delete merged.runState;
+      tools.push(merged);
+    }
+    return { ...indexFile, tools, runState };
+  }
+  async function splitLegacyState(file) {
+    let allOk = true;
+    for (const raw of file.tools) {
+      if (!isPlainObject4(raw)) continue;
+      const id = typeof raw.id === "string" ? raw.id : "";
+      const path = typeof raw.path === "string" ? raw.path : "";
+      if (!id || !path) continue;
+      const runState = file.runState[id];
+      const state = toolStateOf({
+        ...raw,
+        runState: isPlainObject4(runState) ? runState : void 0
+      });
+      if (!writeToolState(path, id, state)) allOk = false;
+    }
+    return allOk;
+  }
+  async function loadDockStore(seed) {
+    const path = dockStorePath();
+    const app2 = getApp();
+    const existed = !!app2.vault.getAbstractFileByPath(path) || await diskPathExists(app2, path);
+    const raw = await store().read();
+    const seeded = !existed && !!seed;
+    const file = seeded ? seed : normalizeDockStore(raw);
+    const isV1 = !seeded && isPlainObject4(raw) && raw.v === 1;
+    const next = hydrate(file);
+    snapshot = next;
+    if (isV1) {
+      if (await splitLegacyState(next)) await persistDockStore();
+    } else if (seeded) {
+      await persistToolStates();
+      await persistDockStore();
+    }
+    return next;
+  }
+  function setDockStoreMemory(patch) {
+    snapshot = { ...dockStoreSnapshot(), ...patch, v: DOCK_STORE_VERSION };
+  }
+  async function persistDockStore() {
+    await enqueueFileTask(dockStorePath(), async () => {
+      await store().write(diskFileOf(dockStoreSnapshot()));
+    });
+  }
+  async function mutateDockStore(patch) {
+    setDockStoreMemory(patch);
+    await persistDockStore();
+  }
+  var DOCK_STORE_VERSION, DOCK_STORE_FILENAME, DOCK_TRUST_SETTINGS_KEY, snapshot;
+  var init_store = __esm({
+    "src/dock/store.ts"() {
+      init_app();
+      init_storage();
+      init_settings_provider();
+      init_declaration();
+      init_tool_state();
+      DOCK_STORE_VERSION = 2;
+      DOCK_STORE_FILENAME = "dock.json";
+      DOCK_TRUST_SETTINGS_KEY = "dockTrust";
+      snapshot = null;
+    }
+  });
+
+  // src/dock/registry.ts
+  function runSignature(run) {
+    var _a;
+    return [run.cmd, run.shell ? "shell" : "raw", ...(_a = run.args) != null ? _a : []].join("\0");
+  }
+  function parseToolEntry(raw) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    const r = raw;
+    const id = typeof r.id === "string" ? r.id.trim() : "";
+    const path = typeof r.path === "string" ? r.path.trim() : "";
+    if (!id || id.length > TOOL_ID_MAX_LEN || !TOOL_ID_RE.test(id)) return null;
+    if (!path) return null;
+    const out = { id, path };
+    if (typeof r.enabled === "boolean") out.enabled = r.enabled;
+    if (typeof r.trustedAt === "string" && r.trustedAt.trim()) out.trustedAt = r.trustedAt.trim();
+    if (typeof r.trustedRun === "string" && r.trustedRun !== "") out.trustedRun = r.trustedRun;
+    if (typeof r.autoRun === "boolean") out.autoRun = r.autoRun;
+    const rules = parseRules(r.rules);
+    if (rules.length) out.rules = rules;
+    const ruleState = parseRuleState(r.ruleState);
+    if (ruleState) out.ruleState = ruleState;
+    const override = parseSchedule(r.scheduleOverride);
+    if (override) {
+      out.scheduleOverride = override;
+      if (typeof r.overrideDeclSig === "string" && r.overrideDeclSig !== "") {
+        out.overrideDeclSig = r.overrideDeclSig;
+      }
+    }
+    return out;
+  }
+  function parseToolEntries(raw) {
+    if (!Array.isArray(raw)) return [];
+    const out = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const item of raw) {
+      const parsed = parseToolEntry(item);
+      if (!parsed || seen.has(parsed.id)) continue;
+      seen.add(parsed.id);
+      out.push(parsed);
+    }
+    return out;
+  }
+  var TOOL_ID_RE, TOOL_ID_MAX_LEN;
+  var init_registry = __esm({
+    "src/dock/registry.ts"() {
+      init_schema();
+      init_rules();
+      TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+      TOOL_ID_MAX_LEN = 64;
     }
   });
 
@@ -7664,6 +7861,7 @@ var BZW_dock = (() => {
   }
   async function saveToolEntries(entries) {
     await mutateDockStore({ tools: entriesToFile(entries) });
+    await persistToolStates();
     await writeTrustMap(trustFromEntries(entries));
   }
   function isTrusted(entry) {
@@ -7692,18 +7890,6 @@ var BZW_dock = (() => {
     state[ruleId] = { lastFiredAt: new Date(at).toISOString() };
     await updateToolEntry(toolId, { ruleState: state });
   }
-  function parseRunState(raw) {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
-    const r = raw;
-    const out = {};
-    if (typeof r.lastAttemptAt === "string" && r.lastAttemptAt !== "") out.lastAttemptAt = r.lastAttemptAt;
-    if (typeof r.lastAttemptOk === "boolean") out.lastAttemptOk = r.lastAttemptOk;
-    if (typeof r.consecutiveFailures === "number" && Number.isInteger(r.consecutiveFailures) && r.consecutiveFailures > 0) {
-      out.consecutiveFailures = r.consecutiveFailures;
-    }
-    if (typeof r.pausedAt === "string" && r.pausedAt !== "") out.pausedAt = r.pausedAt;
-    return out;
-  }
   function readRunStates() {
     const raw = dockStoreSnapshot().runState;
     const out = {};
@@ -7727,7 +7913,8 @@ var BZW_dock = (() => {
       if (Object.keys(st).length) all[id] = st;
       else delete all[id];
     }
-    await mutateDockStore({ runState: all });
+    setDockStoreMemory({ runState: all });
+    await persistToolStates([id]);
   }
   async function recordRunSuccess(id, finishedAt) {
     await patchRunState(id, {
@@ -7854,6 +8041,7 @@ var BZW_dock = (() => {
       init_declaration();
       init_schedule();
       init_rules();
+      init_tool_state();
       init_registry();
     }
   });
@@ -8554,7 +8742,7 @@ var BZW_dock = (() => {
       now: (_b = d.now) != null ? _b : Date.now()
     };
   }
-  function isPlainObject4(v) {
+  function isPlainObject5(v) {
     return !!v && typeof v === "object" && !Array.isArray(v);
   }
   function writeAtomic(fs, dir, path, data) {
@@ -8601,7 +8789,7 @@ var BZW_dock = (() => {
     }
   }
   function parseRunNote(raw) {
-    if (!isPlainObject4(raw)) return null;
+    if (!isPlainObject5(raw)) return null;
     const toolId = typeof raw.toolId === "string" ? raw.toolId : "";
     const at = typeof raw.at === "string" ? raw.at : "";
     if (!toolId || !at) return null;
@@ -8623,7 +8811,7 @@ var BZW_dock = (() => {
     } catch (e) {
       return [];
     }
-    if (!isPlainObject4(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION || !Array.isArray(obj.items)) return [];
+    if (!isPlainObject5(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION || !Array.isArray(obj.items)) return [];
     const out = [];
     for (const item of obj.items) {
       const note = parseRunNote(item);
@@ -8643,7 +8831,7 @@ var BZW_dock = (() => {
     } catch (e) {
       return;
     }
-    if (!isPlainObject4(obj) || !Array.isArray(obj.items)) return;
+    if (!isPlainObject5(obj) || !Array.isArray(obj.items)) return;
     const playedKeys = new Set(played.map((n) => `${n.at}\0${n.toolId}`));
     const rest = obj.items.filter((item) => {
       const note = parseRunNote(item);
