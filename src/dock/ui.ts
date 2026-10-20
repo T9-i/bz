@@ -98,6 +98,7 @@ import {
   resolveRun,
   type ResolvedRun,
 } from './declaration';
+import { hasVaultFs, primePathsOf, primeVaultFs, resetVaultFs } from './vault-fs';
 import {
   consumeWatchdogQueue,
   readWatchdogQueue,
@@ -267,7 +268,7 @@ function messageTextOf(v: DockToolView, last: DockRunRecord | undefined): string
   if (v.runsUnreadable) return '文件在，但内容不合契约';
   const live = liveRunOf(v.entry.id);
   if (live) return live.progress.phase ? `正在${live.progress.phase}…` : '正在运行…';
-  if (!v.manifest) return '声明文件读不到，先把路径修好';
+  if (!v.manifest) return v.declError ?? '声明文件读不到，先把路径修好';
   if (!v.run) return '没写怎么跑（既无 run 段，目录里也没有 main.mjs）';
   if (!last) return '等它按自己的节奏跑一次';
   return last.message || statusText(last.status);
@@ -300,6 +301,9 @@ function canStart(v: DockToolView): boolean {
 
 /** 「未信任」与「信任过期」共用的标签文案（两者都要求用户重新确认一次） */
 function trustTagOf(v: DockToolView): string | null {
+  // 移动端不跑进程，也没有「重新确认」的入口 —— 这个标签在那儿只是噪音。
+  // 更要紧的是：声明读不到时 run 为 null，比对必然不等，会恒亮一条假的「命令已变」。
+  if (!canRun()) return null;
   if (!isTrusted(v.entry)) return '未信任';
   if (v.trustStale) return '命令已变，待重新确认';
   return null;
@@ -435,6 +439,12 @@ async function refresh(): Promise<void> {
     // 面板数据（登记表 / 台账 / 开关）先装载再读视图 —— 每次打开都现读，外部改了 dock.json
     // 也能在下次打开时生效（ADR-0239；与声明文件的「不缓存」同一条精神）
     await loadDockStore();
+    // 移动端：读链是同步的，而 vault adapter 只有异步读 —— 先把每个工具那几份文件
+    // 预取进内存，下面的 `loadToolViews` 才有一份能命中（见 vault-fs.ts）
+    if (hasVaultFs()) {
+      resetVaultFs();
+      await primeVaultFs(readToolEntries().flatMap(primePathsOf));
+    }
     views = await loadToolViews(hostApp);
     runDueNotifications();
   } catch (e) {
@@ -794,7 +804,7 @@ function renderHead(): void {
     ? `${s.total} 个工具${s.overdue ? ` · ${s.overdue} 个待关注` : ''}`
     : '还没有登记任何外部工具';
   btns.innerHTML = '';
-  btns.append(
+  btns.appendChild(
     uiIconBtn({
       icon: 'search',
       title: '搜索工具',
@@ -804,17 +814,27 @@ function renderHead(): void {
         render();
       },
     }),
-    uiIconBtn({
-      icon: 'refresh-cw',
-      title: '重新读取运行记录',
-      disabled: refreshing,
-      onClick: () => void refresh(),
-    }),
-    uiIconBtn({
-      icon: 'plus',
-      title: '导入工具（选文件夹）',
-      onClick: () => importToolFlow(),
-    }),
+  );
+  // 移动端只读：刷新（重读磁盘）与导入（选文件夹）都不给 —— 手机上既选不了文件夹，
+  // 也没有「重读一遍」能改变的东西（数据本来就是同步过来的静态文件）
+  if (canRun()) {
+    btns.appendChild(
+      uiIconBtn({
+        icon: 'refresh-cw',
+        title: '重新读取运行记录',
+        disabled: refreshing,
+        onClick: () => void refresh(),
+      }),
+    );
+    btns.appendChild(
+      uiIconBtn({
+        icon: 'plus',
+        title: '导入工具（选文件夹）',
+        onClick: () => importToolFlow(),
+      }),
+    );
+  }
+  btns.appendChild(
     uiIconBtn({
       icon: 'x',
       title: '关闭',
@@ -946,15 +966,21 @@ function renderBody(): void {
 
 function renderList(body: HTMLElement): void {
   if (!views.length) {
+    // 移动端只读：没有「导入工具」这个入口（选文件夹是桌面端的事），文案也要跟着改 ——
+    // 不然手机上会得到一句「选一个工具文件夹」，而它根本给不了这个动作
     body.appendChild(
       uiEmpty({
         icon: 'square-terminal',
         title: '还没有外部工具',
-        desc: '选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口',
-        actions: uiBtnRow(
-          [uiBtn({ label: '导入工具', icon: 'file-input', tone: 'primary', onClick: () => importToolFlow() })],
-          { center: true },
-        ),
+        desc: canRun()
+          ? '选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口'
+          : '工具要在桌面端导入。手机上只读 —— 工具目录同步过来之后，这里就能看到它的声明、展示板与运行记录',
+        actions: canRun()
+          ? uiBtnRow(
+              [uiBtn({ label: '导入工具', icon: 'file-input', tone: 'primary', onClick: () => importToolFlow() })],
+              { center: true },
+            )
+          : undefined,
       }),
     );
     return;
@@ -1080,8 +1106,9 @@ function makeCard(v: DockToolView): HTMLElement {
   }
   card.appendChild(foot);
 
-  // 菜单（右键 / 长按）+ 左键开详情
-  attachItemActions(card, cardActions(v));
+  // 菜单（右键 / 长按）+ 左键开详情。移动端只读：不挂抽屉 —— 里面的重读 / 运行 /
+  // 重新导入 / 停用 / 移除全是操作，手机上一个都执行不了
+  attachItemActions(card, canRun() ? cardActions(v) : []);
   card.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
     if (t.closest('button')) return; // 按钮自己处理
@@ -1599,12 +1626,18 @@ function triggerFields(draft: DockRule, rebuild: () => void): HTMLElement[] {
  */
 function ruleRow(v: DockToolView, rule: DockRule): HTMLElement {
   const row = el('div', 'bz-dock-rule');
-  row.tabIndex = 0;
-  row.setAttribute('role', 'button');
   const main = el('div', 'bz-dock-rulemain');
   main.appendChild(el('div', 'bz-dock-ruleline', triggerText(rule.trigger)));
   main.appendChild(el('div', 'bz-dock-rulemeta', actionText(rule.action) + (rule.jitterMin ? ` · 抖 ${minutesText(rule.jitterMin)}` : '')));
-  row.append(main, el('span', 'bz-dock-rulearrow', '›'));
+  row.appendChild(main);
+  // 移动端只读：不给「点进去改」的入口（也就没有箭头与 role=button —— 明示这里不可操作）
+  if (!canRun()) {
+    row.classList.add('is-readonly');
+    return row;
+  }
+  row.tabIndex = 0;
+  row.setAttribute('role', 'button');
+  row.appendChild(el('span', 'bz-dock-rulearrow', '›'));
   const open = (): void => openRuleEditor(v, rule);
   row.addEventListener('click', open);
   row.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -1632,7 +1665,7 @@ function autoSection(v: DockToolView): HTMLElement {
   head.appendChild(el('h3', 'bz-dock-pane-title', '自动运行'));
   sec.appendChild(head);
 
-  if (v.runState?.pausedAt) {
+  if (v.runState?.pausedAt && canRun()) {
     const last = lastRun(v.runs);
     const hint = last?.error ? errorHint(last.error.kind) : null;
     const bar = el('div', 'bz-dock-runbtns');
@@ -1652,9 +1685,14 @@ function autoSection(v: DockToolView): HTMLElement {
   else list.appendChild(el('div', 'bz-dock-ruleempty', '没有规则 —— 加一条就有了'));
   sec.appendChild(list);
 
-  sec.appendChild(
-    uiBtn({ label: '添加规则', size: 'sm', onClick: () => openRuleEditor(v, null) }),
-  );
+  // 加规则要开编辑器、要落盘 —— 移动端只读，不给这个按钮
+  if (canRun()) {
+    sec.appendChild(
+      uiBtn({ label: '添加规则', size: 'sm', onClick: () => openRuleEditor(v, null) }),
+    );
+  } else {
+    sec.appendChild(el('div', 'bz-dock-mobilehint', '移动端只读，改节奏 / 规则请回桌面端'));
+  }
   return sec;
 }
 
@@ -1664,7 +1702,11 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
 
   if (v.declError) {
     const box = el('div', 'bz-dock-meta-warn');
-    box.textContent = v.declError;
+    // 移动端补一句人话：这里的「读不到」跟桌面端不是一回事 —— 路径多半是对的，
+    // 差的是「文件还没同步到这台设备」或「工具目录不在仓库里」
+    box.textContent = canRun()
+      ? v.declError
+      : `${v.declError}（手机端只读：文件没同步到这台设备，或工具目录不在仓库里）`;
     wrap.appendChild(box);
   }
 
@@ -2106,15 +2148,18 @@ function runPane(v: DockToolView): HTMLElement {
 
   if (!v.manifest) {
     // 读声明**不需要信任** —— 它就是读一个文件。所以这里给的是「修路径 / 重读」，不是「要授权」。
+    // 移动端不给这个按钮：手机上重读一遍也还是那份同步过来的文件，读了不会有新结果。
     const box = el('div', 'bz-dock-noManifest');
     box.appendChild(el('div', 'bz-dock-note', v.declError ?? '声明文件读不到。'));
-    box.appendChild(
-      uiBtn({
-        label: '重新读声明',
-        icon: 'refresh-cw',
-        onClick: () => void reloadDeclaration(v),
-      }),
-    );
+    if (canRun()) {
+      box.appendChild(
+        uiBtn({
+          label: '重新读声明',
+          icon: 'refresh-cw',
+          onClick: () => void reloadDeclaration(v),
+        }),
+      );
+    }
     pane.appendChild(box);
     pane.appendChild(liveHost(v.entry.id));
     return pane;
@@ -2339,14 +2384,18 @@ function resetValues(v: DockToolView): void {
 }
 
 function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView): HTMLElement {
+  // 移动端只读：控件全禁用、不挂「选文件夹」按钮、改了也不落盘 ——
+  // 能看见工具现在用的是哪个值，但改不了（改参数是桌面端的事）
+  const ro = !canRun();
   const set = (val: unknown) => {
+    if (ro) return;
     values[p.key] = val;
     queueValueSave(v);
   };
   let control: HTMLElement;
   switch (p.type) {
     case 'bool': {
-      const sw = uiSwitch({ checked: values[p.key] === true, onChange: (c) => set(c) });
+      const sw = uiSwitch({ checked: values[p.key] === true, disabled: ro, onChange: (c) => set(c) });
       control = sw.el;
       break;
     }
@@ -2363,6 +2412,12 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
         placeholder: '请选择',
         onChange: (val) => set(val),
       });
+      if (ro) {
+        // uiSelect 没有 disabled 选项：摘掉可聚焦性 + 类名让点击穿过去（样式见 styles.css）
+        sel.el.classList.add('is-readonly');
+        sel.el.tabIndex = -1;
+        sel.el.setAttribute('aria-disabled', 'true');
+      }
       control = sel.el;
       break;
     }
@@ -2374,6 +2429,7 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
           uiChip({
             label: o.label,
             selectedSoft: cur.has(o.value),
+            disabled: ro,
             onClick: () => {
               if (cur.has(o.value)) cur.delete(o.value);
               else cur.add(o.value);
@@ -2391,6 +2447,7 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
         type: 'number',
         value: values[p.key] === undefined ? '' : String(values[p.key]),
         placeholder: p.placeholder,
+        disabled: ro,
         onInput: (val) => set(val === '' ? undefined : Number(val)),
       });
       if (p.min !== undefined) inp.min = String(p.min);
@@ -2404,6 +2461,7 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
       ta.rows = p.rows ?? 4;
       ta.value = values[p.key] === undefined ? '' : String(values[p.key]);
       if (p.placeholder) ta.placeholder = p.placeholder;
+      ta.disabled = ro;
       ta.addEventListener('input', () => set(ta.value));
       control = ta;
       break;
@@ -2413,32 +2471,35 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
       const inp = uiInput({
         value: values[p.key] === undefined ? '' : String(values[p.key]),
         placeholder: p.placeholder,
+        disabled: ro,
         onInput: (val) => set(val),
       });
       row.appendChild(inp);
-      row.appendChild(
-        uiIconBtn({
-          icon: 'folder-open',
-          title: p.mode === 'dir' ? '选择文件夹' : '选择文件',
-          onClick: () => {
-            void (async () => {
-              if (p.mode === 'dir') {
-                const dir = await pickSystemFolder();
-                if (dir) {
-                  inp.value = dir;
-                  set(dir);
+      if (!ro) {
+        row.appendChild(
+          uiIconBtn({
+            icon: 'folder-open',
+            title: p.mode === 'dir' ? '选择文件夹' : '选择文件',
+            onClick: () => {
+              void (async () => {
+                if (p.mode === 'dir') {
+                  const dir = await pickSystemFolder();
+                  if (dir) {
+                    inp.value = dir;
+                    set(dir);
+                  }
+                } else {
+                  const files = await pickSystemFiles(`选择${p.label}`, []);
+                  if (files.length) {
+                    inp.value = files[0];
+                    set(files[0]);
+                  }
                 }
-              } else {
-                const files = await pickSystemFiles(`选择${p.label}`, []);
-                if (files.length) {
-                  inp.value = files[0];
-                  set(files[0]);
-                }
-              }
-            })();
-          },
-        }),
-      );
+              })();
+            },
+          }),
+        );
+      }
       control = row;
       break;
     }
@@ -2447,6 +2508,7 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
         type: 'password',
         value: values[p.key] === undefined ? '' : String(values[p.key]),
         placeholder: p.placeholder || '只存在本机工具目录',
+        disabled: ro,
         onInput: (val) => set(val),
       });
       control = inp;
@@ -2456,6 +2518,7 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
       const inp = uiInput({
         value: values[p.key] === undefined ? '' : String(values[p.key]),
         placeholder: p.placeholder,
+        disabled: ro,
         onInput: (val) => set(val),
       });
       control = inp;

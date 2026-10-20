@@ -1,5 +1,5 @@
-/* 源指纹 7cb2a9730eba2364 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts"]*/
+/* 源指纹 16fbefb0ed086cfc · 仓内输入 61 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __create = Object.create;
@@ -8855,6 +8855,53 @@ var BZW_dock = (() => {
     }
   });
 
+  // src/dock/vault-fs.ts
+  function normPath(p) {
+    return p.replace(/\\/g, "/").replace(/\/+$/, "");
+  }
+  function primePathsOf(entry) {
+    const dir = dirOf(entry.path);
+    const paths = [
+      entry.path,
+      joinPath(dir, DECLARATION_FILENAME),
+      joinPath(dir, DECLARATION_FILENAME_LEGACY),
+      joinPath(dir, MAIN_ENTRY_FILENAME),
+      joinPath(dir, RUNS_FILENAME),
+      joinPath(dir, RUNS_FILENAME_LEGACY),
+      joinPath(dir, SETTINGS_FILENAME),
+      joinPath(dir, SETTINGS_FILENAME_LEGACY),
+      joinPath(dir, PANEL_FILENAME)
+    ];
+    return [...new Set(paths.map(normPath))];
+  }
+  function hasVaultFs() {
+    return bridge !== null;
+  }
+  async function primeVaultFs(paths) {
+    if (!bridge) return;
+    const b = bridge;
+    const queue = [...paths];
+    await Promise.all(
+      Array.from({ length: Math.min(PRIME_CONCURRENCY, queue.length) }, async () => {
+        while (queue.length) {
+          const p = queue.shift();
+          await b.read(p);
+        }
+      })
+    );
+  }
+  function resetVaultFs() {
+    bridge == null ? void 0 : bridge.drop();
+  }
+  var PRIME_CONCURRENCY, bridge;
+  var init_vault_fs = __esm({
+    "src/dock/vault-fs.ts"() {
+      init_declaration();
+      PRIME_CONCURRENCY = 6;
+      bridge = null;
+    }
+  });
+
   // src/dock/ui.ts
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -8917,10 +8964,11 @@ var BZW_dock = (() => {
     return relTime(last.startedAt.replace("T", " "));
   }
   function messageTextOf(v, last) {
+    var _a;
     if (v.runsUnreadable) return "文件在，但内容不合契约";
     const live3 = liveRunOf(v.entry.id);
     if (live3) return live3.progress.phase ? `正在${live3.progress.phase}…` : "正在运行…";
-    if (!v.manifest) return "声明文件读不到，先把路径修好";
+    if (!v.manifest) return (_a = v.declError) != null ? _a : "声明文件读不到，先把路径修好";
     if (!v.run) return "没写怎么跑（既无 run 段，目录里也没有 main.mjs）";
     if (!last) return "等它按自己的节奏跑一次";
     return last.message || statusText(last.status);
@@ -8940,6 +8988,7 @@ var BZW_dock = (() => {
     return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run;
   }
   function trustTagOf(v) {
+    if (!canRun()) return null;
     if (!isTrusted(v.entry)) return "未信任";
     if (v.trustStale) return "命令已变，待重新确认";
     return null;
@@ -9041,6 +9090,10 @@ var BZW_dock = (() => {
     renderHead();
     try {
       await loadDockStore();
+      if (hasVaultFs()) {
+        resetVaultFs();
+        await primeVaultFs(readToolEntries().flatMap(primePathsOf));
+      }
       views = await loadToolViews(hostApp);
       runDueNotifications();
     } catch (e) {
@@ -9297,7 +9350,7 @@ var BZW_dock = (() => {
     const s = summarize(views);
     sub.textContent = views.length ? `${s.total} 个工具${s.overdue ? ` · ${s.overdue} 个待关注` : ""}` : "还没有登记任何外部工具";
     btns.innerHTML = "";
-    btns.append(
+    btns.appendChild(
       uiIconBtn({
         icon: "search",
         title: "搜索工具",
@@ -9306,18 +9359,26 @@ var BZW_dock = (() => {
           searchOpen = !searchOpen;
           render();
         }
-      }),
-      uiIconBtn({
-        icon: "refresh-cw",
-        title: "重新读取运行记录",
-        disabled: refreshing,
-        onClick: () => void refresh()
-      }),
-      uiIconBtn({
-        icon: "plus",
-        title: "导入工具（选文件夹）",
-        onClick: () => importToolFlow()
-      }),
+      })
+    );
+    if (canRun()) {
+      btns.appendChild(
+        uiIconBtn({
+          icon: "refresh-cw",
+          title: "重新读取运行记录",
+          disabled: refreshing,
+          onClick: () => void refresh()
+        })
+      );
+      btns.appendChild(
+        uiIconBtn({
+          icon: "plus",
+          title: "导入工具（选文件夹）",
+          onClick: () => importToolFlow()
+        })
+      );
+    }
+    btns.appendChild(
       uiIconBtn({
         icon: "x",
         title: "关闭",
@@ -9418,11 +9479,11 @@ var BZW_dock = (() => {
         uiEmpty({
           icon: "square-terminal",
           title: "还没有外部工具",
-          desc: "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口",
-          actions: uiBtnRow(
+          desc: canRun() ? "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口" : "工具要在桌面端导入。手机上只读 —— 工具目录同步过来之后，这里就能看到它的声明、展示板与运行记录",
+          actions: canRun() ? uiBtnRow(
             [uiBtn({ label: "导入工具", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
             { center: true }
-          )
+          ) : void 0
         })
       );
       return;
@@ -9531,7 +9592,7 @@ var BZW_dock = (() => {
       foot.appendChild(el("span", "bz-dock-mobilehint", "移动端仅查看"));
     }
     card.appendChild(foot);
-    attachItemActions(card, cardActions(v));
+    attachItemActions(card, canRun() ? cardActions(v) : []);
     card.addEventListener("click", (e) => {
       const t = e.target;
       if (t.closest("button")) return;
@@ -9922,12 +9983,17 @@ var BZW_dock = (() => {
   }
   function ruleRow(v, rule) {
     const row = el("div", "bz-dock-rule");
-    row.tabIndex = 0;
-    row.setAttribute("role", "button");
     const main = el("div", "bz-dock-rulemain");
     main.appendChild(el("div", "bz-dock-ruleline", triggerText(rule.trigger)));
     main.appendChild(el("div", "bz-dock-rulemeta", actionText(rule.action) + (rule.jitterMin ? ` · 抖 ${durationText(rule.jitterMin)}` : "")));
-    row.append(main, el("span", "bz-dock-rulearrow", "›"));
+    row.appendChild(main);
+    if (!canRun()) {
+      row.classList.add("is-readonly");
+      return row;
+    }
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.appendChild(el("span", "bz-dock-rulearrow", "›"));
     const open = () => openRuleEditor(v, rule);
     row.addEventListener("click", open);
     row.addEventListener("keydown", (e) => {
@@ -9946,7 +10012,7 @@ var BZW_dock = (() => {
     const head = el("div", "bz-dock-pane-head");
     head.appendChild(el("h3", "bz-dock-pane-title", "自动运行"));
     sec.appendChild(head);
-    if ((_a = v.runState) == null ? void 0 : _a.pausedAt) {
+    if (((_a = v.runState) == null ? void 0 : _a.pausedAt) && canRun()) {
       const last = lastRun(v.runs);
       const hint = (last == null ? void 0 : last.error) ? errorHint(last.error.kind) : null;
       const bar = el("div", "bz-dock-runbtns");
@@ -9964,9 +10030,13 @@ var BZW_dock = (() => {
     if (v.rules.length) for (const rule of v.rules) list.appendChild(ruleRow(v, rule));
     else list.appendChild(el("div", "bz-dock-ruleempty", "没有规则 —— 加一条就有了"));
     sec.appendChild(list);
-    sec.appendChild(
-      uiBtn({ label: "添加规则", size: "sm", onClick: () => openRuleEditor(v, null) })
-    );
+    if (canRun()) {
+      sec.appendChild(
+        uiBtn({ label: "添加规则", size: "sm", onClick: () => openRuleEditor(v, null) })
+      );
+    } else {
+      sec.appendChild(el("div", "bz-dock-mobilehint", "移动端只读，改节奏 / 规则请回桌面端"));
+    }
     return sec;
   }
   function renderDetail(body, v) {
@@ -9974,7 +10044,7 @@ var BZW_dock = (() => {
     const wrap = el("div", "bz-dock-detail");
     if (v.declError) {
       const box = el("div", "bz-dock-meta-warn");
-      box.textContent = v.declError;
+      box.textContent = canRun() ? v.declError : `${v.declError}（手机端只读：文件没同步到这台设备，或工具目录不在仓库里）`;
       wrap.appendChild(box);
     }
     const board = boardSection(v);
@@ -10205,13 +10275,15 @@ var BZW_dock = (() => {
     if (!v.manifest) {
       const box = el("div", "bz-dock-noManifest");
       box.appendChild(el("div", "bz-dock-note", (_a = v.declError) != null ? _a : "声明文件读不到。"));
-      box.appendChild(
-        uiBtn({
-          label: "重新读声明",
-          icon: "refresh-cw",
-          onClick: () => void reloadDeclaration(v)
-        })
-      );
+      if (canRun()) {
+        box.appendChild(
+          uiBtn({
+            label: "重新读声明",
+            icon: "refresh-cw",
+            onClick: () => void reloadDeclaration(v)
+          })
+        );
+      }
       pane.appendChild(box);
       pane.appendChild(liveHost(v.entry.id));
       return pane;
@@ -10391,14 +10463,16 @@ var BZW_dock = (() => {
   }
   function paramRow(p, values, v) {
     var _a, _b, _c, _d;
+    const ro = !canRun();
     const set = (val) => {
+      if (ro) return;
       values[p.key] = val;
       queueValueSave(v);
     };
     let control;
     switch (p.type) {
       case "bool": {
-        const sw = uiSwitch({ checked: values[p.key] === true, onChange: (c) => set(c) });
+        const sw = uiSwitch({ checked: values[p.key] === true, disabled: ro, onChange: (c) => set(c) });
         control = sw.el;
         break;
       }
@@ -10414,6 +10488,11 @@ var BZW_dock = (() => {
           placeholder: "请选择",
           onChange: (val) => set(val)
         });
+        if (ro) {
+          sel.el.classList.add("is-readonly");
+          sel.el.tabIndex = -1;
+          sel.el.setAttribute("aria-disabled", "true");
+        }
         control = sel.el;
         break;
       }
@@ -10425,6 +10504,7 @@ var BZW_dock = (() => {
             uiChip({
               label: o.label,
               selectedSoft: cur.has(o.value),
+              disabled: ro,
               onClick: () => {
                 if (cur.has(o.value)) cur.delete(o.value);
                 else cur.add(o.value);
@@ -10442,6 +10522,7 @@ var BZW_dock = (() => {
           type: "number",
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder,
+          disabled: ro,
           onInput: (val) => set(val === "" ? void 0 : Number(val))
         });
         if (p.min !== void 0) inp.min = String(p.min);
@@ -10455,6 +10536,7 @@ var BZW_dock = (() => {
         ta.rows = (_d = p.rows) != null ? _d : 4;
         ta.value = values[p.key] === void 0 ? "" : String(values[p.key]);
         if (p.placeholder) ta.placeholder = p.placeholder;
+        ta.disabled = ro;
         ta.addEventListener("input", () => set(ta.value));
         control = ta;
         break;
@@ -10464,32 +10546,35 @@ var BZW_dock = (() => {
         const inp = uiInput({
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder,
+          disabled: ro,
           onInput: (val) => set(val)
         });
         row.appendChild(inp);
-        row.appendChild(
-          uiIconBtn({
-            icon: "folder-open",
-            title: p.mode === "dir" ? "选择文件夹" : "选择文件",
-            onClick: () => {
-              void (async () => {
-                if (p.mode === "dir") {
-                  const dir = await pickSystemFolder();
-                  if (dir) {
-                    inp.value = dir;
-                    set(dir);
+        if (!ro) {
+          row.appendChild(
+            uiIconBtn({
+              icon: "folder-open",
+              title: p.mode === "dir" ? "选择文件夹" : "选择文件",
+              onClick: () => {
+                void (async () => {
+                  if (p.mode === "dir") {
+                    const dir = await pickSystemFolder();
+                    if (dir) {
+                      inp.value = dir;
+                      set(dir);
+                    }
+                  } else {
+                    const files = await pickSystemFiles(`选择${p.label}`, []);
+                    if (files.length) {
+                      inp.value = files[0];
+                      set(files[0]);
+                    }
                   }
-                } else {
-                  const files = await pickSystemFiles(`选择${p.label}`, []);
-                  if (files.length) {
-                    inp.value = files[0];
-                    set(files[0]);
-                  }
-                }
-              })();
-            }
-          })
-        );
+                })();
+              }
+            })
+          );
+        }
         control = row;
         break;
       }
@@ -10498,6 +10583,7 @@ var BZW_dock = (() => {
           type: "password",
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder || "只存在本机工具目录",
+          disabled: ro,
           onInput: (val) => set(val)
         });
         control = inp;
@@ -10507,6 +10593,7 @@ var BZW_dock = (() => {
         const inp = uiInput({
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder,
+          disabled: ro,
           onInput: (val) => set(val)
         });
         control = inp;
@@ -11032,6 +11119,7 @@ var BZW_dock = (() => {
       init_scheduler();
       init_rules();
       init_declaration();
+      init_vault_fs();
       init_watchdog();
       init_schedule();
       hostApp = null;
@@ -11109,6 +11197,7 @@ var BZW_dock = (() => {
   // src/dock/index.ts
   init_runner();
   init_declaration();
+  init_vault_fs();
   init_data();
   init_store();
 

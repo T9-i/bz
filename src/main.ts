@@ -4,7 +4,7 @@
  * 命令 id 统一 `bz-` 前缀（ADR-0004 修订：2025 用户决策统一品牌前缀），不设置默认快捷键，
  * 卸载时 removeCommand 清理——取代原脚本的 window.__*CommandRegistered 防重标志。
  */
-import { Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Plugin, PluginSettingTab, Setting, Platform } from 'obsidian';
 import { notice, cleanupNotices } from './core/notice';
 import { escManager } from './core/esc-manager';
 import { closeItemMenu } from './core/item-actions';
@@ -104,6 +104,9 @@ import {
   migrateLegacyDockSettings,
   mountDockStatusBar,
   unmountDockStatusBar,
+  installVaultFs,
+  primeVaultFs,
+  primePathsOf,
 } from './dock';
 
 /** 命令表：id/name 统一命名（spec「命令 id 全清单」第 9 轮：bz-<域>-<动作>）。
@@ -322,6 +325,11 @@ export default class BzPlugin extends Plugin {
     const dockMigrated = migrateLegacyDockSettings(loaded);
     this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
     setApp(this.app);
+    // 移动端没有 Node：工具坞默认那条 `window.require('fs')` 读链整条是断的，
+    // 声明 / 参数值 / 运行记录 / 展示板一个都读不到（面板只剩登记项的 id 与路径）。
+    // 工具目录就在 vault 里，挂上 adapter 读桥（只读、预取到内存）就能看 —— 不能跑，
+    // 但「看」是移动端的全部用途（2026-10-20 用户点名：手机上无法查看静态数据）。
+    if (Platform.isMobile) installVaultFs(this.app);
     // AI 设置注入（Q3 的 _q3Settings 语义 → 插件设置）
     setAISettingsProvider(() => this.settings);
     resetAIProviderCache();
@@ -372,6 +380,10 @@ export default class BzPlugin extends Plugin {
     // 让移动端真全屏面板（.bz-panel-mtop）随软键盘收缩，底部输入条不再被键盘压住。
     // 桌面端无害（媒体查询不命中）；卸载时 onunload 解绑。
     bindMobileViewport();
+
+    // 移动端：工具目录那几份文件先预取进内存 —— 面板与设置页的读链都是同步的，
+    // 没有这一遍它们只能看到「读不到」（面板打开时还会再刷一次，见 ui.refresh）
+    if (Platform.isMobile) await primeVaultFs(readToolEntries().flatMap(primePathsOf));
 
     // 命令裸注册（ADR-0004：app.commands.addCommand 原样 id 注册——plugin.addCommand 会被 Obsidian 自动加插件前缀，主页.js 等外部裸 id 调用会失效）
     for (const c of COMMANDS) {

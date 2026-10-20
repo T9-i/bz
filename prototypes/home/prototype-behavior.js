@@ -1,5 +1,5 @@
-/* 源指纹 abf683aa0ec41e04 · 仓内输入 325 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 83388abf7084fd35 · 仓内输入 326 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
   var __create = Object.create;
@@ -31440,11 +31440,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 结果出栈后直接落盘；面板侧只在这一轮仍是当前时才回写状态。**一次预演只算一遍**。
          */
         async runEntryRelPreview(content, title) {
-          const bridge = getLinkBridge();
+          const bridge2 = getLinkBridge();
           const seq = ++this.entryRelSeq;
           this.entryPreviewPicks = [];
           this.entryPreviewItems = [];
-          if (!bridge) {
+          if (!bridge2) {
             this.setEntryRel("off");
             return;
           }
@@ -31455,7 +31455,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.entryRelText = "";
           this.setEntryRel("loading");
           try {
-            const out = await bridge.preview(content, title, { signal: ac.signal });
+            const out = await bridge2.preview(content, title, { signal: ac.signal });
             if (inflight.commitPath) await this.settleEntryRelCommit(inflight.commitPath, out);
             if (seq !== this.entryRelSeq) return;
             if (out.status === "done") {
@@ -31488,8 +31488,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
          */
         async commitEntryLinks(path) {
           var _a2, _b2;
-          const bridge = getLinkBridge();
-          if (!bridge) return;
+          const bridge2 = getLinkBridge();
+          if (!bridge2) return;
           if (this.entryRelState === "loading") {
             const inflight = this.entryRelInflight;
             if (inflight) {
@@ -31501,7 +31501,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
           }
           if (this.entryPreviewDone && !this.entryPreviewPicks.length) return;
           if (this.entryPreviewPicks.length) {
-            await bridge.apply(path, this.entryPreviewPicks);
+            await bridge2.apply(path, this.entryPreviewPicks);
             return;
           }
           if (this.entryRelState === "failed") void this.backgroundRelNow(path);
@@ -31512,11 +31512,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 不再「abort 再重跑」。落盘与通知与接住路径共用 settleEntryRelCommit（用户视角同一条）。
          */
         async backgroundRelCommit(path, content, title) {
-          const bridge = getLinkBridge();
-          if (!bridge) return;
+          const bridge2 = getLinkBridge();
+          if (!bridge2) return;
           notify("知识盒关联：后台分析中…", { type: "progress", dedupeKey: REL_BG_NOTICE_KEY });
           try {
-            await this.settleEntryRelCommit(path, await bridge.preview(content, title));
+            await this.settleEntryRelCommit(path, await bridge2.preview(content, title));
           } catch (e) {
             notify(`知识盒关联失败：${e instanceof Error ? e.message : String(e)}`, { type: "error", dedupeKey: REL_BG_NOTICE_KEY });
           }
@@ -31526,8 +31526,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 共用这一段——**都不重跑检索与裁判**，差别只在结果从哪来。通知同键原地更新，可读作一条。
          */
         async settleEntryRelCommit(path, out) {
-          const bridge = getLinkBridge();
-          if (!bridge) return;
+          const bridge2 = getLinkBridge();
+          if (!bridge2) return;
           if (out.status === "skipped") {
             notify("知识盒关联：自动关联未开启，未写入", { type: "info", dedupeKey: REL_BG_NOTICE_KEY });
             return;
@@ -31545,7 +31545,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
             return;
           }
           try {
-            const r = await bridge.apply(path, out.picks.map((p) => p.path));
+            const r = await bridge2.apply(path, out.picks.map((p) => p.path));
             notify(r.status === "done" ? `知识盒关联：已写入 ${r.created} 条关联` : "知识盒关联：自动关联未开启，未写入", {
               type: r.status === "done" ? "success" : "info",
               dedupeKey: REL_BG_NOTICE_KEY
@@ -31556,11 +31556,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         /** 后台兜底建链（issue 327）：预演失败时的 bridge.now 完整管线，通知口径同 backgroundRelCommit */
         async backgroundRelNow(path) {
-          const bridge = getLinkBridge();
-          if (!bridge) return;
+          const bridge2 = getLinkBridge();
+          if (!bridge2) return;
           notify("知识盒关联：后台建链中…", { type: "progress", dedupeKey: REL_BG_NOTICE_KEY });
           try {
-            const out = await bridge.now(path);
+            const out = await bridge2.now(path);
             if (out.status === "done" || out.status === "skipped-related") {
               const created = out.status === "done" ? out.created : 0;
               notify(created > 0 ? `知识盒关联：已写入 ${created} 条关联` : "知识盒关联：未发现实质关联", {
@@ -32378,12 +32378,12 @@ ${String(blockText != null ? blockText : "").trim()}`);
       notice("自动关联已在知识盒设置中关闭", "info");
       return null;
     }
-    const bridge = getLinkBridge();
-    if (!bridge) {
+    const bridge2 = getLinkBridge();
+    if (!bridge2) {
       notice("自动关联暂不可用：第二大脑尚未就绪", "warning");
       return null;
     }
-    return bridge;
+    return bridge2;
   }
   async function relinkActiveNote(app2) {
     var _a2, _b2;
@@ -32392,10 +32392,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
       notice("请先打开一个笔记", "info");
       return;
     }
-    const bridge = takeLinkBridge();
-    if (!bridge) return;
+    const bridge2 = takeLinkBridge();
+    if (!bridge2) return;
     try {
-      const outcome = await bridge.now(file.path, { force: true });
+      const outcome = await bridge2.now(file.path, { force: true });
       if (outcome.status === "done") {
         notice(outcome.created > 0 ? `已新建关联 ${outcome.created} 条` : "未发现实质关联，未新建", "success");
       } else if (outcome.status === "queued") {
@@ -32413,10 +32413,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
     }
   }
   async function linkAllInBoxes() {
-    const bridge = takeLinkBridge();
-    if (!bridge) return;
+    const bridge2 = takeLinkBridge();
+    if (!bridge2) return;
     try {
-      const result = await bridge.backfill();
+      const result = await bridge2.backfill();
       if (result.status === "done") {
         notice(
           result.created > 0 ? `批量补链完成：处理 ${result.processed} 篇 / 新建关联 ${result.created} 条` : "批量补链完成：未发现实质关联，未新建",
@@ -66971,6 +66971,53 @@ GitHub 仓库：${ghInfo.title}
     }
   });
 
+  // src/dock/vault-fs.ts
+  function normPath(p) {
+    return p.replace(/\\/g, "/").replace(/\/+$/, "");
+  }
+  function primePathsOf(entry) {
+    const dir = dirOf(entry.path);
+    const paths = [
+      entry.path,
+      joinPath(dir, DECLARATION_FILENAME),
+      joinPath(dir, DECLARATION_FILENAME_LEGACY),
+      joinPath(dir, MAIN_ENTRY_FILENAME),
+      joinPath(dir, RUNS_FILENAME),
+      joinPath(dir, RUNS_FILENAME_LEGACY),
+      joinPath(dir, SETTINGS_FILENAME),
+      joinPath(dir, SETTINGS_FILENAME_LEGACY),
+      joinPath(dir, PANEL_FILENAME)
+    ];
+    return [...new Set(paths.map(normPath))];
+  }
+  function hasVaultFs() {
+    return bridge !== null;
+  }
+  async function primeVaultFs(paths) {
+    if (!bridge) return;
+    const b = bridge;
+    const queue = [...paths];
+    await Promise.all(
+      Array.from({ length: Math.min(PRIME_CONCURRENCY, queue.length) }, async () => {
+        while (queue.length) {
+          const p = queue.shift();
+          await b.read(p);
+        }
+      })
+    );
+  }
+  function resetVaultFs() {
+    bridge == null ? void 0 : bridge.drop();
+  }
+  var PRIME_CONCURRENCY, bridge;
+  var init_vault_fs = __esm({
+    "src/dock/vault-fs.ts"() {
+      init_declaration();
+      PRIME_CONCURRENCY = 6;
+      bridge = null;
+    }
+  });
+
   // src/dock/ui.ts
   function el2(tag, cls, text2) {
     const n = document.createElement(tag);
@@ -67033,10 +67080,11 @@ GitHub 仓库：${ghInfo.title}
     return relTime(last.startedAt.replace("T", " "));
   }
   function messageTextOf(v, last) {
+    var _a2;
     if (v.runsUnreadable) return "文件在，但内容不合契约";
     const live3 = liveRunOf(v.entry.id);
     if (live3) return live3.progress.phase ? `正在${live3.progress.phase}…` : "正在运行…";
-    if (!v.manifest) return "声明文件读不到，先把路径修好";
+    if (!v.manifest) return (_a2 = v.declError) != null ? _a2 : "声明文件读不到，先把路径修好";
     if (!v.run) return "没写怎么跑（既无 run 段，目录里也没有 main.mjs）";
     if (!last) return "等它按自己的节奏跑一次";
     return last.message || statusText(last.status);
@@ -67056,6 +67104,7 @@ GitHub 仓库：${ghInfo.title}
     return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run;
   }
   function trustTagOf(v) {
+    if (!canRun()) return null;
     if (!isTrusted(v.entry)) return "未信任";
     if (v.trustStale) return "命令已变，待重新确认";
     return null;
@@ -67141,6 +67190,10 @@ GitHub 仓库：${ghInfo.title}
     renderHead();
     try {
       await loadDockStore();
+      if (hasVaultFs()) {
+        resetVaultFs();
+        await primeVaultFs(readToolEntries().flatMap(primePathsOf));
+      }
       views = await loadToolViews(hostApp2);
       runDueNotifications();
     } catch (e) {
@@ -67397,7 +67450,7 @@ GitHub 仓库：${ghInfo.title}
     const s = summarize(views);
     sub.textContent = views.length ? `${s.total} 个工具${s.overdue ? ` · ${s.overdue} 个待关注` : ""}` : "还没有登记任何外部工具";
     btns.innerHTML = "";
-    btns.append(
+    btns.appendChild(
       uiIconBtn({
         icon: "search",
         title: "搜索工具",
@@ -67406,18 +67459,26 @@ GitHub 仓库：${ghInfo.title}
           searchOpen = !searchOpen;
           render2();
         }
-      }),
-      uiIconBtn({
-        icon: "refresh-cw",
-        title: "重新读取运行记录",
-        disabled: refreshing,
-        onClick: () => void refresh2()
-      }),
-      uiIconBtn({
-        icon: "plus",
-        title: "导入工具（选文件夹）",
-        onClick: () => importToolFlow()
-      }),
+      })
+    );
+    if (canRun()) {
+      btns.appendChild(
+        uiIconBtn({
+          icon: "refresh-cw",
+          title: "重新读取运行记录",
+          disabled: refreshing,
+          onClick: () => void refresh2()
+        })
+      );
+      btns.appendChild(
+        uiIconBtn({
+          icon: "plus",
+          title: "导入工具（选文件夹）",
+          onClick: () => importToolFlow()
+        })
+      );
+    }
+    btns.appendChild(
       uiIconBtn({
         icon: "x",
         title: "关闭",
@@ -67518,11 +67579,11 @@ GitHub 仓库：${ghInfo.title}
         uiEmpty({
           icon: "square-terminal",
           title: "还没有外部工具",
-          desc: "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口",
-          actions: uiBtnRow(
+          desc: canRun() ? "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口" : "工具要在桌面端导入。手机上只读 —— 工具目录同步过来之后，这里就能看到它的声明、展示板与运行记录",
+          actions: canRun() ? uiBtnRow(
             [uiBtn({ label: "导入工具", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
             { center: true }
-          )
+          ) : void 0
         })
       );
       return;
@@ -67631,7 +67692,7 @@ GitHub 仓库：${ghInfo.title}
       foot.appendChild(el2("span", "bz-dock-mobilehint", "移动端仅查看"));
     }
     card.appendChild(foot);
-    attachItemActions(card, cardActions(v));
+    attachItemActions(card, canRun() ? cardActions(v) : []);
     card.addEventListener("click", (e) => {
       const t = e.target;
       if (t.closest("button")) return;
@@ -68022,12 +68083,17 @@ GitHub 仓库：${ghInfo.title}
   }
   function ruleRow(v, rule) {
     const row = el2("div", "bz-dock-rule");
-    row.tabIndex = 0;
-    row.setAttribute("role", "button");
     const main = el2("div", "bz-dock-rulemain");
     main.appendChild(el2("div", "bz-dock-ruleline", triggerText(rule.trigger)));
     main.appendChild(el2("div", "bz-dock-rulemeta", actionText(rule.action) + (rule.jitterMin ? ` · 抖 ${durationText(rule.jitterMin)}` : "")));
-    row.append(main, el2("span", "bz-dock-rulearrow", "›"));
+    row.appendChild(main);
+    if (!canRun()) {
+      row.classList.add("is-readonly");
+      return row;
+    }
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.appendChild(el2("span", "bz-dock-rulearrow", "›"));
     const open = () => openRuleEditor(v, rule);
     row.addEventListener("click", open);
     row.addEventListener("keydown", (e) => {
@@ -68046,7 +68112,7 @@ GitHub 仓库：${ghInfo.title}
     const head = el2("div", "bz-dock-pane-head");
     head.appendChild(el2("h3", "bz-dock-pane-title", "自动运行"));
     sec.appendChild(head);
-    if ((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) {
+    if (((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) && canRun()) {
       const last = lastRun(v.runs);
       const hint = (last == null ? void 0 : last.error) ? errorHint(last.error.kind) : null;
       const bar = el2("div", "bz-dock-runbtns");
@@ -68064,9 +68130,13 @@ GitHub 仓库：${ghInfo.title}
     if (v.rules.length) for (const rule of v.rules) list.appendChild(ruleRow(v, rule));
     else list.appendChild(el2("div", "bz-dock-ruleempty", "没有规则 —— 加一条就有了"));
     sec.appendChild(list);
-    sec.appendChild(
-      uiBtn({ label: "添加规则", size: "sm", onClick: () => openRuleEditor(v, null) })
-    );
+    if (canRun()) {
+      sec.appendChild(
+        uiBtn({ label: "添加规则", size: "sm", onClick: () => openRuleEditor(v, null) })
+      );
+    } else {
+      sec.appendChild(el2("div", "bz-dock-mobilehint", "移动端只读，改节奏 / 规则请回桌面端"));
+    }
     return sec;
   }
   function renderDetail(body, v) {
@@ -68074,7 +68144,7 @@ GitHub 仓库：${ghInfo.title}
     const wrap2 = el2("div", "bz-dock-detail");
     if (v.declError) {
       const box = el2("div", "bz-dock-meta-warn");
-      box.textContent = v.declError;
+      box.textContent = canRun() ? v.declError : `${v.declError}（手机端只读：文件没同步到这台设备，或工具目录不在仓库里）`;
       wrap2.appendChild(box);
     }
     const board = boardSection(v);
@@ -68305,13 +68375,15 @@ GitHub 仓库：${ghInfo.title}
     if (!v.manifest) {
       const box = el2("div", "bz-dock-noManifest");
       box.appendChild(el2("div", "bz-dock-note", (_a2 = v.declError) != null ? _a2 : "声明文件读不到。"));
-      box.appendChild(
-        uiBtn({
-          label: "重新读声明",
-          icon: "refresh-cw",
-          onClick: () => void reloadDeclaration(v)
-        })
-      );
+      if (canRun()) {
+        box.appendChild(
+          uiBtn({
+            label: "重新读声明",
+            icon: "refresh-cw",
+            onClick: () => void reloadDeclaration(v)
+          })
+        );
+      }
       pane.appendChild(box);
       pane.appendChild(liveHost(v.entry.id));
       return pane;
@@ -68491,14 +68563,16 @@ GitHub 仓库：${ghInfo.title}
   }
   function paramRow(p, values, v) {
     var _a2, _b2, _c, _d;
+    const ro = !canRun();
     const set = (val) => {
+      if (ro) return;
       values[p.key] = val;
       queueValueSave(v);
     };
     let control;
     switch (p.type) {
       case "bool": {
-        const sw = uiSwitch({ checked: values[p.key] === true, onChange: (c) => set(c) });
+        const sw = uiSwitch({ checked: values[p.key] === true, disabled: ro, onChange: (c) => set(c) });
         control = sw.el;
         break;
       }
@@ -68514,6 +68588,11 @@ GitHub 仓库：${ghInfo.title}
           placeholder: "请选择",
           onChange: (val) => set(val)
         });
+        if (ro) {
+          sel.el.classList.add("is-readonly");
+          sel.el.tabIndex = -1;
+          sel.el.setAttribute("aria-disabled", "true");
+        }
         control = sel.el;
         break;
       }
@@ -68525,6 +68604,7 @@ GitHub 仓库：${ghInfo.title}
             uiChip({
               label: o.label,
               selectedSoft: cur.has(o.value),
+              disabled: ro,
               onClick: () => {
                 if (cur.has(o.value)) cur.delete(o.value);
                 else cur.add(o.value);
@@ -68542,6 +68622,7 @@ GitHub 仓库：${ghInfo.title}
           type: "number",
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder,
+          disabled: ro,
           onInput: (val) => set(val === "" ? void 0 : Number(val))
         });
         if (p.min !== void 0) inp.min = String(p.min);
@@ -68555,6 +68636,7 @@ GitHub 仓库：${ghInfo.title}
         ta.rows = (_d = p.rows) != null ? _d : 4;
         ta.value = values[p.key] === void 0 ? "" : String(values[p.key]);
         if (p.placeholder) ta.placeholder = p.placeholder;
+        ta.disabled = ro;
         ta.addEventListener("input", () => set(ta.value));
         control = ta;
         break;
@@ -68564,32 +68646,35 @@ GitHub 仓库：${ghInfo.title}
         const inp = uiInput({
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder,
+          disabled: ro,
           onInput: (val) => set(val)
         });
         row.appendChild(inp);
-        row.appendChild(
-          uiIconBtn({
-            icon: "folder-open",
-            title: p.mode === "dir" ? "选择文件夹" : "选择文件",
-            onClick: () => {
-              void (async () => {
-                if (p.mode === "dir") {
-                  const dir = await pickSystemFolder();
-                  if (dir) {
-                    inp.value = dir;
-                    set(dir);
+        if (!ro) {
+          row.appendChild(
+            uiIconBtn({
+              icon: "folder-open",
+              title: p.mode === "dir" ? "选择文件夹" : "选择文件",
+              onClick: () => {
+                void (async () => {
+                  if (p.mode === "dir") {
+                    const dir = await pickSystemFolder();
+                    if (dir) {
+                      inp.value = dir;
+                      set(dir);
+                    }
+                  } else {
+                    const files = await pickSystemFiles(`选择${p.label}`, []);
+                    if (files.length) {
+                      inp.value = files[0];
+                      set(files[0]);
+                    }
                   }
-                } else {
-                  const files = await pickSystemFiles(`选择${p.label}`, []);
-                  if (files.length) {
-                    inp.value = files[0];
-                    set(files[0]);
-                  }
-                }
-              })();
-            }
-          })
-        );
+                })();
+              }
+            })
+          );
+        }
         control = row;
         break;
       }
@@ -68598,6 +68683,7 @@ GitHub 仓库：${ghInfo.title}
           type: "password",
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder || "只存在本机工具目录",
+          disabled: ro,
           onInput: (val) => set(val)
         });
         control = inp;
@@ -68607,6 +68693,7 @@ GitHub 仓库：${ghInfo.title}
         const inp = uiInput({
           value: values[p.key] === void 0 ? "" : String(values[p.key]),
           placeholder: p.placeholder,
+          disabled: ro,
           onInput: (val) => set(val)
         });
         control = inp;
@@ -69132,6 +69219,7 @@ GitHub 仓库：${ghInfo.title}
       init_scheduler();
       init_rules();
       init_declaration();
+      init_vault_fs();
       init_watchdog();
       init_schedule();
       hostApp2 = null;
