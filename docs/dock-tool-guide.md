@@ -14,7 +14,8 @@
 | `runs.json` | 工具目录 | **你**（运行时写） | 每次运行一条记录 |
 | `panel.html` | 工具目录 | **你**（手写或运行时写） | 详情页里那块展示板，爱画什么画什么（§5） |
 | `data.json` | 工具目录 | **bz** | 用户填的参数值（凭据的家，不在 vault 里） |
-| 登记项（含规则表、信任） | bz 数据目录的 `dock.json` | **bz** | 跟你无关 |
+| `dock-state.json` | 工具目录 | **bz** | 这个工具在本机的排期：规则表 / 规则记账 / 熔断台账 / 停用与总闸（ADR-0248）——**只读都别读**，更别写 |
+| 索引（id / path）+ 三个全域开关 | bz 数据目录的 `dock.json` | **bz** | 跟你无关 |
 
 - **读声明不执行任何东西**，所以用户先看到命令与参数表，再决定信不信。
 - 旧名 `dock.json` / `dock.settings.json` / `dock.runs.json` 读侧仍回落认，新工具一律用新名。
@@ -474,5 +475,5 @@ if (P.unwish) {
 - 源码：契约 `src/dock/schema.ts` · 文件路径 `src/dock/declaration.ts` · 协议 `src/core/external-tool.ts` · 拉起与环境变量 `src/dock/runner.ts` · 规则表 `src/dock/rules.ts` · 调度与熔断 `src/dock/scheduler.ts`
 - **离线值守**：进程本体与装法 `tools/dock-watch/README.md` · 租约与状态接口 `src/dock/watchdog.ts` · 判据打包面 `src/dock/watch-core.ts`（改判据要重跑 `node scripts/build-dock-watch.mjs`）
 - **展示板**：文件名与读取 `src/dock/declaration.ts` 的 `PANEL_FILENAME` / `readPanelText` · 渲染 `src/dock/ui.ts` 的 `boardSection`（沙箱口径与主题变量清单都在那一段注释里）
-- 面板数据住**数据目录** `dock.json`（ADR-0239）；**信任住本机插件设置** —— 换 vault / 换机器要重新确认。
-- ADR：0235（声明文件自描述）、0236（bz 调度 + 记录归工具目录）、0237（文件名对齐插件惯例 + `main.mjs`）、0239（面板数据搬出插件设置、信任留本机）、0242（离线值守：判据复用 + 租约互斥）、0243（展示板：脚本画 `panel.html`，沙箱 iframe 内嵌）
+- 面板数据住**数据目录** `dock.json`（ADR-0239，只剩索引 + 三个全域开关）；**排期状态住工具目录的 `dock-state.json`**（ADR-0248，规则表 / 记账 / 台账跟着工具走）；**信任住本机插件设置** —— 换 vault / 换机器要重新确认。
+- ADR：0235（声明文件自描述）、0236（bz 调度 + 记录归工具目录）、0237（文件名对齐插件惯例 + `main.mjs`）、0239（面板数据搬出插件设置、信任留本机）、0242（离线值守：判据复用 + 租约互斥）、0243（展示板：脚本画 `panel.html`，沙箱 iframe 内嵌）、0248（排期状态跟着工具走）

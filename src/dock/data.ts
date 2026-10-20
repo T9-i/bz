@@ -1,11 +1,12 @@
 /**
- * dock 数据层：路径常量、工具登记（插件设置）、四份文件的读写口径。
+ * dock 数据层：路径常量、工具登记（插件设置）、五份文件的读写口径。
  *
- * **四份文件、三个互斥写者**（spec §3 / D9，D4 修订后）——本模块把这几条写者边界钉在类型上：
+ * **五份文件、四个互斥写者**（spec §3 / D9，D4 / ADR-0248 修订后）——本模块把这几条写者边界钉在类型上：
  *
  * | 文件 | 位置 | 唯一写者 | 本模块的角色 |
  * |---|---|---|---|
- * | `dock.json`（面板数据） | **数据目录** | **bz** | 读写（经 `store.ts`：登记表 / 调度台账 / 两个全域开关） |
+ * | `dock.json`（面板数据） | **数据目录** | **bz** | 读写（经 `store.ts`：**工具索引 + 三个全域开关**） |
+ * | `dock-state.json`（排期状态） | **工具目录** | **bz** | 读写（经 `declaration.ts`：规则表 / 规则记账 / 熔断台账 / 停用与总闸，ADR-0248） |
  * | 插件设置 `dockTrust`（信任） | 插件设置 | **bz** | 读写（经 `store.ts`；**刻意不随 vault 走** —— 见 ADR-0239） |
  * | `manifest.json`（声明） | **工具目录** | **工具作者** | **只读**（经 `declaration.ts`，不缓存；旧名 `dock.json` 回落认） |
  * | `data.json`（参数值） | **工具目录** | **bz** | 读写（`readToolValues` / `saveToolValues`；旧名 `dock.settings.json` 回落认） |
@@ -13,6 +14,11 @@
  *
  * 两个 `data.json` 同名不同处，别混：**参数值**那份在每个工具目录里（bz 的账本，ADR-0237 起按
  * Obsidian 插件惯例命名）；**面板数据**那份在数据目录的 `dock.json`（ADR-0239 从插件设置搬出）。
+ *
+ * **为什么排期状态跟着工具走**（ADR-0248，2026-10-20 用户口径：脚本自己的数据自己管，
+ * `dock.json` 只存全局）：规则表、规则记账、熔断台账都是「这个工具在这个 vault 里」的事实，
+ * 工具目录搬走 / 复制 / 分享时应该跟着走。`dock.json` 只留「有哪些工具」和三个全域开关。
+ * 写者仍然是 bz 一个 —— 只是换了住处，一个文件一个写者这条不变量没破。
  *
  * 运行记录那条尤其要紧：bz 一旦写回去就变成第二个写者，`news.json` 当年被这个问题逼出
  * 段级合并写（ADR-0128）、外部写者最后直接退役。所以读侧走 fs 缝的 `readText`
@@ -29,6 +35,7 @@ import {
   dockStoreSnapshot,
   mutateDockStore,
   persistDockStore,
+  persistToolStates,
   readTrustMap,
   setDockStoreMemory,
   writeTrustMap,
@@ -71,6 +78,7 @@ import {
   type DockRunHealth,
 } from './schedule';
 import { effectiveRules, type DockRule } from './rules';
+import { parseRunState, type DockToolRunState } from './tool-state';
 
 // 登记契约（类型 + 校验）住在零依赖的 registry.ts；此处转出，消费方仍然只 import './data'
 export type { DockToolEntry } from './registry';
@@ -142,11 +150,12 @@ export function readToolEntries(): DockToolEntry[] {
 }
 
 /**
- * 写回全部登记（**唯一的登记写入口**）：登记表进 `dock.json`（剥信任）、信任回插件设置 ——
- * 分家写在 `store.ts` 顶部讲了理由（信任不随 vault 走）。
+ * 写回全部登记（**唯一的登记写入口**）：索引进 `dock.json`、排期状态进各工具目录的
+ * `dock-state.json`（内容没变的不落盘）、信任回插件设置 —— 三处各归各的写者边界。
  */
 export async function saveToolEntries(entries: DockToolEntry[]): Promise<void> {
   await mutateDockStore({ tools: entriesToFile(entries) });
+  await persistToolStates();
   await writeTrustMap(trustFromEntries(entries));
 }
 
@@ -218,6 +227,9 @@ export async function patchRuleFired(toolId: string, ruleId: string, at: number)
 /**
  * bz 对某个工具**调度视角**的记账 —— 自动尝试全记；手动侧只记**成功**（失败不入账）。
  *
+ * 形状与读写都在 `tool-state.ts`：它和规则表、规则记账一起住**工具目录**的
+ * `dock-state.json`（ADR-0248）。这里只转出类型，消费方仍从 `./data` 取。
+ *
  * **刻意不进工具的 `runs.json`**（那是工具唯一写者的地盘，D8/D9）：这里只记 bz 自己看到的
  * 事实 —— 「bz 什么时候试着跑了一次、成没成」。它的存在是为了两件工具记录兜不住的事：
  * ① 工具崩了自己没落记录时，bz 仍知道「它跑过且失败」；② 连续失败熔断要有据可依。
@@ -225,30 +237,7 @@ export async function patchRuleFired(toolId: string, ruleId: string, at: number)
  * 手动成功同样入账（`recordRunSuccess`）：成功是「工具活着」的证据，不分谁拉起的；
  * 手动失败不入 —— 熔断保护的是没人盯着时的自动运行，别让人手动试错把它搞停。
  */
-export interface DockToolRunState {
-  /** bz 最近一次尝试的时刻（ISO）—— 自动尝试，或手动成功 */
-  lastAttemptAt?: string;
-  /** 那次尝试 bz 侧的判果（工具记录为权威，这里只判调度） */
-  lastAttemptOk?: boolean;
-  /** 连续自动失败次数（任一次成功即清零）—— 熔断依据；手动失败不计入 */
-  consecutiveFailures?: number;
-  /** 熔断触发时刻（ISO）；非空 = 自动运行已暂停，等用户在面板里手动恢复 */
-  pausedAt?: string;
-}
-
-/** 从设置原始值规整一条台账（脏字段逐个丢，不抛） */
-function parseRunState(raw: unknown): DockToolRunState {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
-  const r = raw as Record<string, unknown>;
-  const out: DockToolRunState = {};
-  if (typeof r.lastAttemptAt === 'string' && r.lastAttemptAt !== '') out.lastAttemptAt = r.lastAttemptAt;
-  if (typeof r.lastAttemptOk === 'boolean') out.lastAttemptOk = r.lastAttemptOk;
-  if (typeof r.consecutiveFailures === 'number' && Number.isInteger(r.consecutiveFailures) && r.consecutiveFailures > 0) {
-    out.consecutiveFailures = r.consecutiveFailures;
-  }
-  if (typeof r.pausedAt === 'string' && r.pausedAt !== '') out.pausedAt = r.pausedAt;
-  return out;
-}
+export type { DockToolRunState } from './tool-state';
 
 /** 读全部台账（缺省空对象；走内存快照，同 `readToolEntries`） */
 export function readRunStates(): Record<string, DockToolRunState> {
@@ -262,8 +251,10 @@ export function readRunStates(): Record<string, DockToolRunState> {
 }
 
 /**
- * 改一条台账（合并 patch；`patch` 里值为 `undefined` 的键 = 清除该键）。整表写回。
+ * 改一条台账（合并 patch；`patch` 里值为 `undefined` 的键 = 清除该键）。
  * 传 `null` = 删掉该工具的台账（重新开始）。
+ *
+ * 落盘只写**这个工具**的状态文件（`dock-state.json`），不动别人那份 —— 调度器每次记账都走这里。
  */
 export async function patchRunState(id: string, patch: Partial<DockToolRunState> | null): Promise<void> {
   const all = readRunStates();
@@ -279,7 +270,8 @@ export async function patchRunState(id: string, patch: Partial<DockToolRunState>
     if (Object.keys(st).length) all[id] = st;
     else delete all[id];
   }
-  await mutateDockStore({ runState: all as Record<string, unknown> });
+  setDockStoreMemory({ runState: all as Record<string, unknown> });
+  await persistToolStates([id]);
 }
 
 /**

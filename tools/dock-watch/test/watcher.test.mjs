@@ -71,25 +71,30 @@ function makeWorld(opts = {}) {
   const dataDir = path.join(vault, 'CONFIG', 'STORAGE');
   fs.mkdirSync(dataDir, { recursive: true });
   const dockFile = path.join(dataDir, 'dock.json');
+  // v2：dock.json 只剩索引 + 开关（ADR-0248）；排期状态住在工具目录那份 dock-state.json
   fs.writeFileSync(
     dockFile,
     JSON.stringify(
       {
-        v: 1,
-        tools: [
-          {
-            id: 'hello',
-            path: declPath,
-            // 缺省规则 `daily 00:00` —— 今天这个点早过了，任何时刻 tick 都该命中
-            rules: [
-              opts.rule || { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'run' } },
-            ],
-          },
-          ...(opts.extraTools || []),
-        ],
-        runState: opts.runState || {},
+        v: 2,
+        tools: [{ id: 'hello', path: declPath }, ...(opts.extraTools || [])],
         autoRun: opts.autoRun !== false,
         watchdog: opts.watchdog !== false,
+      },
+      null,
+      2,
+    ),
+  );
+  fs.writeFileSync(
+    path.join(toolDir, 'dock-state.json'),
+    JSON.stringify(
+      {
+        v: 1,
+        tool: 'hello',
+        // 缺省规则 `daily 00:00` —— 今天这个点早过了，任何时刻 tick 都该命中
+        rules: [opts.rule || { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'run' } }],
+        // 台账：老形态 dock.json 里是 `{ <id>: {...} }`，状态文件里就是这个工具自己的那份
+        runState: (opts.runState && opts.runState.hello) || {},
       },
       null,
       2,
@@ -102,6 +107,7 @@ function makeWorld(opts = {}) {
     dataDir,
     toolDir,
     dockFile,
+    stateFile: path.join(toolDir, 'dock-state.json'),
     cleanup() {
       fs.rmSync(root, { recursive: true, force: true });
     },
@@ -142,6 +148,11 @@ function readDock(world) {
   return JSON.parse(fs.readFileSync(world.dockFile, 'utf8'));
 }
 
+/** 读工具目录那份排期状态（规则记账 / 台账都写在这儿，ADR-0248） */
+function readState(world) {
+  return JSON.parse(fs.readFileSync(world.stateFile, 'utf8'));
+}
+
 function writeLease(world, patch = {}) {
   rt.writeJsonAtomic(rt.fileOf('lease.json'), {
     v: 1,
@@ -178,10 +189,10 @@ test('到点就照跑：命中规则、拉起工具、记账写回、进待播�
     assert.equal(runs.runs[0].vault, world.vault);
     assert.equal(runs.runs[0].runsFileOk, true);
 
-    // 记账写在 dock.json 里（跑之前写的，所以此刻必然在）
-    const dock = readDock(world);
-    assert.ok(dock.tools[0].ruleState.r1.lastFiredAt, '规则记账没写回');
-    assert.equal(dock.runState.hello.lastAttemptOk, true);
+    // 记账写在工具目录的 dock-state.json 里（跑之前写的，所以此刻必然在）
+    const state = readState(world);
+    assert.ok(state.ruleState.r1.lastFiredAt, '规则记账没写回');
+    assert.equal(state.runState.lastAttemptOk, true);
 
     // 体检快照与待播报队列
     const status = rt.readJson(rt.fileOf('status.json'));
@@ -205,9 +216,9 @@ test('工具记录写成功、进程却非零退出：判决以记录为准，�
   try {
     await tickOnce(world);
 
-    const dock = readDock(world);
-    assert.equal(dock.runState.hello.lastAttemptOk, true, '记录说成功，台账就该记成功');
-    assert.equal(dock.runState.hello.consecutiveFailures, 0, '误报的失败不能攒成熔断');
+    const state = readState(world);
+    assert.equal(state.runState.lastAttemptOk, true, '记录说成功，台账就该记成功');
+    assert.equal(state.runState.consecutiveFailures, 0, '误报的失败不能攒成熔断');
 
     const queue = rt.readQueue();
     assert.equal(queue.length, 1);
@@ -223,9 +234,9 @@ test('工具记录写失败、进程却退出 0：同样以记录为准（反向
   try {
     await tickOnce(world);
 
-    const dock = readDock(world);
-    assert.equal(dock.runState.hello.lastAttemptOk, false);
-    assert.equal(dock.runState.hello.consecutiveFailures, 1);
+    const state = readState(world);
+    assert.equal(state.runState.lastAttemptOk, false);
+    assert.equal(state.runState.consecutiveFailures, 1);
 
     const queue = rt.readQueue();
     assert.equal(queue[0].ok, false);
@@ -396,18 +407,23 @@ test('dock.json 版本不认识就不动手（不猜、不覆盖）', async () =
   }
 });
 
-test('写回只改自己那一块：文件里不认识的字段原样留着', async () => {
+test('写回只改自己那一块：dock.json 不碰，状态文件里不认识的字段原样留着', async () => {
   const world = makeWorld();
   try {
+    // dock.json：加了未来字段也加了不认识的键 —— 值守现在**根本不写**它（ADR-0248）
     const dock = readDock(world);
     dock.未来字段 = { 保留: true };
-    dock.tools[0].某个新键 = '别删我';
     fs.writeFileSync(world.dockFile, JSON.stringify(dock, null, 2));
+    const dockBefore = fs.readFileSync(world.dockFile, 'utf8');
+    // dock-state.json：不认识的键必须活过这次记账（未来版本加的字段，本进程不该顺手删）
+    const state = readState(world);
+    state.某个新键 = '别删我';
+    fs.writeFileSync(world.stateFile, JSON.stringify(state, null, 2));
     await tickOnce(world);
-    const after = readDock(world);
-    assert.deepEqual(after.未来字段, { 保留: true });
-    assert.equal(after.tools[0].某个新键, '别删我');
-    assert.ok(after.tools[0].ruleState.r1.lastFiredAt);
+    assert.equal(fs.readFileSync(world.dockFile, 'utf8'), dockBefore, '值守不该写 dock.json');
+    const after = readState(world);
+    assert.equal(after.某个新键, '别删我');
+    assert.ok(after.ruleState.r1.lastFiredAt, '该记的账还是要记');
   } finally {
     world.cleanup();
   }
@@ -444,9 +460,9 @@ test('带随机延迟的规则：先记账、不当场跑（错峰），事件�
   Math.random = () => 0.5; // 固定掷骰：30 分钟档的一半 = 15 分钟后才跑
   try {
     const watcher = await tickOnce(world);
-    const dock = readDock(world);
+    const state = readState(world);
     // 记账已经在跑之前写好 —— 否则延迟窗口里每一拍都会再命中一次
-    assert.ok(dock.tools[0].ruleState.r1.lastFiredAt, '延迟那一路也必须先记账');
+    assert.ok(state.ruleState.r1.lastFiredAt, '延迟那一路也必须先记账');
     assert.equal(watcher.state.runsSinceBoot, 0, '这一刻还没跑（这正是错峰的意思）');
     assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), false);
   } finally {
@@ -479,8 +495,8 @@ test('只提醒类规则：离场记账但不投递（提醒的价值在「当�
   });
   try {
     const watcher = await tickOnce(world);
-    const dock = readDock(world);
-    assert.ok(dock.tools[0].ruleState.r1.lastFiredAt, '要记账 —— 不记的话它每拍都命中');
+    const state = readState(world);
+    assert.ok(state.ruleState.r1.lastFiredAt, '要记账 —— 不记的话它每拍都命中');
     assert.equal(watcher.state.runsSinceBoot, 0, '不该拉进程');
     assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), false);
     assert.equal(rt.readQueue().length, 0, '隔一天补一条「昨天该手动跑一次」只是噪音');

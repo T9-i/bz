@@ -36,39 +36,66 @@ import {
   untrustTool,
 } from '../../src/dock/data';
 import { runSignature } from '../../src/dock/registry';
+import { setDockFs } from '../../src/dock/declaration';
 
 const PATH = 'CONFIG/STORAGE/dock.json';
 const ENTRY = { id: 'iamtxt-signin', path: 'E:/tools/iamtxt-signin/manifest.json', enabled: true };
+const STATE_PATH = 'E:/tools/iamtxt-signin/dock-state.json';
+
+/** 假 fs 缝（工具目录那份 dock-state.json 就在这里进出；node 环境没有真盘可写） */
+function memFs(files: Map<string, string>) {
+  return {
+    readText: (p: string) => (files.has(p) ? files.get(p)! : null),
+    writeText: (p: string, d: string) => void files.set(p, d),
+    rename: (a: string, b: string) => {
+      const v = files.get(a);
+      files.delete(a);
+      if (v !== undefined) files.set(b, v);
+    },
+    exists: (p: string) => files.has(p),
+    unlink: (p: string) => void files.delete(p),
+  };
+}
 
 describe('工具坞面板数据（dock.json + dockTrust）', () => {
   let vault: MockVault;
   let settings: Record<string, unknown>;
   let saved: number;
+  let stateFiles: Map<string, string>;
 
   beforeEach(() => {
     vault = new MockVault();
     settings = { storagePath: 'CONFIG/STORAGE' };
     saved = 0;
+    stateFiles = new Map();
     setApp({ vault } as never);
     setSettingsProvider(() => settings as never);
     setSettingsSaver(async () => {
       saved += 1;
     });
+    setDockFs(memFs(stateFiles) as never);
     __resetDockStoreForTests();
   });
 
   afterEach(() => {
+    setDockFs(undefined);
     __resetDockStoreForTests();
   });
+
+  /** 读某工具那份排期状态（`dock-state.json`） */
+  const stateOf = (id: string): Record<string, unknown> | null => {
+    const p = `E:/tools/${id}/dock-state.json`;
+    return stateFiles.has(p) ? JSON.parse(stateFiles.get(p)!) : null;
+  };
 
   it('文件不在 → 建缺省文件；开关缺省开、登记表空', async () => {
     await loadDockStore();
     expect(dockStorePath()).toBe(PATH); // 跟随 storagePath
     expect(vault.files.has(PATH)).toBe(true);
+    // v2：只剩索引 + 三个全域开关，排期状态不在这个文件里（ADR-0248）
     expect(JSON.parse(vault.files.get(PATH)!)).toEqual({
-      v: 1,
+      v: 2,
       tools: [],
-      runState: {},
       autoRun: true,
       notifyMissed: true,
       watchdog: true,
@@ -156,7 +183,9 @@ describe('工具坞面板数据（dock.json + dockTrust）', () => {
     const seed = normalizeDockStore({ v: 1, tools: [], autoRun: true, notifyMissed: true });
     const snap = await loadDockStore(seed);
     expect(snap.autoRun).toBe(false); // 快照读的是盘上真数据，不是种子
-    expect(JSON.parse(lag.files.get(PATH)!)).toEqual(real); // 盘上没被种子覆盖
+    const disk = JSON.parse(lag.files.get(PATH)!);
+    expect(disk.autoRun).toBe(false); // 盘上也没被种子覆盖（顺手从 v1 升到了 v2）
+    expect(disk.tools).toEqual([{ id: 'iamtxt-signin', path: ENTRY.path }]);
   });
 
   it('迁移种子只在文件此前不存在时落盘 —— 文件在就不覆盖', async () => {
@@ -186,13 +215,15 @@ describe('工具坞面板数据（dock.json + dockTrust）', () => {
     expect(entry.trustedRun).toBeUndefined();
   });
 
-  it('写回分家：登记表进文件（剥信任）、信任进设置，互不串', async () => {
+  it('写回分家：索引进 dock.json（剥信任）、排期状态进工具目录、信任进设置', async () => {
     await loadDockStore();
     await saveToolEntries([
       { ...ENTRY, trustedAt: '2026-10-04T05:00:00.000Z', trustedRun: 'node\u0000raw\u0000main.mjs' },
     ]);
     const file = JSON.parse(vault.files.get(PATH)!);
-    expect(file.tools).toEqual([ENTRY]); // 文件里没有信任字段
+    // dock.json 只剩身份：没有 enabled、没有信任（排期状态跟着工具走）
+    expect(file.tools).toEqual([{ id: 'iamtxt-signin', path: ENTRY.path }]);
+    expect(stateOf('iamtxt-signin')).toMatchObject({ v: 1, tool: 'iamtxt-signin', enabled: true });
     expect(settings.dockTrust).toEqual({ 'iamtxt-signin': { at: '2026-10-04T05:00:00.000Z', run: 'node\u0000raw\u0000main.mjs' } });
     expect(readTrustRecords()).toEqual(settings.dockTrust);
     expect(saved).toBeGreaterThan(0);
@@ -225,15 +256,64 @@ describe('工具坞面板数据（dock.json + dockTrust）', () => {
     expect(saved).toBe(before);
   });
 
-  it('台账（runState）读写往返', async () => {
+  it('台账（runState）读写往返 —— 落在工具目录那份 dock-state.json 里', async () => {
     await loadDockStore();
     await saveToolEntries([ENTRY]);
     expect(readRunStates()).toEqual({});
     const { patchRunState } = await import('../../src/dock/data');
     await patchRunState('iamtxt-signin', { lastAttemptAt: '2026-10-04T05:00:00.000Z', consecutiveFailures: 3 });
     expect(readRunStates()['iamtxt-signin'].consecutiveFailures).toBe(3);
+    // 落盘落在工具目录，不在 dock.json
+    expect((stateOf('iamtxt-signin')!.runState as Record<string, unknown>).consecutiveFailures).toBe(3);
+    expect(JSON.parse(vault.files.get(PATH)!).runState).toBeUndefined();
     await patchRunState('iamtxt-signin', null);
     expect(readRunStates()).toEqual({});
+    expect(stateOf('iamtxt-signin')!.runState).toBeUndefined();
+  });
+
+  it('v1 → v2 迁移：排期状态搬进工具目录、dock.json 只留索引；状态写不进去就不动老文件', async () => {
+    const legacy = {
+      v: 1,
+      tools: [
+        {
+          ...ENTRY,
+          rules: [{ id: 'seed', trigger: { kind: 'daily', at: '09:00' }, action: { kind: 'run', notify: 'fail' } }],
+          ruleState: { seed: { lastFiredAt: '2026-10-20T01:00:43.444Z' } },
+        },
+      ],
+      runState: { 'iamtxt-signin': { consecutiveFailures: 2, lastAttemptOk: false } },
+      autoRun: true,
+      notifyMissed: true,
+      watchdog: false,
+    };
+    vault.files.set(PATH, JSON.stringify(legacy));
+    await loadDockStore();
+    // 状态搬走了：规则表、记账、台账都在工具目录
+    expect(stateOf('iamtxt-signin')).toMatchObject({
+      v: 1,
+      tool: 'iamtxt-signin',
+      enabled: true,
+      ruleState: { seed: { lastFiredAt: '2026-10-20T01:00:43.444Z' } },
+      runState: { consecutiveFailures: 2, lastAttemptOk: false },
+    });
+    expect((stateOf('iamtxt-signin')!.rules as unknown[]).length).toBe(1);
+    // dock.json 升到 v2、只剩索引与开关
+    const disk = JSON.parse(vault.files.get(PATH)!);
+    expect(disk.v).toBe(2);
+    expect(disk.tools).toEqual([{ id: 'iamtxt-signin', path: ENTRY.path }]);
+    expect(disk.runState).toBeUndefined();
+    expect(disk.watchdog).toBe(false);
+    // 读侧照旧：合并视图里规则与台账都还在
+    expect(readToolEntries()[0].ruleState).toBeTruthy();
+    expect(readRunStates()['iamtxt-signin'].consecutiveFailures).toBe(2);
+
+    // 反向守卫：状态写不进去（fs 不可用）时，dock.json 必须保持 v1 原样 —— 不许「先删后写」
+    __resetDockStoreForTests();
+    setDockFs(null);
+    vault.files.set(PATH, JSON.stringify(legacy));
+    await loadDockStore();
+    expect(JSON.parse(vault.files.get(PATH)!).v).toBe(1);
+    expect(readRunStates()['iamtxt-signin'].consecutiveFailures).toBe(2); // 进程内照常可用
   });
 
   it('两个开关：同步 set 改内存、persist 才落盘', async () => {

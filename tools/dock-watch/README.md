@@ -71,7 +71,8 @@ Obsidian 开着时它写的是 `mode=defer`（让位），这是**正常状态**
 - 值守只在租约**过期 / pid 已死 / 不是本 vault 的**时候才拍。
 
 撤票是即时的：Obsidian 一关，值守下一拍（≤30 秒）就接管，不必等租约过期。
-第二道防线是共享记账 —— `lastFiredAt` 就在同一份 `dock.json` 里，谁先记账谁跑。
+第二道防线是共享记账 —— `lastFiredAt` 就在各工具目录的 `dock-state.json` 里（ADR-0248），谁先记账谁跑。
+值守读 `dock.json` 只读索引与三个开关；写只写 `dock-state.json`（一次一家）。
 
 ## 改判据之后
 

@@ -2,15 +2,16 @@
  * 判据装配（离场版）—— 把「该不该跑」要的事实从**文件**里读出来，交给同一份 `ruleDue`（ADR-0242）。
  *
  * 插件侧的对应物是 `data.ts` 的 `loadToolView`：同一批纯函数、同一套口径，只是数据源不同 ——
- * 那边走内存快照（`dock.json` + 设置），这边是**直读文件**（没人给它注入 App）。所以本文件是
- * 「装配」，不是「实现」：所有判断规矩（声明怎么读、启动命令怎么解析、信任怎么比对、规则表怎么
- * 生效）全在 `dock-core.cjs` 里，就是插件用的那一份。**这里只许写「取哪些字段、按什么顺序拼」**，
- * 一旦在这里重写某条规则（比如自己判 trustStale），判据就有了第二份实现。
+ * 那边走内存快照（`dock.json` + 各工具的 `dock-state.json`），这边是**直读文件**（没人给它注入 App）。
+ * 所以本文件是「装配」，不是「实现」：所有判断规矩（声明怎么读、启动命令怎么解析、信任怎么比对、
+ * 规则表怎么生效）全在 `dock-core.cjs` 里，就是插件用的那一份。**这里只许写「取哪些字段、按什么
+ * 顺序拼」**，一旦在这里重写某条规则（比如自己判 trustStale），判据就有了第二份实现。
  *
- * 三份事实的来源：
+ * 四份事实的来源：
  *   1. `<vault>/.obsidian/plugins/bz/data.json` → `storagePath`（数据目录在哪）与 `dockTrust`（信任）
- *   2. `<vault>/<storagePath>/dock.json`        → 登记表 / 规则表 / 记账 / 熔断台账
- *   3. 各工具目录                                → `manifest.json`（怎么跑）/ `data.json`（参数值）
+ *   2. `<vault>/<storagePath>/dock.json`        → **工具索引**（id / path）+ 全域开关（v2，ADR-0248）
+ *   3. 各工具目录 `dock-state.json`             → 规则表 / 规则记账 / 熔断台账（bz 写，ADR-0248）
+ *   4. 各工具目录 `manifest.json` / `data.json` → 怎么跑 / 参数值
  *
  * **信任在这条路上不打折**：`runSignature` 比对不过（命令改过）或压根没信任过，就不跑 ——
  * 离场执行同样是「在他机器上执行命令」，门槛与面板内一致（ADR-0235 的边界不因没人看着而放宽）。
@@ -88,14 +89,18 @@ function panelFilePath(config, settings) {
 /**
  * `dock.json` 的形状校验 —— 与 `store.ts` 同口径：版本不认识一律当没写过（不猜）。
  *
- * `raw` 一并带出来给写侧用：写回是 `{...raw, tools}` 这种**只改自己那一块**的形式，
+ * **只认 v2**（ADR-0248：索引 + 开关）。v1 的排期状态还内嵌在文件里，那种文件由插件启动时
+ * 迁移成 v2 并把状态拆进各工具目录 —— 值守这边不猜、不迁、不写，宁可这一拍不拍。
+ * （插件与值守是同一版装在一起的；只有降级安装才会碰上 v1。）
+ *
+ * `raw` 一并带出来给写侧用：写回是 `{...raw, ...}` 这种**只改自己那一块**的形式，
  * 文件里本进程不认识的字段（未来版本加的）必须原样留着，不能借着「重整一遍」把它们删掉。
  */
 function readPanel(config, settings) {
   const file = panelFilePath(config, settings);
   const raw = rt.readJson(file);
-  if (!rt.isPlainObject(raw) || raw.v !== 1) {
-    return { file, ok: false, raw: null, autoRun: true, watchdog: true, tools: [], runState: {} };
+  if (!rt.isPlainObject(raw) || raw.v !== 2) {
+    return { file, ok: false, raw: null, autoRun: true, watchdog: true, tools: [] };
   }
   return {
     file,
@@ -105,11 +110,10 @@ function readPanel(config, settings) {
     autoRun: raw.autoRun !== false,
     watchdog: raw.watchdog !== false,
     tools: Array.isArray(raw.tools) ? raw.tools : [],
-    runState: rt.isPlainObject(raw.runState) ? raw.runState : {},
   };
 }
 
-/** 写回面板数据（只改自己那两块：登记项的记账 + 台账）—— 调用方保证此刻插件没在拍 */
+/** 写回索引（只改自己那一块）—— 调用方保证此刻插件没在拍 */
 function writePanel(panel, next) {
   if (!panel.ok) throw new Error(`dock.json 不可用（${panel.file}），拒绝写回`);
   rt.writeJsonAtomic(panel.file, next);
@@ -120,10 +124,14 @@ function writePanel(panel, next) {
 /**
  * 一次把全部工具读出来。返回的每个 view 是插件 `DockToolView` 的**子集**，字段名保持一致 ——
  * 名字一致才能在脑子里对照两处，也能在写测试时直接照抄插件那边的期望值。
+ *
+ * 排期状态（规则表 / 记账 / 台账 / 停用与总闸）在**各工具目录的 `dock-state.json`** 里
+ * （ADR-0248）：这里逐工具读一遍再并到 entry 上，与插件 `hydrate()` 做的事一样。
  */
 function loadTools(config, settings, panel) {
   const entries = core.parseToolEntries(panel.tools);
-  return entries.map((entry) => {
+  return entries.map((index) => {
+    const entry = { ...index, ...core.readToolState(index.path, index.id) };
     const decl = core.readDeclaration(entry.path);
     const manifest = decl.manifest || null;
     const declPath = decl.path || entry.path;
@@ -152,7 +160,7 @@ function loadTools(config, settings, panel) {
       values: core.readSettings(declPath, entry.id),
       rules,
       ruleFiredAt: firedAtMs(entry.ruleState),
-      runState: rt.isPlainObject(panel.runState[entry.id]) ? panel.runState[entry.id] : undefined,
+      runState: rt.isPlainObject(entry.runState) ? entry.runState : undefined,
     };
   });
 }

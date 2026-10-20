@@ -9,7 +9,8 @@
  * 模块打成一个 node 可直跑的 `tools/dock-watch/dock-core.cjs`，值守进程 `require` 它。
  *
  * **边界靠「这里只写 re-export」维持**：只许导出 `schema` / `schedule` / `rules` / `registry` /
- * `declaration` 五个纯模块里的东西。一旦引入 `data` / `store` / `ui`／`scheduler` 这类碰宿主
+ * `declaration` / `tool-state` 六个纯模块里的东西。一旦引入 `data` / `store` / `ui`／`scheduler`
+ * 这类碰宿主
  * 的模块，打包就会把 `obsidian` 拖进去，值守进程一 require 就炸 —— 判据是「打包产物里不该出现
  * 宿主 API」，据此守。
  *
@@ -37,21 +38,28 @@ export { missingRequiredParams } from './schedule';
 // 登记表与命令签名（信任比对：命令改过就不许跑）
 export { TOOL_ID_MAX_LEN, TOOL_ID_RE, parseToolEntries, runSignature } from './registry';
 
-// 工具目录三份文件的读侧（fs 是注入缝：值守进程塞 node 的 fs）
+// 工具目录那几份文件的读侧（fs 是注入缝：值守进程塞 node 的 fs）
 export {
   DECLARATION_FILENAME,
   MAIN_ENTRY_FILENAME,
   RUNS_FILENAME,
   SETTINGS_FILENAME,
+  TOOL_STATE_FILENAME,
   currentFs,
   dirOf,
   joinPath,
   readDeclaration,
   readRunsText,
   readSettings,
+  readToolState,
   resolveRun,
   runsPathFor,
   setDockFs,
   settingsPathFor,
   toolDirOf,
+  toolStatePathFor,
+  writeToolState,
 } from './declaration';
+
+// 排期状态的形状（住工具目录的 `dock-state.json`，ADR-0248）—— 值守进程回写记账时要它
+export { parseRunState, parseToolState, toolStateOf, TOOL_STATE_VERSION } from './tool-state';

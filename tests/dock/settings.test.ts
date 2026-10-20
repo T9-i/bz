@@ -277,7 +277,7 @@ describe('工具坞设置 schema', () => {
     // 授权只动设置：登记表内容一个字段都不变（信任没被顺手写回 dock.json）
     expect(JSON.stringify(dockJsonTools())).toBe(toolsBefore);
     expect(dockJsonTools()).toEqual([
-      { id: 'iamtxt-signin', path: 'E:/tools/iamtxt-signin/manifest.json', enabled: true },
+      { id: 'iamtxt-signin', path: 'E:/tools/iamtxt-signin/manifest.json' },
     ]);
 
     // 撤销 = 把它从「已信任」列表里移除；同样不碰登记表

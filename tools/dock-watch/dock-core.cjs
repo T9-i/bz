@@ -27,6 +27,8 @@ __export(watch_core_exports, {
   SETTINGS_FILENAME: () => SETTINGS_FILENAME,
   TOOL_ID_MAX_LEN: () => TOOL_ID_MAX_LEN,
   TOOL_ID_RE: () => TOOL_ID_RE,
+  TOOL_STATE_FILENAME: () => TOOL_STATE_FILENAME,
+  TOOL_STATE_VERSION: () => TOOL_STATE_VERSION,
   buildArgs: () => buildArgs,
   currentFs: () => currentFs,
   dirOf: () => dirOf,
@@ -38,19 +40,25 @@ __export(watch_core_exports, {
   parseManifest: () => parseManifest,
   parseRuleState: () => parseRuleState,
   parseRules: () => parseRules,
+  parseRunState: () => parseRunState,
   parseRunsFileText: () => parseRunsFileText,
   parseSchedule: () => parseSchedule,
   parseToolEntries: () => parseToolEntries,
+  parseToolState: () => parseToolState,
   readDeclaration: () => readDeclaration,
   readRunsText: () => readRunsText,
   readSettings: () => readSettings,
+  readToolState: () => readToolState,
   resolveRun: () => resolveRun,
   ruleDue: () => ruleDue,
   runSignature: () => runSignature,
   runsPathFor: () => runsPathFor,
   setDockFs: () => setDockFs,
   settingsPathFor: () => settingsPathFor,
-  toolDirOf: () => toolDirOf
+  toolDirOf: () => toolDirOf,
+  toolStateOf: () => toolStateOf,
+  toolStatePathFor: () => toolStatePathFor,
+  writeToolState: () => writeToolState
 });
 module.exports = __toCommonJS(watch_core_exports);
 
@@ -671,6 +679,62 @@ function parseToolEntries(raw) {
   return out;
 }
 
+// src/dock/tool-state.ts
+var TOOL_STATE_FILENAME = "dock-state.json";
+var TOOL_STATE_VERSION = 1;
+function isPlainObject2(v) {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+function parseRunState(raw) {
+  if (!isPlainObject2(raw)) return {};
+  const out = {};
+  if (typeof raw.lastAttemptAt === "string" && raw.lastAttemptAt !== "") out.lastAttemptAt = raw.lastAttemptAt;
+  if (typeof raw.lastAttemptOk === "boolean") out.lastAttemptOk = raw.lastAttemptOk;
+  if (typeof raw.consecutiveFailures === "number" && Number.isInteger(raw.consecutiveFailures) && raw.consecutiveFailures > 0) {
+    out.consecutiveFailures = raw.consecutiveFailures;
+  }
+  if (typeof raw.pausedAt === "string" && raw.pausedAt !== "") out.pausedAt = raw.pausedAt;
+  return out;
+}
+function parseToolState(raw, toolId) {
+  if (!isPlainObject2(raw)) return null;
+  if (raw.v !== TOOL_STATE_VERSION) return null;
+  if (typeof raw.tool !== "string" || raw.tool !== toolId) return null;
+  const out = {};
+  if (typeof raw.enabled === "boolean") out.enabled = raw.enabled;
+  if (typeof raw.autoRun === "boolean") out.autoRun = raw.autoRun;
+  const rules = parseRules(raw.rules);
+  if (rules.length) out.rules = rules;
+  const ruleState = parseRuleState(raw.ruleState);
+  if (ruleState) out.ruleState = ruleState;
+  const runState = parseRunState(raw.runState);
+  if (Object.keys(runState).length) out.runState = runState;
+  const override = parseSchedule(raw.scheduleOverride);
+  if (override) {
+    out.scheduleOverride = override;
+    if (typeof raw.overrideDeclSig === "string" && raw.overrideDeclSig !== "") {
+      out.overrideDeclSig = raw.overrideDeclSig;
+    }
+  }
+  return out;
+}
+function toolStateOf(entry) {
+  const out = {};
+  if (typeof entry.enabled === "boolean") out.enabled = entry.enabled;
+  if (typeof entry.autoRun === "boolean") out.autoRun = entry.autoRun;
+  if (entry.scheduleOverride) {
+    out.scheduleOverride = entry.scheduleOverride;
+    if (entry.overrideDeclSig !== void 0) out.overrideDeclSig = entry.overrideDeclSig;
+  }
+  if (entry.rules && entry.rules.length) out.rules = entry.rules;
+  if (entry.ruleState) out.ruleState = entry.ruleState;
+  if (entry.runState && Object.keys(entry.runState).length) out.runState = entry.runState;
+  return out;
+}
+function toolStateFileOf(toolId, state) {
+  return { v: TOOL_STATE_VERSION, tool: toolId, ...toolStateOf(state) };
+}
+
 // src/dock/declaration.ts
 var DECLARATION_FILENAME = "manifest.json";
 var DECLARATION_FILENAME_LEGACY = "dock.json";
@@ -751,6 +815,9 @@ function settingsPathFor(declPath) {
 function runsPathFor(declPath) {
   return joinPath(dirOf(declPath), RUNS_FILENAME);
 }
+function toolStatePathFor(declPath) {
+  return joinPath(dirOf(declPath), TOOL_STATE_FILENAME);
+}
 function toolDirOf(declPath) {
   return dirOf(declPath);
 }
@@ -800,7 +867,7 @@ function readDeclaration(declPath, fs = currentFs()) {
   const conventionalRun = manifest.run || !hasMainEntry(dirOf(usedPath), fs) ? void 0 : { cmd: "node", args: [MAIN_ENTRY_FILENAME] };
   return { ok: true, manifest, path: usedPath, conventionalRun };
 }
-function isPlainObject2(v) {
+function isPlainObject3(v) {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 function parseSettingsText(text, toolId) {
@@ -809,7 +876,7 @@ function parseSettingsText(text, toolId) {
   if (!raw) return {};
   if (raw.v !== DOCK_SETTINGS_VERSION) return {};
   if (raw.tool !== toolId) return {};
-  return isPlainObject2(raw.values) ? { ...raw.values } : {};
+  return isPlainObject3(raw.values) ? { ...raw.values } : {};
 }
 function readSettings(declPath, toolId, fs = currentFs()) {
   if (!fs) return {};
@@ -817,6 +884,53 @@ function readSettings(declPath, toolId, fs = currentFs()) {
   if (direct !== null) return direct;
   const legacy = parseSettingsText(fs.readText(joinPath(dirOf(declPath), SETTINGS_FILENAME_LEGACY)), toolId);
   return legacy ?? {};
+}
+function readToolState(declPath, toolId, fs = currentFs()) {
+  if (!fs) return {};
+  const text = fs.readText(toolStatePathFor(declPath));
+  if (text === null) return {};
+  const raw = parseJsonObjectText(text);
+  return parseToolState(raw, toolId) ?? {};
+}
+function writeToolState(declPath, toolId, state, fs = currentFs()) {
+  if (!fs) return false;
+  const target = toolStatePathFor(declPath);
+  const keep = {};
+  try {
+    const prev = parseJsonObjectText(fs.readText(target));
+    if (prev) for (const [k, v] of Object.entries(prev)) keep[k] = v;
+  } catch {
+  }
+  const fresh = toolStateFileOf(toolId, state);
+  const next = { ...keep, ...fresh };
+  for (const k of [
+    "enabled",
+    "autoRun",
+    "scheduleOverride",
+    "overrideDeclSig",
+    "rules",
+    "ruleState",
+    "runState"
+  ]) {
+    if (!(k in fresh)) delete next[k];
+  }
+  const text = JSON.stringify(next, null, 2);
+  try {
+    if (fs.readText(target) === text) return false;
+  } catch {
+  }
+  try {
+    if (fs.rename) {
+      const tmp = `${target}.tmp`;
+      fs.writeText(tmp, text);
+      fs.rename(tmp, target);
+    } else {
+      fs.writeText(target, text);
+    }
+  } catch {
+    return false;
+  }
+  return true;
 }
 function readRunsText(declPath, fs = currentFs()) {
   if (!fs) return null;
@@ -831,6 +945,8 @@ function readRunsText(declPath, fs = currentFs()) {
   SETTINGS_FILENAME,
   TOOL_ID_MAX_LEN,
   TOOL_ID_RE,
+  TOOL_STATE_FILENAME,
+  TOOL_STATE_VERSION,
   buildArgs,
   currentFs,
   dirOf,
@@ -842,17 +958,23 @@ function readRunsText(declPath, fs = currentFs()) {
   parseManifest,
   parseRuleState,
   parseRules,
+  parseRunState,
   parseRunsFileText,
   parseSchedule,
   parseToolEntries,
+  parseToolState,
   readDeclaration,
   readRunsText,
   readSettings,
+  readToolState,
   resolveRun,
   ruleDue,
   runSignature,
   runsPathFor,
   setDockFs,
   settingsPathFor,
-  toolDirOf
+  toolDirOf,
+  toolStateOf,
+  toolStatePathFor,
+  writeToolState
 });

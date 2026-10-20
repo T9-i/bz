@@ -35,6 +35,13 @@
  */
 
 import { parseJsonObjectText, parseManifest, type DockManifest, type DockRunSpec } from './schema';
+import {
+  TOOL_STATE_FILENAME,
+  TOOL_STATE_VERSION,
+  parseToolState,
+  toolStateFileOf,
+  type DockToolState,
+} from './tool-state';
 
 /** 声明文件名（固定在工具目录下；名字是契约的一部分） */
 export const DECLARATION_FILENAME = 'manifest.json';
@@ -209,6 +216,15 @@ export function runsPathFor(declPath: string): string {
 /** 展示板路径（与声明同址；工具自己往里写，bz 只读） */
 export function panelPathFor(declPath: string): string {
   return joinPath(dirOf(declPath), PANEL_FILENAME);
+}
+
+/**
+ * 排期状态路径 = 声明文件同目录 + `dock-state.json`（**bz 写、工具只读都不该读**，ADR-0248）。
+ *
+ * 工具目录可以在 vault 外，所以这条路与 `data.json` 同一条缝（`DockFs`），不走 vault API。
+ */
+export function toolStatePathFor(declPath: string): string {
+  return joinPath(dirOf(declPath), TOOL_STATE_FILENAME);
 }
 
 /** 工具目录（声明文件所在目录） */
@@ -447,6 +463,87 @@ export function writeSettings(
   }
   return true;
 }
+
+// ==================== 排期状态（bz 写，ADR-0248） ====================
+
+/**
+ * 读某工具的排期状态（规则表 / 规则记账 / 熔断台账 / 停用与总闸）。
+ *
+ * 文件不存在 = 没配过 → `{}`（缺省即「全开、按声明节奏」）；版本不认识 / `tool` 串台也 `{}` ——
+ * 宁可按缺省重来，也不把别人那份排期套到这个工具上。**只读，不创建**。
+ */
+export function readToolState(
+  declPath: string,
+  toolId: string,
+  fs: DockFs | null = currentFs(),
+): DockToolState {
+  if (!fs) return {};
+  const text = fs.readText(toolStatePathFor(declPath));
+  if (text === null) return {};
+  const raw = parseJsonObjectText(text);
+  return parseToolState(raw, toolId) ?? {};
+}
+
+/**
+ * 写某工具的排期状态（tmp + rename 原子换名）。
+ *
+ * 内容与盘上一致时**不写**：调度器每拍都可能记一次账，无谓地刷 mtime 会让 Syncthing
+ * 一直有东西可同步。返回是否真的写了；失败不抛（内存快照已经更新，进程内照常判据）。
+ */
+export function writeToolState(
+  declPath: string,
+  toolId: string,
+  state: DockToolState,
+  fs: DockFs | null = currentFs(),
+): boolean {
+  if (!fs) return false;
+  const target = toolStatePathFor(declPath);
+  // 盘上那份的**其余字段原样带上**：未来版本加的键，本进程不认识也不该顺手删
+  // （与值守回写 dock.json 的「只改自己那一块」同一条纪律）
+  const keep: Record<string, unknown> = {};
+  try {
+    const prev = parseJsonObjectText(fs.readText(target));
+    if (prev) for (const [k, v] of Object.entries(prev)) keep[k] = v;
+  } catch {
+    /* 读不了就当什么都没有 */
+  }
+  const fresh = toolStateFileOf(toolId, state);
+  const next: Record<string, unknown> = { ...keep, ...fresh };
+  // **已知字段以新值为准**：上面「保留不认识的字段」不能反过来把清空的字段复活
+  // （台账归零时 `fresh` 里没有 `runState`，可 `keep` 里有旧的那份）
+  for (const k of [
+    'enabled',
+    'autoRun',
+    'scheduleOverride',
+    'overrideDeclSig',
+    'rules',
+    'ruleState',
+    'runState',
+  ]) {
+    if (!(k in fresh)) delete next[k];
+  }
+  const text = JSON.stringify(next, null, 2);
+  try {
+    if (fs.readText(target) === text) return false;
+  } catch {
+    /* 读不了就直接写 */
+  }
+  try {
+    if (fs.rename) {
+      const tmp = `${target}.tmp`;
+      fs.writeText(tmp, text);
+      fs.rename(tmp, target);
+    } else {
+      fs.writeText(target, text);
+    }
+  } catch {
+    return false;
+  }
+  return true;
+}
+
+/** 状态文件版本（给迁移与测试用；值以 `tool-state.ts` 为准，这里只转发） */
+export { TOOL_STATE_FILENAME, TOOL_STATE_VERSION };
 
 // ==================== 运行记录（工具写、bz 只读） ====================
 
