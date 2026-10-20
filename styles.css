@@ -26496,6 +26496,9 @@ canvas { display: block; }
 }
 .bz-dock-pathrow { display: flex; align-items: center; gap: var(--bz-space-xs); }
 .bz-dock-pathrow .bz-input { flex: 1; min-width: 0; }
+/* 移动端只读：uiSelect 没有 disabled 选项，用 pointer-events 掐掉展开，并在视觉上降一档，
+   与同排 input 的 :disabled 观感对齐（否则只有它看起来还能点） */
+.bz-dock-form .bz-select.is-readonly { pointer-events: none; opacity: 0.6; }
 .bz-dock-multichoice { display: flex; flex-wrap: wrap; gap: var(--bz-space-xs); }
 .bz-dock-trigrow { display: flex; gap: var(--bz-space-xs); }
 .bz-dock-runbtns { display: flex; align-items: center; gap: var(--bz-space-sm); }
@@ -26535,6 +26538,11 @@ canvas { display: block; }
   .bz-dock-rule:hover { background: var(--bz-surface-2); }
 }
 .bz-dock-rule:focus-visible { outline: var(--bz-focus-ring); outline-offset: 1px; }
+/* 移动端只读：规则行只是摘要，点不进去改 —— 光标与 hover 反馈一起去掉 */
+.bz-dock-rule.is-readonly { cursor: default; }
+@media (hover: hover) {
+  .bz-dock-rule.is-readonly:hover { background: var(--bz-surface-1); }
+}
 .bz-dock-rulemain { flex: 1 1 auto; min-width: 0; }
 .bz-dock-ruleline { font-size: var(--bz-font-label); color: var(--bz-text-1); }
 .bz-dock-rulemeta { font-size: var(--bz-font-meta); color: var(--bz-text-3); margin-top: 2px; }
