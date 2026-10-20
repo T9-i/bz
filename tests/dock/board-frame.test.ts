@@ -56,7 +56,20 @@ describe('展示板外框', () => {
     expect(src).toMatch(/function wireExternalLinks/);
     expect(src).toContain("closest('a[href]')");
     expect(src).toContain('openExternal');
-    // 只在展示板那一路挂；询问框不碰
-    expect(src).toMatch(/if \(opts\.allowPopups\) wireExternalLinks\(frame\)/);
+    // 只在展示板那一路挂；询问框不碰（询问框调 sandboxFrame 时不传 allowPopups / onAct）
+    expect(src).toMatch(/if \(opts\.allowPopups \|\| opts\.onAct\) wireExternalLinks\(frame, opts\.onAct\)/);
+    expect(src).toMatch(/sandboxFrame\(html, 'bz-dock-ask-frame', req\.title\)/);
+  });
+
+  // ADR-0247：动作回传同样挂在宿主这一层。框里没有 allow-scripts，`<button onclick>`
+  // 一律不执行；导航类（obsidian:// 等）在没给 allow-top-navigation 的框里被 Chromium 吞掉
+  // （2026-10-20 实测点了毫无反应）。所以「点一条链接触发一次运行」只能由这条监听接。
+  it('展示板动作走宿主挂的 click 监听，且 boardSection 真的把 onAct 传下去了', () => {
+    expect(src).toMatch(/const act = onAct \? parseActHref\(href\) : null/);
+    const at = src.indexOf("sandboxFrame(html, 'bz-dock-board-frame'");
+    const call = src.slice(at, at + 420);
+    expect(call).toContain('onAct:');
+    // 声明里没有 actions 就不拦 —— 免得造出「点了没反应」
+    expect(src).toContain('v.manifest?.actions ? (ref) => void runBoardAction(v, ref) : undefined');
   });
 });
