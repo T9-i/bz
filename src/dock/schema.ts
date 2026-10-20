@@ -128,8 +128,63 @@ export interface DockManifest {
   run?: DockRunSpec;
   runtime?: { estimatedSec?: number };
   params: DockParam[];
+  /**
+   * 展示板动作表（ADR-0247）：`panel.html` 里写 `<a href="#bz-act:<id>?k=v">`，
+   * bz 拦下点击、查这张表、校验参数、再把参数透给脚本跑一次。
+   *
+   * **声明即注册** —— 表里没有的 id 一律拒绝执行，不做任何「按链接拼参数」的透传。
+   */
+  actions?: Record<string, DockActionSpec>;
   /** 未知字段原样保留（前向兼容） */
   [extra: string]: unknown;
+}
+
+/** ---------- 展示板动作（声明里的 `actions` 段，ADR-0247） ---------- */
+
+/**
+ * 动作 id 的合法形态。
+ *
+ * 比工具 id 宽一点：允许 `域:动词` 这种冒号写法（`wish:remove`），也是给人看的 ——
+ * 它会原样出现在 `panel.html` 的 href 里。仍然只收小写字母、数字与 `: . _ -`，
+ * 避免出现需要转义、或跟 URL 语法打架的字符。
+ */
+export const DOCK_ACTION_ID_RE = /^[a-z0-9][a-z0-9:._-]*$/;
+
+/** 动作 id 长度上限 */
+export const DOCK_ACTION_ID_MAX_LEN = 64;
+
+/**
+ * 动作参数的类型。**只认这两种**。
+ *
+ * 参数值是从展示板的 href 里读出来的（展示板是工具自己写的 HTML），但仍按类型掐一遍：
+ * `appid` 只收数字，挡掉「把 `--别的开关` 塞进命令行」这种写法 —— 这是这条通道唯一的
+ * 注入面（ADR-0247 的边界第 2 条）。
+ */
+export type DockActionArgType = 'appid' | 'text';
+
+const ACTION_ARG_TYPES: ReadonlySet<string> = new Set<DockActionArgType>(['appid', 'text']);
+
+export interface DockActionArg {
+  type: DockActionArgType;
+  /** 允许逗号分隔的多值（`?appid=1,2,3`）；缺省单值。多值逐个校验，有一个不合法就整条拒 */
+  many?: boolean;
+}
+
+/**
+ * 一条展示板动作 = **参数契约 + 命令模板**，仅此而已。
+ *
+ * 这里刻意没有 `label` / `confirm` 这类字段：确认界面由展示板自己画（checkbox + label，
+ * 与表头那些 `vtab` 同一个套路），误删怎么补救由脚本自己负责。bz 只做两件事 ——
+ * **挡住没声明的参数**、**把声明里写好的模板填上值**。任何一行业务判断都不该长在这张表里。
+ */
+export interface DockActionSpec {
+  /** 允许出现的参数名 → 校验口径。**href 里出现表外的参数名 = 整条拒** */
+  args?: Record<string, DockActionArg>;
+  /**
+   * 追加到发布命令后面的参数（模板）：`{{name}}` 换成 `args` 里同名的值。
+   * 模板是**声明里的字面量**（作者写死的），href 只能填洞。
+   */
+  run?: { args: string[] };
 }
 
 /** ---------- 运行记录（工具写、dock 读） ---------- */
@@ -323,6 +378,76 @@ export function parseSchedule(raw: unknown): DockSchedule | undefined {
   return s;
 }
 
+/** 动作参数名 / 模板占位符的形态：小写开头，只用小写字母数字下划线 */
+const ARG_NAME_RE = /^[a-z][a-z0-9_]*$/;
+const ARG_PLACEHOLDER_RE = /\{\{([a-z][a-z0-9_]*)\}\}/g;
+
+/**
+ * 单个动作的校验。合法返回归一结果，否则 null（丢这一条，不连累整张表）。
+ *
+ * 判据只有三条，都是**契约**上的事，没有一条是业务判断：
+ *  - `args` 里每个类型都是认得的；
+ *  - `run.args` 里每个 `{{name}}` 都在 `args` 里声明过 —— 声明里写错一个占位符，
+ *    宁可这条动作静默失效，也不要等到用户点了才在命令行里看见一串 `{{...}}`；
+ *  - **必须有 `run`**：没有命令模板的动作，点了只能落回「用表单参数跑一整轮」。
+ */
+function parseAction(raw: unknown): DockActionSpec | null {
+  if (!isPlainObject(raw)) return null;
+
+  const out: DockActionSpec = { ...raw };
+
+  const argSpecs: Record<string, DockActionArg> = {};
+  if (isPlainObject(raw.args)) {
+    for (const [key, v] of Object.entries(raw.args)) {
+      if (!ARG_NAME_RE.test(key)) continue;
+      if (!isPlainObject(v)) continue;
+      const type = str(v.type);
+      if (!type || !ACTION_ARG_TYPES.has(type)) continue;
+      const spec: DockActionArg = { type: type as DockActionArgType };
+      const many = bool(v.many);
+      if (many !== undefined) spec.many = many;
+      argSpecs[key] = spec;
+    }
+  }
+  if (Object.keys(argSpecs).length) out.args = argSpecs;
+  else delete out.args;
+
+  if (isPlainObject(raw.run) && Array.isArray(raw.run.args)) {
+    const tpl = raw.run.args.filter((x): x is string => typeof x === 'string');
+    // 模板里引用的名字必须都声明过。引用错了**整条动作丢**，不是只丢 run ——
+    // 只丢 run 会让这个动作退化成一个「参数被忽略、照跑不误」的空壳，
+    // 那比失效更坏：人点了以为在删某一条，实际跑的是完整一轮。
+    const declared = new Set(Object.keys(argSpecs));
+    const ok = tpl.every((t) => [...t.matchAll(ARG_PLACEHOLDER_RE)].every((m) => declared.has(m[1])));
+    if (!ok) return null;
+    if (tpl.length) out.run = { args: tpl };
+    else delete out.run;
+  } else {
+    delete out.run;
+  }
+
+  // 没有命令模板的动作一律丢：bz 没有「内置 handler」这条路，`run` 缺省只能落回
+  // 「用表单参数跑一整轮」—— 人点了以为在删某一条，实际跑了完整一轮，比失效更坏。
+  if (!out.run) return null;
+
+  return out;
+}
+
+/**
+ * `actions` 段整表校验：坏的条目**逐条丢弃**，剩下照用（与 `params` 同口径）。
+ * 空表 → undefined（不留一个空对象，免得 UI 上到处判 `actions &&`）。
+ */
+export function parseActions(raw: unknown): Record<string, DockActionSpec> | undefined {
+  if (!isPlainObject(raw)) return undefined;
+  const out: Record<string, DockActionSpec> = {};
+  for (const [id, v] of Object.entries(raw)) {
+    if (id.length > DOCK_ACTION_ID_MAX_LEN || !DOCK_ACTION_ID_RE.test(id)) continue;
+    const parsed = parseAction(v);
+    if (parsed) out[id] = parsed;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 /**
  * 声明校验（工具目录里那份 `manifest.json` 的正文）。
  * 返回 null 的情形：非对象 / `v` 不认识 / `id` 非法 / `name` 空。
@@ -392,6 +517,11 @@ export function parseManifest(raw: unknown): DockManifest | null {
   const schedule = parseSchedule(raw.schedule);
   if (schedule) out.schedule = schedule;
   else delete out.schedule; // 形态不合法 / 未声明 → 视同无节奏（只展示最后运行时间）
+
+  // actions 同理：抽出来逐条校验，坏条目丢掉；整表为空就当没声明
+  const actions = parseActions(raw.actions);
+  if (actions) out.actions = actions;
+  else delete out.actions;
 
   if (isPlainObject(raw.runtime)) {
     const estimatedSec = num(raw.runtime.estimatedSec);

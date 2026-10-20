@@ -224,6 +224,14 @@ function notifyLiveChanged(): void {
 export interface DockRunOpts {
   /** 谁触发的这次运行（注入给工具的 `BZ_DOCK_TRIGGER`）；缺省 `manual` */
   trigger?: 'auto' | 'manual';
+  /**
+   * 展示板动作带来的额外参数（ADR-0247）：**拼在参数表单之后**、命令行最末尾。
+   *
+   * 走这条路而不是塞进 `values`：`values` 的形状由 `manifest.params` 决定，动作参数不在
+   * 那张表里（`buildArgs` 会直接忽略它们）；而且动作参数是**一次性**的，不该被
+   * `saveValuesNow` 落进 `data.json` 变成「下次也带着这个开关」。
+   */
+  extraArgs?: string[];
 }
 
 /**
@@ -251,7 +259,7 @@ export function runTool(
   const rawTail: string[] = [];
   const spec: ExternalToolSpec = {
     cmd: launch.cmd,
-    args: [...launch.args, ...buildArgs(manifest ?? { params: [] }, values)],
+    args: [...launch.args, ...buildArgs(manifest ?? { params: [] }, values), ...(opts.extraArgs ?? [])],
     shell: launch.shell,
     cwd: launch.cwd,
     env: dockEnvOf(entry, app, opts.trigger ?? 'manual'),

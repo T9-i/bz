@@ -279,10 +279,11 @@ bz 侧的自动化是**规则表**（3.1）：工具还没有任何规则时，b
 
 ### 5.2 三条硬约束
 
-**① 沙箱里没有 JavaScript，但可以放外链。** 面板用一个 `sandbox="allow-same-origin"
+**① 沙箱里没有 JavaScript，但可以放外链和动作按钮。** 面板用一个 `sandbox="allow-same-origin"
 allow-popups allow-popups-to-escape-sandbox"` 的 iframe 装它，**不给 `allow-scripts`**：
 里头的 `<script>`、`onclick` 这类属性、`javascript:` 链接**一律不会执行**，也不报错，就是静静地不跑。
 但 `<a href="https://…" target="_blank">` **能点**（2026-10-20 起放开）—— 展示板里给出直达链接是刚需。
+**想让用户点了就干活**（移除一条、重跑单款），用 `#bz-act:` 动作链接，见 §5.5 —— 同样不需要 JS。
 内容要更新就**重写文件**：脚本跑完把新数字写进去，面板在运行结束后会自动重读。
 
 **② 单文件自包含。** 相对路径解析不到你的工具目录（外面套着一层 iframe）——
@@ -333,6 +334,88 @@ fs.writeFileSync(path.join(DIR, 'panel.html'), renderPanel({ points: 530 }));
 - 面板上的一切文案（标题、说明、数字标签），以及记录里的 `message` / `steps`，都用**平实的中文**，
   不带 `//`、`**`、反引号这类记号 —— 它们是写给读代码的人的标记，渲染出来就是乱入的符号。
   自检一句话：用户读这行，能不能一遍读懂、且不看到任何代码记号？
+
+### 5.5 动作：让框里的链接点一下就干活
+
+展示板里没法跑脚本（§5.2 ①），但**可以让人点一下就把一次运行发起来**（ADR-0247）。
+面板会拦住以 `#bz-act:` 开头的链接，查你的声明、掐一遍参数、然后带着参数跑一次脚本。
+
+`bz` 在这条链路上**只做两件事**：挡住没声明的参数、把声明里写好的模板填上值。
+确认界面、误删补救、业务判断——全是你的。
+
+**第一步：在 `manifest.json` 里声明动作**（声明即注册，没声明的 id 点了不会执行）：
+
+```jsonc
+"actions": {
+  "wish:remove": {
+    "args": { "appid": { "type": "appid" } },
+    "run": { "args": ["--unwish={{appid}}"] }
+  }
+}
+```
+
+| 字段 | 说明 |
+|---|---|
+| `args` | 允许出现的参数名 → 类型。`appid` 只收数字，`text` 禁 `-` 开头、禁控制字符、≤200 字 |
+| `run.args` | **必填**。追加到命令行的模板，`{{名字}}` 换成 href 里同名的值。引用了没声明的名字 → **整条动作失效** |
+
+这张表里**没有一句人话** —— 没有 `label`、没有 `confirm`。那些属于展示板。
+
+**第二步：在 `panel.html` 里放链接**：
+
+```html
+<a href="#bz-act:wish:remove?appid=1332010">移除</a>
+```
+
+点击 → bz 校验 → 用 `run.args` 拼参数跑一次。**跑的就是你声明里那条命令**，
+参数表单里的值照旧带上，动作参数拼在最末尾，而且**不写进 `data.json`**（一次性的，不会变成常驻开关）。
+
+**第三步：确认自己画**。`bz` 不弹「真的要删吗」—— 那个框该由你写，而且一行 JS 都不用
+（与表头那些 `vtab` radio 同一个套路）：
+
+```html
+<input type="checkbox" id="cfm-1332010" class="cfm">
+<label for="cfm-1332010" class="act">移除</label>
+<div class="cfm-row">
+  <span>真的从愿望单删掉？删了要手动加回来。</span>
+  <a href="#bz-act:wish:remove?appid=1332010" class="danger">确认</a>
+  <label for="cfm-1332010">算了</label>
+</div>
+```
+
+```css
+.cfm:checked ~ .cfm-row { display: flex; }  /* 不勾不显示 */
+```
+
+点「移除」展开确认行，点「确认」才产生 `#bz-act:` 链接。`input` / `label` 天然不做导航，
+bz 只看得到最后那一下。
+
+三条边界，写的时候心里要有数：
+
+- **只有声明过的 id 能执行**。链接里写了一个表外的 id，点了只会得到一句「没声明这个动作」。
+- **参数不能自由拼**。href 里出现表外的参数名，或值不合类型，整条拒 —— 这是这条通道唯一的注入面。
+- **多值用逗号**：`?appid=1,2,3` 会在 `args.type: "appid"` + `many: true` 下逐个校验，
+  拼回模板时仍是 `1,2,3`（脚本自己拆），上限 50 个。
+
+**兜底也是你的事。** bz 不拦误触、不做二次确认；可靠的保险是「删了能加回来」：
+把动作删掉的东西记进记录，下一轮在展示板上给一个反向动作的链接。
+
+**动作触发的那一轮，记录要自己写清楚发生了什么。** `runs.json` 是你写的，bz 不额外记
+「谁点了哪个动作」；`message` / `steps` 里不交代，事后看记录跟手动跑一轮长得一模一样。
+
+```js
+// 收到 --unwish=1332010 时，别跑整轮抓取 —— 那条路要 90 秒，点一下等不起
+if (P.unwish) {
+  const ids = String(P.unwish).split(',').filter(Boolean);
+  for (const id of ids) await removeFromWishlist(id);
+  say.step(`从愿望单移除 ${ids.length} 款`);
+  say.result({ 移除: ids.length });
+  process.exit(0);
+}
+```
+
+同理：**动作要走自己的短路分支**。一轮抓取 + 比对动辄一两分钟，用户点的是「删这一条」，
+不是「重跑全部」。
 
 ## 6. 示例：照着抄
 

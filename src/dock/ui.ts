@@ -61,6 +61,12 @@ import {
   type DockToolView,
 } from './data';
 import { loadDockStore } from './store';
+import {
+  buildActArgs,
+  parseActHref,
+  resolveActArgs,
+  type ParsedActRef,
+} from './action';
 import { judgeDirectRun, missingParamsMessage } from './command';
 import {
   errorHint,
@@ -1959,7 +1965,12 @@ function sandboxFrame(
   html: string,
   className: string,
   title: string,
-  opts: { maxHeight?: number; allowPopups?: boolean } = {},
+  opts: {
+    maxHeight?: number;
+    allowPopups?: boolean;
+    /** 框里点了 `#bz-act:` 链接时回调（ADR-0247）。给了它才拦这类链接 */
+    onAct?: (ref: ParsedActRef) => void;
+  } = {},
 ): HTMLIFrameElement {
   const frame = document.createElement('iframe');
   frame.className = className;
@@ -1985,20 +1996,30 @@ function sandboxFrame(
     `<body style="${frameBaseStyle()}">${html}</body></html>`;
   frame.addEventListener('load', () => {
     fitFrameHeight(frame);
-    if (opts.allowPopups) wireExternalLinks(frame);
+    if (opts.allowPopups || opts.onAct) wireExternalLinks(frame, opts.onAct);
   });
   return frame;
 }
 
 /**
- * 展示板里的外链交给系统浏览器（2026-10-20）
+ * 展示板里的点击处理（2026-10-20；动作回传见 ADR-0247）
  *
- * 只靠沙箱的 `allow-popups` 不保险：Electron 里 `target=_blank` 走的是 Obsidian 自己的
- * window.open 处理，开不开、开到哪儿全看宿主版本，用户看到的就是「点了没反应」。
- * 而框是**同源**的（allow-same-origin），外面直接能挂监听 —— 于是拦下点击自己开，
- * `shell.openExternal` 一定走默认浏览器。capture 阶段拦，preventDefault 之后宿主不会再补一次。
+ * 两件事共用这一个 capture 监听：
+ *  - **外链**交给系统浏览器。只靠沙箱的 `allow-popups` 不保险：Electron 里 `target=_blank`
+ *    走的是 Obsidian 自己的 window.open 处理，开不开、开到哪儿全看宿主版本，用户看到的就是
+ *    「点了没反应」。而框是**同源**的（allow-same-origin），外面直接能挂监听 —— 于是拦下
+ *    点击自己开，`shell.openExternal` 一定走默认浏览器。
+ *  - **动作引用** `#bz-act:<id>?...` 交给 `onAct`。为什么必须走这里：沙箱不给 `allow-scripts`，
+ *    框里的 `<button onclick>` 一概不执行；而导航类（`obsidian://` 之类）在没给
+ *    `allow-top-navigation` 的框里会被 Chromium 直接吞掉（2026-10-20 实测：点了毫无反应）。
+ *    只有宿主自己挂的监听拿得到这一下点击 —— 这也顺带保证了外部网页伪造不了它。
+ *
+ * capture 阶段拦，preventDefault 之后宿主不会再补一次。
  */
-function wireExternalLinks(frame: HTMLIFrameElement): void {
+function wireExternalLinks(
+  frame: HTMLIFrameElement,
+  onAct?: (ref: ParsedActRef) => void,
+): void {
   const doc = frame.contentDocument;
   if (!doc) return;
   doc.addEventListener(
@@ -2008,6 +2029,14 @@ function wireExternalLinks(frame: HTMLIFrameElement): void {
       const a = target && typeof target.closest === 'function' ? target.closest('a[href]') : null;
       if (!a) return;
       const href = a.getAttribute('href') ?? '';
+      // 动作放在 http 判断**之前**：`#` 锚点在这条链路上没有别的用途。
+      // 没给 onAct（询问框的正文框）就不拦 —— 让它退化成框内锚点跳转，至少不会静默吃掉点击。
+      const act = onAct ? parseActHref(href) : null;
+      if (act) {
+        ev.preventDefault();
+        onAct!(act);
+        return;
+      }
       if (!/^https?:\/\//i.test(href)) return;
       ev.preventDefault();
       const shell = (window as unknown as {
@@ -2050,6 +2079,8 @@ function boardSection(v: DockToolView): HTMLElement | null {
     sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`, {
       maxHeight: BOARD_MAX_HEIGHT,
       allowPopups: true,
+      // 声明里没写 actions 就不拦（省得把「点了没反应」造出来）
+      onAct: v.manifest?.actions ? (ref) => void runBoardAction(v, ref) : undefined,
     }),
   );
   return host;
@@ -2640,7 +2671,13 @@ function block(label: string, text: string): HTMLElement {
 // ==================== 运行 ====================
 
 /** 运行前置检查 → 启动 */
-async function runFlow(v: DockToolView): Promise<void> {
+/**
+ * 手动跑一次。
+ *
+ * `opts.extraArgs` 只给展示板动作用（ADR-0247）：那些参数不来自表单，是一次性的，
+ * 拼在命令行末尾、**不落进 `data.json`** —— 所以这里不碰 `saveValuesNow` 那套。
+ */
+async function runFlow(v: DockToolView, opts: { extraArgs?: string[] } = {}): Promise<void> {
   if (!hostApp) return;
   if (!canRun()) {
     notice('移动端不能启动本机进程', 'warning');
@@ -2678,9 +2715,37 @@ async function runFlow(v: DockToolView): Promise<void> {
       void refresh();
       updateLive(v.entry.id);
     },
-  });
+  }, opts.extraArgs ? { extraArgs: opts.extraArgs } : {});
   void run;
   render();
+}
+
+/**
+ * 展示板动作 → 一次运行（ADR-0247）。
+ *
+ * 只有两道门，都是**契约**上的事，没有一行业务判断：
+ *  ① 声明里有这个 id —— 表外的 id 一律拒，不做「按链接拼参数」的透传；
+ *  ② 参数按声明掐得过 —— 声明外的参数名、不合类型的值都拒（`appid` 只收数字）。
+ *
+ * **不做的事**（用户 2026-10-20 拍板）：不弹确认框、不问「真的要删吗」、不记谁点了什么。
+ * 确认界面由展示板自己画（`checkbox + label`，一行 JS 都不用），误删怎么补由脚本自己负责。
+ * bz 在这条链路上只是**通道 + 参数契约**；业务判断长在这里，就等于让面板替工具做决定。
+ *
+ * 过了两道门与手动运行**完全同一条路**（`runFlow`）：信任检查、参数必填校验、租约、记录、
+ * 可停止，一样都不少。动作参数只多拼在命令行末尾，不落进 `data.json`。
+ */
+async function runBoardAction(v: DockToolView, ref: ParsedActRef): Promise<void> {
+  const spec = v.manifest?.actions?.[ref.id];
+  if (!spec) {
+    notice(`展示板引用了一个没声明的动作：${ref.id}`, 'warning');
+    return;
+  }
+  const checked = resolveActArgs(spec, ref.args);
+  if (!checked.ok) {
+    notice(`动作 ${ref.id} 没有执行：${checked.reason}`, 'warning');
+    return;
+  }
+  await runFlow(v, { extraArgs: buildActArgs(spec, checked.values) });
 }
 
 /** 四行协议 → 现场视图刷新：runFlow 与直跑命令共用一份回调形状（onDone 各自不同） */
