@@ -1,4 +1,4 @@
-/* 源指纹 c3b3dff0dbd6c215 · 仓内输入 62 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 af3f5c61d343465f · 仓内输入 62 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -7883,6 +7883,7 @@ var BZW_dock = (() => {
     if (v.length === 0 || v.length > TEXT_MAX_LEN) return null;
     if (/^-/.test(v)) return null;
     if (/[\u0000-\u001f\u007f]/.test(v)) return null;
+    if (TEXT_BANNED_RE.test(v)) return null;
     return v;
   }
   function resolveActArgs(spec, raw) {
@@ -7913,13 +7914,14 @@ var BZW_dock = (() => {
       return (_a2 = values[name]) != null ? _a2 : "";
     }));
   }
-  var ACT_HREF_PREFIX, TEXT_MAX_LEN, MANY_MAX;
+  var ACT_HREF_PREFIX, TEXT_MAX_LEN, MANY_MAX, TEXT_BANNED_RE;
   var init_action = __esm({
     "src/dock/action.ts"() {
       init_schema();
       ACT_HREF_PREFIX = "#bz-act:";
       TEXT_MAX_LEN = 200;
       MANY_MAX = 50;
+      TEXT_BANNED_RE = /[&|<>^%!"'`\\;$(){}\[\]]/;
     }
   });
 
