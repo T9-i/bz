@@ -103,6 +103,19 @@ describe('resolveActArgs', () => {
     expect(resolveActArgs(spec, { note: 'a\nb' }).ok).toBe(false);
     expect(resolveActArgs(spec, { note: 'a'.repeat(201) }).ok).toBe(false);
   });
+
+  // shell:true 的声明（Windows 的 .cmd/.bat）会把 args 拼成一行交给 cmd.exe，不转义。
+  // 这些字符在那里是命令分隔 / 变量展开 / 转义符，一个都不能放进来。
+  it('text 不许带 shell 元字符（& | < > ^ % ! 引号 反引号 反斜杠 ; $ ( ) { } [ ]）', () => {
+    for (const ch of ['&', '|', '<', '>', '^', '%', '!', '"', "'", '`', '\\', ';', '$', '(', ')', '{', '}', '[', ']']) {
+      const r = resolveActArgs(spec, { note: `a${ch}b` });
+      expect(r.ok, `字符 ${ch} 应被拒`).toBe(false);
+    }
+  });
+
+  it('text 允许中文与空格（空格只会拆参，不会注入）', () => {
+    expect(resolveActArgs(spec, { note: '火线迈阿密 2' }).ok).toBe(true);
+  });
 });
 
 describe('buildActArgs', () => {
