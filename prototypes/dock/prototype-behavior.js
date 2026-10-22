@@ -1,4 +1,4 @@
-/* 源指纹 a2617d03520cacd0 · 仓内输入 63 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 9850603dfa66115c · 仓内输入 63 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/tool-state.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -1675,9 +1675,9 @@ var BZW_dock = (() => {
     }
   });
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../../Obsidian/bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../../Obsidian/bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -10446,10 +10446,10 @@ var BZW_dock = (() => {
   function sandboxFrame(html, className, title, opts = {}) {
     const frame = document.createElement("iframe");
     frame.className = className;
-    frame.setAttribute(
-      "sandbox",
-      opts.allowPopups ? "allow-same-origin allow-popups allow-popups-to-escape-sandbox" : "allow-same-origin"
-    );
+    const sandbox = ["allow-same-origin"];
+    if (opts.allowPopups) sandbox.push("allow-popups", "allow-popups-to-escape-sandbox");
+    if (opts.allowScripts) sandbox.push("allow-scripts");
+    frame.setAttribute("sandbox", sandbox.join(" "));
     frame.setAttribute("title", title);
     if (opts.maxHeight) frame.style.maxHeight = `${opts.maxHeight}px`;
     frame.srcdoc = `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head><body style="${frameBaseStyle()}">${html}</body></html>`;
@@ -10505,6 +10505,9 @@ var BZW_dock = (() => {
       sandboxFrame(html, "bz-dock-board-frame", `${displayName(v)} 的展示板`, {
         maxHeight: BOARD_MAX_HEIGHT,
         allowPopups: true,
+        // 展示板可以自己跑脚本（ADR-0249）：工具要画搜索框这类「读输入、改列表」的交互，
+        // 光靠预设的 :checked 状态做不到。询问框不跟着开。
+        allowScripts: true,
         // 声明里没写 actions 就不拦（省得把「点了没反应」造出来）
         onAct: ((_a = v.manifest) == null ? void 0 : _a.actions) ? (ref) => void runBoardAction(v, ref) : void 0
       })

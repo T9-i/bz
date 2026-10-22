@@ -168,3 +168,6 @@ ADR-0235（外部工具契约）、ADR-0239（信任边界）、`docs/dock-tool-
   （`wireExternalLinks` 生效）；`obsidian://` 链接点了**毫无反应**；`store.steampowered.com`
   的心愿单网页端点带 cookie 会 429、不带 cookie 跳首页 —— 删愿望单只能走
   `IWishlistService/RemoveFromWishlist`（POST，`access_token` + `steamid` + `appid`，实测 200）。
+- 2026-10-22 展示板改成**可以跑脚本**（ADR-0249）。本文「只能这么走」里那条理由
+  （「框里 `<button onclick>` 一律不执行」）已经不成立，但结论不变、而且更强：
+  **两道门必须由宿主做** —— 框里能写 JS，更要把「点了这一下能不能跑」的决定权留在外面。

@@ -19,7 +19,7 @@
  *   插件 stdin：[bz-answer] {"id":"apply","ok":true}      ← handle.answer() 写这一行
  *
  * 正文有两种给法（ADR-0244）：`body` 是纯文本（逐段渲染），`bodyHtml` 是一段 HTML 片段
- * （装在沙箱 iframe 里，**不给 allow-scripts**，同展示板 ADR-0243）—— 想摆表格 / 分组 / 自己的
+ * （装在沙箱 iframe 里，这一路**不给 allow-scripts**，ADR-0244）—— 想摆表格 / 分组 / 自己的
  * 版式就给后者，两样都给时 HTML 胜。按钮与倒计时永远归 bz，工具画的只是那一块内容。
  *
  * 三条纪律：

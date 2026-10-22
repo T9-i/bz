@@ -9,10 +9,11 @@
  *    现在上限回来了，条件是**条必须在框文档里藏掉**（`FRAME_SCROLLBAR_CSS`）——
  *    两次抱怨其实是同一个病根：条没藏住。
  *
- * ② **允许开外链**：`allow-popups` + `allow-popups-to-escape-sandbox`。
+ * ② **允许开外链、允许跑脚本**：`allow-popups` + `allow-popups-to-escape-sandbox`。
  *    少了第一个，`target=_blank` 被沙箱静默吃掉（点了没反应也不报错）；
  *    少了第二个，新标签页继承沙箱，目标站点的 JS 全废。
- *    注意这两条**不是** allow-scripts —— 框里依旧跑不了脚本。
+ *    `allow-scripts` 2026-10-22 起也给了（ADR-0249：展示板要画搜索框这类交互），
+ *    但**只给展示板**；询问框不跟着开，也始终不给 `allow-top-navigation`。
  */
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -32,13 +33,19 @@ describe('展示板外框', () => {
     expect(call).toContain('allowPopups: true');
   });
 
-  it('沙箱放开了外链，但没放开脚本', () => {
-    const attr = /opts\.allowPopups\s*\?\s*'([^']+)'/.exec(src)?.[1] ?? '';
-    expect(attr).toContain('allow-same-origin');
-    expect(attr).toContain('allow-popups');
-    expect(attr).toContain('allow-popups-to-escape-sandbox');
-    expect(attr).not.toContain('allow-scripts');
-    expect(attr).not.toContain('allow-top-navigation');
+  it('沙箱放开了外链与脚本，但不许顶掉面板', () => {
+    // 2026-10-22 起展示板允许跑脚本（ADR-0249：工具要画搜索框这类交互）。
+    // 仍然不给 allow-top-navigation —— 框能跑代码，但顶不掉整个面板。
+    expect(src).toContain("const sandbox = ['allow-same-origin']");
+    expect(src).toMatch(/if \(opts\.allowPopups\) sandbox\.push\('allow-popups', 'allow-popups-to-escape-sandbox'\)/);
+    expect(src).toMatch(/if \(opts\.allowScripts\) sandbox\.push\('allow-scripts'\)/);
+    // 断言只看**拼 flag 的那一段**（注释里为了解释「不给」会写到这个词）
+    const flagsAt = src.indexOf("const sandbox = ['allow-same-origin']");
+    expect(src.slice(flagsAt, flagsAt + 320)).not.toContain('allow-top-navigation');
+    // 展示板那一路真的开了脚本；询问框不跟着开（那一屏只问一句话）
+    const at = src.indexOf("sandboxFrame(html, 'bz-dock-board-frame'");
+    expect(src.slice(at, at + 520)).toContain('allowScripts: true');
+    expect(src).toContain("sandboxFrame(html, 'bz-dock-ask-frame', req.title)");
   });
 
   it('上限挂在 frame 元素上（inline height 压得住，max-height 也压得住）', () => {

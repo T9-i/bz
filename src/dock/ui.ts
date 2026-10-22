@@ -1955,11 +1955,12 @@ export function fitFrameHeight(frame: HTMLIFrameElement): void {
  * **为什么是沙箱 iframe，而不是净化后直接插进 DOM**：
  *  - 直接插，一段 `<style>` 就会串到整个面板，一个没闭合的标签就会把后面的 DOM 吃掉；
  *  - iframe 天然把这两样挡在框里，框里的样式也只能影响它自己；
- *  - `sandbox="allow-same-origin"` 但**刻意不给 `allow-scripts`** —— 里头的 `<script>`、
- *    `on*` 属性、`javascript:` URL 一律不执行。这不是「不信写脚本的人」（他本来就能在本机跑
- *    命令，防他毫无意义），而是别让一块内容区变成「面板里能跑任意代码」的口子 ——
- *    哪天换个人来维护，这条口子一定会被当成能力用。
- *  - 带 `allow-same-origin` 只是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度）。
+ *  - 脚本按用途分开给（ADR-0249，2026-10-22 用户拍板）：**展示板**要自己画交互（搜索框那种
+ *    「读输入、改列表」的东西，靠预设的 `:checked` 状态做不到），给 `allow-scripts`；
+ *    **询问框**只问一句话，递进来的 HTML 没有理由需要执行能力，仍然不给。
+ *    沙箱能保证的是「样式与 DOM 只影响框内」；它不能保证「框里不跑代码」，这一条现在由调用方选。
+ *  - 带 `allow-same-origin` 是为了能读 `contentDocument` 量高度（不带它量不到，只能写死高度），
+ *    也顺带让宿主的 click 监听够得着框里的链接（外链与动作，ADR-0247）。
  */
 function sandboxFrame(
   html: string,
@@ -1968,6 +1969,14 @@ function sandboxFrame(
   opts: {
     maxHeight?: number;
     allowPopups?: boolean;
+    /**
+     * 让框里自己的脚本跑（ADR-0249，2026-10-22 用户拍板）。
+     *
+     * 只给**展示板**开：工具要画自己的交互（搜索框那种「读输入、改列表」的东西），
+     * 没有脚本就只能靠预设状态，做不到。询问框（ask body）**不开** —— 那一屏只问一句话，
+     * 递进来的 HTML 没有理由需要执行能力。
+     */
+    allowScripts?: boolean;
     /** 框里点了 `#bz-act:` 链接时回调（ADR-0247）。给了它才拦这类链接 */
     onAct?: (ref: ParsedActRef) => void;
   } = {},
@@ -1977,14 +1986,13 @@ function sandboxFrame(
   // allow-popups：工具想在展示板里放**外链**（比如直达商店页）就得有它，否则 `target=_blank`
   // 会被沙箱静默吃掉 —— 点了没反应也不报错。配套的 allow-popups-to-escape-sandbox 不能少：
   // 少了的话新标签页继承这层沙箱，目标站点自己的 JS 全废，开出来是个残页。
-  // **仍然不给** allow-scripts / allow-top-navigation：框里跑不了脚本，也顶不掉整个面板。
+  // allow-scripts：展示板要自己画交互（ADR-0249）。**仍然不给** allow-top-navigation ——
+  // 框可以跑脚本，但顶不掉整个面板。
   // （另外还有 wireExternalLinks 在外面兜一层 —— 光靠这个 flag，宿主不一定真开。）
-  frame.setAttribute(
-    'sandbox',
-    opts.allowPopups
-      ? 'allow-same-origin allow-popups allow-popups-to-escape-sandbox'
-      : 'allow-same-origin',
-  );
+  const sandbox = ['allow-same-origin'];
+  if (opts.allowPopups) sandbox.push('allow-popups', 'allow-popups-to-escape-sandbox');
+  if (opts.allowScripts) sandbox.push('allow-scripts');
+  frame.setAttribute('sandbox', sandbox.join(' '));
   frame.setAttribute('title', title);
   // max-height 挂在元素上：`fitFrameHeight` 写的是 inline height，CSS 的 max-height 照样压得住；
   // 超出的部分由框自己滚，条已被 FRAME_SCROLLBAR_CSS 藏掉
@@ -2009,10 +2017,11 @@ function sandboxFrame(
  *    走的是 Obsidian 自己的 window.open 处理，开不开、开到哪儿全看宿主版本，用户看到的就是
  *    「点了没反应」。而框是**同源**的（allow-same-origin），外面直接能挂监听 —— 于是拦下
  *    点击自己开，`shell.openExternal` 一定走默认浏览器。
- *  - **动作引用** `#bz-act:<id>?...` 交给 `onAct`。为什么必须走这里：沙箱不给 `allow-scripts`，
- *    框里的 `<button onclick>` 一概不执行；而导航类（`obsidian://` 之类）在没给
- *    `allow-top-navigation` 的框里会被 Chromium 直接吞掉（2026-10-20 实测：点了毫无反应）。
- *    只有宿主自己挂的监听拿得到这一下点击 —— 这也顺带保证了外部网页伪造不了它。
+ *  - **动作引用** `#bz-act:<id>?...` 交给 `onAct`。这条与「框里能不能跑脚本」无关：动作的两道门
+ *    （声明白名单 + 参数掐口）必须由宿主来做，交给框里自己判断就等于没有门（ADR-0247）；
+ *    另外导航类（`obsidian://` 之类）在没给 `allow-top-navigation` 的框里会被 Chromium 直接吞掉
+ *    （2026-10-20 实测：点了毫无反应）。只有宿主自己挂的监听拿得到这一下点击 ——
+ *    这也顺带保证了外部网页伪造不了它。
  *
  * capture 阶段拦，preventDefault 之后宿主不会再补一次。
  */
@@ -2079,6 +2088,9 @@ function boardSection(v: DockToolView): HTMLElement | null {
     sandboxFrame(html, 'bz-dock-board-frame', `${displayName(v)} 的展示板`, {
       maxHeight: BOARD_MAX_HEIGHT,
       allowPopups: true,
+      // 展示板可以自己跑脚本（ADR-0249）：工具要画搜索框这类「读输入、改列表」的交互，
+      // 光靠预设的 :checked 状态做不到。询问框不跟着开。
+      allowScripts: true,
       // 声明里没写 actions 就不拦（省得把「点了没反应」造出来）
       onAct: v.manifest?.actions ? (ref) => void runBoardAction(v, ref) : undefined,
     }),
@@ -2820,7 +2832,7 @@ export function askBody(req: BzAskRequest): { el: HTMLElement; framed: boolean }
  *  - **工具写的东西永远不进面板 DOM**。纯文本正文按 \n 分成段落**当文本**渲染（`textContent`），
  *    不是 innerHTML —— 工具输出是外部进程的产物，当 HTML 插进来等于给每个工具发一张 XSS 通行证
  *    （bili-dl 那类会打印远端标题的工具尤其明显）。要摆表格、分组、自己的版式的，走 `bodyHtml`：
- *    装在**沙箱 iframe**（不给 `allow-scripts`，同展示板 ADR-0243/0244）里画，样式与标签都关在框内。
+ *    装在**沙箱 iframe**（询问框这一路不给 `allow-scripts`，与展示板的允许脚本是两回事，ADR-0244/0249）里画，样式与标签都关在框内。
  *  - **超时 = 取消，不是确认**，并把倒计时摆在按钮旁。人不在电脑前时，悬着的一次运行
  *    会把队列堵到 bz 十分钟强杀；「没人应答就当同意」更是没有第二种解释的错。
  */
