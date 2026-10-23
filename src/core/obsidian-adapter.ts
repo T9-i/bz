@@ -24,7 +24,6 @@ import { classifyFilePath, diaryDateFromPath, FileDomainKind } from './path-clas
 /** 挂载状态与已注册的事件引用（模块级单例：vault / metadataCache 两个订阅点）
  *  refs 记宿主：vault 与 metadataCache 是两个对象，offref 必须各自归还 */
 let attached = false;
-let boundVault: any = null;
 const boundRefs: { host: any; ref: unknown }[] = [];
 
 /** md 判定：优先读文件对象 extension（失效对象读不到时按路径后缀兜底）。
@@ -101,7 +100,6 @@ export function attachObsidianAdapter(app: any, registerRef?: (ref: unknown) => 
   const vault = app && app.vault;
   if (!vault || typeof vault.on !== 'function') return; // 无 vault 环境（异常宿主）静默不挂载
   attached = true;
-  boundVault = vault;
   const bind = (host: any, name: string, cb: (...args: any[]) => void): void => {
     const ref = host.on(name, cb);
     boundRefs.push({ host, ref });
@@ -128,6 +126,5 @@ export function detachObsidianAdapter(): void {
     }
   }
   boundRefs.length = 0;
-  boundVault = null;
   attached = false;
 }
