@@ -43,7 +43,12 @@ export function ensureCinema(app: App): void {
 }
 
 /** 域事件自动刷新（cinema/vault 多通道，防抖 300ms，仅 overlay 打开时刷新）。
- *  订阅 cinema:file-* 与 vault:md-*（movie:file-* 通道已随旧域退役）——按 M.folderPath 前缀过滤 */
+ *  **新增 / 修改认「缓存就绪」通道**（'vault:md-indexed' = metadataCache 'changed'）：
+ *  vault 自己的 create/modify 早于解析，那一拍 `rebuildItems` 读 metadataCache 拿到的是
+ *  **写前那份 frontmatter** —— 新增的片解析成 null（卡片不出现）、改过的片回读旧值，
+ *  真机表现就是「新增和更新都不同步，关掉面板重开才同步」（issue 555 的同一个根因，只修
+ *  自写那半没堵住外部写这一半）。缓存就绪信号到点后重扫，读到的必是新内容。
+ *  删除 / 改名仍走 vault 事件：这两件事不依赖 frontmatter 解析。 */
 function registerAutoRefresh(app: App): void {
   if (autoRefreshRegistered) return;
   autoRefreshRegistered = true;
@@ -61,14 +66,11 @@ function registerAutoRefresh(app: App): void {
       renderSoft(app); // 后台通道：打字期间顺延，不抢搜索框焦点
     }, 300);
   };
-  onDomainEvent<{ path: string }>('cinema:file-created', (evt) => schedule({ path: evt.path }));
+  onDomainEvent<{ path: string }>('vault:md-indexed', (evt) => schedule({ path: evt.path }));
   onDomainEvent<{ path: string }>('cinema:file-deleted', (evt) => schedule({ path: evt.path }));
-  onDomainEvent<{ path: string }>('cinema:file-modified', (evt) => schedule({ path: evt.path }));
-  onDomainEvent<{ path: string }>('vault:md-created', (evt) => schedule({ path: evt.path }));
   onDomainEvent<{ path: string }>('vault:md-deleted', (evt) => schedule({ path: evt.path }));
-  onDomainEvent<{ path: string }>('vault:md-modified', (evt) => schedule({ path: evt.path }));
   // 改名不刷新是另一个洞（issue 555 顺手补）：适配层对 rename 只发 renamed 一条、不补发
-  // created/deleted，而上面三个通道都不含它——在文件管理器里给影片改名，面板会一直顶着旧名
+  // created/deleted，而上面的通道都不含它——在文件管理器里给影片改名，面板会一直顶着旧名
   // 直到重开。两个路径都喂：newPath 盖住「移入本目录」，oldPath 盖住「移出本目录」（后者
   // 会被前缀过滤掉，故必须先喂 oldPath 再喂 newPath，靠同一计时器合并成一次重建）。
   const onRenamed = (evt: { oldPath?: string; newPath?: string }) => {

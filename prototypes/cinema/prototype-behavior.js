@@ -1,4 +1,4 @@
-/* 源指纹 774039890658a4a6 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 a1b4aa32563421e8 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/cinema/fake-sim.ts","prototypes/cinema/fake/fake-obsidian.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/douban-queue.ts","src/cinema/index.ts","src/cinema/layouts/midnight/render.ts","src/cinema/motion.ts","src/cinema/recommend.ts","src/cinema/render.ts","src/cinema/seasons.ts","src/cinema/shared.ts","src/cinema/state.ts","src/cinema/type-decide.ts","src/cinema/ui.ts","src/cinema/yearbook/data.ts","src/cinema/yearbook/engine.ts","src/cinema/yearbook/index.ts","src/cinema/yearbook/kits.ts","src/cinema/yearbook/motions.ts","src/cinema/yearbook/scenes.ts","src/core/ai.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/landscape.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/cinema/fake-sim.ts → window.BZW_cinema（行为单源预览包，issue 245/ADR-0106） */
 var BZW_cinema = (() => {
@@ -39,9 +39,9 @@ var BZW_cinema = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../../Obsidian/bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../../Obsidian/bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -5189,6 +5189,11 @@ var BZW_cinema = (() => {
   function isFolder(file) {
     return !!(file && Array.isArray(file.children));
   }
+  function dispatchIndexed(file) {
+    const path = file && typeof file.path === "string" ? file.path : void 0;
+    if (!path || !isMarkdownFile(file, path)) return;
+    emitDomainEvent("vault:md-indexed", { path });
+  }
   function dispatchRename(file, oldPath) {
     const newPath = file && typeof file.path === "string" ? file.path : void 0;
     if (!newPath || typeof oldPath !== "string" || !oldPath) return;
@@ -5217,15 +5222,17 @@ var BZW_cinema = (() => {
     if (!vault || typeof vault.on !== "function") return;
     attached = true;
     boundVault = vault;
-    const subscribe = (name, cb) => {
-      const ref = vault.on(name, cb);
-      boundRefs.push(ref);
+    const bind = (host, name, cb) => {
+      const ref = host.on(name, cb);
+      boundRefs.push({ host, ref });
       if (registerRef) registerRef(ref);
     };
-    subscribe("create", (file) => dispatchBasic("created", file));
-    subscribe("modify", (file) => dispatchBasic("modified", file));
-    subscribe("delete", (file) => dispatchBasic("deleted", file));
-    subscribe("rename", (file, oldPath) => dispatchRename(file, oldPath));
+    bind(vault, "create", (file) => dispatchBasic("created", file));
+    bind(vault, "modify", (file) => dispatchBasic("modified", file));
+    bind(vault, "delete", (file) => dispatchBasic("deleted", file));
+    bind(vault, "rename", (file, oldPath) => dispatchRename(file, oldPath));
+    const cache = app && app.metadataCache;
+    if (cache && typeof cache.on === "function") bind(cache, "changed", (file) => dispatchIndexed(file));
   }
 
   // src/core/esc-manager.ts
@@ -12675,6 +12682,7 @@ tags:
     return out;
   }
   async function writeFm(app, file, cb) {
+    noteSelfWrite(file.path);
     await app.fileManager.processFrontMatter(file, cb);
     noteSelfWrite(file.path);
   }
@@ -12700,6 +12708,7 @@ tags:
 ---
 `;
       if (posterRel) content = insertPosterEmbed(content, posterRel);
+      noteSelfWrite(filePath);
       const f = await app.vault.create(filePath, content);
       item.file = f;
       if (item.review || douban || posterRel) {
@@ -14734,12 +14743,9 @@ tags:
         renderSoft(app);
       }, 300);
     };
-    onDomainEvent("cinema:file-created", (evt) => schedule({ path: evt.path }));
+    onDomainEvent("vault:md-indexed", (evt) => schedule({ path: evt.path }));
     onDomainEvent("cinema:file-deleted", (evt) => schedule({ path: evt.path }));
-    onDomainEvent("cinema:file-modified", (evt) => schedule({ path: evt.path }));
-    onDomainEvent("vault:md-created", (evt) => schedule({ path: evt.path }));
     onDomainEvent("vault:md-deleted", (evt) => schedule({ path: evt.path }));
-    onDomainEvent("vault:md-modified", (evt) => schedule({ path: evt.path }));
     const onRenamed = (evt) => {
       schedule({ path: evt == null ? void 0 : evt.oldPath });
       schedule({ path: evt == null ? void 0 : evt.newPath });
