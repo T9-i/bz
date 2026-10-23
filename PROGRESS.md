@@ -712,3 +712,17 @@
 - [x] 后台刷新对自写文件跳过这一次重建（外部编辑照旧）；顺手补 `renamed` 通道（改名不再要重开）
 - [x] 测试：自写回灌守卫（去掉守卫即红）、外部改名刷新、窗口语义三例
 - [x] 门禁：全量 600 文件 / 9254 例通过，tsc 干净；主仓四步产物已重出
+
+## Issue 556 — 影院新增和更新都不同步，必须关掉面板重开
+
+**状态：已交付**（2026-10-23，worktree `cinema-live-sync`）
+
+- [x] 根因：重建挂在 vault 的 create/modify 上，而它早于 metadataCache 解析——那一拍重扫读到的是
+      写前那份 frontmatter：新增的片解析成 null（卡不出现）、改过的片回读旧值。555 只堵了自写那一半
+- [x] 适配层新增缓存就绪通道 `vault:md-indexed`（metadataCache `changed`）；事件引用改 `{ host, ref }`
+      记账，detach 时 vault / metadataCache 各归各家
+- [x] 影院重建改认 `md-indexed`；删除 / 改名仍走 `vault:md-*`；`created/modified` 四条订阅撤掉
+- [x] `writeFm` 写盘前后各登记一拍自写（modify 事件早于 await 返回，等 resolve 再登记就晚了）；
+      建档 `vault.create` 前同样先登记
+- [x] 测试：外部更新 / 外部新增走就绪信号、写盘途中事件抢先到不回灌、适配层三例；撤掉通道即红（已验）
+- [x] 门禁：受影响 604 文件 / 9310 例通过，tsc 干净；主仓四步产物已重出（build-preview 一并重出）
