@@ -4,6 +4,9 @@
  *
  * - 通用兜底路：恒发 'vault:md-created|modified|deleted|renamed'，载荷 { path }（rename 另加 oldPath）——
  *   未命中任何域目录的 md 文件由消费方在此通道兜底接住；
+ * - 缓存就绪路：另订阅 metadataCache 'changed'，发 'vault:md-indexed'（只通用、不带语义域）。
+ *   vault 的 create/modify 早于解析，那一刻重扫读到的还是**写前那份 frontmatter**；需要
+ *   「重扫即新值」的消费方（影院）应认这条通道，别认 created/modified；
  * - 语义路：classifyFilePath(新路径) 命中域 d 时另发一条 '<d>:file-created|modified|deleted|renamed'。
  *   rename 只发 renamed 一条（不补发 created/deleted，消费方自行处理三分支）；
  *   仅 diary 附带 date: diaryDateFromPath(path)，非日期命名的日记省略 date 字段；
@@ -18,10 +21,11 @@
 import { emitDomainEvent } from './domain-bus';
 import { classifyFilePath, diaryDateFromPath, FileDomainKind } from './path-classify';
 
-/** 挂载状态与已注册的事件引用（模块级单例：vault 订阅点全局唯一） */
+/** 挂载状态与已注册的事件引用（模块级单例：vault / metadataCache 两个订阅点）
+ *  refs 记宿主：vault 与 metadataCache 是两个对象，offref 必须各自归还 */
 let attached = false;
 let boundVault: any = null;
-const boundRefs: unknown[] = [];
+const boundRefs: { host: any; ref: unknown }[] = [];
 
 /** md 判定：优先读文件对象 extension（失效对象读不到时按路径后缀兜底）。
  *  C3：兜底须排除文件夹（TFolder 无 extension 属性——Obsidian API 中仅 TFile 有），
@@ -53,6 +57,14 @@ function isFolder(file: any): boolean {
   return !!(file && Array.isArray((file as any).children));
 }
 
+/** 缓存就绪分支派发（metadataCache 'changed'）：此刻 getFileCache 已是文件的新内容。
+ *  只发通用通道——语义域归谁由消费方按自己的目录滤镜判，无域归属的文件也照发（与 vault:md-* 同语义）。 */
+function dispatchIndexed(file: any): void {
+  const path: string | undefined = file && typeof file.path === 'string' ? file.path : undefined;
+  if (!path || !isMarkdownFile(file, path)) return;
+  emitDomainEvent('vault:md-indexed', { path });
+}
+
 /** renamed 分支派发：只发 renamed 一条（通用 + 至多一条语义），不补发 created/deleted。
  *  C4：md↔非md 改名（旧 .md 新 .txt / 旧 .txt 新 .md）按「新旧任一为 md」判定派发——
  *  只看新路径会把整条事件丢掉，引用同步/复习标记从此失联 */
@@ -81,6 +93,7 @@ function dispatchRename(file: any, oldPath: unknown): void {
 
 /**
  * 挂载：订阅 app.vault create/modify/delete/rename（幂等，重复调用直接返回）。
+ * 另订阅 app.metadataCache 'changed'（缓存就绪路，宿主缺失时跳过——不影响 vault 四件套）。
  * registerRef 用于向 Obsidian Plugin 注册事件引用（plugin.registerEvent），保证卸载自动清理。
  */
 export function attachObsidianAdapter(app: any, registerRef?: (ref: unknown) => void): void {
@@ -89,27 +102,29 @@ export function attachObsidianAdapter(app: any, registerRef?: (ref: unknown) => 
   if (!vault || typeof vault.on !== 'function') return; // 无 vault 环境（异常宿主）静默不挂载
   attached = true;
   boundVault = vault;
-  const subscribe = (name: string, cb: (...args: any[]) => void): void => {
-    const ref = vault.on(name, cb);
-    boundRefs.push(ref);
+  const bind = (host: any, name: string, cb: (...args: any[]) => void): void => {
+    const ref = host.on(name, cb);
+    boundRefs.push({ host, ref });
     if (registerRef) registerRef(ref);
   };
-  subscribe('create', (file: any) => dispatchBasic('created', file));
-  subscribe('modify', (file: any) => dispatchBasic('modified', file));
-  subscribe('delete', (file: any) => dispatchBasic('deleted', file));
-  subscribe('rename', (file: any, oldPath: string) => dispatchRename(file, oldPath));
+  bind(vault, 'create', (file: any) => dispatchBasic('created', file));
+  bind(vault, 'modify', (file: any) => dispatchBasic('modified', file));
+  bind(vault, 'delete', (file: any) => dispatchBasic('deleted', file));
+  bind(vault, 'rename', (file: any, oldPath: string) => dispatchRename(file, oldPath));
+  const cache = app && app.metadataCache;
+  if (cache && typeof cache.on === 'function') bind(cache, 'changed', (file: any) => dispatchIndexed(file));
 }
 
 /** 摘除：显式 offref 已注册引用（registerEvent 清理的兜底），并复位挂载状态（幂等） */
 export function detachObsidianAdapter(): void {
   if (!attached) return;
-  if (boundVault && typeof boundVault.offref === 'function') {
-    for (const ref of boundRefs) {
-      try {
-        boundVault.offref(ref);
-      } catch (e) {
-        /* 引用可能已随插件卸载被清理，忽略 */
-      }
+  // 引用分属 vault / metadataCache 两个宿主，offref 各归各家（往错的那边退还可能抛）
+  for (const { host, ref } of boundRefs) {
+    if (!host || typeof host.offref !== 'function') continue;
+    try {
+      host.offref(ref);
+    } catch (e) {
+      /* 引用可能已随插件卸载被清理，忽略 */
     }
   }
   boundRefs.length = 0;

@@ -639,15 +639,20 @@ function itemActions(it: CinemaItem, sec: HTMLElement, app: App, opts: { inSerie
 // ---------- 落盘（数据契约零改动） ----------
 
 /**
- * 面板写盘唯一入口（issue 555）：`processFrontMatter` + 成功后登记自写。
+ * 面板写盘唯一入口（issue 555）：**写盘前后各登记一拍自写** + `processFrontMatter`。
  *
- * 为什么要登记：写盘路径一律「内存先行 → 改内存 → 落盘 → renderAll」，落盘成功后内存就是权威；
+ * 为什么要登记：写盘路径一律「内存先行 → 改内存 → 落盘 → renderAll」，落盘后内存就是权威；
  * 而 Obsidian 的 metadataCache 重新解析是**异步**的，`vault` 的 modify 事件先到、缓存后到。
  * 后台刷新（300ms 防抖）若在这中间按缓存重扫，会把内存里的新值盖回写前那份——真机上表现为
  * 「改完面板不生效，关掉重开才对」（重开时缓存早已就绪）。登记后后台刷新跳过这一次重建。
  */
 async function writeFm(app: App, file: TFile, cb: (fm: Record<string, unknown>) => void): Promise<void> {
+  // **先登记再写盘**（2026-10-23 真机复发）：vault 的 modify 事件是在 processFrontMatter
+  // 内部、`await` 返回之前就发出去的——等它 resolve 才登记，300ms 防抖的定时器可能已经跑过，
+  // 守卫等于没装（写盘慢 / 同步盘落盘时尤其明显，表现就是「改完不同步」）。
+  noteSelfWrite(file.path);
   await app.fileManager.processFrontMatter(file, cb);
+  // 尾部再续一次：慢盘下解析可能拖过首个窗口，后续再来的事件也一并挡在内存权威这边
   noteSelfWrite(file.path);
 }
 
@@ -675,6 +680,9 @@ async function persistItem(item: CinemaItem, app: App, edit?: { prevName: string
     // 海报已落库（issue 397：保存时下载进库）→ 正文 embed 与抓取路径同款插入，
     // 免得「建档即齐」的笔记比队列抓过的少一张图（insertPosterEmbed 单源）
     if (posterRel) content = insertPosterEmbed(content, posterRel);
+    // 建档同样会立刻发 create 事件，一拍之后的重建可能读到「还没解析完」的缓存（新条目录成 null
+    // 直接消失）——先登记自写，把这一次重建让给内存里的新条目
+    noteSelfWrite(filePath);
     const f = await app.vault.create(filePath, content);
     item.file = f;
     if (item.review || douban || posterRel) {

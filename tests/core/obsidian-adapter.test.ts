@@ -42,6 +42,27 @@ function record(...channels: string[]) {
   };
 }
 
+/** 伪造 metadataCache：结构同 vault 替身（on/offref/fire），用于缓存就绪路 */
+function makeFakeCache() {
+  const listeners: Record<string, Array<(...args: any[]) => void>> = {};
+  return {
+    listeners,
+    on(name: string, cb: (...args: any[]) => void): any {
+      (listeners[name] ||= []).push(cb);
+      return { event: name, cb };
+    },
+    offref(ref: any): void {
+      if (!ref || !ref.event) return;
+      const arr = listeners[ref.event] || [];
+      const idx = arr.indexOf(ref.cb);
+      if (idx >= 0) arr.splice(idx, 1);
+    },
+    fire(name: string, ...args: any[]): void {
+      for (const cb of [...(listeners[name] || [])]) cb(...args);
+    },
+  };
+}
+
 describe('obsidian-adapter', () => {
   let vault: ReturnType<typeof makeFakeVault>;
 
@@ -189,6 +210,29 @@ describe('obsidian-adapter', () => {
     expect(registerRef).toHaveBeenCalledTimes(4);
     // 不传 registerRef 也可挂载
     expect(() => attachObsidianAdapter({ vault })).not.toThrow();
+  });
+
+  it('缓存就绪路：metadataCache changed → vault:md-indexed（只通用通道；非 md 忽略；detach 后静默）', () => {
+    const cache = makeFakeCache();
+    const rec = record('vault:md-indexed', 'cinema:file-created', 'vault:md-modified');
+    attachObsidianAdapter({ vault, metadataCache: cache }, vi.fn());
+    cache.fire('changed', { path: '我的/影视/《甲》.md', extension: 'md' });
+    expect(rec.payloadsOf('vault:md-indexed')).toEqual([{ path: '我的/影视/《甲》.md' }]);
+    expect(rec.names()).toEqual(['vault:md-indexed']); // 不带语义路、不冒充 vault:md-modified
+    cache.fire('changed', { path: '附件/a.png', extension: 'png' }); // 非 md 零派发
+    expect(rec.names()).toHaveLength(1);
+    detachObsidianAdapter(); // 引用分属两个宿主，offref 各归各家
+    cache.fire('changed', { path: '我的/影视/《乙》.md', extension: 'md' });
+    expect(rec.names()).toHaveLength(1);
+    rec.stop();
+  });
+
+  it('宿主无 metadataCache：只挂 vault 四件套，不抛', () => {
+    const rec = record('vault:md-created');
+    expect(() => attachObsidianAdapter({ vault }, vi.fn())).not.toThrow();
+    vault.fire('create', { path: '卡片盒/x.md', extension: 'md' });
+    expect(rec.names()).toEqual(['vault:md-created']);
+    rec.stop();
   });
 
   it('detach 后事件不再派发（offref 移除监听）；可重新挂载恢复；未挂载时 detach 幂等安全', () => {

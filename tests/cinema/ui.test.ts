@@ -480,6 +480,58 @@ tags: [电影]
     expect(M.items.some((i) => i.name === '瑞克和莫蒂')).toBe(false);
   });
 
+  // 2026-10-23 真机复发：新增和更新后，面板都要关掉重开才同步。
+  // 根因同 555——重建挂在 vault 的 create/modify 上，那一拍 metadataCache 还没解析完；
+  // 现在改认 metadataCache 'changed'（'vault:md-indexed'），重建读到的必是新内容。
+  it('外部更新：缓存就绪信号后重扫，卡片显示新状态（2026-10-23 真机复发）', async () => {
+    const { app, vault } = seedVault();
+    createOverlay(app);
+    const root = () => document.querySelector('[data-cinema-root]') as HTMLElement;
+    const PATH = '我的/影视/《瑞克和莫蒂》.md'; // 种子状态 = 在看
+    expect(root().textContent).toContain('在看');
+    // 外部把状态改成已看（磁盘先变，Obsidian 解析完成后才发 changed）
+    vault.files.set(PATH, md(`---\ntags: [美漫]\n状态: 已看\n观影日期: 2026-10-23\n---`));
+    emitDomainEvent('vault:md-indexed', { path: PATH });
+    await vi.waitFor(() => expect(M.items.find((i) => i.name === '瑞克和莫蒂')!.status).toBe(2), { timeout: 1500 });
+    expect(root().textContent).toContain('已看');
+  });
+
+  it('外部新增：文件落地 + 缓存就绪后新片进面板（不用重开）', async () => {
+    const { app, vault } = seedVault();
+    createOverlay(app);
+    expect(document.querySelector('[data-cinema-root]')!.textContent).not.toContain('新来的');
+    vault.files.set('我的/影视/《新来的》.md', md(`---\ntags: [电影]\n状态: 想看\n观影日期: 2026-10-23\n---`));
+    emitDomainEvent('vault:md-indexed', { path: '我的/影视/《新来的》.md' });
+    await vi.waitFor(
+      () => expect(document.querySelector('[data-cinema-root]')!.textContent).toContain('新来的'),
+      { timeout: 1500 }
+    );
+  });
+
+  it('保存时事件抢先到（写盘未返回）也不回灌：写前登记自写，防抖那一拍直接让给内存', async () => {
+    const { app, vault } = seedVault();
+    createOverlay(app);
+    const root = document.querySelector('[data-cinema-root]') as HTMLElement;
+    const PATH = '我的/影视/《瑞克和莫蒂》.md';
+    // 真机时序：processFrontMatter 内部就发 modify，await 返回前防抖计时已经起跑——
+    // 把桩改成「先发事件再落盘」，复刻这段竞态
+    const fm = app.fileManager.processFrontMatter;
+    const spy = vi.spyOn(app.fileManager, 'processFrontMatter').mockImplementation(async (file: any, cb: any) => {
+      emitDomainEvent('vault:md-indexed', { path: file.path });
+      await fm(file, cb);
+    });
+    clickEl(pcardByName(root, '瑞克和莫蒂'));
+    clickEl((root.querySelector('.cn-modal') as HTMLElement).querySelector('.j-edit'));
+    const form = root.querySelector('.cn-modal') as HTMLElement;
+    clickEl(form.querySelector('[data-f-st="已看"]'));
+    clickEl(form.querySelector('.j-save'));
+    await vi.waitFor(() => expect(hasNotice(/已保存「/)).toBe(true));
+    await new Promise((r) => setTimeout(r, 500)); // 过掉 300ms 防抖窗口
+    spy.mockRestore();
+    expect(vault.files.get(PATH)).toContain('状态: 已看');
+    expect(M.items.find((i) => i.name === '瑞克和莫蒂')!.status, '写盘途中到的重建不许把新值盖回').toBe(2);
+  });
+
   it('编辑改名 → 已存在同名被拦（锁保存按钮 + 写明原因，点不动、不落盘）', async () => {    const { app, vault } = seedVault();
     createOverlay(app);
     const root = document.querySelector('[data-cinema-root]') as HTMLElement;
