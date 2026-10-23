@@ -23,6 +23,33 @@ export interface DockDueVerdict {
   detail: string;
 }
 
+/**
+ * 离场运行的判活窗口（ADR-0250 / 0251）：记录文件 90 秒没被写过，就当那一轮已经没了。
+ *
+ * 90 秒的来处：工具心跳 8–10 秒一次，值守 10 分钟硬杀、工具自设 8 分钟预算 ——
+ * 90 秒没动静基本可以断定进程不在了（被杀 / 崩了 / 卡在一条没有超时的请求上）。
+ * **插件与值守共用这一份口径**（值守经 watch-core 拿到），别在别处再写一个 90000。
+ */
+export const OFFLINE_STALE_MS = 90_000;
+
+/**
+ * 记录里有没有一轮还挂着 `running`、且心跳没停（= 此刻确实有进程在跑）。
+ *
+ * 纯函数：给一份记录和它的 `updatedAt`，不碰磁盘、不碰时钟（`now` 可注入）。
+ * 两条读法：最新那条 `status === 'running'`；心跳取文件级 `updatedAt`，老记录没有就退到
+ * 那条记录的 `startedAt`。
+ */
+export function offlineRunningOf(
+  runs: readonly DockRunRecord[],
+  runsAt: string | undefined,
+  now: number = Date.now(),
+): DockRunRecord | null {
+  const r = runs.find((x) => x.status === 'running');
+  if (!r) return null;
+  const beat = Date.parse(runsAt ?? '') || Date.parse(r.startedAt ?? '') || 0;
+  if (!beat || now - beat > OFFLINE_STALE_MS) return null;
+  return r;
+}
 /** 终结态（`running` 不算一次运行 —— 它还没结束，不能拿它证明「今天跑过了」） */
 const TERMINAL = new Set(['ok', 'failed', 'stopped', 'timeout']);
 

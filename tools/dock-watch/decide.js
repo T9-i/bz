@@ -176,6 +176,20 @@ function firedAtMs(ruleState) {
   return out;
 }
 
+/**
+ * 记录里还有一轮挂着 `running` 且心跳没停吗（与插件 ADR-0250 / 0251 同一口径）。
+ *
+ * 值守自己的 `inFlight` 只认得**本进程**拉起的那些 —— 插件点的那一轮它看不见，
+ * 被硬杀的上一条残骸也看不见。记录是两边都能读的事实，所以问它。
+ */
+function hasFreshRunning(view, now) {
+  const raw = core.readRunsText(view.declPath);
+  if (raw === null) return false;
+  const file = core.parseRunsFileText(raw, view.id);
+  if (!file || !Array.isArray(file.runs)) return false;
+  return core.offlineRunningOf(file.runs, file.updatedAt, now) !== null;
+}
+
 // ==================== 门槛（与调度器 runGate 同顺序、同原因） ====================
 
 /**
@@ -193,6 +207,8 @@ function runGate(view, flags) {
   if (!view.run) return 'no-run';
   if (view.runState && view.runState.pausedAt) return 'paused';
   if (flags.inFlight) return 'running';
+  // 另一个进程（插件 / 上一拍）拉起的那一轮还在跑：记录里挂着 running，且 90 秒内还在动
+  if (hasFreshRunning(view, flags.now)) return 'running';
   if (flags.cooldownUntil && flags.cooldownUntil > flags.now) return 'cooldown';
   if (core.missingRequiredParams(view.manifest ? view.manifest.params : undefined, view.values).length > 0) {
     return 'params';

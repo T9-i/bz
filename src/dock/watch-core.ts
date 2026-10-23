@@ -35,6 +35,9 @@ export { effectiveRules, hasActiveRule, parseRuleState, parseRules, ruleDue } fr
 // 「必填参数填了吗」（门槛里那一条；纯函数，零依赖）
 export { missingRequiredParams } from './schedule';
 
+// 「那一轮还在跑吗」—— 值守拉起前要问一句，别和插件 / 上一拍撞上（ADR-0251）
+export { OFFLINE_STALE_MS, offlineRunningOf } from './schedule';
+
 // 登记表与命令签名（信任比对：命令改过就不许跑）
 export { TOOL_ID_MAX_LEN, TOOL_ID_RE, parseToolEntries, runSignature } from './registry';
 

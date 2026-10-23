@@ -116,6 +116,7 @@ import {
 import {
   EDITABLE_SCHEDULE_KINDS,
   durationText,
+  offlineRunningOf,
   isAlarm,
   lastRun,
   missingRequiredParams,
@@ -808,21 +809,10 @@ function makeRunbarRow(run: DockLiveRun): HTMLElement {
  * **不画百分比**：记录里没有可信的 pct，编一个就是假进度。画的是工具自己写的那行原话 +
  * 「已经跑了多久」，两者都是它写的，不是 bz 猜的。
  */
-export const OFFLINE_STALE_MS = 90_000;
-
-/** 判活的共用口径：给一份记录 + 它的 updatedAt，说这一轮还算不算在跑 */
-export function offlineRunOfRecord(
-  runs: readonly DockRunRecord[],
-  runsAt: string | undefined,
-  now: number = Date.now(),
-): DockRunRecord | null {
-  const r = runs.find((x) => x.status === 'running');
-  if (!r) return null;
-  // 心跳：记录文件的 updatedAt 优先（工具每写一次就刷）；老记录没有就退到 startedAt
-  const beat = Date.parse(runsAt ?? '') || Date.parse(r.startedAt ?? '') || 0;
-  if (!beat || now - beat > OFFLINE_STALE_MS) return null;
-  return r;
-}
+// 判活口径的**本体**在 `schedule.ts`（纯函数，值守进程经 watch-core 用的也是这一份）——
+// 这里只转出去给界面与测试用，别在别处再写一个 90000（ADR-0251）。
+export { OFFLINE_STALE_MS } from './schedule';
+export const offlineRunOfRecord = offlineRunningOf;
 
 export function offlineRunOf(v: DockToolView, now: number = Date.now()): DockRunRecord | null {
   // 在场的那一轮有实时流，走 runbar / 运行台另一套，别在这儿重复一遍

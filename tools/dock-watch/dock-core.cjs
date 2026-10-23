@@ -23,6 +23,7 @@ __export(watch_core_exports, {
   DECLARATION_FILENAME: () => DECLARATION_FILENAME,
   DOCK_RUNS_PER_TOOL_LIMIT: () => DOCK_RUNS_PER_TOOL_LIMIT,
   MAIN_ENTRY_FILENAME: () => MAIN_ENTRY_FILENAME,
+  OFFLINE_STALE_MS: () => OFFLINE_STALE_MS,
   RUNS_FILENAME: () => RUNS_FILENAME,
   SETTINGS_FILENAME: () => SETTINGS_FILENAME,
   TOOL_ID_MAX_LEN: () => TOOL_ID_MAX_LEN,
@@ -36,6 +37,7 @@ __export(watch_core_exports, {
   hasActiveRule: () => hasActiveRule,
   joinPath: () => joinPath,
   missingRequiredParams: () => missingRequiredParams,
+  offlineRunningOf: () => offlineRunningOf,
   parseJsonObjectText: () => parseJsonObjectText,
   parseManifest: () => parseManifest,
   parseRuleState: () => parseRuleState,
@@ -624,6 +626,14 @@ function parseRuleState(raw) {
 }
 
 // src/dock/schedule.ts
+var OFFLINE_STALE_MS = 9e4;
+function offlineRunningOf(runs, runsAt, now = Date.now()) {
+  const r = runs.find((x) => x.status === "running");
+  if (!r) return null;
+  const beat = Date.parse(runsAt ?? "") || Date.parse(r.startedAt ?? "") || 0;
+  if (!beat || now - beat > OFFLINE_STALE_MS) return null;
+  return r;
+}
 function missingRequiredParams(params, values) {
   const out = [];
   for (const p of params ?? []) {
@@ -941,6 +951,7 @@ function readRunsText(declPath, fs = currentFs()) {
   DECLARATION_FILENAME,
   DOCK_RUNS_PER_TOOL_LIMIT,
   MAIN_ENTRY_FILENAME,
+  OFFLINE_STALE_MS,
   RUNS_FILENAME,
   SETTINGS_FILENAME,
   TOOL_ID_MAX_LEN,
@@ -954,6 +965,7 @@ function readRunsText(declPath, fs = currentFs()) {
   hasActiveRule,
   joinPath,
   missingRequiredParams,
+  offlineRunningOf,
   parseJsonObjectText,
   parseManifest,
   parseRuleState,

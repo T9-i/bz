@@ -1,4 +1,4 @@
-/* 源指纹 39f170aab9d74bfa · 仓内输入 63 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 8a8fea5bbee76fbf · 仓内输入 63 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/index.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/statusbar.ts","src/dock/store.ts","src/dock/tool-state.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -1675,9 +1675,9 @@ var BZW_dock = (() => {
     }
   });
 
-  // ../../Obsidian/bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../../Obsidian/bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -7601,6 +7601,14 @@ var BZW_dock = (() => {
   });
 
   // src/dock/schedule.ts
+  function offlineRunningOf(runs, runsAt, now = Date.now()) {
+    var _a;
+    const r = runs.find((x) => x.status === "running");
+    if (!r) return null;
+    const beat = Date.parse(runsAt != null ? runsAt : "") || Date.parse((_a = r.startedAt) != null ? _a : "") || 0;
+    if (!beat || now - beat > OFFLINE_STALE_MS) return null;
+    return r;
+  }
   function triggerOf(schedule) {
     if (!schedule) return "manual";
     return schedule.kind === "on-demand" || schedule.kind === "unknown" ? "manual" : "auto";
@@ -7809,9 +7817,10 @@ var BZW_dock = (() => {
     const m = Math.floor(s / 60);
     return `${m} 分 ${Math.round(s - m * 60)} 秒`;
   }
-  var TERMINAL, ERROR_KIND_LABEL;
+  var OFFLINE_STALE_MS, TERMINAL, ERROR_KIND_LABEL;
   var init_schedule = __esm({
     "src/dock/schedule.ts"() {
+      OFFLINE_STALE_MS = 9e4;
       TERMINAL = /* @__PURE__ */ new Set(["ok", "failed", "stopped", "timeout"]);
       ERROR_KIND_LABEL = {
         auth: "认证失效",
@@ -8967,7 +8976,7 @@ var BZW_dock = (() => {
     if (v.trustStale) return "trust-stale";
     if (!v.run) return "no-run";
     if ((_a = v.runState) == null ? void 0 : _a.pausedAt) return "paused";
-    if (inFlight.has(v.entry.id) || liveRunOf(v.entry.id) !== void 0) return "running";
+    if (inFlight.has(v.entry.id) || liveRunOf(v.entry.id) !== void 0 || offlineRunOf(v)) return "running";
     if (((_b = cooldownUntil.get(v.entry.id)) != null ? _b : 0) > now) return "cooldown";
     if (missingRequiredParams((_c = v.manifest) == null ? void 0 : _c.params, v.values).length > 0) return "params";
     return null;
@@ -9290,7 +9299,7 @@ var BZW_dock = (() => {
     return !Platform.isMobile;
   }
   function canStart(v) {
-    return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run;
+    return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run && !runningNowOf(v);
   }
   function trustTagOf(v) {
     if (!canRun()) return null;
@@ -9311,12 +9320,14 @@ var BZW_dock = (() => {
       close: () => closeDock()
     });
     render();
+    ensureRunGateTick();
     void refresh();
     notifyDockEvent({ kind: "panel-open" });
   }
   function closeDock() {
     overlay == null ? void 0 : overlay.classList.add("is-off");
     stopLiveTick();
+    stopRunGateTick();
   }
   function openDockTool(app2, id) {
     view = { kind: "detail", id };
@@ -9326,6 +9337,7 @@ var BZW_dock = (() => {
     for (const v of views) saveValuesNow(v);
     stopLiveTick();
     stopOfflineTick();
+    stopRunGateTick();
     hostApp = null;
     escHandle == null ? void 0 : escHandle.unregister();
     escHandle = null;
@@ -9637,13 +9649,64 @@ var BZW_dock = (() => {
     return row;
   }
   function offlineRunOf(v, now = Date.now()) {
-    var _a, _b;
     if (liveRunOf(v.entry.id)) return null;
-    const r = v.runs.find((x) => x.status === "running");
-    if (!r) return null;
-    const beat = Date.parse((_a = v.runsAt) != null ? _a : "") || Date.parse((_b = r.startedAt) != null ? _b : "") || 0;
-    if (!beat || now - beat > OFFLINE_STALE_MS) return null;
-    return r;
+    return offlineRunOfRecord(v.runs, v.runsAt, now);
+  }
+  function runningNowOf(v) {
+    if (liveRunOf(v.entry.id)) return "这一轮正在跑（bz 亲手拉起的）";
+    if (offlineRunOf(v)) return "值守那轮还在跑 —— 跑完按钮自己会亮";
+    return "";
+  }
+  function runningNowFresh(v) {
+    if (liveRunOf(v.entry.id)) return "这一轮正在跑（bz 亲手拉起的）";
+    const { file } = readRunsFile(v.entry);
+    if (file && offlineRunOfRecord(file.runs, file.updatedAt)) {
+      return "值守那轮还在跑 —— 跑完按钮自己会亮";
+    }
+    return "";
+  }
+  function makeRunBtn(v, size) {
+    const why = runningNowOf(v);
+    const btn = uiBtn({
+      label: "运行",
+      icon: "play",
+      tone: "primary",
+      size,
+      disabled: !canStart(v),
+      title: why || void 0,
+      onClick: () => void runFlow(v)
+    });
+    btn.setAttribute(RUN_BTN_ATTR, v.entry.id);
+    return btn;
+  }
+  function syncRunBtns() {
+    var _a;
+    const btns = overlay == null ? void 0 : overlay.querySelectorAll(`button[${RUN_BTN_ATTR}]`);
+    if (!(btns == null ? void 0 : btns.length)) return;
+    for (const b of Array.from(btns)) {
+      const v = viewById((_a = b.getAttribute(RUN_BTN_ATTR)) != null ? _a : "");
+      if (!v) continue;
+      if (!canRun() || !isTrusted(v.entry) || v.trustStale || !v.run) continue;
+      const why = runningNowFresh(v);
+      b.disabled = !!why;
+      if (why) b.title = why;
+      else b.removeAttribute("title");
+    }
+  }
+  function ensureRunGateTick() {
+    if (runGateTick !== null) return;
+    runGateTick = setInterval(() => {
+      try {
+        syncRunBtns();
+      } catch (e) {
+      }
+    }, 5e3);
+  }
+  function stopRunGateTick() {
+    if (runGateTick !== null) {
+      clearInterval(runGateTick);
+      runGateTick = null;
+    }
   }
   function offlineHost(v) {
     const host = el("div", "bz-dock-offline");
@@ -9983,16 +10046,7 @@ var BZW_dock = (() => {
           })
         );
       } else {
-        foot.appendChild(
-          uiBtn({
-            label: "运行",
-            icon: "play",
-            tone: "primary",
-            size: "sm",
-            disabled: !canStart(v),
-            onClick: () => void runFlow(v)
-          })
-        );
+        foot.appendChild(makeRunBtn(v, "sm"));
       }
     } else {
       foot.appendChild(el("span", "bz-dock-mobilehint", "移动端仅查看"));
@@ -10724,13 +10778,7 @@ var BZW_dock = (() => {
     if (canRun()) {
       const live3 = liveRunOf(v.entry.id);
       btns.appendChild(
-        live3 ? uiBtn({ label: "停止", icon: "square", tone: "danger", onClick: () => stopRun(v.entry.id) }) : uiBtn({
-          label: "运行",
-          icon: "play",
-          tone: "primary",
-          disabled: !canStart(v),
-          onClick: () => void runFlow(v)
-        })
+        live3 ? uiBtn({ label: "停止", icon: "square", tone: "danger", onClick: () => stopRun(v.entry.id) }) : makeRunBtn(v)
       );
       if (params.length) {
         btns.appendChild(
@@ -11120,6 +11168,11 @@ var BZW_dock = (() => {
     if (!hostApp) return;
     if (!canRun()) {
       notice("移动端不能启动本机进程", "warning");
+      return;
+    }
+    const runningWhy = runningNowFresh(v);
+    if (runningWhy) {
+      notice(`这次没有启动：${runningWhy}`, "warning");
       return;
     }
     if (!v.run) {
@@ -11531,7 +11584,7 @@ var BZW_dock = (() => {
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName(v)}`);
   }
-  var hostApp, overlay, escHandle, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, autoDraft, OVERLAY_ID, FRAME_ID, offlineReportDone, OFFLINE_STALE_MS, offlineTick, BOARD_MAX_BYTES, BOARD_MAX_HEIGHT, FRAME_SCROLLBAR_CSS, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
+  var hostApp, overlay, escHandle, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, autoDraft, OVERLAY_ID, FRAME_ID, offlineReportDone, offlineRunOfRecord, RUN_BTN_ATTR, runGateTick, offlineTick, BOARD_MAX_BYTES, BOARD_MAX_HEIGHT, FRAME_SCROLLBAR_CSS, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
   var init_ui2 = __esm({
     "src/dock/ui.ts"() {
       init_fake_obsidian();
@@ -11556,6 +11609,7 @@ var BZW_dock = (() => {
       init_vault_fs();
       init_watchdog();
       init_schedule();
+      init_schedule();
       hostApp = null;
       overlay = null;
       escHandle = null;
@@ -11573,7 +11627,9 @@ var BZW_dock = (() => {
       OVERLAY_ID = "bz-dock-mask";
       FRAME_ID = "bz-dock-panel";
       offlineReportDone = false;
-      OFFLINE_STALE_MS = 9e4;
+      offlineRunOfRecord = offlineRunningOf;
+      RUN_BTN_ATTR = "data-bz-run-btn";
+      runGateTick = null;
       offlineTick = null;
       BOARD_MAX_BYTES = 512 * 1024;
       BOARD_MAX_HEIGHT = 560;

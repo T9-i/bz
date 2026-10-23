@@ -180,6 +180,7 @@ async function scanOnce(config, settings, state, watcher, views, panel, events) 
           });
       if (gate) {
         if (gate === 'params') rt.log(`跳过 ${view.name}：必填参数还没填`);
+        if (gate === 'running') rt.log(`跳过 ${view.name}：上一轮还没跑完`);
         continue;
       }
 

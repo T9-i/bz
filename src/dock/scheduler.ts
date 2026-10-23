@@ -212,7 +212,8 @@ function runGate(v: DockToolView, now: number): string | null {
   if (v.trustStale) return 'trust-stale';
   if (!v.run) return 'no-run';
   if (v.runState?.pausedAt) return 'paused';
-  if (inFlight.has(v.entry.id) || liveRunOf(v.entry.id) !== undefined) return 'running';
+  // 在场（bz 亲手拉起）/ 离场（值守拉起，只能看记录）任一轮没跑完都不再起一轮（ADR-0251）
+  if (inFlight.has(v.entry.id) || liveRunOf(v.entry.id) !== undefined || offlineRunOf(v)) return 'running';
   if ((cooldownUntil.get(v.entry.id) ?? 0) > now) return 'cooldown';
   if (missingRequiredParams(v.manifest?.params, v.values).length > 0) return 'params';
   return null;
@@ -375,9 +376,6 @@ async function runOne(view: DockToolView): Promise<'ok' | 'fail' | 'skip'> {
   const launch = view.run;
   if (app === null || !launch) return 'skip';
   const entry = view.entry;
-  // 同一轮还没跑完（手动点的、或者上一次自动触发还挂着）—— 到点了也跳过：
-  // 并发跑同一个脚本只会互相踩数据。不算失败，台账不动，等它跑完再说。
-  if (liveRunOf(entry.id) || offlineRunOf(view)) return 'skip';
 
   inFlight.add(entry.id);
   const handle = runTool(app, entry, launch, view.manifest, view.values, {}, { trigger: 'auto' });
