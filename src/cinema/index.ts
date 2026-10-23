@@ -53,12 +53,14 @@ function registerAutoRefresh(app: App): void {
   if (autoRefreshRegistered) return;
   autoRefreshRegistered = true;
   let timer: ReturnType<typeof setTimeout> | null = null;
-  const schedule = (file: { path?: string }) => {
+  const schedule = (file: { path?: string }, guardSelfWrite = false) => {
     if (file && file.path && !file.path.startsWith(M.folderPath + '/')) return;
     // 自写回灌守卫（issue 555）：面板自己刚写的文件，内存已是权威且已 renderAll——此刻
     // metadataCache 大概率还没解析完（vault 事件先到、缓存后到），一重建就把新值盖回旧值，
     // 真机表现 =「改完不生效，重开面板才生效」。跳过这一次，外部编辑照旧重建。
-    if (file && file.path && isRecentSelfWrite(file.path)) return;
+    // **只对增改生效**：删除 / 改名不读 frontmatter，而且内存里的旧条目必须当场消失——
+    // 刚存完（1.5s 窗口内）就删/移走的片若也被跳过，卡会在面板上留成幽灵。
+    if (guardSelfWrite && file && file.path && isRecentSelfWrite(file.path)) return;
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
       if (!M.currentOverlay) return;
@@ -66,7 +68,7 @@ function registerAutoRefresh(app: App): void {
       renderSoft(app); // 后台通道：打字期间顺延，不抢搜索框焦点
     }, 300);
   };
-  onDomainEvent<{ path: string }>('vault:md-indexed', (evt) => schedule({ path: evt.path }));
+  onDomainEvent<{ path: string }>('vault:md-indexed', (evt) => schedule({ path: evt.path }, true));
   onDomainEvent<{ path: string }>('cinema:file-deleted', (evt) => schedule({ path: evt.path }));
   onDomainEvent<{ path: string }>('vault:md-deleted', (evt) => schedule({ path: evt.path }));
   // 改名不刷新是另一个洞（issue 555 顺手补）：适配层对 rename 只发 renamed 一条、不补发

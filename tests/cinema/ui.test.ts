@@ -508,6 +508,17 @@ tags: [电影]
     );
   });
 
+  it('刚保存的片紧跟着被删 / 移走，面板立刻移除（自写守卫只挡增改，不挡删除）', async () => {
+    const { app, vault } = seedVault();
+    createOverlay(app);
+    const PATH = '我的/影视/《瑞克和莫蒂》.md';
+    expect(M.items.some((i) => i.name === '瑞克和莫蒂')).toBe(true);
+    noteSelfWrite(PATH); // 复刻「面板 1.5s 内刚写过它」
+    vault.files.delete(PATH);
+    emitDomainEvent('vault:md-deleted', { path: PATH });
+    await vi.waitFor(() => expect(M.items.some((i) => i.name === '瑞克和莫蒂')).toBe(false), { timeout: 1500 });
+  });
+
   it('保存时事件抢先到（写盘未返回）也不回灌：写前登记自写，防抖那一拍直接让给内存', async () => {
     const { app, vault } = seedVault();
     createOverlay(app);
