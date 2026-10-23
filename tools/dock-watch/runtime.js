@@ -188,6 +188,11 @@ function readConfig(env = process.env) {
     intervalMs,
     /** 覆盖「插件数据目录」的推导（自定义 Obsidian 配置目录时才用得上） */
     pluginDataPath: typeof raw.pluginDataPath === 'string' ? raw.pluginDataPath.trim() : '',
+    /**
+     * 可选：等网参数（`net.js` 的 `optionsOf` 读它）。缺省整块不写，全用那边的 DEFAULTS ——
+     * 老安装的 `config.json` 里没有这一段，不该因此要求用户重装。
+     */
+    net: isPlainObject(raw.net) ? raw.net : undefined,
   };
 }
 

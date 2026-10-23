@@ -165,9 +165,19 @@ function writeLease(world, patch = {}) {
   });
 }
 
-async function tickOnce(world) {
-  const config = { v: 1, vault: world.vault, intervalMs: 30000, pluginDataPath: '' };
-  const watcher = createWatcher(config, { coreVersion: '1.33.0' });
+/**
+ * 拍一次。
+ *
+ * `opts.net` / `opts.netProbe` 是给网闸用例用的：缺省那份配置会让真实探测等 5 分钟，
+ * 测试必须把等待压到毫秒级、并把探测换成假的（测试不该真去连公网）。
+ */
+async function tickOnce(world, opts = {}) {
+  const config = { v: 1, vault: world.vault, intervalMs: 30000, pluginDataPath: '', net: opts.net };
+  const watcher = createWatcher(config, {
+    coreVersion: '1.33.0',
+    // 缺省「网是通的」：现有一批用例都在测别的约定，不该被网闸拖慢、更不该真去握手
+    netProbe: opts.netProbe || (async () => true),
+  });
   await watcher.tick();
   return watcher;
 }
@@ -479,7 +489,11 @@ test('`--once`（排障入口）不当场掷骰 —— 否则账记了、工具�
   Math.random = () => 0.99;
   try {
     const config = { v: 1, vault: world.vault, intervalMs: 30000, pluginDataPath: '' };
-    const watcher = createWatcher(config, { coreVersion: '1.33.0', ignoreJitter: true });
+    const watcher = createWatcher(config, {
+      coreVersion: '1.33.0',
+      ignoreJitter: true,
+      netProbe: async () => true, // 网闸不参与这条用例
+    });
     await watcher.tick();
     assert.equal(watcher.state.runsSinceBoot, 1, '--once 就该立刻看见结果');
     assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), true);
@@ -500,6 +514,112 @@ test('只提醒类规则：离场记账但不投递（提醒的价值在「当�
     assert.equal(watcher.state.runsSinceBoot, 0, '不该拉进程');
     assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), false);
     assert.equal(rt.readQueue().length, 0, '隔一天补一条「昨天该手动跑一次」只是噪音');
+  } finally {
+    world.cleanup();
+  }
+});
+
+// ==================== 网闸（net.js） ====================
+//
+// 现场（2026-10-23 04:27）：登录两秒后值守就命中 iamtxt 签到，那时 Wi-Fi 还没就绪 ——
+// `fetch failed`，而规则已经记账，这一天不会再自动重试。下面三条就是那次故障的回归。
+
+test('网络没通：不跑、不记账，把这次留给下一拍', async () => {
+  const world = makeWorld();
+  try {
+    const watcher = await tickOnce(world, {
+      net: { waitMs: 120, probeEveryMs: 200, connectTimeoutMs: 20 },
+      netProbe: async () => false,
+    });
+
+    assert.equal(watcher.state.runsSinceBoot, 0, '没网就不该拉起工具');
+    assert.equal(fs.existsSync(path.join(world.toolDir, 'runs.json')), false);
+    const state = readState(world);
+    assert.equal(
+      state.ruleState && state.ruleState.r1,
+      undefined,
+      '等不到网绝不能记账 —— 记账等于宣布「今天跑过了」，今天就不会再试',
+    );
+    assert.match(
+      fs.readFileSync(path.join(rt.logsDir(), 'watch.log'), 'utf8'),
+      /仍未接通.*留到下一拍/,
+      '日志要说清是「留到下一拍」，不是「跑失败」',
+    );
+  } finally {
+    world.cleanup();
+  }
+});
+
+test('网络晚一点接通：等到它就照跑，落一条记在账上', async () => {
+  const world = makeWorld();
+  try {
+    // 前两次探测没通，第三次通 —— 等价于「开机后几十秒 Wi-Fi 才连上」
+    let calls = 0;
+    const watcher = await tickOnce(world, {
+      net: { waitMs: 2000, probeEveryMs: 200, connectTimeoutMs: 20 },
+      netProbe: async () => {
+        calls += 1;
+        return calls >= 3;
+      },
+    });
+
+    assert.equal(calls, 3, '该重试到通为止');
+    assert.equal(watcher.state.runsSinceBoot, 1, '接通之后这一拍就该跑');
+    assert.ok(readState(world).ruleState.r1.lastFiredAt, '跑了就要记账（不然每一拍都会再跑）');
+    const runs = JSON.parse(fs.readFileSync(path.join(world.toolDir, 'runs.json'), 'utf8'));
+    assert.equal(runs.runs.length, 1);
+  } finally {
+    world.cleanup();
+  }
+});
+
+test('等网失败后的静默期：下一拍不再等满一轮（否则每 30 秒卡 5 分钟）', async () => {
+  const world = makeWorld();
+  try {
+    let calls = 0;
+    const config = {
+      v: 1,
+      vault: world.vault,
+      intervalMs: 30000,
+      pluginDataPath: '',
+      net: { waitMs: 100, probeEveryMs: 200, connectTimeoutMs: 20 },
+    };
+    const watcher = createWatcher(config, {
+      coreVersion: '1.33.0',
+      netProbe: async () => {
+        calls += 1;
+        return false;
+      },
+    });
+
+    await watcher.tick();
+    const first = calls;
+    assert.ok(first > 1, '第一拍该重试过若干次');
+
+    await watcher.tick();
+    assert.equal(calls, first, '静默期内直接跳过，不该再探（更不该再等 5 分钟）');
+    assert.equal(watcher.state.runsSinceBoot, 0);
+  } finally {
+    world.cleanup();
+  }
+});
+
+test('只提醒的规则不碰网络（提醒不需要联网，也不该被断网挡住）', async () => {
+  const world = makeWorld({
+    rule: { id: 'r1', trigger: { kind: 'daily', at: '00:00' }, action: { kind: 'remind' } },
+  });
+  try {
+    let probed = 0;
+    const watcher = await tickOnce(world, {
+      net: { waitMs: 0, probeEveryMs: 200, connectTimeoutMs: 20 },
+      netProbe: async () => {
+        probed += 1;
+        return false;
+      },
+    });
+    assert.equal(probed, 0, 'remind 不该触发任何探测');
+    assert.ok(readState(world).ruleState.r1.lastFiredAt, '提醒照常记账');
+    assert.equal(watcher.state.runsSinceBoot, 0);
   } finally {
     world.cleanup();
   }
