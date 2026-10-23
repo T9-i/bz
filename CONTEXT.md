@@ -55,6 +55,19 @@ _Avoid_: 配置文件（与声明文件混称）、settings.json（那是 Obsidi
 **运行记录 (Run Record)**: `<工具目录>/runs.json`（旧名 `dock.runs.json` 读侧回落认，ADR-0237）—— 外部工具的运行留痕（`status` 枚举 `ok|failed|stopped|running|timeout`，**没有 `skipped`**；`error.kind` 枚举 `auth|network|config|timeout|aborted|unknown`，是「汇报完成情况」最值钱的东西，卡面直接给「怎么办」）。**由工具自己写、bz 只读只检测**（D8/D9）——bz 一旦写回去就变第二个写者，「bz 不关心脚本」立刻失守。ADR-0236 起记录住**工具目录**（与声明、参数值同址，一个工具的全部数据自包含、搬目录即搬一切；`declaration.ts` 的 `RUNS_FILENAME` / `runsPathFor`，`BZ_DOCK_RUNS_FILE` 由声明文件位置推出，天然是绝对值——旧设计住 vault 内的 `runs/<id>.json`，被工具进程的 `cwd` 解析歪过一次）。**bz 侧的调度台账 `dockRunState` 不是它**（ADR-0248 起住**工具目录**的 `dock-state.json` 的 `runState` 段：最近尝试 / 连续失败 / 是否熔断；ADR-0239 前住插件 `data.json`），两者别混。每工具最近 **200 条**，**裁剪权归工具**（D13；全仓 5000 条聚合上限缓做）；写侧必须 `写 .tmp → os.replace` 原子替换、tmp 名带 pid 与序号。结构字段 + 失败时 stderr 尾部 **2KB 滑窗**，**不存 stdout 原文**（D12，与 `core/external-tool.ts` 既定口径一致）。`info` / `result` 是**离场运行的数据出口**——自动化工具在 Obsidian 关着时跑（或被 OS 计划任务拉起），结构化产出只能靠它带回来（在场运行时同字段走四行协议实时进 UI）。bz 读侧必须容错：文件坏了降级为「该工具记录不可读」，不连累整个域打不开。
 _Avoid_: 日志（bz 不存 stdout 原文）、运行历史（UI 概念）、运行记录汇总副本（D9，bz 只读不汇总）、bz 调度台账（`dockRunState`，那是 bz 的调度账不是工具的运行记录）
 
+**运行闸 (Run Gate)**: 「同一个工具同时只跑一轮」这一条，**在工具坞这一层管，脚本自己不加锁**（ADR-0251）。
+判据单源 `ui.ts` 的 `runningNowOf(v)`：在场看 `liveRunOf`（bz 亲手拉起），离场看 `offlineRunOf`
+（值守拉起 + 90 秒心跳，ADR-0250）—— 两种「在跑」对界面是同一种禁用理由。在跑时运行按钮 `disabled` +
+悬停一句说明（是哪一种在跑）；`openDock` 起一口 5 秒的拍（`syncRunBtns`），**当场读 `runs.json`** 重算，
+只改 `disabled` / `title`、**不重画**（重画会冲掉参数草稿与滚动位置），跑完那一拍自己解锁，面板收起就停表。
+所有启动路径（卡片 / 详情 / 右键菜单 / 展示板动作 / 熔断补跑）都汇到 `runFlow`，那里有同一道兜底
+`notice`「这次没有启动：…」；调度器的 `runOne` 也跳过（`skip`：不算失败、不进冷却、台账不动）。
+**脚本侧一个字节都不动** —— 工具独立可跑，能同时跑几轮是调用方的事；`steam-cheap-radar` 里既有的
+`run.lock` 防的是两个实例互相覆盖 `deals.json` / `cache.json`，与这层无关、也不推广到别的工具。
+
+_Avoid_: 工具自锁（并发控制在调用方，不在工具里）、全局串行（闸是按工具的，两个不同工具照旧并行）、
+跳过算失败（`skip` 不动台账）
+
 **工具信任 (Dock Trust)**: 「这条命令已被授权在**这台机器**上执行」的记录（ADR-0239，`store.ts` 的 `DOCK_TRUST_SETTINGS_KEY = dockTrust`）—— 形状 `{ <工具 id>: { at: ISO, run: <命令签名> } }`（`run` 缺省 = 只记了时刻、无从比对，按过期算），住在**插件设置**（`.obsidian/plugins/bz/data.json`），**刻意不住 vault**：`dock.json`（登记表 / 台账 / 三个开关）会随 vault 同步、进 git、被整体分享，授权若也在里面，别人给一份 vault 就等于带走了「已授权执行这条命令」，调度器到点就替他跑起来 —— 正是 D6 要挡的「打开别人的 vault = 在他机器上执行任意命令」。判据仍是**命令签名**（`runSignature` = cmd + shell + args）：声明改了 `run`，签名对不上即视为未授权（视图 `trustStale`、`canStart` 含 `!trustStale`，弹展示新命令的确认框）。`dock.json` 里若出现 `trustedAt` / `trustedRun` 字段**一律剥掉忽略**（唯一真理源只有设置里这份）。设置页「信任」组 = 两行列表：已信任（撤销 = 只删这条记录，**不碰 `dock.json`**）与待确认（按声明**当前**那条命令授权）—— 两侧都只显示命令文本，**不给手写命令的入口**（授权对象永远是声明文件里现读出来的那条）。**要认的后果**：换 vault / 换机器后每个工具重新授权一次（安全边界本就该如此）。
 _Avoid_: 登录 / 凭据（那是参数值文件里用户填的 Cookie 之类，不是授权）、信任字段进 `dock.json`（被剥掉的旧形态）、插件信任（bz 无插件间信任机制）
 

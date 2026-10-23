@@ -33,7 +33,7 @@ import { missingRequiredParams } from './schedule';
 import { ruleDue, type DockRule, type DockTrigger, type RuleEvent } from './rules';
 // ui 与 scheduler 互相引用（ui 里改完规则会 kick 调度器；这里的通知要直达工具详情）——
 // 双方都只在函数体内调用对方，模块顶层互不取值，ESM 循环在此安全
-import { openDockTool } from './ui';
+import { offlineRunOf, openDockTool } from './ui';
 import { errorHint, liveRunOf, runTool, stopRun, vaultBasePath, type DockRunOutcome } from './runner';
 import { clearWatchdogLease, writeWatchdogLease } from './watchdog';
 
@@ -375,6 +375,9 @@ async function runOne(view: DockToolView): Promise<'ok' | 'fail' | 'skip'> {
   const launch = view.run;
   if (app === null || !launch) return 'skip';
   const entry = view.entry;
+  // 同一轮还没跑完（手动点的、或者上一次自动触发还挂着）—— 到点了也跳过：
+  // 并发跑同一个脚本只会互相踩数据。不算失败，台账不动，等它跑完再说。
+  if (liveRunOf(entry.id) || offlineRunOf(view)) return 'skip';
 
   inFlight.add(entry.id);
   const handle = runTool(app, entry, launch, view.manifest, view.values, {}, { trigger: 'auto' });

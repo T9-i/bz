@@ -11,7 +11,8 @@
  * ④ 老记录没有文件级 `updatedAt` 时退到 `startedAt`，刚开跑的也要认出来。
  */
 import { describe, expect, it } from 'vitest';
-import { OFFLINE_STALE_MS, offlineRunOf } from '../../src/dock/ui';
+import { readFileSync } from 'node:fs';
+import { OFFLINE_STALE_MS, offlineRunOf, offlineRunOfRecord } from '../../src/dock/ui';
 import type { DockToolView } from '../../src/dock/data';
 import type { DockRunRecord } from '../../src/dock/schema';
 
@@ -57,5 +58,35 @@ describe('离场运行的判据', () => {
   it('老记录没有文件级 updatedAt 时退到 startedAt', () => {
     expect(offlineRunOf(view({ runs: [run('running', 30_000)] }), NOW)?.runId).toBe('r1');
     expect(offlineRunOf(view({ runs: [run('running', OFFLINE_STALE_MS + 10_000)] }), NOW)).toBeNull();
+  });
+});
+
+/**
+ * 运行按钮的禁用口径（2026-10-23）：脚本在跑的时候按钮不能点，跑完自己亮。
+ * 判据就是上面那套，只是入口换成了「直接给一份记录」—— 5 秒轮询拿不到视图快照，
+ * 只能自己读 `runs.json`。
+ */
+describe('offlineRunOfRecord（运行按钮用）', () => {
+  it('新鲜的在跑记录 → 认；同一个 runId 跑完变 ok → 不认', () => {
+    expect(offlineRunOfRecord([run('running')], iso(5_000), NOW)?.runId).toBe('r1');
+    expect(offlineRunOfRecord([run('ok')], iso(5_000), NOW)).toBeNull();
+  });
+
+  it('心跳超时 → 不认（不能让残骸把按钮一直禁着）', () => {
+    expect(offlineRunOfRecord([run('running')], iso(OFFLINE_STALE_MS + 1), NOW)).toBeNull();
+  });
+});
+
+describe('口径只有一处', () => {
+  const src = readFileSync('src/dock/ui.ts', 'utf8');
+
+  it('两个运行按钮都走 makeRunBtn（卡片改了、详情漏改这种事不该再发生）', () => {
+    expect((src.match(/makeRunBtn\(v, 'sm'\)/g) ?? []).length).toBe(1); // 列表卡片
+    expect((src.match(/makeRunBtn\(v\)/g) ?? []).length).toBe(1); // 详情页运行台
+    expect(src).toContain("btn.setAttribute(RUN_BTN_ATTR, v.entry.id)");
+  });
+
+  it('canStart 里带了「在跑就不许起」', () => {
+    expect(src).toMatch(/!!v\.run && !runningNowOf\(v\)/);
   });
 });

@@ -50,6 +50,7 @@ import {
   overview,
   patchRunState,
   readDockSwitch,
+  readRunsFile,
   readToolEntries,
   recordRunSuccess,
   runSignature,
@@ -302,7 +303,8 @@ function canRun(): boolean {
 
 /** 这个工具现在能不能启动：桌面端 + 已信任 + 信任没过期 + 声明里写了怎么跑 */
 function canStart(v: DockToolView): boolean {
-  return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run;
+  // 一轮在跑（在场或离场）就不再起第二轮 —— 同一个脚本并发只会互相踩数据
+  return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run && !runningNowOf(v);
 }
 
 /** 「未信任」与「信任过期」共用的标签文案（两者都要求用户重新确认一次） */
@@ -330,6 +332,7 @@ export function openDock(app: App): void {
     close: () => closeDock(),
   });
   render();
+  ensureRunGateTick();
   void refresh();
   // 「打开工具坞」本身也是一个触发条件（规则里的 panel-open）—— 通知调度器判一轮
   notifyDockEvent({ kind: 'panel-open' });
@@ -340,6 +343,7 @@ export function closeDock(): void {
   // 面板不可见了，那口 5 秒的重绘拍就没有观众了（状态栏自己会在运行结束时收起）。
   // 重开时 `openDock` → `render` → `ensureLiveTick` 会重新挂上。
   stopLiveTick();
+  stopRunGateTick();
 }
 
 /**
@@ -357,6 +361,7 @@ export function unloadDock(): void {
   for (const v of views) saveValuesNow(v);
   stopLiveTick();
   stopOfflineTick();
+  stopRunGateTick();
   hostApp = null;
   escHandle?.unregister();
   escHandle = null;
@@ -805,15 +810,105 @@ function makeRunbarRow(run: DockLiveRun): HTMLElement {
  */
 export const OFFLINE_STALE_MS = 90_000;
 
+/** 判活的共用口径：给一份记录 + 它的 updatedAt，说这一轮还算不算在跑 */
+export function offlineRunOfRecord(
+  runs: readonly DockRunRecord[],
+  runsAt: string | undefined,
+  now: number = Date.now(),
+): DockRunRecord | null {
+  const r = runs.find((x) => x.status === 'running');
+  if (!r) return null;
+  // 心跳：记录文件的 updatedAt 优先（工具每写一次就刷）；老记录没有就退到 startedAt
+  const beat = Date.parse(runsAt ?? '') || Date.parse(r.startedAt ?? '') || 0;
+  if (!beat || now - beat > OFFLINE_STALE_MS) return null;
+  return r;
+}
+
 export function offlineRunOf(v: DockToolView, now: number = Date.now()): DockRunRecord | null {
   // 在场的那一轮有实时流，走 runbar / 运行台另一套，别在这儿重复一遍
   if (liveRunOf(v.entry.id)) return null;
-  const r = v.runs.find((x) => x.status === 'running');
-  if (!r) return null;
-  // 心跳：记录文件的 updatedAt 优先（工具每写一次就刷）；老记录没有就退到 startedAt
-  const beat = Date.parse(v.runsAt ?? '') || Date.parse(r.startedAt ?? '') || 0;
-  if (!beat || now - beat > OFFLINE_STALE_MS) return null;
-  return r;
+  return offlineRunOfRecord(v.runs, v.runsAt, now);
+}
+
+/**
+ * 「这一轮在跑吗」—— 运行按钮的唯一禁用口径（2026-10-23 用户要求：脚本在跑的时候
+ * 工具坞的运行按钮点不了，跑完自己亮）。
+ *
+ * 两条来源合起来看：在场（bz 亲手拉起，内存里就有）与离场（值守拉起，只能看记录）。
+ * 这里用的是**视图里的快照**，够 render 用；要「现在」的答案用下面那个读盘的版本。
+ */
+function runningNowOf(v: DockToolView): string {
+  if (liveRunOf(v.entry.id)) return '这一轮正在跑（bz 亲手拉起的）';
+  if (offlineRunOf(v)) return '值守那轮还在跑 —— 跑完按钮自己会亮';
+  return '';
+}
+
+/** 同上，但**当场读记录文件** —— 5 秒轮询用，不信视图里那份可能已经过期的快照 */
+function runningNowFresh(v: DockToolView): string {
+  if (liveRunOf(v.entry.id)) return '这一轮正在跑（bz 亲手拉起的）';
+  const { file } = readRunsFile(v.entry);
+  if (file && offlineRunOfRecord(file.runs, file.updatedAt)) {
+    return '值守那轮还在跑 —— 跑完按钮自己会亮';
+  }
+  return '';
+}
+
+/** 按钮上一个稳定标记：轮询靠它找人，不用整页重画 */
+const RUN_BTN_ATTR = 'data-bz-run-btn';
+
+/** 运行按钮：禁用 + 说明为什么（在跑 / 未信任 / 移动端这些理由各自写清楚） */
+function makeRunBtn(v: DockToolView, size?: 'sm'): HTMLButtonElement {
+  const why = runningNowOf(v);
+  const btn = uiBtn({
+    label: '运行',
+    icon: 'play',
+    tone: 'primary',
+    size,
+    disabled: !canStart(v),
+    title: why || undefined,
+    onClick: () => void runFlow(v),
+  });
+  btn.setAttribute(RUN_BTN_ATTR, v.entry.id);
+  return btn;
+}
+
+/**
+ * 把画面上的运行按钮跟磁盘对一次账（每 5 秒）。
+ *
+ * 为什么需要它：值守那轮开跑时面板可能已经开着，跑完也不会有人通知 bz；只靠渲染时算一次，
+ * 就会出现「那一轮早跑完了，按钮还是灰的」或者「它正在跑，按钮却还亮着」。
+ * 只改 `disabled`/`title`，**不重画**：重画会把参数表单里的草稿和滚动位置一起冲掉。
+ */
+function syncRunBtns(): void {
+  const btns = overlay?.querySelectorAll<HTMLButtonElement>(`button[${RUN_BTN_ATTR}]`);
+  if (!btns?.length) return;
+  for (const b of Array.from(btns)) {
+    const v = viewById(b.getAttribute(RUN_BTN_ATTR) ?? '');
+    if (!v) continue;
+    // 别的禁用理由（未信任 / 移动端 / 声明没写 run）不归这里管，别把它们解开
+    if (!canRun() || !isTrusted(v.entry) || v.trustStale || !v.run) continue;
+    const why = runningNowFresh(v);
+    b.disabled = !!why;
+    if (why) b.title = why;
+    else b.removeAttribute('title');
+  }
+}
+
+/** 5 秒一拍：只为运行按钮的可用状态。面板收起时就停（`closeDock` / `unloadDock`） */
+let runGateTick: ReturnType<typeof setInterval> | null = null;
+
+function ensureRunGateTick(): void {
+  if (runGateTick !== null) return;
+  runGateTick = setInterval(() => {
+    try { syncRunBtns(); } catch { /* 拍子里的异常不该带塌界面 */ }
+  }, 5_000);
+}
+
+function stopRunGateTick(): void {
+  if (runGateTick !== null) {
+    clearInterval(runGateTick);
+    runGateTick = null;
+  }
 }
 
 /** 详情页「运行台」里的那一块（与列表顶栏那行同源，只是排版不同） */
@@ -1234,16 +1329,7 @@ function makeCard(v: DockToolView): HTMLElement {
         }),
       );
     } else {
-      foot.appendChild(
-        uiBtn({
-          label: '运行',
-          icon: 'play',
-          tone: 'primary',
-          size: 'sm',
-          disabled: !canStart(v),
-          onClick: () => void runFlow(v),
-        }),
-      );
+      foot.appendChild(makeRunBtn(v, 'sm'));
     }
   } else {
     foot.appendChild(el('span', 'bz-dock-mobilehint', '移动端仅查看'));
@@ -2368,13 +2454,7 @@ function runPane(v: DockToolView): HTMLElement {
     btns.appendChild(
       live
         ? uiBtn({ label: '停止', icon: 'square', tone: 'danger', onClick: () => stopRun(v.entry.id) })
-        : uiBtn({
-            label: '运行',
-            icon: 'play',
-            tone: 'primary',
-            disabled: !canStart(v),
-            onClick: () => void runFlow(v),
-          }),
+        : makeRunBtn(v),
     );
     if (params.length) {
       btns.appendChild(
@@ -2836,6 +2916,12 @@ async function runFlow(v: DockToolView, opts: { extraArgs?: string[] } = {}): Pr
     notice('移动端不能启动本机进程', 'warning');
     return;
   }
+  // 按钮已经灰了，这里兜住旁路（展示板动作 / 右键菜单 / 熔断补跑）：一轮没跑完不起第二轮
+  const runningWhy = runningNowFresh(v);
+  if (runningWhy) {
+    notice(`这次没有启动：${runningWhy}`, 'warning');
+    return;
+  }
   if (!v.run) {
     notice('这份声明没写怎么跑：既无 run 段，目录里也没有 main.mjs', 'warning');
     return;
@@ -3086,9 +3172,11 @@ export async function runToolDirect(app: App, id: string): Promise<void> {
     notice('工具视图载入失败，详见控制台', 'error');
     return;
   }
-  if (liveRunOf(id)) {
-    // 已经在跑：面板里那颗运行钮这时是「停止」，命令这边不再叠跑一份（live 表会被顶掉）
-    notice(`${displayName(v)} 已经在运行`, 'info');
+  // 在场 / 离场任一轮没跑完都不再叠一份（ADR-0251）：命令直跑与那颗运行钮同一条口径
+  const offRun = offlineRunOf(v);
+  if (liveRunOf(id) || offRun) {
+    // 在场那轮面板里这颗钮是「停止」；离场那轮压根不在 live 表里，得单独认
+    notice(`${displayName(v)} ${offRun ? '正在由值守进程运行' : '已经在运行'}`, 'info');
     locateDetail(id);
     return;
   }
