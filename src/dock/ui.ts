@@ -356,6 +356,7 @@ export function unloadDock(): void {
   // 最后一次输入静默丢掉（写盘是同步 fs，卸载路径里照常能完成）
   for (const v of views) saveValuesNow(v);
   stopLiveTick();
+  stopOfflineTick();
   hostApp = null;
   escHandle?.unregister();
   escHandle = null;
@@ -726,13 +727,34 @@ function renderRunbar(): void {
   if (!host) return;
   host.innerHTML = '';
   const runs = liveRunsAll();
-  // 详情页不画：运行台（左栏）已经有同一条运行的实时进度，头顶再挂一条就是同一件事说两遍
-  if (!runs.length || view.kind === 'detail') {
+  // 详情页不画实时那条：运行台（左栏）已经有同一条运行的实时进度，头顶再挂一条就是同一件事
+  // 说两遍。离场那条在详情页由运行台里的 `offlineHost` 承担（ADR-0250）。
+  const offs = view.kind === 'detail'
+    ? []
+    : views
+      .map((v) => ({ v, r: offlineRunOf(v) }))
+      .filter((x): x is { v: DockToolView; r: DockRunRecord } => x.r !== null);
+  if (!runs.length && !offs.length) {
     host.classList.add('is-off');
     return;
   }
   host.classList.remove('is-off');
   for (const run of runs) host.appendChild(makeRunbarRow(run));
+  for (const o of offs) host.appendChild(makeOfflineRow(o.v, o.r));
+  if (offs.length) ensureOfflineTick();
+}
+
+/** 顶栏里的离场行：没有停止钮、没有百分比 —— 唯一的确定性来自工具自己写的那行 */
+function makeOfflineRow(v: DockToolView, run: DockRunRecord): HTMLElement {
+  const row = el('div', 'bz-dock-rb');
+  row.dataset.tool = v.entry.id;
+  row.appendChild(el('span', 'bz-dock-rb-pulse'));
+  row.appendChild(el('span', 'bz-dock-rb-name', displayName(v)));
+  row.appendChild(el('span', 'bz-dock-rb-tag', '离线'));
+  const last = run.steps && run.steps.length ? run.steps[run.steps.length - 1].text : '';
+  row.appendChild(el('span', 'bz-dock-rb-step', last || run.message || '正在跑…'));
+  row.title = '值守进程拉起的运行：bz 不是它的父进程，拿不到实时进度';
+  return row;
 }
 
 function makeRunbarRow(run: DockLiveRun): HTMLElement {
@@ -768,6 +790,122 @@ function makeRunbarRow(run: DockLiveRun): HTMLElement {
     );
   }
   return row;
+}
+
+/**
+ * 离场运行（ADR-0250）：值守进程拉起、bz 不是父进程的那一轮。
+ *
+ * 面板上原来对这类运行**什么都不显示** —— 只能干等（2026-10-23 用户问「离线跑，面板没有任何
+ * 进度显示」）。但工具在跑的过程中每 8–10 秒会把「正在跑…第 N 步」写回 `runs.json`，
+ * 记录文件本身也在被反复重写 —— 于是判两件事就够了：
+ * 最新一条记录还挂着 `running`，且记录文件的 `updatedAt` 还在动。
+ *
+ * **不画百分比**：记录里没有可信的 pct，编一个就是假进度。画的是工具自己写的那行原话 +
+ * 「已经跑了多久」，两者都是它写的，不是 bz 猜的。
+ */
+export const OFFLINE_STALE_MS = 90_000;
+
+export function offlineRunOf(v: DockToolView, now: number = Date.now()): DockRunRecord | null {
+  // 在场的那一轮有实时流，走 runbar / 运行台另一套，别在这儿重复一遍
+  if (liveRunOf(v.entry.id)) return null;
+  const r = v.runs.find((x) => x.status === 'running');
+  if (!r) return null;
+  // 心跳：记录文件的 updatedAt 优先（工具每写一次就刷）；老记录没有就退到 startedAt
+  const beat = Date.parse(v.runsAt ?? '') || Date.parse(r.startedAt ?? '') || 0;
+  if (!beat || now - beat > OFFLINE_STALE_MS) return null;
+  return r;
+}
+
+/** 详情页「运行台」里的那一块（与列表顶栏那行同源，只是排版不同） */
+function offlineHost(v: DockToolView): HTMLElement {
+  const host = el('div', 'bz-dock-offline');
+  host.dataset.tool = v.entry.id;
+  renderOfflineInto(host, v);
+  if (!host.classList.contains('is-off')) ensureOfflineTick();
+  return host;
+}
+
+function renderOfflineInto(host: HTMLElement, v: DockToolView): void {
+  host.innerHTML = '';
+  const run = offlineRunOf(v);
+  if (!run) {
+    host.classList.add('is-off');
+    return;
+  }
+  host.classList.remove('is-off');
+  const head = el('div', 'bz-dock-offline-head');
+  head.appendChild(el('span', 'bz-dock-rb-pulse'));
+  head.appendChild(el('span', 'bz-dock-offline-title', '值守进程在跑'));
+  const started = Date.parse(run.startedAt ?? '') || 0;
+  if (started) head.appendChild(el('span', 'bz-dock-offline-ago', `已 ${elapsedText(Date.now() - started)}`));
+  host.appendChild(head);
+  const last = run.steps && run.steps.length ? run.steps[run.steps.length - 1] : undefined;
+  host.appendChild(el('div', 'bz-dock-offline-step', (last && last.text) || run.message || '正在跑…'));
+  host.appendChild(
+    el(
+      'div',
+      'bz-dock-offline-note',
+      'bz 不是这一轮的父进程，拿不到实时进度 —— 上面那行是它自己写进记录的原话，每十来秒更新',
+    ),
+  );
+}
+
+/**
+ * 离场运行的轻量拍：每 5 秒把那一格重读一遍（只读这一个工具）。
+ *
+ * 为什么不用 `refresh()`：那条路会把整块面板重建（参数表单、滚动位置全丢）。这里只要
+ * 「那行字有没有往前挪」，重读一个工具的记录就够。
+ */
+let offlineTick: ReturnType<typeof setInterval> | null = null;
+
+function ensureOfflineTick(): void {
+  if (offlineTick !== null) return;
+  offlineTick = setInterval(() => void tickOffline(), 5_000);
+}
+
+function stopOfflineTick(): void {
+  if (offlineTick !== null) {
+    clearInterval(offlineTick);
+    offlineTick = null;
+  }
+}
+
+async function tickOffline(): Promise<void> {
+  if (!hostApp) {
+    stopOfflineTick();
+    return;
+  }
+  // 要重读的：详情页里挂着那一块的 + 列表顶栏上正显示着的
+  const ids = new Set<string>();
+  for (const h of overlay?.querySelectorAll<HTMLElement>('.bz-dock-offline') ?? []) {
+    if (h.dataset.tool) ids.add(h.dataset.tool);
+  }
+  for (const v of views) if (offlineRunOf(v)) ids.add(v.entry.id);
+  if (!ids.size) {
+    stopOfflineTick();
+    renderRunbar();
+    return;
+  }
+  let alive = 0;
+  for (const id of ids) {
+    const cur = viewById(id);
+    if (!cur) continue;
+    let nv: DockToolView | null = null;
+    try {
+      nv = await loadToolView(hostApp, cur.entry);
+    } catch {
+      nv = null; // 这一拍读不到就维持上一帧，不闪
+    }
+    if (!nv) continue;
+    const i = views.findIndex((x) => x.entry.id === nv.entry.id);
+    if (i >= 0) views[i] = nv;
+    if (offlineRunOf(nv)) alive += 1;
+    overlay
+      ?.querySelectorAll<HTMLElement>(`.bz-dock-offline[data-tool="${id}"]`)
+      .forEach((h) => renderOfflineInto(h, nv as DockToolView));
+  }
+  if (!alive) stopOfflineTick();
+  renderRunbar();
 }
 
 function renderHead(): void {
@@ -2247,6 +2385,9 @@ function runPane(v: DockToolView): HTMLElement {
     btns.appendChild(el('span', 'bz-dock-mobilehint', '移动端不能启动进程，只能看'));
   }
   pane.appendChild(btns);
+  // 离场运行（值守进程拉起、bz 不是父进程）：没有实时流，但工具自己每十来秒把「跑到第几步」
+  // 写进记录，这里读出来画成人话（ADR-0250）。没有这种运行时整块隐藏。
+  pane.appendChild(offlineHost(v));
   // 上一次现场运行的原始输出尾部（增强 #17）：跑完不清，下次运行覆盖；只在内存，不落盘
   if (!liveRunOf(v.entry.id)) {
     const lastTail = lastRawTailOf(v.entry.id);

@@ -435,6 +435,9 @@ if (P.unwish) {
 1. 路径：`RUNS_FILE = env.BZ_DOCK_RUNS_FILE ?? <脚本同目录>/runs.json`；`TRIGGER = env.BZ_DOCK_TRIGGER`（只有值等于 `auto` 才算 `auto`）。
 2. 干活时用 stdout 发 `[bz-step]` / `[bz-p]` / `[bz-info]` / `[bz-result]`（各一行，JSON 体）。
 3. 收尾**一定**写一条记录（含 `status` / `startedAt` / `message`，失败补 `error.kind`）：tmp + rename，`runs` 截到 200 条。
+   跑的过程中**也要写**（开跑先落一条 `status: 'running'`，之后每 8–10 秒改写同一条）——
+   离场运行（值守进程拉起、Obsidian 关着时跑的那种）bz 拿不到实时流，面板上那句
+   「值守进程在跑 · 跑到第几步」读的就是这条记录，记录不动面板就不会动（ADR-0250）。
 4. 用 `process.exitCode = 1` / `sys.exit(1)` 收尾 —— **不要 `process.exit()`**，stdout 走管道是异步的，立刻退出会截断输出。
    真踩过（iamtxt 签到，issue 552）：`process.exit()` 在 Windows 上偶发 libuv 收尾断言
    （`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`），进程以非零码收场 ——

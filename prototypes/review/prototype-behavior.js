@@ -1,4 +1,4 @@
-/* 源指纹 ff196e63974a87f3 · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 fa259944cdfe927f · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/review/fake-sim.ts","prototypes/review/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/settings.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/tool-state.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/review/fake-sim.ts → window.BZW_review（行为单源预览包，issue 245/ADR-0106） */
 var BZW_review = (() => {
@@ -66519,7 +66519,7 @@ GitHub 仓库：${ghInfo.title}
     return out;
   }
   async function loadToolView(app2, entry, runStates = readRunStates()) {
-    var _a2, _b2, _c, _d, _e;
+    var _a2, _b2, _c, _d, _e, _f;
     const decl = readDeclaration(entry.path);
     const manifest = (_a2 = decl.manifest) != null ? _a2 : null;
     const declPath = (_b2 = decl.path) != null ? _b2 : entry.path;
@@ -66541,6 +66541,7 @@ GitHub 仓库：${ghInfo.title}
       values: readToolValues(entry),
       trustStale,
       runs,
+      runsAt: (_f = runsRead.file) == null ? void 0 : _f.updatedAt,
       runsUnreadable: runsRead.existed && runsRead.file === null,
       due: judgeDue(schedule, runs),
       dueToRun: isDueToRun(schedule, runs),
@@ -68094,12 +68095,26 @@ GitHub 仓库：${ghInfo.title}
     if (!host) return;
     host.innerHTML = "";
     const runs = liveRunsAll();
-    if (!runs.length || view.kind === "detail") {
+    const offs = view.kind === "detail" ? [] : views.map((v) => ({ v, r: offlineRunOf(v) })).filter((x) => x.r !== null);
+    if (!runs.length && !offs.length) {
       host.classList.add("is-off");
       return;
     }
     host.classList.remove("is-off");
     for (const run of runs) host.appendChild(makeRunbarRow(run));
+    for (const o of offs) host.appendChild(makeOfflineRow(o.v, o.r));
+    if (offs.length) ensureOfflineTick();
+  }
+  function makeOfflineRow(v, run) {
+    const row = el2("div", "bz-dock-rb");
+    row.dataset.tool = v.entry.id;
+    row.appendChild(el2("span", "bz-dock-rb-pulse"));
+    row.appendChild(el2("span", "bz-dock-rb-name", displayName2(v)));
+    row.appendChild(el2("span", "bz-dock-rb-tag", "离线"));
+    const last = run.steps && run.steps.length ? run.steps[run.steps.length - 1].text : "";
+    row.appendChild(el2("span", "bz-dock-rb-step", last || run.message || "正在跑…"));
+    row.title = "值守进程拉起的运行：bz 不是它的父进程，拿不到实时进度";
+    return row;
   }
   function makeRunbarRow(run) {
     var _a2;
@@ -68130,6 +68145,92 @@ GitHub 仓库：${ghInfo.title}
       );
     }
     return row;
+  }
+  function offlineRunOf(v, now = Date.now()) {
+    var _a2, _b2;
+    if (liveRunOf(v.entry.id)) return null;
+    const r = v.runs.find((x) => x.status === "running");
+    if (!r) return null;
+    const beat = Date.parse((_a2 = v.runsAt) != null ? _a2 : "") || Date.parse((_b2 = r.startedAt) != null ? _b2 : "") || 0;
+    if (!beat || now - beat > OFFLINE_STALE_MS) return null;
+    return r;
+  }
+  function offlineHost(v) {
+    const host = el2("div", "bz-dock-offline");
+    host.dataset.tool = v.entry.id;
+    renderOfflineInto(host, v);
+    if (!host.classList.contains("is-off")) ensureOfflineTick();
+    return host;
+  }
+  function renderOfflineInto(host, v) {
+    var _a2;
+    host.innerHTML = "";
+    const run = offlineRunOf(v);
+    if (!run) {
+      host.classList.add("is-off");
+      return;
+    }
+    host.classList.remove("is-off");
+    const head = el2("div", "bz-dock-offline-head");
+    head.appendChild(el2("span", "bz-dock-rb-pulse"));
+    head.appendChild(el2("span", "bz-dock-offline-title", "值守进程在跑"));
+    const started = Date.parse((_a2 = run.startedAt) != null ? _a2 : "") || 0;
+    if (started) head.appendChild(el2("span", "bz-dock-offline-ago", `已 ${elapsedText(Date.now() - started)}`));
+    host.appendChild(head);
+    const last = run.steps && run.steps.length ? run.steps[run.steps.length - 1] : void 0;
+    host.appendChild(el2("div", "bz-dock-offline-step", last && last.text || run.message || "正在跑…"));
+    host.appendChild(
+      el2(
+        "div",
+        "bz-dock-offline-note",
+        "bz 不是这一轮的父进程，拿不到实时进度 —— 上面那行是它自己写进记录的原话，每十来秒更新"
+      )
+    );
+  }
+  function ensureOfflineTick() {
+    if (offlineTick !== null) return;
+    offlineTick = setInterval(() => void tickOffline(), 5e3);
+  }
+  function stopOfflineTick() {
+    if (offlineTick !== null) {
+      clearInterval(offlineTick);
+      offlineTick = null;
+    }
+  }
+  async function tickOffline() {
+    var _a2;
+    if (!hostApp2) {
+      stopOfflineTick();
+      return;
+    }
+    const ids = /* @__PURE__ */ new Set();
+    for (const h of (_a2 = overlay2 == null ? void 0 : overlay2.querySelectorAll(".bz-dock-offline")) != null ? _a2 : []) {
+      if (h.dataset.tool) ids.add(h.dataset.tool);
+    }
+    for (const v of views) if (offlineRunOf(v)) ids.add(v.entry.id);
+    if (!ids.size) {
+      stopOfflineTick();
+      renderRunbar();
+      return;
+    }
+    let alive = 0;
+    for (const id of ids) {
+      const cur = viewById(id);
+      if (!cur) continue;
+      let nv = null;
+      try {
+        nv = await loadToolView(hostApp2, cur.entry);
+      } catch (e) {
+        nv = null;
+      }
+      if (!nv) continue;
+      const i = views.findIndex((x) => x.entry.id === nv.entry.id);
+      if (i >= 0) views[i] = nv;
+      if (offlineRunOf(nv)) alive += 1;
+      overlay2 == null ? void 0 : overlay2.querySelectorAll(`.bz-dock-offline[data-tool="${id}"]`).forEach((h) => renderOfflineInto(h, nv));
+    }
+    if (!alive) stopOfflineTick();
+    renderRunbar();
   }
   function renderHead() {
     var _a2;
@@ -69150,6 +69251,7 @@ GitHub 仓库：${ghInfo.title}
       btns.appendChild(el2("span", "bz-dock-mobilehint", "移动端不能启动进程，只能看"));
     }
     pane.appendChild(btns);
+    pane.appendChild(offlineHost(v));
     if (!liveRunOf(v.entry.id)) {
       const lastTail = lastRawTailOf(v.entry.id);
       if (lastTail == null ? void 0 : lastTail.length) {
@@ -69939,7 +70041,7 @@ GitHub 仓库：${ghInfo.title}
     await patchRunState(v.entry.id, null);
     await persist(entries, `已移除 ${displayName2(v)}`);
   }
-  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, offlineReportDone, BOARD_MAX_BYTES, BOARD_MAX_HEIGHT, FRAME_SCROLLBAR_CSS, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
+  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, offlineReportDone, OFFLINE_STALE_MS, offlineTick, BOARD_MAX_BYTES, BOARD_MAX_HEIGHT, FRAME_SCROLLBAR_CSS, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
   var init_ui13 = __esm({
     "src/dock/ui.ts"() {
       init_fake_obsidian();
@@ -69980,6 +70082,8 @@ GitHub 仓库：${ghInfo.title}
       OVERLAY_ID2 = "bz-dock-mask";
       FRAME_ID2 = "bz-dock-panel";
       offlineReportDone = false;
+      OFFLINE_STALE_MS = 9e4;
+      offlineTick = null;
       BOARD_MAX_BYTES = 512 * 1024;
       BOARD_MAX_HEIGHT = 560;
       FRAME_SCROLLBAR_CSS = "<style>html,body{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}</style>";

@@ -225,6 +225,33 @@
   font-size: var(--bz-font-caption);
   color: var(--bz-brand);
 }
+/* 离场运行的标记（ADR-0250）：顶栏那一行与运行台那一块共用。
+   刻意没有进度条 —— 拿不到实时流就不画百分比，只画工具自己写进记录的那句话。 */
+.bz-dock-rb-tag {
+  flex: none;
+  padding: 0 6px;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-full);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+}
+
+/* ---------- 运行台里的「值守进程在跑」（ADR-0250） ---------- */
+.bz-dock-offline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--bz-space-sm);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-surface-2);
+}
+.bz-dock-offline.is-off { display: none; }
+.bz-dock-offline-head { display: flex; align-items: center; gap: var(--bz-space-sm); }
+.bz-dock-offline-title { font-size: var(--bz-font-meta); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); }
+.bz-dock-offline-ago { margin-left: auto; font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-offline-step { font-size: var(--bz-font-meta); color: var(--bz-text-1); overflow-wrap: anywhere; }
+.bz-dock-offline-note { font-size: var(--bz-font-caption); line-height: 1.5; color: var(--bz-text-3); }
 
 /* ---------- 搜索行 ----------
    这一条只剩搜索：自动化 / 手动由分区标题说，待关注由顶部 KPI 说，

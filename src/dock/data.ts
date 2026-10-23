@@ -370,6 +370,11 @@ export interface DockToolView {
   /** 参数值（工具侧文件里那份） */
   values: Record<string, unknown>;
   runs: DockRunRecord[];
+  /**
+   * 记录文件自己的 `updatedAt`（工具每写一次就刷一遍，工具在跑的时候它同时是**心跳**）。
+   * 离场运行没有实时流，只有这一条能判「它是不是还活着」—— 见 ui.ts 的 `offlineRunOf`（ADR-0250）。
+   */
+  runsAt?: string;
   /** 记录文件存在但读不懂（≠「还没跑过」） */
   runsUnreadable: boolean;
   due: DockDueVerdict;
@@ -480,6 +485,7 @@ export async function loadToolView(
     values: readToolValues(entry),
     trustStale,
     runs,
+    runsAt: runsRead.file?.updatedAt,
     runsUnreadable: runsRead.existed && runsRead.file === null,
     due: judgeDue(schedule, runs),
     dueToRun: isDueToRun(schedule, runs),
