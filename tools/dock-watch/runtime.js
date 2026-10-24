@@ -164,6 +164,11 @@ function releaseLock(file) {
 /**
  * 读配置。**必须能判出 vault 根**：判不出就不该拍（不知道给哪个工具、往哪读账本），
  * 所以这里返回 null 由调用方明确报错退出 —— 不猜、不回落当前目录。
+ *
+ * 两个间隔的含义变了（见 `watch.js` 顶部）：
+ *  - `intervalMs` = **扫描**间隔：重新读一遍规则表、算出下次到期时刻。定点任务是「到点即醒」，
+ *    精度跟它无关；它只决定「别人改了规则表之后多久被看见」。下限 5 秒，防的是配成 0 变成忙等。
+ *  - `conditionMs` = **条件**间隔：事件型规则（关闭 Obsidian）看一眼的成本。下限 200 毫秒。
  */
 function readConfig(env = process.env) {
   const raw = readJson(fileOf('config.json', env));
@@ -171,10 +176,12 @@ function readConfig(env = process.env) {
   const vault = String(raw.vault || '').trim();
   if (!vault) return null;
   const intervalMs = Number.isFinite(raw.intervalMs) && raw.intervalMs >= 5000 ? raw.intervalMs : 30000;
+  const conditionMs = Number.isFinite(raw.conditionMs) && raw.conditionMs >= 200 ? raw.conditionMs : 1000;
   return {
     v: Number.isFinite(raw.v) ? raw.v : CONTRACT_VERSION,
     vault,
     intervalMs,
+    conditionMs,
     /** 覆盖「插件数据目录」的推导（自定义 Obsidian 配置目录时才用得上） */
     pluginDataPath: typeof raw.pluginDataPath === 'string' ? raw.pluginDataPath.trim() : '',
     /** 可选：等网参数（`net.js` 的 `optionsOf` 读它） */

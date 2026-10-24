@@ -8,7 +8,25 @@
 **等网**（登录瞬间网卡常没就绪）与**本机状态**（`status.json` / 日志，不进 vault）。
 
 设计背景见 `docs/adr/adr-0242-dock-watchdog-offline-scheduling.md`，契约 v2 的改动见
-`docs/adr/adr-0252-dock-contract-v2.md`。
+`docs/adr/adr-0252-dock-contract-v2.md`，**唤醒节奏**（到点即醒 + 条件层）见
+`docs/adr/adr-0255-dock-watch-due-driven.md`。
+
+## 它什么时候醒
+
+三层，各自独立，谁也不打听对方在干什么：
+
+| 层 | 什么时候动 | 干什么 | 频率 |
+|---|---|---|---|
+| 采集 `plan()` | 每次醒来后 | 读规则表 → 算出最近一个到期时刻与要盯的条件 | 起点 + 每 `intervalMs` |
+| 时间 `nextDelay()` | —— | 睡到那一刻。**不是每秒比较时间表** | 到点才醒 |
+| 条件 `check()` | 有事件型规则时 | 一次 `kill(pid, 0)`：关闭 Obsidian 了吗 | 每 `conditionMs`（默认 1 秒） |
+
+所以：**定点任务是准点的**（19:00 的任务 19:00 跑，不是 19:00:29），**关闭 Obsidian 后
+约 1 秒**开始同步。`intervalMs`（默认 30 秒）不是「拍间隔」，是「多久重读一遍规则表」——
+它只决定「面板里改了规则之后多久被看见」，跟准时无关。
+
+旧版是「每 `intervalMs` 无条件跑一拍」，所有时间都晚最多一个间隔；想让它快点只能把间隔调小，
+于是每秒醒一次、每次读二十来个文件。现在唤醒的理由只有两种：**到点了，或者条件成立了。**
 
 ## 装
 
@@ -20,7 +38,7 @@ powershell -ExecutionPolicy Bypass -File tools/dock-watch/install.ps1
 
 它会做四件事，一次做完：
 
-1. 写下 `%LOCALAPPDATA%\bz-dock-watch\config.json`（服务哪个 vault、多久一拍）；
+1. 写下 `%LOCALAPPDATA%\bz-dock-watch\config.json`（服务哪个 vault、多久扫一次表、多久看一眼条件）；
 2. 生成 `watch.vbs` —— 隐藏窗口的启动包装（node 是控制台程序，直接挂计划任务会闪黑框）；
 3. 注册**登录自启**的计划任务 `bz-dock-watch`（失败重试 3 次，不限最长运行时间）；
    **注册被拒时**（标准用户上常见：`Register-ScheduledTask` 要提升的权限）自动回退到
@@ -81,6 +99,21 @@ node tools/dock-watch/cli.js --once      # 只拍一次就退出（排障：看�
 }
 ```
 
+## 两个间隔怎么调
+
+```json
+"intervalMs": 30000,     // 多久重读一遍规则表（改规则后多久生效），下限 5000
+"conditionMs": 1000      // 事件型规则看一眼的成本，下限 200
+```
+
+- 嫌「关闭后同步」还不够快：把 `conditionMs` 调到 500。判据只有一次 `kill(pid, 0)`，
+  是系统调用，**不碰磁盘**，调小不会伤盘。
+- 嫌笔记本上唤醒太多：`conditionMs: 2000` 能把唤醒砍半，人眼分辨不出 1 秒和 2 秒的差别。
+- **别为了「更快」去动 `intervalMs`**：定点任务的准时跟它无关，调小只会让 IO 变多。
+- 改完要重启值守才生效（启动时读一次配置）。
+
+老安装的 `config.json` 里没有 `conditionMs`，用缺省值 1 秒，不需要重装。
+
 ## 它不认识的那些规则
 
 | 触发 | 离场 | 说明 |
@@ -89,7 +122,7 @@ node tools/dock-watch/cli.js --once      # 只拍一次就退出（排障：看�
 | 某个数值达到条件 | ✅ | 直读 vault 里的 json |
 | 某个工具成功/失败后 | ❌ | 暂不支持：一拍之内不再重跑判据（插件侧也一样） |
 | **启动 Obsidian 后** | ❌ | 语义是「Obsidian 启动后」；离场拿不到这个时刻 |
-| **关闭 Obsidian 后** | ✅ | 离场正是它的主场景：插件卸载只留一枚脉冲（`CONFIG/STORAGE/dock.exit.json`），值守读到才跑（ADR-0253） |
+| **关闭 Obsidian 后** | ✅ | 离场正是它的主场景。**判据是进程，不是文件**：采集时记下 Obsidian 的进程号，条件层每秒 `kill(pid, 0)` 探一次，一个不剩才算关闭（ADR-0255）。插件那枚脉冲（`dock.exit.json`）仍然认，但它不再是唯一来源 |
 | **打开工具坞时** / **某个事件发生时** | ❌ | 需要插件进程里的面板与域总线 |
 | **某个目录有变动** | ❌ | 第一版没做（没事件时规则自然不命中，不会乱跑） |
 

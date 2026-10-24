@@ -8,8 +8,10 @@
  * （由 `scripts/build-dock-watch.mjs` 从 `src/dock/watch-core.ts` 打出，与插件同一份源码）。
  * 本进程只负责三件事：**装配**（路径与 child_process 注进去）、**什么时候调一次**、**写本机状态**。
  *
+ * 什么时候调一次，见下面 `arm()` 那段：**到点即醒，不按秒比时间表**。
+ *
  * 用法：
- *   node cli.js            常驻（计划任务就用这个；每 `intervalMs` 一拍）
+ *   node cli.js            常驻（计划任务就用这个）
  *   node cli.js --once     只拍一次就退出（排障：看看它认不认得你的规则表）
  *   node cli.js --status   打印当前状态与配置（不开 Obsidian 时也看得见它在干嘛）
  *
@@ -18,7 +20,7 @@
  * 三件事都是**刻意**的：
  *  - **单实例**：计划任务在登录、唤醒、重试时都可能再拉一次，两个进程都拍就会重复跑工具；
  *  - **异常不退出**：常驻进程被一个工具带崩就永远不回来了 —— 记日志、继续下一拍才是它该做的；
- *  - **状态切换才写日志**：每 30 秒写一行会把日志刷成噪音（`BZ_DOCK_WATCH_VERBOSE=1` 可全量打到 stdout）。
+ *  - **状态切换才写日志**：每拍都写一行会把日志刷成噪音（`BZ_DOCK_WATCH_VERBOSE=1` 可全量打到 stdout）。
  */
 'use strict';
 
@@ -27,7 +29,7 @@ const path = require('path');
 const core = require('./dock-core.cjs');
 const rt = require('./runtime');
 const { makeNodeFs } = require('./node-fs');
-const { createWatcher } = require('./watch');
+const { createWatcher, nextDelay } = require('./watch');
 
 const HELP = `dock-watch —— 工具坞值守进程
 
@@ -53,7 +55,7 @@ function printStatus() {
   const config = rt.readConfig();
   const status = rt.readJson(rt.fileOf('status.json'));
   const lines = [
-    `配置      ${config ? `${config.vault}（每 ${Math.round(config.intervalMs / 1000)} 秒一拍）` : '读不到 —— 先跑 install.ps1'}`,
+    `配置      ${config ? `${config.vault}（每 ${Math.round(config.intervalMs / 1000)} 秒扫一次，${Math.round(config.conditionMs / 1000)} 秒看一眼条件）` : '读不到 —— 先跑 install.ps1'}`,
     `值守件    ${readCoreVersion() || '（未知）'}`,
     `本机目录  ${rt.watchdogDir()}`,
   ];
@@ -70,6 +72,7 @@ function printStatus() {
   lines.push(
     `状态      ${status ? `mode=${status.mode}，本次开机跑了 ${status.runsSinceBoot} 次，心跳 ${status.at}` : '还没有（进程没起来过）'}`,
   );
+  if (status && status.nextAt) lines.push(`下次醒    ${status.nextAt}`);
   if (status && status.lastRun) {
     lines.push(
       `上次运行  ${status.lastRun.name || status.lastRun.toolId} ${status.lastRun.status || (status.lastRun.ok ? '成功' : '失败')}（${status.lastRun.at}）`,
@@ -112,7 +115,7 @@ function main() {
   const once = argv.includes('--once');
   const watcher = createWatcher(config, { coreVersion: readCoreVersion() });
   rt.log(
-    `值守启动（pid ${process.pid}，vault ${config.vault}，每 ${Math.round(config.intervalMs / 1000)} 秒一拍，核心 bz ${readCoreVersion() || '未知'}）`,
+    `值守启动（pid ${process.pid}，vault ${config.vault}，扫描 ${Math.round(config.intervalMs / 1000)} 秒、条件 ${Math.round(config.conditionMs / 1000)} 秒，核心 bz ${readCoreVersion() || '未知'}）`,
   );
 
   let timer = null;
@@ -136,18 +139,84 @@ function main() {
   }
 
   /**
-   * 递归 setTimeout，不用 setInterval：一拍可能被「等网」占住几分钟，
-   * setInterval 会把它们排成一串（并发进 tick 虽然被 `ticking` 挡住，但缓存的 tick
-   * 会在等网结束后连发，把日志和网络都搅乱）。
+   * 调度：**算出最近到期的那一刻，睡到那一刻**。不按秒比较时间表 —— 那是「每秒醒一次、
+   * 走一遍列表、什么也没干」的写法，社区里公认不该这么写（最小堆 / 单定时器是标准答案）。
+   *
+   * 醒来的理由只有三种，`nextDelay()` 里一并算清：
+   *  1. **到点**：某条规则的到期时刻（账本里的 `pending.dueAt`，含抖动）；
+   *  2. **条件成立**：条件层在盯事件（关闭 Obsidian），按 `conditionMs` 看一眼；
+   *  3. **兜底重采**：`intervalMs`（默认 30 秒）—— 防的是「别人改了规则表」，不是「有没有活干」。
+   *
+   * 递归 setTimeout，不用 setInterval：一次醒来可能被「等网」占住几分钟、被一个工具占住十分钟，
+   * setInterval 会把它们排成一串（并发进 tick 虽被 `ticking` 挡住，但缓存的 tick 会在等网结束后
+   * 连发，把日志和网络都搅乱）。
    */
-  const loop = async () => {
-    await watcher.tick();
-    rt.touchLock(lock); // 顺手续锁：别让「pid 被复用」把值守永久挡在门外
+  const arm = () => {
     if (watcher.state.stopped) return;
+    const delay = nextDelay(Date.now(), {
+      at: watcher.state.at,
+      scanMs: config.intervalMs,
+      cond: watcher.state.conds.has('obsidian-exit'),
+      condMs: config.conditionMs,
+    });
     // 刻意**不** unref：常驻进程得靠这个定时器活着
-    timer = setTimeout(loop, config.intervalMs);
+    timer = setTimeout(() => void fire(), delay);
   };
-  void loop();
+
+  const fire = async () => {
+    timer = null;
+    const st = watcher.state;
+    if (st.stopped) return;
+    /**
+     * **`arm()` 必须在 finally 里。**
+     *
+     * 旧版这里是「tick → setTimeout」，而 tick 自己永不抛（内部 try/catch），所以掉不出循环。
+     * 现在这条路上多了 `check()` 和 `plan()` 两个都会读盘的东西 —— 只要它们抛一次，
+     * 定时器就再也不会被重新装上，值守从此静默地活着、一拍拍都不跑，**而且没有任何症状**
+     * （`status.at` 停住，插件那边看到的是「值守半天没心跳」）。宁可多一层壳。
+     */
+    try {
+      const now = Date.now();
+
+      // 1) 条件层：只做系统调用。命中才有事件，没有就什么都不发生
+      const events = watcher.check();
+
+      // 2) 时间层：到点了吗 / 该重采了吗
+      const due = st.at !== null && now >= st.at;
+      const rescan = now >= st.nextScanAt;
+      if (due || events.length || rescan) {
+        if (due && events.length === 0) rt.log(`到点，拍一次（${new Date(st.at).toISOString()}）`);
+        await watcher.tick(events);
+        rt.touchLock(lock); // 顺手续锁：别让「pid 被复用」把值守永久挡在门外
+
+        // 3) 采集层：跑完重算下一个到期时刻。账本刚被这一拍改过，必须重读
+        watcher.plan();
+        st.nextScanAt = Date.now() + config.intervalMs;
+
+        /**
+         * 到点了却什么都没跑（参数没填、冷却中、熔断、锁在插件手里）—— 这次到期已经看过，
+         * 就别在原地打转：退到扫描间隔再来。**这一条是防忙等的地板，删了会变成每秒一拍。**
+         */
+        if (st.at !== null && st.at <= Date.now()) {
+          if (st.lastStuckAt !== st.at) {
+            st.lastStuckAt = st.at;
+            rt.log('有规则到点了但这一拍没跑（被跳过），退到扫描间隔再看');
+          }
+          st.at = null;
+        }
+      } else {
+        // 只是条件层的一次空检查 —— 不跑工具，只把心跳盖新（30 秒封顶）
+        watcher.heartbeat();
+      }
+    } catch (e) {
+      rt.log(`这一拍出错：${e && e.stack ? e.stack : e}`);
+    } finally {
+      arm();
+    }
+  };
+
+  watcher.plan(); // 启动先采一次：第一次醒就不必盲拍
+  void fire();
   return 0;
 }
 

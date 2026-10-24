@@ -2,7 +2,7 @@
 工具坞值守进程的安装脚本（ADR-0242）。
 
 做四件事，一次做完：
-  1. 写下 `%LOCALAPPDATA%\bz-dock-watch\config.json`（告诉值守进程服务哪个 vault、多久一拍）；
+  1. 写下 `%LOCALAPPDATA%\bz-dock-watch\config.json`（告诉值守进程服务哪个 vault、多久扫一次表、多久看一眼条件）；
   2. 生成 `watch.vbs` —— **隐藏窗口**的启动包装（node 是控制台程序，直接挂计划任务会闪黑框）；
   3. 注册登录自启的计划任务（当前用户权限，不需要管理员）；
   4. 注册被拒时（标准用户上常见）**回退到「启动」文件夹** —— 同样是登录自启，不需要管理员。
@@ -22,8 +22,12 @@
 param(
   # vault 根目录（不给则从 Obsidian 的 vault 列表里猜）
   [string]$Vault = '',
-  # 拍间隔（秒）。30 秒是缺省：比插件的 1 分钟快一倍，好让「Obsidian 刚关」时尽快接管
+  # **扫描**间隔（秒）：多久重读一遍规则表、重算下次到期时刻。定点任务是到点即醒，跟它无关；
+  # 它只决定「别人改了规则表之后多久被看见」。30 秒足够，也兜得住面板上的改动。
   [int]$IntervalSeconds = 30,
+  # **条件**间隔（毫秒）：事件型规则（关闭 Obsidian）看一眼的成本。1 秒是缺省值 ——
+  # 判据只有一次 `kill(pid,0)` 系统调用，不碰磁盘；设成 2000 能把唤醒砍半，人眼没区别
+  [int]$ConditionMs = 1000,
   # 计划任务名
   [string]$TaskName = 'bz-dock-watch',
   # node 可执行文件（不给则从 PATH 里找，找不到就报错 —— **不猜**
@@ -98,6 +102,7 @@ $config = [ordered]@{
   v             = 1
   vault         = $Vault
   intervalMs    = [int]($IntervalSeconds * 1000)
+  conditionMs   = [int]$ConditionMs
   installedBy   = 'install.ps1'
   installedAt   = (Get-Date).ToString('s')
 }
