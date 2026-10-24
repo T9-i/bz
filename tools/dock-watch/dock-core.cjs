@@ -912,7 +912,7 @@ function loadToolView(entry, opts = {}) {
   const parsedValues = parseSettingsText(settingsRaw, entry.id);
   const values = parsedValues ?? {};
   const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
-  const heartbeat = fs ? parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(entry.path), fs))) : null;
+  const heartbeat = heartbeatOf(entry.path, fs);
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
   const trusted = !!trust && !!signature && trust.run === signature;
@@ -938,6 +938,10 @@ function loadToolView(entry, opts = {}) {
 }
 function loadToolViews(entries, opts = {}) {
   return entries.map((e) => loadToolView(e, opts));
+}
+function heartbeatOf(declPath, fs = currentFs()) {
+  if (!fs) return null;
+  return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(declPath), fs)));
 }
 function safeJson(text) {
   if (text === null) return null;
