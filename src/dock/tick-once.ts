@@ -67,8 +67,8 @@ export interface TickOnceOpts {
 }
 
 export interface TickOnceResult {
-  /** null = 没拍 */
-  skipped?: 'locked' | 'auto-run-off' | 'watchdog-off' | 'no-fs';
+  /** 没拍。`error` = 这一拍自己炸了（调用方**不要**因此清掉待消费的事件） */
+  skipped?: 'locked' | 'auto-run-off' | 'watchdog-off' | 'no-fs' | 'error';
   registry?: DockRegistry;
   views?: DockToolView[];
   result?: TickResult;
@@ -126,7 +126,7 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
     );
   } catch (e) {
     opts.onError?.(e);
-    return {};
+    return { skipped: 'error' };
   }
 
   if (inner === null) return { skipped: 'locked' };

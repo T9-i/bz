@@ -146,6 +146,8 @@ function detailSignature(v: DockToolView): string {
     v.runtime.run?.pausedAt ?? '',
     v.lastRun?.runId ?? '',
     v.lastRun?.status ?? '',
+    // 运行态也算「变了」：不然开始跑/跑完的那一刻，详情页不会重绘那块「正在跑」
+    liveOf(v.id) ? 'live' : freshOf(v.heartbeat) ? 'ext' : '',
     String(v.rules.length),
   ].join('|');
 }
@@ -701,12 +703,27 @@ function saveRules(v: DockToolView, rules: DockRule[]): void {
 function renderLive(v: DockToolView): void {
   if (!bodyEl) return;
   const live = liveOf(v.id);
-  if (!live) return;
+  const external = externalRunOf(v);
+  if (!live && !external) return;
+
   block('正在跑');
   const box = bodyEl.createDiv({ cls: 'bz-dock-log' });
-  box.createDiv({ cls: 'bz-dock-log-run', text: `工单 ${live.runId} · ${live.phase ?? '进行中'}${live.pct !== null ? ` ${live.pct}%` : ''}` });
-  for (const s of live.steps.slice(-40)) box.createDiv({ cls: 'bz-dock-log-line', text: s.text });
-  if (!live.steps.length) box.createDiv({ cls: 'bz-dock-hint', text: '还没有输出' });
+
+  if (live) {
+    box.createDiv({ cls: 'bz-dock-log-run', text: `工单 ${live.runId} · ${live.phase ?? '进行中'}${live.pct !== null ? ` ${live.pct}%` : ''}` });
+    for (const s of live.steps.slice(-40)) box.createDiv({ cls: 'bz-dock-log-line', text: s.text });
+    if (!live.steps.length) box.createDiv({ cls: 'bz-dock-hint', text: '还没有输出' });
+    return;
+  }
+
+  // 不是本进程拉起的（多半是后台值守）。只有心跳，没有实时输出 —— 说清楚，
+  // 别让人以为「这里空着 = 它没在跑」。
+  box.createDiv({ cls: 'bz-dock-log-run', text: `后台进程在跑 · 工单 ${external?.runId ?? '（未标注）'}` });
+  if (external?.step) box.createDiv({ cls: 'bz-dock-log-line', text: external.step });
+  box.createDiv({
+    cls: 'bz-dock-hint',
+    text: '这一轮不是 Obsidian 拉起的，看不到实时输出；跑完会出现在下面的记录里',
+  });
 }
 
 function renderHistory(v: DockToolView): void {

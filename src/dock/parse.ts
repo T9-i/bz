@@ -376,8 +376,8 @@ function parseRegistryEntry(raw: unknown): DockRegistryEntry | null {
 }
 
 export function emptyRegistry(): DockRegistry {
-  // watchdog 缺省 false：本版不提供离场调度，默认别谎称「开着」
-  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: false, notifyMissed: true };
+  // 离场调度已恢复（ADR-0252 补记）：装着值守件就该让它接手，不该要求用户再去开一次开关
+  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
 }
 
 export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: string[] } {
@@ -413,7 +413,7 @@ export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: s
       v: REGISTRY_VERSION,
       tools,
       autoRun: autoRun ?? true,
-      watchdog: watchdog ?? false,
+      watchdog: watchdog ?? true,
       notifyMissed: notifyMissed ?? true,
     },
     errors,

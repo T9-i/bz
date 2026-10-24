@@ -92,6 +92,8 @@ export function kickDockScheduler(): Promise<void> {
 export function notifyDockEvent(ev: RuleEvent): void {
   if (app === null) return;
   pendingEvents.push(ev);
+  // 上限：长时间抢不到锁（比如一个十分钟的任务卡着）也不该把内存喂大
+  if (pendingEvents.length > 200) pendingEvents = pendingEvents.slice(-200);
   void kickDockScheduler();
 }
 
@@ -146,10 +148,11 @@ async function tick(): Promise<void> {
       onOutcome: announce,
       onRemind: remindOf,
     });
-    // 没拿到锁 = 这一拍什么都没做，事件留着下一拍用（别丢）
-    if (res.skipped === 'locked') return;
+    // 没拍到（锁在别人手里 / 全局关着 / 这一拍出错）→ 事件留着下一拍用。
+    // 只有真跑过判据，事件才算被消费掉 —— 否则一次抢锁失败就把这轮通知丢了。
+    if (!res.result) return;
     pendingEvents = [];
-    if (res.result && res.views) reportMissingParams(res.result.decisions, res.views);
+    if (res.views) reportMissingParams(res.result.decisions, res.views);
   } catch {
     /* 一拍出错不该把宿主带走 */
   } finally {

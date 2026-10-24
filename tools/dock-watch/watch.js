@@ -62,9 +62,19 @@ function createWatcher(config, opts = {}) {
   return watcher;
 }
 
+/** 一拍里刷 status 的间隔。插件判「值守死了」的线是 90 秒，25 秒盖一次足够稳 */
+const STATUS_BEAT_MS = 25_000;
+
 async function tick(config, state, watcher) {
   if (state.ticking || state.stopped) return;
   state.ticking = true;
+  /**
+   * 这一拍里也要持续刷新 `status.at`。
+   *
+   * 为什么：一拍可能被「等网」占 5 分钟、被一个工具占 10 分钟，而插件超过 90 秒没见心跳
+   * 就会在设置页说「没在跑」。只在 tick 收尾刷一次，等于在最长的那段时间里自己装死。
+   */
+  const beat = setInterval(() => writeStatus(config, state, state.lastOutcome || 'watch'), STATUS_BEAT_MS);
   try {
     // 本机侧：插件设置里的 storagePath 与 dockTrust —— 唯一真理源在插件那份 data.json 里，
     // 不抄副本（抄了就有一份会过期的）
@@ -140,6 +150,7 @@ async function tick(config, state, watcher) {
     rt.log(`这一拍出错：${state.lastError}`);
     writeStatus(config, state, 'error');
   } finally {
+    clearInterval(beat);
     state.ticking = false;
   }
 }
