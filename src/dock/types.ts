@@ -287,27 +287,18 @@ export interface DockRegistryEntry {
 }
 
 /**
- * 全域开关的键。设置页写的是它，调度 / 通知 / 状态栏读的也是它。
+ * 登记表。**只有工具，没有全域开关**（ADR-0257）。
  *
- * 加一个开关要动四处：这里的登记、`DockRegistry` 的字段、`parse.ts` 的缺省与读回、
- * 设置页那一行。少了任何一处就是「有开关没行为」——`notifyMissed` 当年就是这么死的
- * （v1 面板读它，v2 重写后没人读，开关还在，点了一点反应都没有）。
+ * 曾经有五个：自动运行 / 熔断 / 成功也提醒 / 状态栏 / 离场调度。它们的共同问题是
+ * 「关掉之后要做的事，用户其实想做在别处」——不想让某个工具跑，该停用那个工具；
+ * 嫌吵，该去查为什么它老跑；不想让 Obsidian 关后还跑，该卸掉值守件。
+ * 五扇门的正确位置都不在这张表上，所以整组删掉，行为固定成最合理的那个。
+ *
+ * 单个工具自己的开关不在这里 —— 那是 `dock.intent.json` 的 `autoRun` / `enabled`（面板写）。
  */
-export type DockSwitchKey = 'autoRun' | 'watchdog' | 'notifySuccess' | 'statusbar' | 'breaker';
-
 export interface DockRegistry {
   v: number;
   tools: DockRegistryEntry[];
-  /** 自动运行总闸 */
-  autoRun: boolean;
-  /** 离场调度：Obsidian 关着时交给后台值守接着跑 */
-  watchdog: boolean;
-  /** 自动跑成功也弹通知（关掉 = 只报失败；手动点的那次照报，那是人要的反馈） */
-  notifySuccess: boolean;
-  /** 状态栏显示「几个在跑」 */
-  statusbar: boolean;
-  /** 连续失败到阈值就自动暂停（关掉 = 只冷却，不熔断） */
-  breaker: boolean;
 }
 
 /** 一条登记 + 它读出来的东西（UI 与内核共用同一份视图） */

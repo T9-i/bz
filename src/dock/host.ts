@@ -145,10 +145,10 @@ async function tick(): Promise<void> {
       vaultPath: vaultBasePath(a),
       owner: 'plugin',
       liveIds: new Set(liveAll().map((r) => r.toolId)),
-      onOutcome: (view, outcome) => announce(view, outcome, { auto: true }),
+      onOutcome: (view, outcome) => announce(view, outcome),
       onRemind: remindOf,
     });
-    // 没拍到（锁在别人手里 / 全局关着 / 这一拍出错）→ 事件留着下一拍用。
+    // 没拍到（锁在别人手里 / 这一拍出错）→ 事件留着下一拍用。
     // 只有真跑过判据，事件才算被消费掉 —— 否则一次抢锁失败就把这轮通知丢了。
     if (!res.result) return;
     pendingEvents = [];
@@ -161,13 +161,12 @@ async function tick(): Promise<void> {
 }
 
 /**
- * 报一声。**自动跑的那次可以让用户关掉成功提示**（设置页「跑成功也提醒」），
- * 手动点的那次不关 —— 人刚点了按钮，一声不吭等于没反应。
+ * 报一声。成功也报 —— 自动跑的那次是「它替你干完了」的唯一回执（ADR-0257），
+ * 手动点的那次更是刚按完就得有动静。
  */
-function announce(view: DockToolView, outcome: DockOutcome, opts: { auto: boolean } = { auto: true }): void {
+function announce(view: DockToolView, outcome: DockOutcome): void {
   const name = view.manifest?.name ?? view.id;
   if (outcome.ok) {
-    if (opts.auto && readRegistry().registry.notifySuccess === false) return;
     notify(`${name} 跑完了`, { type: 'success' });
     return;
   }
@@ -246,7 +245,7 @@ export async function runToolManually(
   }
 
   if (outcome) {
-    announce(view, outcome, { auto: false });
+    announce(view, outcome);
     return outcome;
   }
   notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: 'warning' });

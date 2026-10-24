@@ -39,7 +39,6 @@ const COUNT_BASELINE: Record<string, number> = {
   'password-vault': 5,
   smartcat: 15,
   knowledge: 25, // 2026-09-26 issue 462：「外部工具」组回归知识盒页（Python/ffmpeg/ffprobe 三行，域无关键位）
-  dock: 5, // 2026-10-24 ADR-0256：设置页只留能按的开关 —— 删掉「值守状态 / 已登记工具 / 当前调度锁」三行纯诊断（-3）、删掉 v2 重写后无人消费的「漏跑提醒」假开关（-1）、新增「连续失败就暂停」「跑成功也提醒」「状态栏显示在跑几个」三行（+3），按组重排（运行 2 + 提醒与显示 2 + 关闭 Obsidian 之后 1）。原基线 6 的沿革见 ADR-0235/0236/0239/0242/0252
 };
 
 describe('settings-panel 运行期契约锁', () => {

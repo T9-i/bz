@@ -48,11 +48,6 @@ export interface TickOnceOpts {
   vaultPath?: string;
   /** 锁的持有者标识：`plugin` / `watchdog`。只用于诊断，不参与判据 */
   owner: string;
-  /**
-   * 是否尊重「离场调度」开关。
-   * 插件在场就该跑，不看它；值守必须看 —— 用户关掉的意思就是「别在后台悄悄跑」。
-   */
-  respectWatchdog?: boolean;
   /** 正在跑的工具（进程内的活） */
   liveIds?: ReadonlySet<string>;
   fs?: DockFs | null;
@@ -77,7 +72,7 @@ export interface TickOnceOpts {
 
 export interface TickOnceResult {
   /** 没拍。`error` = 这一拍自己炸了（调用方**不要**因此清掉待消费的事件） */
-  skipped?: 'locked' | 'auto-run-off' | 'watchdog-off' | 'no-fs' | 'error';
+  skipped?: 'locked' | 'no-fs' | 'error';
   registry?: DockRegistry;
   views?: DockToolView[];
   result?: TickResult;
@@ -100,15 +95,12 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
       async (lock): Promise<Inner> => {
         // 锁内重读：外面读到的可能是旧账
         const { registry } = readRegistryAt(opts.registryPath, fs);
-        if (!registry.autoRun) return { skip: 'auto-run-off', registry, views: [] };
-        if (opts.respectWatchdog && !registry.watchdog) return { skip: 'watchdog-off', registry, views: [] };
-
         const views = loadToolViews(registry.tools, { trust: opts.trust, fs });
 
         // 先收尸，再排班 —— 顺序反了会把一条已废的待办当成还有效
         for (const view of views) {
           try {
-            reclaimStale(view, now, fs, { breaker: registry.breaker });
+            reclaimStale(view, now, fs);
           } catch (e) {
             opts.onError?.(e);
           }
@@ -131,7 +123,6 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
           events,
           liveIds: opts.liveIds ?? new Set<string>(),
           fs,
-          breaker: registry.breaker,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
           shouldStop: () => lock.lost(),

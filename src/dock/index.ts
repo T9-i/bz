@@ -8,11 +8,10 @@
  * 命令注册在 `main.ts`：`bz-dock-open` 在命令表里，每个已登记的工具另有一条直达运行命令。
  */
 
-import { normalizeRegistryPaths, readRegistry, readTrust, registryPath, setSwitch } from './registry';
+import { normalizeRegistryPaths, readRegistry, readTrust, registryPath } from './registry';
 import { dirOf } from './files';
 import { writeExitPulse } from './exit-pulse';
 import { loadToolView } from './view';
-import type { DockSwitchKey } from './types';
 
 export { openDock, closeDock, unloadDock, ensureDock, openToolPanel } from './ui';
 export { runToolDirect, dockToolLabel, judgeRunGate } from './command';
@@ -35,15 +34,6 @@ export function readToolEntries(): { id: string; path: string; enabled: boolean 
     path: e.path,
     enabled: loadToolView(e, { trust }).intent.enabled !== false,
   }));
-}
-
-/** 全域开关（设置页 / 调度器读） */
-export function readDockSwitch(key: DockSwitchKey): boolean {
-  return readRegistry().registry[key];
-}
-
-export function saveDockSwitch(key: DockSwitchKey, value: boolean): void {
-  setSwitch(key, value);
 }
 
 /** 登记表路径与文件名（诊断 / 数据体检用） */

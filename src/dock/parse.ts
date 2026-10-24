@@ -378,17 +378,9 @@ function parseRegistryEntry(raw: unknown): DockRegistryEntry | null {
 }
 
 export function emptyRegistry(): DockRegistry {
-  // 离场调度已恢复（ADR-0252 补记）：装着值守件就该让它接手，不该要求用户再去开一次开关
-  // 五个开关全缺省开（ADR-0256）：提示类开关缺省关掉等于「默认不吭声」，出了问题更难发现
-  return {
-    v: REGISTRY_VERSION,
-    tools: [],
-    autoRun: true,
-    watchdog: true,
-    notifySuccess: true,
-    statusbar: true,
-    breaker: true,
-  };
+  // 没有全域开关（ADR-0257）：这一版只放工具清单，行为固定 —— 自动跑、失败熔断、
+  // 成功也报、状态栏常驻、Obsidian 关后交给值守。
+  return { v: REGISTRY_VERSION, tools: [] };
 }
 
 export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: string[] } {
@@ -416,25 +408,10 @@ export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: s
       tools.push(e);
     }
   }
-  const autoRun = bool(raw.autoRun);
-  const watchdog = bool(raw.watchdog);
-  const notifySuccess = bool(raw.notifySuccess);
-  const statusbar = bool(raw.statusbar);
-  const breaker = bool(raw.breaker);
-  // 旧登记表里的 `notifyMissed` 直接丢掉：v2 重写后没有任何地方读它（漏跑的活儿改由
-  // 「下次打开就补跑」承担），留着一个点不动的开关比没有更糟。见 ADR-0256。
-  return {
-    registry: {
-      v: REGISTRY_VERSION,
-      tools,
-      autoRun: autoRun ?? true,
-      watchdog: watchdog ?? true,
-      notifySuccess: notifySuccess ?? true,
-      statusbar: statusbar ?? true,
-      breaker: breaker ?? true,
-    },
-    errors,
-  };
+  // 旧登记表里的 `autoRun` / `watchdog` / `notifySuccess` / `statusbar` / `breaker` /
+  // `notifyMissed` 一律丢掉，不回读也不报错：这些键已经没有消费者（ADR-0257）。
+  // 别为它们写「读到旧值就回落」的分支 —— 那正是上一版说不清问题的来源。
+  return { registry: { v: REGISTRY_VERSION, tools }, errors };
 }
 
 // ==================== 运行记录 ====================

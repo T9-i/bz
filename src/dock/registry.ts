@@ -3,7 +3,7 @@
  *
  * | 东西 | 住哪 | 为什么 |
  * |---|---|---|
- * | 有哪些工具（id + 声明路径）+ 三个开关 | 数据目录的 `dock.json` | 跟着 `storagePath` 走，备份/迁移不漏 |
+ * | 有哪些工具（id + 声明路径） | 数据目录的 `dock.json` | 跟着 `storagePath` 走，备份/迁移不漏 |
  * | 授权了哪条命令 | 插件设置 `dockTrust` | **刻意不住 vault** |
  *
  * 信任为什么不能进 `dock.json`：那份会随 vault 同步、进 git、被整个分享。授权要是也在里面，
@@ -13,12 +13,11 @@
  * `dock.json` 的读写本身在 `registry-file.ts`（零宿主依赖，值守进程共用同一份）。
  */
 
-import { REGISTRY_FILENAME, type DockEntry, type DockRegistryEntry, type DockSwitchKey } from './types';
+import { REGISTRY_FILENAME, type DockEntry, type DockRegistryEntry } from './types';
 import { runSignature } from './parse';
 import {
   readRegistryAt,
   removeToolAt,
-  setSwitchAt,
   upsertToolAt,
   writeRegistryAt,
 } from './registry-file';
@@ -95,14 +94,6 @@ export function upsertTool(entry: DockRegistryEntry, fs?: DockFs | null): Return
 
 export function removeTool(id: string, fs?: DockFs | null): ReturnType<typeof removeToolAt> {
   return removeToolAt(registryPath(), id, fs === undefined ? currentFs() : fs);
-}
-
-export function setSwitch(
-  key: DockSwitchKey,
-  value: boolean,
-  fs?: DockFs | null,
-): ReturnType<typeof setSwitchAt> {
-  return setSwitchAt(registryPath(), key, value, fs === undefined ? currentFs() : fs);
 }
 
 /**

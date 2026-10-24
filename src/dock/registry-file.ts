@@ -10,7 +10,7 @@
  */
 
 import { emptyRegistry, parseRegistry } from './parse';
-import type { DockRegistry, DockRegistryEntry, DockSwitchKey } from './types';
+import type { DockRegistry, DockRegistryEntry } from './types';
 import { readTextOf, writeAtomic, type DockFs } from './files';
 
 export interface RegistryRead {
@@ -53,18 +53,6 @@ export function upsertToolAt(path: string, entry: DockRegistryEntry, fs: DockFs 
 export function removeToolAt(path: string, id: string, fs: DockFs | null): DockRegistry {
   const { registry } = readRegistryAt(path, fs);
   const next: DockRegistry = { ...registry, tools: registry.tools.filter((t) => t.id !== id) };
-  writeRegistryAt(path, next, fs);
-  return next;
-}
-
-export function setSwitchAt(
-  path: string,
-  key: DockSwitchKey,
-  value: boolean,
-  fs: DockFs | null,
-): DockRegistry {
-  const { registry } = readRegistryAt(path, fs);
-  const next: DockRegistry = { ...registry, [key]: value };
   writeRegistryAt(path, next, fs);
   return next;
 }

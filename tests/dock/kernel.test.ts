@@ -52,7 +52,6 @@ function plan(over: Partial<Parameters<typeof planTick>[0]> = {}) {
   return planTick({
     views: [viewOf({ rules: [daily] })],
     now: at(10),
-    globalAutoRun: true,
     liveIds: new Set<string>(),
     ...over,
   });
@@ -75,11 +74,6 @@ describe('判据排程', () => {
       runtime: { ...emptyRuntime('demo'), rules: { r1: { lastFiredAt: new Date(at(9, 30)).toISOString() } } },
     });
     expect(plan({ views: [v] }).decisions).toHaveLength(0);
-  });
-
-  it('总闸关着 → 明确说「全局关着」，不是静默不动', () => {
-    const out = plan({ globalAutoRun: false });
-    expect(out.decisions[0]).toMatchObject({ kind: 'skip', reason: 'global-off' });
   });
 
   it('没授权 → untrusted', () => {
@@ -219,30 +213,6 @@ describe('跑一拍', () => {
     await runTick(fail);
     const saved = JSON.parse(fs.files.get(pathOf.runtime(fail.views[0].path)) ?? '{}');
     expect(saved.run.consecutiveFailures).toBe(1);
-    expect(saved.run.pausedAt).toBeUndefined();
-  });
-
-  it('关掉熔断：连挂三次也不自己停，失败次数照记', () => {
-    const fs = fakeFs();
-    const v = viewOf({ rules: [daily] });
-    const fail = (runId: string): DockOutcome => ({
-      ok: false,
-      status: 'failed',
-      runId,
-      code: 1,
-      stderr: '',
-      error: null,
-      kind: 'unknown',
-      startedAt: new Date(at(10)).toISOString(),
-      finishedAt: new Date(at(10)).toISOString(),
-      durationMs: 0,
-    });
-    for (let i = 0; i < 3; i += 1) {
-      settle(v, 'r1', `run-${i}`, fail(`run-${i}`), fs, { breaker: false });
-    }
-    const saved = JSON.parse(fs.files.get(pathOf.runtime(v.path)) ?? '{}');
-    // 停手与否是开关的事，记账照旧 —— 面板上那个「连挂几次」不能被开关抹掉
-    expect(saved.run.consecutiveFailures).toBe(3);
     expect(saved.run.pausedAt).toBeUndefined();
   });
 

@@ -84,7 +84,7 @@ export {
 } from './files';
 
 // ==================== 登记表（纯读写） ====================
-export { readRegistryAt, removeToolAt, setSwitchAt, upsertToolAt, writeRegistryAt } from './registry-file';
+export { readRegistryAt, removeToolAt, upsertToolAt, writeRegistryAt } from './registry-file';
 
 // ==================== 数据目录口径（与插件同源） ====================
 export { DEFAULT_STORAGE_DIR, normalizeStorageDir, storageFileIn } from '../core/storage-path';

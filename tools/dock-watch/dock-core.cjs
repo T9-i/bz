@@ -96,7 +96,6 @@ __export(watch_core_exports, {
   setDockFs: () => setDockFs,
   setDockVaultRoot: () => setDockVaultRoot,
   setExecDeps: () => setExecDeps,
-  setSwitchAt: () => setSwitchAt,
   settle: () => settle,
   statusText: () => statusText,
   storageFileIn: () => storageFileIn,
@@ -441,15 +440,7 @@ function parseRegistryEntry(raw) {
   return { id: raw.id, path };
 }
 function emptyRegistry() {
-  return {
-    v: REGISTRY_VERSION,
-    tools: [],
-    autoRun: true,
-    watchdog: true,
-    notifySuccess: true,
-    statusbar: true,
-    breaker: true
-  };
+  return { v: REGISTRY_VERSION, tools: [] };
 }
 function parseRegistry(raw) {
   const errors = [];
@@ -476,23 +467,7 @@ function parseRegistry(raw) {
       tools.push(e);
     }
   }
-  const autoRun = bool(raw.autoRun);
-  const watchdog = bool(raw.watchdog);
-  const notifySuccess = bool(raw.notifySuccess);
-  const statusbar = bool(raw.statusbar);
-  const breaker = bool(raw.breaker);
-  return {
-    registry: {
-      v: REGISTRY_VERSION,
-      tools,
-      autoRun: autoRun ?? true,
-      watchdog: watchdog ?? true,
-      notifySuccess: notifySuccess ?? true,
-      statusbar: statusbar ?? true,
-      breaker: breaker ?? true
-    },
-    errors
-  };
+  return { registry: { v: REGISTRY_VERSION, tools }, errors };
 }
 function parseStep(raw) {
   if (!isObj(raw)) return null;
@@ -1044,10 +1019,6 @@ function planTick(input) {
         push("skip", "disabled");
         continue;
       }
-      if (!input.globalAutoRun) {
-        push("skip", "global-off");
-        continue;
-      }
       if (view.intent.enabled === false) {
         push("skip", "disabled");
         continue;
@@ -1106,7 +1077,6 @@ async function runTick(deps2) {
     now: deps2.now,
     sessionStart: deps2.sessionStart,
     events: deps2.events,
-    globalAutoRun: deps2.registry.autoRun,
     liveIds: deps2.liveIds
   });
   const ran = [];
@@ -1164,7 +1134,7 @@ async function runTick(deps2) {
         recordMissing: "bz 自己出错，没跑起来"
       };
     }
-    settle(view, job.ruleId, job.runId, outcome, deps2.fs, { breaker: deps2.breaker });
+    settle(view, job.ruleId, job.runId, outcome, deps2.fs);
     ran.push({ toolId: view.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
   }
   return { decisions: plan.decisions, ran, executed };
@@ -1176,7 +1146,7 @@ function patchRule(view, ruleId, patch, fs) {
   view.runtime = { ...runtime, rules };
   writeRuntime(view.path, view.runtime, fs ?? null);
 }
-function settle(view, ruleId, runId, outcome, fs, opts = {}) {
+function settle(view, ruleId, runId, outcome, fs) {
   const now = outcome.finishedAt || (/* @__PURE__ */ new Date()).toISOString();
   const runtime = { ...view.runtime, rules: { ...view.runtime.rules ?? {} } };
   const rules = runtime.rules;
@@ -1190,7 +1160,7 @@ function settle(view, ruleId, runId, outcome, fs, opts = {}) {
   } else if (outcome.status !== "stopped") {
     const fails = (facts.consecutiveFailures ?? 0) + 1;
     facts.consecutiveFailures = fails;
-    if (fails >= BREAKER_THRESHOLD && opts.breaker !== false) facts.pausedAt = now;
+    if (fails >= BREAKER_THRESHOLD) facts.pausedAt = now;
   }
   runtime.run = facts;
   view.runtime = runtime;
@@ -1226,7 +1196,7 @@ function markStarted(view, ruleId, runId, now, fs) {
     fs
   );
 }
-function reclaimStale(view, now, fs, opts = {}) {
+function reclaimStale(view, now, fs) {
   const rules = { ...view.runtime.rules ?? {} };
   let verdict = null;
   for (const [id, st] of Object.entries(rules)) {
@@ -1242,7 +1212,7 @@ function reclaimStale(view, now, fs, opts = {}) {
       facts.lastAttemptAt = new Date(now).toISOString();
       facts.lastAttemptOk = false;
       facts.consecutiveFailures = (facts.consecutiveFailures ?? 0) + 1;
-      if (facts.consecutiveFailures >= BREAKER_THRESHOLD && opts.breaker !== false) {
+      if (facts.consecutiveFailures >= BREAKER_THRESHOLD) {
         facts.pausedAt = new Date(now).toISOString();
       }
       rules[id] = { ...st, lastFiredAt: new Date(now).toISOString(), lastStatus: "abandoned" };
@@ -1445,12 +1415,6 @@ function upsertToolAt(path, entry, fs) {
 function removeToolAt(path, id, fs) {
   const { registry } = readRegistryAt(path, fs);
   const next = { ...registry, tools: registry.tools.filter((t) => t.id !== id) };
-  writeRegistryAt(path, next, fs);
-  return next;
-}
-function setSwitchAt(path, key, value, fs) {
-  const { registry } = readRegistryAt(path, fs);
-  const next = { ...registry, [key]: value };
   writeRegistryAt(path, next, fs);
   return next;
 }
@@ -2030,12 +1994,10 @@ async function tickOnce(opts) {
       opts.owner,
       async (lock) => {
         const { registry } = readRegistryAt(opts.registryPath, fs);
-        if (!registry.autoRun) return { skip: "auto-run-off", registry, views: [] };
-        if (opts.respectWatchdog && !registry.watchdog) return { skip: "watchdog-off", registry, views: [] };
         const views = loadToolViews(registry.tools, { trust: opts.trust, fs });
         for (const view of views) {
           try {
-            reclaimStale(view, now, fs, { breaker: registry.breaker });
+            reclaimStale(view, now, fs);
           } catch (e) {
             opts.onError?.(e);
           }
@@ -2052,7 +2014,6 @@ async function tickOnce(opts) {
           events,
           liveIds: opts.liveIds ?? /* @__PURE__ */ new Set(),
           fs,
-          breaker: registry.breaker,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
           shouldStop: () => lock.lost()
@@ -2199,7 +2160,6 @@ function storageFileIn(dir, name) {
   setDockFs,
   setDockVaultRoot,
   setExecDeps,
-  setSwitchAt,
   settle,
   statusText,
   storageFileIn,
