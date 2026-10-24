@@ -26669,6 +26669,3 @@ canvas { display: block; }
   .bz-dock-toolstats .bz-dock-kpi-tile:last-child { border-right: 0; }
   .bz-dock-toolstats .bz-dock-kpi-tile { border-bottom: 0; }
 }
-
-/* 状态栏块：设置页关掉「状态栏显示在跑几个」时整块收起（留空元素仍会占一道缝） */
-.bz-dock-statusbar.is-off { display: none; }

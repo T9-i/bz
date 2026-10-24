@@ -1,4 +1,4 @@
-/* 源指纹 34408030383736ad · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 c743eedc7335e0a6 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -976,15 +976,7 @@ var BZW_dock = (() => {
     return { id: raw.id, path };
   }
   function emptyRegistry() {
-    return {
-      v: REGISTRY_VERSION,
-      tools: [],
-      autoRun: true,
-      watchdog: true,
-      notifySuccess: true,
-      statusbar: true,
-      breaker: true
-    };
+    return { v: REGISTRY_VERSION, tools: [] };
   }
   function parseRegistry(raw) {
     const errors = [];
@@ -1011,23 +1003,7 @@ var BZW_dock = (() => {
         tools.push(e);
       }
     }
-    const autoRun = bool(raw.autoRun);
-    const watchdog = bool(raw.watchdog);
-    const notifySuccess = bool(raw.notifySuccess);
-    const statusbar = bool(raw.statusbar);
-    const breaker = bool(raw.breaker);
-    return {
-      registry: {
-        v: REGISTRY_VERSION,
-        tools,
-        autoRun: autoRun != null ? autoRun : true,
-        watchdog: watchdog != null ? watchdog : true,
-        notifySuccess: notifySuccess != null ? notifySuccess : true,
-        statusbar: statusbar != null ? statusbar : true,
-        breaker: breaker != null ? breaker : true
-      },
-      errors
-    };
+    return { registry: { v: REGISTRY_VERSION, tools }, errors };
   }
   function parseStep(raw) {
     var _a;
@@ -2233,10 +2209,6 @@ var BZW_dock = (() => {
           push("skip", "disabled");
           continue;
         }
-        if (!input.globalAutoRun) {
-          push("skip", "global-off");
-          continue;
-        }
         if (view2.intent.enabled === false) {
           push("skip", "disabled");
           continue;
@@ -2295,7 +2267,6 @@ var BZW_dock = (() => {
       now: deps2.now,
       sessionStart: deps2.sessionStart,
       events: deps2.events,
-      globalAutoRun: deps2.registry.autoRun,
       liveIds: deps2.liveIds
     });
     const ran = [];
@@ -2353,7 +2324,7 @@ var BZW_dock = (() => {
           recordMissing: "bz 自己出错，没跑起来"
         };
       }
-      settle(view2, job.ruleId, job.runId, outcome, deps2.fs, { breaker: deps2.breaker });
+      settle(view2, job.ruleId, job.runId, outcome, deps2.fs);
       ran.push({ toolId: view2.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
     }
     return { decisions: plan.decisions, ran, executed };
@@ -2366,7 +2337,7 @@ var BZW_dock = (() => {
     view2.runtime = { ...runtime, rules };
     writeRuntime(view2.path, view2.runtime, fs != null ? fs : null);
   }
-  function settle(view2, ruleId, runId, outcome, fs, opts = {}) {
+  function settle(view2, ruleId, runId, outcome, fs) {
     var _a, _b, _c;
     const now = outcome.finishedAt || (/* @__PURE__ */ new Date()).toISOString();
     const runtime = { ...view2.runtime, rules: { ...(_a = view2.runtime.rules) != null ? _a : {} } };
@@ -2381,7 +2352,7 @@ var BZW_dock = (() => {
     } else if (outcome.status !== "stopped") {
       const fails = ((_c = facts.consecutiveFailures) != null ? _c : 0) + 1;
       facts.consecutiveFailures = fails;
-      if (fails >= BREAKER_THRESHOLD && opts.breaker !== false) facts.pausedAt = now;
+      if (fails >= BREAKER_THRESHOLD) facts.pausedAt = now;
     }
     runtime.run = facts;
     view2.runtime = runtime;
@@ -2417,7 +2388,7 @@ var BZW_dock = (() => {
       fs
     );
   }
-  function reclaimStale(view2, now, fs, opts = {}) {
+  function reclaimStale(view2, now, fs) {
     var _a, _b, _c, _d;
     const rules = { ...(_a = view2.runtime.rules) != null ? _a : {} };
     let verdict = null;
@@ -2434,7 +2405,7 @@ var BZW_dock = (() => {
         facts.lastAttemptAt = new Date(now).toISOString();
         facts.lastAttemptOk = false;
         facts.consecutiveFailures = ((_d = facts.consecutiveFailures) != null ? _d : 0) + 1;
-        if (facts.consecutiveFailures >= BREAKER_THRESHOLD && opts.breaker !== false) {
+        if (facts.consecutiveFailures >= BREAKER_THRESHOLD) {
           facts.pausedAt = new Date(now).toISOString();
         }
         rules[id] = { ...st, lastFiredAt: new Date(now).toISOString(), lastStatus: "abandoned" };
@@ -2701,12 +2672,10 @@ var BZW_dock = (() => {
         async (lock) => {
           var _a2, _b2, _c2, _d, _e;
           const { registry } = readRegistryAt(opts.registryPath, fs);
-          if (!registry.autoRun) return { skip: "auto-run-off", registry, views: [] };
-          if (opts.respectWatchdog && !registry.watchdog) return { skip: "watchdog-off", registry, views: [] };
           const views2 = loadToolViews(registry.tools, { trust: opts.trust, fs });
           for (const view2 of views2) {
             try {
-              reclaimStale(view2, now, fs, { breaker: registry.breaker });
+              reclaimStale(view2, now, fs);
             } catch (e) {
               (_a2 = opts.onError) == null ? void 0 : _a2.call(opts, e);
             }
@@ -2723,7 +2692,6 @@ var BZW_dock = (() => {
             events,
             liveIds: (_d = opts.liveIds) != null ? _d : /* @__PURE__ */ new Set(),
             fs,
-            breaker: registry.breaker,
             execute: (view2, rule, runId) => executeOne(view2, rule, runId, opts, fs),
             remind: (view2, rule) => {
               var _a3;
@@ -2838,7 +2806,7 @@ var BZW_dock = (() => {
         vaultPath: vaultBasePath(a),
         owner: "plugin",
         liveIds: new Set(liveAll().map((r) => r.toolId)),
-        onOutcome: (view2, outcome) => announce(view2, outcome, { auto: true }),
+        onOutcome: (view2, outcome) => announce(view2, outcome),
         onRemind: remindOf
       });
       if (!res.result) return;
@@ -2849,11 +2817,10 @@ var BZW_dock = (() => {
       ticking = false;
     }
   }
-  function announce(view2, outcome, opts = { auto: true }) {
+  function announce(view2, outcome) {
     var _a, _b, _c;
     const name = (_b = (_a = view2.manifest) == null ? void 0 : _a.name) != null ? _b : view2.id;
     if (outcome.ok) {
-      if (opts.auto && readRegistry().registry.notifySuccess === false) return;
       notify(`${name} 跑完了`, { type: "success" });
       return;
     }
@@ -2910,7 +2877,7 @@ var BZW_dock = (() => {
       if (i < 3) await new Promise((r) => setTimeout(r, 350));
     }
     if (outcome) {
-      announce(view2, outcome, { auto: false });
+      announce(view2, outcome);
       return outcome;
     }
     notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: "warning" });
