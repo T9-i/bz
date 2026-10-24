@@ -142,7 +142,12 @@ export function liveLogOf(toolId: string, limit = 40, fs = currentFs()): LiveSte
   return parseLiveLog(text, limit);
 }
 
-/** 模式 → 人话（与 `tools/dock-watch/watch.js` 的 `describe()` 同一套词） */
+/**
+ * 模式 → 人话（与 `tools/dock-watch/watch.js` 的 `describe()` 同一套词）。
+ *
+ * `off` / `auto-off` 两条是**旧状态文件的兼容**：那两个全域开关已在 ADR-0257 删掉，
+ * 值守不再产出这两种 mode，但 `status.json` 里可能还留着上一版写的值。
+ */
 export function watchdogModeText(mode?: string): string {
   switch (mode) {
     case 'watch':

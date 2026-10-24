@@ -25,7 +25,6 @@ const { createWatcher } = require('../watch.js');
  * 搭一个临时 vault。
  *
  * @param {object} o
- * @param {boolean} [o.watchdog] 离场开关
  * @param {object} [o.rule] 规则（默认每天 00:00 跑一次）
  * @param {string} [o.script] 工具主脚本内容（默认写一条 ok 记录后退出）
  */
@@ -72,12 +71,10 @@ console.log('[bz-step] 干完了');
 `,
   );
 
+  // 登记表只有工具清单（ADR-0257：全域开关已删）
   const registry = {
     v: 3,
     tools: [{ id: 'demo', path: path.join(toolDir, 'manifest.json') }],
-    autoRun: true,
-    watchdog: o.watchdog !== false,
-    notifyMissed: true,
   };
   fs.writeFileSync(path.join(storageDir, 'dock.json'), JSON.stringify(registry, null, 2));
 
@@ -182,18 +179,6 @@ test('不重：同一拍再跑一次，同一天不会再起第二个进程', as
     await w.tick();
     await w.tick();
     assert.equal(v.readRuns().length, 1, '规则是每天一次，跑过就不该再跑');
-  } finally {
-    v.cleanup();
-  }
-});
-
-test('不跑：离场开关关着时一拍都不拍（但账本不动）', async () => {
-  const v = makeVault({ watchdog: false });
-  try {
-    const w = createWatcher(v.config, { netProbe: netOk });
-    await w.tick();
-    assert.equal(v.readRuns().length, 0);
-    assert.equal(v.readRuntime(), null, '没拍就不该写账本');
   } finally {
     v.cleanup();
   }

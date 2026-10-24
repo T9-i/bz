@@ -135,8 +135,7 @@ function plan(config, state) {
   const registryPath = core.storageFileIn(storageDir, core.REGISTRY_FILENAME);
   const fs = core.currentFs();
   const { registry } = core.readRegistryAt(registryPath, fs);
-  if (!registry.autoRun) return reset('auto-off');
-  if (!registry.watchdog) return reset('off');
+  // 没有全域开关（ADR-0257）：登记表里只剩 tools。装着值守件就该拍 —— 不想后台跑就卸掉它。
 
   const views = core.loadToolViews(registry.tools, { trust: plugin.trust, fs });
   let at = null;
