@@ -17,7 +17,7 @@ import type { DockAction, DockRule, DockTrigger, DockTriggerKind } from './types
 // ==================== 上下文 ====================
 
 export interface RuleEvent {
-  kind: 'panel-open' | 'tool-ok' | 'tool-fail' | 'domain-event' | 'file-change';
+  kind: 'panel-open' | 'obsidian-exit' | 'tool-ok' | 'tool-fail' | 'domain-event' | 'file-change';
   toolId?: string;
   channel?: string;
   path?: string;
@@ -74,6 +74,8 @@ export function ruleDue(rule: DockRule, ctx: RuleCtx): boolean {
     }
     case 'panel-open':
       return ctx.event?.kind === 'panel-open';
+    case 'obsidian-exit':
+      return ctx.event?.kind === 'obsidian-exit';
     case 'tool-ok':
       return ctx.event?.kind === 'tool-ok' && ctx.event.toolId === t.toolId;
     case 'tool-fail':
@@ -154,6 +156,8 @@ export function triggerText(t: DockTrigger, nameOf?: (id: string) => string): st
       return `启动后 ${durationText(t.delayMin)}`;
     case 'panel-open':
       return '打开工具坞时';
+    case 'obsidian-exit':
+      return '关闭 Obsidian 后';
     case 'tool-ok':
       return `${name(t.toolId)} 成功后`;
     case 'tool-fail':

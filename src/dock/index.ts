@@ -8,7 +8,9 @@
  * 命令注册在 `main.ts`：`bz-dock-open` 在命令表里，每个已登记的工具另有一条直达运行命令。
  */
 
-import { normalizeRegistryPaths, readRegistry, readTrust, setSwitch } from './registry';
+import { normalizeRegistryPaths, readRegistry, readTrust, registryPath, setSwitch } from './registry';
+import { dirOf } from './files';
+import { writeExitPulse } from './exit-pulse';
 import { loadToolView } from './view';
 
 export { openDock, closeDock, unloadDock, ensureDock, openToolPanel } from './ui';
@@ -46,6 +48,22 @@ export function saveDockSwitch(key: 'autoRun' | 'watchdog' | 'notifyMissed', val
 /** 登记表路径与文件名（诊断 / 数据体检用） */
 export { registryPath as dockStorePath, DOCK_TRUST_KEY, dockVaultRoot } from './registry';
 export const DOCK_STORE_FILENAME = 'dock.json';
+
+/**
+ * 插件卸载时留一枚「关闭脉冲」（`dock.exit.json`）。
+ *
+ * **只记一笔，不起进程** —— 宿主正在退出，这时候拉起来的子进程活不过几秒。
+ * 下一拍（Obsidian 关着就是值守，值守也不在就等下次打开）读到它，`obsidian-exit`
+ * 规则的判据才会响。重载/禁用插件时进程号没变，脉冲会被 `exitPulseFires` 判掉。
+ */
+export function markDockExit(): void {
+  try {
+    const dir = dirOf(registryPath());
+    if (dir) writeExitPulse(dir);
+  } catch {
+    /* 卸载路径上不能抛 */
+  }
+}
 
 /**
  * 启动时初始化。

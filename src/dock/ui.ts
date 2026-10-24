@@ -1709,6 +1709,8 @@ function blankTrigger(kind: DockTriggerKind): DockTrigger {
       return { kind: 'file-change', target: '' };
     case 'value-threshold':
       return { kind: 'value-threshold', path: '', key: '', op: '>', value: 0 };
+    case 'obsidian-exit':
+      return { kind: 'obsidian-exit' };
     default:
       return { kind: 'panel-open' };
   }

@@ -105,6 +105,7 @@ import {
   unmountDockStatusBar,
   installVaultFs,
   primeVaultFs,
+  markDockExit,
 } from './dock';
 
 /** 命令表：id/name 统一命名（spec「命令 id 全清单」第 9 轮：bz-<域>-<动作>）。
@@ -474,6 +475,9 @@ export default class BzPlugin extends Plugin {
   async onunload() {
     // C13：先置卸载旗标，短路尚未触发的 onLayoutReady 回调 / 延迟初始化定时器
     this.unloaded = true;
+    // 工具坞「关闭 Obsidian 时」这条触发的前半截：只留一枚脉冲（同步写），
+    // 真正跑由下一拍（Obsidian 关着时是值守进程）兑现 —— 这里起进程活不过宿主退出。
+    markDockExit();
     // 移动端视口监听解绑 + --bz-vvh 清理（issue 266；连带卸掉 document 级监听）
     unbindMobileViewport();
     // 统一右键菜单/长按抽屉浮层先收口（fix(main)：卸载接线补全）

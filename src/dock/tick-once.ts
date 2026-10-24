@@ -21,6 +21,7 @@ import { readRegistryAt } from './registry-file';
 import { pathOf, readRunsText, currentFs, type DockFs } from './files';
 import { parseRunLines } from './parse';
 import { runToolNow } from './exec';
+import { clearExitPulse, exitPulseFires, readExitPulse } from './exit-pulse';
 import {
   RUNS_TAIL_BYTES,
   type DockOutcome,
@@ -113,19 +114,31 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
           }
         }
 
+        // 「Obsidian 关闭」是一枚一次性事件，不是钟点：插件卸载时留的脉冲在这里兑现
+        // （插件关着时是值守在拍，所以它天然是这条触发的执行者）
+        const pulse = readExitPulse(opts.dataDir, fs);
+        const exitFires = exitPulseFires(pulse);
+        const events: RuleEvent[] = exitFires
+          ? [...(opts.events ?? []), { kind: 'obsidian-exit' }]
+          : [...(opts.events ?? [])];
+
         const result = await runTick({
           dataDir: opts.dataDir,
           registry,
           views,
           now,
           sessionStart: opts.sessionStart,
-          events: opts.events ?? [],
+          events,
           liveIds: opts.liveIds ?? new Set<string>(),
           fs,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
           shouldStop: () => lock.lost(),
         });
+
+        // 消费即删：这一拍已经把这次关闭交给判据了。留着的话下次打开会再补跑一遍。
+        // 放在 `runTick` 之后 —— 它抛错时脉冲还在，下一拍再来。
+        if (exitFires) clearExitPulse(opts.dataDir, fs);
 
         opts.onPlan?.(result.decisions, result);
         return { registry, views, result };

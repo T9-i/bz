@@ -141,6 +141,14 @@ export type DockTrigger =
   | { kind: 'interval'; everyMin: number }
   | { kind: 'on-launch'; delayMin: number }
   | { kind: 'panel-open' }
+  /**
+   * Obsidian 关掉之后。
+   *
+   * 插件在 `onunload` 只留一枚**关闭脉冲**（`dock.exit.json`，带时间与进程号），
+   * 真正的执行由下一拍负责 —— 插件关着的时候是值守在拍，值守也不在就是下次打开时补跑。
+   * 同一进程号 = 只是重载/禁用插件，不算关闭；旧进程号还活着也不算（判不出就不跑）。
+   */
+  | { kind: 'obsidian-exit' }
   | { kind: 'tool-ok'; toolId: string }
   | { kind: 'tool-fail'; toolId: string }
   | { kind: 'domain-event'; channel: string }
@@ -169,6 +177,7 @@ export const TRIGGER_KINDS: readonly DockTriggerKind[] = [
   'interval',
   'on-launch',
   'panel-open',
+  'obsidian-exit',
   'tool-ok',
   'tool-fail',
   'domain-event',
@@ -181,6 +190,7 @@ export const TRIGGER_LABEL: Record<DockTriggerKind, string> = {
   interval: '每隔一段时间',
   'on-launch': '启动 Obsidian 后',
   'panel-open': '打开工具坞时',
+  'obsidian-exit': '关闭 Obsidian 时',
   'tool-ok': '某个工具成功后',
   'tool-fail': '某个工具失败后',
   'domain-event': '某个事件发生时',

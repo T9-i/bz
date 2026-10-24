@@ -202,6 +202,14 @@ describe('工具坞面板 · 详情', () => {
     expect(document.querySelector('.bz-dock-rulepreview')?.textContent).toContain('每天 09:00');
   });
 
+  it('规则弹窗的触发清单里有「关闭 Obsidian 时」', () => {
+    shape();
+    click(document.querySelector<HTMLElement>('.bz-dock-card[data-tool="demo"]')!);
+    click(document.querySelector<HTMLElement>('.bz-dock-rule')!);
+    const form = document.querySelector('.bz-dock-ruleform');
+    expect(form?.textContent).toContain('关闭 Obsidian 时');
+  });
+
   it('返回键把详情拆掉、头行换回列表态（不是把详情压在下层）', () => {
     shape();
     click(document.querySelector<HTMLElement>('.bz-dock-card[data-tool="demo"]')!);

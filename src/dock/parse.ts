@@ -208,6 +208,8 @@ function parseTrigger(raw: unknown): DockTrigger | null {
     }
     case 'panel-open':
       return { kind: 'panel-open' };
+    case 'obsidian-exit':
+      return { kind: 'obsidian-exit' };
     case 'tool-ok': {
       const id = str(raw.toolId);
       return id ? { kind: 'tool-ok', toolId: id } : null;

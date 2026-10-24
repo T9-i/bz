@@ -70,6 +70,9 @@ _Avoid_: 定时任务（那是系统的东西）、触发器（v1 叫法）
 **离场调度 (Off-session Scheduling)**: Obsidian 关着时由值守进程（`tools/dock-watch/`）接手。**它不是一个第二套调度器**：插件与值守跑的是同一段代码（`src/dock/tick-once.ts` 的 `tickOnce`，值守侧从 `src/dock/watch-core.ts` 打出的 `dock-core.cjs` 里拿），区别只有三处 —— 谁触发（插件 30 秒定时器 / 值守的循环）、文件路径怎么解析（vault 适配器 / vault 根 + 绝对路径）、通知发去哪（Notice / 日志）。执行权仍归一把锁：两边都每拍抢 `<数据目录>/dock.lock`，抢不到就这一拍什么都不做（`skipped: 'locked'`），**没有「让位」这种靠自觉的机制**。值守额外只管两件插件管不到的事：**等网**（计划任务在登录瞬间拉起，网卡常常没就绪；没网就不拍、不记账，留给下一拍）和**本机状态**（`status.json` / 日志，住 `%LOCALAPPDATA%z-dock-watch\`，不进 vault）。状态存放：`watchdog` 开关住登记表（跟着 vault 走），值守的运行状态住本机会话态（换台机器就该重来）。**它在跑什么、跑到第几步**由「实时回传」送回面板，见下条。
 _Avoid_: 离线运行、后台服务
 
+**关闭脉冲 (Exit Pulse)**: 「关闭 Obsidian 后」这条触发（`{kind:'obsidian-exit'}`，ADR-0253）的传话方式。插件 `onunload` 里**只写一枚脉冲**（`<数据目录>/dock.exit.json`：`{at, pid}`，同步写），不起进程——宿主正在退出，这时候拉起来的子进程活不过几秒。下一拍的 `tickOnce` 读到它，`exitPulseFires()` 判为真才把 `obsidian-exit` 塞进这一拍的事件表，`runTick` 正常返回后**删除脉冲**（消费即删）。判据三条，宁窄勿宽：脉冲进程号等于读它的进程 = 只是重载/禁用插件，不算；那个进程号还活着 = Obsidian 没关（多窗口只卸载了一个），不算；拿不到 `process.kill` 探测 = 当活着，不算。误报的代价是「每重载一次插件就同步一遍仓库」，比漏一次贵得多。
+_Avoid_: 关机钩子、卸载回调（那里只写文件，不执行）
+
 **实时回传 (Live Tap)**: 值守在跑工具时，把工具吐的 `[bz-step]` 追加到本机的 `live/<拍平后的工具id>.jsonl`（住 `%LOCALAPPDATA%\bz-dock-watch\`），插件面板每 3 秒读它的尾部。**不用端口、不用 IPC、不用第二条协议** —— 一个两边都能读的只追加文件就够了，这是「回传通道」的全部。三条纪律：① **换一轮就重写整个文件**（首行 `runId` 不是这次的就说明是上一轮的残渣）；② 读侧**坏行跳过**（崩掉时最后一行可能只有半截），一行坏掉不连累整块；③ 它**不参与判成败**（判定看进程退出 + `runs.jsonl` 里 `runId` 那一条），只回答「此刻跑到哪一步」。文件名拍平规则与目录推导在插件（`watchdog-status.ts`）与值守（`runtime.js`）各写一份，靠 `tests/dock/watchdog-path.test.ts` 钉死逐字一致。
 _Avoid_: 实时日志（那是 stdout 原文，bz 不存）、推送通道（没有推，是面板轮询）
 

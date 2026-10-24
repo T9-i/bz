@@ -139,6 +139,7 @@ var TRIGGER_KINDS = [
   "interval",
   "on-launch",
   "panel-open",
+  "obsidian-exit",
   "tool-ok",
   "tool-fail",
   "domain-event",
@@ -150,6 +151,7 @@ var TRIGGER_LABEL = {
   interval: "每隔一段时间",
   "on-launch": "启动 Obsidian 后",
   "panel-open": "打开工具坞时",
+  "obsidian-exit": "关闭 Obsidian 时",
   "tool-ok": "某个工具成功后",
   "tool-fail": "某个工具失败后",
   "domain-event": "某个事件发生时",
@@ -294,6 +296,8 @@ function parseTrigger(raw) {
     }
     case "panel-open":
       return { kind: "panel-open" };
+    case "obsidian-exit":
+      return { kind: "obsidian-exit" };
     case "tool-ok": {
       const id = str(raw.toolId);
       return id ? { kind: "tool-ok", toolId: id } : null;
@@ -659,6 +663,8 @@ function ruleDue(rule, ctx) {
     }
     case "panel-open":
       return ctx.event?.kind === "panel-open";
+    case "obsidian-exit":
+      return ctx.event?.kind === "obsidian-exit";
     case "tool-ok":
       return ctx.event?.kind === "tool-ok" && ctx.event.toolId === t.toolId;
     case "tool-fail":
@@ -726,6 +732,8 @@ function triggerText(t, nameOf) {
       return `启动后 ${durationText(t.delayMin)}`;
     case "panel-open":
       return "打开工具坞时";
+    case "obsidian-exit":
+      return "关闭 Obsidian 后";
     case "tool-ok":
       return `${name(t.toolId)} 成功后`;
     case "tool-fail":
@@ -1932,6 +1940,60 @@ function runToolNow(args) {
   return run;
 }
 
+// src/dock/exit-pulse.ts
+var EXIT_PULSE_FILENAME = "dock.exit.json";
+function exitPulsePath(dataDir) {
+  return joinPath(dataDir, EXIT_PULSE_FILENAME);
+}
+function selfPid() {
+  try {
+    const p = globalThis.process;
+    const n = p?.pid;
+    return typeof n === "number" && Number.isFinite(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+function pidAlive2(pid) {
+  if (!Number.isFinite(pid) || pid <= 0) return true;
+  const p = globalThis.process;
+  if (typeof p?.kill !== "function") return true;
+  try {
+    p.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return e?.code === "EPERM";
+  }
+}
+function readExitPulse(dataDir, fs = currentFs()) {
+  if (!fs || !dataDir) return null;
+  const raw = fs.readText(exitPulsePath(dataDir));
+  if (raw === null) return null;
+  try {
+    const o = JSON.parse(raw);
+    const at = typeof o?.at === "string" ? o.at : "";
+    const pid = typeof o?.pid === "number" ? o.pid : Number(o?.pid);
+    if (!at || !Number.isFinite(Date.parse(at))) return null;
+    return { at, pid: Number.isFinite(pid) ? pid : 0 };
+  } catch {
+    return null;
+  }
+}
+function clearExitPulse(dataDir, fs = currentFs()) {
+  if (!fs || !dataDir || !fs.unlink) return;
+  try {
+    fs.unlink(exitPulsePath(dataDir));
+  } catch {
+  }
+}
+function exitPulseFires(pulse, self = selfPid()) {
+  if (!pulse) return false;
+  if (!Number.isFinite(Date.parse(pulse.at))) return false;
+  if (!Number.isFinite(pulse.pid) || pulse.pid <= 0) return false;
+  if (self > 0 && pulse.pid === self) return false;
+  return !pidAlive2(pulse.pid);
+}
+
 // src/dock/tick-once.ts
 var KEEP_ALIVE_MS = 2e4;
 async function tickOnce(opts) {
@@ -1955,19 +2017,23 @@ async function tickOnce(opts) {
             opts.onError?.(e);
           }
         }
+        const pulse = readExitPulse(opts.dataDir, fs);
+        const exitFires = exitPulseFires(pulse);
+        const events = exitFires ? [...opts.events ?? [], { kind: "obsidian-exit" }] : [...opts.events ?? []];
         const result = await runTick({
           dataDir: opts.dataDir,
           registry,
           views,
           now,
           sessionStart: opts.sessionStart,
-          events: opts.events ?? [],
+          events,
           liveIds: opts.liveIds ?? /* @__PURE__ */ new Set(),
           fs,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
           shouldStop: () => lock.lost()
         });
+        if (exitFires) clearExitPulse(opts.dataDir, fs);
         opts.onPlan?.(result.decisions, result);
         return { registry, views, result };
       },
