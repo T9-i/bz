@@ -177,6 +177,32 @@ export class FakeVault {
   offref(_ref: unknown): void {
     this.listeners.clear();
   }
+
+  /** 库名：真身份是「这个库叫什么」，评审壳里固定一个 */
+  getName(): string {
+    return 'sim-vault';
+  }
+
+  /**
+   * 适配器 —— 真实环境里工具坞靠 `adapter.getBasePath()` 算绝对路径。
+   * 少了它，`registryPath()` 只能返回相对串，而种子数据是按绝对路径写的键，两边对不上，
+   * 评审壳会显示一个空列表（看不出是「没有工具」还是「路径算歪了」）。
+   *
+   * `read()` 吃的是**相对库根的路径**，与真适配器一致。
+   */
+  adapter = {
+    getBasePath: (): string => '/sim-vault',
+    read: async (rel: string): Promise<string> => {
+      const raw = localStorage.getItem(FakeVault.key(`/sim-vault/${rel.replace(/^\/+/, '')}`));
+      if (raw === null) throw new Error(`no such file: ${rel}`);
+      return raw;
+    },
+    exists: async (rel: string): Promise<boolean> =>
+      localStorage.getItem(FakeVault.key(`/sim-vault/${rel.replace(/^\/+/, '')}`)) !== null,
+    write: async (rel: string, data: string): Promise<void> => {
+      localStorage.setItem(FakeVault.key(`/sim-vault/${rel.replace(/^\/+/, '')}`), data);
+    },
+  };
 }
 
 export class FakeApp {

@@ -1,5 +1,5 @@
-/* 源指纹 3d8043599218a7d1 · 仓内输入 24 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/view.ts"]*/
+/* 源指纹 29a147ce186e3970 · 仓内输入 26 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -63,6 +63,25 @@ var BZW_dock = (() => {
       FakeVault = class _FakeVault {
         constructor() {
           this.listeners = /* @__PURE__ */ new Map();
+          /**
+           * 适配器 —— 真实环境里工具坞靠 `adapter.getBasePath()` 算绝对路径。
+           * 少了它，`registryPath()` 只能返回相对串，而种子数据是按绝对路径写的键，两边对不上，
+           * 评审壳会显示一个空列表（看不出是「没有工具」还是「路径算歪了」）。
+           *
+           * `read()` 吃的是**相对库根的路径**，与真适配器一致。
+           */
+          this.adapter = {
+            getBasePath: () => "/sim-vault",
+            read: async (rel) => {
+              const raw = localStorage.getItem(_FakeVault.key(`/sim-vault/${rel.replace(/^\/+/, "")}`));
+              if (raw === null) throw new Error(`no such file: ${rel}`);
+              return raw;
+            },
+            exists: async (rel) => localStorage.getItem(_FakeVault.key(`/sim-vault/${rel.replace(/^\/+/, "")}`)) !== null,
+            write: async (rel, data) => {
+              localStorage.setItem(_FakeVault.key(`/sim-vault/${rel.replace(/^\/+/, "")}`), data);
+            }
+          };
           if (typeof window !== "undefined") {
             window.addEventListener("storage", (e) => {
               var _a;
@@ -102,6 +121,10 @@ var BZW_dock = (() => {
         }
         offref(_ref) {
           this.listeners.clear();
+        }
+        /** 库名：真身份是「这个库叫什么」，评审壳里固定一个 */
+        getName() {
+          return "sim-vault";
         }
       };
       FakeApp = class {
@@ -151,7 +174,7 @@ var BZW_dock = (() => {
   });
 
   // src/dock/types.ts
-  var CONTRACT_VERSION, SETTINGS_FILENAME, RUNS_FILENAME, HEARTBEAT_FILENAME, PANEL_FILENAME, INTENT_FILENAME, RUNTIME_FILENAME, LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, SETTINGS_VERSION, INTENT_VERSION, RUNTIME_VERSION, RUNS_TAIL_BYTES, HEARTBEAT_STALE_MS, RUN_TIMEOUT_MS, LOCK_STALE_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, TOOL_ID_RE, TOOL_ID_MAX_LEN, TRIGGER_KINDS, TRIGGER_LABEL;
+  var CONTRACT_VERSION, SETTINGS_FILENAME, RUNS_FILENAME, HEARTBEAT_FILENAME, PANEL_FILENAME, INTENT_FILENAME, RUNTIME_FILENAME, LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, VAULT_PATH_PREFIX, SETTINGS_VERSION, INTENT_VERSION, RUNTIME_VERSION, RUNS_TAIL_BYTES, HEARTBEAT_STALE_MS, RUN_TIMEOUT_MS, LOCK_STALE_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, TOOL_ID_RE, TOOL_ID_MAX_LEN, TRIGGER_KINDS, TRIGGER_LABEL;
   var init_types = __esm({
     "src/dock/types.ts"() {
       CONTRACT_VERSION = 2;
@@ -164,6 +187,7 @@ var BZW_dock = (() => {
       LOCK_FILENAME = "dock.lock";
       REGISTRY_FILENAME = "dock.json";
       REGISTRY_VERSION = 3;
+      VAULT_PATH_PREFIX = "vault:";
       SETTINGS_VERSION = 2;
       INTENT_VERSION = 1;
       RUNTIME_VERSION = 1;
@@ -294,6 +318,25 @@ var BZW_dock = (() => {
     const d = dir.replace(/\\/g, "/").replace(/\/+$/, "");
     return d === "" ? name : `${d}/${name}`;
   }
+  function setDockVaultRoot(root2) {
+    dockVaultRoot = String(root2 != null ? root2 : "").replace(/\\/g, "/").replace(/\/+$/, "");
+  }
+  function isPortablePath(p) {
+    return p.startsWith(VAULT_PATH_PREFIX);
+  }
+  function resolveToolPath(p) {
+    if (!isPortablePath(p)) return p;
+    const rel = p.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, "");
+    return dockVaultRoot ? `${dockVaultRoot}/${rel}` : rel;
+  }
+  function portableToolPath(abs, root2 = dockVaultRoot) {
+    const p = String(abs != null ? abs : "").replace(/\\/g, "/");
+    const base = String(root2 != null ? root2 : "").replace(/\\/g, "/").replace(/\/+$/, "");
+    if (!base) return p;
+    if (p === base) return `${VAULT_PATH_PREFIX}.`;
+    if (!p.startsWith(`${base}/`)) return p;
+    return `${VAULT_PATH_PREFIX}${p.slice(base.length + 1)}`;
+  }
   function pidText() {
     var _a, _b;
     try {
@@ -350,10 +393,11 @@ var BZW_dock = (() => {
   function stripUpdatedAt(json) {
     return json.replace(/^\s*"updatedAt":\s*"[^"]*",?\s*$/m, "");
   }
-  var injected, pathOf, writeSeq;
+  var injected, dockVaultRoot, pathOf, writeSeq;
   var init_files = __esm({
     "src/dock/files.ts"() {
       init_types();
+      dockVaultRoot = "";
       pathOf = {
         manifest: (declPath) => declPath,
         settings: (declPath) => joinPath(dirOf(declPath), SETTINGS_FILENAME),
@@ -367,363 +411,306 @@ var BZW_dock = (() => {
     }
   });
 
-  // src/core/z-order.ts
-  function syncAlwaysOnTop() {
-    for (const el of alwaysOnTop) {
-      if (!el.isConnected) {
-        alwaysOnTop.delete(el);
-        continue;
+  // src/core/external-tool.ts
+  function parseAskBody(body) {
+    const id = typeof body.id === "string" ? body.id.trim() : "";
+    if (!id) return null;
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    if (!title) return null;
+    const raw = typeof body.body === "string" ? body.body : "";
+    const html = typeof body.bodyHtml === "string" ? body.bodyHtml.trim() : "";
+    const sec = Number(body.timeoutSec);
+    const timeoutSec = Number.isFinite(sec) ? Math.min(ASK_TIMEOUT_MAX_SEC, Math.max(ASK_TIMEOUT_MIN_SEC, Math.floor(sec))) : ASK_TIMEOUT_DEFAULT_SEC;
+    return {
+      id,
+      title,
+      body: raw,
+      bodyHtml: html,
+      confirmText: typeof body.confirmText === "string" && body.confirmText.trim() ? body.confirmText.trim() : "确认",
+      cancelText: typeof body.cancelText === "string" && body.cancelText.trim() ? body.cancelText.trim() : "取消",
+      timeoutSec
+    };
+  }
+  function parseBzLine(line) {
+    const text = line.endsWith("\r") ? line.slice(0, -1) : line;
+    const m = text.match(BZ_LINE_PREFIX_RE);
+    if (!m) {
+      if (!text.trim()) return null;
+      return { kind: "raw", text };
+    }
+    const body = text.slice(m[0].length).trim();
+    switch (m[1]) {
+      case "step":
+        return body ? { kind: "step", text: body } : null;
+      case "p": {
+        const p = parseJsonObject(body);
+        if (!p) return null;
+        return {
+          kind: "progress",
+          phase: typeof p.phase === "string" ? p.phase : null,
+          // pct 允许 null = 该阶段不可估；缺失/非有限数一律归 null（绝不假报）
+          pct: Number.isFinite(p.pct) ? Number(p.pct) : null
+        };
       }
-      el.style.zIndex = String(zCounter);
+      case "info": {
+        const info = parseJsonObject(body);
+        return info ? { kind: "info", data: info } : null;
+      }
+      case "ask": {
+        const b = parseJsonObject(body);
+        const ask = b ? parseAskBody(b) : null;
+        return ask ? { kind: "ask", ask } : null;
+      }
+      default: {
+        const r = parseJsonObject(body);
+        return r ? { kind: "result", data: r } : null;
+      }
     }
   }
-  function allocZBlock(n) {
-    const base = ++zCounter;
-    zCounter += n - 1;
-    zCounter++;
-    syncAlwaysOnTop();
-    return base;
-  }
-  function allocZ() {
-    return allocZBlock(1);
-  }
-  var zCounter, alwaysOnTop;
-  var init_z_order = __esm({
-    "src/core/z-order.ts"() {
-      zCounter = 1e5;
-      alwaysOnTop = /* @__PURE__ */ new Set();
-    }
-  });
-
-  // src/core/notice.ts
-  function maxVisible() {
-    const v = Number(noticePref("noticeMaxVisible"));
-    return v === 3 || v === 8 ? v : MAX_VISIBLE_DEFAULT;
-  }
-  function isMobileView() {
-    return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(MOBILE_QUERY).matches;
-  }
-  function defaultVariant() {
-    if (isMobileView()) return "drop";
-    const pos = noticePref("noticePosition");
-    return pos === "top-left" || pos === "bottom-left" ? "slide-left" : "slide-right";
-  }
-  function noticePref(key) {
-    var _a;
+  function parseJsonObject(body) {
     try {
-      const v = (_a = tryGetSettings()) == null ? void 0 : _a[key];
-      return typeof v === "string" ? v : void 0;
+      const v = JSON.parse(body);
+      return v && typeof v === "object" && !Array.isArray(v) ? v : null;
     } catch (e) {
-      return void 0;
+      return null;
     }
   }
-  function durationGear() {
-    const v = noticePref("noticeDuration");
-    if (v === "quick") return { base: 2e3, persistent: false };
-    if (v === "relaxed") return { base: 5e3, persistent: false };
-    if (v === "persistent") return { base: 3e3, persistent: true };
-    return { base: 3e3, persistent: false };
-  }
-  function defaultDuration(type) {
-    const base = durationGear().base;
-    return type === "error" ? base + 2e3 : base;
-  }
-  function suppressedByLevel(kind, opts) {
-    const level = noticePref("noticeLevel");
-    if (level !== "important" && level !== "error") return false;
-    if (kind === "progress") return false;
-    if (opts && (opts.action || opts.actions && opts.actions.length > 0)) return false;
-    if (level === "error") return kind !== "error";
-    return kind !== "warning" && kind !== "error";
-  }
-  function applyPositionClass(container) {
-    const pos = noticePref("noticePosition");
-    container.classList.remove(...POSITION_CLASSES);
-    const cls = pos === "bottom-right" || pos === "bottom-left" || pos === "top-left" ? `bz-notice-pos--${pos}` : "";
-    if (cls) container.classList.add(cls);
-  }
-  function calcDuration(text, base) {
-    const len = text.length;
-    if (len <= SHORT_THRESHOLD) return base;
-    const extra = (len - SHORT_THRESHOLD) * PER_CHAR_MS;
-    return Math.min(base + extra, 15e3);
-  }
-  function ensureContainer() {
-    let container = document.getElementById("bz-notice-container");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "bz-notice-container";
-      document.body.appendChild(container);
-    }
-    return container;
-  }
-  function removeInternal(n) {
-    if (n.timer !== null) {
-      window.clearTimeout(n.timer);
-      n.timer = null;
-    }
-    const i = live.indexOf(n);
-    if (i !== -1) live.splice(i, 1);
-    if (n.el.parentNode) n.el.parentNode.removeChild(n.el);
-  }
-  function evictOldest() {
-    let quota = live.length - maxVisible() + 1;
-    for (let i = 0; quota > 0 && i < live.length; ) {
-      const candidate = live[i];
-      if (candidate.persistent) {
-        i++;
-        continue;
-      }
-      removeInternal(candidate);
-      quota--;
+  function defaultChildProcess() {
+    if (typeof window === "undefined") return null;
+    const w = window;
+    if (!w.require) return null;
+    try {
+      return w.require("child_process");
+    } catch (e) {
+      return null;
     }
   }
-  function applyTypeToEl(n, kind) {
-    const isProgressNow = kind === "progress";
-    n.el.classList.remove(
-      "bz-notice--info",
-      "bz-notice--success",
-      "bz-notice--warning",
-      "bz-notice--error",
-      "bz-notice--pause",
-      "bz-notice--delete",
-      "bz-notice--restore",
-      "bz-notice--archive",
-      "bz-notice--progress"
-    );
-    n.el.classList.add("bz-notice--" + (isProgressNow ? "progress" : kind));
-    n.iconEl.innerHTML = "";
-    if (isProgressNow) {
-      n.iconEl.innerHTML = SPINNER_SVG;
-    } else {
-      n.iconEl.textContent = ICONS[kind];
-    }
-    n.isProgress = isProgressNow;
-  }
-  function hideNow(n) {
-    if (n.timer !== null) {
-      window.clearTimeout(n.timer);
-      n.timer = null;
-    }
-    if (!n.el.classList.contains("bz-notice--leaving")) {
-      n.el.classList.add("bz-notice--leaving");
-      const out = OUT_CLASS[n.variant];
-      if (out) n.el.classList.add(out);
-      window.setTimeout(() => removeInternal(n), LEAVE_MS);
-    }
-  }
-  function armTimer(n, kind, explicitDuration, text) {
-    if (n.timer !== null) {
-      window.clearTimeout(n.timer);
-      n.timer = null;
-    }
-    n.persistent = false;
-    if (kind === "progress") {
-      if (explicitDuration !== void 0 && explicitDuration > 0) {
-        n.timer = window.setTimeout(() => hideNow(n), explicitDuration);
-      } else {
-        n.persistent = true;
-      }
-    } else {
-      const base = defaultDuration(kind);
-      const dur = explicitDuration !== void 0 ? explicitDuration : text ? calcDuration(text, base) : base;
-      if (dur <= 0) {
-        n.persistent = true;
-      } else if (explicitDuration === void 0 && durationGear().persistent) {
-      } else {
-        n.timer = window.setTimeout(() => hideNow(n), dur);
-      }
-    }
-  }
-  function noopHandle() {
-    return {
-      el: document.createElement("div"),
-      setMessage() {
-      },
-      setProgress() {
-      },
-      setType() {
-      },
-      setAction() {
-      },
-      hide() {
-      }
-    };
-  }
-  function appendActionBtn(n, action) {
-    const btn = document.createElement("span");
-    btn.className = "bz-notice-action";
-    btn.setAttribute("role", "button");
-    btn.tabIndex = 0;
-    btn.textContent = action.label;
-    const fire = (e) => {
-      e.stopPropagation();
-      if (action.onClick) action.onClick();
-      hideNow(n);
-    };
-    btn.addEventListener("click", fire);
-    btn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        fire(e);
-      }
+  function runExternalTool(spec, cb, deps2) {
+    var _a, _b;
+    const cp = deps2 && deps2.cp ? deps2.cp : defaultChildProcess();
+    const splitter = new BzLineSplitter();
+    let stderrTail = "";
+    let settled = false;
+    let stopped = false;
+    let child = null;
+    let exitSeen = false;
+    let exitCode = null;
+    let forceTimer = null;
+    let resolveDone;
+    const done = new Promise((r) => {
+      resolveDone = r;
     });
-    n.el.appendChild(btn);
-  }
-  function makeHandle(n) {
-    return {
-      el: n.el,
-      setMessage(text) {
-        n.msgEl.textContent = text;
-      },
-      setType(t) {
-        applyTypeToEl(n, t);
-        armTimer(n, t, void 0, n.msgEl.textContent || void 0);
-      },
-      setProgress(pct) {
-        if (!n.progressEl) return;
-        if (pct === -1) {
-          n.progressEl.classList.add("bz-notice-progress--indeterminate");
-          return;
-        }
-        n.progressEl.classList.remove("bz-notice-progress--indeterminate");
-        const clamped = Math.max(0, Math.min(100, pct));
-        n.progressEl.style.width = clamped + "%";
-        if (clamped >= 100) n.progressEl.classList.add("bz-notice-progress--done");
-        else n.progressEl.classList.remove("bz-notice-progress--done");
-      },
-      setAction(actions) {
-        const list = Array.isArray(actions) ? actions : [actions];
-        const existing = new Set(
-          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el) => el.textContent || "")
-        );
-        for (const a of list) {
-          if (existing.has(a.label)) continue;
-          appendActionBtn(n, a);
-          existing.add(a.label);
-        }
-      },
-      hide() {
-        hideNow(n);
+    const settle2 = (o) => {
+      if (settled) return;
+      settled = true;
+      if (forceTimer !== null) {
+        clearTimeout(forceTimer);
+        forceTimer = null;
+      }
+      resolveDone(o);
+    };
+    const collectStderr = (d) => {
+      stderrTail += String(d);
+      if (stderrTail.length > STDERR_TAIL_CHARS) stderrTail = stderrTail.slice(-STDERR_TAIL_CHARS);
+    };
+    const dispatchLine = (line) => {
+      var _a2;
+      const ev = parseBzLine(line);
+      if (!ev) return;
+      switch (ev.kind) {
+        case "step":
+          cb.onStep(ev.text);
+          break;
+        case "progress":
+          cb.onProgress(ev.phase, ev.pct);
+          break;
+        case "info":
+          cb.onInfo(ev.data);
+          break;
+        case "result":
+          cb.onResult(ev.data);
+          break;
+        case "ask":
+          (_a2 = cb.onAsk) == null ? void 0 : _a2.call(cb, ev.ask);
+          break;
+        case "raw":
+          if (cb.onRaw) cb.onRaw(ev.text);
+          break;
       }
     };
-  }
-  function notify(msg, opts) {
-    const kind = opts && opts.type || "info";
-    if (suppressedByLevel(kind, opts)) return noopHandle();
-    const isProgress = kind === "progress";
-    const type = isProgress ? "info" : kind;
-    const variant = opts && opts.variant || defaultVariant();
-    const container = ensureContainer();
-    applyPositionClass(container);
-    if (opts && opts.dedupeKey) {
-      const key = opts.dedupeKey;
-      const r = recent[key];
-      const now = Date.now();
-      if (r && r.n && r.n.el.isConnected) {
-        r.n.msgEl.textContent = msg;
-        if (r.n.isProgress !== isProgress || r.n.el.classList.contains("bz-notice--" + type) === false) {
-          applyTypeToEl(r.n, kind);
+    if (!cp) {
+      settle2({ ok: false, stopped: false, code: null, stderr: "", error: new Error("仅桌面端可用：外部工具需要 Node.js 子进程") });
+      return { stop: () => {
+      }, answer: () => {
+      }, done };
+    }
+    const spawnOpts = {
+      shell: !!spec.shell,
+      windowsHide: true,
+      // stdin 只在交互运行下开 pipe（见 spec.interactive 的说明）：给所有工具无差别开管道，
+      // 等于让一个「顺手读了 stdin」的工具凭空挂住——而它本来只是想要 /dev/null。
+      stdio: [spec.interactive ? "pipe" : "ignore", "pipe", "pipe"]
+    };
+    if (spec.cwd) spawnOpts.cwd = spec.cwd;
+    if (spec.env) spawnOpts.env = spec.env;
+    try {
+      child = cp.spawn(spec.cmd, spec.args || [], spawnOpts);
+    } catch (e) {
+      settle2({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${(e == null ? void 0 : e.message) || String(e)}`) });
+      return { stop: () => {
+      }, answer: () => {
+      }, done };
+    }
+    (_a = child.stdout) == null ? void 0 : _a.on("data", (d) => {
+      for (const line of splitter.push(d)) dispatchLine(line);
+    });
+    (_b = child.stderr) == null ? void 0 : _b.on("data", collectStderr);
+    child.on("error", (e) => {
+      if (settled) return;
+      settle2({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${e.message}`) });
+    });
+    child.on("exit", (code) => {
+      exitSeen = true;
+      exitCode = code;
+    });
+    child.on("close", (code) => {
+      if (settled) return;
+      const rest = splitter.flush();
+      if (rest !== null) dispatchLine(rest);
+      const stderr = stderrTail.trim();
+      if (stopped) {
+        settle2({ ok: false, stopped: true, code, stderr, error: null });
+        return;
+      }
+      if (code === 0) {
+        settle2({ ok: true, stopped: false, code: 0, stderr, error: null });
+        return;
+      }
+      const err = new Error(code === null ? `外部工具异常退出（无退出码）${stderr ? "：" + stderr : ""}` : `外部工具异常退出（退出码 ${code}）${stderr ? "：" + stderr : ""}`);
+      err.stderr = stderr;
+      settle2({ ok: false, stopped: false, code, stderr, error: err });
+    });
+    const isWindows = () => process.platform === "win32";
+    const spawnSuppressed = (cmd, args) => {
+      var _a2;
+      try {
+        const killer = cp.spawn(cmd, args, { stdio: "ignore", windowsHide: true });
+        (_a2 = killer.on) == null ? void 0 : _a2.call(killer, "error", () => {
+        });
+      } catch (e) {
+      }
+    };
+    const escalateForceKill = () => {
+      forceTimer = null;
+      if (settled) return;
+      const pid = child == null ? void 0 : child.pid;
+      if (typeof pid !== "number" || pid <= 0) return;
+      if (exitSeen) {
+        settle2({ ok: false, stopped: true, code: exitCode, stderr: stderrTail.trim(), error: null });
+        return;
+      }
+      if (isWindows()) {
+        spawnSuppressed("taskkill", ["/pid", String(pid), "/T", "/F"]);
+        return;
+      }
+      try {
+        process.kill(pid, "SIGKILL");
+      } catch (e) {
+      }
+    };
+    const stopChild = () => {
+      var _a2;
+      const pid = child == null ? void 0 : child.pid;
+      if (spec.shell && isWindows() && typeof pid === "number" && pid > 0) {
+        spawnSuppressed("taskkill", ["/pid", String(pid), "/T"]);
+      } else {
+        try {
+          (_a2 = child == null ? void 0 : child.kill) == null ? void 0 : _a2.call(child);
+        } catch (e) {
         }
-        const mergeActions = [];
-        if (opts.action) mergeActions.push(opts.action);
-        if (opts.actions) mergeActions.push(...opts.actions);
-        armTimer(r.n, kind, opts.duration, msg);
-        const merged = makeHandle(r.n);
-        if (mergeActions.length) merged.setAction(mergeActions);
-        return merged;
       }
-      if (r && now - r.at < DEDUPE_WINDOW_MS) {
-        return noopHandle();
+      if (typeof pid === "number" && pid > 0) {
+        forceTimer = setTimeout(escalateForceKill, FORCE_KILL_GRACE_MS);
       }
-      recent[key] = { at: now, n: null };
-    }
-    evictOldest();
-    const el = document.createElement("div");
-    el.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
-    el.setAttribute("role", "status");
-    el.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
-    const icon = document.createElement("div");
-    icon.className = "bz-notice-icon";
-    if (isProgress) {
-      icon.innerHTML = SPINNER_SVG;
-    } else {
-      icon.textContent = ICONS[type];
-    }
-    el.appendChild(icon);
-    const body = document.createElement("div");
-    body.className = "bz-notice-body";
-    if (opts && opts.title) {
-      const titleEl2 = document.createElement("div");
-      titleEl2.className = "bz-notice-title";
-      titleEl2.textContent = opts.title;
-      body.appendChild(titleEl2);
-    }
-    const msgEl = document.createElement("div");
-    msgEl.className = "bz-notice-msg";
-    msgEl.textContent = msg;
-    body.appendChild(msgEl);
-    el.appendChild(body);
-    let progressEl = null;
-    if (isProgress) {
-      progressEl = document.createElement("div");
-      progressEl.className = "bz-notice-progress";
-      el.appendChild(progressEl);
-    }
-    const n = { el, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
-    const actions = [];
-    if (opts && opts.action) actions.push(opts.action);
-    if (opts && opts.actions) {
-      for (const a of opts.actions) {
-        if (!actions.some((x) => x.label === a.label)) actions.push(a);
-      }
-    }
-    for (const a of actions) appendActionBtn(n, a);
-    el.addEventListener("click", () => hideNow(n));
-    container.style.zIndex = String(allocZ());
-    container.appendChild(el);
-    live.push(n);
-    if (opts && opts.dedupeKey) {
-      const r = recent[opts.dedupeKey];
-      if (r) r.n = n;
-    }
-    const fullText = (opts && opts.title ? opts.title + " " : "") + msg;
-    armTimer(n, kind, opts && opts.duration, fullText);
-    return makeHandle(n);
+    };
+    return {
+      stop: () => {
+        if (settled || stopped) return;
+        stopped = true;
+        stopChild();
+      },
+      answer: (id, ok) => {
+        const s = child == null ? void 0 : child.stdin;
+        if (!s || s.destroyed || s.writableEnded) return;
+        try {
+          s.write(`[bz-answer] ${JSON.stringify({ id, ok: !!ok })}
+`);
+        } catch (e) {
+        }
+      },
+      done
+    };
   }
-  var MAX_VISIBLE_DEFAULT, LEAVE_MS, DEDUPE_WINDOW_MS, MOBILE_QUERY, ICONS, SPINNER_SVG, OUT_CLASS, POSITION_CLASSES, PER_CHAR_MS, SHORT_THRESHOLD, live, recent;
-  var init_notice = __esm({
-    "src/core/notice.ts"() {
-      init_z_order();
-      init_settings_provider();
-      MAX_VISIBLE_DEFAULT = 5;
-      LEAVE_MS = 200;
-      DEDUPE_WINDOW_MS = 3e4;
-      MOBILE_QUERY = "(max-width: 768px)";
-      ICONS = {
-        info: "ℹ️",
-        success: "✅",
-        warning: "⚠️",
-        error: "❌",
-        pause: "⏸️",
-        delete: "🗑️",
-        restore: "↩️",
-        archive: "📁"
+  var ASK_TIMEOUT_DEFAULT_SEC, ASK_TIMEOUT_MIN_SEC, ASK_TIMEOUT_MAX_SEC, BZ_LINE_PREFIX_RE, MAX_LINE_BYTES, BzLineSplitter, STDERR_TAIL_CHARS, FORCE_KILL_GRACE_MS;
+  var init_external_tool = __esm({
+    "src/core/external-tool.ts"() {
+      ASK_TIMEOUT_DEFAULT_SEC = 300;
+      ASK_TIMEOUT_MIN_SEC = 10;
+      ASK_TIMEOUT_MAX_SEC = 600;
+      BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
+      MAX_LINE_BYTES = 1024 * 1024;
+      BzLineSplitter = class {
+        constructor(maxLineBytes = MAX_LINE_BYTES) {
+          this.maxLineBytes = maxLineBytes;
+          this.parts = [];
+          this.len = 0;
+          this.overflowed = false;
+        }
+        /** 喂一段 stdout（Buffer 或 string），返回其中切出的完整行（不含行尾符） */
+        push(chunk) {
+          const buf = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
+          const lines = [];
+          let pos = 0;
+          while (pos < buf.length) {
+            const nl = buf.indexOf(10, pos);
+            if (nl === -1) {
+              this.accumulate(buf.subarray(pos));
+              break;
+            }
+            this.accumulate(buf.subarray(pos, nl));
+            lines.push(this.takeLine());
+            pos = nl + 1;
+          }
+          return lines;
+        }
+        /** 进程终结时冲刷残留半行（无残留返回 null）——无尾换行的最后一行靠这里出列 */
+        flush() {
+          return this.len > 0 || this.overflowed ? this.takeLine() : null;
+        }
+        /** 累积字节；超出单行上限后丢弃后续字节（截断语义，待换行时一并出列） */
+        accumulate(part) {
+          if (this.overflowed) return;
+          const room = this.maxLineBytes - this.len;
+          if (part.length <= room) {
+            this.parts.push(part);
+            this.len += part.length;
+          } else {
+            this.parts.push(part.subarray(0, room));
+            this.len = this.maxLineBytes;
+            this.overflowed = true;
+          }
+        }
+        /** 出列一行（overflow 时为截断行）；CRLF 的 \r 在此剥除 */
+        takeLine() {
+          const s = Buffer.concat(this.parts).toString("utf8");
+          this.parts = [];
+          this.len = 0;
+          this.overflowed = false;
+          return s.endsWith("\r") ? s.slice(0, -1) : s;
+        }
       };
-      SPINNER_SVG = '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></svg>';
-      OUT_CLASS = {
-        drop: "bz-notice--out-drop",
-        pop: "bz-notice--out-pop",
-        "slide-left": "bz-notice--out-left",
-        "slide-right": "bz-notice--out-right",
-        bounce: "bz-notice--out-fade",
-        shake: "bz-notice--out-fade"
-      };
-      POSITION_CLASSES = ["bz-notice-pos--bottom-right", "bz-notice-pos--bottom-left", "bz-notice-pos--top-left"];
-      PER_CHAR_MS = 60;
-      SHORT_THRESHOLD = 20;
-      live = [];
-      recent = {};
+      STDERR_TAIL_CHARS = 2048;
+      FORCE_KILL_GRACE_MS = 3e3;
     }
   });
 
@@ -1146,10 +1133,10 @@ var BZW_dock = (() => {
     if (raw.v !== SETTINGS_VERSION || raw.tool !== toolId) return {};
     return isObj(raw.values) ? { ...raw.values } : {};
   }
-  function buildArgs(manifest2, values) {
+  function buildArgs(manifest, values) {
     var _a;
     const args = [];
-    for (const p of (_a = manifest2.params) != null ? _a : []) {
+    for (const p of (_a = manifest.params) != null ? _a : []) {
       if (p.type === "secret") continue;
       const v = values[p.key];
       if (v === void 0 || v === null) continue;
@@ -1171,10 +1158,10 @@ var BZW_dock = (() => {
     }
     return args;
   }
-  function secretEnvOf(manifest2, values) {
+  function secretEnvOf(manifest, values) {
     var _a;
     const env = {};
-    for (const p of (_a = manifest2.params) != null ? _a : []) {
+    for (const p of (_a = manifest.params) != null ? _a : []) {
       if (p.type !== "secret") continue;
       const v = values[p.key];
       if (v === void 0 || v === null || String(v) === "") continue;
@@ -1205,6 +1192,581 @@ var BZW_dock = (() => {
     }
   });
 
+  // src/dock/exec.ts
+  function dockEnv(input) {
+    const env = {
+      BZ_DOCK_CONTRACT: String(CONTRACT_VERSION),
+      BZ_DOCK_TOOL: input.toolId,
+      BZ_DOCK_RUN_ID: input.runId,
+      BZ_DOCK_TRIGGER: input.trigger,
+      BZ_DOCK_RUNS_FILE: pathOf.runs(input.declPath),
+      BZ_DOCK_HEARTBEAT_FILE: pathOf.heartbeat(input.declPath)
+    };
+    if (input.vaultPath) env.BZ_DOCK_VAULT = input.vaultPath.replace(/[\\/]+$/, "");
+    if (input.manifest) Object.assign(env, secretEnvOf(input.manifest, input.values));
+    return env;
+  }
+  function judgeRun(input, records) {
+    var _a, _b;
+    const base = {
+      runId: input.runId,
+      code: input.code,
+      signal: input.signal,
+      stderr: input.stderr,
+      error: input.error,
+      startedAt: input.startedAt,
+      finishedAt: input.finishedAt,
+      durationMs: input.durationMs
+    };
+    if (input.stopped) {
+      return { ...base, ok: false, status: "stopped", kind: "aborted", record: findByRunId(records, input.runId) };
+    }
+    if (input.timedOut) {
+      return { ...base, ok: false, status: "timeout", kind: "timeout", record: findByRunId(records, input.runId) };
+    }
+    const record = findByRunId(records, input.runId);
+    if (record) {
+      const status = record.status === "running" ? "abandoned" : record.status;
+      return {
+        ...base,
+        ok: status === "ok",
+        status,
+        kind: (_b = (_a = record.error) == null ? void 0 : _a.kind) != null ? _b : status === "ok" ? "unknown" : "unknown",
+        record: { ...record, status }
+      };
+    }
+    const ok = input.code === 0 && !input.error;
+    const kind = input.code === null ? "config" : "unknown";
+    return {
+      ...base,
+      ok,
+      status: ok ? "ok" : "failed",
+      kind,
+      recordMissing: input.code === null ? "进程没能启动（命令或工作目录配错了）" : "工具没写这次运行的记录，多半没跑到写记录那一步"
+    };
+  }
+  function setExecDeps(d) {
+    deps = d;
+  }
+  function liveOf(toolId) {
+    return live.get(toolId);
+  }
+  function liveAll() {
+    return Array.from(live.values()).sort((a, b) => (Date.parse(a.startedAt) || 0) - (Date.parse(b.startedAt) || 0));
+  }
+  function onLiveChanged(fn) {
+    listeners.add(fn);
+    return () => listeners.delete(fn);
+  }
+  function fireLive() {
+    for (const fn of listeners) {
+      try {
+        fn();
+      } catch (e) {
+      }
+    }
+  }
+  function stopLive(toolId) {
+    var _a;
+    (_a = live.get(toolId)) == null ? void 0 : _a.handle.stop();
+  }
+  function runToolNow(args) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+    const runId = (_a = args.runId) != null ? _a : makeRunId();
+    const trigger = (_b = args.trigger) != null ? _b : "manual";
+    const startedMs = Date.now();
+    const startedAt = new Date(startedMs).toISOString();
+    const rawTail = [];
+    const steps = [];
+    const spec = {
+      cmd: args.entry.cmd,
+      args: [...(_c = args.entry.args) != null ? _c : [], ...buildArgs((_d = args.manifest) != null ? _d : { params: [] }, args.values), ...(_e = args.extraArgs) != null ? _e : []],
+      shell: (_f = args.entry.shell) != null ? _f : /\.(cmd|bat)$/i.test(args.entry.cmd),
+      /**
+       * 工作目录，契约写的是「缺省 = 声明所在目录」。
+       *
+       * 这一句必须显式给：不给的话子进程继承宿主进程的 cwd —— 插件里是 Obsidian 的目录，
+       * 值守里是仓库根。两种都不是工具目录，「`args: ['main.mjs']` 的相对路径」当场失效，
+       * 症状是「面板上跑得起来、值守里报找不到文件」。
+       */
+      cwd: (_g = args.entry.cwd) != null ? _g : dirOf(args.declPath),
+      env: dockEnv({
+        toolId: args.toolId,
+        declPath: args.declPath,
+        runId,
+        trigger,
+        vaultPath: args.vaultPath,
+        manifest: args.manifest,
+        values: args.values
+      }),
+      interactive: typeof ((_h = args.cb) == null ? void 0 : _h.onAsk) === "function"
+    };
+    let phase = null;
+    let pct = null;
+    let timedOut = false;
+    let handleRef = null;
+    const handle = runExternalTool(
+      spec,
+      {
+        onStep: (text) => {
+          var _a2, _b2;
+          steps.push({ text, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
+          (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onStep) == null ? void 0 : _b2.call(_a2, text);
+        },
+        onProgress: (p, v) => {
+          var _a2, _b2;
+          phase = p;
+          pct = v;
+          (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onProgress) == null ? void 0 : _b2.call(_a2, p, v);
+        },
+        onInfo: (d) => {
+          var _a2, _b2;
+          return (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onInfo) == null ? void 0 : _b2.call(_a2, d);
+        },
+        onResult: (d) => {
+          var _a2, _b2;
+          return (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onResult) == null ? void 0 : _b2.call(_a2, d);
+        },
+        onRaw: (t) => {
+          rawTail.push(t);
+          if (rawTail.length > 200) rawTail.shift();
+        },
+        onAsk: (req) => {
+          var _a2, _b2;
+          const ask = (_a2 = args.cb) == null ? void 0 : _a2.onAsk;
+          if (!ask) {
+            (_b2 = handleRef == null ? void 0 : handleRef.answer) == null ? void 0 : _b2.call(handleRef, req.id, false);
+            return;
+          }
+          void Promise.resolve().then(() => ask(req)).then((yes) => {
+            var _a3;
+            return (_a3 = handleRef == null ? void 0 : handleRef.answer) == null ? void 0 : _a3.call(handleRef, req.id, !!yes);
+          }).catch(() => {
+            var _a3;
+            return (_a3 = handleRef == null ? void 0 : handleRef.answer) == null ? void 0 : _a3.call(handleRef, req.id, false);
+          });
+        }
+      },
+      deps
+    );
+    handleRef = handle;
+    const run = {
+      runId,
+      toolId: args.toolId,
+      trigger,
+      startedAt,
+      steps,
+      phase,
+      pct,
+      rawTail,
+      handle,
+      done: Promise.resolve(void 0)
+    };
+    const timeoutMs = (_i = args.timeoutMs) != null ? _i : RUN_TIMEOUT_MS;
+    const timer = timeoutMs > 0 ? setTimeout(() => {
+      timedOut = true;
+      handle.stop();
+    }, timeoutMs) : null;
+    run.done = handle.done.then((o) => {
+      var _a2, _b2;
+      if (timer) clearTimeout(timer);
+      const finishedAt = (/* @__PURE__ */ new Date()).toISOString();
+      const outcome = judgeRun(
+        {
+          runId,
+          toolId: args.toolId,
+          startedAt,
+          finishedAt,
+          durationMs: Date.parse(finishedAt) - startedMs,
+          code: o.code,
+          stopped: o.stopped && !timedOut,
+          timedOut,
+          error: o.error,
+          stderr: o.stderr
+        },
+        args.records()
+      );
+      live.delete(args.toolId);
+      fireLive();
+      (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onDone) == null ? void 0 : _b2.call(_a2, outcome);
+      return outcome;
+    });
+    live.set(args.toolId, run);
+    fireLive();
+    return run;
+  }
+  var deps, live, listeners;
+  var init_exec = __esm({
+    "src/dock/exec.ts"() {
+      init_external_tool();
+      init_parse();
+      init_files();
+      init_types();
+      live = /* @__PURE__ */ new Map();
+      listeners = /* @__PURE__ */ new Set();
+    }
+  });
+
+  // src/core/z-order.ts
+  function syncAlwaysOnTop() {
+    for (const el of alwaysOnTop) {
+      if (!el.isConnected) {
+        alwaysOnTop.delete(el);
+        continue;
+      }
+      el.style.zIndex = String(zCounter);
+    }
+  }
+  function allocZBlock(n) {
+    const base = ++zCounter;
+    zCounter += n - 1;
+    zCounter++;
+    syncAlwaysOnTop();
+    return base;
+  }
+  function allocZ() {
+    return allocZBlock(1);
+  }
+  var zCounter, alwaysOnTop;
+  var init_z_order = __esm({
+    "src/core/z-order.ts"() {
+      zCounter = 1e5;
+      alwaysOnTop = /* @__PURE__ */ new Set();
+    }
+  });
+
+  // src/core/notice.ts
+  function maxVisible() {
+    const v = Number(noticePref("noticeMaxVisible"));
+    return v === 3 || v === 8 ? v : MAX_VISIBLE_DEFAULT;
+  }
+  function isMobileView() {
+    return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(MOBILE_QUERY).matches;
+  }
+  function defaultVariant() {
+    if (isMobileView()) return "drop";
+    const pos = noticePref("noticePosition");
+    return pos === "top-left" || pos === "bottom-left" ? "slide-left" : "slide-right";
+  }
+  function noticePref(key) {
+    var _a;
+    try {
+      const v = (_a = tryGetSettings()) == null ? void 0 : _a[key];
+      return typeof v === "string" ? v : void 0;
+    } catch (e) {
+      return void 0;
+    }
+  }
+  function durationGear() {
+    const v = noticePref("noticeDuration");
+    if (v === "quick") return { base: 2e3, persistent: false };
+    if (v === "relaxed") return { base: 5e3, persistent: false };
+    if (v === "persistent") return { base: 3e3, persistent: true };
+    return { base: 3e3, persistent: false };
+  }
+  function defaultDuration(type) {
+    const base = durationGear().base;
+    return type === "error" ? base + 2e3 : base;
+  }
+  function suppressedByLevel(kind, opts) {
+    const level = noticePref("noticeLevel");
+    if (level !== "important" && level !== "error") return false;
+    if (kind === "progress") return false;
+    if (opts && (opts.action || opts.actions && opts.actions.length > 0)) return false;
+    if (level === "error") return kind !== "error";
+    return kind !== "warning" && kind !== "error";
+  }
+  function applyPositionClass(container) {
+    const pos = noticePref("noticePosition");
+    container.classList.remove(...POSITION_CLASSES);
+    const cls = pos === "bottom-right" || pos === "bottom-left" || pos === "top-left" ? `bz-notice-pos--${pos}` : "";
+    if (cls) container.classList.add(cls);
+  }
+  function calcDuration(text, base) {
+    const len = text.length;
+    if (len <= SHORT_THRESHOLD) return base;
+    const extra = (len - SHORT_THRESHOLD) * PER_CHAR_MS;
+    return Math.min(base + extra, 15e3);
+  }
+  function ensureContainer() {
+    let container = document.getElementById("bz-notice-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "bz-notice-container";
+      document.body.appendChild(container);
+    }
+    return container;
+  }
+  function removeInternal(n) {
+    if (n.timer !== null) {
+      window.clearTimeout(n.timer);
+      n.timer = null;
+    }
+    const i = live2.indexOf(n);
+    if (i !== -1) live2.splice(i, 1);
+    if (n.el.parentNode) n.el.parentNode.removeChild(n.el);
+  }
+  function evictOldest() {
+    let quota = live2.length - maxVisible() + 1;
+    for (let i = 0; quota > 0 && i < live2.length; ) {
+      const candidate = live2[i];
+      if (candidate.persistent) {
+        i++;
+        continue;
+      }
+      removeInternal(candidate);
+      quota--;
+    }
+  }
+  function applyTypeToEl(n, kind) {
+    const isProgressNow = kind === "progress";
+    n.el.classList.remove(
+      "bz-notice--info",
+      "bz-notice--success",
+      "bz-notice--warning",
+      "bz-notice--error",
+      "bz-notice--pause",
+      "bz-notice--delete",
+      "bz-notice--restore",
+      "bz-notice--archive",
+      "bz-notice--progress"
+    );
+    n.el.classList.add("bz-notice--" + (isProgressNow ? "progress" : kind));
+    n.iconEl.innerHTML = "";
+    if (isProgressNow) {
+      n.iconEl.innerHTML = SPINNER_SVG;
+    } else {
+      n.iconEl.textContent = ICONS[kind];
+    }
+    n.isProgress = isProgressNow;
+  }
+  function hideNow(n) {
+    if (n.timer !== null) {
+      window.clearTimeout(n.timer);
+      n.timer = null;
+    }
+    if (!n.el.classList.contains("bz-notice--leaving")) {
+      n.el.classList.add("bz-notice--leaving");
+      const out = OUT_CLASS[n.variant];
+      if (out) n.el.classList.add(out);
+      window.setTimeout(() => removeInternal(n), LEAVE_MS);
+    }
+  }
+  function armTimer(n, kind, explicitDuration, text) {
+    if (n.timer !== null) {
+      window.clearTimeout(n.timer);
+      n.timer = null;
+    }
+    n.persistent = false;
+    if (kind === "progress") {
+      if (explicitDuration !== void 0 && explicitDuration > 0) {
+        n.timer = window.setTimeout(() => hideNow(n), explicitDuration);
+      } else {
+        n.persistent = true;
+      }
+    } else {
+      const base = defaultDuration(kind);
+      const dur = explicitDuration !== void 0 ? explicitDuration : text ? calcDuration(text, base) : base;
+      if (dur <= 0) {
+        n.persistent = true;
+      } else if (explicitDuration === void 0 && durationGear().persistent) {
+      } else {
+        n.timer = window.setTimeout(() => hideNow(n), dur);
+      }
+    }
+  }
+  function noopHandle() {
+    return {
+      el: document.createElement("div"),
+      setMessage() {
+      },
+      setProgress() {
+      },
+      setType() {
+      },
+      setAction() {
+      },
+      hide() {
+      }
+    };
+  }
+  function appendActionBtn(n, action) {
+    const btn = document.createElement("span");
+    btn.className = "bz-notice-action";
+    btn.setAttribute("role", "button");
+    btn.tabIndex = 0;
+    btn.textContent = action.label;
+    const fire = (e) => {
+      e.stopPropagation();
+      if (action.onClick) action.onClick();
+      hideNow(n);
+    };
+    btn.addEventListener("click", fire);
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fire(e);
+      }
+    });
+    n.el.appendChild(btn);
+  }
+  function makeHandle(n) {
+    return {
+      el: n.el,
+      setMessage(text) {
+        n.msgEl.textContent = text;
+      },
+      setType(t) {
+        applyTypeToEl(n, t);
+        armTimer(n, t, void 0, n.msgEl.textContent || void 0);
+      },
+      setProgress(pct) {
+        if (!n.progressEl) return;
+        if (pct === -1) {
+          n.progressEl.classList.add("bz-notice-progress--indeterminate");
+          return;
+        }
+        n.progressEl.classList.remove("bz-notice-progress--indeterminate");
+        const clamped = Math.max(0, Math.min(100, pct));
+        n.progressEl.style.width = clamped + "%";
+        if (clamped >= 100) n.progressEl.classList.add("bz-notice-progress--done");
+        else n.progressEl.classList.remove("bz-notice-progress--done");
+      },
+      setAction(actions) {
+        const list = Array.isArray(actions) ? actions : [actions];
+        const existing = new Set(
+          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el) => el.textContent || "")
+        );
+        for (const a of list) {
+          if (existing.has(a.label)) continue;
+          appendActionBtn(n, a);
+          existing.add(a.label);
+        }
+      },
+      hide() {
+        hideNow(n);
+      }
+    };
+  }
+  function notify(msg, opts) {
+    const kind = opts && opts.type || "info";
+    if (suppressedByLevel(kind, opts)) return noopHandle();
+    const isProgress = kind === "progress";
+    const type = isProgress ? "info" : kind;
+    const variant = opts && opts.variant || defaultVariant();
+    const container = ensureContainer();
+    applyPositionClass(container);
+    if (opts && opts.dedupeKey) {
+      const key = opts.dedupeKey;
+      const r = recent[key];
+      const now = Date.now();
+      if (r && r.n && r.n.el.isConnected) {
+        r.n.msgEl.textContent = msg;
+        if (r.n.isProgress !== isProgress || r.n.el.classList.contains("bz-notice--" + type) === false) {
+          applyTypeToEl(r.n, kind);
+        }
+        const mergeActions = [];
+        if (opts.action) mergeActions.push(opts.action);
+        if (opts.actions) mergeActions.push(...opts.actions);
+        armTimer(r.n, kind, opts.duration, msg);
+        const merged = makeHandle(r.n);
+        if (mergeActions.length) merged.setAction(mergeActions);
+        return merged;
+      }
+      if (r && now - r.at < DEDUPE_WINDOW_MS) {
+        return noopHandle();
+      }
+      recent[key] = { at: now, n: null };
+    }
+    evictOldest();
+    const el = document.createElement("div");
+    el.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    const icon = document.createElement("div");
+    icon.className = "bz-notice-icon";
+    if (isProgress) {
+      icon.innerHTML = SPINNER_SVG;
+    } else {
+      icon.textContent = ICONS[type];
+    }
+    el.appendChild(icon);
+    const body = document.createElement("div");
+    body.className = "bz-notice-body";
+    if (opts && opts.title) {
+      const titleEl2 = document.createElement("div");
+      titleEl2.className = "bz-notice-title";
+      titleEl2.textContent = opts.title;
+      body.appendChild(titleEl2);
+    }
+    const msgEl = document.createElement("div");
+    msgEl.className = "bz-notice-msg";
+    msgEl.textContent = msg;
+    body.appendChild(msgEl);
+    el.appendChild(body);
+    let progressEl = null;
+    if (isProgress) {
+      progressEl = document.createElement("div");
+      progressEl.className = "bz-notice-progress";
+      el.appendChild(progressEl);
+    }
+    const n = { el, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
+    const actions = [];
+    if (opts && opts.action) actions.push(opts.action);
+    if (opts && opts.actions) {
+      for (const a of opts.actions) {
+        if (!actions.some((x) => x.label === a.label)) actions.push(a);
+      }
+    }
+    for (const a of actions) appendActionBtn(n, a);
+    el.addEventListener("click", () => hideNow(n));
+    container.style.zIndex = String(allocZ());
+    container.appendChild(el);
+    live2.push(n);
+    if (opts && opts.dedupeKey) {
+      const r = recent[opts.dedupeKey];
+      if (r) r.n = n;
+    }
+    const fullText = (opts && opts.title ? opts.title + " " : "") + msg;
+    armTimer(n, kind, opts && opts.duration, fullText);
+    return makeHandle(n);
+  }
+  var MAX_VISIBLE_DEFAULT, LEAVE_MS, DEDUPE_WINDOW_MS, MOBILE_QUERY, ICONS, SPINNER_SVG, OUT_CLASS, POSITION_CLASSES, PER_CHAR_MS, SHORT_THRESHOLD, live2, recent;
+  var init_notice = __esm({
+    "src/core/notice.ts"() {
+      init_z_order();
+      init_settings_provider();
+      MAX_VISIBLE_DEFAULT = 5;
+      LEAVE_MS = 200;
+      DEDUPE_WINDOW_MS = 3e4;
+      MOBILE_QUERY = "(max-width: 768px)";
+      ICONS = {
+        info: "ℹ️",
+        success: "✅",
+        warning: "⚠️",
+        error: "❌",
+        pause: "⏸️",
+        delete: "🗑️",
+        restore: "↩️",
+        archive: "📁"
+      };
+      SPINNER_SVG = '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></svg>';
+      OUT_CLASS = {
+        drop: "bz-notice--out-drop",
+        pop: "bz-notice--out-pop",
+        "slide-left": "bz-notice--out-left",
+        "slide-right": "bz-notice--out-right",
+        bounce: "bz-notice--out-fade",
+        shake: "bz-notice--out-fade"
+      };
+      POSITION_CLASSES = ["bz-notice-pos--bottom-right", "bz-notice-pos--bottom-left", "bz-notice-pos--top-left"];
+      PER_CHAR_MS = 60;
+      SHORT_THRESHOLD = 20;
+      live2 = [];
+      recent = {};
+    }
+  });
+
   // src/dock/view.ts
   function readManifestFile(path, fs) {
     const text = readTextOf(path, fs);
@@ -1215,37 +1777,39 @@ var BZW_dock = (() => {
     } catch (e) {
       return { manifest: null, error: "manifest.json 不是合法 JSON" };
     }
-    const manifest2 = parseManifest(raw);
-    if (!manifest2) {
+    const manifest = parseManifest(raw);
+    if (!manifest) {
       return { manifest: null, error: "manifest.json 校验不过（需要 v:2、合法 id、非空 name）" };
     }
-    return { manifest: manifest2 };
+    return { manifest };
   }
   function loadToolView(entry, opts = {}) {
     var _a, _b, _c, _d, _e, _f, _g;
     const fs = opts.fs === void 0 ? currentFs() : opts.fs;
-    const { manifest: manifest2, error } = readManifestFile(entry.path, fs != null ? fs : null);
-    const intentRaw = fs ? readTextOf(pathOf.intent(entry.path), fs) : null;
+    const declPath = resolveToolPath(entry.path);
+    const { manifest, error } = readManifestFile(declPath, fs != null ? fs : null);
+    const intentRaw = fs ? readTextOf(pathOf.intent(declPath), fs) : null;
     const intent = parseIntent(safeJson(intentRaw), entry.id);
-    const runtimeRaw = fs ? readTextOf(pathOf.runtime(entry.path), fs) : null;
+    const runtimeRaw = fs ? readTextOf(pathOf.runtime(declPath), fs) : null;
     const runtime = parseRuntime(safeJson(runtimeRaw), entry.id);
-    const settingsRaw = fs ? readTextOf(pathOf.settings(entry.path), fs) : null;
+    const settingsRaw = fs ? readTextOf(pathOf.settings(declPath), fs) : null;
     const parsedValues = parseSettingsText(settingsRaw, entry.id);
     const values = parsedValues != null ? parsedValues : {};
-    const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
-    const heartbeat = heartbeatOf(entry.path, fs);
+    const records = fs ? parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), entry.id) : [];
+    const heartbeat = heartbeatOf(declPath, fs);
     const trust = (_a = opts.trust) == null ? void 0 : _a[entry.id];
-    const signature = runSignature((_b = manifest2 == null ? void 0 : manifest2.entry) != null ? _b : null);
+    const signature = runSignature((_b = manifest == null ? void 0 : manifest.entry) != null ? _b : null);
     const trusted = !!trust && !!signature && trust.run === signature;
-    const rules = ((_c = intent.rules) == null ? void 0 : _c.length) ? intent.rules : (_d = manifest2 == null ? void 0 : manifest2.defaultRules) != null ? _d : [];
+    const rules = ((_c = intent.rules) == null ? void 0 : _c.length) ? intent.rules : (_d = manifest == null ? void 0 : manifest.defaultRules) != null ? _d : [];
     return {
       id: entry.id,
-      path: entry.path,
-      dir: dirOf(entry.path),
-      manifest: manifest2,
-      error: error != null ? error : manifest2 && manifest2.id !== entry.id ? `声明的 id 是 ${manifest2.id}，登记的是 ${entry.id}` : void 0,
-      entry: (_e = manifest2 == null ? void 0 : manifest2.entry) != null ? _e : null,
-      params: (_f = manifest2 == null ? void 0 : manifest2.params) != null ? _f : [],
+      path: declPath,
+      declaredPath: entry.path,
+      dir: dirOf(declPath),
+      manifest,
+      error: error != null ? error : manifest && manifest.id !== entry.id ? `声明的 id 是 ${manifest.id}，登记的是 ${entry.id}` : void 0,
+      entry: (_e = manifest == null ? void 0 : manifest.entry) != null ? _e : null,
+      params: (_f = manifest == null ? void 0 : manifest.params) != null ? _f : [],
       values,
       intent,
       runtime,
@@ -1254,19 +1818,19 @@ var BZW_dock = (() => {
       trustStale: !!trust && !!signature && trust.run !== signature,
       lastRun: latestRun(records),
       heartbeat: heartbeat != null ? heartbeat : void 0,
-      runnable: ((_g = opts.canRun) != null ? _g : true) && !!(manifest2 == null ? void 0 : manifest2.entry)
+      runnable: ((_g = opts.canRun) != null ? _g : true) && !!(manifest == null ? void 0 : manifest.entry)
     };
   }
   function loadToolViews(entries, opts = {}) {
     return entries.map((e) => loadToolView(e, opts));
   }
   function recentRunsOf(declPath, toolId, limit = 20, fs = currentFs()) {
-    const all = parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), toolId);
+    const all = parseRunLines(readRunsText(pathOf.runs(resolveToolPath(declPath)), fs, RUNS_TAIL_BYTES), toolId);
     return all.slice().sort((a, b) => (Date.parse(b.startedAt) || 0) - (Date.parse(a.startedAt) || 0)).slice(0, limit);
   }
   function heartbeatOf(declPath, fs = currentFs()) {
     if (!fs) return null;
-    return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(declPath), fs)));
+    return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(resolveToolPath(declPath)), fs)));
   }
   function panelOf(declPath, fs = currentFs()) {
     return readPanelText(pathOf.panel(declPath), fs);
@@ -1367,7 +1931,7 @@ var BZW_dock = (() => {
   });
 
   // src/dock/registry.ts
-  function vaultRoot() {
+  function dockVaultRoot2() {
     var _a;
     try {
       const a = getApp();
@@ -1380,14 +1944,16 @@ var BZW_dock = (() => {
   }
   function registryPath() {
     const rel = storageFile(REGISTRY_FILENAME);
-    const root2 = vaultRoot();
+    const root2 = dockVaultRoot2();
+    setDockVaultRoot(root2);
     return root2 ? `${root2}/${rel}` : rel;
   }
   function readRegistry(fs = currentFs()) {
     return readRegistryAt(registryPath(), fs);
   }
   function upsertTool(entry, fs) {
-    return upsertToolAt(registryPath(), entry, fs === void 0 ? currentFs() : fs);
+    const portable = { ...entry, path: portableToolPath(entry.path) };
+    return upsertToolAt(registryPath(), portable, fs === void 0 ? currentFs() : fs);
   }
   function removeTool(id, fs) {
     return removeToolAt(registryPath(), id, fs === void 0 ? currentFs() : fs);
@@ -1409,16 +1975,16 @@ var BZW_dock = (() => {
   async function trustTool(id, entry) {
     const trust = readTrust();
     trust[id] = { at: (/* @__PURE__ */ new Date()).toISOString(), run: runSignature(entry) };
-    const settings = tryGetSettings();
-    settings[DOCK_TRUST_KEY] = trust;
+    const settings2 = tryGetSettings();
+    settings2[DOCK_TRUST_KEY] = trust;
     await saveSettings();
   }
   async function untrustTool(id) {
     const trust = readTrust();
     if (!(id in trust)) return;
     delete trust[id];
-    const settings = tryGetSettings();
-    settings[DOCK_TRUST_KEY] = trust;
+    const settings2 = tryGetSettings();
+    settings2[DOCK_TRUST_KEY] = trust;
     await saveSettings();
   }
   var DOCK_TRUST_KEY;
@@ -1835,521 +2401,6 @@ var BZW_dock = (() => {
     }
   });
 
-  // src/core/external-tool.ts
-  function parseAskBody(body) {
-    const id = typeof body.id === "string" ? body.id.trim() : "";
-    if (!id) return null;
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    if (!title) return null;
-    const raw = typeof body.body === "string" ? body.body : "";
-    const html = typeof body.bodyHtml === "string" ? body.bodyHtml.trim() : "";
-    const sec = Number(body.timeoutSec);
-    const timeoutSec = Number.isFinite(sec) ? Math.min(ASK_TIMEOUT_MAX_SEC, Math.max(ASK_TIMEOUT_MIN_SEC, Math.floor(sec))) : ASK_TIMEOUT_DEFAULT_SEC;
-    return {
-      id,
-      title,
-      body: raw,
-      bodyHtml: html,
-      confirmText: typeof body.confirmText === "string" && body.confirmText.trim() ? body.confirmText.trim() : "确认",
-      cancelText: typeof body.cancelText === "string" && body.cancelText.trim() ? body.cancelText.trim() : "取消",
-      timeoutSec
-    };
-  }
-  function parseBzLine(line) {
-    const text = line.endsWith("\r") ? line.slice(0, -1) : line;
-    const m = text.match(BZ_LINE_PREFIX_RE);
-    if (!m) {
-      if (!text.trim()) return null;
-      return { kind: "raw", text };
-    }
-    const body = text.slice(m[0].length).trim();
-    switch (m[1]) {
-      case "step":
-        return body ? { kind: "step", text: body } : null;
-      case "p": {
-        const p = parseJsonObject(body);
-        if (!p) return null;
-        return {
-          kind: "progress",
-          phase: typeof p.phase === "string" ? p.phase : null,
-          // pct 允许 null = 该阶段不可估；缺失/非有限数一律归 null（绝不假报）
-          pct: Number.isFinite(p.pct) ? Number(p.pct) : null
-        };
-      }
-      case "info": {
-        const info = parseJsonObject(body);
-        return info ? { kind: "info", data: info } : null;
-      }
-      case "ask": {
-        const b = parseJsonObject(body);
-        const ask = b ? parseAskBody(b) : null;
-        return ask ? { kind: "ask", ask } : null;
-      }
-      default: {
-        const r = parseJsonObject(body);
-        return r ? { kind: "result", data: r } : null;
-      }
-    }
-  }
-  function parseJsonObject(body) {
-    try {
-      const v = JSON.parse(body);
-      return v && typeof v === "object" && !Array.isArray(v) ? v : null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function defaultChildProcess() {
-    if (typeof window === "undefined") return null;
-    const w = window;
-    if (!w.require) return null;
-    try {
-      return w.require("child_process");
-    } catch (e) {
-      return null;
-    }
-  }
-  function runExternalTool(spec, cb, deps2) {
-    var _a, _b;
-    const cp = deps2 && deps2.cp ? deps2.cp : defaultChildProcess();
-    const splitter = new BzLineSplitter();
-    let stderrTail = "";
-    let settled = false;
-    let stopped = false;
-    let child = null;
-    let exitSeen = false;
-    let exitCode = null;
-    let forceTimer = null;
-    let resolveDone;
-    const done = new Promise((r) => {
-      resolveDone = r;
-    });
-    const settle2 = (o) => {
-      if (settled) return;
-      settled = true;
-      if (forceTimer !== null) {
-        clearTimeout(forceTimer);
-        forceTimer = null;
-      }
-      resolveDone(o);
-    };
-    const collectStderr = (d) => {
-      stderrTail += String(d);
-      if (stderrTail.length > STDERR_TAIL_CHARS) stderrTail = stderrTail.slice(-STDERR_TAIL_CHARS);
-    };
-    const dispatchLine = (line) => {
-      var _a2;
-      const ev = parseBzLine(line);
-      if (!ev) return;
-      switch (ev.kind) {
-        case "step":
-          cb.onStep(ev.text);
-          break;
-        case "progress":
-          cb.onProgress(ev.phase, ev.pct);
-          break;
-        case "info":
-          cb.onInfo(ev.data);
-          break;
-        case "result":
-          cb.onResult(ev.data);
-          break;
-        case "ask":
-          (_a2 = cb.onAsk) == null ? void 0 : _a2.call(cb, ev.ask);
-          break;
-        case "raw":
-          if (cb.onRaw) cb.onRaw(ev.text);
-          break;
-      }
-    };
-    if (!cp) {
-      settle2({ ok: false, stopped: false, code: null, stderr: "", error: new Error("仅桌面端可用：外部工具需要 Node.js 子进程") });
-      return { stop: () => {
-      }, answer: () => {
-      }, done };
-    }
-    const spawnOpts = {
-      shell: !!spec.shell,
-      windowsHide: true,
-      // stdin 只在交互运行下开 pipe（见 spec.interactive 的说明）：给所有工具无差别开管道，
-      // 等于让一个「顺手读了 stdin」的工具凭空挂住——而它本来只是想要 /dev/null。
-      stdio: [spec.interactive ? "pipe" : "ignore", "pipe", "pipe"]
-    };
-    if (spec.cwd) spawnOpts.cwd = spec.cwd;
-    if (spec.env) spawnOpts.env = spec.env;
-    try {
-      child = cp.spawn(spec.cmd, spec.args || [], spawnOpts);
-    } catch (e) {
-      settle2({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${(e == null ? void 0 : e.message) || String(e)}`) });
-      return { stop: () => {
-      }, answer: () => {
-      }, done };
-    }
-    (_a = child.stdout) == null ? void 0 : _a.on("data", (d) => {
-      for (const line of splitter.push(d)) dispatchLine(line);
-    });
-    (_b = child.stderr) == null ? void 0 : _b.on("data", collectStderr);
-    child.on("error", (e) => {
-      if (settled) return;
-      settle2({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${e.message}`) });
-    });
-    child.on("exit", (code) => {
-      exitSeen = true;
-      exitCode = code;
-    });
-    child.on("close", (code) => {
-      if (settled) return;
-      const rest = splitter.flush();
-      if (rest !== null) dispatchLine(rest);
-      const stderr = stderrTail.trim();
-      if (stopped) {
-        settle2({ ok: false, stopped: true, code, stderr, error: null });
-        return;
-      }
-      if (code === 0) {
-        settle2({ ok: true, stopped: false, code: 0, stderr, error: null });
-        return;
-      }
-      const err = new Error(code === null ? `外部工具异常退出（无退出码）${stderr ? "：" + stderr : ""}` : `外部工具异常退出（退出码 ${code}）${stderr ? "：" + stderr : ""}`);
-      err.stderr = stderr;
-      settle2({ ok: false, stopped: false, code, stderr, error: err });
-    });
-    const isWindows = () => process.platform === "win32";
-    const spawnSuppressed = (cmd, args) => {
-      var _a2;
-      try {
-        const killer = cp.spawn(cmd, args, { stdio: "ignore", windowsHide: true });
-        (_a2 = killer.on) == null ? void 0 : _a2.call(killer, "error", () => {
-        });
-      } catch (e) {
-      }
-    };
-    const escalateForceKill = () => {
-      forceTimer = null;
-      if (settled) return;
-      const pid = child == null ? void 0 : child.pid;
-      if (typeof pid !== "number" || pid <= 0) return;
-      if (exitSeen) {
-        settle2({ ok: false, stopped: true, code: exitCode, stderr: stderrTail.trim(), error: null });
-        return;
-      }
-      if (isWindows()) {
-        spawnSuppressed("taskkill", ["/pid", String(pid), "/T", "/F"]);
-        return;
-      }
-      try {
-        process.kill(pid, "SIGKILL");
-      } catch (e) {
-      }
-    };
-    const stopChild = () => {
-      var _a2;
-      const pid = child == null ? void 0 : child.pid;
-      if (spec.shell && isWindows() && typeof pid === "number" && pid > 0) {
-        spawnSuppressed("taskkill", ["/pid", String(pid), "/T"]);
-      } else {
-        try {
-          (_a2 = child == null ? void 0 : child.kill) == null ? void 0 : _a2.call(child);
-        } catch (e) {
-        }
-      }
-      if (typeof pid === "number" && pid > 0) {
-        forceTimer = setTimeout(escalateForceKill, FORCE_KILL_GRACE_MS);
-      }
-    };
-    return {
-      stop: () => {
-        if (settled || stopped) return;
-        stopped = true;
-        stopChild();
-      },
-      answer: (id, ok) => {
-        const s = child == null ? void 0 : child.stdin;
-        if (!s || s.destroyed || s.writableEnded) return;
-        try {
-          s.write(`[bz-answer] ${JSON.stringify({ id, ok: !!ok })}
-`);
-        } catch (e) {
-        }
-      },
-      done
-    };
-  }
-  var ASK_TIMEOUT_DEFAULT_SEC, ASK_TIMEOUT_MIN_SEC, ASK_TIMEOUT_MAX_SEC, BZ_LINE_PREFIX_RE, MAX_LINE_BYTES, BzLineSplitter, STDERR_TAIL_CHARS, FORCE_KILL_GRACE_MS;
-  var init_external_tool = __esm({
-    "src/core/external-tool.ts"() {
-      ASK_TIMEOUT_DEFAULT_SEC = 300;
-      ASK_TIMEOUT_MIN_SEC = 10;
-      ASK_TIMEOUT_MAX_SEC = 600;
-      BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
-      MAX_LINE_BYTES = 1024 * 1024;
-      BzLineSplitter = class {
-        constructor(maxLineBytes = MAX_LINE_BYTES) {
-          this.maxLineBytes = maxLineBytes;
-          this.parts = [];
-          this.len = 0;
-          this.overflowed = false;
-        }
-        /** 喂一段 stdout（Buffer 或 string），返回其中切出的完整行（不含行尾符） */
-        push(chunk) {
-          const buf = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
-          const lines = [];
-          let pos = 0;
-          while (pos < buf.length) {
-            const nl = buf.indexOf(10, pos);
-            if (nl === -1) {
-              this.accumulate(buf.subarray(pos));
-              break;
-            }
-            this.accumulate(buf.subarray(pos, nl));
-            lines.push(this.takeLine());
-            pos = nl + 1;
-          }
-          return lines;
-        }
-        /** 进程终结时冲刷残留半行（无残留返回 null）——无尾换行的最后一行靠这里出列 */
-        flush() {
-          return this.len > 0 || this.overflowed ? this.takeLine() : null;
-        }
-        /** 累积字节；超出单行上限后丢弃后续字节（截断语义，待换行时一并出列） */
-        accumulate(part) {
-          if (this.overflowed) return;
-          const room = this.maxLineBytes - this.len;
-          if (part.length <= room) {
-            this.parts.push(part);
-            this.len += part.length;
-          } else {
-            this.parts.push(part.subarray(0, room));
-            this.len = this.maxLineBytes;
-            this.overflowed = true;
-          }
-        }
-        /** 出列一行（overflow 时为截断行）；CRLF 的 \r 在此剥除 */
-        takeLine() {
-          const s = Buffer.concat(this.parts).toString("utf8");
-          this.parts = [];
-          this.len = 0;
-          this.overflowed = false;
-          return s.endsWith("\r") ? s.slice(0, -1) : s;
-        }
-      };
-      STDERR_TAIL_CHARS = 2048;
-      FORCE_KILL_GRACE_MS = 3e3;
-    }
-  });
-
-  // src/dock/exec.ts
-  function dockEnv(input) {
-    const env = {
-      BZ_DOCK_CONTRACT: String(CONTRACT_VERSION),
-      BZ_DOCK_TOOL: input.toolId,
-      BZ_DOCK_RUN_ID: input.runId,
-      BZ_DOCK_TRIGGER: input.trigger,
-      BZ_DOCK_RUNS_FILE: pathOf.runs(input.declPath),
-      BZ_DOCK_HEARTBEAT_FILE: pathOf.heartbeat(input.declPath)
-    };
-    if (input.vaultPath) env.BZ_DOCK_VAULT = input.vaultPath.replace(/[\\/]+$/, "");
-    if (input.manifest) Object.assign(env, secretEnvOf(input.manifest, input.values));
-    return env;
-  }
-  function judgeRun(input, records) {
-    var _a, _b;
-    const base = {
-      runId: input.runId,
-      code: input.code,
-      signal: input.signal,
-      stderr: input.stderr,
-      error: input.error,
-      startedAt: input.startedAt,
-      finishedAt: input.finishedAt,
-      durationMs: input.durationMs
-    };
-    if (input.stopped) {
-      return { ...base, ok: false, status: "stopped", kind: "aborted", record: findByRunId(records, input.runId) };
-    }
-    if (input.timedOut) {
-      return { ...base, ok: false, status: "timeout", kind: "timeout", record: findByRunId(records, input.runId) };
-    }
-    const record = findByRunId(records, input.runId);
-    if (record) {
-      const status = record.status === "running" ? "abandoned" : record.status;
-      return {
-        ...base,
-        ok: status === "ok",
-        status,
-        kind: (_b = (_a = record.error) == null ? void 0 : _a.kind) != null ? _b : status === "ok" ? "unknown" : "unknown",
-        record: { ...record, status }
-      };
-    }
-    const ok = input.code === 0 && !input.error;
-    const kind = input.code === null ? "config" : "unknown";
-    return {
-      ...base,
-      ok,
-      status: ok ? "ok" : "failed",
-      kind,
-      recordMissing: input.code === null ? "进程没能启动（命令或工作目录配错了）" : "工具没写这次运行的记录，多半没跑到写记录那一步"
-    };
-  }
-  function liveOf(toolId) {
-    return live2.get(toolId);
-  }
-  function liveAll() {
-    return Array.from(live2.values()).sort((a, b) => (Date.parse(a.startedAt) || 0) - (Date.parse(b.startedAt) || 0));
-  }
-  function onLiveChanged(fn) {
-    listeners.add(fn);
-    return () => listeners.delete(fn);
-  }
-  function fireLive() {
-    for (const fn of listeners) {
-      try {
-        fn();
-      } catch (e) {
-      }
-    }
-  }
-  function stopLive(toolId) {
-    var _a;
-    (_a = live2.get(toolId)) == null ? void 0 : _a.handle.stop();
-  }
-  function runToolNow(args) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
-    const runId = (_a = args.runId) != null ? _a : makeRunId();
-    const trigger = (_b = args.trigger) != null ? _b : "manual";
-    const startedMs = Date.now();
-    const startedAt = new Date(startedMs).toISOString();
-    const rawTail = [];
-    const steps = [];
-    const spec = {
-      cmd: args.entry.cmd,
-      args: [...(_c = args.entry.args) != null ? _c : [], ...buildArgs((_d = args.manifest) != null ? _d : { params: [] }, args.values), ...(_e = args.extraArgs) != null ? _e : []],
-      shell: (_f = args.entry.shell) != null ? _f : /\.(cmd|bat)$/i.test(args.entry.cmd),
-      /**
-       * 工作目录，契约写的是「缺省 = 声明所在目录」。
-       *
-       * 这一句必须显式给：不给的话子进程继承宿主进程的 cwd —— 插件里是 Obsidian 的目录，
-       * 值守里是仓库根。两种都不是工具目录，「`args: ['main.mjs']` 的相对路径」当场失效，
-       * 症状是「面板上跑得起来、值守里报找不到文件」。
-       */
-      cwd: (_g = args.entry.cwd) != null ? _g : dirOf(args.declPath),
-      env: dockEnv({
-        toolId: args.toolId,
-        declPath: args.declPath,
-        runId,
-        trigger,
-        vaultPath: args.vaultPath,
-        manifest: args.manifest,
-        values: args.values
-      }),
-      interactive: typeof ((_h = args.cb) == null ? void 0 : _h.onAsk) === "function"
-    };
-    let phase = null;
-    let pct = null;
-    let timedOut = false;
-    let handleRef = null;
-    const handle = runExternalTool(
-      spec,
-      {
-        onStep: (text) => {
-          var _a2, _b2;
-          steps.push({ text, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
-          (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onStep) == null ? void 0 : _b2.call(_a2, text);
-        },
-        onProgress: (p, v) => {
-          var _a2, _b2;
-          phase = p;
-          pct = v;
-          (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onProgress) == null ? void 0 : _b2.call(_a2, p, v);
-        },
-        onInfo: (d) => {
-          var _a2, _b2;
-          return (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onInfo) == null ? void 0 : _b2.call(_a2, d);
-        },
-        onResult: (d) => {
-          var _a2, _b2;
-          return (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onResult) == null ? void 0 : _b2.call(_a2, d);
-        },
-        onRaw: (t) => {
-          rawTail.push(t);
-          if (rawTail.length > 200) rawTail.shift();
-        },
-        onAsk: (req) => {
-          var _a2, _b2;
-          const ask = (_a2 = args.cb) == null ? void 0 : _a2.onAsk;
-          if (!ask) {
-            (_b2 = handleRef == null ? void 0 : handleRef.answer) == null ? void 0 : _b2.call(handleRef, req.id, false);
-            return;
-          }
-          void Promise.resolve().then(() => ask(req)).then((yes) => {
-            var _a3;
-            return (_a3 = handleRef == null ? void 0 : handleRef.answer) == null ? void 0 : _a3.call(handleRef, req.id, !!yes);
-          }).catch(() => {
-            var _a3;
-            return (_a3 = handleRef == null ? void 0 : handleRef.answer) == null ? void 0 : _a3.call(handleRef, req.id, false);
-          });
-        }
-      },
-      deps
-    );
-    handleRef = handle;
-    const run = {
-      runId,
-      toolId: args.toolId,
-      trigger,
-      startedAt,
-      steps,
-      phase,
-      pct,
-      rawTail,
-      handle,
-      done: Promise.resolve(void 0)
-    };
-    const timeoutMs = (_i = args.timeoutMs) != null ? _i : RUN_TIMEOUT_MS;
-    const timer = timeoutMs > 0 ? setTimeout(() => {
-      timedOut = true;
-      handle.stop();
-    }, timeoutMs) : null;
-    run.done = handle.done.then((o) => {
-      var _a2, _b2;
-      if (timer) clearTimeout(timer);
-      const finishedAt = (/* @__PURE__ */ new Date()).toISOString();
-      const outcome = judgeRun(
-        {
-          runId,
-          toolId: args.toolId,
-          startedAt,
-          finishedAt,
-          durationMs: Date.parse(finishedAt) - startedMs,
-          code: o.code,
-          stopped: o.stopped && !timedOut,
-          timedOut,
-          error: o.error,
-          stderr: o.stderr
-        },
-        args.records()
-      );
-      live2.delete(args.toolId);
-      fireLive();
-      (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onDone) == null ? void 0 : _b2.call(_a2, outcome);
-      return outcome;
-    });
-    live2.set(args.toolId, run);
-    fireLive();
-    return run;
-  }
-  var deps, live2, listeners;
-  var init_exec = __esm({
-    "src/dock/exec.ts"() {
-      init_external_tool();
-      init_parse();
-      init_files();
-      init_types();
-      live2 = /* @__PURE__ */ new Map();
-      listeners = /* @__PURE__ */ new Set();
-    }
-  });
-
   // src/core/domain-bus.ts
   var init_domain_bus = __esm({
     "src/core/domain-bus.ts"() {
@@ -2588,7 +2639,14 @@ var BZW_dock = (() => {
       trigger: "auto",
       // 工单号由内核定（pending 里已经记下），这里必须原样传
       runId,
-      records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), fs, RUNS_TAIL_BYTES), view2.id)
+      records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), fs, RUNS_TAIL_BYTES), view2.id),
+      cb: {
+        onStep: (text) => {
+          var _a2;
+          return (_a2 = opts.onStep) == null ? void 0 : _a2.call(opts, view2, text, runId);
+        }
+        // 没人可问 = 立即按取消回（`exec` 的既有约定），这里不需要额外处理
+      }
     });
     const outcome = await live3.done;
     (_a = opts.onOutcome) == null ? void 0 : _a.call(opts, view2, outcome);
@@ -2752,6 +2810,8 @@ var BZW_dock = (() => {
   init_app();
   init_settings_provider();
   init_files();
+  init_exec();
+  init_parse();
 
   // src/dock/ui.ts
   init_fake_obsidian();
@@ -2784,6 +2844,131 @@ var BZW_dock = (() => {
   // src/dock/ui.ts
   init_exec();
   init_host();
+
+  // src/dock/vault-fs.ts
+  init_files();
+  init_registry_file();
+  init_parse();
+  init_storage();
+  init_types();
+  var mem = /* @__PURE__ */ new Map();
+  var primed = false;
+  var basePath = "";
+  function norm(p) {
+    return p.replace(/\\/g, "/");
+  }
+  var memoryFs = {
+    readText: (p) => {
+      var _a;
+      return (_a = mem.get(norm(p))) != null ? _a : null;
+    },
+    writeText: () => {
+    },
+    exists: (p) => mem.has(norm(p))
+  };
+  function baseOf(app3) {
+    var _a;
+    try {
+      const adapter = app3.vault.adapter;
+      const b = (_a = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _a.call(adapter);
+      return typeof b === "string" ? norm(b).replace(/\/+$/, "") : "";
+    } catch (e) {
+      return "";
+    }
+  }
+  function put(abs, text) {
+    const p = norm(abs);
+    mem.set(p, text);
+    if (basePath && p.startsWith(`${basePath}/`)) mem.set(p.slice(basePath.length + 1), text);
+    else if (basePath) mem.set(`${basePath}/${p.replace(/^\/+/, "")}`, text);
+  }
+  function toVaultRelative(p) {
+    const s = norm(p);
+    if (isPortablePath(s)) return s.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, "");
+    if (basePath && s.startsWith(`${basePath}/`)) return s.slice(basePath.length + 1);
+    return null;
+  }
+  async function primeVaultFs(app3) {
+    basePath = baseOf(app3);
+    const registryRel = storageFile(REGISTRY_FILENAME);
+    await primeOne(app3, registryRel);
+    const fs = memoryFs;
+    let entries = [];
+    try {
+      entries = readRegistryAt(registryRel, fs).registry.tools;
+    } catch (e) {
+      entries = [];
+    }
+    for (const entry of entries) {
+      const declAbs = resolveToolPath(entry.path);
+      await primeOne(app3, declAbs);
+      const rel = toVaultRelative(declAbs);
+      if (!rel) continue;
+      const dir = rel.slice(0, rel.lastIndexOf("/") + 1);
+      for (const name of ["data.json", "dock.intent.json", "dock.runtime.json", "runs.jsonl", "heartbeat.json", "panel.html"]) {
+        await primeOne(app3, `${dir}${name}`);
+      }
+    }
+    primed = true;
+  }
+  async function primeOne(app3, p) {
+    const rel = toVaultRelative(p);
+    if (!rel) return;
+    try {
+      const text = await app3.vault.adapter.read(rel);
+      put(p, text);
+    } catch (e) {
+    }
+  }
+
+  // src/dock/watchdog-status.ts
+  init_files();
+  var WATCHDOG_DIRNAME = "bz-dock-watch";
+  function watchdogDirOf(env = guessEnv()) {
+    var _a, _b, _c;
+    const local = String((_a = env.LOCALAPPDATA) != null ? _a : "").trim();
+    if (local) return `${local.replace(/[\\/]+$/, "")}/${WATCHDOG_DIRNAME}`;
+    const home = String((_c = (_b = env.USERPROFILE) != null ? _b : env.HOME) != null ? _c : "").trim();
+    if (home) return `${home.replace(/[\\/]+$/, "")}/AppData/Local/${WATCHDOG_DIRNAME}`;
+    return WATCHDOG_DIRNAME;
+  }
+  function guessEnv() {
+    var _a, _b;
+    const g = globalThis;
+    const env = (_b = (_a = g.process) == null ? void 0 : _a.env) != null ? _b : {};
+    return { LOCALAPPDATA: env.LOCALAPPDATA, USERPROFILE: env.USERPROFILE, HOME: env.HOME };
+  }
+  function liveLogFileOf(toolId) {
+    const safe = String(toolId || "unknown").replace(/[^A-Za-z0-9._-]/g, "_");
+    return `${watchdogDirOf()}/live/${safe}.jsonl`;
+  }
+  function parseLiveLog(text, limit = 40) {
+    if (!text) return [];
+    const out = [];
+    for (const line of text.split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const raw = JSON.parse(line);
+        if (!raw || typeof raw !== "object") continue;
+        const t = typeof raw.text === "string" ? raw.text : "";
+        if (!t) continue;
+        const step = { text: t };
+        if (typeof raw.runId === "string") step.runId = raw.runId;
+        if (typeof raw.at === "string") step.at = raw.at;
+        out.push(step);
+      } catch (e) {
+      }
+    }
+    return out.slice(-limit);
+  }
+  function liveLogOf(toolId, limit = 40, fs = currentFs()) {
+    if (!fs) return [];
+    const file = liveLogFileOf(toolId);
+    const text = fs.readTail ? fs.readTail(file, 64 * 1024) : fs.readText(file);
+    return parseLiveLog(text, limit);
+  }
+
+  // src/dock/ui.ts
   init_types();
   var root = null;
   var bodyEl = null;
@@ -2831,6 +3016,9 @@ var BZW_dock = (() => {
     showList();
     notifyDockEvent({ kind: "panel-open" });
     startPoll();
+    if (Platform.isMobile) {
+      void primeVaultFs(a).then(() => render());
+    }
   }
   function closeDock() {
     if (!root) return;
@@ -3025,8 +3213,8 @@ var BZW_dock = (() => {
     const v = viewOf(id);
     return (_b = (_a = v == null ? void 0 : v.lastRun) == null ? void 0 : _a.status) != null ? _b : "never";
   }
-  function isToday(iso) {
-    const d = new Date(iso);
+  function isToday(iso2) {
+    const d = new Date(iso2);
     const n = /* @__PURE__ */ new Date();
     return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
   }
@@ -3370,12 +3558,18 @@ var BZW_dock = (() => {
       if (!live3.steps.length) box.createDiv({ cls: "bz-dock-hint", text: "还没有输出" });
       return;
     }
-    box.createDiv({ cls: "bz-dock-log-run", text: `后台进程在跑 · 工单 ${(_b = external == null ? void 0 : external.runId) != null ? _b : "（未标注）"}` });
-    if (external == null ? void 0 : external.step) box.createDiv({ cls: "bz-dock-log-line", text: external.step });
-    box.createDiv({
-      cls: "bz-dock-hint",
-      text: "这一轮不是 Obsidian 拉起的，看不到实时输出；跑完会出现在下面的记录里"
-    });
+    const runId = (_b = external == null ? void 0 : external.runId) != null ? _b : "";
+    box.createDiv({ cls: "bz-dock-log-run", text: `后台进程在跑 · 工单 ${runId || "（未标注）"}` });
+    const steps = liveLogOf(v.id, 40).filter((s) => !runId || !s.runId || s.runId === runId);
+    if (steps.length) {
+      for (const s of steps) box.createDiv({ cls: "bz-dock-log-line", text: s.text });
+    } else {
+      if (external == null ? void 0 : external.step) box.createDiv({ cls: "bz-dock-log-line", text: external.step });
+      box.createDiv({
+        cls: "bz-dock-hint",
+        text: "后台这一轮刚开始，还没输出；跑完会出现在下面的记录里"
+      });
+    }
   }
   function renderHistory(v) {
     if (!bodyEl) return;
@@ -3466,12 +3660,12 @@ var BZW_dock = (() => {
     input.addEventListener("change", () => {
       var _a;
       const files = Array.from((_a = input.files) != null ? _a : []);
-      const manifest2 = files.find((f) => f.name === "manifest.json");
-      if (!manifest2) {
+      const manifest = files.find((f) => f.name === "manifest.json");
+      if (!manifest) {
         new Notice("这个文件夹里没有 manifest.json");
         return;
       }
-      const abs = manifest2.path;
+      const abs = manifest.path;
       if (!abs) {
         new Notice("读不到文件夹路径（这个平台不支持）");
         return;
@@ -3498,15 +3692,15 @@ var BZW_dock = (() => {
       new Notice("manifest.json 不是合法 JSON");
       return;
     }
-    const manifest2 = parseManifest(raw);
-    if (!manifest2) {
+    const manifest = parseManifest(raw);
+    if (!manifest) {
       new Notice("声明校验不过（需要 v:2、合法 id、非空 name）");
       return;
     }
-    upsertTool({ id: manifest2.id, path: manifestPath });
-    notify(`已登记「${manifest2.name}」，先看一眼它会跑什么，再授权`, { type: "info" });
+    upsertTool({ id: manifest.id, path: manifestPath });
+    notify(`已登记「${manifest.name}」，先看一眼它会跑什么，再授权`, { type: "info" });
     render();
-    showDetail(manifest2.id);
+    showDetail(manifest.id);
   }
   function btnOf(parent, text, cls) {
     return parent.createEl("button", { text, cls: cls ? `bz-dock-btn ${cls}` : "bz-dock-btn" });
@@ -3520,9 +3714,45 @@ var BZW_dock = (() => {
   }
 
   // prototypes/dock/fake-sim.ts
+  var MiniBuffer = class _MiniBuffer {
+    constructor(bytes) {
+      this.bytes = bytes;
+    }
+    static from(input, _encoding) {
+      return input instanceof Uint8Array ? new _MiniBuffer(input) : new _MiniBuffer(new TextEncoder().encode(input));
+    }
+    static concat(parts) {
+      const total = parts.reduce((n, p) => n + p.length, 0);
+      const out = new Uint8Array(total);
+      let off = 0;
+      for (const p of parts) {
+        out.set(p.bytes, off);
+        off += p.length;
+      }
+      return new _MiniBuffer(out);
+    }
+    get length() {
+      return this.bytes.length;
+    }
+    indexOf(value, from = 0) {
+      for (let i = from; i < this.bytes.length; i++) if (this.bytes[i] === value) return i;
+      return -1;
+    }
+    subarray(start = 0, end = this.bytes.length) {
+      return new _MiniBuffer(this.bytes.subarray(start, end));
+    }
+    toString(_encoding) {
+      return new TextDecoder().decode(this.bytes);
+    }
+  };
+  function installBufferPolyfill() {
+    const w = window;
+    if (!w.Buffer) w.Buffer = MiniBuffer;
+  }
   var PREFIX = "bz-sim:";
-  var ROOT = "/sim-vault/CONFIG/SCRIPTS/DockTools";
-  var SEED_FLAG = "bz-dock-sim-seeded-v2";
+  var VAULT = "/sim-vault";
+  var ROOT = `${VAULT}/CONFIG/SCRIPTS/DockTools`;
+  var SEED_FLAG = "bz-dock-sim-seeded-v3";
   function keyOf(p) {
     return PREFIX + p;
   }
@@ -3544,49 +3774,186 @@ var BZW_dock = (() => {
     exists: (p) => localStorage.getItem(keyOf(p)) !== null,
     mkdir: () => void 0
   };
-  function manifest(id, name, description, icon, at) {
+  var HOUR = 36e5;
+  var DAY = 24 * HOUR;
+  var iso = (msAgo) => new Date(Date.now() - msAgo).toISOString();
+  var SEEDS = [
+    {
+      id: "demo-signin",
+      name: "每日签到",
+      desc: "把签到和分享做完，记下积分",
+      icon: "calendar-check",
+      at: "09:30",
+      params: [
+        { key: "cookie", label: "登录凭据", type: "secret", required: true, hint: "从浏览器开发者工具复制整串 Cookie" }
+      ],
+      values: { cookie: "已保存" },
+      runs: [
+        { runId: "r-s1", trigger: "auto", status: "ok", startedAt: iso(2 * HOUR), durationMs: 42e3, message: "签到成功，积分 +12" },
+        { runId: "r-s2", trigger: "auto", status: "ok", startedAt: iso(DAY + 2 * HOUR), durationMs: 39e3, message: "签到成功，连续 7 天" },
+        { runId: "r-s3", trigger: "auto", status: "failed", startedAt: iso(2 * DAY), durationMs: 9e3, message: "凭据过期", error: { kind: "auth" } },
+        { runId: "r-s4", trigger: "manual", status: "ok", startedAt: iso(3 * DAY), durationMs: 41e3, message: "签到成功" },
+        { runId: "r-s5", trigger: "auto", status: "ok", startedAt: iso(4 * DAY), durationMs: 44e3, message: "签到成功" }
+      ]
+    },
+    {
+      id: "demo-radar",
+      name: "比价雷达",
+      desc: "挑十元内的好评游戏，比一遍渠道价",
+      icon: "radar",
+      at: "12:00",
+      panel: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+      body{font:12px/1.6 system-ui;margin:0;padding:12px;color:#333;background:#faf9f7}
+      h4{margin:0 0 8px;font-size:12px;letter-spacing:.08em;color:#8b6f4e}
+      table{width:100%;border-collapse:collapse}
+      td{padding:4px 0;border-bottom:1px solid #eee}
+      .p{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+      .low{color:#b4472f}
+    </style></head><body>
+      <h4>本次最便宜的 3 款</h4>
+      <table>
+        <tr><td>Hades</td><td class="p low">¥8.4</td></tr>
+        <tr><td>Stardew Valley</td><td class="p">¥9.9</td></tr>
+        <tr><td>Hollow Knight</td><td class="p">¥9.5</td></tr>
+      </table>
+    </body></html>`,
+      runs: [
+        { runId: "r-r1", trigger: "manual", status: "ok", startedAt: iso(3 * HOUR), durationMs: 61e3, message: "捡到 3 款" },
+        { runId: "r-r2", trigger: "auto", status: "ok", startedAt: iso(DAY + 3 * HOUR), durationMs: 58e3, message: "捡到 1 款" }
+      ]
+    },
+    {
+      id: "demo-backup",
+      name: "笔记备份",
+      desc: "把库里的笔记打包推到网盘",
+      icon: "archive",
+      at: "23:00",
+      untrusted: true,
+      runs: []
+    },
+    {
+      id: "demo-broken",
+      name: "声明坏了",
+      desc: "用来演示「读不到声明」长什么样",
+      icon: "file-warning",
+      manifestRaw: '{ "v": 2, "id": "demo-broken", "name": "声明坏了", '
+    },
+    {
+      id: "demo-missing",
+      name: "缺参数的活",
+      desc: "必填参数没填，自动运行会被跳过",
+      icon: "key-round",
+      at: "08:00",
+      params: [{ key: "token", label: "接口密钥", type: "secret", required: true }],
+      values: {}
+    },
+    {
+      id: "demo-failing",
+      name: "连续失败",
+      desc: "熔断中：面板应给出「恢复自动运行」",
+      icon: "triangle-alert",
+      at: "07:00",
+      runtime: {
+        run: { lastAttemptAt: iso(20 * 6e4), lastAttemptOk: false, consecutiveFailures: 3, pausedAt: iso(20 * 6e4) },
+        rules: {
+          "r-demo-failing": { lastFiredAt: iso(20 * 6e4), lastStatus: "failed", lastRunId: "r-f1" }
+        }
+      },
+      runs: [
+        { runId: "r-f1", trigger: "auto", status: "failed", startedAt: iso(20 * 6e4), durationMs: 3e3, message: "接口 502" }
+      ]
+    },
+    {
+      id: "demo-live",
+      name: "后台在跑",
+      desc: "心跳新鲜 → 卡片「正在跑」、运行按钮禁用",
+      icon: "activity",
+      at: "06:00",
+      beat: { runId: "r-live-1", step: "正在抓第 12 页" },
+      runs: []
+    },
+    {
+      id: "demo-off",
+      name: "已停用",
+      desc: "手动关掉的工具，卡片置灰",
+      icon: "power",
+      at: "05:00",
+      intent: { enabled: false }
+    }
+  ];
+  function manifestOf(t) {
+    if (t.manifestRaw) return t.manifestRaw;
     return JSON.stringify(
       {
         v: 2,
-        id,
-        name,
-        description,
-        icon,
+        id: t.id,
+        name: t.name,
+        description: t.desc,
+        icon: t.icon,
         entry: { cmd: "node", args: ["main.mjs"] },
-        params: [{ key: "cookie", label: "登录凭据", type: "secret", required: false }],
-        defaultRules: [{ id: `r-${id}`, trigger: { kind: "daily", at }, action: { kind: "run" } }]
+        ...t.params ? { params: t.params } : {},
+        ...t.at ? { defaultRules: [{ id: `r-${t.id}`, trigger: { kind: "daily", at: t.at }, action: { kind: "run" } }] } : {}
       },
       null,
       2
     );
   }
-  function seed() {
-    var _a;
-    if (localStorage.getItem(SEED_FLAG)) return;
-    const tools = [
-      { id: "demo-signin", name: "每日签到", desc: "把签到和分享做完，记下积分", icon: "calendar-check", at: "09:30" },
-      { id: "demo-radar", name: "比价雷达", desc: "挑十元内的好评游戏，比一遍渠道价", icon: "radar", at: "12:00" }
-    ];
-    for (const t of tools) {
-      const dir = `${ROOT}/${t.id}`;
-      localStorage.setItem(keyOf(`${dir}/manifest.json`), manifest(t.id, t.name, t.desc, t.icon, t.at));
+  function trustOfSeeds() {
+    const out = {};
+    const sig = runSignature({ cmd: "node", args: ["main.mjs"] });
+    for (const t of SEEDS) {
+      if (t.untrusted || t.manifestRaw) continue;
+      out[t.id] = { at: iso(DAY * 3), run: sig };
     }
-    const runs = [
-      { runId: "r-seed-1", tool: "demo-signin", trigger: "auto", status: "ok", startedAt: new Date(Date.now() - 36e5).toISOString(), durationMs: 42e3, message: "签到成功，积分 +12" },
-      { runId: "r-seed-2", tool: "demo-signin", trigger: "auto", status: "failed", startedAt: new Date(Date.now() - 864e5).toISOString(), durationMs: 9e3, message: "凭据过期", error: { kind: "auth" } },
-      { runId: "r-seed-3", tool: "demo-radar", trigger: "manual", status: "ok", startedAt: new Date(Date.now() - 72e5).toISOString(), durationMs: 61e3, message: "捡到 3 款" }
-    ];
-    for (const r of runs) {
-      const p = `${ROOT}/${r.tool}/runs.jsonl`;
-      const prev = (_a = localStorage.getItem(keyOf(p))) != null ? _a : "";
-      localStorage.setItem(keyOf(p), prev + JSON.stringify(r) + "\n");
+    return out;
+  }
+  function seed() {
+    var _a, _b;
+    if (localStorage.getItem(SEED_FLAG)) return;
+    for (const k of Object.keys(localStorage)) {
+      if (k.startsWith(PREFIX)) localStorage.removeItem(k);
+    }
+    for (const t of SEEDS) {
+      const dir = `${ROOT}/${t.id}`;
+      localStorage.setItem(keyOf(`${dir}/manifest.json`), manifestOf(t));
+      if (t.panel) localStorage.setItem(keyOf(`${dir}/panel.html`), t.panel);
+      if (t.values) {
+        localStorage.setItem(keyOf(`${dir}/data.json`), JSON.stringify({ v: 2, tool: t.id, values: t.values }, null, 2));
+      }
+      if (t.intent) {
+        localStorage.setItem(
+          keyOf(`${dir}/dock.intent.json`),
+          JSON.stringify({ v: 1, tool: t.id, ...t.intent }, null, 2)
+        );
+      }
+      if (t.runtime) {
+        localStorage.setItem(
+          keyOf(`${dir}/dock.runtime.json`),
+          JSON.stringify({ v: 1, tool: t.id, ...t.runtime, updatedAt: iso(0) }, null, 2)
+        );
+      }
+      if (t.beat) {
+        localStorage.setItem(
+          keyOf(`${dir}/heartbeat.json`),
+          JSON.stringify({ runId: t.beat.runId, at: iso(3e3), step: t.beat.step })
+        );
+      }
+      for (const r of (_a = t.runs) != null ? _a : []) {
+        const p = `${dir}/runs.jsonl`;
+        const prev = (_b = localStorage.getItem(keyOf(p))) != null ? _b : "";
+        localStorage.setItem(keyOf(p), prev + JSON.stringify({ tool: t.id, ...r }) + "\n");
+      }
     }
     localStorage.setItem(
-      keyOf("/sim-vault/CONFIG/STORAGE/dock.json"),
+      keyOf(`${VAULT}/CONFIG/STORAGE/dock.json`),
       JSON.stringify(
         {
           v: 3,
-          tools: tools.map((t) => ({ id: t.id, path: `${ROOT}/${t.id}/manifest.json` })),
+          // 演示可移植形态：登记表跟着库走，换台机器也读得到（`vault:CONFIG/...`）
+          tools: SEEDS.map((t) => ({
+            id: t.id,
+            path: `vault:CONFIG/SCRIPTS/DockTools/${t.id}/manifest.json`
+          })),
           autoRun: true,
           watchdog: true,
           notifyMissed: true
@@ -3597,13 +3964,110 @@ var BZW_dock = (() => {
     );
     localStorage.setItem(SEED_FLAG, "1");
   }
+  var Bus = class {
+    constructor() {
+      this.handlers = /* @__PURE__ */ new Map();
+    }
+    on(evt, cb) {
+      if (!this.handlers.has(evt)) this.handlers.set(evt, []);
+      this.handlers.get(evt).push(cb);
+      return this;
+    }
+    emit(evt, arg) {
+      var _a;
+      for (const cb of (_a = this.handlers.get(evt)) != null ? _a : []) cb(arg);
+    }
+  };
+  var DEMO_STEPS = [
+    "打开登录页",
+    "已登录，读到今日任务",
+    "提交签到",
+    "分享一次",
+    "写运行记录"
+  ];
+  var fakeCp = {
+    spawn(_cmd, _args, opts = {}) {
+      var _a, _b, _c, _d, _e;
+      const env = (_a = opts.env) != null ? _a : {};
+      const runId = (_b = env.BZ_DOCK_RUN_ID) != null ? _b : "local";
+      const runsFile = (_c = env.BZ_DOCK_RUNS_FILE) != null ? _c : "";
+      const beatFile = (_d = env.BZ_DOCK_HEARTBEAT_FILE) != null ? _d : "";
+      const toolId = (_e = env.BZ_DOCK_TOOL) != null ? _e : "";
+      const stdout = new Bus();
+      const stderr = new Bus();
+      const child = new Bus();
+      child.stdout = stdout;
+      child.stderr = stderr;
+      child.pid = 9e3 + Math.floor(Math.random() * 900);
+      child.stdin = { write: () => void 0, end: () => void 0, destroyed: false, writableEnded: false, on: () => void 0 };
+      const startedAt = (/* @__PURE__ */ new Date()).toISOString();
+      let killed = false;
+      const beat = (step) => {
+        if (beatFile) {
+          localStorage.setItem(
+            keyOf(beatFile),
+            JSON.stringify({ runId, at: (/* @__PURE__ */ new Date()).toISOString(), step })
+          );
+        }
+      };
+      child.kill = () => {
+        killed = true;
+      };
+      let i = 0;
+      const tick2 = () => {
+        var _a2, _b2;
+        if (killed) return;
+        if (i < DEMO_STEPS.length) {
+          const text = DEMO_STEPS[i];
+          i += 1;
+          beat(text);
+          stdout.emit("data", `[bz-step] ${text}
+`);
+          window.setTimeout(tick2, 700);
+          return;
+        }
+        const finishedAt = (/* @__PURE__ */ new Date()).toISOString();
+        if (runsFile) {
+          const prev = (_a2 = localStorage.getItem(keyOf(runsFile))) != null ? _a2 : "";
+          localStorage.setItem(
+            keyOf(runsFile),
+            prev + JSON.stringify({
+              runId,
+              tool: toolId,
+              trigger: (_b2 = env.BZ_DOCK_TRIGGER) != null ? _b2 : "manual",
+              status: "ok",
+              startedAt,
+              finishedAt,
+              durationMs: Date.parse(finishedAt) - Date.parse(startedAt),
+              message: "演练完成（评审壳，没有真跑）"
+            }) + "\n"
+          );
+        }
+        child.emit("exit", 0);
+        child.emit("close", 0);
+      };
+      beat("刚起跑");
+      window.setTimeout(tick2, 400);
+      return child;
+    }
+  };
+  var settings = {};
   function boot() {
+    installBufferPolyfill();
     seed();
+    if (!localStorage.getItem(keyOf(`${VAULT}/CONFIG/STORAGE/dock.json`))) {
+      localStorage.removeItem(SEED_FLAG);
+      seed();
+    }
+    settings = { storagePath: "CONFIG/STORAGE", dockTrust: trustOfSeeds() };
     setApp(new FakeApp());
-    setSettingsProvider(() => ({}));
+    setSettingsProvider(() => settings);
     setSettingsSaver(async () => void 0);
     setDockFs(simFs);
+    setExecDeps({ cp: fakeCp });
+    setDockVaultRoot(VAULT);
   }
+  window.DOCK_SEED = { total: SEEDS.length, ids: SEEDS.map((t) => t.id) };
   window.BZW_dock = {
     boot,
     openDock: () => openDock(getApp()),

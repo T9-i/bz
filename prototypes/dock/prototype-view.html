@@ -8,8 +8,8 @@
   它不实现任何工具坞交互——只把真行为层跑起来：
     - 载入同一份 CSS（与 build-css SOURCES 同序）：host-theme → core/styles →
       core/ui/tokens → core/ui/components → dock/styles
-    - 载入 prototype-behavior.js（真 ui.ts / data.ts / runner.ts / schema.ts /
-      schedule.ts / registry.ts 依赖链，alias obsidian→fake）
+    - 载入 prototype-behavior.js（真 src/dock 依赖链：ui / view / kernel / exec / rules /
+      registry，alias obsidian→fake）
     - boot + openDock：面板 append 到本页 body（iframe 即全屏视口），
       桌面视图 = 1180px 面板居中；移动视图 412×915 = Platform.isMobile（视口判定）
   宿主差异（vault 文件系统 / 图标 / 视口 / 子进程）由 fake/fake-obsidian 与
