@@ -1,4 +1,4 @@
-/* 源指纹 e414708bb70dc3a1 · 仓内输入 321 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 13164f3bb7d357c4 · 仓内输入 321 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/settings.ts","src/dock/statusbar.ts","src/dock/types.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
@@ -12939,9 +12939,9 @@ ${n.content.slice(0, 2e3)}
             const batch = this.autoAddQueue;
             this.autoAddQueue = [];
             if (!batch.length) return;
-            const shown = batch.slice(0, 3).join("、");
+            const shown2 = batch.slice(0, 3).join("、");
             const tail = batch.length > 3 ? ` 等 ${batch.length - 3} 篇` : "";
-            notice(batch.length > 1 ? `已自动加入复习计划：${shown}${tail}` : `已自动加入复习计划：${shown}`, "success");
+            notice(batch.length > 1 ? `已自动加入复习计划：${shown2}${tail}` : `已自动加入复习计划：${shown2}`, "success");
           }, REVIEW_AUTO_ADD_MERGE_MS);
         }
         /** vault delete：计划内文件删除 → 防抖合并确认「同步移除复习记录？」 */
@@ -13012,10 +13012,10 @@ ${n.content.slice(0, 2e3)}
               const batch = this.renameQueue;
               this.renameQueue = [];
               if (!batch.length) return;
-              const shown = batch.slice(0, 3).join("、");
+              const shown2 = batch.slice(0, 3).join("、");
               const tail = batch.length > 3 ? `，等 ${batch.length - 3} 篇` : "";
               notice(
-                batch.length > 1 ? `已更新 ${batch.length} 篇笔记的复习路径：${shown}${tail}` : "已更新复习计划路径",
+                batch.length > 1 ? `已更新 ${batch.length} 篇笔记的复习路径：${shown2}${tail}` : "已更新复习计划路径",
                 "success"
               );
             }, RENAME_MERGE_MS);
@@ -15096,7 +15096,7 @@ ${n.content.slice(0, 2e3)}
       const gauge = s.querySelector('[data-r="gauge"]');
       const tplot = s.querySelector('[data-r="tplot"]');
       const target = data.avgR == null ? 0 : data.avgR;
-      let shown = 0;
+      let shown2 = 0;
       let pressAt = null;
       out.set("tide", {
         dur: 3.2,
@@ -15115,8 +15115,8 @@ ${n.content.slice(0, 2e3)}
           const w = (_a2 = cv == null ? void 0 : cv.w) != null ? _a2 : 100, h = (_b2 = cv == null ? void 0 : cv.h) != null ? _b2 : 100;
           const want = pressAt ? clamp01(1 - pressAt.y) : target;
           const ramp = easeInOut(at(t, 2.2, 0.2));
-          shown = t < 0.1 ? 0 : toward(shown, want * ramp, pressAt ? 0.09 : 0.05);
-          const pct = Math.round(shown * 100);
+          shown2 = t < 0.1 ? 0 : toward(shown2, want * ramp, pressAt ? 0.09 : 0.05);
+          const pct = Math.round(shown2 * 100);
           if (cv) {
             cv.clear();
             const ctx = cv.ctx;
@@ -15131,7 +15131,7 @@ ${n.content.slice(0, 2e3)}
               const amp = h * (0.03 + li * 0.012);
               const spd = 0.9 + li * 0.5;
               for (let x = 0; x <= w; x += 8) {
-                const y = h * (1 - shown) + Math.sin(t * spd + ph + x / (w / (3 + li))) * amp + Math.sin(t * spd * 0.6 + x / (w / 1.7)) * amp * 0.5;
+                const y = h * (1 - shown2) + Math.sin(t * spd + ph + x / (w / (3 + li))) * amp + Math.sin(t * spd * 0.6 + x / (w / 1.7)) * amp * 0.5;
                 ctx.lineTo(x, y);
               }
               ctx.lineTo(w, h);
@@ -15162,7 +15162,7 @@ ${n.content.slice(0, 2e3)}
             }
           }
           if (gauge) {
-            S(gauge, `transform:translateY(${((1 - shown) * 100).toFixed(2)}%);opacity:${at(t, 0.4, 0.8).toFixed(3)}`);
+            S(gauge, `transform:translateY(${((1 - shown2) * 100).toFixed(2)}%);opacity:${at(t, 0.4, 0.8).toFixed(3)}`);
             T(gauge.querySelector("b"), `${pct}%`);
           }
         }
@@ -39828,8 +39828,8 @@ ${it.text}`).join("\n"));
           overlay4.appendChild(rp);
           window.setTimeout(() => rp.remove(), 620);
           const cntEl = (_b2 = panel2 == null ? void 0 : panel2.querySelector("[data-memo-donebar] .bz-memo-donebar-cnt")) != null ? _b2 : null;
-          const shown = Number(((_c = cntEl == null ? void 0 : cntEl.textContent) != null ? _c : "").trim());
-          if (cntEl && Number.isFinite(shown)) rollCount(cntEl, shown, shown + 1);
+          const shown2 = Number(((_c = cntEl == null ? void 0 : cntEl.textContent) != null ? _c : "").trim());
+          if (cntEl && Number.isFinite(shown2)) rollCount(cntEl, shown2, shown2 + 1);
           bumpDoneBar();
         }, ROLL_FLY_MS);
         window.setTimeout(() => card.remove(), ROLL_FLY_MS + 80);
@@ -45536,8 +45536,8 @@ ${bodyText.substring(0, 6e3)}`;
   }
   function tocTagsHtml(tags) {
     if (!tags.length) return "";
-    const shown = tags.slice(0, 2).map((t) => `#${esc(t)}`).join(" ");
-    return `<span class="bz-clip-item-tags">${shown}${tags.length > 2 ? " …" : ""}</span>`;
+    const shown2 = tags.slice(0, 2).map((t) => `#${esc(t)}`).join(" ");
+    return `<span class="bz-clip-item-tags">${shown2}${tags.length > 2 ? " …" : ""}</span>`;
   }
   function tocListHtml(list, curId, timeOf, kw = "") {
     return list.map((a, i) => `
@@ -50393,7 +50393,7 @@ ${c.trim()}
       if (!catalog) return;
       const all = filterCatalogFeeds(catalog, { query, cat: activeCat });
       hit.textContent = all.length === catalog.feeds.length ? `共 ${all.length} 个源` : `命中 ${all.length} / ${catalog.feeds.length} 个源`;
-      const shown = all.slice(0, RSS_CAT_RENDER_LIMIT);
+      const shown2 = all.slice(0, RSS_CAT_RENDER_LIMIT);
       if (all.length === 0) {
         const none = document.createElement("div");
         none.className = "bz-rss-cat-none";
@@ -50401,11 +50401,11 @@ ${c.trim()}
         list.replaceChildren(none);
         return;
       }
-      const rows = shown.map((f) => catalogRowEl(f));
-      if (all.length > shown.length) {
+      const rows = shown2.map((f) => catalogRowEl(f));
+      if (all.length > shown2.length) {
         const more = document.createElement("div");
         more.className = "bz-rss-cat-more";
-        more.textContent = `仅显示前 ${shown.length} 条，请搜索或选分类缩小范围`;
+        more.textContent = `仅显示前 ${shown2.length} 条，请搜索或选分类缩小范围`;
         rows.push(more);
       }
       list.replaceChildren(...rows);
@@ -64778,11 +64778,15 @@ GitHub 仓库：${ghInfo.title}
 
   // src/dock/statusbar.ts
   function refreshDockStatusBar() {
+    shown = readShown();
     render2();
+  }
+  function readShown() {
+    return readRegistry().registry.statusbar !== false;
   }
   function render2() {
     if (!el2) return;
-    if (readRegistry().registry.statusbar === false) {
+    if (!shown) {
       el2.classList.add("is-off");
       el2.classList.remove("is-active");
       el2.textContent = "";
@@ -64801,12 +64805,13 @@ GitHub 仓库：${ghInfo.title}
     el2.setAttribute("aria-label", `${runs.length} 个工具在跑`);
     el2.textContent = `${runs.length} 个在跑`;
   }
-  var el2;
+  var el2, shown;
   var init_statusbar2 = __esm({
     "src/dock/statusbar.ts"() {
       init_exec();
       init_registry();
       el2 = null;
+      shown = true;
     }
   });
 
