@@ -26394,33 +26394,121 @@ canvas { display: block; }
 }
 .bz-dock-runbtns { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bz-space-sm); }
 
-/* 规则表：一条 = 开关 + 摘要 + 编辑器 */
+/* 规则表：一条 = 只读摘要，整行点开弹窗改 */
 .bz-dock-rulespane { gap: var(--bz-space-sm); }
-.bz-dock-rulelist { display: flex; flex-direction: column; gap: var(--bz-space-xs); }
+.bz-dock-rulelist { display: flex; flex-direction: column; gap: var(--bz-space-xs); padding-top: var(--bz-space-sm); }
 .bz-dock-rule {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: var(--bz-space-sm);
+  min-width: 0;
   padding: var(--bz-space-sm) var(--bz-space-md);
-  background: var(--bz-surface-1);
   border: 1px solid var(--bz-border);
   border-radius: var(--bz-radius-sm);
+  background: var(--bz-surface-1);
+  cursor: pointer;
+  transition: background var(--bz-dur-fast) var(--bz-ease-out);
 }
-.bz-dock-rule-head { display: flex; align-items: center; gap: var(--bz-space-sm); min-width: 0; }
-.bz-dock-rule-name { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); font-weight: var(--bz-weight-medium); }
-.bz-dock-rule-text {
+@media (hover: hover) {
+  .bz-dock-rule:hover { background: var(--bz-surface-2); }
+}
+.bz-dock-rule:focus-visible { outline: var(--bz-focus-ring); outline-offset: 1px; }
+/* 移动端只读：规则行只是摘要，点不进去改 —— 光标与 hover 反馈一起去掉 */
+.bz-dock-rule.is-readonly { cursor: default; }
+@media (hover: hover) {
+  .bz-dock-rule.is-readonly:hover { background: var(--bz-surface-1); }
+}
+.bz-dock-rulemain { flex: 1 1 auto; min-width: 0; }
+.bz-dock-ruleline { font-size: var(--bz-font-label); color: var(--bz-text-1); }
+.bz-dock-rulemeta { font-size: var(--bz-font-meta); color: var(--bz-text-3); margin-top: 2px; }
+.bz-dock-rulearrow { flex: none; font-size: var(--bz-font-emphasis); color: var(--bz-text-3); }
+
+/* 规则编辑弹窗：分节 + 一行人话回显。内边距不在这里加 —— 公共壳已经给了 */
+.bz-dock-ruleform { display: flex; flex-direction: column; gap: var(--bz-space-lg); }
+.bz-dock-ruleformsec { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+.bz-dock-ruleformlegend {
+  font-size: var(--bz-font-meta);
+  font-weight: var(--bz-weight-semibold);
+  color: var(--bz-text-3);
+  letter-spacing: 0.04em;
+}
+.bz-dock-ruleparams { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+.bz-dock-ruleparams:empty { display: none; }
+.bz-dock-rulepreview {
+  padding: var(--bz-space-sm) var(--bz-space-md);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-brand-soft);
+  color: var(--bz-text-1);
+  font-size: var(--bz-font-label);
+}
+.bz-dock-ruleformerr { font-size: var(--bz-font-meta); color: var(--bz-danger); min-height: 1em; }
+.bz-dock-ruleformerr:empty { display: none; }
+.bz-dock-rule-edit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bz-space-xs); }
+
+/* ---------- 上次现场输出（跑完留在内存里的尾部，不落盘） ---------- */
+.bz-dock-lastraw { display: flex; flex-direction: column; gap: 2px; }
+.bz-dock-lastraw-head { font-size: var(--bz-font-caption); color: var(--bz-text-3); margin-bottom: 4px; }
+.bz-dock-raw {
+  margin: 0;
+  max-height: 96px;
+  overflow-y: auto;
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ---------- 自动运行简报（打开面板时的一次性交代） ---------- */
+.bz-dock-rep { display: flex; flex-direction: column; gap: var(--bz-space-md); }
+.bz-dock-rep-sum { display: flex; flex-direction: column; gap: 2px; }
+.bz-dock-rep-lead { font-size: var(--bz-font-body); color: var(--bz-text-1); }
+.bz-dock-rep-tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bz-space-sm);
+  font-size: var(--bz-font-caption);
+}
+.bz-dock-rep-ok { color: var(--bz-success); }
+.bz-dock-rep-bad { color: var(--bz-danger); }
+.bz-dock-rep-span { color: var(--bz-text-3); }
+.bz-dock-rep-list { display: flex; flex-direction: column; gap: var(--bz-space-xs); }
+.bz-dock-rep-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--bz-space-sm);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-surface-2);
+}
+.bz-dock-rep-line { display: flex; align-items: center; gap: var(--bz-space-sm); }
+.bz-dock-rep-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--bz-radius-full);
+  background: var(--bz-success);
+}
+.bz-dock-rep-item.is-bad .bz-dock-rep-dot { background: var(--bz-danger); }
+.bz-dock-rep-name {
   flex: 1;
   min-width: 0;
-  font-size: var(--bz-font-caption);
-  color: var(--bz-text-2);
   overflow: hidden;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-1);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.bz-dock-rule-edit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bz-space-xs); }
-.bz-dock-rule-edit .bz-select { min-width: 118px; }
-.bz-dock-trigger-arg { width: 96px; }
-.bz-dock-jitter { width: 64px; }
+.bz-dock-rep-fact { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-rep-item.is-bad .bz-dock-rep-fact { color: var(--bz-danger); }
+.bz-dock-rep-detail {
+  overflow: hidden;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ---------- 展示板（工具自己画的那一块，ADR-0243） ---------- */
 .bz-dock-board { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
@@ -26534,17 +26622,6 @@ canvas { display: block; }
   white-space: nowrap;
 }
 
-/* ---------- 底部 ---------- */
-.bz-dock-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--bz-space-sm);
-  padding-top: var(--bz-space-sm);
-  border-top: 1px solid var(--bz-border);
-}
-.bz-dock-footer .bz-dock-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bz-dock-btn-row { display: flex; align-items: center; gap: var(--bz-space-xs); }
-
 /* 授权弹窗里的命令预览 */
 .bz-dock-trust { display: flex; flex-direction: column; gap: var(--bz-space-md); }
 
@@ -26572,5 +26649,4 @@ canvas { display: block; }
   .bz-dock-cols { grid-template-columns: minmax(0, 1fr); }
   .bz-dock-toolhead { padding: var(--bz-space-sm) var(--bz-space-md) var(--bz-space-md); }
   .bz-dock-meta { grid-template-columns: minmax(0, 1fr); }
-  .bz-dock-footer { flex-direction: column; align-items: stretch; }
 }

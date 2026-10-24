@@ -186,6 +186,22 @@ describe('工具坞面板 · 详情', () => {
     expect(field?.querySelector<HTMLInputElement>('input')?.type).toBe('password');
   });
 
+  it('自动运行块：一条规则一个只读摘要，点开才出编辑器', () => {
+    shape();
+    click(document.querySelector<HTMLElement>('.bz-dock-card[data-tool="demo"]')!);
+
+    const row = document.querySelector<HTMLElement>('.bz-dock-rule');
+    expect(row).toBeTruthy();
+    expect(row!.querySelector('.bz-dock-ruleline')?.textContent).toContain('每天 09:00');
+    expect(row!.querySelector('.bz-dock-rulearrow')).toBeTruthy();
+    // 行内不摊编辑器：参数框挤在一行里点不准，旧面板就是这个口径
+    expect(document.querySelector('.bz-dock-ruleform')).toBeNull();
+
+    click(row!);
+    expect(document.querySelector('.bz-dock-ruleform')).toBeTruthy();
+    expect(document.querySelector('.bz-dock-rulepreview')?.textContent).toContain('每天 09:00');
+  });
+
   it('返回键把详情拆掉、头行换回列表态（不是把详情压在下层）', () => {
     shape();
     click(document.querySelector<HTMLElement>('.bz-dock-card[data-tool="demo"]')!);

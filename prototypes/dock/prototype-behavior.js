@@ -1,5 +1,5 @@
-/* 源指纹 38bd9256392849db · 仓内输入 58 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
+/* 源指纹 d9c0b2d206e37256 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -2151,10 +2151,6 @@ var BZW_dock = (() => {
   function actionText(a) {
     return a.kind === "remind" ? "只提醒" : "运行";
   }
-  function ruleName(rule, index) {
-    var _a;
-    return ((_a = rule.name) == null ? void 0 : _a.trim()) || `规则 ${index + 1}`;
-  }
   function defaultRule(now = Date.now()) {
     return {
       id: `r${now.toString(36)}${Math.floor(Math.random() * 46656).toString(36)}`,
@@ -3102,6 +3098,100 @@ var BZW_dock = (() => {
     return el2;
   }
 
+  // src/core/ui/choice.ts
+  function uiChoice(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-choice" + (opts.float ? " bz-choice--float" : "") + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "radiogroup");
+    el2.setAttribute("aria-label", opts.label || "");
+    const btns = /* @__PURE__ */ new Map();
+    let cur = opts.value;
+    const seg = document.createElement("span");
+    seg.className = "bz-choice-seg";
+    let segRAF = 0;
+    let segTries = 0;
+    const syncSeg = (animate) => {
+      if (!opts.float) return;
+      const on = el2.querySelector(".bz-choice-btn.is-on");
+      if (!on) return;
+      const tb = el2.getBoundingClientRect();
+      const bb = on.getBoundingClientRect();
+      if (!el2.isConnected || !tb.width || !bb.width) {
+        if (segTries++ > 120) return;
+        cancelAnimationFrame(segRAF);
+        segRAF = requestAnimationFrame(() => syncSeg(false));
+        return;
+      }
+      segTries = 0;
+      if (!animate) seg.style.transition = "none";
+      seg.style.width = `${bb.width}px`;
+      seg.style.transform = `translateX(${bb.left - tb.left}px)`;
+      if (!animate) {
+        void seg.offsetWidth;
+        seg.style.transition = "";
+      }
+    };
+    const onWinResize = () => {
+      if (!el2.isConnected) {
+        window.removeEventListener("resize", onWinResize);
+        return;
+      }
+      syncSeg(false);
+    };
+    if (opts.float) {
+      window.addEventListener("resize", onWinResize);
+    }
+    opts.options.forEach((o) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "bz-choice-btn" + (o.value === opts.value ? " is-on" : "");
+      b.dataset.value = String(o.value);
+      b.setAttribute("role", "radio");
+      b.setAttribute("aria-checked", String(o.value === opts.value));
+      if (o.dot) {
+        const d = document.createElement("span");
+        d.className = "bz-choice-dot";
+        d.style.background = o.dot;
+        b.appendChild(d);
+      }
+      b.appendChild(document.createTextNode(o.label));
+      b.addEventListener("click", () => {
+        setValue(o.value);
+        opts.onChange(o.value);
+      });
+      b.addEventListener("keydown", (e) => {
+        var _a;
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+        e.preventDefault();
+        const vals = opts.options.map((x) => x.value);
+        const curIdx = vals.indexOf(cur);
+        const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+        const nextIdx = (curIdx + delta + vals.length) % vals.length;
+        setValue(vals[nextIdx]);
+        opts.onChange(vals[nextIdx]);
+        (_a = btns.get(vals[nextIdx])) == null ? void 0 : _a.focus();
+      });
+      btns.set(o.value, b);
+      el2.appendChild(b);
+    });
+    if (opts.float) el2.appendChild(seg);
+    function setValue(v) {
+      cur = v;
+      btns.forEach((b, k) => {
+        const on = k === v;
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-checked", String(on));
+      });
+      if (opts.float) syncSeg(true);
+    }
+    syncSeg(false);
+    const detach = () => {
+      cancelAnimationFrame(segRAF);
+      window.removeEventListener("resize", onWinResize);
+    };
+    return { el: el2, setValue, detach };
+  }
+
   // src/core/ui/switch.ts
   function uiSwitch(opts) {
     const el2 = document.createElement("span");
@@ -3431,6 +3521,67 @@ var BZW_dock = (() => {
   // src/core/dom.ts
   init_notice();
   init_z_order();
+  function longPress(el2, cb, dur, filter) {
+    if (!dur) dur = 500;
+    let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
+    let suppressClick = false;
+    const M = 10;
+    function start(e) {
+      if (filter && !filter(e)) return;
+      if (e.button !== void 0 && e.button !== 0) return;
+      fired = false;
+      moved = false;
+      if (e.touches && e.touches.length) {
+        const t = e.touches[0];
+        sx = t.clientX;
+        sy = t.clientY;
+        touching = true;
+      }
+      timer = setTimeout(function() {
+        timer = null;
+        fired = true;
+        cb(e);
+      }, dur);
+    }
+    function cancel() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+    function move(e) {
+      if (!timer || !touching || !e.touches || !e.touches.length) return;
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - sx) > M || Math.abs(t.clientY - sy) > M) {
+        moved = true;
+        cancel();
+      }
+    }
+    function endFromTouch() {
+      if (fired) suppressClick = true;
+      touching = false;
+      cancel();
+    }
+    function endFromMouse() {
+      touching = false;
+      cancel();
+    }
+    function onClick(e) {
+      if (suppressClick) {
+        suppressClick = false;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }
+    el2.addEventListener("mousedown", start);
+    el2.addEventListener("mouseup", endFromMouse);
+    el2.addEventListener("mouseleave", endFromMouse);
+    el2.addEventListener("touchstart", start, { passive: true });
+    el2.addEventListener("touchend", endFromTouch);
+    el2.addEventListener("touchmove", move, { passive: true });
+    el2.addEventListener("touchcancel", endFromTouch);
+    el2.addEventListener("click", onClick, true);
+  }
 
   // src/core/ui/str.ts
   function pad2(n) {
@@ -3447,6 +3598,361 @@ var BZW_dock = (() => {
     if (diff < day) return Math.floor(diff / h) + " 小时前";
     if (diff < 7 * day) return Math.floor(diff / day) + " 天前";
     return `${d.getMonth() + 1}-${pad2(d.getDate())}`;
+  }
+
+  // src/core/item-actions.ts
+  init_z_order();
+  init_fake_obsidian();
+  function renderIcon(container, iconId) {
+    try {
+      setIcon(container, iconId);
+    } catch (e) {
+    }
+  }
+  var VIEWPORT_PAD = 8;
+  var ANCHOR_GAP = 12;
+  var ITEM_HEIGHT = 30;
+  var MENU_PADDING = 10;
+  var TOUCH_SETTLE_MS = 400;
+  var popupEl = null;
+  var sheetMask = null;
+  var sheetBodyEl = null;
+  var sheetHeadEl = null;
+  var sheetCompanions = /* @__PURE__ */ new Set();
+  var menuEsc = null;
+  var prevFocus = null;
+  var suppressNextClick = false;
+  var residualClickArmed = false;
+  var touchSettlePending = false;
+  var touchSettleTimer = null;
+  function inSheetCompanion(target) {
+    for (const c of sheetCompanions) {
+      if (c.isConnected && c.contains(target)) return true;
+    }
+    return false;
+  }
+  function onMouseDownCapture(ev) {
+    if (touchSettlePending) return;
+    if (popupEl && popupEl.isConnected && !popupEl.contains(ev.target) && !inSheetCompanion(ev.target)) {
+      closeItemMenu();
+    }
+  }
+  function onMouseUpCapture(ev) {
+    if (!suppressNextClick) return;
+    if (popupEl && popupEl.isConnected && popupEl.contains(ev.target)) return;
+    suppressNextClick = false;
+    residualClickArmed = true;
+  }
+  function onClickCapture(ev) {
+    const target = ev.target;
+    if (residualClickArmed) {
+      residualClickArmed = false;
+      ev.stopImmediatePropagation();
+      ev.preventDefault();
+      return;
+    }
+    if (touchSettlePending) {
+      const inPopup = popupEl != null && popupEl.contains(target) || sheetMask != null && sheetMask.contains(target);
+      touchSettlePending = false;
+      if (inPopup) {
+        ev.stopImmediatePropagation();
+        ev.preventDefault();
+        return;
+      }
+    }
+    if (popupEl && popupEl.isConnected && !popupEl.contains(target) && !inSheetCompanion(target)) {
+      closeItemMenu();
+    }
+  }
+  function closeItemMenu() {
+    if (menuEsc) {
+      menuEsc.unregister();
+      menuEsc = null;
+    }
+    if (touchSettleTimer) {
+      clearTimeout(touchSettleTimer);
+      touchSettleTimer = null;
+    }
+    document.removeEventListener("mousedown", onMouseDownCapture, true);
+    document.removeEventListener("mouseup", onMouseUpCapture, true);
+    document.removeEventListener("click", onClickCapture, true);
+    if (sheetMask) {
+      sheetMask.remove();
+      sheetMask = null;
+    }
+    if (popupEl) {
+      popupEl.remove();
+      popupEl = null;
+    }
+    sheetBodyEl = null;
+    sheetHeadEl = null;
+    suppressNextClick = false;
+    residualClickArmed = false;
+    touchSettlePending = false;
+    if (prevFocus && prevFocus.isConnected && document.activeElement === document.body) {
+      prevFocus.focus();
+    }
+    prevFocus = null;
+  }
+  function armTouchSettle() {
+    touchSettlePending = true;
+    if (touchSettleTimer) clearTimeout(touchSettleTimer);
+    touchSettleTimer = setTimeout(() => {
+      touchSettlePending = false;
+      touchSettleTimer = null;
+    }, TOUCH_SETTLE_MS);
+  }
+  function attachPopupListeners(id) {
+    document.addEventListener("mousedown", onMouseDownCapture, true);
+    document.addEventListener("mouseup", onMouseUpCapture, true);
+    document.addEventListener("click", onClickCapture, true);
+    menuEsc = escManager.register(id, {
+      isVisible: () => !!(popupEl && popupEl.isConnected),
+      close: closeItemMenu
+    });
+  }
+  function positionMenu(m, x, y) {
+    const mw = m.offsetWidth || 168;
+    const mh = m.offsetHeight || m.children.length * ITEM_HEIGHT + MENU_PADDING;
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    let left = x + ANCHOR_GAP;
+    let top = y + ANCHOR_GAP;
+    if (vw && left + mw > vw - VIEWPORT_PAD) left = Math.max(VIEWPORT_PAD, x - mw - ANCHOR_GAP);
+    if (vh && top + mh > vh - VIEWPORT_PAD) top = Math.max(VIEWPORT_PAD, y - mh - ANCHOR_GAP);
+    if (vw) left = Math.min(Math.max(left, VIEWPORT_PAD), Math.max(VIEWPORT_PAD, vw - mw - VIEWPORT_PAD));
+    if (vh) top = Math.min(Math.max(top, VIEWPORT_PAD), Math.max(VIEWPORT_PAD, vh - mh - VIEWPORT_PAD));
+    m.style.left = `${left}px`;
+    m.style.top = `${top}px`;
+  }
+  function attachItemKeyboardNav(host, scope) {
+    host.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      const items = Array.from(scope.querySelectorAll("button"));
+      if (items.length === 0) return;
+      e.preventDefault();
+      const idx = items.indexOf(document.activeElement);
+      const next = idx === -1 ? 0 : e.key === "ArrowDown" ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+      items[next].focus();
+    });
+  }
+  function focusMenuFirst(host, scope) {
+    prevFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const first = scope.querySelector("button");
+    if (first) first.focus();
+    attachItemKeyboardNav(host, scope);
+  }
+  function openItemMenu(x, y, actions, suppressResidualClick = false, menuClass, menuHeadHtml) {
+    closeItemMenu();
+    const m = document.createElement("div");
+    m.className = "bz-item-menu" + (menuClass ? " " + menuClass : "");
+    m.style.visibility = "hidden";
+    if (menuHeadHtml) {
+      const head = document.createElement("div");
+      head.className = "bz-item-menu-head";
+      head.innerHTML = menuHeadHtml;
+      m.appendChild(head);
+      const sep = document.createElement("div");
+      sep.className = "bz-item-menu-sep";
+      m.appendChild(sep);
+    }
+    for (const a of actions) {
+      const item = document.createElement("button");
+      item.type = "button";
+      if (a.title) item.title = a.title;
+      item.className = "bz-item-menu-item" + (a.kind === "danger" ? " bz-item-menu-item--danger" : "") + (a.tone === "accent" ? " bz-item-menu-item--accent" : "");
+      const itemIcon = document.createElement("span");
+      itemIcon.className = "bz-item-menu-icon";
+      renderIcon(itemIcon, a.icon);
+      const itemLabel = document.createElement("span");
+      itemLabel.className = "bz-item-menu-label";
+      itemLabel.textContent = a.label;
+      item.appendChild(itemIcon);
+      item.appendChild(itemLabel);
+      item.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        closeItemMenu();
+        a.onClick();
+      });
+      m.appendChild(item);
+    }
+    m.style.zIndex = String(allocZ());
+    document.body.appendChild(m);
+    positionMenu(m, x, y);
+    m.style.visibility = "visible";
+    popupEl = m;
+    suppressNextClick = suppressResidualClick;
+    residualClickArmed = false;
+    if (!suppressResidualClick) armTouchSettle();
+    attachPopupListeners("bz-item-menu");
+    focusMenuFirst(m, m);
+  }
+  function buildSheetItem(a) {
+    const item = document.createElement("button");
+    item.type = "button";
+    if (a.title) item.title = a.title;
+    item.className = "bz-item-sheet-item" + (a.kind === "danger" ? " bz-item-sheet-item--danger" : "") + (a.tone === "accent" ? " bz-item-sheet-item--accent" : "");
+    const itemIcon = document.createElement("span");
+    itemIcon.className = "bz-item-sheet-icon";
+    renderIcon(itemIcon, a.icon);
+    const itemLabel = document.createElement("span");
+    itemLabel.className = "bz-item-sheet-label";
+    itemLabel.textContent = a.label;
+    item.appendChild(itemIcon);
+    item.appendChild(itemLabel);
+    if (a.sub) {
+      const itemSub = document.createElement("span");
+      itemSub.className = "bz-item-sheet-item-sub";
+      itemSub.textContent = a.sub;
+      item.appendChild(itemSub);
+    }
+    item.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      if (a.keepOpen) {
+        a.onClick();
+        return;
+      }
+      closeItemMenu();
+      a.onClick();
+    });
+    return item;
+  }
+  function openItemSheet(actions, opts, suppressResidualClick = false) {
+    closeItemMenu();
+    const mask = document.createElement("div");
+    mask.className = "bz-item-sheet-mask";
+    const sheet = document.createElement("div");
+    sheet.className = "bz-item-sheet" + ((opts == null ? void 0 : opts.sheetClass) ? " " + opts.sheetClass : "");
+    if (opts == null ? void 0 : opts.sheetHead) {
+      const head = document.createElement("div");
+      head.className = "bz-item-sheet-head";
+      head.appendChild(opts.sheetHead);
+      sheet.appendChild(head);
+      sheetHeadEl = head;
+    } else if (opts == null ? void 0 : opts.sheetTitle) {
+      const head = document.createElement("div");
+      head.className = "bz-item-sheet-head";
+      const titleEl = document.createElement("div");
+      titleEl.className = "bz-item-sheet-title";
+      titleEl.textContent = opts.sheetTitle;
+      head.appendChild(titleEl);
+      if (opts.sheetSub) {
+        const subEl = document.createElement("div");
+        subEl.className = "bz-item-sheet-sub";
+        subEl.textContent = opts.sheetSub;
+        head.appendChild(subEl);
+      }
+      sheet.appendChild(head);
+      sheetHeadEl = head;
+    }
+    const body = document.createElement("div");
+    body.className = "bz-item-sheet-body";
+    for (const a of actions) {
+      body.appendChild(buildSheetItem(a));
+    }
+    sheet.appendChild(body);
+    mask.style.zIndex = String(allocZ());
+    sheet.style.zIndex = String(allocZ());
+    document.body.appendChild(mask);
+    document.body.appendChild(sheet);
+    popupEl = sheet;
+    sheetMask = mask;
+    sheetBodyEl = body;
+    suppressNextClick = suppressResidualClick;
+    residualClickArmed = false;
+    if (!suppressResidualClick) armTouchSettle();
+    attachPopupListeners("bz-item-sheet");
+    attachSheetDismiss(sheet, body);
+    focusMenuFirst(sheet, body);
+  }
+  function attachSheetDismiss(sheet, body) {
+    const CLOSE_AT = 80;
+    let startY = 0;
+    let dragging = false;
+    let dy = 0;
+    const reset = () => {
+      dragging = false;
+      dy = 0;
+      sheet.style.transform = "";
+      sheet.classList.remove("bz-item-sheet--dragging");
+    };
+    sheet.addEventListener(
+      "touchstart",
+      (e) => {
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        startY = t.clientY;
+        dragging = true;
+        dy = 0;
+      },
+      { passive: true }
+    );
+    sheet.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!dragging) return;
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        const cur = t.clientY - startY;
+        if (cur <= 0) {
+          if (dy !== 0) reset();
+          return;
+        }
+        if (body.scrollTop > 0 && body.contains(e.target)) {
+          if (dy !== 0) reset();
+          return;
+        }
+        dy = cur;
+        e.preventDefault();
+        sheet.classList.add("bz-item-sheet--dragging");
+        sheet.style.transform = `translateY(${dy}px)`;
+        if (sheetMask) sheetMask.style.opacity = String(Math.max(0, 1 - dy / 400));
+      },
+      { passive: false }
+    );
+    const onTouchEnd = () => {
+      if (!dragging) return;
+      const over = dy > CLOSE_AT;
+      dragging = false;
+      if (over) {
+        sheet.classList.remove("bz-item-sheet--dragging");
+        const s = sheet;
+        s.style.transform = "translateY(100%)";
+        if (sheetMask) sheetMask.style.opacity = "0";
+        setTimeout(() => {
+          if (popupEl === s) closeItemMenu();
+        }, 180);
+      } else {
+        reset();
+        if (sheetMask) sheetMask.style.opacity = "1";
+      }
+      dy = 0;
+    };
+    sheet.addEventListener("touchend", onTouchEnd);
+    sheet.addEventListener("touchcancel", () => {
+      reset();
+      if (sheetMask) sheetMask.style.opacity = "1";
+    });
+  }
+  function attachItemActions(card, actions, opts) {
+    if (!card || actions.length === 0) return;
+    card.classList.add("bz-item-card");
+    card.addEventListener("contextmenu", (e) => {
+      if (isMobileEnv()) return;
+      if ((opts == null ? void 0 : opts.longPressFilter) && !opts.longPressFilter(e)) return;
+      e.preventDefault();
+      openItemMenu(e.clientX, e.clientY, actions, true, opts == null ? void 0 : opts.menuClass, opts == null ? void 0 : opts.menuHeadHtml);
+      suppressNextClick = false;
+    });
+    longPress(
+      card,
+      (ev) => {
+        if (!isMobileEnv()) return;
+        openItemSheet(actions, opts, ev.type !== "touchstart");
+      },
+      void 0,
+      opts == null ? void 0 : opts.longPressFilter
+    );
   }
 
   // src/dock/ui.ts
@@ -3613,6 +4119,8 @@ var BZW_dock = (() => {
   var views = [];
   var tickTimer = null;
   var liveOff = null;
+  var lastTails = /* @__PURE__ */ new Map();
+  var LAST_SEEN_KEY = "bz-dock:lastSeen";
   var OVERLAY_ID = "bz-dock-mask";
   var FRAME_ID = "bz-dock-panel";
   function el(tag, cls, text) {
@@ -3762,6 +4270,7 @@ var BZW_dock = (() => {
     void refresh();
     notifyDockEvent({ kind: "panel-open" });
     if (Platform.isMobile) void primeVaultFs(app2).then(() => render());
+    else maybeOfflineReport();
   }
   function closeDock() {
     overlay == null ? void 0 : overlay.classList.add("is-off");
@@ -3780,6 +4289,7 @@ var BZW_dock = (() => {
     view = { kind: "list" };
     searchOpen = false;
     query = "";
+    lastTails.clear();
   }
   function isPanelVisible() {
     return !!overlay && !overlay.classList.contains("is-off");
@@ -3806,6 +4316,7 @@ var BZW_dock = (() => {
     document.body.appendChild(ov);
     overlay = ov;
     liveOff = onLiveChanged(() => {
+      rememberTails();
       if (view.kind === "detail") renderLiveInto(view.id);
       renderRunbar();
       updateCards();
@@ -3861,6 +4372,7 @@ var BZW_dock = (() => {
     stopTick();
     tickTimer = setInterval(() => {
       if (!isPanelVisible()) return;
+      rememberTails();
       updateCards();
       if (view.kind === "detail") renderLiveInto(view.id);
     }, 3e3);
@@ -4251,7 +4763,62 @@ var BZW_dock = (() => {
       view = { kind: "detail", id };
       render();
     });
+    attachItemActions(card, canRun() ? cardActions(v) : []);
     return card;
+  }
+  function cardActions(v) {
+    var _a;
+    const acts = [
+      {
+        icon: "chevron-right",
+        label: "打开详情",
+        onClick: () => {
+          view = { kind: "detail", id: v.id };
+          render();
+        }
+      }
+    ];
+    const gate = judgeRunGate(v, canRun());
+    if (gate.ok && !externalRunOf(v)) {
+      acts.push({ icon: "play", label: "运行", onClick: () => void doRun(v) });
+    }
+    if ((_a = v.runtime.run) == null ? void 0 : _a.pausedAt) {
+      acts.push({
+        icon: "rotate-ccw",
+        label: "恢复自动运行",
+        onClick: () => {
+          void clearBreakerSafely(v).then((ok) => {
+            if (!ok) {
+              notice("有工具正在跑，等它跑完再恢复", "warning");
+              return;
+            }
+            refresh();
+          });
+        }
+      });
+    }
+    acts.push({ icon: "folder-input", label: "重新选目录", onClick: () => pickFolder() });
+    acts.push({
+      icon: v.intent.enabled === false ? "play-circle" : "pause-circle",
+      label: v.intent.enabled === false ? "启用" : "停用",
+      onClick: () => {
+        writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, enabled: v.intent.enabled === false });
+        void kickDockScheduler();
+        refresh();
+      }
+    });
+    acts.push({
+      icon: "x-circle",
+      label: "移除登记",
+      kind: "danger",
+      onClick: () => {
+        if (!window.confirm(`从工具坞移除「${displayNameOf(v)}」？
+只删登记，不动磁盘上的文件。`)) return;
+        removeTool(v.id);
+        refresh();
+      }
+    });
+    return acts;
   }
   function renderDetail(body, v) {
     const wrap = el("div", "bz-dock-detail");
@@ -4265,7 +4832,6 @@ var BZW_dock = (() => {
     cols.appendChild(runPane(v));
     cols.appendChild(histPane(v));
     wrap.appendChild(cols);
-    wrap.appendChild(footerBar(v));
     body.appendChild(wrap);
   }
   var FRAME_SCROLLBAR_CSS = "<style>html{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar{display:none;width:0;height:0}</style>";
@@ -4396,6 +4962,15 @@ var BZW_dock = (() => {
       btns.appendChild(el("span", "bz-dock-mobilehint", "移动端不能启动进程，只能看"));
     }
     pane.appendChild(btns);
+    const tail = lastTails.get(v.id);
+    if (!liveOf(v.id) && (tail == null ? void 0 : tail.length)) {
+      const box = el("div", "bz-dock-lastraw");
+      box.appendChild(el("div", "bz-dock-lastraw-head", "上次现场输出（尾部）"));
+      const pre = el("pre", "bz-dock-raw");
+      pre.textContent = tail.slice(-12).join("\n");
+      box.appendChild(pre);
+      pane.appendChild(box);
+    }
     const liveHost = el("div", "bz-dock-live");
     liveHost.dataset.tool = v.id;
     pane.appendChild(liveHost);
@@ -4482,17 +5057,17 @@ var BZW_dock = (() => {
   function rulesPane(v) {
     const pane = el("section", "bz-dock-pane bz-dock-rulespane");
     const head = el("div", "bz-dock-pane-head");
-    head.appendChild(el("h3", "bz-dock-pane-title", "规则"));
+    head.appendChild(el("h3", "bz-dock-pane-title", "自动运行"));
     head.appendChild(el("span", "bz-dock-pane-count", v.rules.length ? `${v.rules.length} 条` : "只能手动跑"));
     pane.appendChild(head);
-    if (!v.rules.length) pane.appendChild(el("div", "bz-dock-note", "没有规则 —— 只能手动点运行。"));
+    if (!v.rules.length) pane.appendChild(el("div", "bz-dock-note", "没有规则 —— 加一条就有了"));
     const list = el("div", "bz-dock-rulelist");
     v.rules.forEach((rule, i) => list.appendChild(ruleRow(v, rule, i)));
     pane.appendChild(list);
     if (canRun()) {
       pane.appendChild(
         uiBtn({
-          label: "加一条规则",
+          label: "添加规则",
           icon: "plus",
           size: "sm",
           onClick: () => {
@@ -4506,90 +5081,236 @@ var BZW_dock = (() => {
   function ruleRow(v, rule, index) {
     var _a, _b;
     const row = el("div", "bz-dock-rule");
-    const head = el("div", "bz-dock-rule-head");
-    const sw = uiSwitch({
-      checked: rule.enabled !== false,
-      disabled: !canRun(),
-      onChange: (on) => {
-        const next = v.rules.slice();
-        next[index] = { ...rule, enabled: on };
-        saveRules(v, next);
-      }
-    });
-    head.appendChild(sw.el);
-    head.appendChild(el("span", "bz-dock-rule-name", ruleName(rule, index)));
-    head.appendChild(el("span", "bz-dock-rule-text", `${triggerText(rule.trigger, (id) => viewById(id) ? displayNameOf(viewById(id)) : id)} · ${actionText(rule.action)}`));
-    if (canRun()) {
-      const del = uiIconBtn({
-        icon: "trash-2",
-        title: "删掉这条",
-        xs: true,
-        onClick: () => saveRules(v, v.rules.filter((r) => r.id !== rule.id))
-      });
-      head.appendChild(del);
-    }
-    row.appendChild(head);
+    const main = el("div", "bz-dock-rulemain");
+    const nameOf = (id) => {
+      const t = viewById(id);
+      return t ? displayNameOf(t) : id;
+    };
+    main.appendChild(el("div", "bz-dock-ruleline", triggerText(rule.trigger, nameOf)));
+    const meta = [actionText(rule.action)];
+    if (rule.jitterMin) meta.push(`抖 ${rule.jitterMin} 分钟`);
+    if (rule.enabled === false) meta.push("已停用");
+    main.appendChild(el("div", "bz-dock-rulemeta", meta.join(" · ")));
     const due = nextDueOf(rule, {
       now: Date.now(),
       lastFiredAt: ((_b = (_a = v.runtime.rules) == null ? void 0 : _a[rule.id]) == null ? void 0 : _b.lastFiredAt) ? Date.parse(v.runtime.rules[rule.id].lastFiredAt) : void 0
     });
-    if (due && !isEventTrigger(rule.trigger.kind)) {
-      const at = new Date(due);
-      row.appendChild(el("div", "bz-dock-note", `下次 ${at.toLocaleString()}`));
+    if (due && rule.enabled !== false && !isEventTrigger(rule.trigger.kind)) {
+      main.appendChild(el("div", "bz-dock-rulemeta", `下次 ${new Date(due).toLocaleString()}`));
     }
-    if (canRun()) row.appendChild(ruleEditor(v, rule, index));
+    row.appendChild(main);
+    if (!canRun()) {
+      row.classList.add("is-readonly");
+      return row;
+    }
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.appendChild(el("span", "bz-dock-rulearrow", "›"));
+    const open = () => openRuleEditor(v, rule, index);
+    row.addEventListener("click", open);
+    row.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      open();
+    });
     return row;
   }
-  function ruleEditor(v, rule, index) {
+  function openRuleEditor(v, rule, index) {
     var _a;
-    const edit = el("div", "bz-dock-rule-edit");
-    const kind = uiSelect({
+    const draft = rule ? { ...rule, trigger: { ...rule.trigger }, action: { ...rule.action } } : { ...defaultRule(), trigger: defaultRule().trigger };
+    const form = el("div", "bz-dock-ruleform");
+    const params = el("div", "bz-dock-ruleparams");
+    const err = el("div", "bz-dock-ruleformerr");
+    const preview = el("div", "bz-dock-rulepreview");
+    const syncPreview = () => {
+      const jit = draft.jitterMin ? ` · 抖 ${draft.jitterMin} 分钟` : "";
+      preview.textContent = `${triggerText(draft.trigger, (id) => viewById(id) ? displayNameOf(viewById(id)) : id)} → ${actionText(draft.action)}${jit}`;
+    };
+    const rebuild = () => {
+      params.replaceChildren(...triggerFieldsOf(draft, rebuild));
+      syncPreview();
+    };
+    const triggerPick = uiChoice({
       options: TRIGGER_KINDS.map((k) => ({ value: k, label: TRIGGER_LABEL[k] })),
-      value: rule.trigger.kind,
-      onChange: (k) => {
-        const next = v.rules.slice();
-        next[index] = { ...rule, trigger: blankTrigger(k) };
-        saveRules(v, next);
+      value: draft.trigger.kind,
+      label: "触发条件",
+      onChange: (kind) => {
+        draft.trigger = blankTrigger(kind);
+        rebuild();
       }
     });
-    edit.appendChild(kind.el);
-    const arg = triggerArgInput(rule.trigger);
-    if (arg) {
-      edit.appendChild(arg.el);
-      arg.el.addEventListener("change", () => {
-        const t = patchTrigger(rule.trigger, arg.el.value);
-        if (!t) return;
-        const next = v.rules.slice();
-        next[index] = { ...rule, trigger: t };
-        saveRules(v, next);
-      });
-    }
-    const jitter = uiInput({ type: "number", value: String((_a = rule.jitterMin) != null ? _a : 0) });
-    jitter.classList.add("bz-dock-jitter");
-    jitter.min = "0";
-    jitter.max = "720";
-    jitter.title = "错峰：到点后再随机等这么多分钟";
-    jitter.addEventListener("change", () => {
-      const n = Number(jitter.value);
-      const next = v.rules.slice();
-      next[index] = { ...rule, jitterMin: Number.isFinite(n) && n > 0 ? Math.floor(n) : void 0 };
-      saveRules(v, next);
-    });
-    edit.appendChild(jitter);
-    const act = uiSelect({
+    const actionPick = uiChoice({
       options: [
         { value: "run", label: "运行" },
         { value: "remind", label: "只提醒" }
       ],
-      value: rule.action.kind,
-      onChange: (k) => {
-        const next = v.rules.slice();
-        next[index] = { ...rule, action: { kind: k } };
-        saveRules(v, next);
+      value: draft.action.kind,
+      label: "执行",
+      onChange: (kind) => {
+        draft.action = { kind };
+        syncPreview();
       }
     });
-    edit.appendChild(act.el);
-    return edit;
+    const jitter = uiInput({ type: "number", value: String((_a = draft.jitterMin) != null ? _a : 0) });
+    jitter.min = "0";
+    jitter.max = "720";
+    jitter.addEventListener("change", () => {
+      const n = Number(jitter.value);
+      draft.jitterMin = Number.isFinite(n) && n > 0 ? Math.min(720, Math.floor(n)) : void 0;
+      syncPreview();
+    });
+    const enabled = uiSwitch({
+      checked: draft.enabled !== false,
+      onChange: (on) => {
+        draft.enabled = on;
+      }
+    });
+    const group = (title, children) => {
+      const box = el("div", "bz-dock-ruleformsec");
+      box.appendChild(el("div", "bz-dock-ruleformlegend", title));
+      for (const c of children) box.appendChild(c);
+      return box;
+    };
+    form.appendChild(group("触发条件", [triggerPick.el, params]));
+    form.appendChild(group("执行", [actionPick.el, uiField({ label: "错峰：到点后再等（分钟）", control: jitter, desc: "0 = 不抖" })]));
+    form.appendChild(group("状态", [uiField({ label: "这条规则生效", control: enabled.el })]));
+    form.appendChild(preview);
+    form.appendChild(err);
+    rebuild();
+    const modal = uiModal({ head: true, title: rule ? "编辑规则" : "新建规则", content: form, maxWidth: 480 });
+    const problem = () => {
+      const t = draft.trigger;
+      if ((t.kind === "tool-ok" || t.kind === "tool-fail") && !t.toolId) return "还没选工具";
+      if (t.kind === "domain-event" && !t.channel.trim()) return "还没填事件通道";
+      if (t.kind === "file-change" && !t.target.trim()) return "还没填目录";
+      if (t.kind === "value-threshold" && (!t.path.trim() || !t.key.trim())) return "还没填文件与键";
+      return null;
+    };
+    const buttons = [];
+    if (rule) {
+      buttons.push(
+        uiBtn({
+          label: "删除",
+          tone: "danger",
+          onClick: () => {
+            modal.close();
+            saveRules(v, v.rules.filter((r) => r.id !== rule.id));
+          }
+        })
+      );
+    }
+    buttons.push(
+      uiBtn({ label: "取消", onClick: () => modal.close() }),
+      uiBtn({
+        label: "保存",
+        tone: "primary",
+        onClick: () => {
+          const bad = problem();
+          if (bad) {
+            err.textContent = bad;
+            return;
+          }
+          const next = v.rules.slice();
+          if (rule) next[index] = { ...draft, id: rule.id };
+          else next.push({ ...draft, id: `r${Date.now().toString(36)}` });
+          modal.close();
+          saveRules(v, next);
+        }
+      })
+    );
+    form.appendChild(uiBtnRow(buttons));
+    syncPreview();
+  }
+  function triggerFieldsOf(draft, rebuild) {
+    const t = draft.trigger;
+    const out = [];
+    if (t.kind === "daily") {
+      const inp = uiInput({ type: "time", value: t.at });
+      inp.addEventListener("change", () => {
+        if (!/^\d{1,2}:\d{2}$/.test(inp.value)) return;
+        draft.trigger = { kind: "daily", at: inp.value };
+        rebuild();
+      });
+      out.push(uiField({ label: "每天几点", control: inp }));
+    } else if (t.kind === "interval") {
+      const inp = uiInput({ type: "number", value: String(t.everyMin) });
+      inp.min = "1";
+      inp.addEventListener("change", () => {
+        const n = Number(inp.value);
+        if (!Number.isFinite(n) || n < 1) return;
+        draft.trigger = { kind: "interval", everyMin: Math.min(43200, Math.floor(n)) };
+        rebuild();
+      });
+      out.push(uiField({ label: "每隔多少分钟", control: inp }));
+    } else if (t.kind === "on-launch") {
+      const inp = uiInput({ type: "number", value: String(t.delayMin) });
+      inp.min = "0";
+      inp.addEventListener("change", () => {
+        const n = Number(inp.value);
+        if (!Number.isFinite(n) || n < 0) return;
+        draft.trigger = { kind: "on-launch", delayMin: Math.min(1440, Math.floor(n)) };
+        rebuild();
+      });
+      out.push(uiField({ label: "启动 Obsidian 后多少分钟", control: inp }));
+    } else if (t.kind === "tool-ok" || t.kind === "tool-fail") {
+      const opts = [{ value: "", label: "（选一个工具）" }].concat(
+        views.map((v) => ({ value: v.id, label: displayNameOf(v) }))
+      );
+      const sel = uiSelect({
+        options: opts,
+        value: t.toolId,
+        onChange: (id) => {
+          draft.trigger = t.kind === "tool-ok" ? { kind: "tool-ok", toolId: id } : { kind: "tool-fail", toolId: id };
+          rebuild();
+        }
+      });
+      out.push(uiField({ label: "哪个工具", control: sel.el }));
+    } else if (t.kind === "domain-event") {
+      const inp = uiInput({ value: t.channel });
+      inp.addEventListener("change", () => {
+        draft.trigger = { kind: "domain-event", channel: inp.value.trim() };
+      });
+      out.push(uiField({ label: "事件通道", control: inp, desc: "例如 memo-saved；填错了这条规则永远不会响" }));
+    } else if (t.kind === "file-change") {
+      const inp = uiInput({ value: t.target });
+      inp.addEventListener("change", () => {
+        draft.trigger = { kind: "file-change", target: inp.value.trim().replace(/\/+$/, "") };
+      });
+      out.push(uiField({ label: "vault 里的目录", control: inp, desc: "那个目录里有文件变动就跑一次" }));
+    } else if (t.kind === "value-threshold") {
+      const pathIn = uiInput({ value: t.path });
+      const keyIn = uiInput({ value: t.key });
+      const opSel = uiSelect({
+        options: [
+          { value: ">", label: "大于" },
+          { value: "<", label: "小于" },
+          { value: "=", label: "等于" }
+        ],
+        value: t.op,
+        onChange: (op) => {
+          draft.trigger = { ...t, op };
+        }
+      });
+      const numIn = uiInput({ type: "number", value: String(t.value) });
+      pathIn.addEventListener("change", () => {
+        draft.trigger = { ...t, path: pathIn.value.trim() };
+      });
+      keyIn.addEventListener("change", () => {
+        draft.trigger = { ...t, key: keyIn.value.trim() };
+      });
+      numIn.addEventListener("change", () => {
+        const n = Number(numIn.value);
+        if (Number.isFinite(n)) draft.trigger = { ...t, value: n };
+      });
+      out.push(uiField({ label: "文件", control: pathIn, desc: "vault 里的 JSON" }));
+      out.push(uiField({ label: "键", control: keyIn }));
+      const row = el("div", "bz-dock-rule-edit");
+      row.append(opSel.el, numIn);
+      out.push(uiField({ label: "条件", control: row }));
+    } else {
+      out.push(el("div", "bz-dock-note", "这条触发不需要参数。"));
+    }
+    return out;
   }
   function blankTrigger(kind) {
     switch (kind) {
@@ -4612,58 +5333,6 @@ var BZW_dock = (() => {
       default:
         return { kind: "panel-open" };
     }
-  }
-  function triggerArgInput(t) {
-    if (t.kind === "daily") {
-      const inp = uiInput({ type: "time", value: t.at });
-      inp.classList.add("bz-dock-trigger-arg");
-      inp.title = "每天几点";
-      return { el: inp };
-    }
-    if (t.kind === "interval") {
-      const inp = uiInput({ type: "number", value: String(t.everyMin) });
-      inp.classList.add("bz-dock-trigger-arg");
-      inp.min = "1";
-      inp.title = "每隔多少分钟";
-      return { el: inp };
-    }
-    if (t.kind === "on-launch") {
-      const inp = uiInput({ type: "number", value: String(t.delayMin) });
-      inp.classList.add("bz-dock-trigger-arg");
-      inp.min = "0";
-      inp.title = "启动后多少分钟";
-      return { el: inp };
-    }
-    if (t.kind === "tool-ok" || t.kind === "tool-fail") {
-      const inp = uiInput({ value: t.toolId });
-      inp.classList.add("bz-dock-trigger-arg");
-      inp.title = "工具 id";
-      return { el: inp };
-    }
-    if (t.kind === "file-change") {
-      const inp = uiInput({ value: t.target });
-      inp.classList.add("bz-dock-trigger-arg");
-      inp.title = "vault 里的目录";
-      return { el: inp };
-    }
-    return null;
-  }
-  function patchTrigger(t, value) {
-    if (t.kind === "daily") {
-      if (!/^\d{1,2}:\d{2}$/.test(value)) return null;
-      return { kind: "daily", at: value };
-    }
-    if (t.kind === "interval") {
-      const n = Number(value);
-      return Number.isFinite(n) && n >= 1 ? { kind: "interval", everyMin: Math.floor(n) } : null;
-    }
-    if (t.kind === "on-launch") {
-      const n = Number(value);
-      return Number.isFinite(n) && n >= 0 ? { kind: "on-launch", delayMin: Math.floor(n) } : null;
-    }
-    if (t.kind === "tool-ok" || t.kind === "tool-fail") return { ...t, toolId: value.trim() };
-    if (t.kind === "file-change") return { kind: "file-change", target: value.trim() };
-    return null;
   }
   function saveRules(v, rules) {
     writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, rules });
@@ -4750,51 +5419,6 @@ var BZW_dock = (() => {
     pre.textContent = text;
     b.appendChild(pre);
     return b;
-  }
-  function footerBar(v) {
-    const foot = el("div", "bz-dock-footer");
-    foot.appendChild(el("div", "bz-dock-note", `id ${v.id} · ${v.path}`));
-    const row = el("div", "bz-dock-btn-row");
-    if (canRun()) {
-      row.appendChild(
-        uiBtn({
-          label: v.intent.enabled === false ? "启用" : "停用",
-          size: "sm",
-          onClick: () => {
-            writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, enabled: v.intent.enabled === false });
-            void kickDockScheduler();
-            refresh();
-          }
-        })
-      );
-      row.appendChild(
-        uiBtn({
-          label: v.intent.autoRun === false ? "允许自动运行" : "只手动跑",
-          size: "sm",
-          onClick: () => {
-            writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, autoRun: v.intent.autoRun === false });
-            void kickDockScheduler();
-            refresh();
-          }
-        })
-      );
-      row.appendChild(
-        uiBtn({
-          label: "移除登记",
-          tone: "danger",
-          size: "sm",
-          onClick: () => {
-            if (!window.confirm(`从工具坞移除「${displayNameOf(v)}」？
-只删登记，不动磁盘上的文件。`)) return;
-            removeTool(v.id);
-            view = { kind: "list" };
-            refresh();
-          }
-        })
-      );
-    }
-    foot.appendChild(row);
-    return foot;
   }
   async function doRun(v) {
     const outcome = await runToolManually(v);
@@ -4885,6 +5509,62 @@ var BZW_dock = (() => {
     notice(`已登记「${manifest.name}」，先看一眼它会跑什么，再授权`);
     view = { kind: "detail", id: manifest.id };
     refresh();
+  }
+  function rememberTails() {
+    var _a;
+    for (const run of liveAll()) {
+      if ((_a = run.rawTail) == null ? void 0 : _a.length) lastTails.set(run.toolId, run.rawTail.slice(-12));
+    }
+  }
+  function maybeOfflineReport() {
+    let prev = 0;
+    try {
+      prev = Number(window.localStorage.getItem(LAST_SEEN_KEY) || 0);
+      window.localStorage.setItem(LAST_SEEN_KEY, String(Date.now()));
+    } catch (e) {
+      return;
+    }
+    const now = Date.now();
+    if (!Number.isFinite(prev) || prev <= 0 || now - prev < 6e4) return;
+    const hits = [];
+    for (const v of views) {
+      for (const run of recentRunsOf(v.path, v.id, 60)) {
+        if (run.trigger !== "auto") continue;
+        const at = Date.parse(run.startedAt);
+        if (!Number.isFinite(at) || at <= prev || at > now) continue;
+        hits.push({ name: displayNameOf(v), run });
+      }
+    }
+    if (!hits.length) return;
+    hits.sort((a, b) => Date.parse(b.run.startedAt) - Date.parse(a.run.startedAt));
+    const ok = hits.filter((h) => h.run.status === "ok").length;
+    const bad = hits.length - ok;
+    const box = el("div", "bz-dock-rep");
+    const sum = el("div", "bz-dock-rep-sum");
+    sum.appendChild(el("div", "bz-dock-rep-lead", `上次打开之后，自动跑了 ${hits.length} 次`));
+    const tally = el("div", "bz-dock-rep-tally");
+    tally.appendChild(el("span", "bz-dock-rep-ok", `成功 ${ok}`));
+    if (bad) tally.appendChild(el("span", "bz-dock-rep-bad", `没跑成 ${bad}`));
+    tally.appendChild(el("span", "bz-dock-rep-span", new Date(prev).toLocaleString()));
+    sum.appendChild(tally);
+    box.appendChild(sum);
+    const list = el("div", "bz-dock-rep-list");
+    for (const h of hits.slice(0, 12)) {
+      const item = el("div", h.run.status === "ok" ? "bz-dock-rep-item" : "bz-dock-rep-item is-bad");
+      const line = el("div", "bz-dock-rep-line");
+      line.appendChild(el("span", "bz-dock-rep-dot"));
+      line.appendChild(el("span", "bz-dock-rep-name", h.name));
+      line.appendChild(el("span", "bz-dock-rep-fact", `${statusText(h.run.status)} · ${relTime(h.run.startedAt.replace("T", " "))}`));
+      item.appendChild(line);
+      if (h.run.message) item.appendChild(el("div", "bz-dock-rep-detail", h.run.message));
+      list.appendChild(item);
+    }
+    box.appendChild(list);
+    if (hits.length > 12) box.appendChild(el("div", "bz-dock-note", `只列最近 12 条，其余去各工具的记录里看`));
+    box.appendChild(
+      uiBtnRow([uiBtn({ label: "知道了", tone: "primary", onClick: () => modal.close() })], { center: true })
+    );
+    const modal = uiModal({ head: true, title: "自动运行简报", content: box, maxWidth: 460 });
   }
   async function copyText(text, what) {
     try {
