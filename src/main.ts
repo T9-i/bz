@@ -264,7 +264,8 @@ const COMMANDS: { id: string; name: string; icon: string; callback: () => void }
   { id: 'bz-password-vault-quick-gen', name: '快速生成密码', icon: 'wand-sparkles', callback: () => void quickGeneratePassword(getApp()) },
   // 锁定密码本（2026-09-11 首页入口菜单）：与保险库同库同锁（一把主密码）
   { id: 'bz-password-vault-lock', name: '锁定密码本', icon: 'lock', callback: () => lockPasswordVault(getApp()) },
-  // 小橘陪伴猫（smartcat 域）
+  // 小橘陪伴猫（smartcat 域）。ADR-0254：整组受域开关 smartcatEnabled 管——关掉时这四条
+  // 从命令面板撤下（注册处过滤 + 运行中拨开关即时增删，见 applySmartcatDomain）
   { id: 'bz-smartcat-open', name: '小橘', icon: DOMAIN_ICONS.smartcat, callback: () => openSmartCat(getApp()) },
   // f7：去 message-circle 重复（第二大脑对话保留）→ messages-square
   { id: 'bz-smartcat-chat', name: '小橘聊天', icon: 'messages-square', callback: () => openSmartCatChat(getApp()) },
@@ -278,6 +279,10 @@ const COMMANDS: { id: string; name: string; icon: string; callback: () => void }
   // 面板是唯一入口，自动化工具由调度器在启动就绪后按节奏触发）
   { id: 'bz-dock-open', name: '工具坞', icon: DOMAIN_ICONS.dock, callback: () => openDock(getApp()) },
 ];
+
+/** 小橘域命令判定（ADR-0254）：域开关关掉时整组撤下——id 前缀就是域标识，不另立登记表，
+ *  免得命令表加一条忘了同步第二处。 */
+const isSmartcatCommand = (id: string): boolean => id.startsWith('bz-smartcat-');
 
 /** 应用日记本设置到运行时常量（目录唯一真理跨域化：影视/书库由 diary/config 内部跨域解析） */
 export function applyDiarySettingsToRuntime(s: BzSettings) {
@@ -298,6 +303,9 @@ export default class BzPlugin extends Plugin {
    *  `plugin.knowledge?.openTermNote === 'function'` 语义成立）；懒初始化仍在函数内部
    *  ensureKnowledge（与命令入口同款），挂载本身零初始化成本。 */
   knowledge: { openTermNote: typeof openTermNote; openPassageNote: typeof openPassageNote } | null = null;
+  /** 小橘域开关上次落到运行时的值（ADR-0254）：saveSettings 里比对，拨动即挂/卸，
+   *  不靠面板 onChange 钩子——命令面板外部调用 saveSettings 的路径也一样生效 */
+  private smartcatDomainOn = true;
 
   async onload() {
     const loaded = await this.loadData();
@@ -320,6 +328,8 @@ export default class BzPlugin extends Plugin {
     // issue 462/ADR-0195：knowledge 三路径键 → 外部工具组（pythonPath/ffmpegPath/ffprobePath）
     const externalToolKeysMigrated = migrateExternalToolKeys(loaded);
     this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
+    // 小橘域开关的运行时基线（ADR-0254）：启动这一刻以盘上值为准，之后每次 saveSettings 比对
+    this.smartcatDomainOn = this.settings.smartcatEnabled !== false;
     setApp(this.app);
     // 移动端没有 Node：工具坞默认那条 `window.require('fs')` 读链整条是断的，
     // 声明 / 参数值 / 运行记录 / 展示板一个都读不到（面板只剩登记项的 id 与路径）。
@@ -382,6 +392,8 @@ export default class BzPlugin extends Plugin {
 
     // 命令裸注册（ADR-0004：app.commands.addCommand 原样 id 注册——plugin.addCommand 会被 Obsidian 自动加插件前缀，主页.js 等外部裸 id 调用会失效）
     for (const c of COMMANDS) {
+      // 域开关（ADR-0254）：小橘关着时整组不注册——命令面板里连名字都不出现
+      if (!this.smartcatDomainOn && isSmartcatCommand(c.id)) continue;
       (this.app as any).commands.addCommand({ id: c.id, name: c.name, icon: c.icon, callback: c.callback });
       this.registeredCommandIds.push(c.id);
     }
@@ -461,8 +473,8 @@ export default class BzPlugin extends Plugin {
       void ensurePomodoro(this.app);
       // 聚合讯自动抓取（issue 302 / ADR-0128）：启动延迟一拍后台抓一轮（间隔判定在 fetcher 内）
       setTimeout(() => { if (!this.unloaded) void maybeFetchNews(); }, 0);
-      // 小橘：启动即挂载（smartcatEnabled 开关；桌面宠物常驻）
-      if (this.settings.smartcatEnabled) void ensureSmartCat(this.app);
+      // 小橘：启动即挂载（ADR-0254 域总闸；桌面宠物常驻）
+      if (this.smartcatDomainOn) void ensureSmartCat(this.app);
       // 日记本后台预热（②）：延迟一拍到空闲只读数据填缓存、不建 DOM（ADR-0003 兼容），
       // 首开日记本命中缓存秒开；四目录任一 md 变更经 domain-bus 事件自动失效。禁用插件时不预热（C13）。
       prewarmDiary(this.app, () => this.unloaded);
@@ -577,6 +589,13 @@ export default class BzPlugin extends Plugin {
   }
 
   async saveSettings() {
+    // 小橘域开关（ADR-0254）：拨动即落运行时——关就卸实例撤命令、开就补命令并立刻挂载，
+    // 不用重载插件。比对放在落盘之前：saveData 失败也照样把运行时拨到位（内存值已是用户的意图）。
+    const smartcatOn = this.settings.smartcatEnabled !== false;
+    if (smartcatOn !== this.smartcatDomainOn) {
+      this.smartcatDomainOn = smartcatOn;
+      this.applySmartcatDomain(smartcatOn);
+    }
     // C15：落盘串行化——并发调用（连拨开关/域设置弹窗连写）经 promise 链排队写入，
     // 防 saveData 并发写 data.json 交错（历史上有并发写损坏先例）；失败不断链
     const run = this.saveQueue
@@ -587,6 +606,29 @@ export default class BzPlugin extends Plugin {
       });
     this.saveQueue = run.catch(() => undefined);
     await run;
+  }
+
+  /** 小橘域开关落到运行时（ADR-0254）。命令表增删用的是卸载路径早就在用的同一对 API
+   *  （addCommand / removeCommand）；同 id 重新注册会恢复命令本身，但用户给它绑的快捷键
+   *  在命令被撤期间一并失效——这是「关掉整个域」必须付的代价，域开着时不发生。 */
+  private applySmartcatDomain(on: boolean): void {
+    const commands = (this.app as any).commands;
+    for (const c of COMMANDS) {
+      if (!isSmartcatCommand(c.id)) continue;
+      if (on) {
+        commands.addCommand({ id: c.id, name: c.name, icon: c.icon, callback: c.callback });
+        if (!this.registeredCommandIds.includes(c.id)) this.registeredCommandIds.push(c.id);
+      } else {
+        try {
+          commands.removeCommand(c.id);
+        } catch (e) {
+          /* 命令可能已被移除 */
+        }
+        this.registeredCommandIds = this.registeredCommandIds.filter((id) => id !== c.id);
+      }
+    }
+    if (on) void ensureSmartCat(this.app);
+    else unloadSmartCat();
   }
 }
 

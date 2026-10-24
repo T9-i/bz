@@ -806,10 +806,29 @@ export function aiSettingsSchema(): SettingsSchema {
  *  2026-09-27：通知组合回本组（issue 479/ADR-0202，用户拍板撤销同日的拆分——通知就
  *  四行横切偏好，不值单占一页导航；noticeSettingsSchema 退役）。组序 = 通知 → 数据存储路径：
  *  面板侧再把「外观」组 unshift 至最前，通用页终序 = 外观 → 通知 → 存储（issue 297：
- *  通知行型全 select，键与行为零变化）。 */
+ *  通知行型全 select，键与行为零变化）。
+ *  2026-10-24：「功能域」组置顶（ADR-0254）——域级开关住这里，眼下只有小橘一行，将来要关
+ *  别的域就往这组加行；终序变 外观 → 功能域 → 通知 → 存储。 */
 export function generalSettingsSchema(): SettingsSchema {
   return {
     groups: [
+      {
+        icon: 'layout-grid',
+        name: '功能域',
+        rows: [
+          {
+            type: 'toggle',
+            // 键 smartcatEnabled 早已存在（l7A 的启动自动加载开关），ADR-0254 把它升格成整域总闸：
+            // 关 = 卸实例 + 撤命令 + 停记忆/行为流，不只是「启动时不自动挂」
+            name: '小橘陪伴猫',
+            desc: '关闭后桌面宠物与后台记忆一并停用',
+            help:
+              '关闭后小橘不再随 Obsidian 启动，命令面板里的小橘命令一并撤下，正在跑的猫当场收起，记忆流与行为流也停止写入。' +
+              '数据文件原样留在数据目录，重新打开这个开关就接回原处，不用重载插件。',
+            binding: { key: 'smartcatEnabled' },
+          },
+        ],
+      },
       {
         icon: 'bell',
         name: '通知',

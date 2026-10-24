@@ -272,7 +272,14 @@ export const loadedCounts = new Map<string, number>();
  * 导出供回归测试断言（与 DOMAINS 同惯例）。
  */
 export const listableDomains = (): DomainDef[] =>
-  DOMAINS.filter((d) => !d.noSettings && d.schemaLoader && (!loadedCounts.has(d.id) || (loadedCounts.get(d.id) ?? 0) > 0));
+  DOMAINS.filter(
+    (d) =>
+      !d.noSettings &&
+      d.schemaLoader &&
+      // 域开关（ADR-0254）：小橘关着时它的设置页一并撤下——关掉的域不该还占一格导航
+      !(d.id === 'smartcat' && tryGetSettings().smartcatEnabled === false) &&
+      (!loadedCounts.has(d.id) || (loadedCounts.get(d.id) ?? 0) > 0)
+  );
 
 /** 导航徽标运行时值（域 id → 徽标文案）：初始 ·；noSettings 域 —；schema 加载后回填设置项总数。
  *  UI-8 口径如实化：进入域（renderDomain 联动）/重开面板（preload）时重算，refresh 链经

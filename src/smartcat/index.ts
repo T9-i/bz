@@ -198,6 +198,9 @@ async function saveConfig(c: SmartCatConfig): Promise<void> {
 /** 幂等初始化（懒加载；命令/onLayoutReady 触发） */
 export async function ensureSmartCat(app: App): Promise<void> {
   if (initialized) return;
+  // 域开关（ADR-0254）：关着就从装配口拦住——main 已按开关不注册命令，但外部裸 id 调用
+  // （主页.js 直接 runCommand）绕得过命令表，装配口是最后一道闸。静默返回，不弹提示。
+  if (getSettings().smartcatEnabled === false) return;
   initialized = true;
   appRef = app;
   setSmartcatApp(app);
