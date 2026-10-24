@@ -1,4 +1,4 @@
-/* 源指纹 03029d0a28d26363 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 272a2f9b27a7966d · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -1832,7 +1832,8 @@ var BZW_dock = (() => {
     const parsedValues = parseSettingsText(settingsRaw, entry.id);
     const values = parsedValues != null ? parsedValues : {};
     const records = fs ? parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), entry.id) : [];
-    const heartbeat = heartbeatOf(declPath, fs);
+    const beat = heartbeatOf(declPath, fs);
+    const heartbeat = beat && !records.some((r) => r.runId === beat.runId) ? beat : null;
     const trust = (_a = opts.trust) == null ? void 0 : _a[entry.id];
     const signature = runSignature((_b = manifest == null ? void 0 : manifest.entry) != null ? _b : null);
     const trusted = !!trust && !!signature && trust.run === signature;
@@ -1867,6 +1868,15 @@ var BZW_dock = (() => {
   function heartbeatOf(declPath, fs = currentFs()) {
     if (!fs) return null;
     return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(resolveToolPath(declPath)), fs)));
+  }
+  function runningHeartbeatOf(declPath, fs = currentFs(), now = Date.now()) {
+    const hb = heartbeatOf(declPath, fs);
+    if (!hb) return null;
+    const at = Date.parse(hb.at);
+    if (!Number.isFinite(at) || now - at > HEARTBEAT_STALE_MS) return null;
+    if (!fs) return hb;
+    const records = parseRunLines(readRunsText(pathOf.runs(resolveToolPath(declPath)), fs, RUNS_TAIL_BYTES));
+    return records.some((r) => r.runId === hb.runId) ? null : hb;
   }
   function panelOf(declPath, fs = currentFs()) {
     return readPanelText(pathOf.panel(declPath), fs);
@@ -4452,7 +4462,7 @@ var BZW_dock = (() => {
     const body = bodyEl();
     if (!body || view.kind === "detail") return;
     const fs = currentFs();
-    const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, heartbeatOf(e.path, fs)]));
+    const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, runningHeartbeatOf(e.path, fs)]));
     for (const card of Array.from(body.querySelectorAll(".bz-dock-card"))) {
       const id = (_a = card.dataset.tool) != null ? _a : "";
       const live3 = liveOf(id);
