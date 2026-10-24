@@ -25953,569 +25953,624 @@ canvas { display: block; }
     padding-right: var(--bz-space-md);
   }
 }
-/* 工具坞面板 —— 全部用宿主变量，不引入自己的主题层。
-   规矩：不写滚动条样式（全局口径由 core 统一管），不做阴影叠层，卡片靠 1px 边框立层级。 */
+/* ==================== 工具坞域样式（src/dock/styles.css） ====================
+   形态 = 卡片墙（spec §7 UI 定稿）。自上而下四层：
+     ① 顶部 KPI 四格（今日达标 / 近 7 天成功率 / 待处理异常 / 距下次到期）
+     ② 面板顶层执行进度（**只有真在跑才出现**）
+     ③ 搜索行（未展开即隐藏）
+     ④ 主体：卡片网格，一张卡 = 一个外部工具，卡面自带「最近 7 次」点阵；欠跑的卡整卡标色。
+   视觉基调 = 线性精密：卡面无底色、无投影，靠 1px 发丝线 + 间距分层。
+   基座全部复用 core：面板壳 .bz-panel-overlay/.bz-panel-frame/.bz-panel-mtop、
+   头行 .bz-panel-head 族、搜索 .bz-search、空态 .bz-empty、进度条 .bz-progress、
+   表单 .bz-field/.bz-input、弹窗 .bz-overlay-popup。
+   本文件只写域内布局与细节。
+   亮暗：全部消费 --bz token（.theme-dark/.theme-light 双组）。
+   不造滚动条（ADR-0122：滚动功能保留、条由 core 统一隐藏）。 */
 
-.bz-dock-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--layer-modal, 50);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.bz-dock-overlay.is-hidden {
-  display: none;
-}
-
-.bz-dock-sheet {
-  display: flex;
-  flex-direction: column;
-  width: min(920px, 100%);
-  max-height: min(760px, calc(100vh - 48px));
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-l, 12px);
+/* ---------- 面板壳 ---------- */
+.bz-dock-mask.is-off { display: none; }
+.bz-dock-panel {
+  width: min(1120px, 94vw);
+  height: min(88vh, 860px);
+  max-height: calc(100vh - 40px);
+  background: var(--bz-surface-1);
   overflow: hidden;
 }
 
-.bz-dock-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--background-modifier-border);
+/* ---------- 列表头行 ----------
+   core 的 .bz-panel-head 是 44px（影院域那条），在这个 1120px 宽的面板上显得又细又挤：
+   抬到 60px、标题升到 17px、品牌块与钮组各放大一档。
+   （详情页用 .bz-dock-toolhead 覆盖回 auto 高度，不受这条影响） */
+.bz-dock-panel .bz-panel-head {
+  height: 60px;
+  padding: 0 var(--bz-space-xl);
+  gap: var(--bz-space-md);
 }
+.bz-dock-panel .bz-panel-brand { width: 32px; height: 32px; }
+.bz-dock-panel .bz-panel-brand .bz-ic { width: 18px; height: 18px; }
+.bz-dock-panel .bz-panel-title { font-size: var(--bz-font-title); }
+.bz-dock-panel .bz-panel-head-sub { font-size: var(--bz-font-meta); }
+.bz-dock-panel .bz-panel-head-btns .bz-icon-btn { width: 32px; height: 32px; }
+.bz-dock-panel .bz-panel-head-btns .bz-icon-btn .bz-ic { width: 18px; height: 18px; }
 
-.bz-dock-title {
-  font-size: var(--font-ui-medium, 15px);
-  font-weight: 600;
-  color: var(--text-normal);
+/* ---------- 顶部 KPI 四格 ---------- */
+.bz-dock-kpi {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 横向边距 = body 的内边距（lg），与下面的卡片网格同一对齐线 */
+  margin: var(--bz-space-md) var(--bz-space-lg) 0;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  overflow: hidden;
 }
-
-.bz-dock-head-tools {
-  margin-left: auto;
-  display: flex;
-  gap: 4px;
+.bz-dock-kpi.is-off { display: none; }
+.bz-dock-kpi-tile {
+  min-width: 0;
+  padding: var(--bz-space-md) var(--bz-space-lg);
+  border-right: 1px solid var(--bz-border);
 }
-
-.bz-dock-icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-s, 6px);
-  color: var(--text-muted);
-  cursor: pointer;
+.bz-dock-kpi-tile:last-child { border-right: 0; }
+.bz-dock-kpi-v {
+  font-family: var(--bz-font-mono);
+  font-size: 24px;
+  font-weight: var(--bz-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--bz-text-1);
 }
-
+.bz-dock-kpi-v small {
+  font-size: 13px;
+  font-weight: var(--bz-weight-regular);
+  letter-spacing: 0;
+  color: var(--bz-text-3);
+}
+.bz-dock-kpi-l { margin-top: 5px; font-size: var(--bz-font-caption); color: var(--bz-text-2); }
+.bz-dock-kpi-d {
+  margin-top: 4px;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bz-dock-kpi-d.is-up { color: var(--bz-success); }
+.bz-dock-kpi-tile.is-warn .bz-dock-kpi-v { color: var(--bz-warning); }
+.bz-dock-kpi-tile.is-bad .bz-dock-kpi-v { color: var(--bz-danger); }
+/* 带口径的格可点（点哪格看哪类，再点回全部） */
+.bz-dock-kpi-tile.is-click { cursor: pointer; transition: background-color 120ms ease; }
+.bz-dock-kpi-tile.is-selected { box-shadow: inset 0 -2px 0 var(--bz-accent, currentColor); }
 @media (hover: hover) {
-  .bz-dock-icon-btn:hover {
-    background: var(--background-modifier-hover);
-    color: var(--text-normal);
-  }
+  .bz-dock-kpi-tile.is-click:hover { background-color: var(--bz-bg-hover, rgba(0, 0, 0, 0.04)); }
 }
 
+/* ---------- 面板顶层执行进度 ---------- */
+.bz-dock-runbar {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bz-space-xs);
+  margin: var(--bz-space-sm) var(--bz-space-lg) 0;
+  padding: var(--bz-space-sm) var(--bz-space-md);
+  background: var(--bz-surface-2);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+}
+.bz-dock-runbar.is-off { display: none; }
+.bz-dock-rb { display: flex; align-items: center; gap: var(--bz-space-sm); min-width: 0; }
+.bz-dock-rb-pulse {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--bz-radius-full);
+  background: var(--bz-brand);
+  animation: bz-dock-pulse 1.6s ease-in-out infinite;
+}
+@keyframes bz-dock-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.bz-dock-rb-name { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); font-weight: var(--bz-weight-medium); }
+.bz-dock-rb-tag {
+  flex: none;
+  font-size: var(--bz-font-caption);
+  line-height: 1.6;
+  padding: 0 6px;
+  border-radius: var(--bz-radius-xs);
+  background: var(--bz-surface-3);
+  border: 1px solid var(--bz-border);
+  color: var(--bz-text-2);
+}
+.bz-dock-rb-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bz-dock-rb .bz-progress { flex: none; width: 120px; }
+
+/* ---------- 搜索行 ---------- */
+.bz-dock-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--bz-space-md);
+  padding: var(--bz-space-sm) var(--bz-space-lg);
+  border-bottom: 1px solid var(--bz-border);
+}
+.bz-dock-bar.is-off { display: none; }
+.bz-dock-search { flex: 1; min-width: 0; }
+
+/* ---------- 内容区（唯一滚动容器） ---------- */
 .bz-dock-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--bz-space-lg);
 }
 
-/* ---------- 概览 ---------- */
-
-.bz-dock-summary {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.bz-dock-kpi {
-  padding: 10px 12px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m, 8px);
-  background: var(--background-secondary);
-}
-
-.bz-dock-kpi-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-normal);
-  line-height: 1.3;
-}
-
-.bz-dock-kpi-label {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* ---------- 分区与卡片 ---------- */
-
-.bz-dock-section {
-  margin: 18px 0 8px;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-}
-
+/* ---------- 卡片网格 ---------- */
 .bz-dock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--bz-space-sm);
 }
 
+/* ---------- 卡片 ----------
+   卡面无底色、无投影，靠 1px 发丝线 + 间距分层；悬停只把线提亮、底色压到最淡。
+   左沿那条状态条走自定义属性：欠跑 / 在跑 / 悬停要叠在同一个 box-shadow 上。 */
 .bz-dock-card {
+  --bz-dock-edge: 0 0 0 0 transparent;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m, 8px);
+  gap: var(--bz-space-sm);
+  padding: var(--bz-space-md);
+  background: transparent;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  box-shadow: var(--bz-dock-edge);
   cursor: pointer;
-  outline: none;
-  transition: border-color 0.12s ease;
+  transition: border-color var(--bz-dur-fast) var(--bz-ease-out),
+    background var(--bz-dur-fast) var(--bz-ease-out),
+    box-shadow var(--bz-dur-fast) var(--bz-ease-out);
 }
-
-.bz-dock-card:focus-visible {
-  border-color: var(--interactive-accent);
-}
-
 @media (hover: hover) {
   .bz-dock-card:hover {
-    border-color: var(--interactive-accent);
+    border-color: var(--bz-border-hover);
+    background: var(--bz-surface-2);
+    box-shadow: var(--bz-dock-edge);
   }
 }
-
-.bz-dock-card.is-running {
-  border-color: var(--interactive-accent);
+/* 欠跑整卡标色（左沿一条警示色）——比只在角落点个黄点更容易扫到 */
+.bz-dock-card.is-due {
+  border-color: color-mix(in srgb, var(--bz-warning) 46%, var(--bz-border));
+  --bz-dock-edge: inset 3px 0 0 var(--bz-warning);
 }
+.bz-dock-card.is-running { --bz-dock-edge: inset 3px 0 0 var(--bz-brand); }
+.bz-dock-card.is-disabled { opacity: 0.55; }
 
-.bz-dock-card-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bz-dock-card-icon {
+.bz-dock-card-top { display: flex; align-items: flex-start; gap: var(--bz-space-sm); }
+.bz-dock-card-ic {
+  flex: none;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-s, 6px);
-  background: var(--background-secondary);
-  color: var(--text-muted);
+  border-radius: var(--bz-radius-sm);
+  background: var(--bz-brand-soft);
+  color: var(--bz-brand);
 }
-
+.bz-dock-card-idbox { min-width: 0; flex: 1; }
 .bz-dock-card-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-normal);
-  min-width: 0;
+  font-size: var(--bz-font-label);
+  font-weight: var(--bz-weight-semibold);
+  color: var(--bz-text-1);
+  line-height: var(--bz-leading-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.bz-dock-card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
 
+.bz-dock-tag {
+  font-size: var(--bz-font-caption);
+  line-height: 1.6;
+  padding: 0 6px;
+  border-radius: var(--bz-radius-xs);
+  background: var(--bz-surface-3);
+  border: 1px solid var(--bz-border);
+  color: var(--bz-text-2);
+  white-space: nowrap;
+}
+.bz-dock-tag--due {
+  background: color-mix(in srgb, var(--bz-warning) 20%, transparent);
+  border-color: color-mix(in srgb, var(--bz-warning) 42%, transparent);
+  color: var(--bz-warning);
+}
+.bz-dock-tag--warn {
+  background: color-mix(in srgb, var(--bz-danger) 16%, transparent);
+  border-color: color-mix(in srgb, var(--bz-danger) 40%, transparent);
+  color: var(--bz-danger);
+}
+.bz-dock-tag--muted { color: var(--bz-text-3); }
+
+/* 描述：两行截断（卡片高度才整齐） */
 .bz-dock-card-desc {
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-muted);
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-2);
+  line-height: var(--bz-leading-normal);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2.9em;
+  min-height: 2.6em;
 }
 
-.bz-dock-card-meta {
+/* 状态行：时间（主）→ 结果（次）→ 成功率（贴右） */
+.bz-dock-card-state { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.bz-dock-card-when {
+  flex: none;
+  font-size: var(--bz-font-meta);
+  font-weight: var(--bz-weight-medium);
+  color: var(--bz-text-1);
+}
+.bz-dock-card-msg {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 上次失败：卡面直接给「怎么办」 */
+.bz-dock-card-fail {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: var(--bz-font-caption);
+  line-height: var(--bz-leading-tight);
+  color: var(--bz-danger);
+}
+.bz-dock-card-fail .bz-ic { margin-top: 2px; }
+.bz-dock-card-failtext {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.bz-dock-tag {
-  font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  color: var(--text-muted);
-  background: var(--background-secondary);
-}
+/* 色点 */
+.bz-dock-dot { flex: none; width: 7px; height: 7px; border-radius: var(--bz-radius-full); background: var(--bz-text-3); }
+.bz-dock-dot--ok { background: var(--bz-success); }
+.bz-dock-dot--bad { background: var(--bz-danger); }
+.bz-dock-dot--warn { background: var(--bz-warning); }
+.bz-dock-dot--idle { background: var(--bz-text-3); }
 
-.bz-dock-tag.is-warn {
-  color: var(--text-warning);
-}
-
-.bz-dock-strip {
-  display: flex;
-  gap: 3px;
-}
-
-.bz-dock-tick {
-  width: 8px;
-  height: 8px;
+/* 最近 7 次：通栏迷你时间轴（格子等分撑满一行；空格 = 那一次没有记录） */
+.bz-dock-strip { display: flex; align-items: center; gap: 3px; }
+.bz-dock-pip {
+  flex: 1 1 0;
+  min-width: 6px;
+  height: 7px;
   border-radius: 2px;
-  background: var(--background-modifier-border);
+  background: var(--bz-track);
 }
+.bz-dock-pip--ok { background: var(--bz-success); }
+.bz-dock-pip--failed { background: var(--bz-danger); }
+.bz-dock-pip--timeout { background: var(--bz-warning); }
+/* 中止：空心格——与「没跑过」的空档区分开 */
+.bz-dock-pip--stopped { background: transparent; box-shadow: inset 0 0 0 1px var(--bz-text-3); }
+.bz-dock-pip--abandoned { background: transparent; box-shadow: inset 0 0 0 1px var(--bz-danger); }
+.bz-dock-rate { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-rate.is-warn { color: var(--bz-warning); }
 
-.bz-dock-tick[data-state='ok'] {
-  background: var(--color-green, #3fb950);
-}
-
-.bz-dock-tick[data-state='failed'],
-.bz-dock-tick[data-state='timeout'] {
-  background: var(--color-red, #f85149);
-}
-
-.bz-dock-tick[data-state='stopped'],
-.bz-dock-tick[data-state='abandoned'] {
-  background: var(--color-orange, #d29922);
-}
-
-.bz-dock-tick[data-state='running'] {
-  background: var(--interactive-accent);
-}
-
-.bz-dock-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-faint);
-  flex: 0 0 auto;
-}
-
-.bz-dock-dot[data-state='ok'] {
-  background: var(--color-green, #3fb950);
-}
-
-.bz-dock-dot[data-state='failed'],
-.bz-dock-dot[data-state='timeout'] {
-  background: var(--color-red, #f85149);
-}
-
-.bz-dock-dot[data-state='running'] {
-  background: var(--interactive-accent);
-}
+.bz-dock-card-foot { display: flex; align-items: center; gap: var(--bz-space-sm); margin-top: auto; }
+.bz-dock-mobilehint { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
 
 /* ---------- 详情 ---------- */
-
-.bz-dock-detail-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+.bz-dock-detail { display: flex; flex-direction: column; gap: var(--bz-space-md); }
+/* 详情页头部 = 封面式：返回 + 大图标 + 名 + 描述 */
+.bz-panel-head.bz-dock-toolhead {
+  height: auto;
+  min-height: 0;
+  padding: var(--bz-space-md) var(--bz-space-xl) var(--bz-space-lg);
 }
-
+.bz-dock-covermain { display: flex; align-items: center; gap: var(--bz-space-sm); }
 .bz-dock-back {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--bz-border);
+  background: var(--bz-surface-1);
+  color: var(--bz-text-1);
+}
+@media (hover: hover) {
+  .bz-dock-back:hover { background: var(--bz-surface-3); color: var(--bz-text-1); }
+}
+.bz-dock-back .bz-ic { width: 20px; height: 20px; }
+.bz-dock-coveric {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--bz-radius-md);
+  background: var(--bz-brand-soft);
+  color: var(--bz-brand);
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
-  cursor: pointer;
+  justify-content: center;
+}
+.bz-dock-coveric .bz-ic { width: 24px; height: 24px; }
+.bz-dock-covertxt { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+.bz-dock-coverline { display: flex; align-items: center; gap: var(--bz-space-sm); flex-wrap: wrap; min-width: 0; }
+.bz-dock-covertxt .bz-dock-detail-name { font-size: var(--bz-font-display); line-height: 1.2; }
+.bz-dock-covertxt .bz-dock-detail-tags { margin-top: 0; }
+.bz-dock-covertxt .bz-dock-detail-desc {
+  font-size: var(--bz-font-label);
+  color: var(--bz-text-2);
+  line-height: var(--bz-leading-normal);
+}
+.bz-dock-detail-name { font-size: var(--bz-font-title); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); }
+.bz-dock-detail-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.bz-dock-detail-desc { font-size: var(--bz-font-body); color: var(--bz-text-2); line-height: var(--bz-leading-normal); }
+
+/* 详情页的统计条：当前脚本的三格（复用全局 KPI 瓦片） */
+.bz-dock-toolstats {
+  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  overflow: hidden;
+}
+.bz-dock-toolstats .bz-dock-kpi-tile { padding: var(--bz-space-sm) var(--bz-space-md); }
+.bz-dock-toolstats .bz-dock-kpi-v { font-size: 18px; }
+
+/* meta 行 */
+.bz-dock-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2px var(--bz-space-lg);
+  padding: var(--bz-space-sm) var(--bz-space-md);
+  background: var(--bz-surface-2);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+}
+.bz-dock-meta-row { display: flex; align-items: center; gap: var(--bz-space-sm); min-width: 0; padding: 1px 0; }
+.bz-dock-meta-label { flex: none; width: 62px; font-size: var(--bz-font-meta); color: var(--bz-text-3); }
+.bz-dock-meta-val {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bz-dock-meta-val.is-mono { font-family: var(--bz-font-mono); font-size: var(--bz-font-caption); }
+.bz-dock-meta-warn {
+  grid-column: 1 / -1;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-warning);
 }
 
-@media (hover: hover) {
-  .bz-dock-back:hover {
-    color: var(--text-normal);
-  }
+/* 两栏 */
+.bz-dock-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--bz-space-md);
+  align-items: start;
 }
-
-.bz-dock-actions {
-  margin-left: auto;
+.bz-dock-pane {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: var(--bz-space-sm);
+  padding: var(--bz-space-md);
+  background: var(--bz-surface-2);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
 }
+.bz-dock-pane-head { display: flex; align-items: baseline; gap: var(--bz-space-sm); }
+.bz-dock-pane-title { font-size: var(--bz-font-label); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); margin: 0; }
+.bz-dock-pane-count { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-note { font-size: var(--bz-font-meta); color: var(--bz-text-3); line-height: var(--bz-leading-normal); }
+.bz-dock-noManifest { display: flex; flex-direction: column; gap: var(--bz-space-sm); align-items: flex-start; }
 
-.bz-dock-problem {
+/* 表单 */
+.bz-dock-form { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+.bz-dock-textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-meta);
+  line-height: var(--bz-leading-normal);
+}
+.bz-dock-runbtns { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bz-space-sm); }
+
+/* 规则表：一条 = 开关 + 摘要 + 编辑器 */
+.bz-dock-rulespane { gap: var(--bz-space-sm); }
+.bz-dock-rulelist { display: flex; flex-direction: column; gap: var(--bz-space-xs); }
+.bz-dock-rule {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border: 1px solid var(--background-modifier-border);
-  border-left: 2px solid var(--text-warning);
-  border-radius: var(--radius-s, 6px);
-  background: var(--background-secondary);
+  padding: var(--bz-space-sm) var(--bz-space-md);
+  background: var(--bz-surface-1);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
 }
-
-.bz-dock-problem-line {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
+.bz-dock-rule-head { display: flex; align-items: center; gap: var(--bz-space-sm); min-width: 0; }
+.bz-dock-rule-name { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); font-weight: var(--bz-weight-medium); }
+.bz-dock-rule-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.bz-dock-rule-edit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bz-space-xs); }
+.bz-dock-rule-edit .bz-select { min-width: 118px; }
+.bz-dock-trigger-arg { width: 96px; }
+.bz-dock-jitter { width: 64px; }
 
-.bz-dock-block-title {
-  margin: 16px 0 8px;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-}
-
-.bz-dock-board {
-  margin-bottom: 12px;
-}
-
-.bz-dock-frame {
+/* ---------- 展示板（工具自己画的那一块，ADR-0243） ---------- */
+.bz-dock-board { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
+.bz-dock-board-frame {
   display: block;
   width: 100%;
-  /* 固定高度而不是按内容量：量高度要读 contentDocument，那是在碰跨文档边界；
-     而且展示板自己会滚动，量出来反而让边框贴着内容跳来跳去 */
-  height: 360px;
-  min-height: 120px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-m, 8px);
-  background: var(--background-primary);
-  color-scheme: normal;
+  max-height: 560px;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  background: var(--bz-surface-1);
 }
 
-/* ---------- 参数 ---------- */
-
-.bz-dock-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 10px;
-}
-
-.bz-dock-field {
+/* ---------- 运行台里的实时区 ---------- */
+.bz-dock-live:empty { display: none; }
+.bz-dock-livelog {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.bz-dock-label {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.bz-dock-input,
-.bz-dock-textarea,
-.bz-dock-field select {
-  width: 100%;
-  font-size: 12px;
-  padding: 5px 8px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 6px);
-  background: var(--background-secondary);
-  color: var(--text-normal);
-}
-
-.bz-dock-textarea {
-  min-height: 64px;
-  resize: vertical;
-}
-
-.bz-dock-hint {
-  font-size: 11px;
-  color: var(--text-faint);
-  line-height: 1.5;
-}
-
-/* ---------- 规则 ---------- */
-
-.bz-dock-rules {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.bz-dock-rule {
-  padding: 8px 10px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 6px);
-  background: var(--background-secondary);
-}
-
-.bz-dock-rule-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bz-dock-rule-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-normal);
-}
-
-.bz-dock-rule-text {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.bz-dock-rule-del {
-  margin-left: auto;
-  color: var(--text-faint);
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .bz-dock-rule-del:hover {
-    color: var(--text-error, var(--text-normal));
-  }
-}
-
-.bz-dock-rule-edit {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-}
-
-.bz-dock-rule-edit select,
-.bz-dock-trigger-arg,
-.bz-dock-jitter {
-  font-size: 11px;
-  padding: 2px 6px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  background: var(--background-primary);
-  color: var(--text-normal);
-}
-
-.bz-dock-jitter {
-  width: 56px;
-}
-
-/* ---------- 日志与历史 ---------- */
-
-.bz-dock-log {
+  gap: 3px;
   max-height: 220px;
   overflow-y: auto;
-  padding: 8px 10px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s, 6px);
-  background: var(--background-secondary);
-  font-family: var(--font-monospace);
-  font-size: 11px;
-  line-height: 1.6;
+  padding: var(--bz-space-sm);
+  background: var(--bz-surface-1);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+}
+.bz-dock-livelog-head {
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  margin-bottom: 2px;
+}
+.bz-dock-liveline {
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-2);
+  line-height: var(--bz-leading-normal);
+  word-break: break-all;
 }
 
-.bz-dock-log-run {
-  color: var(--text-faint);
-  margin-bottom: 4px;
-}
-
-.bz-dock-log-line {
-  color: var(--text-muted);
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.bz-dock-history {
+/* ---------- 运行记录 ---------- */
+.bz-dock-histlist { display: flex; flex-direction: column; gap: 2px; }
+.bz-dock-histrow {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 5px 6px;
+  border-radius: var(--bz-radius-sm);
+  border: 1px solid transparent;
 }
-
-.bz-dock-history-row {
-  display: grid;
-  grid-template-columns: 132px 44px 1fr auto;
-  gap: 8px;
-  align-items: baseline;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 11px;
+@media (hover: hover) {
+  .bz-dock-histrow:hover { background: var(--bz-surface-3); }
 }
-
-.bz-dock-history-row:nth-child(odd) {
-  background: var(--background-secondary);
+.bz-dock-histrow.is-open { background: var(--bz-surface-3); border-color: var(--bz-border); }
+.bz-dock-histhead { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.bz-dock-histtime { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); }
+.bz-dock-histstatus { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-2); }
+.bz-dock-histdur { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-3); font-family: var(--bz-font-mono); }
+.bz-dock-histtrig {
+  flex: none;
+  margin-left: auto;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
 }
-
-.bz-dock-history-when {
-  color: var(--text-faint);
-}
-
-.bz-dock-history-status {
-  color: var(--text-muted);
-}
-
-.bz-dock-history-row[data-state='ok'] .bz-dock-history-status {
-  color: var(--color-green, #3fb950);
-}
-
-.bz-dock-history-row[data-state='failed'] .bz-dock-history-status,
-.bz-dock-history-row[data-state='timeout'] .bz-dock-history-status {
-  color: var(--color-red, #f85149);
-}
-
-.bz-dock-history-msg {
-  color: var(--text-muted);
+.bz-dock-histmsg {
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-2);
+  line-height: var(--bz-leading-normal);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.bz-dock-histerr { display: flex; flex-direction: column; gap: 1px; }
+.bz-dock-histerr-hint { font-size: var(--bz-font-caption); color: var(--bz-danger); }
+.bz-dock-histerr-detail { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-histtoggle { align-self: flex-start; margin-top: 2px; }
+.bz-dock-histmore { display: none; flex-direction: column; gap: var(--bz-space-xs); padding-top: 4px; }
+.bz-dock-histrow.is-open .bz-dock-histmore { display: flex; }
+.bz-dock-histexact {
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  opacity: 0.8;
+}
 
-.bz-dock-history-dur {
-  color: var(--text-faint);
+.bz-dock-block { display: flex; flex-direction: column; gap: 2px; }
+.bz-dock-block-label { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-json {
+  margin: 0;
+  padding: var(--bz-space-xs) var(--bz-space-sm);
+  max-height: 200px;
+  overflow: auto;
+  background: var(--bz-surface-1);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-sm);
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  line-height: var(--bz-leading-normal);
+  color: var(--bz-text-2);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.bz-dock-artrow { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.bz-dock-artrow-path {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---------- 底部 ---------- */
-
 .bz-dock-footer {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 18px;
-  padding-top: 12px;
-  border-top: 1px solid var(--background-modifier-border);
+  gap: var(--bz-space-sm);
+  padding-top: var(--bz-space-sm);
+  border-top: 1px solid var(--bz-border);
+}
+.bz-dock-footer .bz-dock-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bz-dock-btn-row { display: flex; align-items: center; gap: var(--bz-space-xs); }
+
+/* 授权弹窗里的命令预览 */
+.bz-dock-trust { display: flex; flex-direction: column; gap: var(--bz-space-md); }
+
+/* ---------- 关闭钮 ---------- */
+@media (hover: hover) {
+  .bz-dock-close:hover { color: var(--bz-text-1); }
 }
 
-.bz-dock-path {
-  flex: 1;
-  min-width: 0;
-  font-size: 11px;
-  color: var(--text-faint);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ---------- 空态 ---------- */
-
-.bz-dock-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 48px 16px;
-  text-align: center;
-}
-
-.bz-dock-empty-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-normal);
-}
-
-.bz-dock-empty-desc {
-  max-width: 420px;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-
-/* ---------- 状态栏 ---------- */
-
-.bz-dock-statusbar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-}
-
-.bz-dock-statusbar-count {
-  font-size: 11px;
-}
-
-.bz-dock-lock-line {
-  font-size: 12px;
-  color: var(--text-muted);
+/* ---------- 移动端 ---------- */
+@media (max-width: 720px) {
+  .bz-dock-panel {
+    width: 100vw;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+  .bz-dock-panel .bz-panel-head { padding: 0 var(--bz-space-md); height: 56px; }
+  .bz-dock-kpi { margin: var(--bz-space-sm) var(--bz-space-sm) 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bz-dock-kpi-tile:nth-child(2) { border-right: 0; }
+  .bz-dock-kpi-tile:nth-child(1),
+  .bz-dock-kpi-tile:nth-child(2) { border-bottom: 1px solid var(--bz-border); }
+  .bz-dock-kpi-v { font-size: 20px; }
+  .bz-dock-body { padding: var(--bz-space-sm); }
+  .bz-dock-grid { grid-template-columns: minmax(0, 1fr); }
+  .bz-dock-cols { grid-template-columns: minmax(0, 1fr); }
+  .bz-dock-toolhead { padding: var(--bz-space-sm) var(--bz-space-md) var(--bz-space-md); }
+  .bz-dock-meta { grid-template-columns: minmax(0, 1fr); }
+  .bz-dock-footer { flex-direction: column; align-items: stretch; }
 }

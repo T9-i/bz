@@ -1,24 +1,48 @@
 /**
- * 工具坞面板 —— 一个 overlay、两个视图（列表 / 详情），没有别的状态。
+ * 工具坞面板（dock 域 UI）。形态 = **卡片墙**（spec §7 UI 定稿）。
  *
- * 这一版刻意不做「抽屉 + 弹窗 + 内嵌页」三件套：上一版 3600 行里有一半是在维护那些
- * 互相叠着的容器。这里是**替换内容**，不是层层叠加 —— 返回列表就真的把详情拆掉。
+ * 外壳走各域共用的面板范式：`.bz-panel-overlay` + `.bz-panel-frame` + `.bz-panel-head`，
+ * 组件一律消费 `core/ui`。自上而下四层：
+ *   ① 顶部 KPI 四格（今日达标 / 近 7 天成功率 / 待处理异常 / 距下次到期）
+ *   ② 面板顶层执行进度（**只有在场运行才出现**；后台值守跑的那条读工具自己写的心跳）
+ *   ③ 搜索行（未展开即隐藏）
+ *   ④ 主体：卡片墙，一张卡 = 一个外部工具，卡面自带「最近 7 次」点阵，欠跑的卡整卡标色
  *
- * 面板只做三件事：**看清楚**（状态、最近几次、为什么没跑）、**改得动**（参数、规则、开关）、
- * **跑得掉**（手动运行 / 停止 / 授权）。它不做判断 —— 能不能跑问 `judgeRunGate`，
- * 该不该跑问 `kernel.planTick`，面板不自己发明规则。
+ * 详情页：封面式头行（返回 + 大图标 + 名 + 描述）+ 展示板 + 统计三格 + meta
+ * + 规则表 + 两栏（运行台 / 运行记录）。
+ *
+ * 数据全部来自契约 v2 的那几份文件，这一层不做判断：
+ * 能不能跑问 `judgeRunGate`，该不该跑问内核，面板只负责画和改。
  */
 
-import { Notice, Platform, setIcon, type App } from 'obsidian';
-import { notify } from '../core/notice';
-import { loadToolView, loadToolViews, displayNameOf, heartbeatOf, panelOf, recentRunsOf } from './view';
+import { Platform, type App } from 'obsidian';
+import { topifyZ } from '../core/z-order';
+import { escManager } from '../core/esc-manager';
+import { trapPanelFocus } from '../core/ui/focus-trap';
+import { notice } from '../core/notice';
+import {
+  uiBtn,
+  uiBtnRow,
+  uiEmpty,
+  uiField,
+  uiIcon,
+  uiIconBtn,
+  uiInput,
+  uiModal,
+  uiProgress,
+  uiSearch,
+  uiSelect,
+  uiSwitch,
+} from '../core/ui';
+import { relTime } from '../core/ui/str';
+import { displayNameOf, heartbeatOf, loadToolView, loadToolViews, panelOf, recentRunsOf } from './view';
 import { readRegistry, readTrust, removeTool, trustTool, untrustTool, upsertTool } from './registry';
 import { currentFs, writeIntent, writeSettings } from './files';
 import { parseManifest } from './parse';
 import { actionText, defaultRule, isEventTrigger, nextDueOf, ruleName, triggerText } from './rules';
 import { missingParams } from './kernel';
 import { judgeRunGate, runToolDirect } from './command';
-import { liveAll, liveOf, onLiveChanged, stopLive } from './exec';
+import { hintOf, liveAll, liveOf, onLiveChanged, statusText, stopLive } from './exec';
 import { clearBreakerSafely, kickDockScheduler, notifyDockEvent, runToolManually } from './host';
 import { primeVaultFs } from './vault-fs';
 import { liveLogOf } from './watchdog-status';
@@ -35,202 +59,167 @@ import {
   type DockTriggerKind,
 } from './types';
 
-// ==================== 容器 ====================
+// ==================== 状态 ====================
 
-let root: HTMLElement | null = null;
-let bodyEl: HTMLElement | null = null;
-let titleEl: HTMLElement | null = null;
-let app: App | null = null;
-let view: 'list' | 'detail' = 'list';
-let detailId = '';
-let pollTimer: ReturnType<typeof setInterval> | null = null;
-/** 详情页上次渲染时的签名（轮询据此决定要不要重绘） */
-let detailKey = '';
+let hostApp: App | null = null;
+let overlay: HTMLElement | null = null;
+let escHandle: { unregister: () => void } | null = null;
+/** 当前视图：列表 / 某工具详情 */
+let view: { kind: 'list' } | { kind: 'detail'; id: string } = { kind: 'list' };
+/** 搜索词（空 = 不过滤） */
+let query = '';
+/** 搜索行是否展开 */
+let searchOpen = false;
+/** KPI「待处理异常」点出来的过滤口径 */
+let kpiFilter: 'all' | 'alarms' = 'all';
+/** 打开面板时读出来的视图（渲染输入） */
+let views: DockToolView[] = [];
+/** 列表态的轮询拍 */
+let tickTimer: ReturnType<typeof setInterval> | null = null;
 let liveOff: (() => void) | null = null;
 
-export function ensureDock(a: App): void {
-  app = a;
-  if (root) return;
-  root = document.body.createDiv({ cls: 'bz-dock-overlay' });
-  root.setAttribute('role', 'dialog');
-  root.setAttribute('aria-label', '工具坞');
+const OVERLAY_ID = 'bz-dock-mask';
+const FRAME_ID = 'bz-dock-panel';
 
-  const sheet = root.createDiv({ cls: 'bz-dock-sheet' });
-  const head = sheet.createDiv({ cls: 'bz-dock-head' });
-  titleEl = head.createSpan({ cls: 'bz-dock-title', text: '工具坞' });
-  const tools = head.createDiv({ cls: 'bz-dock-head-tools' });
-  iconBtn(tools, 'folder-input', '导入工具', () => pickFolder());
-  iconBtn(tools, 'refresh-cw', '刷新', () => render());
-  iconBtn(tools, 'x', '关闭', () => closeDock());
+// ==================== 小工具 ====================
 
-  bodyEl = sheet.createDiv({ cls: 'bz-dock-body' });
-  root.addEventListener('click', (e) => {
-    if (e.target === root) closeDock();
-  });
-  document.addEventListener('keydown', onKey);
-  liveOff = onLiveChanged(() => {
-    if (view === 'detail') renderDetail();
-    else renderListMeta();
-  });
+function el<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  cls?: string,
+  text?: string,
+): HTMLElementTagNameMap[K] {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
 }
 
-function onKey(e: KeyboardEvent): void {
-  if (!root || root.hasClass('is-hidden')) return;
-  if (e.key === 'Escape') {
-    if (view === 'detail') showList();
-    else closeDock();
+/** 是否桌面端（只有桌面端能起进程） */
+function canRun(): boolean {
+  return !Platform.isMobile;
+}
+
+function viewById(id: string): DockToolView | undefined {
+  return views.find((v) => v.id === id);
+}
+
+function todayKey(iso?: string): string {
+  const d = iso ? new Date(iso) : new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function isToday(iso: string): boolean {
+  const t = Date.parse(iso);
+  return Number.isFinite(t) && todayKey(iso) === todayKey();
+}
+
+/** 健康态 → 色点类（`none` 不画点） */
+function dotClass(state: string): string {
+  switch (state) {
+    case 'ok':
+      return 'bz-dock-dot bz-dock-dot--ok';
+    case 'due':
+    case 'failed':
+    case 'timeout':
+    case 'abandoned':
+      return 'bz-dock-dot bz-dock-dot--bad';
+    case 'pending':
+    case 'running':
+    case 'stopped':
+      return 'bz-dock-dot bz-dock-dot--warn';
+    default:
+      return 'bz-dock-dot bz-dock-dot--idle';
   }
 }
 
-export function openDock(a: App): void {
-  ensureDock(a);
-  if (!root) return;
-  root.removeClass('is-hidden');
-  showList();
-  notifyDockEvent({ kind: 'panel-open' });
-  startPoll();
-  // 移动端：读桥是内存快照，每次打开重读一遍 —— 否则工具改了文件，面板还停在启动时那份。
-  if (Platform.isMobile) {
-    void primeVaultFs(a).then(() => render());
-  }
+/** 上一次完整运行的记录（`runs.jsonl` 尾部最近一条） */
+function lastOf(v: DockToolView): DockRunRecord | undefined {
+  return v.lastRun;
 }
 
-export function closeDock(): void {
-  if (!root) return;
-  root.addClass('is-hidden');
-  stopPoll();
+/** 成功率：记录里成功了几条 */
+function rateOf(v: DockToolView): number | null {
+  const runs = recentRunsOf(v.path, v.id, 60).filter((r) => r.status !== 'running');
+  if (!runs.length) return null;
+  return runs.filter((r) => r.status === 'ok').length / runs.length;
 }
 
-export function unloadDock(): void {
-  stopPoll();
-  document.removeEventListener('keydown', onKey);
-  liveOff?.();
-  liveOff = null;
-  root?.remove();
-  root = null;
-  bodyEl = null;
-  titleEl = null;
-  app = null;
-  view = 'list';
-  detailId = '';
-}
-
-/** 打开某个工具的详情（调度器通知「查看」跳这里） */
-export function openToolPanel(a: App, id: string): void {
-  openDock(a);
-  showDetail(id);
-}
-
-function startPoll(): void {
-  stopPoll();
-  pollTimer = setInterval(() => {
-    if (!root || root.hasClass('is-hidden')) return;
-    if (view === 'detail') {
-      // 只在账本真的变了才重绘。整块重绘会重建展示板的 iframe ——
-      // 那块 `srcdoc` 里的东西会被从头加载一遍，用户正在里面点的东西每次清零。
-      const v = viewOf(detailId);
-      if (!v || detailSignature(v) !== detailKey) renderDetail();
-    } else {
-      renderListMeta();
+/**
+ * 欠跑判定：**有启用的规则、到过点了、今天没跑成**。
+ *
+ * 只对 daily / interval 这两种「有钟点」的规则算 —— 事件类的「该不该跑」由内核判，
+ * 面板不去猜一个事件什么时候会发生。
+ */
+function dueOf(v: DockToolView): { due: boolean; detail: string } {
+  const enabled = v.rules.filter((r) => r.enabled !== false);
+  if (!enabled.length) return { due: false, detail: '' };
+  if (v.intent.enabled === false) return { due: false, detail: '' };
+  if (v.intent.autoRun === false) return { due: false, detail: '' };
+  const now = Date.now();
+  const last = lastOf(v);
+  for (const rule of enabled) {
+    const firedRaw = v.runtime.rules?.[rule.id]?.lastFiredAt;
+    const fired = firedRaw ? Date.parse(firedRaw) : undefined;
+    if (rule.trigger.kind === 'daily') {
+      const m = /^(\d{1,2}):(\d{1,2})$/.exec(rule.trigger.at);
+      if (!m) continue;
+      const at = new Date();
+      at.setHours(Number(m[1]), Number(m[2]), 0, 0);
+      const done = !!last && last.status === 'ok' && isToday(last.startedAt);
+      if (now > at.getTime() && !done && (fired ?? 0) < at.getTime()) {
+        return { due: true, detail: '今日未跑' };
+      }
+    } else if (rule.trigger.kind === 'interval') {
+      const span = rule.trigger.everyMin * 60_000;
+      const base = fired ?? (last ? Date.parse(last.startedAt) : undefined);
+      if (base !== undefined && now > base + span + 5 * 60_000) {
+        return { due: true, detail: '该跑没跑' };
+      }
     }
-  }, 3000);
-}
-
-/**
- * 详情页的「有没有变化」签名。
- *
- * 只放**会改变渲染结果**的那几个字段：最近一次运行的工单号、上次尝试时刻、熔断状态、授权状态。
- * 不放运行记录全文（每 3 秒读一遍全量记录，正是上一版面板卡顿的来源）。
- */
-function detailSignature(v: DockToolView): string {
-  return [
-    v.id,
-    v.path,
-    v.trusted ? '1' : '0',
-    v.trustStale ? '1' : '0',
-    v.runtime.run?.lastAttemptAt ?? '',
-    v.runtime.run?.pausedAt ?? '',
-    v.lastRun?.runId ?? '',
-    v.lastRun?.status ?? '',
-    // 运行态也算「变了」：不然开始跑/跑完的那一刻，详情页不会重绘那块「正在跑」
-    liveOf(v.id) ? 'live' : freshOf(v.heartbeat) ? 'ext' : '',
-    String(v.rules.length),
-  ].join('|');
-}
-
-function stopPoll(): void {
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = null;
-}
-
-// ==================== 数据 ====================
-
-function views(): DockToolView[] {
-  const { registry } = readRegistry();
-  return loadToolViews(registry.tools, {
-    trust: readTrust(),
-    canRun: !Platform.isMobile,
-    fs: currentFs(),
-  });
-}
-
-function viewOf(id: string): DockToolView | undefined {
-  const { registry } = readRegistry();
-  const entry = registry.tools.find((t) => t.id === id);
-  if (!entry) return undefined;
-  return loadToolView(entry, { trust: readTrust(), canRun: !Platform.isMobile, fs: currentFs() });
-}
-
-// ==================== 列表 ====================
-
-function showList(): void {
-  view = 'list';
-  detailId = '';
-  if (titleEl) titleEl.setText('工具坞');
-  render();
-}
-
-function render(): void {
-  if (!bodyEl) return;
-  bodyEl.empty();
-  if (view === 'detail') {
-    renderDetail();
-    return;
   }
-  const all = views();
-  renderSummary(all);
-
-  if (!all.length) {
-    const empty = bodyEl.createDiv({ cls: 'bz-dock-empty' });
-    empty.createDiv({ cls: 'bz-dock-empty-title', text: '还没有登记任何工具' });
-    empty.createDiv({
-      cls: 'bz-dock-empty-desc',
-      text: '选一个含 manifest.json 的文件夹。bz 只读它、不执行 —— 看清它要跑什么，再决定授不授权。',
-    });
-    const btn = btnOf(empty, '导入工具文件夹', 'mod-cta');
-    btn.addEventListener('click', () => pickFolder());
-    return;
-  }
-
-  const auto = all.filter((v) => v.rules.some((r) => r.enabled !== false));
-  const manual = all.filter((v) => !v.rules.some((r) => r.enabled !== false));
-  if (auto.length) section('自动运行', auto);
-  if (manual.length) section('手动', manual);
+  return { due: false, detail: '' };
 }
 
-/**
- * 有没有**别的进程**正在跑它。
- *
- * 判据只有一条：工具自己盖的心跳还新鲜。用它而不是查锁，是因为锁只说明「有人在调度」，
- * 不能说明「跑的是哪一个」；而心跳是工具亲手写的，runId 就是这次运行的工单号。
- *
- * 为什么需要它：后台值守在跑的时候，插件面板原来什么都看不见 —— 用户以为没在跑，
- * 再点一次「运行」就会卡在锁上（拿不到锁，静默返回）。现在面板能说「后台正在跑」，
- * 按下去之前就知道该等。
- */
-function externalRunOf(v: DockToolView): DockHeartbeat | null {
-  if (liveOf(v.id)) return null; // 本进程在跑，那是 live 的事，不用心跳猜
-  return freshOf(v.heartbeat);
+/** 异常口径（KPI「待处理异常」与它点出来的过滤共用这一份） */
+function isAlarmView(v: DockToolView): boolean {
+  if (dueOf(v).due) return true;
+  if (v.runtime.run?.pausedAt) return true;
+  if (!v.trusted) return false; // 没授权是「还没开始用」，不算异常
+  const s = v.lastRun?.status;
+  return s === 'failed' || s === 'timeout' || s === 'abandoned';
+}
+
+/** 「未信任」与「信任过期」共用的标签文案 */
+function trustTagOf(v: DockToolView): string | null {
+  if (!canRun()) return null;
+  if (!v.trusted) return v.trustStale ? '命令已变，待重新确认' : '未授权';
+  return null;
+}
+
+/** 卡面「什么时候」 */
+function whenTextOf(v: DockToolView, last: DockRunRecord | undefined): string {
+  if (!last) return '还没有运行过';
+  return relTime(last.startedAt.replace('T', ' '));
+}
+
+/** 卡面「结果」：在场运行给实时阶段，否则给工具自己留的那句话 */
+function messageTextOf(v: DockToolView, last: DockRunRecord | undefined): string {
+  if (!v.manifest) return v.error ?? '声明文件读不到，先把路径修好';
+  const live = liveOf(v.id);
+  if (live) return live.phase ? `正在${live.phase}…` : '正在运行…';
+  const ext = freshOf(v.heartbeat);
+  if (ext) return ext.step ? `后台跑：${ext.step}` : '后台值守正在跑…';
+  if (!v.entry) return '声明里没写 entry —— 只能看';
+  if (!last) return '等它按自己的节奏跑一次';
+  return last.message || statusText(last.status);
+}
+
+/** 卡面「怎么办」：上次失败且工具留了 `error.kind` 时给可操作提示 */
+function failHintOf(last: DockRunRecord | undefined): string | null {
+  if (!last || !last.error) return null;
+  if (last.status === 'ok' || last.status === 'running') return null;
+  return hintOf(last.error.kind);
 }
 
 /** 心跳还新鲜吗（60 秒内） */
@@ -241,379 +230,1010 @@ function freshOf(hb: DockHeartbeat | undefined): DockHeartbeat | null {
   return Date.now() - at <= HEARTBEAT_STALE_MS ? hb : null;
 }
 
-function renderListMeta(): void {
-  // 只更新卡片上的状态点与「在跑」标记，避免整块重绘打断点击
-  if (!bodyEl) return;
-  // 只读心跳，不 loadToolView —— 每 3 秒为了一个状态点把六份文件读一遍不值
+/** 有没有**别的进程**正在跑它（后台值守拉起的那种） */
+function externalRunOf(v: DockToolView): DockHeartbeat | null {
+  if (liveOf(v.id)) return null;
+  return freshOf(v.heartbeat);
+}
+
+/** 剩余时长 → 「数字 + 单位」两段 */
+function untilText(ms: number): { num: string; unit: string } {
+  const m = ms / 60000;
+  if (m < 60) return { num: String(Math.max(1, Math.round(m))), unit: 'm' };
+  const h = m / 60;
+  if (h < 24) return { num: String(Math.round(h)), unit: 'h' };
+  return { num: String(Math.round(h / 24)), unit: 'd' };
+}
+
+// ==================== 打开 / 卸载 ====================
+
+export function ensureDock(app: App): void {
+  hostApp = app;
+  if (!overlay) build(app);
+}
+
+export function openDock(app: App): void {
+  ensureDock(app);
+  if (!overlay) return;
+  topifyZ(overlay);
+  overlay.classList.remove('is-off');
+  trapPanelFocus(overlay.querySelector<HTMLElement>(`#${FRAME_ID}`) ?? overlay);
+  // hide 型常驻层重开：显示路径重放 ESC 注册，栈序跟随显示序
+  escHandle?.unregister();
+  escHandle = escManager.register('bz-dock', {
+    isVisible: () => isPanelVisible(),
+    close: () => closeDock(),
+  });
+  render();
+  startTick();
+  void refresh();
+  // 「打开工具坞」本身也是一个触发条件（规则里的 panel-open）
+  notifyDockEvent({ kind: 'panel-open' });
+  // 移动端：读桥是内存快照，每次打开重读一遍
+  if (Platform.isMobile) void primeVaultFs(app).then(() => render());
+}
+
+export function closeDock(): void {
+  overlay?.classList.add('is-off');
+  stopTick();
+}
+
+/** 通知 / 命令的「直达」入口：开面板并定位到该工具详情 */
+export function openToolPanel(app: App, id: string): void {
+  view = { kind: 'detail', id };
+  openDock(app);
+}
+
+export function unloadDock(): void {
+  stopTick();
+  liveOff?.();
+  liveOff = null;
+  hostApp = null;
+  escHandle?.unregister();
+  escHandle = null;
+  overlay?.remove();
+  overlay = null;
+  views = [];
+  view = { kind: 'list' };
+  searchOpen = false;
+  query = '';
+}
+
+function isPanelVisible(): boolean {
+  return !!overlay && !overlay.classList.contains('is-off');
+}
+
+// ==================== 面板壳 ====================
+
+function build(app: App): void {
+  const ov = el('div', 'bz-panel-overlay bz-dock-mask is-off');
+  ov.id = OVERLAY_ID;
+  const frame = el('div', 'bz-panel-frame bz-dock-panel bz-panel-mtop');
+  frame.id = FRAME_ID;
+
+  const head = el('div', 'bz-panel-head');
+  const kpi = el('div', 'bz-dock-kpi');
+  kpi.id = 'bz-dock-kpi';
+  const runbar = el('div', 'bz-dock-runbar');
+  runbar.id = 'bz-dock-runbar';
+  const bar = el('div', 'bz-dock-bar');
+  bar.id = 'bz-dock-bar';
+  const body = el('div', 'bz-dock-body');
+  body.id = 'bz-dock-body';
+
+  frame.append(head, kpi, runbar, bar, body);
+  ov.appendChild(frame);
+  ov.addEventListener('click', (e) => {
+    if (e.target === ov) closeDock();
+  });
+  document.body.appendChild(ov);
+  overlay = ov;
+  liveOff = onLiveChanged(() => {
+    if (view.kind === 'detail') renderLiveInto(view.id);
+    renderRunbar();
+    updateCards();
+  });
+  void app;
+}
+
+function headEl(): HTMLElement | null {
+  return overlay?.querySelector<HTMLElement>('.bz-panel-head') ?? null;
+}
+function kpiEl(): HTMLElement | null {
+  return overlay?.querySelector<HTMLElement>('#bz-dock-kpi') ?? null;
+}
+function runbarEl(): HTMLElement | null {
+  return overlay?.querySelector<HTMLElement>('#bz-dock-runbar') ?? null;
+}
+function barEl(): HTMLElement | null {
+  return overlay?.querySelector<HTMLElement>('#bz-dock-bar') ?? null;
+}
+function bodyEl(): HTMLElement | null {
+  return overlay?.querySelector<HTMLElement>('#bz-dock-body') ?? null;
+}
+
+// ==================== 刷新 ====================
+
+function refresh(): void {
+  const { registry } = readRegistry();
+  views = loadToolViews(registry.tools, {
+    trust: readTrust(),
+    canRun: canRun(),
+    fs: currentFs(),
+  });
+  render();
+}
+
+/** 列表态的状态点与「在跑」标记（每 3 秒，只读心跳，不读整份视图） */
+function updateCards(): void {
+  const body = bodyEl();
+  if (!body || view.kind === 'detail') return;
   const fs = currentFs();
   const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, heartbeatOf(e.path, fs)]));
-  for (const card of Array.from(bodyEl.querySelectorAll<HTMLElement>('.bz-dock-card'))) {
-    const id = card.dataset.toolId ?? '';
+  for (const card of Array.from(body.querySelectorAll<HTMLElement>('.bz-dock-card'))) {
+    const id = card.dataset.tool ?? '';
     const live = liveOf(id);
     const hb = beats.get(id);
     const ext = live || !hb ? null : freshOf(hb);
     const running = !!live || !!ext;
-    card.toggleClass('is-running', running);
+    card.classList.toggle('is-running', running);
     const dot = card.querySelector<HTMLElement>('.bz-dock-dot');
-    if (dot) {
-      dot.dataset.state = running ? 'running' : lastStateOf(id);
-    }
+    if (dot && running) dot.className = 'bz-dock-dot bz-dock-dot--warn';
   }
 }
 
-function renderSummary(all: DockToolView[]): void {
-  if (!bodyEl) return;
-  const row = bodyEl.createDiv({ cls: 'bz-dock-summary' });
-  const running = liveAll().length;
-  const today = all.filter((v) => v.lastRun && isToday(v.lastRun.startedAt)).length;
-  const failed = all.filter((v) => v.lastRun?.status === 'failed' || v.lastRun?.status === 'timeout').length;
-  cell(row, '正在跑', running ? String(running) : '—');
-  cell(row, '今天跑过', String(today));
-  cell(row, '最近失败', failed ? String(failed) : '—');
-  cell(row, '工具', String(all.length));
+function startTick(): void {
+  stopTick();
+  tickTimer = setInterval(() => {
+    if (!isPanelVisible()) return;
+    updateCards();
+    if (view.kind === 'detail') renderLiveInto(view.id);
+  }, 3000);
 }
 
-function cell(parent: HTMLElement, label: string, value: string): void {
-  const c = parent.createDiv({ cls: 'bz-dock-kpi' });
-  c.createDiv({ cls: 'bz-dock-kpi-value', text: value });
-  c.createDiv({ cls: 'bz-dock-kpi-label', text: label });
+function stopTick(): void {
+  if (tickTimer) clearInterval(tickTimer);
+  tickTimer = null;
 }
 
-function section(name: string, list: DockToolView[]): void {
-  if (!bodyEl) return;
-  bodyEl.createDiv({ cls: 'bz-dock-section', text: name });
-  const grid = bodyEl.createDiv({ cls: 'bz-dock-grid' });
-  for (const v of list) card(grid, v);
+// ==================== 渲染总入口 ====================
+
+function render(): void {
+  renderHead();
+  renderKpi();
+  renderRunbar();
+  renderBar();
+  renderBody();
 }
 
-function card(grid: HTMLElement, v: DockToolView): void {
-  const el = grid.createDiv({ cls: 'bz-dock-card' });
-  el.dataset.toolId = v.id;
-  el.tabIndex = 0;
-  if (liveOf(v.id)) el.addClass('is-running');
+function renderHead(): void {
+  const head = headEl();
+  if (!head) return;
+  if (view.kind === 'detail') {
+    const v = viewById(view.id);
+    if (v) {
+      renderToolHead(head, v);
+      return;
+    }
+  }
+  head.classList.remove('bz-dock-toolhead');
+  head.innerHTML = '';
+  const brand = el('div', 'bz-panel-brand');
+  brand.appendChild(uiIcon('square-terminal'));
+  const sub = el('div', 'bz-panel-head-sub');
+  sub.id = 'bz-dock-headsub';
+  const btns = el('div', 'bz-panel-head-btns');
+  btns.id = 'bz-dock-headbtns';
+  head.append(brand, el('div', 'bz-panel-title', '工具坞'), el('div', 'bz-panel-head-pipe'), sub, el('div', 'bz-panel-head-sp'), btns);
 
-  const top = el.createDiv({ cls: 'bz-dock-card-top' });
-  const icon = top.createDiv({ cls: 'bz-dock-card-icon' });
-  setIcon(icon, v.manifest?.icon || 'box');
+  const alarms = views.filter(isAlarmView).length;
+  sub.textContent = views.length
+    ? `${views.length} 个工具${alarms ? ` · ${alarms} 个待关注` : ''}`
+    : '还没有登记任何外部工具';
 
-  const name = top.createDiv({ cls: 'bz-dock-card-name' });
-  name.setText(displayNameOf(v));
-  const dot = name.createSpan({ cls: 'bz-dock-dot' });
-  dot.dataset.state = liveOf(v.id) ? 'running' : lastStateOf(v.id);
+  btns.appendChild(
+    uiIconBtn({
+      icon: 'search',
+      title: '搜索工具',
+      on: searchOpen,
+      onClick: () => {
+        searchOpen = !searchOpen;
+        render();
+      },
+    }),
+  );
+  // 移动端只读：刷新与导入都不给 —— 手机上选不了文件夹，也没有「重读一遍」能改变的东西
+  if (canRun()) {
+    btns.appendChild(
+      uiIconBtn({
+        icon: 'refresh-cw',
+        title: '重新读取运行记录',
+        onClick: () => {
+          refresh();
+          notice('已重新读取');
+        },
+      }),
+    );
+    btns.appendChild(uiIconBtn({ icon: 'plus', title: '导入工具（选文件夹）', onClick: () => pickFolder() }));
+  }
+  btns.appendChild(uiIconBtn({ icon: 'x', title: '关闭', className: 'bz-dock-close', onClick: () => closeDock() }));
+}
 
-  el.createDiv({
-    cls: 'bz-dock-card-desc',
-    text: v.error ?? v.manifest?.description ?? '（这份声明里没有描述）',
+/** 详情页头行：封面式（返回 + 大图标 + 名 + 标签 + 描述） */
+function renderToolHead(head: HTMLElement, v: DockToolView): void {
+  head.innerHTML = '';
+  head.classList.add('bz-dock-toolhead');
+
+  const back = uiIconBtn({
+    icon: 'chevron-left',
+    title: '返回列表',
+    className: 'bz-dock-back',
+    onClick: () => {
+      view = { kind: 'list' };
+      render();
+    },
   });
 
-  const meta = el.createDiv({ cls: 'bz-dock-card-meta' });
-  const trigger = v.rules.find((r) => r.enabled !== false);
-  meta.createSpan({
-    cls: 'bz-dock-tag',
-    text: trigger ? triggerText(trigger.trigger, (id) => id) : '手动',
-  });
-  if (!v.trusted) meta.createSpan({ cls: 'bz-dock-tag is-warn', text: '待授权' });
+  const main = el('div', 'bz-dock-covermain');
+  const ic = el('div', 'bz-dock-coveric');
+  ic.appendChild(uiIcon(v.manifest?.icon || 'box', 'bz-ic--lg'));
 
-  const strip = el.createDiv({ cls: 'bz-dock-strip' });
-  const runs = recentRunsOf(v.path, v.id, 7);
-  for (let i = 6; i >= 0; i--) {
-    const r = runs[6 - i];
-    const tick = strip.createDiv({ cls: 'bz-dock-tick' });
-    if (r) tick.dataset.state = r.status;
+  const txt = el('div', 'bz-dock-covertxt');
+  const line = el('div', 'bz-dock-coverline');
+  line.appendChild(el('div', 'bz-dock-detail-name', displayNameOf(v)));
+  const tags = el('div', 'bz-dock-detail-tags');
+  const due = dueOf(v);
+  if (due.due) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--due', due.detail));
+  const trustTag = trustTagOf(v);
+  if (trustTag) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--warn', trustTag));
+  if (v.runtime.run?.pausedAt) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--warn', '自动已暂停'));
+  if (tags.children.length) line.appendChild(tags);
+  txt.appendChild(line);
+  const desc = v.manifest?.description;
+  if (desc) txt.appendChild(el('div', 'bz-dock-detail-desc', desc));
+
+  main.append(back, ic, txt);
+  head.appendChild(main);
+}
+
+/**
+ * 顶部四格 KPI。口径在这个文件里现算（数据层没有 overview）：
+ * 今日达标 = 有启用规则的工具有几个今天跑成了；成功率 = 最近 60 条记录里成功的比例。
+ */
+function renderKpi(): void {
+  const host = kpiEl();
+  if (!host) return;
+  host.innerHTML = '';
+  if (!views.length || view.kind === 'detail') {
+    host.classList.add('is-off');
+    return;
+  }
+  host.classList.remove('is-off');
+
+  const withRules = views.filter((v) => v.rules.some((r) => r.enabled !== false));
+  const doneToday = withRules.filter((v) => v.lastRun?.status === 'ok' && isToday(v.lastRun.startedAt)).length;
+  const left = withRules.length - doneToday;
+
+  let ok = 0;
+  let total = 0;
+  for (const v of views) {
+    for (const r of recentRunsOf(v.path, v.id, 60)) {
+      if (r.status === 'running') continue;
+      total += 1;
+      if (r.status === 'ok') ok += 1;
+    }
+  }
+  const rate = total ? ok / total : null;
+
+  const alarms = views.filter(isAlarmView);
+  const alarmHint = alarms[0];
+  const next = nextDueOfViews();
+
+  const tile = (
+    num: string,
+    unit: string,
+    label: string,
+    sub: string,
+    tone?: 'warn' | 'bad' | 'up',
+    key?: 'alarms',
+  ): HTMLElement => {
+    const t = el('div', tone ? `bz-dock-kpi-tile is-${tone}` : 'bz-dock-kpi-tile');
+    const v = el('div', 'bz-dock-kpi-v', num);
+    if (unit) v.appendChild(el('small', undefined, unit));
+    t.append(v, el('div', 'bz-dock-kpi-l', label), el('div', tone === 'up' ? 'bz-dock-kpi-d is-up' : 'bz-dock-kpi-d', sub));
+    if (key) {
+      t.classList.add('is-click');
+      if (kpiFilter === key) t.classList.add('is-selected');
+      t.addEventListener('click', () => {
+        kpiFilter = kpiFilter === key ? 'all' : key;
+        renderKpi();
+        renderBody();
+      });
+    }
+    return t;
+  };
+
+  host.appendChild(
+    tile(
+      String(doneToday),
+      ` / ${withRules.length}`,
+      '今日自动化达标',
+      withRules.length === 0 ? '还没有自动化工具' : left > 0 ? `还差 ${left} 个` : '今天都跑成了',
+      withRules.length > 0 && left > 0 ? 'warn' : undefined,
+    ),
+  );
+  host.appendChild(
+    tile(
+      rate === null ? '—' : String(Math.round(rate * 100)),
+      rate === null ? '' : '%',
+      '近 7 天成功率',
+      total ? `${total} 次里成功 ${ok} 次` : '还没有可比的记录',
+    ),
+  );
+  host.appendChild(
+    tile(
+      String(alarms.length),
+      '',
+      '待处理异常',
+      alarmHint ? `${displayNameOf(alarmHint)} · ${dueOf(alarmHint).due ? dueOf(alarmHint).detail : '上次没跑成'}` : '没有要管的事',
+      alarms.length ? 'bad' : undefined,
+      'alarms',
+    ),
+  );
+  if (next) {
+    const left2 = untilText(next.at - Date.now());
+    host.appendChild(tile(left2.num, left2.unit, '距下次到期', next.name));
+  } else {
+    host.appendChild(tile('—', '', '距下次到期', '没有能算出下次到期的工具'));
+  }
+}
+
+/** 最早的一次「下次到期」（事件类规则算不出钟点，跳过） */
+function nextDueOfViews(): { at: number; name: string } | null {
+  let best: { at: number; name: string } | null = null;
+  const now = Date.now();
+  for (const v of views) {
+    if (v.intent.enabled === false || v.intent.autoRun === false) continue;
+    for (const rule of v.rules) {
+      if (rule.enabled === false || isEventTrigger(rule.trigger.kind)) continue;
+      const firedRaw = v.runtime.rules?.[rule.id]?.lastFiredAt;
+      const at = nextDueOf(rule, {
+        now,
+        lastFiredAt: firedRaw ? Date.parse(firedRaw) : undefined,
+      });
+      if (at === null) continue;
+      if (!best || at < best.at) best = { at, name: displayNameOf(v) };
+    }
+  }
+  return best;
+}
+
+/**
+ * 面板顶层执行进度。**只画真在跑的**：本进程拉起的（有实时进度）+ 后台值守拉起的
+ * （只有工具自己写的心跳和那行步骤，不编百分比）。
+ */
+function renderRunbar(): void {
+  const host = runbarEl();
+  if (!host) return;
+  host.innerHTML = '';
+  const live = liveAll();
+  const exts = view.kind === 'detail'
+    ? []
+    : views
+        .map((v) => ({ v, hb: externalRunOf(v) }))
+        .filter((x): x is { v: DockToolView; hb: DockHeartbeat } => x.hb !== null);
+  if (!live.length && !exts.length) {
+    host.classList.add('is-off');
+    return;
+  }
+  host.classList.remove('is-off');
+  for (const run of live) {
+    const v = viewById(run.toolId);
+    const row = el('div', 'bz-dock-rb');
+    row.appendChild(el('span', 'bz-dock-rb-pulse'));
+    row.appendChild(el('span', 'bz-dock-rb-name', v ? displayNameOf(v) : run.toolId));
+    row.appendChild(el('span', 'bz-dock-rb-tag', run.trigger === 'auto' ? '自动' : '手动'));
+    const phase = run.phase ? `${run.phase}${run.pct !== null ? ` ${run.pct}%` : ''}` : '进行中';
+    row.appendChild(el('span', 'bz-dock-rb-text', phase));
+    if (run.pct !== null) {
+      const bar = uiProgress({ thin: true, value: run.pct });
+      row.appendChild(bar.el);
+    }
+    host.appendChild(row);
+  }
+  for (const { v, hb } of exts) {
+    const row = el('div', 'bz-dock-rb');
+    row.dataset.tool = v.id;
+    row.appendChild(el('span', 'bz-dock-rb-pulse'));
+    row.appendChild(el('span', 'bz-dock-rb-name', displayNameOf(v)));
+    row.appendChild(el('span', 'bz-dock-rb-tag', '后台'));
+    row.appendChild(el('span', 'bz-dock-rb-text', hb.step || '值守进程正在跑'));
+    host.appendChild(row);
+  }
+}
+
+/** 搜索行：没展开搜索时整条隐藏 */
+function renderBar(): void {
+  const bar = barEl();
+  if (!bar) return;
+  bar.innerHTML = '';
+  if (!searchOpen || view.kind === 'detail') {
+    bar.classList.add('is-off');
+    return;
+  }
+  bar.classList.remove('is-off');
+  const sp = el('div', 'bz-dock-search');
+  const search = uiSearch({
+    placeholder: '搜工具名 / 描述 / 命令',
+    value: query,
+    onInput: (v) => {
+      query = v;
+      renderBody();
+    },
+  });
+  sp.appendChild(search.el);
+  bar.appendChild(sp);
+  if (!Platform.isMobile) queueMicrotask(() => search.input.focus());
+}
+
+function filtered(): DockToolView[] {
+  let list = views.slice();
+  const q = query.trim().toLowerCase();
+  if (q) {
+    list = list.filter((v) => {
+      const hay = [v.id, displayNameOf(v), v.manifest?.description ?? '', v.manifest?.entry?.cmd ?? '']
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (kpiFilter === 'alarms') list = list.filter(isAlarmView);
+  return list;
+}
+
+function renderBody(): void {
+  const body = bodyEl();
+  if (!body) return;
+  body.innerHTML = '';
+  if (view.kind === 'detail') {
+    const v = viewById(view.id);
+    if (v) {
+      renderDetail(body, v);
+      return;
+    }
+    view = { kind: 'list' };
+  }
+  renderList(body);
+}
+
+function renderList(body: HTMLElement): void {
+  if (!views.length) {
+    body.appendChild(
+      uiEmpty({
+        icon: 'square-terminal',
+        title: '还没有外部工具',
+        desc: canRun()
+          ? '选一个工具文件夹，bz 会自己找里面的 manifest.json。工具坞据此知道它叫什么、有哪些参数、该怎么跑。'
+          : '工具要在桌面端导入。手机上只读 —— 工具目录同步过来之后，这里就能看到它的声明、展示板与运行记录。',
+        actions: canRun()
+          ? uiBtnRow([uiBtn({ label: '导入工具', icon: 'file-input', tone: 'primary', onClick: () => pickFolder() })], {
+              center: true,
+            })
+          : undefined,
+      }),
+    );
+    return;
+  }
+  const list = filtered();
+  if (!list.length) {
+    body.appendChild(
+      uiEmpty({
+        icon: 'search-x',
+        title: '没有匹配的工具',
+        desc: kpiFilter === 'alarms' ? '这个口径下没有 —— 点顶上的 KPI 格回到全部' : '换个词试试',
+      }),
+    );
+    return;
+  }
+  const grid = el('div', 'bz-dock-grid');
+  for (const v of list) grid.appendChild(makeCard(v));
+  body.appendChild(grid);
+}
+
+// ==================== 卡片 ====================
+
+function makeCard(v: DockToolView): HTMLElement {
+  const id = v.id;
+  const card = el('article', 'bz-dock-card');
+  card.dataset.tool = id;
+  const due = dueOf(v);
+  if (due.due) card.classList.add('is-due');
+  if (v.intent.enabled === false) card.classList.add('is-disabled');
+  if (liveOf(id) || externalRunOf(v)) card.classList.add('is-running');
+
+  // 顶行：图标 + 名 + 标签
+  const top = el('div', 'bz-dock-card-top');
+  const ic = el('span', 'bz-dock-card-ic');
+  ic.appendChild(uiIcon(v.manifest?.icon || 'box', 'bz-ic--md'));
+  const idbox = el('div', 'bz-dock-card-idbox');
+  const tags = el('div', 'bz-dock-card-tags');
+  if (due.due) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--due', due.detail));
+  const trustTag = trustTagOf(v);
+  if (trustTag) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--warn', trustTag));
+  if (!v.manifest) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--muted', '声明读不到'));
+  if (v.manifest && !v.entry) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--muted', '只能看'));
+  if (v.runtime.run?.pausedAt) tags.appendChild(el('span', 'bz-dock-tag bz-dock-tag--warn', '自动已暂停'));
+  idbox.append(el('div', 'bz-dock-card-name', displayNameOf(v)), tags);
+  top.append(ic, idbox);
+  card.appendChild(top);
+
+  const desc = v.manifest?.description;
+  if (desc) card.appendChild(el('div', 'bz-dock-card-desc', desc));
+
+  // 状态行：什么时候 + 跑成什么样，成功率贴右
+  const state = el('div', 'bz-dock-card-state');
+  const last = lastOf(v);
+  const running = !!liveOf(id) || !!externalRunOf(v);
+  state.appendChild(el('span', running ? dotClass('running') : dotClass(last ? last.status : due.due ? 'due' : 'none')));
+  state.appendChild(el('span', 'bz-dock-card-when', whenTextOf(v, last)));
+  state.appendChild(el('span', 'bz-dock-card-msg', messageTextOf(v, last)));
+  const rate = rateOf(v);
+  if (rate !== null) {
+    const rateEl = el('span', 'bz-dock-rate', `${Math.round(rate * 100)}% 成功`);
+    rateEl.title = '最近记录里成功了几条';
+    if (rate < 1) rateEl.classList.add('is-warn');
+    state.appendChild(rateEl);
+  }
+  card.appendChild(state);
+
+  // 上次失败 → 卡面直接给「怎么办」
+  const hint = failHintOf(last);
+  if (hint) {
+    const box = el('div', 'bz-dock-card-fail');
+    box.appendChild(uiIcon('alert-triangle', 'bz-ic--xs'));
+    box.appendChild(el('span', 'bz-dock-card-failtext', hint));
+    card.appendChild(box);
   }
 
-  const open = (): void => showDetail(v.id);
-  el.addEventListener('click', open);
-  el.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      open();
+  // 最近 7 次：通栏迷你时间轴（左旧右新）
+  const strip = el('div', 'bz-dock-strip');
+  strip.title = '最近 7 次运行（左旧右新）';
+  const runs = recentRunsOf(v.path, v.id, 7).slice().reverse();
+  for (let i = 0; i < 7; i++) {
+    const r = runs[i];
+    const pip = el('i', 'bz-dock-pip');
+    if (r) {
+      pip.classList.add(`bz-dock-pip--${r.status}`);
+      pip.title = `${relTime(r.startedAt.replace('T', ' '))} · ${statusText(r.status)}${r.message ? ` · ${r.message}` : ''}`;
+    } else {
+      pip.title = '这一次没有运行记录';
     }
+    strip.appendChild(pip);
+  }
+  card.appendChild(strip);
+
+  // 动作行：只留运行 / 停止
+  const foot = el('div', 'bz-dock-card-foot');
+  if (canRun()) {
+    if (liveOf(id)) {
+      foot.appendChild(uiBtn({ label: '停止', icon: 'square', tone: 'danger', size: 'sm', onClick: () => stopLive(id) }));
+    } else {
+      const gate = judgeRunGate(v, true);
+      const runBtn = uiBtn({
+        label: '运行',
+        icon: 'play',
+        size: 'sm',
+        disabled: !gate.ok || !!externalRunOf(v),
+        onClick: () => void doRun(v),
+      });
+      runBtn.title = gate.ok ? '' : gate.text ?? '';
+      foot.appendChild(runBtn);
+    }
+  } else {
+    foot.appendChild(el('span', 'bz-dock-mobilehint', '移动端仅查看'));
+  }
+  card.appendChild(foot);
+
+  card.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    view = { kind: 'detail', id };
+    render();
   });
-}
-
-function lastStateOf(id: string): string {
-  const v = viewOf(id);
-  return v?.lastRun?.status ?? 'never';
-}
-
-function isToday(iso: string): boolean {
-  const d = new Date(iso);
-  const n = new Date();
-  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+  return card;
 }
 
 // ==================== 详情 ====================
 
-function showDetail(id: string): void {
-  view = 'detail';
-  detailId = id;
-  const v = viewOf(id);
-  if (titleEl) titleEl.setText(v ? displayNameOf(v) : '工具');
-  renderDetail();
+function renderDetail(body: HTMLElement, v: DockToolView): void {
+  const wrap = el('div', 'bz-dock-detail');
+
+  if (v.error) wrap.appendChild(el('div', 'bz-dock-meta-warn', v.error));
+
+  // 展示板排在最前：第一眼该看到「这个工具给我看了什么」
+  const board = boardSection(v);
+  if (board) wrap.appendChild(board);
+
+  wrap.appendChild(toolStats(v));
+  wrap.appendChild(metaSection(v));
+  wrap.appendChild(rulesPane(v));
+
+  const cols = el('div', 'bz-dock-cols');
+  cols.appendChild(runPane(v));
+  cols.appendChild(histPane(v));
+  wrap.appendChild(cols);
+
+  wrap.appendChild(footerBar(v));
+  body.appendChild(wrap);
 }
 
-function renderDetail(): void {
-  if (!bodyEl) return;
-  const v = viewOf(detailId);
-  detailKey = v ? detailSignature(v) : '';
-  bodyEl.empty();
-  if (!v) {
-    bodyEl.createDiv({ cls: 'bz-dock-empty-desc', text: '这个工具已经不在登记表里了' });
-    backBtn();
-    return;
-  }
-
-  const bar = bodyEl.createDiv({ cls: 'bz-dock-detail-bar' });
-  const back = bar.createDiv({ cls: 'bz-dock-back' });
-  setIcon(back, 'arrow-left');
-  back.createSpan({ text: '返回' });
-  back.addEventListener('click', () => showList());
-
-  const acts = bar.createDiv({ cls: 'bz-dock-actions' });
-  const gate = judgeRunGate(v, !Platform.isMobile);
-  const live = liveOf(v.id);
-  const external = externalRunOf(v);
-  if (live) {
-    const stop = btnOf(acts, '停止');
-    stop.addEventListener('click', () => stopLive(v.id));
-  } else {
-    const run = btnOf(acts, '运行', 'mod-cta');
-    run.disabled = !gate.ok || !!external;
-    if (external) run.setAttribute('title', '后台值守正在跑它，等它跑完');
-    else if (!gate.ok) run.setAttribute('title', gate.text ?? '');
-    run.addEventListener('click', () => void doRun(v));
-  }
-
-  if (!v.trusted) {
-    const trust = btnOf(acts, v.trustStale ? '重新授权' : '授权这条命令');
-    trust.addEventListener('click', () => void doTrust(v));
-  } else {
-    const untrust = btnOf(acts, '撤销授权');
-    untrust.addEventListener('click', () => void doUntrust(v));
-  }
-
-  renderProblem(v);
-  renderPanelBoard(v);
-  renderParams(v);
-  renderRules(v);
-  renderLive(v);
-  renderHistory(v);
-  renderFooter(v);
-}
-
-function backBtn(): void {
-  if (!bodyEl) return;
-  const b = bodyEl.createDiv({ cls: 'bz-dock-back' });
-  setIcon(b, 'arrow-left');
-  b.createSpan({ text: '返回' });
-  b.addEventListener('click', () => showList());
-}
-
-/** 声明有问题 / 未授权 / 缺参数 / 在跑 —— 都在这儿说清楚，别等人去猜 */
-function renderProblem(v: DockToolView): void {
-  if (!bodyEl) return;
-  const problems: string[] = [];
-  if (v.error) problems.push(v.error);
-  if (!v.entry) problems.push('声明里没有 entry，跑不起来（只能看）');
-  if (!v.trusted) problems.push(v.trustStale ? '声明里的启动命令改过了，需要重新授权' : '这条命令还没授权，跑不了');
-  const missing = missingParams(v);
-  if (missing.length) problems.push(`必填参数还没填：${missing.join('、')}`);
-  if (v.runtime.run?.pausedAt) problems.push('连续失败太多次，自动运行已经暂停（下面可以恢复）');
-  if (!problems.length) return;
-  const box = bodyEl.createDiv({ cls: 'bz-dock-problem' });
-  for (const p of problems) box.createDiv({ cls: 'bz-dock-problem-line', text: p });
-  if (v.runtime.run?.pausedAt) {
-    const btn = btnOf(box, '恢复自动运行');
-    btn.addEventListener('click', () => {
-      void clearBreakerSafely(v).then((ok) => {
-        if (!ok) {
-          new Notice('有工具正在跑，等它跑完再恢复');
-          return;
-        }
-        renderDetail();
-      });
-    });
-  }
-}
+// ---------- 展示板 ----------
 
 /**
  * 展示板 iframe **文档内部**的滚动条样式 —— 全仓唯一允许的 `<style>` 注入（ADR-0243 补记）。
- *
- * 为什么改不了 CSS 文件：`style` 属性写不了伪元素，core 的界面级规则（ADR-0122）又跨不过
- * 文档边界。所以只放滚动条声明，选择器只落在 html / ::-webkit-scrollbar 上 —— 想顺手改框里
- * 别的样式，守卫会红。
+ * 只放滚动条声明，作用域严格限定在沙箱框文档内部；想顺手改框里别的样式，守卫会红。
  */
 export const FRAME_SCROLLBAR_CSS =
   '<style>html{scrollbar-width:none;-ms-overflow-style:none}' +
   'html::-webkit-scrollbar{display:none;width:0;height:0}</style>';
 
-function renderPanelBoard(v: DockToolView): void {
-  if (!bodyEl) return;
+function boardSection(v: DockToolView): HTMLElement | null {
   const html = panelOf(v.path, currentFs());
-  if (!html) return;
-  const box = bodyEl.createDiv({ cls: 'bz-dock-board' });
-  const frame = box.createEl('iframe', { cls: 'bz-dock-frame' });
+  if (!html) return null;
+  const box = el('div', 'bz-dock-board');
+  const frame = el('iframe', 'bz-dock-board-frame');
   frame.setAttribute('sandbox', 'allow-same-origin allow-popups allow-popups-to-escape-sandbox');
   frame.setAttribute('referrerpolicy', 'no-referrer');
   frame.srcdoc = html.toLowerCase().includes('<head>')
     ? html.replace(/<head([^>]*)>/i, `<head$1>${FRAME_SCROLLBAR_CSS}`)
     : `<!DOCTYPE html><html><head>${FRAME_SCROLLBAR_CSS}</head><body>${html}</body></html>`;
+  box.appendChild(frame);
+  return box;
 }
 
-function renderParams(v: DockToolView): void {
-  if (!bodyEl || !v.params.length) return;
-  block('参数');
-  const form = bodyEl.createDiv({ cls: 'bz-dock-form' });
-  const values: Record<string, unknown> = { ...v.values };
+// ---------- 统计三格 ----------
 
-  for (const p of v.params) {
-    const row = form.createDiv({ cls: 'bz-dock-field' });
-    row.createDiv({ cls: 'bz-dock-label', text: (p.label ?? p.key) + (p.required ? ' *' : '') });
-    const input = fieldOf(row, p, values[p.key] ?? p.default);
-    const commit = (): void => {
-      values[p.key] = readField(p, input);
-      writeSettings(v.path, v.id, values);
-    };
-    input.addEventListener('change', commit);
-    if (p.type === 'text' || p.type === 'number' || p.type === 'multiline') input.addEventListener('blur', commit);
-    if (p.hint) row.createDiv({ cls: 'bz-dock-hint', text: p.hint });
-    if (p.type === 'secret') row.createDiv({ cls: 'bz-dock-hint', text: '凭据不进 vault、不写运行记录，只在本机工具目录里' });
-  }
+function toolStats(v: DockToolView): HTMLElement {
+  const box = el('div', 'bz-dock-kpi bz-dock-toolstats');
+  const runs = recentRunsOf(v.path, v.id, 60).filter((r) => r.status !== 'running');
+  const ok = runs.filter((r) => r.status === 'ok').length;
+  const single = (num: string, unit: string, label: string, sub: string): HTMLElement => {
+    const t = el('div', 'bz-dock-kpi-tile');
+    const val = el('div', 'bz-dock-kpi-v', num);
+    if (unit) val.appendChild(el('small', undefined, unit));
+    t.append(val, el('div', 'bz-dock-kpi-l', label), el('div', 'bz-dock-kpi-d', sub));
+    return t;
+  };
+  box.append(
+    single(String(v.params.length), '', '参数', v.params.length ? '在运行台里改' : '这个工具没有参数'),
+    single(runs.length ? String(Math.round((ok / runs.length) * 100)) : '—', runs.length ? '%' : '', '成功率', runs.length ? `${runs.length} 条记录` : '还没跑过'),
+    single(v.rules.filter((r) => r.enabled !== false).length ? '自动' : '手动', '', '节奏', v.rules.length ? `${v.rules.length} 条规则` : '没有规则'),
+  );
+  return box;
 }
 
-function fieldOf(row: HTMLElement, p: DockParam, value: unknown): HTMLElement {
-  if (p.type === 'bool') {
-    const input = row.createEl('input', { type: 'checkbox' });
-    input.checked = value === true;
-    return input;
+// ---------- meta ----------
+
+function metaRow(label: string, value: string, mono = false, onCopy?: () => void): HTMLElement {
+  const row = el('div', 'bz-dock-meta-row');
+  row.appendChild(el('span', 'bz-dock-meta-label', label));
+  const val = el('span', mono ? 'bz-dock-meta-val is-mono' : 'bz-dock-meta-val', value);
+  val.title = value;
+  row.appendChild(val);
+  if (onCopy) {
+    row.appendChild(uiIconBtn({ icon: 'copy', title: '复制', xs: true, onClick: onCopy }));
   }
-  if (p.type === 'choice' || p.type === 'multichoice') {
-    const sel = row.createEl('select', { cls: p.type === 'multichoice' ? 'is-multi' : '' });
-    if (p.type === 'multichoice') sel.multiple = true;
-    const opts = p.options ?? [];
-    const picked = p.type === 'multichoice' ? (Array.isArray(value) ? value.map(String) : []) : [String(value ?? '')];
-    for (const o of opts) {
-      const opt = sel.createEl('option', { text: o, value: o });
-      if (picked.includes(o)) opt.selected = true;
+  return row;
+}
+
+function metaSection(v: DockToolView): HTMLElement {
+  const meta = el('div', 'bz-dock-meta');
+  meta.appendChild(metaRow('声明文件', v.path, true, () => void copyText(v.path, '声明文件路径')));
+  if (v.entry) {
+    meta.appendChild(metaRow('命令', [v.entry.cmd, ...(v.entry.args ?? [])].join(' '), true));
+    if (v.entry.cwd) meta.appendChild(metaRow('工作目录', v.entry.cwd, true));
+    if (v.entry.shell) meta.appendChild(metaRow('经 shell 启动', '是'));
+  } else {
+    meta.appendChild(metaRow('命令', '声明里没写 entry —— 能看，但不知道该怎么跑'));
+  }
+  const dir = v.dir;
+  meta.appendChild(metaRow('参数值文件', `${dir}/data.json`, true, () => void copyText(`${dir}/data.json`, '参数值文件路径')));
+  meta.appendChild(metaRow('运行记录', `${dir}/runs.jsonl`, true, () => void copyText(`${dir}/runs.jsonl`, '运行记录路径')));
+  return meta;
+}
+
+// ---------- 运行台 ----------
+
+function runPane(v: DockToolView): HTMLElement {
+  const pane = el('section', 'bz-dock-pane bz-dock-runpane');
+  pane.appendChild(el('h3', 'bz-dock-pane-title', '运行台'));
+
+  if (!v.manifest) {
+    const box = el('div', 'bz-dock-noManifest');
+    box.appendChild(el('div', 'bz-dock-note', v.error ?? '声明文件读不到。'));
+    pane.appendChild(box);
+    return pane;
+  }
+
+  if (v.params.length) {
+    const form = el('div', 'bz-dock-form');
+    const values: Record<string, unknown> = { ...v.values };
+    for (const p of v.params) form.appendChild(paramRow(p, values, v));
+    pane.appendChild(form);
+  } else {
+    pane.appendChild(el('div', 'bz-dock-note', '这个工具没有参数。'));
+  }
+
+  if (!v.entry) {
+    pane.appendChild(el('div', 'bz-dock-meta-warn', '这份声明没写 entry —— 能看它的记录，但不知道该怎么跑。'));
+  }
+
+  const btns = el('div', 'bz-dock-runbtns');
+  if (canRun()) {
+    const live = liveOf(v.id);
+    const external = externalRunOf(v);
+    if (live) {
+      btns.appendChild(uiBtn({ label: '停止', icon: 'square', tone: 'danger', onClick: () => stopLive(v.id) }));
+    } else {
+      const gate = judgeRunGate(v, true);
+      const run = uiBtn({
+        label: external ? '后台正在跑' : '运行',
+        icon: 'play',
+        tone: 'primary',
+        disabled: !gate.ok || !!external,
+        onClick: () => void doRun(v),
+      });
+      run.title = external ? '后台值守正在跑它，等它跑完' : gate.ok ? '' : gate.text ?? '';
+      btns.appendChild(run);
     }
-    return sel;
+    if (!v.trusted) {
+      btns.appendChild(
+        uiBtn({
+          label: v.trustStale ? '重新授权' : '授权这条命令',
+          icon: 'shield-check',
+          onClick: () => void doTrust(v),
+        }),
+      );
+    } else {
+      btns.appendChild(uiBtn({ label: '撤销授权', size: 'sm', onClick: () => void doUntrust(v) }));
+    }
+    if (v.runtime.run?.pausedAt) {
+      btns.appendChild(
+        uiBtn({
+          label: '恢复自动运行',
+          size: 'sm',
+          onClick: () => {
+            void clearBreakerSafely(v).then((ok) => {
+              if (!ok) {
+                notice('有工具正在跑，等它跑完再恢复', 'warning');
+                return;
+              }
+              refresh();
+            });
+          },
+        }),
+      );
+    }
+  } else {
+    btns.appendChild(el('span', 'bz-dock-mobilehint', '移动端不能启动进程，只能看'));
+  }
+  pane.appendChild(btns);
+
+  const liveHost = el('div', 'bz-dock-live');
+  liveHost.dataset.tool = v.id;
+  pane.appendChild(liveHost);
+  renderLiveIntoEl(liveHost, v);
+  return pane;
+}
+
+/** 详情页的那块实时区（tick / live 事件都只重画这一块） */
+function renderLiveInto(id: string): void {
+  const host = bodyEl()?.querySelector<HTMLElement>(`.bz-dock-live[data-tool="${id}"]`);
+  if (!host) return;
+  const v = viewById(id);
+  if (!v) return;
+  renderLiveIntoEl(host, v);
+}
+
+function renderLiveIntoEl(host: HTMLElement, v: DockToolView): void {
+  host.innerHTML = '';
+  const live = liveOf(v.id);
+  const external = externalRunOf(v);
+  if (!live && !external) return;
+
+  const box = el('div', 'bz-dock-livelog');
+  if (live) {
+    box.appendChild(el('div', 'bz-dock-livelog-head', `工单 ${live.runId} · ${live.phase ?? '进行中'}${live.pct !== null ? ` ${live.pct}%` : ''}`));
+    if (live.pct !== null) box.appendChild(uiProgress({ thin: true, value: live.pct }).el);
+    const steps = live.steps.slice(-40);
+    if (!steps.length) box.appendChild(el('div', 'bz-dock-note', '还没有输出'));
+    for (const s of steps) box.appendChild(el('div', 'bz-dock-liveline', s.text));
+    host.appendChild(box);
+    return;
+  }
+
+  // 后台值守拉起的：步骤由值守落到本机的 `live/<工具>.jsonl`，面板读那一个文件
+  const runId = external?.runId ?? '';
+  box.appendChild(el('div', 'bz-dock-livelog-head', `后台进程在跑 · 工单 ${runId || '（未标注）'}`));
+  const steps = liveLogOf(v.id, 40).filter((s) => !runId || !s.runId || s.runId === runId);
+  if (steps.length) {
+    for (const s of steps) box.appendChild(el('div', 'bz-dock-liveline', s.text));
+  } else {
+    if (external?.step) box.appendChild(el('div', 'bz-dock-liveline', external.step));
+    box.appendChild(el('div', 'bz-dock-note', '后台这一轮刚开始，还没输出；跑完会出现在右边的记录里'));
+  }
+  host.appendChild(box);
+}
+
+// ---------- 参数表单 ----------
+
+function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView): HTMLElement {
+  const current = values[p.key] ?? p.default;
+  const commit = (val: unknown): void => {
+    values[p.key] = val;
+    writeSettings(v.path, v.id, values);
+  };
+  const label = (p.label ?? p.key) + (p.required ? ' *' : '');
+  const desc = p.hint;
+
+  if (p.type === 'bool') {
+    const sw = uiSwitch({ checked: current === true, onChange: (on) => commit(on) });
+    return uiField({ label, control: sw.el, desc });
+  }
+  if (p.type === 'choice') {
+    const opts = (p.options ?? []).map((o) => ({ value: o, label: o }));
+    const sel = uiSelect<string>({ options: opts, value: String(current ?? p.options?.[0] ?? ''), onChange: (val) => commit(val) });
+    return uiField({ label, control: sel.el, desc });
   }
   if (p.type === 'multiline') {
-    const input = row.createEl('textarea', { cls: 'bz-dock-textarea' });
-    input.value = value === undefined ? '' : String(value);
-    return input;
+    const ta = el('textarea', 'bz-input bz-dock-textarea');
+    ta.value = current === undefined ? '' : String(current);
+    ta.addEventListener('change', () => commit(ta.value));
+    return uiField({ label, control: ta, desc });
   }
-  const input = row.createEl('input', {
+  const inp = uiInput({
     type: p.type === 'secret' ? 'password' : p.type === 'number' ? 'number' : 'text',
-    cls: 'bz-dock-input',
+    value: current === undefined ? '' : String(current),
   });
-  input.value = value === undefined ? '' : String(value);
-  return input;
-}
-
-function readField(p: DockParam, input: HTMLElement): unknown {
-  if (p.type === 'bool') return (input as HTMLInputElement).checked;
-  if (p.type === 'multichoice') {
-    return Array.from((input as HTMLSelectElement).selectedOptions).map((o) => o.value);
-  }
-  if (p.type === 'number') {
-    const n = Number((input as HTMLInputElement).value);
-    return Number.isFinite(n) ? n : undefined;
-  }
-  return (input as HTMLInputElement).value;
-}
-
-function renderRules(v: DockToolView): void {
-  if (!bodyEl) return;
-  block('规则');
-  const list = bodyEl.createDiv({ cls: 'bz-dock-rules' });
-  if (!v.rules.length) {
-    list.createDiv({ cls: 'bz-dock-hint', text: '没有规则 —— 只能手动点运行' });
-  }
-  v.rules.forEach((rule, i) => ruleRow(list, v, rule, i));
-  const add = btnOf(list, '加一条规则');
-  add.addEventListener('click', () => {
-    const next = v.rules.concat(defaultRule());
-    saveRules(v, next);
-    renderDetail();
+  inp.addEventListener('change', () => {
+    if (p.type === 'number') {
+      const n = Number(inp.value);
+      commit(Number.isFinite(n) ? n : undefined);
+    } else {
+      commit(inp.value);
+    }
+  });
+  return uiField({
+    label,
+    control: inp,
+    desc: p.type === 'secret' ? '凭据只存本机工具目录，不进命令行、不写运行记录' : desc,
   });
 }
 
-function ruleRow(parent: HTMLElement, v: DockToolView, rule: DockRule, index: number): void {
-  const row = parent.createDiv({ cls: 'bz-dock-rule' });
-  const head = row.createDiv({ cls: 'bz-dock-rule-head' });
+// ---------- 规则表 ----------
 
-  const toggle = head.createEl('input', { type: 'checkbox' });
-  toggle.checked = rule.enabled !== false;
-  toggle.addEventListener('change', () => {
-    const next = v.rules.slice();
-    next[index] = { ...rule, enabled: toggle.checked };
-    saveRules(v, next);
-  });
+function rulesPane(v: DockToolView): HTMLElement {
+  const pane = el('section', 'bz-dock-pane bz-dock-rulespane');
+  const head = el('div', 'bz-dock-pane-head');
+  head.appendChild(el('h3', 'bz-dock-pane-title', '规则'));
+  head.appendChild(el('span', 'bz-dock-pane-count', v.rules.length ? `${v.rules.length} 条` : '只能手动跑'));
+  pane.appendChild(head);
 
-  head.createSpan({ cls: 'bz-dock-rule-name', text: ruleName(rule, index) });
-  head.createSpan({ cls: 'bz-dock-rule-text', text: `${triggerText(rule.trigger, (id) => id)} · ${actionText(rule.action)}` });
+  if (!v.rules.length) pane.appendChild(el('div', 'bz-dock-note', '没有规则 —— 只能手动点运行。'));
 
-  const del = head.createSpan({ cls: 'bz-dock-rule-del' });
-  setIcon(del, 'trash-2');
-  del.addEventListener('click', () => {
-    saveRules(v, v.rules.filter((r) => r.id !== rule.id));
-    renderDetail();
-  });
+  const list = el('div', 'bz-dock-rulelist');
+  v.rules.forEach((rule, i) => list.appendChild(ruleRow(v, rule, i)));
+  pane.appendChild(list);
 
-  const edit = row.createDiv({ cls: 'bz-dock-rule-edit' });
-  const trig = edit.createEl('select');
-  for (const kind of TRIGGER_KINDS) {
-    const o = trig.createEl('option', { text: TRIGGER_LABEL[kind], value: kind });
-    if (rule.trigger.kind === kind) o.selected = true;
+  if (canRun()) {
+    pane.appendChild(
+      uiBtn({
+        label: '加一条规则',
+        icon: 'plus',
+        size: 'sm',
+        onClick: () => {
+          saveRules(v, v.rules.concat(defaultRule()));
+        },
+      }),
+    );
   }
-  trig.addEventListener('change', () => {
-    const next = v.rules.slice();
-    next[index] = { ...rule, trigger: blankTrigger(trig.value as DockTriggerKind) };
-    saveRules(v, next);
-    renderDetail();
+  return pane;
+}
+
+function ruleRow(v: DockToolView, rule: DockRule, index: number): HTMLElement {
+  const row = el('div', 'bz-dock-rule');
+  const head = el('div', 'bz-dock-rule-head');
+
+  const sw = uiSwitch({
+    checked: rule.enabled !== false,
+    disabled: !canRun(),
+    onChange: (on) => {
+      const next = v.rules.slice();
+      next[index] = { ...rule, enabled: on };
+      saveRules(v, next);
+    },
   });
+  head.appendChild(sw.el);
+  head.appendChild(el('span', 'bz-dock-rule-name', ruleName(rule, index)));
+  head.appendChild(el('span', 'bz-dock-rule-text', `${triggerText(rule.trigger, (id) => viewById(id) ? displayNameOf(viewById(id)!) : id)} · ${actionText(rule.action)}`));
+
+  if (canRun()) {
+    const del = uiIconBtn({
+      icon: 'trash-2',
+      title: '删掉这条',
+      xs: true,
+      onClick: () => saveRules(v, v.rules.filter((r) => r.id !== rule.id)),
+    });
+    head.appendChild(del);
+  }
+  row.appendChild(head);
+
+  const due = nextDueOf(rule, {
+    now: Date.now(),
+    lastFiredAt: v.runtime.rules?.[rule.id]?.lastFiredAt ? Date.parse(v.runtime.rules[rule.id].lastFiredAt!) : undefined,
+  });
+  if (due && !isEventTrigger(rule.trigger.kind)) {
+    const at = new Date(due);
+    row.appendChild(el('div', 'bz-dock-note', `下次 ${at.toLocaleString()}`));
+  }
+
+  if (canRun()) row.appendChild(ruleEditor(v, rule, index));
+  return row;
+}
+
+function ruleEditor(v: DockToolView, rule: DockRule, index: number): HTMLElement {
+  const edit = el('div', 'bz-dock-rule-edit');
+
+  const kind = uiSelect<DockTriggerKind>({
+    options: TRIGGER_KINDS.map((k) => ({ value: k, label: TRIGGER_LABEL[k] })),
+    value: rule.trigger.kind,
+    onChange: (k) => {
+      const next = v.rules.slice();
+      next[index] = { ...rule, trigger: blankTrigger(k) };
+      saveRules(v, next);
+    },
+  });
+  edit.appendChild(kind.el);
 
   const arg = triggerArgInput(rule.trigger);
   if (arg) {
     edit.appendChild(arg.el);
     arg.el.addEventListener('change', () => {
-      const next = v.rules.slice();
       const t = patchTrigger(rule.trigger, arg.el.value);
       if (!t) return;
+      const next = v.rules.slice();
       next[index] = { ...rule, trigger: t };
       saveRules(v, next);
     });
   }
 
-  const jitter = edit.createEl('input', { type: 'number', cls: 'bz-dock-jitter' });
+  const jitter = uiInput({ type: 'number', value: String(rule.jitterMin ?? 0) });
+  jitter.classList.add('bz-dock-jitter');
   jitter.min = '0';
   jitter.max = '720';
-  jitter.value = String(rule.jitterMin ?? 0);
-  jitter.setAttribute('title', '错峰：到点后再随机等这么多分钟');
+  jitter.title = '错峰：到点后再随机等这么多分钟';
   jitter.addEventListener('change', () => {
-    const next = v.rules.slice();
     const n = Number(jitter.value);
+    const next = v.rules.slice();
     next[index] = { ...rule, jitterMin: Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined };
     saveRules(v, next);
   });
+  edit.appendChild(jitter);
 
-  const act = edit.createEl('select');
-  for (const k of ['run', 'remind'] as const) {
-    const o = act.createEl('option', { text: k === 'run' ? '运行' : '只提醒', value: k });
-    if (rule.action.kind === k) o.selected = true;
-  }
-  act.addEventListener('change', () => {
-    const next = v.rules.slice();
-    next[index] = { ...rule, action: { kind: act.value === 'remind' ? 'remind' : 'run' } };
-    saveRules(v, next);
+  const act = uiSelect<'run' | 'remind'>({
+    options: [
+      { value: 'run', label: '运行' },
+      { value: 'remind', label: '只提醒' },
+    ],
+    value: rule.action.kind,
+    onChange: (k) => {
+      const next = v.rules.slice();
+      next[index] = { ...rule, action: { kind: k } };
+      saveRules(v, next);
+    },
   });
+  edit.appendChild(act.el);
 
-  const due = nextDueOf(rule, { now: Date.now() });
-  if (due && !isEventTrigger(rule.trigger.kind)) {
-    edit.createSpan({ cls: 'bz-dock-hint', text: `下次 ${new Date(due).toLocaleString()}` });
-  }
+  return edit;
 }
 
 function blankTrigger(kind: DockTriggerKind): DockTrigger {
@@ -641,43 +1261,36 @@ function blankTrigger(kind: DockTriggerKind): DockTrigger {
 
 function triggerArgInput(t: DockTrigger): { el: HTMLInputElement } | null {
   if (t.kind === 'daily') {
-    const el = document.createElement('input');
-    el.type = 'time';
-    el.className = 'bz-dock-trigger-arg';
-    el.value = t.at;
-    return { el };
+    const inp = uiInput({ type: 'time', value: t.at });
+    inp.classList.add('bz-dock-trigger-arg');
+    inp.title = '每天几点';
+    return { el: inp };
   }
   if (t.kind === 'interval') {
-    const el = document.createElement('input');
-    el.type = 'number';
-    el.className = 'bz-dock-trigger-arg';
-    el.min = '1';
-    el.value = String(t.everyMin);
-    el.setAttribute('title', '每隔多少分钟');
-    return { el };
+    const inp = uiInput({ type: 'number', value: String(t.everyMin) });
+    inp.classList.add('bz-dock-trigger-arg');
+    inp.min = '1';
+    inp.title = '每隔多少分钟';
+    return { el: inp };
   }
   if (t.kind === 'on-launch') {
-    const el = document.createElement('input');
-    el.type = 'number';
-    el.className = 'bz-dock-trigger-arg';
-    el.min = '0';
-    el.value = String(t.delayMin);
-    el.setAttribute('title', '启动后多少分钟');
-    return { el };
+    const inp = uiInput({ type: 'number', value: String(t.delayMin) });
+    inp.classList.add('bz-dock-trigger-arg');
+    inp.min = '0';
+    inp.title = '启动后多少分钟';
+    return { el: inp };
   }
   if (t.kind === 'tool-ok' || t.kind === 'tool-fail') {
-    const el = document.createElement('input');
-    el.className = 'bz-dock-trigger-arg';
-    el.value = t.toolId;
-    el.setAttribute('title', '工具 id');
-    return { el };
+    const inp = uiInput({ value: t.toolId });
+    inp.classList.add('bz-dock-trigger-arg');
+    inp.title = '工具 id';
+    return { el: inp };
   }
   if (t.kind === 'file-change') {
-    const el = document.createElement('input');
-    el.className = 'bz-dock-trigger-arg';
-    el.value = t.target;
-    el.setAttribute('title', 'vault 里的目录');
-    return { el };
+    const inp = uiInput({ value: t.target });
+    inp.classList.add('bz-dock-trigger-arg');
+    inp.title = 'vault 里的目录';
+    return { el: inp };
   }
   return null;
 }
@@ -701,135 +1314,199 @@ function patchTrigger(t: DockTrigger, value: string): DockTrigger | null {
 }
 
 function saveRules(v: DockToolView, rules: DockRule[]): void {
-  const intent = { ...v.intent, v: 1, tool: v.id, rules };
-  writeIntent(v.path, intent);
+  writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, rules });
   void kickDockScheduler();
+  refresh();
 }
 
-function renderLive(v: DockToolView): void {
-  if (!bodyEl) return;
-  const live = liveOf(v.id);
-  const external = externalRunOf(v);
-  if (!live && !external) return;
+// ---------- 运行记录 ----------
 
-  block('正在跑');
-  const box = bodyEl.createDiv({ cls: 'bz-dock-log' });
+function histPane(v: DockToolView): HTMLElement {
+  const pane = el('section', 'bz-dock-pane bz-dock-histpane');
+  const runs = recentRunsOf(v.path, v.id, 60);
+  const head = el('div', 'bz-dock-pane-head');
+  head.appendChild(el('h3', 'bz-dock-pane-title', '运行记录'));
+  head.appendChild(el('span', 'bz-dock-pane-count', `${runs.length} 条`));
+  pane.appendChild(head);
 
-  if (live) {
-    box.createDiv({ cls: 'bz-dock-log-run', text: `工单 ${live.runId} · ${live.phase ?? '进行中'}${live.pct !== null ? ` ${live.pct}%` : ''}` });
-    for (const s of live.steps.slice(-40)) box.createDiv({ cls: 'bz-dock-log-line', text: s.text });
-    if (!live.steps.length) box.createDiv({ cls: 'bz-dock-hint', text: '还没有输出' });
-    return;
+  if (!runs.length) {
+    pane.appendChild(
+      uiEmpty({
+        icon: 'history',
+        title: '还没有运行记录',
+        desc: '跑一次，或等它按规则自动跑完，记录就会出现',
+      }),
+    );
+    return pane;
+  }
+  const list = el('div', 'bz-dock-histlist');
+  for (const r of runs) list.appendChild(histRow(r));
+  pane.appendChild(list);
+  if (runs.length >= 60) pane.appendChild(el('div', 'bz-dock-note', '只显示最近 60 条'));
+  return pane;
+}
+
+function histRow(r: DockRunRecord): HTMLElement {
+  const row = el('article', 'bz-dock-histrow');
+  const head = el('div', 'bz-dock-histhead');
+  head.appendChild(el('span', dotClass(r.status)));
+  head.appendChild(el('span', 'bz-dock-histtime', relTime(r.startedAt.replace('T', ' '))));
+  head.appendChild(el('span', 'bz-dock-histstatus', statusText(r.status)));
+  if (r.durationMs) head.appendChild(el('span', 'bz-dock-histdur', `${Math.round(r.durationMs / 1000)}s`));
+  head.appendChild(el('span', 'bz-dock-histtrig', r.trigger === 'auto' ? '自动' : '手动'));
+  row.appendChild(head);
+  if (r.message) row.appendChild(el('div', 'bz-dock-histmsg', r.message));
+
+  if (r.error) {
+    const box = el('div', 'bz-dock-histerr');
+    box.appendChild(el('div', 'bz-dock-histerr-hint', hintOf(r.error.kind)));
+    if (r.error.detail) box.appendChild(el('div', 'bz-dock-histerr-detail', r.error.detail));
+    row.appendChild(box);
   }
 
-  // 不是本进程拉起的（多半是后台值守）。它的步骤由值守落到本机的 `live/<工具>.jsonl`，
-  // 面板轮询那一个文件 —— 这就是「回传通道」，不需要端口也不需要 IPC。
-  const runId = external?.runId ?? '';
-  box.createDiv({ cls: 'bz-dock-log-run', text: `后台进程在跑 · 工单 ${runId || '（未标注）'}` });
+  const hasMore =
+    (r.steps && r.steps.length > 0) ||
+    (r.info && r.info.length > 0) ||
+    r.result !== undefined ||
+    r.metrics !== undefined ||
+    (r.artifacts && r.artifacts.length > 0) ||
+    !!r.error?.stderr;
+  if (hasMore) {
+    const btn = uiBtn({ label: '展开', size: 'sm', className: 'bz-dock-histtoggle' });
+    row.appendChild(btn);
 
-  const steps = liveLogOf(v.id, 40).filter((s) => !runId || !s.runId || s.runId === runId);
-  if (steps.length) {
-    for (const s of steps) box.createDiv({ cls: 'bz-dock-log-line', text: s.text });
-  } else {
-    // 刚起跑（工具还没吐第一步）或者这一轮没有回传 —— 别让人以为「空着 = 没在跑」
-    if (external?.step) box.createDiv({ cls: 'bz-dock-log-line', text: external.step });
-    box.createDiv({
-      cls: 'bz-dock-hint',
-      text: '后台这一轮刚开始，还没输出；跑完会出现在下面的记录里',
+    const more = el('div', 'bz-dock-histmore');
+    if (r.steps?.length) more.appendChild(block('步骤', r.steps.map((s) => s.text).join('\n')));
+    if (r.metrics) more.appendChild(block('指标', JSON.stringify(r.metrics, null, 2)));
+    if (r.artifacts?.length) {
+      const box = el('div', 'bz-dock-block');
+      box.appendChild(el('div', 'bz-dock-block-label', '产物'));
+      for (const a of r.artifacts) {
+        const line = el('div', 'bz-dock-artrow');
+        line.appendChild(el('span', 'bz-dock-artrow-path', `${a.label ? a.label + ' · ' : ''}${a.path}`));
+        line.appendChild(uiIconBtn({ icon: 'external-link', title: '打开 / 定位产物', xs: true, onClick: () => openArtifact(a.path) }));
+        box.appendChild(line);
+      }
+      more.appendChild(box);
+    }
+    if (r.result !== undefined) more.appendChild(block('结果', JSON.stringify(r.result, null, 2)));
+    if (r.info?.length) more.appendChild(block('信息', JSON.stringify(r.info, null, 2)));
+    if (r.error?.stderr) more.appendChild(block('stderr 尾部', r.error.stderr));
+    row.appendChild(more);
+
+    btn.addEventListener('click', () => {
+      const open = row.classList.toggle('is-open');
+      const span = btn.querySelector('span');
+      if (span) span.textContent = open ? '收起' : '展开';
     });
   }
-}
-
-function renderHistory(v: DockToolView): void {
-  if (!bodyEl) return;
-  block('最近');
-  const runs = recentRunsOf(v.path, v.id, 12);
-  const box = bodyEl.createDiv({ cls: 'bz-dock-history' });
-  if (!runs.length) {
-    box.createDiv({ cls: 'bz-dock-hint', text: '还没跑过' });
-    return;
+  if (r.startedAt) {
+    row.appendChild(el('div', 'bz-dock-histexact', r.startedAt.replace('T', ' ').replace(/\..*$/, '')));
   }
-  for (const r of runs) historyRow(box, r);
+  return row;
 }
 
-function historyRow(parent: HTMLElement, r: DockRunRecord): void {
-  const row = parent.createDiv({ cls: 'bz-dock-history-row' });
-  row.dataset.state = r.status;
-  row.createSpan({ cls: 'bz-dock-history-when', text: new Date(r.startedAt).toLocaleString() });
-  row.createSpan({ cls: 'bz-dock-history-status', text: statusWord(r.status) });
-  row.createSpan({ cls: 'bz-dock-history-msg', text: r.message ?? r.error?.detail ?? '' });
-  if (r.durationMs) row.createSpan({ cls: 'bz-dock-history-dur', text: `${Math.round(r.durationMs / 1000)}s` });
+function block(label: string, text: string): HTMLElement {
+  const b = el('div', 'bz-dock-block');
+  b.appendChild(el('div', 'bz-dock-block-label', label));
+  const pre = el('pre', 'bz-dock-json');
+  pre.textContent = text;
+  b.appendChild(pre);
+  return b;
 }
 
-function statusWord(s: string): string {
-  switch (s) {
-    case 'ok':
-      return '成功';
-    case 'failed':
-      return '失败';
-    case 'timeout':
-      return '超时';
-    case 'stopped':
-      return '中止';
-    case 'abandoned':
-      return '没收尾';
-    case 'running':
-      return '在跑';
-    default:
-      return s;
+// ---------- 底部 ----------
+
+function footerBar(v: DockToolView): HTMLElement {
+  const foot = el('div', 'bz-dock-footer');
+  foot.appendChild(el('div', 'bz-dock-note', `id ${v.id} · ${v.path}`));
+
+  const row = el('div', 'bz-dock-btn-row');
+  if (canRun()) {
+    row.appendChild(
+      uiBtn({
+        label: v.intent.enabled === false ? '启用' : '停用',
+        size: 'sm',
+        onClick: () => {
+          writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, enabled: v.intent.enabled === false });
+          void kickDockScheduler();
+          refresh();
+        },
+      }),
+    );
+    row.appendChild(
+      uiBtn({
+        label: v.intent.autoRun === false ? '允许自动运行' : '只手动跑',
+        size: 'sm',
+        onClick: () => {
+          writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, autoRun: v.intent.autoRun === false });
+          void kickDockScheduler();
+          refresh();
+        },
+      }),
+    );
+    row.appendChild(
+      uiBtn({
+        label: '移除登记',
+        tone: 'danger',
+        size: 'sm',
+        onClick: () => {
+          if (!window.confirm(`从工具坞移除「${displayNameOf(v)}」？\n只删登记，不动磁盘上的文件。`)) return;
+          removeTool(v.id);
+          view = { kind: 'list' };
+          refresh();
+        },
+      }),
+    );
   }
-}
-
-function renderFooter(v: DockToolView): void {
-  if (!bodyEl) return;
-  const foot = bodyEl.createDiv({ cls: 'bz-dock-footer' });
-  foot.createDiv({ cls: 'bz-dock-path', text: v.path });
-
-  const enable = btnOf(foot, v.intent.enabled === false ? '启用' : '停用');
-  enable.addEventListener('click', () => {
-    writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, enabled: v.intent.enabled === false });
-    renderDetail();
-  });
-
-  const auto = btnOf(foot, v.intent.autoRun === false ? '允许自动运行' : '只手动跑');
-  auto.addEventListener('click', () => {
-    writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, autoRun: v.intent.autoRun === false });
-    renderDetail();
-  });
-
-  const del = btnOf(foot, '移除登记', 'mod-warning');
-  del.addEventListener('click', () => {
-    const sure = window.confirm(`从工具坞移除「${displayNameOf(v)}」？\n只删登记，不动磁盘上的文件。`);
-    if (!sure) return;
-    removeTool(v.id);
-    showList();
-  });
-}
-
-function block(title: string): void {
-  if (!bodyEl) return;
-  bodyEl.createDiv({ cls: 'bz-dock-block-title', text: title });
+  foot.appendChild(row);
+  return foot;
 }
 
 // ==================== 动作 ====================
 
 async function doRun(v: DockToolView): Promise<void> {
-  await runToolManually(v);
-  if (view === 'detail' && detailId === v.id) renderDetail();
+  const outcome = await runToolManually(v);
+  if (outcome) notice(`${displayNameOf(v)}：${outcome.ok ? '跑完了' : '失败了'}`, outcome.ok ? 'success' : 'error');
+  refresh();
 }
 
-async function doTrust(v: DockToolView): Promise<void> {
+/** 授权：把声明里**现读出来**的那条命令摆给人看，确认的才是那条 */
+function doTrust(v: DockToolView): void {
   if (!v.entry) return;
-  await trustTool(v.id, v.entry);
-  notify(`${displayNameOf(v)} 已授权`, { type: 'success' });
-  renderDetail();
+  const content = document.createElement('div');
+  content.className = 'bz-dock-trust';
+  content.appendChild(el('div', 'bz-dock-note', '授权之后，工具坞可以按这条命令启动它。声明里的命令一改，这道授权就失效。'));
+  const pre = el('pre', 'bz-dock-json');
+  pre.textContent = [v.entry.cmd, ...(v.entry.args ?? [])].join(' ');
+  content.appendChild(pre);
+
+  const modal = uiModal({ content, head: true, title: '授权这条命令', maxWidth: 520 });
+  content.appendChild(
+    uiBtnRow(
+      [
+        uiBtn({ label: '取消', onClick: () => modal.close() }),
+        uiBtn({
+          label: '授权',
+          tone: 'primary',
+          onClick: () => {
+            modal.close();
+            void trustTool(v.id, v.entry!).then(() => {
+              notice(`${displayNameOf(v)} 已授权`, 'success');
+              refresh();
+            });
+          },
+        }),
+      ],
+      { center: true },
+    ),
+  );
 }
 
 async function doUntrust(v: DockToolView): Promise<void> {
-  const sure = window.confirm(`撤销「${displayNameOf(v)}」的授权？\n撤销后它不能再跑，直到重新授权。`);
-  if (!sure) return;
+  if (!window.confirm(`撤销「${displayNameOf(v)}」的授权？\n撤销后它不能再跑，直到重新授权。`)) return;
   await untrustTool(v.id);
-  renderDetail();
+  refresh();
 }
 
 // ==================== 导入 ====================
@@ -837,18 +1514,17 @@ async function doUntrust(v: DockToolView): Promise<void> {
 function pickFolder(): void {
   const input = document.createElement('input');
   input.type = 'file';
-  // webkitdirectory 在 Electron 里可用；选中的是目录下的文件，我们只要 manifest.json
   (input as HTMLInputElement & { webkitdirectory: boolean }).webkitdirectory = true;
   input.addEventListener('change', () => {
     const files = Array.from(input.files ?? []);
     const manifest = files.find((f) => f.name === 'manifest.json');
     if (!manifest) {
-      new Notice('这个文件夹里没有 manifest.json');
+      notice('这个文件夹里没有 manifest.json', 'warning');
       return;
     }
     const abs = (manifest as File & { path?: string }).path;
     if (!abs) {
-      new Notice('读不到文件夹路径（这个平台不支持）');
+      notice('读不到文件夹路径（这个平台不支持）', 'warning');
       return;
     }
     void importFrom(abs);
@@ -859,50 +1535,72 @@ function pickFolder(): void {
 async function importFrom(manifestPath: string): Promise<void> {
   const fs = currentFs();
   if (!fs) {
-    new Notice('桌面端才能导入');
+    notice('桌面端才能导入', 'warning');
     return;
   }
   const text = fs.readText(manifestPath);
   if (text === null) {
-    new Notice('读不到这个文件');
+    notice('读不到这个文件', 'warning');
     return;
   }
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    new Notice('manifest.json 不是合法 JSON');
+    notice('manifest.json 不是合法 JSON', 'warning');
     return;
   }
   const manifest = parseManifest(raw);
   if (!manifest) {
-    new Notice('声明校验不过（需要 v:2、合法 id、非空 name）');
+    notice('声明校验不过（需要 v:2、合法 id、非空 name）', 'warning');
     return;
   }
   upsertTool({ id: manifest.id, path: manifestPath });
-  notify(`已登记「${manifest.name}」，先看一眼它会跑什么，再授权`, { type: 'info' });
-  render();
-  showDetail(manifest.id);
+  notice(`已登记「${manifest.name}」，先看一眼它会跑什么，再授权`);
+  view = { kind: 'detail', id: manifest.id };
+  refresh();
 }
 
 // ==================== 小工具 ====================
 
-/** 按钮（Obsidian 的 HTMLElement 扩展没有 createButton，统一走这里） */
-function btnOf(parent: HTMLElement, text: string, cls?: string): HTMLButtonElement {
-  return parent.createEl('button', { text, cls: cls ? `bz-dock-btn ${cls}` : 'bz-dock-btn' });
+async function copyText(text: string, what: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    notice(`已复制${what}`);
+  } catch {
+    notice(`复制失败，请手动复制：${text}`, 'warning');
+  }
 }
 
-function iconBtn(parent: HTMLElement, icon: string, label: string, onClick: () => void): void {
-  const b = parent.createDiv({ cls: 'bz-dock-icon-btn' });
-  b.setAttribute('aria-label', label);
-  b.setAttribute('title', label);
-  setIcon(b, icon);
-  b.addEventListener('click', onClick);
+/** 打开 / 定位产物：vault 里的用 Obsidian 打开，外面的在文件管理器定位 */
+function openArtifact(p: string): void {
+  const w = window as unknown as {
+    require?: (id: string) => { shell?: { showItemInFolder(p: string): void } };
+  };
+  const shell = w.require?.('electron')?.shell;
+  if (!shell) {
+    void copyText(p, '产物路径');
+    return;
+  }
+  const norm = p.replace(/\\/g, '/');
+  const isAbsolute = /^[a-zA-Z]:\//.test(norm) || norm.startsWith('//') || norm.startsWith('/');
+  if (!isAbsolute && hostApp) {
+    const file = hostApp.vault.getAbstractFileByPath(norm);
+    if (file) {
+      void hostApp.workspace.openLinkText(norm, '', true);
+      return;
+    }
+  }
+  const base = hostApp
+    ? (hostApp.vault as unknown as { adapter?: { getBasePath?: () => string } }).adapter?.getBasePath?.()
+    : undefined;
+  shell.showItemInFolder(isAbsolute || !base ? p : `${base}/${norm}`);
 }
 
-/** 供 main.ts 注册直达命令时读登记表（此处留一个薄封装，避免它直接摸 registry） */
+/** 供 main.ts 注册直达命令时读登记表 */
 export function listToolEntries(): { id: string; path: string }[] {
-  return readRegistry().registry.tools.map((t) => ({ id: t.id, path: t.path }));
+  const { registry } = readRegistry();
+  return registry.tools.map((t) => ({ id: t.id, path: t.path }));
 }
 
 export { runToolDirect };

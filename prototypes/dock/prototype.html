@@ -161,9 +161,10 @@
 
   /* ==================== 自检（?selftest=1）：真行为 DOM 断言（经 iframe） ====================
    *
-   * 断言只对着 **新面板的真实 DOM**（`.bz-dock-overlay / -sheet / -card[data-tool-id]`）。
-   * 上一版这一整段还在断言 `.bz-dock-panel` / `.bz-dock-sec` / `.bz-dock-histrow` ——
-   * 那些类名在契约 v2 重写时就没了，于是自检从那天起一直在对着空气断言。
+   * 断言只对着 **面板的真实 DOM**（`.bz-dock-mask / .bz-dock-panel / .bz-dock-card[data-tool]`）。
+   * 2026-10-24：面板外壳回退到各域共用的 `.bz-panel-*` 范式（卡片墙 + 详情两栏），
+   * 这一整段跟着从 `.bz-dock-overlay / -sheet / -summary` 改回来 —— 类名变了就必须同步，
+   * 否则自检又会变成「对着空气断言」。
    */
   if (location.search.includes('selftest')) {
     window.__st = { pass: 0, fail: [] };
@@ -172,27 +173,28 @@
     (async () => {
       const res = document.querySelector('#stResult');
       try {
-        const dd0 = await waitFrame(dtDoc, '.bz-dock-sheet');
-        const md0 = await waitFrame(mobDoc, '.bz-dock-sheet');
+        const dd0 = await waitFrame(dtDoc, '.bz-dock-panel');
+        const md0 = await waitFrame(mobDoc, '.bz-dock-panel');
         const SEED = (dtFrame().contentWindow || {}).DOCK_SEED || { total: 0, ids: [] };
         res.textContent = '…';
         const dt = (sel) => dd0.querySelector(sel);
         const mob = (sel) => md0.querySelector(sel);
         const cards = (doc) => doc.querySelectorAll('.bz-dock-card').length;
-        const cardOf = (doc, id) => doc.querySelector('.bz-dock-card[data-tool-id="' + id + '"]');
+        const cardOf = (doc, id) => doc.querySelector('.bz-dock-card[data-tool="' + id + '"]');
         const textOf = (el) => (el ? el.textContent || '' : '');
-        const btnOfText = (doc, name) => Array.from(doc.querySelectorAll('.bz-dock-actions button')).find((b) => textOf(b) === name);
+        const btnOfText = (doc, name) => Array.from(doc.querySelectorAll('button.bz-btn')).find((b) => textOf(b) === name);
 
         // ---- 面板骨架 ----
-        t('桌面面板开', !!dt('.bz-dock-overlay') && !!dt('.bz-dock-sheet'));
-        t('移动面板开', !!mob('.bz-dock-overlay') && !!mob('.bz-dock-sheet'));
-        t('遮罩是 body 直接子节点', dt('.bz-dock-overlay').parentElement === dd0.body);
-        t('面板在遮罩内', dt('.bz-dock-sheet').parentElement === dt('.bz-dock-overlay'));
-        t('标题是「工具坞」', textOf(dt('.bz-dock-title')) === '工具坞');
+        t('桌面面板开', !!dt('.bz-dock-mask') && !!dt('.bz-dock-panel'));
+        t('移动面板开', !!mob('.bz-dock-mask') && !!mob('.bz-dock-panel'));
+        t('遮罩是 body 直接子节点', dt('.bz-dock-mask').parentElement === dd0.body);
+        t('面板在遮罩内', dt('.bz-dock-panel').parentElement === dt('.bz-dock-mask'));
+        t('面板走共用面板范式', dt('.bz-dock-panel').classList.contains('bz-panel-frame'));
+        t('标题是「工具坞」', textOf(dt('.bz-dock-panel .bz-panel-title')) === '工具坞');
 
         // view 页 CSS 链生效（曾因 ../../ 深度写错静默 404 → 面板透明）
         const cssAlive = (doc) => {
-          const sheet = doc.querySelector('.bz-dock-sheet');
+          const sheet = doc.querySelector('.bz-dock-panel');
           const bg = getComputedStyle(sheet).backgroundColor;
           let sheets = 0;
           for (const s of doc.styleSheets) { try { if (s.cssRules.length > 0) sheets++; } catch (e) { /* 跨域忽略 */ } }
@@ -203,26 +205,24 @@
         // ---- 种子覆盖到几种形态 ----
         t('桌面 ' + SEED.total + ' 卡', cards(dd0) === SEED.total);
         t('移动 ' + SEED.total + ' 卡', cards(md0) === SEED.total);
-        t('至少一个分区', dd0.querySelectorAll('.bz-dock-section').length >= 1);
 
-        // 四格概览：最后一格是「工具」= 登记数
-        const kpis = dd0.querySelectorAll('.bz-dock-summary .bz-dock-kpi');
+        // 四格概览：今日达标 / 成功率 / 待处理异常 / 距下次到期
+        const kpis = dd0.querySelectorAll('#bz-dock-kpi .bz-dock-kpi-tile');
         t('概览四格', kpis.length === 4);
-        t('概览「工具」= ' + SEED.total,
-          kpis.length === 4 && textOf(kpis[3].querySelector('.bz-dock-kpi-label')) === '工具'
-          && textOf(kpis[3].querySelector('.bz-dock-kpi-value')) === String(SEED.total));
+        t('概览第一格是「今日自动化达标」',
+          kpis.length === 4 && textOf(kpis[0].querySelector('.bz-dock-kpi-l')) === '今日自动化达标');
 
         // 每种状态都要有一张卡能看见（这是这次补种子的全部意义）
-        t('有「正在跑」的卡', !!dd0.querySelector('.bz-dock-card.is-running .bz-dock-dot[data-state="running"]'));
-        t('有「待授权」标签', !!dd0.querySelector('.bz-dock-card .bz-dock-tag.is-warn'));
+        t('有「正在跑」的卡', !!dd0.querySelector('.bz-dock-card.is-running'));
+        t('有「待授权」标签', !!dd0.querySelector('.bz-dock-card .bz-dock-tag--warn'));
         t('有声明读不出来的卡', Array.from(dd0.querySelectorAll('.bz-dock-card-desc'))
           .some((el) => (textOf(el) || '').includes('manifest.json')));
 
         // ---- 详情：展示板 ----
         cardOf(dd0, 'demo-radar').click();
         await sleep(260);
-        t('进详情页（详情栏 + 返回）', !!dt('.bz-dock-detail-bar') && !!dt('.bz-dock-back'));
-        const frame = dt('.bz-dock-board iframe.bz-dock-frame');
+        t('进详情页（封面头 + 返回）', !!dt('.bz-dock-toolhead') && !!dt('.bz-dock-back'));
+        const frame = dt('.bz-dock-board iframe.bz-dock-board-frame');
         t('展示板 iframe 挂出来', !!frame);
         t('展示板 srcdoc 里塞了框内滚动条样式', !!frame && (frame.getAttribute('srcdoc') || '').includes('scrollbar'));
         t('展示板不给 allow-scripts', !!frame && !(frame.getAttribute('sandbox') || '').includes('allow-scripts'));
@@ -235,23 +235,22 @@
         await sleep(200);
         t('未授权工具给「授权这条命令」', !!btnOfText(dd0, '授权这条命令'));
         t('未授权时运行按钮禁用', (() => { const b = btnOfText(dd0, '运行'); return !!b && b.disabled; })());
-        t('未授权原因写在问题区', !!dt('.bz-dock-problem'));
+        t('未授权写在头部标签里', !!dt('.bz-dock-tag--warn'));
 
         // ---- 详情：熔断 = 给「恢复自动运行」 ----
         dt('.bz-dock-back').click();
         await sleep(200);
         cardOf(dd0, 'demo-failing').click();
         await sleep(200);
-        t('熔断的工具给「恢复自动运行」',
-          Array.from(dd0.querySelectorAll('.bz-dock-problem button')).some((b) => textOf(b) === '恢复自动运行'));
+        t('熔断的工具给「恢复自动运行」', !!btnOfText(dd0, '恢复自动运行'));
 
         // ---- 详情：参数与历史 ----
         dt('.bz-dock-back').click();
         await sleep(200);
         cardOf(dd0, 'demo-signin').click();
         await sleep(200);
-        t('参数按声明长出来 1 行', dd0.querySelectorAll('.bz-dock-form .bz-dock-field').length === 1);
-        t('历史账本有记录行', dd0.querySelectorAll('.bz-dock-history .bz-dock-history-row').length >= 1);
+        t('参数按声明长出来 1 行', dd0.querySelectorAll('.bz-dock-form .bz-field').length === 1);
+        t('历史账本有记录行', dd0.querySelectorAll('.bz-dock-histpane .bz-dock-histrow').length >= 1);
 
         // ---- 交互：点「运行」真的会演一场（假 child_process 吐步骤） ----
         {
@@ -260,7 +259,7 @@
           if (runBtn) {
             runBtn.click();
             await sleep(1500); // 假进程 400ms 起跑、每 700ms 一步
-            const lines = dd0.querySelectorAll('.bz-dock-log .bz-dock-log-line').length;
+            const lines = dd0.querySelectorAll('.bz-dock-livelog .bz-dock-liveline').length;
             t('运行中吐出步骤（' + lines + ' 行）', lines >= 1);
             const stopBtn = btnOfText(dd0, '停止');
             t('运行中给「停止」', !!stopBtn);

@@ -1,5 +1,5 @@
-/* 源指纹 29a147ce186e3970 · 仓内输入 26 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
+/* 源指纹 38bd9256392849db · 仓内输入 58 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -39,7 +39,7 @@ var BZW_dock = (() => {
     svg.innerHTML = d;
     container.replaceChildren(svg);
   }
-  var Platform, Notice, FakeVault, FakeApp;
+  var Platform, FakeVault, FakeApp;
   var init_fake_obsidian = __esm({
     "prototypes/dock/fake/fake-obsidian.ts"() {
       Platform = {
@@ -47,18 +47,6 @@ var BZW_dock = (() => {
         isDesktop: true,
         isDesktopApp: true,
         isMobileApp: false
-      };
-      Notice = class {
-        constructor(message) {
-          if (typeof document === "undefined") return;
-          const el = document.createElement("div");
-          el.textContent = message;
-          el.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:9999;max-width:320px;padding:8px 12px;border-radius:8px;background:var(--background-secondary,#222);color:var(--text-normal,#eee);font-size:12px;border:1px solid var(--background-modifier-border,#444)";
-          document.body.appendChild(el);
-          window.setTimeout(() => el.remove(), 3e3);
-        }
-        hide() {
-        }
       };
       FakeVault = class _FakeVault {
         constructor() {
@@ -136,8 +124,8 @@ var BZW_dock = (() => {
   });
 
   // src/core/app.ts
-  function setApp(app3) {
-    _app = app3;
+  function setApp(app2) {
+    _app = app2;
   }
   function getApp() {
     if (!_app) {
@@ -318,8 +306,8 @@ var BZW_dock = (() => {
     const d = dir.replace(/\\/g, "/").replace(/\/+$/, "");
     return d === "" ? name : `${d}/${name}`;
   }
-  function setDockVaultRoot(root2) {
-    dockVaultRoot = String(root2 != null ? root2 : "").replace(/\\/g, "/").replace(/\/+$/, "");
+  function setDockVaultRoot(root) {
+    dockVaultRoot = String(root != null ? root : "").replace(/\\/g, "/").replace(/\/+$/, "");
   }
   function isPortablePath(p) {
     return p.startsWith(VAULT_PATH_PREFIX);
@@ -329,9 +317,9 @@ var BZW_dock = (() => {
     const rel = p.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, "");
     return dockVaultRoot ? `${dockVaultRoot}/${rel}` : rel;
   }
-  function portableToolPath(abs, root2 = dockVaultRoot) {
+  function portableToolPath(abs, root = dockVaultRoot) {
     const p = String(abs != null ? abs : "").replace(/\\/g, "/");
-    const base = String(root2 != null ? root2 : "").replace(/\\/g, "/").replace(/\/+$/, "");
+    const base = String(root != null ? root : "").replace(/\\/g, "/").replace(/\/+$/, "");
     if (!base) return p;
     if (p === base) return `${VAULT_PATH_PREFIX}.`;
     if (!p.startsWith(`${base}/`)) return p;
@@ -1245,6 +1233,39 @@ var BZW_dock = (() => {
       recordMissing: input.code === null ? "进程没能启动（命令或工作目录配错了）" : "工具没写这次运行的记录，多半没跑到写记录那一步"
     };
   }
+  function hintOf(kind, recordMissing) {
+    if (recordMissing) return recordMissing;
+    switch (kind) {
+      case "auth":
+        return "登录态失效了，去重新填一次凭据";
+      case "network":
+        return "网络不通，检查代理或稍后重试";
+      case "config":
+        return "命令或参数配错了，检查启动命令与工作目录";
+      case "timeout":
+        return "跑超时了，可能是网络慢或任务量变大";
+      case "aborted":
+        return "被手动中止";
+      default:
+        return "打开运行记录看 stderr 尾部";
+    }
+  }
+  function statusText(status) {
+    switch (status) {
+      case "ok":
+        return "成功";
+      case "failed":
+        return "失败";
+      case "timeout":
+        return "超时";
+      case "stopped":
+        return "已中止";
+      case "abandoned":
+        return "没收尾";
+      case "running":
+        return "运行中";
+    }
+  }
   function setExecDeps(d) {
     deps = d;
   }
@@ -1409,12 +1430,12 @@ var BZW_dock = (() => {
 
   // src/core/z-order.ts
   function syncAlwaysOnTop() {
-    for (const el of alwaysOnTop) {
-      if (!el.isConnected) {
-        alwaysOnTop.delete(el);
+    for (const el2 of alwaysOnTop) {
+      if (!el2.isConnected) {
+        alwaysOnTop.delete(el2);
         continue;
       }
-      el.style.zIndex = String(zCounter);
+      el2.style.zIndex = String(zCounter);
     }
   }
   function allocZBlock(n) {
@@ -1426,6 +1447,14 @@ var BZW_dock = (() => {
   }
   function allocZ() {
     return allocZBlock(1);
+  }
+  function topifyZ(...els) {
+    const live3 = els.filter((el2) => !!el2);
+    if (live3.length === 0) return;
+    const base = allocZBlock(live3.length);
+    live3.forEach((el2, i) => {
+      el2.style.zIndex = String(base + i);
+    });
   }
   var zCounter, alwaysOnTop;
   var init_z_order = __esm({
@@ -1439,6 +1468,9 @@ var BZW_dock = (() => {
   function maxVisible() {
     const v = Number(noticePref("noticeMaxVisible"));
     return v === 3 || v === 8 ? v : MAX_VISIBLE_DEFAULT;
+  }
+  function notice(msg, type, duration) {
+    notify(msg, { type: type || "info", duration });
   }
   function isMobileView() {
     return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(MOBILE_QUERY).matches;
@@ -1635,7 +1667,7 @@ var BZW_dock = (() => {
       setAction(actions) {
         const list = Array.isArray(actions) ? actions : [actions];
         const existing = new Set(
-          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el) => el.textContent || "")
+          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el2) => el2.textContent || "")
         );
         for (const a of list) {
           if (existing.has(a.label)) continue;
@@ -1679,10 +1711,10 @@ var BZW_dock = (() => {
       recent[key] = { at: now, n: null };
     }
     evictOldest();
-    const el = document.createElement("div");
-    el.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
-    el.setAttribute("role", "status");
-    el.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    const el2 = document.createElement("div");
+    el2.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
+    el2.setAttribute("role", "status");
+    el2.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
     const icon = document.createElement("div");
     icon.className = "bz-notice-icon";
     if (isProgress) {
@@ -1690,27 +1722,27 @@ var BZW_dock = (() => {
     } else {
       icon.textContent = ICONS[type];
     }
-    el.appendChild(icon);
+    el2.appendChild(icon);
     const body = document.createElement("div");
     body.className = "bz-notice-body";
     if (opts && opts.title) {
-      const titleEl2 = document.createElement("div");
-      titleEl2.className = "bz-notice-title";
-      titleEl2.textContent = opts.title;
-      body.appendChild(titleEl2);
+      const titleEl = document.createElement("div");
+      titleEl.className = "bz-notice-title";
+      titleEl.textContent = opts.title;
+      body.appendChild(titleEl);
     }
     const msgEl = document.createElement("div");
     msgEl.className = "bz-notice-msg";
     msgEl.textContent = msg;
     body.appendChild(msgEl);
-    el.appendChild(body);
+    el2.appendChild(body);
     let progressEl = null;
     if (isProgress) {
       progressEl = document.createElement("div");
       progressEl.className = "bz-notice-progress";
-      el.appendChild(progressEl);
+      el2.appendChild(progressEl);
     }
-    const n = { el, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
+    const n = { el: el2, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
     const actions = [];
     if (opts && opts.action) actions.push(opts.action);
     if (opts && opts.actions) {
@@ -1719,9 +1751,9 @@ var BZW_dock = (() => {
       }
     }
     for (const a of actions) appendActionBtn(n, a);
-    el.addEventListener("click", () => hideNow(n));
+    el2.addEventListener("click", () => hideNow(n));
     container.style.zIndex = String(allocZ());
-    container.appendChild(el);
+    container.appendChild(el2);
     live2.push(n);
     if (opts && opts.dedupeKey) {
       const r = recent[opts.dedupeKey];
@@ -1944,9 +1976,9 @@ var BZW_dock = (() => {
   }
   function registryPath() {
     const rel = storageFile(REGISTRY_FILENAME);
-    const root2 = dockVaultRoot2();
-    setDockVaultRoot(root2);
-    return root2 ? `${root2}/${rel}` : rel;
+    const root = dockVaultRoot2();
+    setDockVaultRoot(root);
+    return root ? `${root}/${rel}` : rel;
   }
   function readRegistry(fs = currentFs()) {
     return readRegistryAt(registryPath(), fs);
@@ -2087,7 +2119,7 @@ var BZW_dock = (() => {
   function clockText(at) {
     const m = /^(\d{1,2}):(\d{1,2})$/.exec(at);
     if (!m) return at;
-    return `${pad2(Number(m[1]))}:${pad2(Number(m[2]))}`;
+    return `${pad22(Number(m[1]))}:${pad22(Number(m[2]))}`;
   }
   function durationText(min) {
     if (min >= 60 && min % 60 === 0) return `${min / 60} 小时`;
@@ -2130,10 +2162,10 @@ var BZW_dock = (() => {
       action: { kind: "run" }
     };
   }
-  var pad2;
+  var pad22;
   var init_rules = __esm({
     "src/dock/rules.ts"() {
-      pad2 = (n) => String(n).padStart(2, "0");
+      pad22 = (n) => String(n).padStart(2, "0");
     }
   });
 
@@ -2815,13 +2847,614 @@ var BZW_dock = (() => {
 
   // src/dock/ui.ts
   init_fake_obsidian();
+  init_z_order();
+
+  // src/core/esc-manager.ts
+  var escManager = (() => {
+    const layers = [];
+    let disabled = false;
+    const onKeydown = (e) => {
+      if (disabled) return;
+      if (e.key !== "Escape") return;
+      for (let i = layers.length - 1; i >= 0; i--) {
+        const L = layers[i];
+        try {
+          if (L.isVisible()) {
+            L.close();
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return;
+          }
+        } catch (err) {
+          layers.splice(i, 1);
+        }
+      }
+    };
+    if (typeof document !== "undefined") {
+      document.addEventListener("keydown", onKeydown);
+    }
+    return {
+      register(id, layer) {
+        for (let i = layers.length - 1; i >= 0; i--) {
+          if (layers[i].id === id && !layers[i].isVisible()) layers.splice(i, 1);
+        }
+        const rec = Object.assign({ id }, layer);
+        layers.push(rec);
+        return {
+          unregister: () => {
+            const i = layers.indexOf(rec);
+            if (i !== -1) layers.splice(i, 1);
+          }
+        };
+      },
+      /** 插件卸载时软关（N1）：只置 disabled 旗标——不摘 document 监听（模块 IIFE
+       *  常驻单例，Obsidian 禁用→再启用不重新求值，摘了就全站 ESC 永久失效）、
+       *  不清 layers（重启用后旧层由 isVisible 判活自愈）。恢复走 arm()。 */
+      destroy() {
+        disabled = true;
+      },
+      /** 插件（重）启用时恢复 ESC 处理（main.ts onload 调用；幂等） */
+      arm() {
+        disabled = false;
+      }
+    };
+  })();
+
+  // src/core/mobile.ts
+  init_fake_obsidian();
+  function isMobileEnv() {
+    return typeof Platform !== "undefined" && !!Platform.isMobile;
+  }
+
+  // src/core/ui/focus-trap.ts
+  var FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  function isHidden(el2) {
+    let cur = el2;
+    while (cur && cur !== document.body) {
+      if (cur.classList.contains("bz-setting-hidden")) return true;
+      if (cur.style.display === "none") return true;
+      cur = cur.parentElement;
+    }
+    return false;
+  }
+  function firstFocusable(container) {
+    const list = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el2) => {
+      if (isHidden(el2)) return false;
+      if (isMobileEnv()) {
+        const tag = el2.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return false;
+      }
+      return true;
+    });
+    return list[0] || null;
+  }
+  function trapFocus(container) {
+    const onKeydown = (e) => {
+      if (e.key !== "Tab") return;
+      const items = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
+        (el2) => !isHidden(el2) && !el2.hasAttribute("disabled")
+      );
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      const inside = active instanceof Node && active !== container && container.contains(active);
+      if (e.shiftKey) {
+        if (active === first || !inside) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !inside) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    container.addEventListener("keydown", onKeydown);
+    return () => container.removeEventListener("keydown", onKeydown);
+  }
+  var PANEL_FOCUS_CLASS = "bz-panel-focushost";
+  function trapPanelFocus(panel) {
+    panel.classList.add(PANEL_FOCUS_CLASS);
+    if (!panel.hasAttribute("tabindex")) panel.setAttribute("tabindex", "-1");
+    const release = trapFocus(panel);
+    panel.focus({ preventScroll: true });
+    return release;
+  }
+
+  // src/dock/ui.ts
   init_notice();
+
+  // src/core/ui/icon.ts
+  init_fake_obsidian();
+  function uiIcon(name, extraClass = "") {
+    const i = document.createElement("span");
+    i.className = "bz-ic" + (extraClass ? " " + extraClass : "");
+    setIcon(i, name);
+    return i;
+  }
+
+  // src/core/ui/icons.ts
+  init_fake_obsidian();
+
+  // src/core/ui/button.ts
+  function uiBtn(opts) {
+    const b = document.createElement("button");
+    b.type = "button";
+    const cls = ["bz-btn"];
+    if (opts.tone && opts.tone !== "default") cls.push(`bz-btn--${opts.tone}`);
+    if (opts.size && opts.size !== "md") cls.push(`bz-btn--${opts.size}`);
+    if (opts.chip) cls.push("bz-btn--chip");
+    if (opts.on) cls.push("is-on");
+    if (opts.className) cls.push(opts.className);
+    b.className = cls.join(" ");
+    if (opts.title) b.title = opts.title;
+    if (opts.disabled) b.disabled = true;
+    if (opts.icon) {
+      if (opts.chip) {
+        const chip = document.createElement("span");
+        chip.className = "bz-btn-chip";
+        chip.appendChild(uiIcon(opts.icon));
+        b.appendChild(chip);
+      } else {
+        b.appendChild(uiIcon(opts.icon));
+      }
+    }
+    if (opts.label) {
+      const span = document.createElement("span");
+      span.textContent = opts.label;
+      b.appendChild(span);
+    }
+    if (opts.onClick) b.addEventListener("click", opts.onClick);
+    return b;
+  }
+  function uiIconBtn(opts) {
+    const b = document.createElement("button");
+    b.type = "button";
+    const cls = ["bz-icon-btn"];
+    if (opts.on) cls.push("bz-icon-btn--on");
+    if (opts.lg) cls.push("bz-icon-btn--lg");
+    if (opts.xs) cls.push("bz-icon-btn--xs");
+    if (opts.close) cls.push("bz-icon-btn--close");
+    if (opts.className) cls.push(opts.className);
+    b.className = cls.join(" ");
+    if (opts.title) b.title = opts.title;
+    if (opts.disabled) b.disabled = true;
+    if (opts.danger) b.setAttribute("data-danger", "");
+    b.appendChild(uiIcon(opts.icon));
+    if (opts.onClick) b.addEventListener("click", opts.onClick);
+    return b;
+  }
+  function uiBtnRow(buttons, opts) {
+    const row = document.createElement("div");
+    const cls = ["bz-btn-row"];
+    if (opts == null ? void 0 : opts.center) cls.push("bz-btn-row--center");
+    if (opts == null ? void 0 : opts.grow) cls.push("bz-btn-row--grow");
+    row.className = cls.join(" ");
+    buttons.forEach((x) => row.appendChild(x));
+    return row;
+  }
+
+  // src/core/ui/field.ts
+  function uiInput(opts) {
+    const inp = document.createElement("input");
+    inp.className = "bz-input" + (opts.error ? " bz-input--error" : "");
+    inp.type = opts.type || "text";
+    if (opts.placeholder) inp.placeholder = opts.placeholder;
+    if (opts.value !== void 0) inp.value = opts.value;
+    if (opts.disabled) inp.disabled = true;
+    if (opts.onInput) inp.addEventListener("input", () => {
+      var _a;
+      return (_a = opts.onInput) == null ? void 0 : _a.call(opts, inp.value);
+    });
+    return inp;
+  }
+  function isLabelable(ctrl) {
+    const tag = ctrl.tagName;
+    if (tag === "BUTTON" || tag === "SELECT" || tag === "TEXTAREA") return true;
+    if (tag === "INPUT") return ctrl.type !== "hidden";
+    return false;
+  }
+  function uiField(opts) {
+    const wrap = isLabelable(opts.control) ? document.createElement("label") : document.createElement("div");
+    wrap.className = "bz-field";
+    if (opts.label) {
+      const l = document.createElement("span");
+      l.className = "bz-field-label";
+      l.textContent = opts.label;
+      wrap.appendChild(l);
+    }
+    wrap.appendChild(opts.control);
+    if (opts.error) {
+      if (opts.control.classList.contains("bz-input")) opts.control.classList.add("bz-input--error");
+      const e = document.createElement("span");
+      e.className = "bz-field-error";
+      e.textContent = opts.error;
+      wrap.appendChild(e);
+    } else if (opts.desc) {
+      const d = document.createElement("span");
+      d.className = "bz-field-desc";
+      d.textContent = opts.desc;
+      wrap.appendChild(d);
+    }
+    return wrap;
+  }
+
+  // src/core/ui/empty.ts
+  function uiEmpty(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-empty";
+    if (opts.icon) {
+      const ic = uiIcon(opts.icon);
+      ic.classList.add("bz-empty-ic");
+      el2.appendChild(ic);
+    }
+    const t = document.createElement("div");
+    t.className = "bz-empty-title";
+    t.textContent = opts.title;
+    el2.appendChild(t);
+    if (opts.desc) {
+      const d = document.createElement("div");
+      d.className = "bz-empty-desc";
+      d.textContent = opts.desc;
+      el2.appendChild(d);
+    }
+    if (opts.actions) el2.appendChild(opts.actions);
+    return el2;
+  }
+
+  // src/core/ui/switch.ts
+  function uiSwitch(opts) {
+    const el2 = document.createElement("span");
+    el2.className = "bz-sw" + (opts.checked ? " on" : "") + (opts.disabled ? " is-disabled" : "");
+    el2.setAttribute("role", "switch");
+    el2.setAttribute("aria-checked", String(!!opts.checked));
+    el2.setAttribute("aria-disabled", String(!!opts.disabled));
+    el2.tabIndex = opts.disabled ? -1 : 0;
+    const setChecked = (v) => {
+      el2.classList.toggle("on", v);
+      el2.setAttribute("aria-checked", String(v));
+    };
+    const setDisabled = (v) => {
+      el2.classList.toggle("is-disabled", v);
+      el2.setAttribute("aria-disabled", String(v));
+      el2.tabIndex = v ? -1 : 0;
+    };
+    const enabled = () => !el2.classList.contains("is-disabled");
+    const toggle = () => {
+      var _a;
+      if (!enabled()) return;
+      const next = !el2.classList.contains("on");
+      setChecked(next);
+      (_a = opts.onChange) == null ? void 0 : _a.call(opts, next);
+    };
+    el2.addEventListener("click", toggle);
+    el2.addEventListener("keydown", (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        toggle();
+      }
+    });
+    return { el: el2, setChecked, setDisabled };
+  }
+
+  // src/core/ui/select.ts
+  function uiSelect(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-select" + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "listbox");
+    el2.setAttribute("aria-expanded", "false");
+    el2.tabIndex = 0;
+    const val = document.createElement("span");
+    val.className = "bz-select-val";
+    el2.appendChild(val);
+    el2.appendChild(uiIcon("chevron-down", "bz-select-car"));
+    let current = opts.value;
+    let menu = null;
+    let escHandle2 = null;
+    const labelOf = (v) => {
+      const o = opts.options.find((x) => x.value === v);
+      return o ? o.label : "";
+    };
+    const renderVal = () => {
+      val.textContent = labelOf(current) || opts.placeholder || "";
+    };
+    renderVal();
+    const close = (notify2 = true) => {
+      var _a;
+      if (menu) {
+        menu.remove();
+        menu = null;
+      }
+      if (escHandle2) {
+        escHandle2.unregister();
+        escHandle2 = null;
+      }
+      el2.classList.remove("open");
+      el2.setAttribute("aria-expanded", "false");
+      if (notify2) (_a = opts.onOpenChange) == null ? void 0 : _a.call(opts, false);
+    };
+    const open = () => {
+      var _a;
+      close(false);
+      el2.classList.add("open");
+      el2.setAttribute("aria-expanded", "true");
+      (_a = opts.onOpenChange) == null ? void 0 : _a.call(opts, true);
+      const m = document.createElement("div");
+      m.className = "bz-select-menu";
+      m.setAttribute("role", "listbox");
+      menu = m;
+      opts.options.forEach((o, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "bz-select-item" + (o.value === current ? " is-on" : "");
+        b.setAttribute("role", "option");
+        b.setAttribute("aria-selected", String(o.value === current));
+        b.dataset.index = String(i);
+        const span = document.createElement("span");
+        span.textContent = o.label;
+        b.appendChild(span);
+        b.appendChild(uiIcon("check", "bz-select-item-ck"));
+        b.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          setValue(o.value);
+          opts.onChange(o.value);
+          close();
+        });
+        m.appendChild(b);
+      });
+      el2.appendChild(m);
+      for (let round = 0; round < 3; round++) {
+        let delta = 0;
+        m.querySelectorAll(".bz-select-item > span").forEach((sp) => {
+          delta = Math.max(delta, sp.scrollWidth - sp.clientWidth);
+        });
+        if (delta <= 0) break;
+        const cs = getComputedStyle(m);
+        const border = (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.borderRightWidth) || 0);
+        m.style.minWidth = `${m.clientWidth + delta - border}px`;
+      }
+      const vw = window.innerWidth || document.documentElement.clientWidth;
+      const rect = m.getBoundingClientRect();
+      const over = Math.ceil(rect.right - vw) + 2;
+      if (over > 0) {
+        m.style.right = `${over}px`;
+        if (m.getBoundingClientRect().left < 2) m.style.right = "";
+      }
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const mRect = m.getBoundingClientRect();
+      const need = mRect.height || m.offsetHeight;
+      const spaceBelow = vh - mRect.bottom;
+      if (need > 0 && spaceBelow < need && spaceBelow < mRect.top) {
+        m.classList.add("is-flip-up");
+      }
+      escHandle2 = escManager.register("bz-ui-select", {
+        isVisible: () => !!menu && menu.isConnected,
+        close: () => close()
+      });
+    };
+    const setValue = (v) => {
+      current = v;
+      renderVal();
+      if (menu) {
+        opts.options.forEach((o, i) => {
+          const item = menu == null ? void 0 : menu.querySelectorAll(".bz-select-item")[i];
+          if (!item) return;
+          const on = o.value === v;
+          item.classList.toggle("is-on", on);
+          item.setAttribute("aria-selected", String(on));
+        });
+      }
+    };
+    const moveFocus = (delta) => {
+      if (!menu) return;
+      const curIdx = opts.options.findIndex((o) => o.value === current);
+      const nextIdx = Math.min(opts.options.length - 1, Math.max(0, (curIdx < 0 ? 0 : curIdx) + delta));
+      opts.options.forEach((o, i) => {
+        const item = menu == null ? void 0 : menu.querySelectorAll(".bz-select-item")[i];
+        if (!item) return;
+        const on = i === nextIdx;
+        item.classList.toggle("is-on", on);
+        item.setAttribute("aria-selected", String(on));
+      });
+    };
+    el2.addEventListener("click", () => {
+      if (menu) close();
+      else open();
+    });
+    el2.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (menu) {
+          const on = menu == null ? void 0 : menu.querySelector(".bz-select-item.is-on");
+          if (on && on !== el2) {
+            const v = opts.options[Number(on.dataset.index)];
+            if (v) {
+              setValue(v.value);
+              opts.onChange(v.value);
+            }
+          }
+          close();
+        } else open();
+      } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!menu) open();
+        moveFocus(e.key === "ArrowDown" ? 1 : -1);
+      } else if (e.key === "Escape") {
+        e.stopPropagation();
+        close();
+      }
+    });
+    const onDocClick = (e) => {
+      if (menu && !el2.contains(e.target)) close();
+    };
+    document.addEventListener("click", onDocClick);
+    return {
+      el: el2,
+      setValue,
+      detach: () => {
+        document.removeEventListener("click", onDocClick);
+        close(false);
+      }
+    };
+  }
+
+  // src/core/ui/search.ts
+  function uiSearch(opts) {
+    const el2 = document.createElement("div");
+    el2.className = "bz-search";
+    el2.appendChild(uiIcon("search"));
+    const input = uiInput({
+      placeholder: opts.placeholder,
+      value: opts.value,
+      onInput: opts.onInput
+    });
+    el2.appendChild(input);
+    let clearBtn = null;
+    if (opts.clearable !== false) {
+      clearBtn = document.createElement("button");
+      clearBtn.type = "button";
+      clearBtn.className = "bz-search-clear";
+      clearBtn.title = "清除搜索";
+      clearBtn.setAttribute("aria-label", "清除搜索");
+      clearBtn.hidden = !input.value.trim();
+      clearBtn.appendChild(uiIcon("x"));
+      clearBtn.addEventListener("click", () => {
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus();
+      });
+      input.addEventListener("input", () => {
+        if (clearBtn) clearBtn.hidden = !input.value.trim();
+      });
+      el2.appendChild(clearBtn);
+    }
+    const syncClear = () => {
+      if (clearBtn) clearBtn.hidden = !input.value.trim();
+    };
+    const setValue = (v) => {
+      input.value = v;
+      syncClear();
+    };
+    return { el: el2, input, setValue, syncClear };
+  }
+
+  // src/core/ui/rail.ts
+  init_fake_obsidian();
+
+  // src/core/ui/progress.ts
+  function uiProgress(opts = {}) {
+    const el2 = document.createElement("div");
+    const cls = ["bz-progress"];
+    if (opts.thin) cls.push("bz-progress--thin");
+    if (opts.tone) cls.push(`bz-progress--${opts.tone}`);
+    el2.className = cls.join(" ");
+    const fill = document.createElement("i");
+    el2.appendChild(fill);
+    const setValue = (n) => {
+      const v = Math.min(100, Math.max(0, Number(n) || 0));
+      fill.style.width = v + "%";
+    };
+    if (opts.value !== void 0) setValue(opts.value);
+    return { el: el2, setValue };
+  }
+
+  // src/core/ui/help-tip.ts
+  init_z_order();
+
+  // src/core/ui/lightbox.ts
+  init_z_order();
+
+  // src/core/ui/modal.ts
+  init_z_order();
+  var liveModals = /* @__PURE__ */ new Set();
+  function uiModal(opts) {
+    var _a;
+    const prevActive = document.activeElement;
+    const focusEnabled = opts.autofocus !== false;
+    const mask = document.createElement("div");
+    mask.className = "bz-overlay-mask";
+    mask.style.zIndex = String(allocZ());
+    const popup = document.createElement("div");
+    popup.className = "bz-overlay-popup" + (opts.className ? " " + opts.className : "");
+    if (opts.maxWidth) popup.style.maxWidth = `min(${opts.maxWidth}px, calc(100vw - 32px))`;
+    popup.setAttribute("role", "dialog");
+    popup.setAttribute("aria-modal", "true");
+    if (opts.title) popup.setAttribute("aria-label", opts.title);
+    if (opts.head) {
+      const head = document.createElement("div");
+      head.className = "bz-dialog-head";
+      const title = document.createElement("span");
+      title.className = "bz-dialog-title";
+      title.textContent = opts.title || "";
+      head.appendChild(title);
+      popup.appendChild(head);
+    }
+    const body = document.createElement("div");
+    body.className = "bz-dialog-body";
+    if (typeof opts.content === "string") body.innerHTML = opts.content;
+    else body.appendChild(opts.content);
+    popup.appendChild(body);
+    mask.appendChild(popup);
+    let closed = false;
+    let escHandle2 = null;
+    const releaseTrap = focusEnabled ? trapFocus(popup) : null;
+    function close() {
+      var _a2;
+      if (closed) return;
+      closed = true;
+      liveModals.delete(close);
+      releaseTrap == null ? void 0 : releaseTrap();
+      mask.remove();
+      escHandle2 == null ? void 0 : escHandle2.unregister();
+      if (focusEnabled && prevActive instanceof HTMLElement && prevActive.isConnected) {
+        prevActive.focus();
+      }
+      (_a2 = opts.onClose) == null ? void 0 : _a2.call(opts);
+    }
+    const attemptClose = () => {
+      if (opts.requestClose) opts.requestClose();
+      else close();
+    };
+    mask.addEventListener("click", (e) => {
+      if (e.target === mask) attemptClose();
+    });
+    escHandle2 = escManager.register("bz-modal", {
+      isVisible: () => mask.isConnected,
+      close: attemptClose
+    });
+    document.body.appendChild(mask);
+    if (focusEnabled) (_a = firstFocusable(popup)) == null ? void 0 : _a.focus();
+    liveModals.add(close);
+    return { mask, popup, close };
+  }
+
+  // src/core/dom.ts
+  init_notice();
+  init_z_order();
+
+  // src/core/ui/str.ts
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+  function relTime(s, now = Date.now()) {
+    if (!s) return "";
+    const d = new Date(s.replace(" ", "T"));
+    if (isNaN(d.getTime())) return s;
+    const diff = now - d.getTime();
+    const m = 6e4, h = 36e5, day = 864e5;
+    if (diff < m) return "刚刚";
+    if (diff < h) return Math.floor(diff / m) + " 分钟前";
+    if (diff < day) return Math.floor(diff / h) + " 小时前";
+    if (diff < 7 * day) return Math.floor(diff / day) + " 天前";
+    return `${d.getMonth() + 1}-${pad2(d.getDate())}`;
+  }
+
+  // src/dock/ui.ts
   init_view();
   init_registry();
   init_files();
   init_parse();
   init_rules();
-  init_kernel();
 
   // src/dock/command.ts
   init_fake_obsidian();
@@ -2830,9 +3463,9 @@ var BZW_dock = (() => {
   init_registry();
   init_kernel();
   init_exec();
-  function judgeRunGate(view2, canRun) {
+  function judgeRunGate(view2, canRun2) {
     if (!view2) return { ok: false, reason: "no-tool", text: "这个工具没登记" };
-    if (!canRun) return { ok: false, reason: "mobile", text: "手机上只能看，不能跑" };
+    if (!canRun2) return { ok: false, reason: "mobile", text: "手机上只能看，不能跑" };
     if (!view2.entry) return { ok: false, reason: "no-entry", text: "声明里没有启动命令（entry）" };
     if (!view2.trusted) return { ok: false, reason: "untrusted", text: "这条命令还没授权，先在面板里确认" };
     if (liveOf(view2.id)) return { ok: false, reason: "running", text: "它正在跑" };
@@ -2866,10 +3499,10 @@ var BZW_dock = (() => {
     },
     exists: (p) => mem.has(norm(p))
   };
-  function baseOf(app3) {
+  function baseOf(app2) {
     var _a;
     try {
-      const adapter = app3.vault.adapter;
+      const adapter = app2.vault.adapter;
       const b = (_a = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _a.call(adapter);
       return typeof b === "string" ? norm(b).replace(/\/+$/, "") : "";
     } catch (e) {
@@ -2888,10 +3521,10 @@ var BZW_dock = (() => {
     if (basePath && s.startsWith(`${basePath}/`)) return s.slice(basePath.length + 1);
     return null;
   }
-  async function primeVaultFs(app3) {
-    basePath = baseOf(app3);
+  async function primeVaultFs(app2) {
+    basePath = baseOf(app2);
     const registryRel = storageFile(REGISTRY_FILENAME);
-    await primeOne(app3, registryRel);
+    await primeOne(app2, registryRel);
     const fs = memoryFs;
     let entries = [];
     try {
@@ -2901,21 +3534,21 @@ var BZW_dock = (() => {
     }
     for (const entry of entries) {
       const declAbs = resolveToolPath(entry.path);
-      await primeOne(app3, declAbs);
+      await primeOne(app2, declAbs);
       const rel = toVaultRelative(declAbs);
       if (!rel) continue;
       const dir = rel.slice(0, rel.lastIndexOf("/") + 1);
       for (const name of ["data.json", "dock.intent.json", "dock.runtime.json", "runs.jsonl", "heartbeat.json", "panel.html"]) {
-        await primeOne(app3, `${dir}${name}`);
+        await primeOne(app2, `${dir}${name}`);
       }
     }
     primed = true;
   }
-  async function primeOne(app3, p) {
+  async function primeOne(app2, p) {
     const rel = toVaultRelative(p);
     if (!rel) return;
     try {
-      const text = await app3.vault.adapter.read(rel);
+      const text = await app2.vault.adapter.read(rel);
       put(p, text);
     } catch (e) {
     }
@@ -2970,154 +3603,126 @@ var BZW_dock = (() => {
 
   // src/dock/ui.ts
   init_types();
-  var root = null;
-  var bodyEl = null;
-  var titleEl = null;
-  var app2 = null;
-  var view = "list";
-  var detailId = "";
-  var pollTimer = null;
-  var detailKey = "";
+  var hostApp = null;
+  var overlay = null;
+  var escHandle = null;
+  var view = { kind: "list" };
+  var query = "";
+  var searchOpen = false;
+  var kpiFilter = "all";
+  var views = [];
+  var tickTimer = null;
   var liveOff = null;
-  function ensureDock(a) {
-    app2 = a;
-    if (root) return;
-    root = document.body.createDiv({ cls: "bz-dock-overlay" });
-    root.setAttribute("role", "dialog");
-    root.setAttribute("aria-label", "工具坞");
-    const sheet = root.createDiv({ cls: "bz-dock-sheet" });
-    const head = sheet.createDiv({ cls: "bz-dock-head" });
-    titleEl = head.createSpan({ cls: "bz-dock-title", text: "工具坞" });
-    const tools = head.createDiv({ cls: "bz-dock-head-tools" });
-    iconBtn(tools, "folder-input", "导入工具", () => pickFolder());
-    iconBtn(tools, "refresh-cw", "刷新", () => render());
-    iconBtn(tools, "x", "关闭", () => closeDock());
-    bodyEl = sheet.createDiv({ cls: "bz-dock-body" });
-    root.addEventListener("click", (e) => {
-      if (e.target === root) closeDock();
-    });
-    document.addEventListener("keydown", onKey);
-    liveOff = onLiveChanged(() => {
-      if (view === "detail") renderDetail();
-      else renderListMeta();
-    });
+  var OVERLAY_ID = "bz-dock-mask";
+  var FRAME_ID = "bz-dock-panel";
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== void 0) n.textContent = text;
+    return n;
   }
-  function onKey(e) {
-    if (!root || root.hasClass("is-hidden")) return;
-    if (e.key === "Escape") {
-      if (view === "detail") showList();
-      else closeDock();
+  function canRun() {
+    return !Platform.isMobile;
+  }
+  function viewById(id) {
+    return views.find((v) => v.id === id);
+  }
+  function todayKey(iso2) {
+    const d = iso2 ? new Date(iso2) : /* @__PURE__ */ new Date();
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  }
+  function isToday(iso2) {
+    const t = Date.parse(iso2);
+    return Number.isFinite(t) && todayKey(iso2) === todayKey();
+  }
+  function dotClass(state) {
+    switch (state) {
+      case "ok":
+        return "bz-dock-dot bz-dock-dot--ok";
+      case "due":
+      case "failed":
+      case "timeout":
+      case "abandoned":
+        return "bz-dock-dot bz-dock-dot--bad";
+      case "pending":
+      case "running":
+      case "stopped":
+        return "bz-dock-dot bz-dock-dot--warn";
+      default:
+        return "bz-dock-dot bz-dock-dot--idle";
     }
   }
-  function openDock(a) {
-    ensureDock(a);
-    if (!root) return;
-    root.removeClass("is-hidden");
-    showList();
-    notifyDockEvent({ kind: "panel-open" });
-    startPoll();
-    if (Platform.isMobile) {
-      void primeVaultFs(a).then(() => render());
-    }
+  function lastOf(v) {
+    return v.lastRun;
   }
-  function closeDock() {
-    if (!root) return;
-    root.addClass("is-hidden");
-    stopPoll();
+  function rateOf(v) {
+    const runs = recentRunsOf(v.path, v.id, 60).filter((r) => r.status !== "running");
+    if (!runs.length) return null;
+    return runs.filter((r) => r.status === "ok").length / runs.length;
   }
-  function unloadDock() {
-    stopPoll();
-    document.removeEventListener("keydown", onKey);
-    liveOff == null ? void 0 : liveOff();
-    liveOff = null;
-    root == null ? void 0 : root.remove();
-    root = null;
-    bodyEl = null;
-    titleEl = null;
-    app2 = null;
-    view = "list";
-    detailId = "";
-  }
-  function startPoll() {
-    stopPoll();
-    pollTimer = setInterval(() => {
-      if (!root || root.hasClass("is-hidden")) return;
-      if (view === "detail") {
-        const v = viewOf(detailId);
-        if (!v || detailSignature(v) !== detailKey) renderDetail();
-      } else {
-        renderListMeta();
+  function dueOf(v) {
+    var _a, _b;
+    const enabled = v.rules.filter((r) => r.enabled !== false);
+    if (!enabled.length) return { due: false, detail: "" };
+    if (v.intent.enabled === false) return { due: false, detail: "" };
+    if (v.intent.autoRun === false) return { due: false, detail: "" };
+    const now = Date.now();
+    const last = lastOf(v);
+    for (const rule of enabled) {
+      const firedRaw = (_b = (_a = v.runtime.rules) == null ? void 0 : _a[rule.id]) == null ? void 0 : _b.lastFiredAt;
+      const fired = firedRaw ? Date.parse(firedRaw) : void 0;
+      if (rule.trigger.kind === "daily") {
+        const m = /^(\d{1,2}):(\d{1,2})$/.exec(rule.trigger.at);
+        if (!m) continue;
+        const at = /* @__PURE__ */ new Date();
+        at.setHours(Number(m[1]), Number(m[2]), 0, 0);
+        const done = !!last && last.status === "ok" && isToday(last.startedAt);
+        if (now > at.getTime() && !done && (fired != null ? fired : 0) < at.getTime()) {
+          return { due: true, detail: "今日未跑" };
+        }
+      } else if (rule.trigger.kind === "interval") {
+        const span = rule.trigger.everyMin * 6e4;
+        const base = fired != null ? fired : last ? Date.parse(last.startedAt) : void 0;
+        if (base !== void 0 && now > base + span + 5 * 6e4) {
+          return { due: true, detail: "该跑没跑" };
+        }
       }
-    }, 3e3);
-  }
-  function detailSignature(v) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    return [
-      v.id,
-      v.path,
-      v.trusted ? "1" : "0",
-      v.trustStale ? "1" : "0",
-      (_b = (_a = v.runtime.run) == null ? void 0 : _a.lastAttemptAt) != null ? _b : "",
-      (_d = (_c = v.runtime.run) == null ? void 0 : _c.pausedAt) != null ? _d : "",
-      (_f = (_e = v.lastRun) == null ? void 0 : _e.runId) != null ? _f : "",
-      (_h = (_g = v.lastRun) == null ? void 0 : _g.status) != null ? _h : "",
-      // 运行态也算「变了」：不然开始跑/跑完的那一刻，详情页不会重绘那块「正在跑」
-      liveOf(v.id) ? "live" : freshOf(v.heartbeat) ? "ext" : "",
-      String(v.rules.length)
-    ].join("|");
-  }
-  function stopPoll() {
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = null;
-  }
-  function views() {
-    const { registry } = readRegistry();
-    return loadToolViews(registry.tools, {
-      trust: readTrust(),
-      canRun: !Platform.isMobile,
-      fs: currentFs()
-    });
-  }
-  function viewOf(id) {
-    const { registry } = readRegistry();
-    const entry = registry.tools.find((t) => t.id === id);
-    if (!entry) return void 0;
-    return loadToolView(entry, { trust: readTrust(), canRun: !Platform.isMobile, fs: currentFs() });
-  }
-  function showList() {
-    view = "list";
-    detailId = "";
-    if (titleEl) titleEl.setText("工具坞");
-    render();
-  }
-  function render() {
-    if (!bodyEl) return;
-    bodyEl.empty();
-    if (view === "detail") {
-      renderDetail();
-      return;
     }
-    const all = views();
-    renderSummary(all);
-    if (!all.length) {
-      const empty = bodyEl.createDiv({ cls: "bz-dock-empty" });
-      empty.createDiv({ cls: "bz-dock-empty-title", text: "还没有登记任何工具" });
-      empty.createDiv({
-        cls: "bz-dock-empty-desc",
-        text: "选一个含 manifest.json 的文件夹。bz 只读它、不执行 —— 看清它要跑什么，再决定授不授权。"
-      });
-      const btn = btnOf(empty, "导入工具文件夹", "mod-cta");
-      btn.addEventListener("click", () => pickFolder());
-      return;
-    }
-    const auto = all.filter((v) => v.rules.some((r) => r.enabled !== false));
-    const manual = all.filter((v) => !v.rules.some((r) => r.enabled !== false));
-    if (auto.length) section("自动运行", auto);
-    if (manual.length) section("手动", manual);
+    return { due: false, detail: "" };
   }
-  function externalRunOf(v) {
-    if (liveOf(v.id)) return null;
-    return freshOf(v.heartbeat);
+  function isAlarmView(v) {
+    var _a, _b;
+    if (dueOf(v).due) return true;
+    if ((_a = v.runtime.run) == null ? void 0 : _a.pausedAt) return true;
+    if (!v.trusted) return false;
+    const s = (_b = v.lastRun) == null ? void 0 : _b.status;
+    return s === "failed" || s === "timeout" || s === "abandoned";
+  }
+  function trustTagOf(v) {
+    if (!canRun()) return null;
+    if (!v.trusted) return v.trustStale ? "命令已变，待重新确认" : "未授权";
+    return null;
+  }
+  function whenTextOf(v, last) {
+    if (!last) return "还没有运行过";
+    return relTime(last.startedAt.replace("T", " "));
+  }
+  function messageTextOf(v, last) {
+    var _a;
+    if (!v.manifest) return (_a = v.error) != null ? _a : "声明文件读不到，先把路径修好";
+    const live3 = liveOf(v.id);
+    if (live3) return live3.phase ? `正在${live3.phase}…` : "正在运行…";
+    const ext = freshOf(v.heartbeat);
+    if (ext) return ext.step ? `后台跑：${ext.step}` : "后台值守正在跑…";
+    if (!v.entry) return "声明里没写 entry —— 只能看";
+    if (!last) return "等它按自己的节奏跑一次";
+    return last.message || statusText(last.status);
+  }
+  function failHintOf(last) {
+    if (!last || !last.error) return null;
+    if (last.status === "ok" || last.status === "running") return null;
+    return hintOf(last.error.kind);
   }
   function freshOf(hb) {
     if (!hb) return null;
@@ -3125,338 +3730,866 @@ var BZW_dock = (() => {
     if (!Number.isFinite(at)) return null;
     return Date.now() - at <= HEARTBEAT_STALE_MS ? hb : null;
   }
-  function renderListMeta() {
+  function externalRunOf(v) {
+    if (liveOf(v.id)) return null;
+    return freshOf(v.heartbeat);
+  }
+  function untilText(ms) {
+    const m = ms / 6e4;
+    if (m < 60) return { num: String(Math.max(1, Math.round(m))), unit: "m" };
+    const h = m / 60;
+    if (h < 24) return { num: String(Math.round(h)), unit: "h" };
+    return { num: String(Math.round(h / 24)), unit: "d" };
+  }
+  function ensureDock(app2) {
+    hostApp = app2;
+    if (!overlay) build(app2);
+  }
+  function openDock(app2) {
     var _a;
-    if (!bodyEl) return;
+    ensureDock(app2);
+    if (!overlay) return;
+    topifyZ(overlay);
+    overlay.classList.remove("is-off");
+    trapPanelFocus((_a = overlay.querySelector(`#${FRAME_ID}`)) != null ? _a : overlay);
+    escHandle == null ? void 0 : escHandle.unregister();
+    escHandle = escManager.register("bz-dock", {
+      isVisible: () => isPanelVisible(),
+      close: () => closeDock()
+    });
+    render();
+    startTick();
+    void refresh();
+    notifyDockEvent({ kind: "panel-open" });
+    if (Platform.isMobile) void primeVaultFs(app2).then(() => render());
+  }
+  function closeDock() {
+    overlay == null ? void 0 : overlay.classList.add("is-off");
+    stopTick();
+  }
+  function unloadDock() {
+    stopTick();
+    liveOff == null ? void 0 : liveOff();
+    liveOff = null;
+    hostApp = null;
+    escHandle == null ? void 0 : escHandle.unregister();
+    escHandle = null;
+    overlay == null ? void 0 : overlay.remove();
+    overlay = null;
+    views = [];
+    view = { kind: "list" };
+    searchOpen = false;
+    query = "";
+  }
+  function isPanelVisible() {
+    return !!overlay && !overlay.classList.contains("is-off");
+  }
+  function build(app2) {
+    const ov = el("div", "bz-panel-overlay bz-dock-mask is-off");
+    ov.id = OVERLAY_ID;
+    const frame = el("div", "bz-panel-frame bz-dock-panel bz-panel-mtop");
+    frame.id = FRAME_ID;
+    const head = el("div", "bz-panel-head");
+    const kpi = el("div", "bz-dock-kpi");
+    kpi.id = "bz-dock-kpi";
+    const runbar = el("div", "bz-dock-runbar");
+    runbar.id = "bz-dock-runbar";
+    const bar = el("div", "bz-dock-bar");
+    bar.id = "bz-dock-bar";
+    const body = el("div", "bz-dock-body");
+    body.id = "bz-dock-body";
+    frame.append(head, kpi, runbar, bar, body);
+    ov.appendChild(frame);
+    ov.addEventListener("click", (e) => {
+      if (e.target === ov) closeDock();
+    });
+    document.body.appendChild(ov);
+    overlay = ov;
+    liveOff = onLiveChanged(() => {
+      if (view.kind === "detail") renderLiveInto(view.id);
+      renderRunbar();
+      updateCards();
+    });
+  }
+  function headEl() {
+    var _a;
+    return (_a = overlay == null ? void 0 : overlay.querySelector(".bz-panel-head")) != null ? _a : null;
+  }
+  function kpiEl() {
+    var _a;
+    return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-kpi")) != null ? _a : null;
+  }
+  function runbarEl() {
+    var _a;
+    return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-runbar")) != null ? _a : null;
+  }
+  function barEl() {
+    var _a;
+    return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-bar")) != null ? _a : null;
+  }
+  function bodyEl() {
+    var _a;
+    return (_a = overlay == null ? void 0 : overlay.querySelector("#bz-dock-body")) != null ? _a : null;
+  }
+  function refresh() {
+    const { registry } = readRegistry();
+    views = loadToolViews(registry.tools, {
+      trust: readTrust(),
+      canRun: canRun(),
+      fs: currentFs()
+    });
+    render();
+  }
+  function updateCards() {
+    var _a;
+    const body = bodyEl();
+    if (!body || view.kind === "detail") return;
     const fs = currentFs();
     const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, heartbeatOf(e.path, fs)]));
-    for (const card2 of Array.from(bodyEl.querySelectorAll(".bz-dock-card"))) {
-      const id = (_a = card2.dataset.toolId) != null ? _a : "";
+    for (const card of Array.from(body.querySelectorAll(".bz-dock-card"))) {
+      const id = (_a = card.dataset.tool) != null ? _a : "";
       const live3 = liveOf(id);
       const hb = beats.get(id);
       const ext = live3 || !hb ? null : freshOf(hb);
       const running = !!live3 || !!ext;
-      card2.toggleClass("is-running", running);
-      const dot = card2.querySelector(".bz-dock-dot");
-      if (dot) {
-        dot.dataset.state = running ? "running" : lastStateOf(id);
-      }
+      card.classList.toggle("is-running", running);
+      const dot = card.querySelector(".bz-dock-dot");
+      if (dot && running) dot.className = "bz-dock-dot bz-dock-dot--warn";
     }
   }
-  function renderSummary(all) {
-    if (!bodyEl) return;
-    const row = bodyEl.createDiv({ cls: "bz-dock-summary" });
-    const running = liveAll().length;
-    const today = all.filter((v) => v.lastRun && isToday(v.lastRun.startedAt)).length;
-    const failed = all.filter((v) => {
-      var _a, _b;
-      return ((_a = v.lastRun) == null ? void 0 : _a.status) === "failed" || ((_b = v.lastRun) == null ? void 0 : _b.status) === "timeout";
-    }).length;
-    cell(row, "正在跑", running ? String(running) : "—");
-    cell(row, "今天跑过", String(today));
-    cell(row, "最近失败", failed ? String(failed) : "—");
-    cell(row, "工具", String(all.length));
+  function startTick() {
+    stopTick();
+    tickTimer = setInterval(() => {
+      if (!isPanelVisible()) return;
+      updateCards();
+      if (view.kind === "detail") renderLiveInto(view.id);
+    }, 3e3);
   }
-  function cell(parent, label, value) {
-    const c = parent.createDiv({ cls: "bz-dock-kpi" });
-    c.createDiv({ cls: "bz-dock-kpi-value", text: value });
-    c.createDiv({ cls: "bz-dock-kpi-label", text: label });
+  function stopTick() {
+    if (tickTimer) clearInterval(tickTimer);
+    tickTimer = null;
   }
-  function section(name, list) {
-    if (!bodyEl) return;
-    bodyEl.createDiv({ cls: "bz-dock-section", text: name });
-    const grid = bodyEl.createDiv({ cls: "bz-dock-grid" });
-    for (const v of list) card(grid, v);
+  function render() {
+    renderHead();
+    renderKpi();
+    renderRunbar();
+    renderBar();
+    renderBody();
   }
-  function card(grid, v) {
-    var _a, _b, _c, _d;
-    const el = grid.createDiv({ cls: "bz-dock-card" });
-    el.dataset.toolId = v.id;
-    el.tabIndex = 0;
-    if (liveOf(v.id)) el.addClass("is-running");
-    const top = el.createDiv({ cls: "bz-dock-card-top" });
-    const icon = top.createDiv({ cls: "bz-dock-card-icon" });
-    setIcon(icon, ((_a = v.manifest) == null ? void 0 : _a.icon) || "box");
-    const name = top.createDiv({ cls: "bz-dock-card-name" });
-    name.setText(displayNameOf(v));
-    const dot = name.createSpan({ cls: "bz-dock-dot" });
-    dot.dataset.state = liveOf(v.id) ? "running" : lastStateOf(v.id);
-    el.createDiv({
-      cls: "bz-dock-card-desc",
-      text: (_d = (_c = v.error) != null ? _c : (_b = v.manifest) == null ? void 0 : _b.description) != null ? _d : "（这份声明里没有描述）"
-    });
-    const meta = el.createDiv({ cls: "bz-dock-card-meta" });
-    const trigger = v.rules.find((r) => r.enabled !== false);
-    meta.createSpan({
-      cls: "bz-dock-tag",
-      text: trigger ? triggerText(trigger.trigger, (id) => id) : "手动"
-    });
-    if (!v.trusted) meta.createSpan({ cls: "bz-dock-tag is-warn", text: "待授权" });
-    const strip = el.createDiv({ cls: "bz-dock-strip" });
-    const runs = recentRunsOf(v.path, v.id, 7);
-    for (let i = 6; i >= 0; i--) {
-      const r = runs[6 - i];
-      const tick2 = strip.createDiv({ cls: "bz-dock-tick" });
-      if (r) tick2.dataset.state = r.status;
+  function renderHead() {
+    const head = headEl();
+    if (!head) return;
+    if (view.kind === "detail") {
+      const v = viewById(view.id);
+      if (v) {
+        renderToolHead(head, v);
+        return;
+      }
     }
-    const open = () => showDetail(v.id);
-    el.addEventListener("click", open);
-    el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open();
+    head.classList.remove("bz-dock-toolhead");
+    head.innerHTML = "";
+    const brand = el("div", "bz-panel-brand");
+    brand.appendChild(uiIcon("square-terminal"));
+    const sub = el("div", "bz-panel-head-sub");
+    sub.id = "bz-dock-headsub";
+    const btns = el("div", "bz-panel-head-btns");
+    btns.id = "bz-dock-headbtns";
+    head.append(brand, el("div", "bz-panel-title", "工具坞"), el("div", "bz-panel-head-pipe"), sub, el("div", "bz-panel-head-sp"), btns);
+    const alarms = views.filter(isAlarmView).length;
+    sub.textContent = views.length ? `${views.length} 个工具${alarms ? ` · ${alarms} 个待关注` : ""}` : "还没有登记任何外部工具";
+    btns.appendChild(
+      uiIconBtn({
+        icon: "search",
+        title: "搜索工具",
+        on: searchOpen,
+        onClick: () => {
+          searchOpen = !searchOpen;
+          render();
+        }
+      })
+    );
+    if (canRun()) {
+      btns.appendChild(
+        uiIconBtn({
+          icon: "refresh-cw",
+          title: "重新读取运行记录",
+          onClick: () => {
+            refresh();
+            notice("已重新读取");
+          }
+        })
+      );
+      btns.appendChild(uiIconBtn({ icon: "plus", title: "导入工具（选文件夹）", onClick: () => pickFolder() }));
+    }
+    btns.appendChild(uiIconBtn({ icon: "x", title: "关闭", className: "bz-dock-close", onClick: () => closeDock() }));
+  }
+  function renderToolHead(head, v) {
+    var _a, _b, _c;
+    head.innerHTML = "";
+    head.classList.add("bz-dock-toolhead");
+    const back = uiIconBtn({
+      icon: "chevron-left",
+      title: "返回列表",
+      className: "bz-dock-back",
+      onClick: () => {
+        view = { kind: "list" };
+        render();
       }
     });
+    const main = el("div", "bz-dock-covermain");
+    const ic = el("div", "bz-dock-coveric");
+    ic.appendChild(uiIcon(((_a = v.manifest) == null ? void 0 : _a.icon) || "box", "bz-ic--lg"));
+    const txt = el("div", "bz-dock-covertxt");
+    const line = el("div", "bz-dock-coverline");
+    line.appendChild(el("div", "bz-dock-detail-name", displayNameOf(v)));
+    const tags = el("div", "bz-dock-detail-tags");
+    const due = dueOf(v);
+    if (due.due) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--due", due.detail));
+    const trustTag = trustTagOf(v);
+    if (trustTag) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--warn", trustTag));
+    if ((_b = v.runtime.run) == null ? void 0 : _b.pausedAt) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--warn", "自动已暂停"));
+    if (tags.children.length) line.appendChild(tags);
+    txt.appendChild(line);
+    const desc = (_c = v.manifest) == null ? void 0 : _c.description;
+    if (desc) txt.appendChild(el("div", "bz-dock-detail-desc", desc));
+    main.append(back, ic, txt);
+    head.appendChild(main);
   }
-  function lastStateOf(id) {
-    var _a, _b;
-    const v = viewOf(id);
-    return (_b = (_a = v == null ? void 0 : v.lastRun) == null ? void 0 : _a.status) != null ? _b : "never";
-  }
-  function isToday(iso2) {
-    const d = new Date(iso2);
-    const n = /* @__PURE__ */ new Date();
-    return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
-  }
-  function showDetail(id) {
-    view = "detail";
-    detailId = id;
-    const v = viewOf(id);
-    if (titleEl) titleEl.setText(v ? displayNameOf(v) : "工具");
-    renderDetail();
-  }
-  function renderDetail() {
-    var _a;
-    if (!bodyEl) return;
-    const v = viewOf(detailId);
-    detailKey = v ? detailSignature(v) : "";
-    bodyEl.empty();
-    if (!v) {
-      bodyEl.createDiv({ cls: "bz-dock-empty-desc", text: "这个工具已经不在登记表里了" });
-      backBtn();
+  function renderKpi() {
+    const host = kpiEl();
+    if (!host) return;
+    host.innerHTML = "";
+    if (!views.length || view.kind === "detail") {
+      host.classList.add("is-off");
       return;
     }
-    const bar = bodyEl.createDiv({ cls: "bz-dock-detail-bar" });
-    const back = bar.createDiv({ cls: "bz-dock-back" });
-    setIcon(back, "arrow-left");
-    back.createSpan({ text: "返回" });
-    back.addEventListener("click", () => showList());
-    const acts = bar.createDiv({ cls: "bz-dock-actions" });
-    const gate = judgeRunGate(v, !Platform.isMobile);
-    const live3 = liveOf(v.id);
-    const external = externalRunOf(v);
-    if (live3) {
-      const stop = btnOf(acts, "停止");
-      stop.addEventListener("click", () => stopLive(v.id));
-    } else {
-      const run = btnOf(acts, "运行", "mod-cta");
-      run.disabled = !gate.ok || !!external;
-      if (external) run.setAttribute("title", "后台值守正在跑它，等它跑完");
-      else if (!gate.ok) run.setAttribute("title", (_a = gate.text) != null ? _a : "");
-      run.addEventListener("click", () => void doRun(v));
+    host.classList.remove("is-off");
+    const withRules = views.filter((v) => v.rules.some((r) => r.enabled !== false));
+    const doneToday = withRules.filter((v) => {
+      var _a;
+      return ((_a = v.lastRun) == null ? void 0 : _a.status) === "ok" && isToday(v.lastRun.startedAt);
+    }).length;
+    const left = withRules.length - doneToday;
+    let ok = 0;
+    let total = 0;
+    for (const v of views) {
+      for (const r of recentRunsOf(v.path, v.id, 60)) {
+        if (r.status === "running") continue;
+        total += 1;
+        if (r.status === "ok") ok += 1;
+      }
     }
-    if (!v.trusted) {
-      const trust = btnOf(acts, v.trustStale ? "重新授权" : "授权这条命令");
-      trust.addEventListener("click", () => void doTrust(v));
-    } else {
-      const untrust = btnOf(acts, "撤销授权");
-      untrust.addEventListener("click", () => void doUntrust(v));
-    }
-    renderProblem(v);
-    renderPanelBoard(v);
-    renderParams(v);
-    renderRules(v);
-    renderLive(v);
-    renderHistory(v);
-    renderFooter(v);
-  }
-  function backBtn() {
-    if (!bodyEl) return;
-    const b = bodyEl.createDiv({ cls: "bz-dock-back" });
-    setIcon(b, "arrow-left");
-    b.createSpan({ text: "返回" });
-    b.addEventListener("click", () => showList());
-  }
-  function renderProblem(v) {
-    var _a, _b;
-    if (!bodyEl) return;
-    const problems = [];
-    if (v.error) problems.push(v.error);
-    if (!v.entry) problems.push("声明里没有 entry，跑不起来（只能看）");
-    if (!v.trusted) problems.push(v.trustStale ? "声明里的启动命令改过了，需要重新授权" : "这条命令还没授权，跑不了");
-    const missing = missingParams(v);
-    if (missing.length) problems.push(`必填参数还没填：${missing.join("、")}`);
-    if ((_a = v.runtime.run) == null ? void 0 : _a.pausedAt) problems.push("连续失败太多次，自动运行已经暂停（下面可以恢复）");
-    if (!problems.length) return;
-    const box = bodyEl.createDiv({ cls: "bz-dock-problem" });
-    for (const p of problems) box.createDiv({ cls: "bz-dock-problem-line", text: p });
-    if ((_b = v.runtime.run) == null ? void 0 : _b.pausedAt) {
-      const btn = btnOf(box, "恢复自动运行");
-      btn.addEventListener("click", () => {
-        void clearBreakerSafely(v).then((ok) => {
-          if (!ok) {
-            new Notice("有工具正在跑，等它跑完再恢复");
-            return;
-          }
-          renderDetail();
+    const rate = total ? ok / total : null;
+    const alarms = views.filter(isAlarmView);
+    const alarmHint = alarms[0];
+    const next = nextDueOfViews();
+    const tile = (num2, unit, label, sub, tone, key) => {
+      const t = el("div", tone ? `bz-dock-kpi-tile is-${tone}` : "bz-dock-kpi-tile");
+      const v = el("div", "bz-dock-kpi-v", num2);
+      if (unit) v.appendChild(el("small", void 0, unit));
+      t.append(v, el("div", "bz-dock-kpi-l", label), el("div", tone === "up" ? "bz-dock-kpi-d is-up" : "bz-dock-kpi-d", sub));
+      if (key) {
+        t.classList.add("is-click");
+        if (kpiFilter === key) t.classList.add("is-selected");
+        t.addEventListener("click", () => {
+          kpiFilter = kpiFilter === key ? "all" : key;
+          renderKpi();
+          renderBody();
         });
+      }
+      return t;
+    };
+    host.appendChild(
+      tile(
+        String(doneToday),
+        ` / ${withRules.length}`,
+        "今日自动化达标",
+        withRules.length === 0 ? "还没有自动化工具" : left > 0 ? `还差 ${left} 个` : "今天都跑成了",
+        withRules.length > 0 && left > 0 ? "warn" : void 0
+      )
+    );
+    host.appendChild(
+      tile(
+        rate === null ? "—" : String(Math.round(rate * 100)),
+        rate === null ? "" : "%",
+        "近 7 天成功率",
+        total ? `${total} 次里成功 ${ok} 次` : "还没有可比的记录"
+      )
+    );
+    host.appendChild(
+      tile(
+        String(alarms.length),
+        "",
+        "待处理异常",
+        alarmHint ? `${displayNameOf(alarmHint)} · ${dueOf(alarmHint).due ? dueOf(alarmHint).detail : "上次没跑成"}` : "没有要管的事",
+        alarms.length ? "bad" : void 0,
+        "alarms"
+      )
+    );
+    if (next) {
+      const left2 = untilText(next.at - Date.now());
+      host.appendChild(tile(left2.num, left2.unit, "距下次到期", next.name));
+    } else {
+      host.appendChild(tile("—", "", "距下次到期", "没有能算出下次到期的工具"));
+    }
+  }
+  function nextDueOfViews() {
+    var _a, _b;
+    let best = null;
+    const now = Date.now();
+    for (const v of views) {
+      if (v.intent.enabled === false || v.intent.autoRun === false) continue;
+      for (const rule of v.rules) {
+        if (rule.enabled === false || isEventTrigger(rule.trigger.kind)) continue;
+        const firedRaw = (_b = (_a = v.runtime.rules) == null ? void 0 : _a[rule.id]) == null ? void 0 : _b.lastFiredAt;
+        const at = nextDueOf(rule, {
+          now,
+          lastFiredAt: firedRaw ? Date.parse(firedRaw) : void 0
+        });
+        if (at === null) continue;
+        if (!best || at < best.at) best = { at, name: displayNameOf(v) };
+      }
+    }
+    return best;
+  }
+  function renderRunbar() {
+    const host = runbarEl();
+    if (!host) return;
+    host.innerHTML = "";
+    const live3 = liveAll();
+    const exts = view.kind === "detail" ? [] : views.map((v) => ({ v, hb: externalRunOf(v) })).filter((x) => x.hb !== null);
+    if (!live3.length && !exts.length) {
+      host.classList.add("is-off");
+      return;
+    }
+    host.classList.remove("is-off");
+    for (const run of live3) {
+      const v = viewById(run.toolId);
+      const row = el("div", "bz-dock-rb");
+      row.appendChild(el("span", "bz-dock-rb-pulse"));
+      row.appendChild(el("span", "bz-dock-rb-name", v ? displayNameOf(v) : run.toolId));
+      row.appendChild(el("span", "bz-dock-rb-tag", run.trigger === "auto" ? "自动" : "手动"));
+      const phase = run.phase ? `${run.phase}${run.pct !== null ? ` ${run.pct}%` : ""}` : "进行中";
+      row.appendChild(el("span", "bz-dock-rb-text", phase));
+      if (run.pct !== null) {
+        const bar = uiProgress({ thin: true, value: run.pct });
+        row.appendChild(bar.el);
+      }
+      host.appendChild(row);
+    }
+    for (const { v, hb } of exts) {
+      const row = el("div", "bz-dock-rb");
+      row.dataset.tool = v.id;
+      row.appendChild(el("span", "bz-dock-rb-pulse"));
+      row.appendChild(el("span", "bz-dock-rb-name", displayNameOf(v)));
+      row.appendChild(el("span", "bz-dock-rb-tag", "后台"));
+      row.appendChild(el("span", "bz-dock-rb-text", hb.step || "值守进程正在跑"));
+      host.appendChild(row);
+    }
+  }
+  function renderBar() {
+    const bar = barEl();
+    if (!bar) return;
+    bar.innerHTML = "";
+    if (!searchOpen || view.kind === "detail") {
+      bar.classList.add("is-off");
+      return;
+    }
+    bar.classList.remove("is-off");
+    const sp = el("div", "bz-dock-search");
+    const search = uiSearch({
+      placeholder: "搜工具名 / 描述 / 命令",
+      value: query,
+      onInput: (v) => {
+        query = v;
+        renderBody();
+      }
+    });
+    sp.appendChild(search.el);
+    bar.appendChild(sp);
+    if (!Platform.isMobile) queueMicrotask(() => search.input.focus());
+  }
+  function filtered() {
+    let list = views.slice();
+    const q = query.trim().toLowerCase();
+    if (q) {
+      list = list.filter((v) => {
+        var _a, _b, _c, _d, _e;
+        const hay = [v.id, displayNameOf(v), (_b = (_a = v.manifest) == null ? void 0 : _a.description) != null ? _b : "", (_e = (_d = (_c = v.manifest) == null ? void 0 : _c.entry) == null ? void 0 : _d.cmd) != null ? _e : ""].join(" ").toLowerCase();
+        return hay.includes(q);
       });
     }
+    if (kpiFilter === "alarms") list = list.filter(isAlarmView);
+    return list;
+  }
+  function renderBody() {
+    const body = bodyEl();
+    if (!body) return;
+    body.innerHTML = "";
+    if (view.kind === "detail") {
+      const v = viewById(view.id);
+      if (v) {
+        renderDetail(body, v);
+        return;
+      }
+      view = { kind: "list" };
+    }
+    renderList(body);
+  }
+  function renderList(body) {
+    if (!views.length) {
+      body.appendChild(
+        uiEmpty({
+          icon: "square-terminal",
+          title: "还没有外部工具",
+          desc: canRun() ? "选一个工具文件夹，bz 会自己找里面的 manifest.json。工具坞据此知道它叫什么、有哪些参数、该怎么跑。" : "工具要在桌面端导入。手机上只读 —— 工具目录同步过来之后，这里就能看到它的声明、展示板与运行记录。",
+          actions: canRun() ? uiBtnRow([uiBtn({ label: "导入工具", icon: "file-input", tone: "primary", onClick: () => pickFolder() })], {
+            center: true
+          }) : void 0
+        })
+      );
+      return;
+    }
+    const list = filtered();
+    if (!list.length) {
+      body.appendChild(
+        uiEmpty({
+          icon: "search-x",
+          title: "没有匹配的工具",
+          desc: kpiFilter === "alarms" ? "这个口径下没有 —— 点顶上的 KPI 格回到全部" : "换个词试试"
+        })
+      );
+      return;
+    }
+    const grid = el("div", "bz-dock-grid");
+    for (const v of list) grid.appendChild(makeCard(v));
+    body.appendChild(grid);
+  }
+  function makeCard(v) {
+    var _a, _b, _c, _d;
+    const id = v.id;
+    const card = el("article", "bz-dock-card");
+    card.dataset.tool = id;
+    const due = dueOf(v);
+    if (due.due) card.classList.add("is-due");
+    if (v.intent.enabled === false) card.classList.add("is-disabled");
+    if (liveOf(id) || externalRunOf(v)) card.classList.add("is-running");
+    const top = el("div", "bz-dock-card-top");
+    const ic = el("span", "bz-dock-card-ic");
+    ic.appendChild(uiIcon(((_a = v.manifest) == null ? void 0 : _a.icon) || "box", "bz-ic--md"));
+    const idbox = el("div", "bz-dock-card-idbox");
+    const tags = el("div", "bz-dock-card-tags");
+    if (due.due) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--due", due.detail));
+    const trustTag = trustTagOf(v);
+    if (trustTag) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--warn", trustTag));
+    if (!v.manifest) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--muted", "声明读不到"));
+    if (v.manifest && !v.entry) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--muted", "只能看"));
+    if ((_b = v.runtime.run) == null ? void 0 : _b.pausedAt) tags.appendChild(el("span", "bz-dock-tag bz-dock-tag--warn", "自动已暂停"));
+    idbox.append(el("div", "bz-dock-card-name", displayNameOf(v)), tags);
+    top.append(ic, idbox);
+    card.appendChild(top);
+    const desc = (_c = v.manifest) == null ? void 0 : _c.description;
+    if (desc) card.appendChild(el("div", "bz-dock-card-desc", desc));
+    const state = el("div", "bz-dock-card-state");
+    const last = lastOf(v);
+    const running = !!liveOf(id) || !!externalRunOf(v);
+    state.appendChild(el("span", running ? dotClass("running") : dotClass(last ? last.status : due.due ? "due" : "none")));
+    state.appendChild(el("span", "bz-dock-card-when", whenTextOf(v, last)));
+    state.appendChild(el("span", "bz-dock-card-msg", messageTextOf(v, last)));
+    const rate = rateOf(v);
+    if (rate !== null) {
+      const rateEl = el("span", "bz-dock-rate", `${Math.round(rate * 100)}% 成功`);
+      rateEl.title = "最近记录里成功了几条";
+      if (rate < 1) rateEl.classList.add("is-warn");
+      state.appendChild(rateEl);
+    }
+    card.appendChild(state);
+    const hint = failHintOf(last);
+    if (hint) {
+      const box = el("div", "bz-dock-card-fail");
+      box.appendChild(uiIcon("alert-triangle", "bz-ic--xs"));
+      box.appendChild(el("span", "bz-dock-card-failtext", hint));
+      card.appendChild(box);
+    }
+    const strip = el("div", "bz-dock-strip");
+    strip.title = "最近 7 次运行（左旧右新）";
+    const runs = recentRunsOf(v.path, v.id, 7).slice().reverse();
+    for (let i = 0; i < 7; i++) {
+      const r = runs[i];
+      const pip = el("i", "bz-dock-pip");
+      if (r) {
+        pip.classList.add(`bz-dock-pip--${r.status}`);
+        pip.title = `${relTime(r.startedAt.replace("T", " "))} · ${statusText(r.status)}${r.message ? ` · ${r.message}` : ""}`;
+      } else {
+        pip.title = "这一次没有运行记录";
+      }
+      strip.appendChild(pip);
+    }
+    card.appendChild(strip);
+    const foot = el("div", "bz-dock-card-foot");
+    if (canRun()) {
+      if (liveOf(id)) {
+        foot.appendChild(uiBtn({ label: "停止", icon: "square", tone: "danger", size: "sm", onClick: () => stopLive(id) }));
+      } else {
+        const gate = judgeRunGate(v, true);
+        const runBtn = uiBtn({
+          label: "运行",
+          icon: "play",
+          size: "sm",
+          disabled: !gate.ok || !!externalRunOf(v),
+          onClick: () => void doRun(v)
+        });
+        runBtn.title = gate.ok ? "" : (_d = gate.text) != null ? _d : "";
+        foot.appendChild(runBtn);
+      }
+    } else {
+      foot.appendChild(el("span", "bz-dock-mobilehint", "移动端仅查看"));
+    }
+    card.appendChild(foot);
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("button")) return;
+      view = { kind: "detail", id };
+      render();
+    });
+    return card;
+  }
+  function renderDetail(body, v) {
+    const wrap = el("div", "bz-dock-detail");
+    if (v.error) wrap.appendChild(el("div", "bz-dock-meta-warn", v.error));
+    const board = boardSection(v);
+    if (board) wrap.appendChild(board);
+    wrap.appendChild(toolStats(v));
+    wrap.appendChild(metaSection(v));
+    wrap.appendChild(rulesPane(v));
+    const cols = el("div", "bz-dock-cols");
+    cols.appendChild(runPane(v));
+    cols.appendChild(histPane(v));
+    wrap.appendChild(cols);
+    wrap.appendChild(footerBar(v));
+    body.appendChild(wrap);
   }
   var FRAME_SCROLLBAR_CSS = "<style>html{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar{display:none;width:0;height:0}</style>";
-  function renderPanelBoard(v) {
-    if (!bodyEl) return;
+  function boardSection(v) {
     const html = panelOf(v.path, currentFs());
-    if (!html) return;
-    const box = bodyEl.createDiv({ cls: "bz-dock-board" });
-    const frame = box.createEl("iframe", { cls: "bz-dock-frame" });
+    if (!html) return null;
+    const box = el("div", "bz-dock-board");
+    const frame = el("iframe", "bz-dock-board-frame");
     frame.setAttribute("sandbox", "allow-same-origin allow-popups allow-popups-to-escape-sandbox");
     frame.setAttribute("referrerpolicy", "no-referrer");
     frame.srcdoc = html.toLowerCase().includes("<head>") ? html.replace(/<head([^>]*)>/i, `<head$1>${FRAME_SCROLLBAR_CSS}`) : `<!DOCTYPE html><html><head>${FRAME_SCROLLBAR_CSS}</head><body>${html}</body></html>`;
+    box.appendChild(frame);
+    return box;
   }
-  function renderParams(v) {
-    var _a, _b;
-    if (!bodyEl || !v.params.length) return;
-    block("参数");
-    const form = bodyEl.createDiv({ cls: "bz-dock-form" });
-    const values = { ...v.values };
-    for (const p of v.params) {
-      const row = form.createDiv({ cls: "bz-dock-field" });
-      row.createDiv({ cls: "bz-dock-label", text: ((_a = p.label) != null ? _a : p.key) + (p.required ? " *" : "") });
-      const input = fieldOf(row, p, (_b = values[p.key]) != null ? _b : p.default);
-      const commit = () => {
-        values[p.key] = readField(p, input);
-        writeSettings(v.path, v.id, values);
-      };
-      input.addEventListener("change", commit);
-      if (p.type === "text" || p.type === "number" || p.type === "multiline") input.addEventListener("blur", commit);
-      if (p.hint) row.createDiv({ cls: "bz-dock-hint", text: p.hint });
-      if (p.type === "secret") row.createDiv({ cls: "bz-dock-hint", text: "凭据不进 vault、不写运行记录，只在本机工具目录里" });
+  function toolStats(v) {
+    const box = el("div", "bz-dock-kpi bz-dock-toolstats");
+    const runs = recentRunsOf(v.path, v.id, 60).filter((r) => r.status !== "running");
+    const ok = runs.filter((r) => r.status === "ok").length;
+    const single = (num2, unit, label, sub) => {
+      const t = el("div", "bz-dock-kpi-tile");
+      const val = el("div", "bz-dock-kpi-v", num2);
+      if (unit) val.appendChild(el("small", void 0, unit));
+      t.append(val, el("div", "bz-dock-kpi-l", label), el("div", "bz-dock-kpi-d", sub));
+      return t;
+    };
+    box.append(
+      single(String(v.params.length), "", "参数", v.params.length ? "在运行台里改" : "这个工具没有参数"),
+      single(runs.length ? String(Math.round(ok / runs.length * 100)) : "—", runs.length ? "%" : "", "成功率", runs.length ? `${runs.length} 条记录` : "还没跑过"),
+      single(v.rules.filter((r) => r.enabled !== false).length ? "自动" : "手动", "", "节奏", v.rules.length ? `${v.rules.length} 条规则` : "没有规则")
+    );
+    return box;
+  }
+  function metaRow(label, value, mono = false, onCopy) {
+    const row = el("div", "bz-dock-meta-row");
+    row.appendChild(el("span", "bz-dock-meta-label", label));
+    const val = el("span", mono ? "bz-dock-meta-val is-mono" : "bz-dock-meta-val", value);
+    val.title = value;
+    row.appendChild(val);
+    if (onCopy) {
+      row.appendChild(uiIconBtn({ icon: "copy", title: "复制", xs: true, onClick: onCopy }));
     }
+    return row;
   }
-  function fieldOf(row, p, value) {
+  function metaSection(v) {
     var _a;
-    if (p.type === "bool") {
-      const input2 = row.createEl("input", { type: "checkbox" });
-      input2.checked = value === true;
-      return input2;
+    const meta = el("div", "bz-dock-meta");
+    meta.appendChild(metaRow("声明文件", v.path, true, () => void copyText(v.path, "声明文件路径")));
+    if (v.entry) {
+      meta.appendChild(metaRow("命令", [v.entry.cmd, ...(_a = v.entry.args) != null ? _a : []].join(" "), true));
+      if (v.entry.cwd) meta.appendChild(metaRow("工作目录", v.entry.cwd, true));
+      if (v.entry.shell) meta.appendChild(metaRow("经 shell 启动", "是"));
+    } else {
+      meta.appendChild(metaRow("命令", "声明里没写 entry —— 能看，但不知道该怎么跑"));
     }
-    if (p.type === "choice" || p.type === "multichoice") {
-      const sel = row.createEl("select", { cls: p.type === "multichoice" ? "is-multi" : "" });
-      if (p.type === "multichoice") sel.multiple = true;
-      const opts = (_a = p.options) != null ? _a : [];
-      const picked = p.type === "multichoice" ? Array.isArray(value) ? value.map(String) : [] : [String(value != null ? value : "")];
-      for (const o of opts) {
-        const opt = sel.createEl("option", { text: o, value: o });
-        if (picked.includes(o)) opt.selected = true;
+    const dir = v.dir;
+    meta.appendChild(metaRow("参数值文件", `${dir}/data.json`, true, () => void copyText(`${dir}/data.json`, "参数值文件路径")));
+    meta.appendChild(metaRow("运行记录", `${dir}/runs.jsonl`, true, () => void copyText(`${dir}/runs.jsonl`, "运行记录路径")));
+    return meta;
+  }
+  function runPane(v) {
+    var _a, _b, _c;
+    const pane = el("section", "bz-dock-pane bz-dock-runpane");
+    pane.appendChild(el("h3", "bz-dock-pane-title", "运行台"));
+    if (!v.manifest) {
+      const box = el("div", "bz-dock-noManifest");
+      box.appendChild(el("div", "bz-dock-note", (_a = v.error) != null ? _a : "声明文件读不到。"));
+      pane.appendChild(box);
+      return pane;
+    }
+    if (v.params.length) {
+      const form = el("div", "bz-dock-form");
+      const values = { ...v.values };
+      for (const p of v.params) form.appendChild(paramRow(p, values, v));
+      pane.appendChild(form);
+    } else {
+      pane.appendChild(el("div", "bz-dock-note", "这个工具没有参数。"));
+    }
+    if (!v.entry) {
+      pane.appendChild(el("div", "bz-dock-meta-warn", "这份声明没写 entry —— 能看它的记录，但不知道该怎么跑。"));
+    }
+    const btns = el("div", "bz-dock-runbtns");
+    if (canRun()) {
+      const live3 = liveOf(v.id);
+      const external = externalRunOf(v);
+      if (live3) {
+        btns.appendChild(uiBtn({ label: "停止", icon: "square", tone: "danger", onClick: () => stopLive(v.id) }));
+      } else {
+        const gate = judgeRunGate(v, true);
+        const run = uiBtn({
+          label: external ? "后台正在跑" : "运行",
+          icon: "play",
+          tone: "primary",
+          disabled: !gate.ok || !!external,
+          onClick: () => void doRun(v)
+        });
+        run.title = external ? "后台值守正在跑它，等它跑完" : gate.ok ? "" : (_b = gate.text) != null ? _b : "";
+        btns.appendChild(run);
       }
-      return sel;
+      if (!v.trusted) {
+        btns.appendChild(
+          uiBtn({
+            label: v.trustStale ? "重新授权" : "授权这条命令",
+            icon: "shield-check",
+            onClick: () => void doTrust(v)
+          })
+        );
+      } else {
+        btns.appendChild(uiBtn({ label: "撤销授权", size: "sm", onClick: () => void doUntrust(v) }));
+      }
+      if ((_c = v.runtime.run) == null ? void 0 : _c.pausedAt) {
+        btns.appendChild(
+          uiBtn({
+            label: "恢复自动运行",
+            size: "sm",
+            onClick: () => {
+              void clearBreakerSafely(v).then((ok) => {
+                if (!ok) {
+                  notice("有工具正在跑，等它跑完再恢复", "warning");
+                  return;
+                }
+                refresh();
+              });
+            }
+          })
+        );
+      }
+    } else {
+      btns.appendChild(el("span", "bz-dock-mobilehint", "移动端不能启动进程，只能看"));
+    }
+    pane.appendChild(btns);
+    const liveHost = el("div", "bz-dock-live");
+    liveHost.dataset.tool = v.id;
+    pane.appendChild(liveHost);
+    renderLiveIntoEl(liveHost, v);
+    return pane;
+  }
+  function renderLiveInto(id) {
+    var _a;
+    const host = (_a = bodyEl()) == null ? void 0 : _a.querySelector(`.bz-dock-live[data-tool="${id}"]`);
+    if (!host) return;
+    const v = viewById(id);
+    if (!v) return;
+    renderLiveIntoEl(host, v);
+  }
+  function renderLiveIntoEl(host, v) {
+    var _a, _b;
+    host.innerHTML = "";
+    const live3 = liveOf(v.id);
+    const external = externalRunOf(v);
+    if (!live3 && !external) return;
+    const box = el("div", "bz-dock-livelog");
+    if (live3) {
+      box.appendChild(el("div", "bz-dock-livelog-head", `工单 ${live3.runId} · ${(_a = live3.phase) != null ? _a : "进行中"}${live3.pct !== null ? ` ${live3.pct}%` : ""}`));
+      if (live3.pct !== null) box.appendChild(uiProgress({ thin: true, value: live3.pct }).el);
+      const steps2 = live3.steps.slice(-40);
+      if (!steps2.length) box.appendChild(el("div", "bz-dock-note", "还没有输出"));
+      for (const s of steps2) box.appendChild(el("div", "bz-dock-liveline", s.text));
+      host.appendChild(box);
+      return;
+    }
+    const runId = (_b = external == null ? void 0 : external.runId) != null ? _b : "";
+    box.appendChild(el("div", "bz-dock-livelog-head", `后台进程在跑 · 工单 ${runId || "（未标注）"}`));
+    const steps = liveLogOf(v.id, 40).filter((s) => !runId || !s.runId || s.runId === runId);
+    if (steps.length) {
+      for (const s of steps) box.appendChild(el("div", "bz-dock-liveline", s.text));
+    } else {
+      if (external == null ? void 0 : external.step) box.appendChild(el("div", "bz-dock-liveline", external.step));
+      box.appendChild(el("div", "bz-dock-note", "后台这一轮刚开始，还没输出；跑完会出现在右边的记录里"));
+    }
+    host.appendChild(box);
+  }
+  function paramRow(p, values, v) {
+    var _a, _b, _c, _d, _e;
+    const current = (_a = values[p.key]) != null ? _a : p.default;
+    const commit = (val) => {
+      values[p.key] = val;
+      writeSettings(v.path, v.id, values);
+    };
+    const label = ((_b = p.label) != null ? _b : p.key) + (p.required ? " *" : "");
+    const desc = p.hint;
+    if (p.type === "bool") {
+      const sw = uiSwitch({ checked: current === true, onChange: (on) => commit(on) });
+      return uiField({ label, control: sw.el, desc });
+    }
+    if (p.type === "choice") {
+      const opts = ((_c = p.options) != null ? _c : []).map((o) => ({ value: o, label: o }));
+      const sel = uiSelect({ options: opts, value: String((_e = current != null ? current : (_d = p.options) == null ? void 0 : _d[0]) != null ? _e : ""), onChange: (val) => commit(val) });
+      return uiField({ label, control: sel.el, desc });
     }
     if (p.type === "multiline") {
-      const input2 = row.createEl("textarea", { cls: "bz-dock-textarea" });
-      input2.value = value === void 0 ? "" : String(value);
-      return input2;
+      const ta = el("textarea", "bz-input bz-dock-textarea");
+      ta.value = current === void 0 ? "" : String(current);
+      ta.addEventListener("change", () => commit(ta.value));
+      return uiField({ label, control: ta, desc });
     }
-    const input = row.createEl("input", {
+    const inp = uiInput({
       type: p.type === "secret" ? "password" : p.type === "number" ? "number" : "text",
-      cls: "bz-dock-input"
+      value: current === void 0 ? "" : String(current)
     });
-    input.value = value === void 0 ? "" : String(value);
-    return input;
-  }
-  function readField(p, input) {
-    if (p.type === "bool") return input.checked;
-    if (p.type === "multichoice") {
-      return Array.from(input.selectedOptions).map((o) => o.value);
-    }
-    if (p.type === "number") {
-      const n = Number(input.value);
-      return Number.isFinite(n) ? n : void 0;
-    }
-    return input.value;
-  }
-  function renderRules(v) {
-    if (!bodyEl) return;
-    block("规则");
-    const list = bodyEl.createDiv({ cls: "bz-dock-rules" });
-    if (!v.rules.length) {
-      list.createDiv({ cls: "bz-dock-hint", text: "没有规则 —— 只能手动点运行" });
-    }
-    v.rules.forEach((rule, i) => ruleRow(list, v, rule, i));
-    const add = btnOf(list, "加一条规则");
-    add.addEventListener("click", () => {
-      const next = v.rules.concat(defaultRule());
-      saveRules(v, next);
-      renderDetail();
+    inp.addEventListener("change", () => {
+      if (p.type === "number") {
+        const n = Number(inp.value);
+        commit(Number.isFinite(n) ? n : void 0);
+      } else {
+        commit(inp.value);
+      }
+    });
+    return uiField({
+      label,
+      control: inp,
+      desc: p.type === "secret" ? "凭据只存本机工具目录，不进命令行、不写运行记录" : desc
     });
   }
-  function ruleRow(parent, v, rule, index) {
+  function rulesPane(v) {
+    const pane = el("section", "bz-dock-pane bz-dock-rulespane");
+    const head = el("div", "bz-dock-pane-head");
+    head.appendChild(el("h3", "bz-dock-pane-title", "规则"));
+    head.appendChild(el("span", "bz-dock-pane-count", v.rules.length ? `${v.rules.length} 条` : "只能手动跑"));
+    pane.appendChild(head);
+    if (!v.rules.length) pane.appendChild(el("div", "bz-dock-note", "没有规则 —— 只能手动点运行。"));
+    const list = el("div", "bz-dock-rulelist");
+    v.rules.forEach((rule, i) => list.appendChild(ruleRow(v, rule, i)));
+    pane.appendChild(list);
+    if (canRun()) {
+      pane.appendChild(
+        uiBtn({
+          label: "加一条规则",
+          icon: "plus",
+          size: "sm",
+          onClick: () => {
+            saveRules(v, v.rules.concat(defaultRule()));
+          }
+        })
+      );
+    }
+    return pane;
+  }
+  function ruleRow(v, rule, index) {
+    var _a, _b;
+    const row = el("div", "bz-dock-rule");
+    const head = el("div", "bz-dock-rule-head");
+    const sw = uiSwitch({
+      checked: rule.enabled !== false,
+      disabled: !canRun(),
+      onChange: (on) => {
+        const next = v.rules.slice();
+        next[index] = { ...rule, enabled: on };
+        saveRules(v, next);
+      }
+    });
+    head.appendChild(sw.el);
+    head.appendChild(el("span", "bz-dock-rule-name", ruleName(rule, index)));
+    head.appendChild(el("span", "bz-dock-rule-text", `${triggerText(rule.trigger, (id) => viewById(id) ? displayNameOf(viewById(id)) : id)} · ${actionText(rule.action)}`));
+    if (canRun()) {
+      const del = uiIconBtn({
+        icon: "trash-2",
+        title: "删掉这条",
+        xs: true,
+        onClick: () => saveRules(v, v.rules.filter((r) => r.id !== rule.id))
+      });
+      head.appendChild(del);
+    }
+    row.appendChild(head);
+    const due = nextDueOf(rule, {
+      now: Date.now(),
+      lastFiredAt: ((_b = (_a = v.runtime.rules) == null ? void 0 : _a[rule.id]) == null ? void 0 : _b.lastFiredAt) ? Date.parse(v.runtime.rules[rule.id].lastFiredAt) : void 0
+    });
+    if (due && !isEventTrigger(rule.trigger.kind)) {
+      const at = new Date(due);
+      row.appendChild(el("div", "bz-dock-note", `下次 ${at.toLocaleString()}`));
+    }
+    if (canRun()) row.appendChild(ruleEditor(v, rule, index));
+    return row;
+  }
+  function ruleEditor(v, rule, index) {
     var _a;
-    const row = parent.createDiv({ cls: "bz-dock-rule" });
-    const head = row.createDiv({ cls: "bz-dock-rule-head" });
-    const toggle = head.createEl("input", { type: "checkbox" });
-    toggle.checked = rule.enabled !== false;
-    toggle.addEventListener("change", () => {
-      const next = v.rules.slice();
-      next[index] = { ...rule, enabled: toggle.checked };
-      saveRules(v, next);
+    const edit = el("div", "bz-dock-rule-edit");
+    const kind = uiSelect({
+      options: TRIGGER_KINDS.map((k) => ({ value: k, label: TRIGGER_LABEL[k] })),
+      value: rule.trigger.kind,
+      onChange: (k) => {
+        const next = v.rules.slice();
+        next[index] = { ...rule, trigger: blankTrigger(k) };
+        saveRules(v, next);
+      }
     });
-    head.createSpan({ cls: "bz-dock-rule-name", text: ruleName(rule, index) });
-    head.createSpan({ cls: "bz-dock-rule-text", text: `${triggerText(rule.trigger, (id) => id)} · ${actionText(rule.action)}` });
-    const del = head.createSpan({ cls: "bz-dock-rule-del" });
-    setIcon(del, "trash-2");
-    del.addEventListener("click", () => {
-      saveRules(v, v.rules.filter((r) => r.id !== rule.id));
-      renderDetail();
-    });
-    const edit = row.createDiv({ cls: "bz-dock-rule-edit" });
-    const trig = edit.createEl("select");
-    for (const kind of TRIGGER_KINDS) {
-      const o = trig.createEl("option", { text: TRIGGER_LABEL[kind], value: kind });
-      if (rule.trigger.kind === kind) o.selected = true;
-    }
-    trig.addEventListener("change", () => {
-      const next = v.rules.slice();
-      next[index] = { ...rule, trigger: blankTrigger(trig.value) };
-      saveRules(v, next);
-      renderDetail();
-    });
+    edit.appendChild(kind.el);
     const arg = triggerArgInput(rule.trigger);
     if (arg) {
       edit.appendChild(arg.el);
       arg.el.addEventListener("change", () => {
-        const next = v.rules.slice();
         const t = patchTrigger(rule.trigger, arg.el.value);
         if (!t) return;
+        const next = v.rules.slice();
         next[index] = { ...rule, trigger: t };
         saveRules(v, next);
       });
     }
-    const jitter = edit.createEl("input", { type: "number", cls: "bz-dock-jitter" });
+    const jitter = uiInput({ type: "number", value: String((_a = rule.jitterMin) != null ? _a : 0) });
+    jitter.classList.add("bz-dock-jitter");
     jitter.min = "0";
     jitter.max = "720";
-    jitter.value = String((_a = rule.jitterMin) != null ? _a : 0);
-    jitter.setAttribute("title", "错峰：到点后再随机等这么多分钟");
+    jitter.title = "错峰：到点后再随机等这么多分钟";
     jitter.addEventListener("change", () => {
-      const next = v.rules.slice();
       const n = Number(jitter.value);
+      const next = v.rules.slice();
       next[index] = { ...rule, jitterMin: Number.isFinite(n) && n > 0 ? Math.floor(n) : void 0 };
       saveRules(v, next);
     });
-    const act = edit.createEl("select");
-    for (const k of ["run", "remind"]) {
-      const o = act.createEl("option", { text: k === "run" ? "运行" : "只提醒", value: k });
-      if (rule.action.kind === k) o.selected = true;
-    }
-    act.addEventListener("change", () => {
-      const next = v.rules.slice();
-      next[index] = { ...rule, action: { kind: act.value === "remind" ? "remind" : "run" } };
-      saveRules(v, next);
+    edit.appendChild(jitter);
+    const act = uiSelect({
+      options: [
+        { value: "run", label: "运行" },
+        { value: "remind", label: "只提醒" }
+      ],
+      value: rule.action.kind,
+      onChange: (k) => {
+        const next = v.rules.slice();
+        next[index] = { ...rule, action: { kind: k } };
+        saveRules(v, next);
+      }
     });
-    const due = nextDueOf(rule, { now: Date.now() });
-    if (due && !isEventTrigger(rule.trigger.kind)) {
-      edit.createSpan({ cls: "bz-dock-hint", text: `下次 ${new Date(due).toLocaleString()}` });
-    }
+    edit.appendChild(act.el);
+    return edit;
   }
   function blankTrigger(kind) {
     switch (kind) {
@@ -3482,43 +4615,36 @@ var BZW_dock = (() => {
   }
   function triggerArgInput(t) {
     if (t.kind === "daily") {
-      const el = document.createElement("input");
-      el.type = "time";
-      el.className = "bz-dock-trigger-arg";
-      el.value = t.at;
-      return { el };
+      const inp = uiInput({ type: "time", value: t.at });
+      inp.classList.add("bz-dock-trigger-arg");
+      inp.title = "每天几点";
+      return { el: inp };
     }
     if (t.kind === "interval") {
-      const el = document.createElement("input");
-      el.type = "number";
-      el.className = "bz-dock-trigger-arg";
-      el.min = "1";
-      el.value = String(t.everyMin);
-      el.setAttribute("title", "每隔多少分钟");
-      return { el };
+      const inp = uiInput({ type: "number", value: String(t.everyMin) });
+      inp.classList.add("bz-dock-trigger-arg");
+      inp.min = "1";
+      inp.title = "每隔多少分钟";
+      return { el: inp };
     }
     if (t.kind === "on-launch") {
-      const el = document.createElement("input");
-      el.type = "number";
-      el.className = "bz-dock-trigger-arg";
-      el.min = "0";
-      el.value = String(t.delayMin);
-      el.setAttribute("title", "启动后多少分钟");
-      return { el };
+      const inp = uiInput({ type: "number", value: String(t.delayMin) });
+      inp.classList.add("bz-dock-trigger-arg");
+      inp.min = "0";
+      inp.title = "启动后多少分钟";
+      return { el: inp };
     }
     if (t.kind === "tool-ok" || t.kind === "tool-fail") {
-      const el = document.createElement("input");
-      el.className = "bz-dock-trigger-arg";
-      el.value = t.toolId;
-      el.setAttribute("title", "工具 id");
-      return { el };
+      const inp = uiInput({ value: t.toolId });
+      inp.classList.add("bz-dock-trigger-arg");
+      inp.title = "工具 id";
+      return { el: inp };
     }
     if (t.kind === "file-change") {
-      const el = document.createElement("input");
-      el.className = "bz-dock-trigger-arg";
-      el.value = t.target;
-      el.setAttribute("title", "vault 里的目录");
-      return { el };
+      const inp = uiInput({ value: t.target });
+      inp.classList.add("bz-dock-trigger-arg");
+      inp.title = "vault 里的目录";
+      return { el: inp };
     }
     return null;
   }
@@ -3540,118 +4666,176 @@ var BZW_dock = (() => {
     return null;
   }
   function saveRules(v, rules) {
-    const intent = { ...v.intent, v: 1, tool: v.id, rules };
-    writeIntent(v.path, intent);
+    writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, rules });
     void kickDockScheduler();
+    refresh();
   }
-  function renderLive(v) {
-    var _a, _b;
-    if (!bodyEl) return;
-    const live3 = liveOf(v.id);
-    const external = externalRunOf(v);
-    if (!live3 && !external) return;
-    block("正在跑");
-    const box = bodyEl.createDiv({ cls: "bz-dock-log" });
-    if (live3) {
-      box.createDiv({ cls: "bz-dock-log-run", text: `工单 ${live3.runId} · ${(_a = live3.phase) != null ? _a : "进行中"}${live3.pct !== null ? ` ${live3.pct}%` : ""}` });
-      for (const s of live3.steps.slice(-40)) box.createDiv({ cls: "bz-dock-log-line", text: s.text });
-      if (!live3.steps.length) box.createDiv({ cls: "bz-dock-hint", text: "还没有输出" });
-      return;
+  function histPane(v) {
+    const pane = el("section", "bz-dock-pane bz-dock-histpane");
+    const runs = recentRunsOf(v.path, v.id, 60);
+    const head = el("div", "bz-dock-pane-head");
+    head.appendChild(el("h3", "bz-dock-pane-title", "运行记录"));
+    head.appendChild(el("span", "bz-dock-pane-count", `${runs.length} 条`));
+    pane.appendChild(head);
+    if (!runs.length) {
+      pane.appendChild(
+        uiEmpty({
+          icon: "history",
+          title: "还没有运行记录",
+          desc: "跑一次，或等它按规则自动跑完，记录就会出现"
+        })
+      );
+      return pane;
     }
-    const runId = (_b = external == null ? void 0 : external.runId) != null ? _b : "";
-    box.createDiv({ cls: "bz-dock-log-run", text: `后台进程在跑 · 工单 ${runId || "（未标注）"}` });
-    const steps = liveLogOf(v.id, 40).filter((s) => !runId || !s.runId || s.runId === runId);
-    if (steps.length) {
-      for (const s of steps) box.createDiv({ cls: "bz-dock-log-line", text: s.text });
-    } else {
-      if (external == null ? void 0 : external.step) box.createDiv({ cls: "bz-dock-log-line", text: external.step });
-      box.createDiv({
-        cls: "bz-dock-hint",
-        text: "后台这一轮刚开始，还没输出；跑完会出现在下面的记录里"
+    const list = el("div", "bz-dock-histlist");
+    for (const r of runs) list.appendChild(histRow(r));
+    pane.appendChild(list);
+    if (runs.length >= 60) pane.appendChild(el("div", "bz-dock-note", "只显示最近 60 条"));
+    return pane;
+  }
+  function histRow(r) {
+    var _a, _b, _c, _d, _e;
+    const row = el("article", "bz-dock-histrow");
+    const head = el("div", "bz-dock-histhead");
+    head.appendChild(el("span", dotClass(r.status)));
+    head.appendChild(el("span", "bz-dock-histtime", relTime(r.startedAt.replace("T", " "))));
+    head.appendChild(el("span", "bz-dock-histstatus", statusText(r.status)));
+    if (r.durationMs) head.appendChild(el("span", "bz-dock-histdur", `${Math.round(r.durationMs / 1e3)}s`));
+    head.appendChild(el("span", "bz-dock-histtrig", r.trigger === "auto" ? "自动" : "手动"));
+    row.appendChild(head);
+    if (r.message) row.appendChild(el("div", "bz-dock-histmsg", r.message));
+    if (r.error) {
+      const box = el("div", "bz-dock-histerr");
+      box.appendChild(el("div", "bz-dock-histerr-hint", hintOf(r.error.kind)));
+      if (r.error.detail) box.appendChild(el("div", "bz-dock-histerr-detail", r.error.detail));
+      row.appendChild(box);
+    }
+    const hasMore = r.steps && r.steps.length > 0 || r.info && r.info.length > 0 || r.result !== void 0 || r.metrics !== void 0 || r.artifacts && r.artifacts.length > 0 || !!((_a = r.error) == null ? void 0 : _a.stderr);
+    if (hasMore) {
+      const btn = uiBtn({ label: "展开", size: "sm", className: "bz-dock-histtoggle" });
+      row.appendChild(btn);
+      const more = el("div", "bz-dock-histmore");
+      if ((_b = r.steps) == null ? void 0 : _b.length) more.appendChild(block("步骤", r.steps.map((s) => s.text).join("\n")));
+      if (r.metrics) more.appendChild(block("指标", JSON.stringify(r.metrics, null, 2)));
+      if ((_c = r.artifacts) == null ? void 0 : _c.length) {
+        const box = el("div", "bz-dock-block");
+        box.appendChild(el("div", "bz-dock-block-label", "产物"));
+        for (const a of r.artifacts) {
+          const line = el("div", "bz-dock-artrow");
+          line.appendChild(el("span", "bz-dock-artrow-path", `${a.label ? a.label + " · " : ""}${a.path}`));
+          line.appendChild(uiIconBtn({ icon: "external-link", title: "打开 / 定位产物", xs: true, onClick: () => openArtifact(a.path) }));
+          box.appendChild(line);
+        }
+        more.appendChild(box);
+      }
+      if (r.result !== void 0) more.appendChild(block("结果", JSON.stringify(r.result, null, 2)));
+      if ((_d = r.info) == null ? void 0 : _d.length) more.appendChild(block("信息", JSON.stringify(r.info, null, 2)));
+      if ((_e = r.error) == null ? void 0 : _e.stderr) more.appendChild(block("stderr 尾部", r.error.stderr));
+      row.appendChild(more);
+      btn.addEventListener("click", () => {
+        const open = row.classList.toggle("is-open");
+        const span = btn.querySelector("span");
+        if (span) span.textContent = open ? "收起" : "展开";
       });
     }
-  }
-  function renderHistory(v) {
-    if (!bodyEl) return;
-    block("最近");
-    const runs = recentRunsOf(v.path, v.id, 12);
-    const box = bodyEl.createDiv({ cls: "bz-dock-history" });
-    if (!runs.length) {
-      box.createDiv({ cls: "bz-dock-hint", text: "还没跑过" });
-      return;
+    if (r.startedAt) {
+      row.appendChild(el("div", "bz-dock-histexact", r.startedAt.replace("T", " ").replace(/\..*$/, "")));
     }
-    for (const r of runs) historyRow(box, r);
+    return row;
   }
-  function historyRow(parent, r) {
-    var _a, _b, _c;
-    const row = parent.createDiv({ cls: "bz-dock-history-row" });
-    row.dataset.state = r.status;
-    row.createSpan({ cls: "bz-dock-history-when", text: new Date(r.startedAt).toLocaleString() });
-    row.createSpan({ cls: "bz-dock-history-status", text: statusWord(r.status) });
-    row.createSpan({ cls: "bz-dock-history-msg", text: (_c = (_b = r.message) != null ? _b : (_a = r.error) == null ? void 0 : _a.detail) != null ? _c : "" });
-    if (r.durationMs) row.createSpan({ cls: "bz-dock-history-dur", text: `${Math.round(r.durationMs / 1e3)}s` });
+  function block(label, text) {
+    const b = el("div", "bz-dock-block");
+    b.appendChild(el("div", "bz-dock-block-label", label));
+    const pre = el("pre", "bz-dock-json");
+    pre.textContent = text;
+    b.appendChild(pre);
+    return b;
   }
-  function statusWord(s) {
-    switch (s) {
-      case "ok":
-        return "成功";
-      case "failed":
-        return "失败";
-      case "timeout":
-        return "超时";
-      case "stopped":
-        return "中止";
-      case "abandoned":
-        return "没收尾";
-      case "running":
-        return "在跑";
-      default:
-        return s;
+  function footerBar(v) {
+    const foot = el("div", "bz-dock-footer");
+    foot.appendChild(el("div", "bz-dock-note", `id ${v.id} · ${v.path}`));
+    const row = el("div", "bz-dock-btn-row");
+    if (canRun()) {
+      row.appendChild(
+        uiBtn({
+          label: v.intent.enabled === false ? "启用" : "停用",
+          size: "sm",
+          onClick: () => {
+            writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, enabled: v.intent.enabled === false });
+            void kickDockScheduler();
+            refresh();
+          }
+        })
+      );
+      row.appendChild(
+        uiBtn({
+          label: v.intent.autoRun === false ? "允许自动运行" : "只手动跑",
+          size: "sm",
+          onClick: () => {
+            writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, autoRun: v.intent.autoRun === false });
+            void kickDockScheduler();
+            refresh();
+          }
+        })
+      );
+      row.appendChild(
+        uiBtn({
+          label: "移除登记",
+          tone: "danger",
+          size: "sm",
+          onClick: () => {
+            if (!window.confirm(`从工具坞移除「${displayNameOf(v)}」？
+只删登记，不动磁盘上的文件。`)) return;
+            removeTool(v.id);
+            view = { kind: "list" };
+            refresh();
+          }
+        })
+      );
     }
-  }
-  function renderFooter(v) {
-    if (!bodyEl) return;
-    const foot = bodyEl.createDiv({ cls: "bz-dock-footer" });
-    foot.createDiv({ cls: "bz-dock-path", text: v.path });
-    const enable = btnOf(foot, v.intent.enabled === false ? "启用" : "停用");
-    enable.addEventListener("click", () => {
-      writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, enabled: v.intent.enabled === false });
-      renderDetail();
-    });
-    const auto = btnOf(foot, v.intent.autoRun === false ? "允许自动运行" : "只手动跑");
-    auto.addEventListener("click", () => {
-      writeIntent(v.path, { ...v.intent, v: 1, tool: v.id, autoRun: v.intent.autoRun === false });
-      renderDetail();
-    });
-    const del = btnOf(foot, "移除登记", "mod-warning");
-    del.addEventListener("click", () => {
-      const sure = window.confirm(`从工具坞移除「${displayNameOf(v)}」？
-只删登记，不动磁盘上的文件。`);
-      if (!sure) return;
-      removeTool(v.id);
-      showList();
-    });
-  }
-  function block(title) {
-    if (!bodyEl) return;
-    bodyEl.createDiv({ cls: "bz-dock-block-title", text: title });
+    foot.appendChild(row);
+    return foot;
   }
   async function doRun(v) {
-    await runToolManually(v);
-    if (view === "detail" && detailId === v.id) renderDetail();
+    const outcome = await runToolManually(v);
+    if (outcome) notice(`${displayNameOf(v)}：${outcome.ok ? "跑完了" : "失败了"}`, outcome.ok ? "success" : "error");
+    refresh();
   }
-  async function doTrust(v) {
+  function doTrust(v) {
+    var _a;
     if (!v.entry) return;
-    await trustTool(v.id, v.entry);
-    notify(`${displayNameOf(v)} 已授权`, { type: "success" });
-    renderDetail();
+    const content = document.createElement("div");
+    content.className = "bz-dock-trust";
+    content.appendChild(el("div", "bz-dock-note", "授权之后，工具坞可以按这条命令启动它。声明里的命令一改，这道授权就失效。"));
+    const pre = el("pre", "bz-dock-json");
+    pre.textContent = [v.entry.cmd, ...(_a = v.entry.args) != null ? _a : []].join(" ");
+    content.appendChild(pre);
+    const modal = uiModal({ content, head: true, title: "授权这条命令", maxWidth: 520 });
+    content.appendChild(
+      uiBtnRow(
+        [
+          uiBtn({ label: "取消", onClick: () => modal.close() }),
+          uiBtn({
+            label: "授权",
+            tone: "primary",
+            onClick: () => {
+              modal.close();
+              void trustTool(v.id, v.entry).then(() => {
+                notice(`${displayNameOf(v)} 已授权`, "success");
+                refresh();
+              });
+            }
+          })
+        ],
+        { center: true }
+      )
+    );
   }
   async function doUntrust(v) {
-    const sure = window.confirm(`撤销「${displayNameOf(v)}」的授权？
-撤销后它不能再跑，直到重新授权。`);
-    if (!sure) return;
+    if (!window.confirm(`撤销「${displayNameOf(v)}」的授权？
+撤销后它不能再跑，直到重新授权。`)) return;
     await untrustTool(v.id);
-    renderDetail();
+    refresh();
   }
   function pickFolder() {
     const input = document.createElement("input");
@@ -3662,12 +4846,12 @@ var BZW_dock = (() => {
       const files = Array.from((_a = input.files) != null ? _a : []);
       const manifest = files.find((f) => f.name === "manifest.json");
       if (!manifest) {
-        new Notice("这个文件夹里没有 manifest.json");
+        notice("这个文件夹里没有 manifest.json", "warning");
         return;
       }
       const abs = manifest.path;
       if (!abs) {
-        new Notice("读不到文件夹路径（这个平台不支持）");
+        notice("读不到文件夹路径（这个平台不支持）", "warning");
         return;
       }
       void importFrom(abs);
@@ -3677,40 +4861,58 @@ var BZW_dock = (() => {
   async function importFrom(manifestPath) {
     const fs = currentFs();
     if (!fs) {
-      new Notice("桌面端才能导入");
+      notice("桌面端才能导入", "warning");
       return;
     }
     const text = fs.readText(manifestPath);
     if (text === null) {
-      new Notice("读不到这个文件");
+      notice("读不到这个文件", "warning");
       return;
     }
     let raw;
     try {
       raw = JSON.parse(text);
     } catch (e) {
-      new Notice("manifest.json 不是合法 JSON");
+      notice("manifest.json 不是合法 JSON", "warning");
       return;
     }
     const manifest = parseManifest(raw);
     if (!manifest) {
-      new Notice("声明校验不过（需要 v:2、合法 id、非空 name）");
+      notice("声明校验不过（需要 v:2、合法 id、非空 name）", "warning");
       return;
     }
     upsertTool({ id: manifest.id, path: manifestPath });
-    notify(`已登记「${manifest.name}」，先看一眼它会跑什么，再授权`, { type: "info" });
-    render();
-    showDetail(manifest.id);
+    notice(`已登记「${manifest.name}」，先看一眼它会跑什么，再授权`);
+    view = { kind: "detail", id: manifest.id };
+    refresh();
   }
-  function btnOf(parent, text, cls) {
-    return parent.createEl("button", { text, cls: cls ? `bz-dock-btn ${cls}` : "bz-dock-btn" });
+  async function copyText(text, what) {
+    try {
+      await navigator.clipboard.writeText(text);
+      notice(`已复制${what}`);
+    } catch (e) {
+      notice(`复制失败，请手动复制：${text}`, "warning");
+    }
   }
-  function iconBtn(parent, icon, label, onClick) {
-    const b = parent.createDiv({ cls: "bz-dock-icon-btn" });
-    b.setAttribute("aria-label", label);
-    b.setAttribute("title", label);
-    setIcon(b, icon);
-    b.addEventListener("click", onClick);
+  function openArtifact(p) {
+    var _a, _b, _c, _d;
+    const w = window;
+    const shell = (_b = (_a = w.require) == null ? void 0 : _a.call(w, "electron")) == null ? void 0 : _b.shell;
+    if (!shell) {
+      void copyText(p, "产物路径");
+      return;
+    }
+    const norm2 = p.replace(/\\/g, "/");
+    const isAbsolute = /^[a-zA-Z]:\//.test(norm2) || norm2.startsWith("//") || norm2.startsWith("/");
+    if (!isAbsolute && hostApp) {
+      const file = hostApp.vault.getAbstractFileByPath(norm2);
+      if (file) {
+        void hostApp.workspace.openLinkText(norm2, "", true);
+        return;
+      }
+    }
+    const base = hostApp ? (_d = (_c = hostApp.vault.adapter) == null ? void 0 : _c.getBasePath) == null ? void 0 : _d.call(_c) : void 0;
+    shell.showItemInFolder(isAbsolute || !base ? p : `${base}/${norm2}`);
   }
 
   // prototypes/dock/fake-sim.ts
