@@ -28,6 +28,7 @@ import {
   runSignature,
 } from './parse';
 import {
+  HEARTBEAT_STALE_MS,
   RUNS_TAIL_BYTES,
   type DockHeartbeat,
   type DockIntent,
@@ -84,8 +85,12 @@ export function loadToolView(entry: DockRegistryEntry, opts: LoadOpts = {}): Doc
 
   const records = fs ? parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), entry.id) : [];
 
-  // 心跳只读不判 —— 「有没有人在跑它」由调用方按时效判断（`HEARTBEAT_STALE_MS`）
-  const heartbeat = heartbeatOf(declPath, fs);
+  // 心跳：**新鲜**只说明「刚才还活着」，不说明「现在还在跑」。工具跑完不会删
+  // `heartbeat.json`（契约里它只有「活着」这一个含义），所以再拿它的 runId 去账本里对一眼：
+  // 已经有这一单的终态记录 = 早就跑完了。少了这一眼，跑完后的 60 秒里面板还会把按钮
+  // 锁在「后台正在跑」，用户得干等或者重开面板（2026-10-24 实测撞上）。
+  const beat = heartbeatOf(declPath, fs);
+  const heartbeat = beat && !records.some((r) => r.runId === beat.runId) ? beat : null;
 
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
@@ -137,6 +142,30 @@ export function recentRunsOf(declPath: string, toolId: string, limit = 20, fs: D
 export function heartbeatOf(declPath: string, fs: DockFs | null = currentFs()): DockHeartbeat | null {
   if (!fs) return null;
   return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(resolveToolPath(declPath)), fs)));
+}
+
+/**
+ * 「这个工具现在还在跑吗」—— 列表页每 3 秒要问一遍的那件事。
+ *
+ * 判据两条，缺一不可，而且**必须和 `loadToolView` 里的口径一致**（那边少的是时效这一步）：
+ *  1) 心跳够新鲜（`HEARTBEAT_STALE_MS` 内）；
+ *  2) 账本里**还没有**这一单（同一个 runId）的终态记录 —— 有就是跑完了，心跳只是没删。
+ *
+ * 少了第 2 条，跑完之后的 60 秒会继续显示「正在跑」；少了第 1 条，工具崩掉后心跳留着，
+ * 就永远在跑。两处不一致则更糟：卡片挂着绿点，点进去按钮却是可用的。
+ */
+export function runningHeartbeatOf(
+  declPath: string,
+  fs: DockFs | null = currentFs(),
+  now: number = Date.now(),
+): DockHeartbeat | null {
+  const hb = heartbeatOf(declPath, fs);
+  if (!hb) return null;
+  const at = Date.parse(hb.at);
+  if (!Number.isFinite(at) || now - at > HEARTBEAT_STALE_MS) return null;
+  if (!fs) return hb;
+  const records = parseRunLines(readRunsText(pathOf.runs(resolveToolPath(declPath)), fs, RUNS_TAIL_BYTES));
+  return records.some((r) => r.runId === hb.runId) ? null : hb;
 }
 
 export function panelOf(declPath: string, fs: DockFs | null = currentFs()): string | null {

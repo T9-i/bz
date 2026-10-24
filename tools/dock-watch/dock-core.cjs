@@ -951,7 +951,8 @@ function loadToolView(entry, opts = {}) {
   const parsedValues = parseSettingsText(settingsRaw, entry.id);
   const values = parsedValues ?? {};
   const records = fs ? parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), entry.id) : [];
-  const heartbeat = heartbeatOf(declPath, fs);
+  const beat = heartbeatOf(declPath, fs);
+  const heartbeat = beat && !records.some((r) => r.runId === beat.runId) ? beat : null;
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
   const trusted = !!trust && !!signature && trust.run === signature;

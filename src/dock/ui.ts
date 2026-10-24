@@ -37,7 +37,7 @@ import {
 } from '../core/ui';
 import { relTime } from '../core/ui/str';
 import { attachItemActions, type ItemAction } from '../core/item-actions';
-import { displayNameOf, heartbeatOf, loadToolView, loadToolViews, panelOf, recentRunsOf } from './view';
+import { displayNameOf, loadToolView, loadToolViews, panelOf, recentRunsOf, runningHeartbeatOf } from './view';
 import { readRegistry, readTrust, removeTool, trustTool, untrustTool, upsertTool } from './registry';
 import { currentFs, writeIntent, writeSettings } from './files';
 import { parseManifest } from './parse';
@@ -379,12 +379,17 @@ function refresh(): void {
   render();
 }
 
-/** 列表态的状态点与「在跑」标记（每 3 秒，只读心跳，不读整份视图） */
+/**
+ * 列表态的状态点与「在跑」标记（每 3 秒一次；只读心跳与该工具的账本尾部，不读整份视图）。
+ *
+ * 判「在跑」走 `runningHeartbeatOf`（心跳新鲜 + 账本里还没有这一单的终态）——
+ * 只看心跳新鲜度的话，跑完后的 60 秒卡片上还挂着绿点。
+ */
 function updateCards(): void {
   const body = bodyEl();
   if (!body || view.kind === 'detail') return;
   const fs = currentFs();
-  const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, heartbeatOf(e.path, fs)]));
+  const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, runningHeartbeatOf(e.path, fs)]));
   for (const card of Array.from(body.querySelectorAll<HTMLElement>('.bz-dock-card'))) {
     const id = card.dataset.tool ?? '';
     const live = liveOf(id);
