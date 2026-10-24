@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { planTick, runTick, missingParams, reclaimStale, MAX_ATTEMPTS, type TickDeps } from '../../src/dock/kernel';
+import { planTick, runTick, settle, missingParams, reclaimStale, MAX_ATTEMPTS, type TickDeps } from '../../src/dock/kernel';
 import { fakeFs } from './_fake-fs';
 import { emptyIntent, emptyRuntime } from '../../src/dock/parse';
 import { pathOf } from '../../src/dock/files';
@@ -220,6 +220,50 @@ describe('跑一拍', () => {
     const saved = JSON.parse(fs.files.get(pathOf.runtime(fail.views[0].path)) ?? '{}');
     expect(saved.run.consecutiveFailures).toBe(1);
     expect(saved.run.pausedAt).toBeUndefined();
+  });
+
+  it('关掉熔断：连挂三次也不自己停，失败次数照记', () => {
+    const fs = fakeFs();
+    const v = viewOf({ rules: [daily] });
+    const fail = (runId: string): DockOutcome => ({
+      ok: false,
+      status: 'failed',
+      runId,
+      code: 1,
+      stderr: '',
+      error: null,
+      kind: 'unknown',
+      startedAt: new Date(at(10)).toISOString(),
+      finishedAt: new Date(at(10)).toISOString(),
+      durationMs: 0,
+    });
+    for (let i = 0; i < 3; i += 1) {
+      settle(v, 'r1', `run-${i}`, fail(`run-${i}`), fs, { breaker: false });
+    }
+    const saved = JSON.parse(fs.files.get(pathOf.runtime(v.path)) ?? '{}');
+    // 停手与否是开关的事，记账照旧 —— 面板上那个「连挂几次」不能被开关抹掉
+    expect(saved.run.consecutiveFailures).toBe(3);
+    expect(saved.run.pausedAt).toBeUndefined();
+  });
+
+  it('熔断开着的同一个工具连挂三次 → 自动暂停', () => {
+    const fs = fakeFs();
+    const v = viewOf({ rules: [daily] });
+    const fail = (runId: string): DockOutcome => ({
+      ok: false,
+      status: 'failed',
+      runId,
+      code: 1,
+      stderr: '',
+      error: null,
+      kind: 'unknown',
+      startedAt: new Date(at(10)).toISOString(),
+      finishedAt: new Date(at(10)).toISOString(),
+      durationMs: 0,
+    });
+    for (let i = 0; i < 3; i += 1) settle(v, 'r1', `run-${i}`, fail(`run-${i}`), fs);
+    const saved = JSON.parse(fs.files.get(pathOf.runtime(v.path)) ?? '{}');
+    expect(saved.run.pausedAt).toBeTruthy();
   });
 
   it('执行抛错不会把这一拍带走', async () => {

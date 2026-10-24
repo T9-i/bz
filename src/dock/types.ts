@@ -286,13 +286,28 @@ export interface DockRegistryEntry {
   path: string;
 }
 
+/**
+ * 全域开关的键。设置页写的是它，调度 / 通知 / 状态栏读的也是它。
+ *
+ * 加一个开关要动四处：这里的登记、`DockRegistry` 的字段、`parse.ts` 的缺省与读回、
+ * 设置页那一行。少了任何一处就是「有开关没行为」——`notifyMissed` 当年就是这么死的
+ * （v1 面板读它，v2 重写后没人读，开关还在，点了一点反应都没有）。
+ */
+export type DockSwitchKey = 'autoRun' | 'watchdog' | 'notifySuccess' | 'statusbar' | 'breaker';
+
 export interface DockRegistry {
   v: number;
   tools: DockRegistryEntry[];
-  /** 三个全域开关 */
+  /** 自动运行总闸 */
   autoRun: boolean;
+  /** 离场调度：Obsidian 关着时交给后台值守接着跑 */
   watchdog: boolean;
-  notifyMissed: boolean;
+  /** 自动跑成功也弹通知（关掉 = 只报失败；手动点的那次照报，那是人要的反馈） */
+  notifySuccess: boolean;
+  /** 状态栏显示「几个在跑」 */
+  statusbar: boolean;
+  /** 连续失败到阈值就自动暂停（关掉 = 只冷却，不熔断） */
+  breaker: boolean;
 }
 
 /** 一条登记 + 它读出来的东西（UI 与内核共用同一份视图） */

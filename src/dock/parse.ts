@@ -379,7 +379,16 @@ function parseRegistryEntry(raw: unknown): DockRegistryEntry | null {
 
 export function emptyRegistry(): DockRegistry {
   // 离场调度已恢复（ADR-0252 补记）：装着值守件就该让它接手，不该要求用户再去开一次开关
-  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
+  // 五个开关全缺省开（ADR-0256）：提示类开关缺省关掉等于「默认不吭声」，出了问题更难发现
+  return {
+    v: REGISTRY_VERSION,
+    tools: [],
+    autoRun: true,
+    watchdog: true,
+    notifySuccess: true,
+    statusbar: true,
+    breaker: true,
+  };
 }
 
 export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: string[] } {
@@ -409,14 +418,20 @@ export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: s
   }
   const autoRun = bool(raw.autoRun);
   const watchdog = bool(raw.watchdog);
-  const notifyMissed = bool(raw.notifyMissed);
+  const notifySuccess = bool(raw.notifySuccess);
+  const statusbar = bool(raw.statusbar);
+  const breaker = bool(raw.breaker);
+  // 旧登记表里的 `notifyMissed` 直接丢掉：v2 重写后没有任何地方读它（漏跑的活儿改由
+  // 「下次打开就补跑」承担），留着一个点不动的开关比没有更糟。见 ADR-0256。
   return {
     registry: {
       v: REGISTRY_VERSION,
       tools,
       autoRun: autoRun ?? true,
       watchdog: watchdog ?? true,
-      notifyMissed: notifyMissed ?? true,
+      notifySuccess: notifySuccess ?? true,
+      statusbar: statusbar ?? true,
+      breaker: breaker ?? true,
     },
     errors,
   };

@@ -170,7 +170,7 @@ const schemaLoaders: Record<string, () => Promise<SettingsSchema>> = {
       },
     });
   },
-  // 工具坞（dock 域，ADR-0235）：大部分配置在工具自己的清单里，本页只放登记入口 + 漏跑提醒开关
+  // 工具坞（dock 域，ADR-0235/0256）：大部分配置在工具自己的清单里，本页只放全域开关
   dock: async () => (await import('../dock/settings')).dockSettingsSchema(),
 };
 

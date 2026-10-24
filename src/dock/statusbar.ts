@@ -7,6 +7,7 @@
  */
 
 import { liveAll, onLiveChanged } from './exec';
+import { readRegistry } from './registry';
 
 let el: HTMLElement | null = null;
 let off: (() => void) | null = null;
@@ -21,6 +22,11 @@ export function mountDockStatusBar(item: HTMLElement, open: () => void): void {
   render();
 }
 
+/** 设置页关掉「状态栏显示」后立刻生效 —— 不然得等下一次有工具跑完才重画 */
+export function refreshDockStatusBar(): void {
+  render();
+}
+
 export function unmountDockStatusBar(): void {
   off?.();
   off = null;
@@ -28,6 +34,7 @@ export function unmountDockStatusBar(): void {
     el.textContent = '';
     el.classList.remove('bz-dock-statusbar');
     el.classList.remove('is-active');
+    el.classList.remove('is-off');
     el.remove();
   }
   el = null;
@@ -36,6 +43,14 @@ export function unmountDockStatusBar(): void {
 
 function render(): void {
   if (!el) return;
+  // 开关现读现判：设置页改完不必重启（`statusbar` 缺省开，读不到登记表也不至于把块弄没）
+  if (readRegistry().registry.statusbar === false) {
+    el.classList.add('is-off');
+    el.classList.remove('is-active');
+    el.textContent = '';
+    return;
+  }
+  el.classList.remove('is-off');
   const runs = liveAll();
   el.textContent = '';
   if (!runs.length) {

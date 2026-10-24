@@ -207,6 +207,11 @@ export interface TickDeps {
   events?: readonly RuleEvent[];
   liveIds: ReadonlySet<string>;
   fs?: DockFs | null;
+  /**
+   * 连续失败是否自动熔断（设置页「连续失败就暂停」）。缺省 = 熔断。
+   * 关掉只是不停手：失败次数照记（面板要看），冷却照走 —— 不冷却就成了死循环。
+   */
+  breaker?: boolean;
   /** 真跑一次；由宿主实现（插件起子进程 / 值守起子进程） */
   execute(view: DockToolView, rule: DockRule, runId: string): Promise<DockOutcome>;
   /** 只提醒：发一条通知（不拉进程） */
@@ -314,7 +319,7 @@ export async function runTick(deps: TickDeps): Promise<TickResult> {
       };
     }
 
-    settle(view, job.ruleId, job.runId, outcome, deps.fs);
+    settle(view, job.ruleId, job.runId, outcome, deps.fs, { breaker: deps.breaker });
     ran.push({ toolId: view.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
   }
 
@@ -345,6 +350,7 @@ export function settle(
   runId: string,
   outcome: DockOutcome,
   fs: DockFs | null | undefined,
+  opts: { breaker?: boolean } = {},
 ): void {
   const now = outcome.finishedAt || new Date().toISOString();
   const runtime: DockRuntime = { ...view.runtime, rules: { ...(view.runtime.rules ?? {}) } };
@@ -360,7 +366,8 @@ export function settle(
   } else if (outcome.status !== 'stopped') {
     const fails = (facts.consecutiveFailures ?? 0) + 1;
     facts.consecutiveFailures = fails;
-    if (fails >= BREAKER_THRESHOLD) facts.pausedAt = now;
+    // 关掉熔断只代表「别自己停手」，失败次数照记 —— 面板上那个数字是用户判断的唯一依据
+    if (fails >= BREAKER_THRESHOLD && opts.breaker !== false) facts.pausedAt = now;
   }
   runtime.run = facts;
 
@@ -419,7 +426,12 @@ function markStarted(view: DockToolView, ruleId: string, runId: string, now: num
  *    `attempts < MAX_ATTEMPTS` 就清掉 `startedAt`，让下一拍重跑（崩了重跑是好事）；
  *    到了上限就清掉 pending、记一条 `abandoned`，并算一次失败 —— 无限重跑不是好事。
  */
-export function reclaimStale(view: DockToolView, now: number, fs?: DockFs | null): 'requeue' | 'abandon' | null {
+export function reclaimStale(
+  view: DockToolView,
+  now: number,
+  fs?: DockFs | null,
+  opts: { breaker?: boolean } = {},
+): 'requeue' | 'abandon' | null {
   const rules = { ...(view.runtime.rules ?? {}) };
   let verdict: 'requeue' | 'abandon' | null = null;
 
@@ -437,7 +449,9 @@ export function reclaimStale(view: DockToolView, now: number, fs?: DockFs | null
       facts.lastAttemptAt = new Date(now).toISOString();
       facts.lastAttemptOk = false;
       facts.consecutiveFailures = (facts.consecutiveFailures ?? 0) + 1;
-      if (facts.consecutiveFailures >= BREAKER_THRESHOLD) facts.pausedAt = new Date(now).toISOString();
+      if (facts.consecutiveFailures >= BREAKER_THRESHOLD && opts.breaker !== false) {
+        facts.pausedAt = new Date(now).toISOString();
+      }
       rules[id] = { ...st, lastFiredAt: new Date(now).toISOString(), lastStatus: 'abandoned' };
       delete rules[id].pending;
       view.runtime = { ...view.runtime, run: facts };

@@ -441,7 +441,15 @@ function parseRegistryEntry(raw) {
   return { id: raw.id, path };
 }
 function emptyRegistry() {
-  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
+  return {
+    v: REGISTRY_VERSION,
+    tools: [],
+    autoRun: true,
+    watchdog: true,
+    notifySuccess: true,
+    statusbar: true,
+    breaker: true
+  };
 }
 function parseRegistry(raw) {
   const errors = [];
@@ -470,14 +478,18 @@ function parseRegistry(raw) {
   }
   const autoRun = bool(raw.autoRun);
   const watchdog = bool(raw.watchdog);
-  const notifyMissed = bool(raw.notifyMissed);
+  const notifySuccess = bool(raw.notifySuccess);
+  const statusbar = bool(raw.statusbar);
+  const breaker = bool(raw.breaker);
   return {
     registry: {
       v: REGISTRY_VERSION,
       tools,
       autoRun: autoRun ?? true,
       watchdog: watchdog ?? true,
-      notifyMissed: notifyMissed ?? true
+      notifySuccess: notifySuccess ?? true,
+      statusbar: statusbar ?? true,
+      breaker: breaker ?? true
     },
     errors
   };
@@ -1152,7 +1164,7 @@ async function runTick(deps2) {
         recordMissing: "bz 自己出错，没跑起来"
       };
     }
-    settle(view, job.ruleId, job.runId, outcome, deps2.fs);
+    settle(view, job.ruleId, job.runId, outcome, deps2.fs, { breaker: deps2.breaker });
     ran.push({ toolId: view.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
   }
   return { decisions: plan.decisions, ran, executed };
@@ -1164,7 +1176,7 @@ function patchRule(view, ruleId, patch, fs) {
   view.runtime = { ...runtime, rules };
   writeRuntime(view.path, view.runtime, fs ?? null);
 }
-function settle(view, ruleId, runId, outcome, fs) {
+function settle(view, ruleId, runId, outcome, fs, opts = {}) {
   const now = outcome.finishedAt || (/* @__PURE__ */ new Date()).toISOString();
   const runtime = { ...view.runtime, rules: { ...view.runtime.rules ?? {} } };
   const rules = runtime.rules;
@@ -1178,7 +1190,7 @@ function settle(view, ruleId, runId, outcome, fs) {
   } else if (outcome.status !== "stopped") {
     const fails = (facts.consecutiveFailures ?? 0) + 1;
     facts.consecutiveFailures = fails;
-    if (fails >= BREAKER_THRESHOLD) facts.pausedAt = now;
+    if (fails >= BREAKER_THRESHOLD && opts.breaker !== false) facts.pausedAt = now;
   }
   runtime.run = facts;
   view.runtime = runtime;
@@ -1214,7 +1226,7 @@ function markStarted(view, ruleId, runId, now, fs) {
     fs
   );
 }
-function reclaimStale(view, now, fs) {
+function reclaimStale(view, now, fs, opts = {}) {
   const rules = { ...view.runtime.rules ?? {} };
   let verdict = null;
   for (const [id, st] of Object.entries(rules)) {
@@ -1230,7 +1242,9 @@ function reclaimStale(view, now, fs) {
       facts.lastAttemptAt = new Date(now).toISOString();
       facts.lastAttemptOk = false;
       facts.consecutiveFailures = (facts.consecutiveFailures ?? 0) + 1;
-      if (facts.consecutiveFailures >= BREAKER_THRESHOLD) facts.pausedAt = new Date(now).toISOString();
+      if (facts.consecutiveFailures >= BREAKER_THRESHOLD && opts.breaker !== false) {
+        facts.pausedAt = new Date(now).toISOString();
+      }
       rules[id] = { ...st, lastFiredAt: new Date(now).toISOString(), lastStatus: "abandoned" };
       delete rules[id].pending;
       view.runtime = { ...view.runtime, run: facts };
@@ -2021,7 +2035,7 @@ async function tickOnce(opts) {
         const views = loadToolViews(registry.tools, { trust: opts.trust, fs });
         for (const view of views) {
           try {
-            reclaimStale(view, now, fs);
+            reclaimStale(view, now, fs, { breaker: registry.breaker });
           } catch (e) {
             opts.onError?.(e);
           }
@@ -2038,6 +2052,7 @@ async function tickOnce(opts) {
           events,
           liveIds: opts.liveIds ?? /* @__PURE__ */ new Set(),
           fs,
+          breaker: registry.breaker,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
           shouldStop: () => lock.lost()

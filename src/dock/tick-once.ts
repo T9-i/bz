@@ -108,7 +108,7 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
         // 先收尸，再排班 —— 顺序反了会把一条已废的待办当成还有效
         for (const view of views) {
           try {
-            reclaimStale(view, now, fs);
+            reclaimStale(view, now, fs, { breaker: registry.breaker });
           } catch (e) {
             opts.onError?.(e);
           }
@@ -131,6 +131,7 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
           events,
           liveIds: opts.liveIds ?? new Set<string>(),
           fs,
+          breaker: registry.breaker,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
           shouldStop: () => lock.lost(),

@@ -13,7 +13,7 @@
  * `dock.json` 的读写本身在 `registry-file.ts`（零宿主依赖，值守进程共用同一份）。
  */
 
-import { REGISTRY_FILENAME, type DockEntry, type DockRegistryEntry } from './types';
+import { REGISTRY_FILENAME, type DockEntry, type DockRegistryEntry, type DockSwitchKey } from './types';
 import { runSignature } from './parse';
 import {
   readRegistryAt,
@@ -98,7 +98,7 @@ export function removeTool(id: string, fs?: DockFs | null): ReturnType<typeof re
 }
 
 export function setSwitch(
-  key: 'autoRun' | 'watchdog' | 'notifyMissed',
+  key: DockSwitchKey,
   value: boolean,
   fs?: DockFs | null,
 ): ReturnType<typeof setSwitchAt> {

@@ -10,7 +10,7 @@
  */
 
 import { emptyRegistry, parseRegistry } from './parse';
-import type { DockRegistry, DockRegistryEntry } from './types';
+import type { DockRegistry, DockRegistryEntry, DockSwitchKey } from './types';
 import { readTextOf, writeAtomic, type DockFs } from './files';
 
 export interface RegistryRead {
@@ -59,7 +59,7 @@ export function removeToolAt(path: string, id: string, fs: DockFs | null): DockR
 
 export function setSwitchAt(
   path: string,
-  key: 'autoRun' | 'watchdog' | 'notifyMissed',
+  key: DockSwitchKey,
   value: boolean,
   fs: DockFs | null,
 ): DockRegistry {

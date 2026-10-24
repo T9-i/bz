@@ -12,6 +12,7 @@ import { normalizeRegistryPaths, readRegistry, readTrust, registryPath, setSwitc
 import { dirOf } from './files';
 import { writeExitPulse } from './exit-pulse';
 import { loadToolView } from './view';
+import type { DockSwitchKey } from './types';
 
 export { openDock, closeDock, unloadDock, ensureDock, openToolPanel } from './ui';
 export { runToolDirect, dockToolLabel, judgeRunGate } from './command';
@@ -36,12 +37,12 @@ export function readToolEntries(): { id: string; path: string; enabled: boolean 
   }));
 }
 
-/** 三个全域开关（设置页 / 调度器读） */
-export function readDockSwitch(key: 'autoRun' | 'watchdog' | 'notifyMissed'): boolean {
+/** 全域开关（设置页 / 调度器读） */
+export function readDockSwitch(key: DockSwitchKey): boolean {
   return readRegistry().registry[key];
 }
 
-export function saveDockSwitch(key: 'autoRun' | 'watchdog' | 'notifyMissed', value: boolean): void {
+export function saveDockSwitch(key: DockSwitchKey, value: boolean): void {
   setSwitch(key, value);
 }
 
