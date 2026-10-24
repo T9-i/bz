@@ -10,12 +10,15 @@ import { createRequire } from 'node:module';
 import { parseLiveLog } from '../../src/dock/watchdog-status';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const rt = require('../../tools/dock-watch/runtime.js') as {
   appendLive(toolId: string, runId: string, text: string, env?: Record<string, string>): void;
   liveFileOf(toolId: string, env?: Record<string, string>): string;
+  writeStatus(patch: Record<string, unknown>, env?: Record<string, string>): Record<string, unknown>;
+  fileOf(name: string, env?: Record<string, string>): string;
+  CONTRACT_VERSION: number;
 };
 
 const line = (o: Record<string, unknown>): string => `${JSON.stringify(o)}\n`;
@@ -65,6 +68,42 @@ describe('值守侧的写入约定', () => {
       const steps = parseLiveLog(readFileSync(file, 'utf8'));
       expect(steps.map((s) => s.text)).toEqual(['新的一轮第一步']);
       expect(steps[0]?.runId).toBe('r2');
+    } finally {
+      rmSync(env.LOCALAPPDATA, { recursive: true, force: true });
+    }
+  });
+
+  it('状态快照：旧错误能被清掉，版本号不被旧值盖住', () => {
+    // 这两个坑都在真机上出现过：错误恢复后面板还挂着几小时前的 lastError；
+    // 以及上一版写下的 v:1 一直盖住新契约版本号。
+    const env = { LOCALAPPDATA: mkdtempSync(join(tmpdir(), 'bz-st-')) };
+    try {
+      mkdirSync(join(env.LOCALAPPDATA, 'bz-dock-watch'), { recursive: true });
+      writeFileSync(rt.fileOf('status.json', env), JSON.stringify({ v: 1, lastError: '读不到面板数据', mode: 'defer' }));
+      const next = rt.writeStatus({ mode: 'watch', lastError: undefined }, env);
+
+      expect(next.v).toBe(rt.CONTRACT_VERSION);
+      expect(next.mode).toBe('watch');
+      expect('lastError' in next).toBe(false);
+
+      // 真的落盘了才算数（不是只在返回值里删了）
+      const onDisk = JSON.parse(readFileSync(rt.fileOf('status.json', env), 'utf8'));
+      expect(onDisk.v).toBe(rt.CONTRACT_VERSION);
+      expect('lastError' in onDisk).toBe(false);
+    } finally {
+      rmSync(env.LOCALAPPDATA, { recursive: true, force: true });
+    }
+  });
+
+  it('状态快照：别的字段照常保留（合并写，不是整体替换）', () => {
+    const env = { LOCALAPPDATA: mkdtempSync(join(tmpdir(), 'bz-st-')) };
+    try {
+      mkdirSync(join(env.LOCALAPPDATA, 'bz-dock-watch'), { recursive: true });
+      writeFileSync(rt.fileOf('status.json', env), JSON.stringify({ pid: 4242, runsSinceBoot: 7 }));
+      const next = rt.writeStatus({ mode: 'busy' }, env);
+      expect(next.pid).toBe(4242);
+      expect(next.runsSinceBoot).toBe(7);
+      expect(next.mode).toBe('busy');
     } finally {
       rmSync(env.LOCALAPPDATA, { recursive: true, force: true });
     }

@@ -210,11 +210,23 @@ function readPluginData(config) {
 
 // ==================== 状态（本进程写、插件读） ====================
 
+/**
+ * 合并写状态快照。
+ *
+ * 两条容易踩的：
+ *  1. **`v` 放最后**，否则上一版遗留的 `v: 1` 会一直盖住新契约版本号；
+ *  2. **`patch` 里显式的 `undefined` = 这一项现在没有**（比如错误已经恢复）。
+ *     不删掉的话旧值会永远挂在面板上 —— 用户会看到一个几小时前的错误，
+ *     以为现在还是坏的。这正是「状态文件只增不减」的典型坑。
+ */
 function writeStatus(patch, env = process.env) {
   const file = fileOf('status.json', env);
   const prev = readJson(file);
   const base = isPlainObject(prev) ? prev : {};
-  const next = { v: CONTRACT_VERSION, ...base, ...patch };
+  const next = { ...base, ...patch, v: CONTRACT_VERSION };
+  for (const key of Object.keys(patch)) {
+    if (patch[key] === undefined) delete next[key];
+  }
   try {
     writeJsonAtomic(file, next);
   } catch (e) {

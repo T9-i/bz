@@ -223,7 +223,8 @@ function writeStatus(config, state, mode) {
     runsSinceBoot: state.runsSinceBoot,
   };
   if (state.lastRun) patch.lastRun = state.lastRun;
-  if (state.lastError) patch.lastError = state.lastError;
+  // 错误恢复后要能清掉：显式传 undefined，由 writeStatus 删键（否则旧错误永远挂在面板上）
+  patch.lastError = state.lastError;
   if (state.coreVersion) patch.core = state.coreVersion;
   rt.writeStatus(patch);
 }
