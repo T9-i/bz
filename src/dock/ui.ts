@@ -11,7 +11,7 @@
 
 import { Notice, Platform, setIcon, type App } from 'obsidian';
 import { notify } from '../core/notice';
-import { loadToolView, loadToolViews, displayNameOf, panelOf, recentRunsOf } from './view';
+import { loadToolView, loadToolViews, displayNameOf, heartbeatOf, panelOf, recentRunsOf } from './view';
 import { readRegistry, readTrust, removeTool, trustTool, untrustTool, upsertTool } from './registry';
 import { currentFs, writeIntent, writeSettings } from './files';
 import { parseManifest } from './parse';
@@ -222,7 +222,11 @@ function render(): void {
  */
 function externalRunOf(v: DockToolView): DockHeartbeat | null {
   if (liveOf(v.id)) return null; // 本进程在跑，那是 live 的事，不用心跳猜
-  const hb = v.heartbeat;
+  return freshOf(v.heartbeat);
+}
+
+/** 心跳还新鲜吗（60 秒内） */
+function freshOf(hb: DockHeartbeat | undefined): DockHeartbeat | null {
   if (!hb) return null;
   const at = Date.parse(hb.at);
   if (!Number.isFinite(at)) return null;
@@ -232,12 +236,14 @@ function externalRunOf(v: DockToolView): DockHeartbeat | null {
 function renderListMeta(): void {
   // 只更新卡片上的状态点与「在跑」标记，避免整块重绘打断点击
   if (!bodyEl) return;
-  const byId = new Map(loadToolViews(readRegistry().registry.tools, { trust: readTrust() }).map((v) => [v.id, v]));
+  // 只读心跳，不 loadToolView —— 每 3 秒为了一个状态点把六份文件读一遍不值
+  const fs = currentFs();
+  const beats = new Map(readRegistry().registry.tools.map((e) => [e.id, heartbeatOf(e.path, fs)]));
   for (const card of Array.from(bodyEl.querySelectorAll<HTMLElement>('.bz-dock-card'))) {
     const id = card.dataset.toolId ?? '';
-    const v = byId.get(id);
     const live = liveOf(id);
-    const ext = v ? externalRunOf(v) : null;
+    const hb = beats.get(id);
+    const ext = live || !hb ? null : freshOf(hb);
     const running = !!live || !!ext;
     card.toggleClass('is-running', running);
     const dot = card.querySelector<HTMLElement>('.bz-dock-dot');

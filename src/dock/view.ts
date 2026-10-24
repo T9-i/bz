@@ -26,7 +26,17 @@ import {
   parseSettingsText,
   runSignature,
 } from './parse';
-import { RUNS_TAIL_BYTES, type DockIntent, type DockManifest, type DockRegistryEntry, type DockRule, type DockRuntime, type DockRunRecord, type DockToolView } from './types';
+import {
+  RUNS_TAIL_BYTES,
+  type DockHeartbeat,
+  type DockIntent,
+  type DockManifest,
+  type DockRegistryEntry,
+  type DockRule,
+  type DockRuntime,
+  type DockRunRecord,
+  type DockToolView,
+} from './types';
 
 /** 信任表：工具 id → { at, run }（`run` 是授权时那条命令的签名） */
 export type TrustMap = Record<string, { at: string; run: string }>;
@@ -71,7 +81,7 @@ export function loadToolView(entry: DockRegistryEntry, opts: LoadOpts = {}): Doc
   const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
 
   // 心跳只读不判 —— 「有没有人在跑它」由调用方按时效判断（`HEARTBEAT_STALE_MS`）
-  const heartbeat = fs ? parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(entry.path), fs))) : null;
+  const heartbeat = heartbeatOf(entry.path, fs);
 
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
@@ -111,6 +121,17 @@ export function recentRunsOf(declPath: string, toolId: string, limit = 20, fs: D
     .slice()
     .sort((a, b) => (Date.parse(b.startedAt) || 0) - (Date.parse(a.startedAt) || 0))
     .slice(0, limit);
+}
+
+/**
+ * 只读心跳（`heartbeat.json`）。
+ *
+ * 单独一个函数是因为**列表页每 3 秒要问一遍「谁在跑」** —— 为了这一件事去
+ * `loadToolView`（它会读声明、意图、账本、设置、记录尾部）等于每 3 秒把所有文件读一遍。
+ */
+export function heartbeatOf(declPath: string, fs: DockFs | null = currentFs()): DockHeartbeat | null {
+  if (!fs) return null;
+  return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(declPath), fs)));
 }
 
 export function panelOf(declPath: string, fs: DockFs | null = currentFs()): string | null {
