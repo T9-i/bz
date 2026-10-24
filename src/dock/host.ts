@@ -14,9 +14,10 @@ import { Platform, type App } from 'obsidian';
 import { notify } from '../core/notice';
 import { onDomainEvent } from '../core/domain-bus';
 import { dirOf } from './files';
-import { runTick, missingParams, type Decision } from './kernel';
+import { clearBreaker, missingParams, type Decision } from './kernel';
 import { makeRunId, onLiveChanged, liveAll, liveOf, runToolNow } from './exec';
 import { inspectLock, withLock } from './lock';
+import { tickOnce, KEEP_ALIVE_MS } from './tick-once';
 import { loadToolViews } from './view';
 import { readRegistry, readTrust, registryPath } from './registry';
 import { currentFs, pathOf, readRunsText } from './files';
@@ -28,9 +29,6 @@ import type { RuleEvent } from './rules';
 const TICK_MS = 30_000;
 /** 启动后等一会儿再拍，别跟 Obsidian 自己的启动加载抢资源 */
 const STARTUP_DELAY_MS = 3_000;
-/** 长任务续期：锁的存活线是 90 秒，20 秒续一次足够稳 */
-const KEEP_ALIVE_MS = 20_000;
-
 let app: App | null = null;
 let unloaded: (() => boolean) | null = null;
 let sessionStart = 0;
@@ -131,70 +129,32 @@ function toTrustMap(trust: Record<string, { at: string; run: string }>): Record<
 // ==================== 一拍 ====================
 
 async function tick(): Promise<void> {
-  if (app === null || unloaded === null || ticking) return;
+  const a = app;
+  if (a === null || unloaded === null || ticking) return;
   if (unloaded()) return;
   ticking = true;
   try {
-    const result = await withLock(dataDir(), 'plugin', async () => {
-      const { registry } = readRegistry();
-      if (!registry.autoRun) return null;
-      const trust = readTrust();
-      const views = loadToolViews(registry.tools, { trust: toTrustMap(trust), canRun: !Platform.isMobile });
-      const events = pendingEvents;
-      pendingEvents = [];
-      return runTick({
-        dataDir: dataDir(),
-        registry,
-        views,
-        now: Date.now(),
-        sessionStart,
-        events,
-        liveIds: new Set(liveAll().map((r) => r.toolId)),
-        execute: (view, rule, runId) => executeOne(view, rule, runId),
-        remind: (view, rule) => remindOf(view, rule),
-      });
-    }, { keepAliveMs: KEEP_ALIVE_MS });
-    if (result === null) return;
-    reportMissingParams(result.decisions);
+    const res = await tickOnce({
+      dataDir: dataDir(),
+      registryPath: registryPath(),
+      trust: readTrust(),
+      sessionStart,
+      events: pendingEvents,
+      vaultPath: vaultBasePath(a),
+      owner: 'plugin',
+      liveIds: new Set(liveAll().map((r) => r.toolId)),
+      onOutcome: announce,
+      onRemind: remindOf,
+    });
+    // 没拿到锁 = 这一拍什么都没做，事件留着下一拍用（别丢）
+    if (res.skipped === 'locked') return;
+    pendingEvents = [];
+    if (res.result && res.views) reportMissingParams(res.result.decisions, res.views);
   } catch {
     /* 一拍出错不该把宿主带走 */
   } finally {
     ticking = false;
   }
-}
-
-/** 真去跑一次（在场）。失败也返回 outcome，不抛 */
-async function executeOne(view: DockToolView, rule: DockRule, runId: string): Promise<DockOutcome> {
-  const a = app;
-  if (!a || !view.entry) {
-    return {
-      ok: false,
-      status: 'failed',
-      runId,
-      code: null,
-      stderr: '',
-      error: new Error('没有可执行的启动命令'),
-      kind: 'config',
-      startedAt: new Date().toISOString(),
-      finishedAt: new Date().toISOString(),
-      durationMs: 0,
-      recordMissing: '声明里没有 entry，跑不起来',
-    };
-  }
-  const live = runToolNow({
-    toolId: view.id,
-    declPath: view.path,
-    entry: view.entry,
-    manifest: view.manifest,
-    values: view.values,
-    vaultPath: vaultBasePath(a),
-    trigger: 'auto',
-    records: () => parseRunLines(readRunsText(pathOf.runs(view.path), currentFs(), RUNS_TAIL_BYTES), view.id),
-  });
-  void rule;
-  const outcome = await live.done;
-  announce(view, outcome);
-  return outcome;
 }
 
 function announce(view: DockToolView, outcome: DockOutcome): void {
@@ -217,12 +177,11 @@ function remindOf(view: DockToolView, rule: DockRule): void {
 
 /** 必填参数没填的提示，每会话每工具一次 */
 const warned = new Set<string>();
-function reportMissingParams(decisions: readonly Decision[]): void {
+function reportMissingParams(decisions: readonly Decision[], views: readonly DockToolView[]): void {
   for (const d of decisions) {
     if (d.reason !== 'missing-params' || warned.has(d.toolId)) continue;
     warned.add(d.toolId);
-    const { registry } = readRegistry();
-    const v = loadToolViews(registry.tools.filter((e) => e.id === d.toolId), { trust: readTrust() })[0];
+    const v = views.find((x) => x.id === d.toolId);
     if (v) notify(`${v.manifest?.name ?? v.id} 没自动跑：必填参数还没填`, { type: 'warning' });
   }
 }
@@ -243,7 +202,6 @@ export async function runToolManually(
   if (!a) return null;
   if (liveOf(view.id)) return null;
   const outcome = await withLock(dataDir(), 'plugin', async () => {
-    const runId = makeRunId();
     if (!view.entry) return null;
     const live = runToolNow({
       toolId: view.id,
@@ -254,10 +212,10 @@ export async function runToolManually(
       vaultPath: vaultBasePath(a),
       trigger: 'manual',
       extraArgs: opts.extraArgs,
+      runId: makeRunId(),
       records: () => parseRunLines(readRunsText(pathOf.runs(view.path), currentFs(), RUNS_TAIL_BYTES), view.id),
       cb: { onStep: opts.onStep },
     });
-    void runId;
     return live.done;
   }, { keepAliveMs: KEEP_ALIVE_MS });
   if (outcome) announce(view, outcome);
@@ -267,6 +225,19 @@ export async function runToolManually(
 /** 诊断：这一拍的锁归谁、有没有人卡着 */
 export function dockLockState(): ReturnType<typeof inspectLock> {
   return inspectLock(dataDir());
+}
+
+/**
+ * 手动恢复熔断。**必须在锁内写** —— `dock.runtime.json` 的写者是调度内核，
+ * 面板绕过锁直接写，就回到了「两个人改同一本账」的老问题。
+ * 拿不到锁（有工具正在跑）就明说，不硬写。
+ */
+export async function clearBreakerSafely(view: DockToolView): Promise<boolean> {
+  const ok = await withLock(dataDir(), 'plugin', () => {
+    clearBreaker(view);
+    return true;
+  }, { keepAliveMs: KEEP_ALIVE_MS });
+  return ok === true;
 }
 
 /** 必填参数缺失检查（面板用） */

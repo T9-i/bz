@@ -86,7 +86,7 @@ describe('favorites 旧口 = core 单源的恒等转发', () => {
 });
 
 describe('防回潮守卫：单源扫描 + @deprecated 导出面', () => {
-  it('.json 尾段剥除逻辑全仓只允许存在于 src/core/storage.ts（第二轨即红）', () => {
+  it('.json 尾段剥除逻辑全仓只允许存在于 src/core/storage-path.ts（第二轨即红）', () => {
     const offenders: string[] = [];
     const walk = (dir: string): void => {
       for (const name of fs.readdirSync(dir)) {
@@ -99,7 +99,9 @@ describe('防回潮守卫：单源扫描 + @deprecated 导出面', () => {
       }
     };
     walk(SRC);
-    expect(offenders).toEqual(['src/core/storage.ts']);
+    // 唯一真理源从 `storage.ts` 搬到 `storage-path.ts`：那是一份零依赖纯函数，
+    // 值守进程（插件进程之外）也要用同一份口径算数据目录，搬出去才不用复制第二遍。
+    expect(offenders).toEqual(['src/core/storage-path.ts']);
   });
 
   it('favorites 旧口保留 @deprecated 转发标记（新代码导向 core 单源）', () => {

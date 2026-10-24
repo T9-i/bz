@@ -34,23 +34,13 @@
 import { getApp } from './app';
 import { tryGetSettings } from './settings-provider';
 import { notify } from './notice';
-
-/** 共享数据目录缺省值（storagePath 未设/空/剥空时回退） */
-export const DEFAULT_STORAGE_DIR = 'CONFIG/STORAGE';
+import { DEFAULT_STORAGE_DIR, normalizeStorageDir } from './storage-path';
 
 /**
- * 共享数据目录归一（纯函数，storagePath 解析唯一入口）：
- * trim 去尾斜杠；误配 .json 尾段剥到所在目录（旧设置可能存了完整文件路径——原 favorites
- * getStorageDir 既有防御上沉单源）；剥空/未设回退 CONFIG/STORAGE。
+ * 路径口径的实现在 `core/storage-path.ts`（零依赖，值守进程共用）—— 这里只做转发，
+ * 免得全仓两处各写一遍「缺省是 CONFIG/STORAGE、误配成 .json 要剥尾段」。
  */
-export function normalizeStorageDir(value?: string): string {
-  let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\/+$/, '');
-  if (/\.json$/i.test(dir)) {
-    const idx = dir.lastIndexOf('/');
-    dir = idx >= 0 ? dir.slice(0, idx) : '';
-  }
-  return dir || DEFAULT_STORAGE_DIR;
-}
+export { DEFAULT_STORAGE_DIR, normalizeStorageDir };
 
 /** 共享数据目录（settings.storagePath 经 normalizeStorageDir 归一，全域单一口径） */
 export function storageDir(): string {

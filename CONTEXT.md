@@ -67,7 +67,7 @@ _Avoid_: 登录、凭据（那是参数值文件里用户填的东西）
 **自动运行 (Auto-run)**: bz 按工具的规则把它跑起来。判据纯函数在 `rules.ts`（`ruleDue` / `nextDueOf`），执行在 `kernel.ts`（`planTick` 算这一拍、`runTick` 落账并跑），调度在 `host.ts`（插件侧每 30 秒一拍；移动端不起）。四条纪律：**不并行**（一拍内串行，锁保证跨宿主串行）、**不连坐**（一个工具挂了后面的照跑）、**不猜**（没授权 / 缺参数 / 读不到值就不跑，并记下原因）、**不诈尸**（卸载后定时器短路）。**待办不挂在内存定时器上**：到点的时刻写进 `runtime` 的 `dueAt`，崩在「记了账、还没跑」之间，下一拍接着办。失败 15 分钟冷却、连续 3 次熔断（面板可恢复）；冷却按「上次尝试时刻」算，重启后依然成立。
 _Avoid_: 定时任务（那是系统的东西）、触发器（v1 叫法）
 
-**离场调度 (Off-session Scheduling)**: ~~Obsidian 关着时由值守进程（`tools/dock-watch/`）接手~~ **契约 v2 起暂不可用**：值守进程还按 v1 的账本读文件，迁移完成前不启动、设置页如实写明「本版暂不支持」。恢复之前，自动任务只在 Obsidian 开着时跑。
+**离场调度 (Off-session Scheduling)**: Obsidian 关着时由值守进程（`tools/dock-watch/`）接手。**它不是一个第二套调度器**：插件与值守跑的是同一段代码（`src/dock/tick-once.ts` 的 `tickOnce`，值守侧从 `src/dock/watch-core.ts` 打出的 `dock-core.cjs` 里拿），区别只有三处 —— 谁触发（插件 30 秒定时器 / 值守的循环）、文件路径怎么解析（vault 适配器 / vault 根 + 绝对路径）、通知发去哪（Notice / 日志）。执行权仍归一把锁：两边都每拍抢 `<数据目录>/dock.lock`，抢不到就这一拍什么都不做（`skipped: 'locked'`），**没有「让位」这种靠自觉的机制**。值守额外只管两件插件管不到的事：**等网**（计划任务在登录瞬间拉起，网卡常常没就绪；没网就不拍、不记账，留给下一拍）和**本机状态**（`status.json` / 日志，住 `%LOCALAPPDATA%z-dock-watch\`，不进 vault）。状态存放：`watchdog` 开关住登记表（跟着 vault 走），值守的运行状态住本机会话态（换台机器就该重来）。
 _Avoid_: 离线运行、后台服务
 
 **展示板 (Panel Board)**: 工具在详情页顶部自己画的一块内容（工具目录的 `panel.html`，单文件自包含，≤512 KB）。装在 `sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-scripts"` 的 iframe + `srcdoc` 里；**bz 只读不写**（同 `runs.jsonl` 的理由）。框内滚动条样式是全仓唯一允许的 `<style>` 注入（`ui.ts` 的 `FRAME_SCROLLBAR_CSS`，作用域仅 iframe 文档，守卫掐死范围）。没有这个文件 = 那块整块不出现，不留空框。

@@ -266,6 +266,18 @@ export function writeIntent(declPath: string, intent: DockIntent, fs: DockFs | n
 
 export function writeRuntime(declPath: string, runtime: DockRuntime, fs: DockFs | null = currentFs()): boolean {
   if (!fs) return false;
+  const target = pathOf.runtime(declPath);
   const payload: DockRuntime = { ...runtime, v: RUNTIME_VERSION, updatedAt: new Date().toISOString() };
-  return writeIfChanged(fs, pathOf.runtime(declPath), JSON.stringify(payload, null, 2));
+  const next = JSON.stringify(payload, null, 2);
+  // `writeIfChanged` 要的是「内容有变化吗」。`updatedAt` 每次都是新的 ——
+  // 拿它一起比，等于每次都变，那这个判断就白写了（写放大、同步客户端被吵）。
+  // 所以比较时把那一格摘掉，真写下去的还是带新时间的那份。
+  const prev = fs.readText(target);
+  if (prev !== null && stripUpdatedAt(prev) === stripUpdatedAt(next)) return false;
+  return writeAtomic(fs, target, next);
+}
+
+/** 去掉 `updatedAt` 那一行后的原文（只为比较用，不解析成对象以免键序变化） */
+function stripUpdatedAt(json: string): string {
+  return json.replace(/^\s*"updatedAt":\s*"[^"]*",?\s*$/m, '');
 }

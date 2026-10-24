@@ -1,5 +1,5 @@
-/* 源指纹 7ef6aac541fdf9ad · 仓内输入 21 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/view.ts"]*/
+/* 源指纹 73c0396b14637cdf · 仓内输入 24 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/view.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -151,7 +151,7 @@ var BZW_dock = (() => {
   });
 
   // src/dock/types.ts
-  var CONTRACT_VERSION, SETTINGS_FILENAME, RUNS_FILENAME, HEARTBEAT_FILENAME, PANEL_FILENAME, INTENT_FILENAME, RUNTIME_FILENAME, LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, SETTINGS_VERSION, INTENT_VERSION, RUNTIME_VERSION, RUNS_TAIL_BYTES, RUN_TIMEOUT_MS, CLAIM_STALE_MS, LOCK_STALE_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, TOOL_ID_RE, TOOL_ID_MAX_LEN, TRIGGER_KINDS, TRIGGER_LABEL;
+  var CONTRACT_VERSION, SETTINGS_FILENAME, RUNS_FILENAME, HEARTBEAT_FILENAME, PANEL_FILENAME, INTENT_FILENAME, RUNTIME_FILENAME, LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, SETTINGS_VERSION, INTENT_VERSION, RUNTIME_VERSION, RUNS_TAIL_BYTES, RUN_TIMEOUT_MS, LOCK_STALE_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, TOOL_ID_RE, TOOL_ID_MAX_LEN, TRIGGER_KINDS, TRIGGER_LABEL;
   var init_types = __esm({
     "src/dock/types.ts"() {
       CONTRACT_VERSION = 2;
@@ -169,7 +169,6 @@ var BZW_dock = (() => {
       RUNTIME_VERSION = 1;
       RUNS_TAIL_BYTES = 256 * 1024;
       RUN_TIMEOUT_MS = 10 * 6e4;
-      CLAIM_STALE_MS = 5 * 6e4;
       LOCK_STALE_MS = 9e4;
       FAIL_COOLDOWN_MS = 15 * 6e4;
       BREAKER_THRESHOLD = 3;
@@ -316,10 +315,6 @@ var BZW_dock = (() => {
       return false;
     }
   }
-  function writeIfChanged(fs, target, text) {
-    if (fs.readText(target) === text) return false;
-    return writeAtomic(fs, target, text);
-  }
   function readTextOf(path, fs = currentFs()) {
     return fs ? fs.readText(path) : null;
   }
@@ -344,8 +339,15 @@ var BZW_dock = (() => {
   }
   function writeRuntime(declPath, runtime, fs = currentFs()) {
     if (!fs) return false;
+    const target = pathOf.runtime(declPath);
     const payload = { ...runtime, v: RUNTIME_VERSION, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
-    return writeIfChanged(fs, pathOf.runtime(declPath), JSON.stringify(payload, null, 2));
+    const next = JSON.stringify(payload, null, 2);
+    const prev = fs.readText(target);
+    if (prev !== null && stripUpdatedAt(prev) === stripUpdatedAt(next)) return false;
+    return writeAtomic(fs, target, next);
+  }
+  function stripUpdatedAt(json) {
+    return json.replace(/^\s*"updatedAt":\s*"[^"]*",?\s*$/m, "");
   }
   var injected, pathOf, writeSeq;
   var init_files = __esm({
@@ -942,7 +944,14 @@ var BZW_dock = (() => {
       const runId = str(raw.pending.runId);
       const dueAt = str(raw.pending.dueAt);
       const claimedAt = str(raw.pending.claimedAt);
-      if (runId && dueAt && claimedAt) out.pending = { runId, dueAt, claimedAt };
+      if (runId && dueAt && claimedAt) {
+        const pending = { runId, dueAt, claimedAt };
+        const startedAt = str(raw.pending.startedAt);
+        if (startedAt) pending.startedAt = startedAt;
+        const attempts = num(raw.pending.attempts, 0, 1e3);
+        if (attempts) pending.attempts = attempts;
+        out.pending = pending;
+      }
     }
     return Object.keys(out).length ? out : null;
   }
@@ -1265,39 +1274,9 @@ var BZW_dock = (() => {
     }
   });
 
-  // src/core/storage.ts
-  function normalizeStorageDir(value) {
-    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\/+$/, "");
-    if (/\.json$/i.test(dir)) {
-      const idx = dir.lastIndexOf("/");
-      dir = idx >= 0 ? dir.slice(0, idx) : "";
-    }
-    return dir || DEFAULT_STORAGE_DIR;
-  }
-  function storageDir() {
-    const s = tryGetSettings();
-    return normalizeStorageDir(s && s.storagePath);
-  }
-  function storageFile(name, base) {
-    const dir = (base || storageDir()).trim().replace(/\/+$/, "");
-    return `${dir}/${name}`;
-  }
-  var DEFAULT_STORAGE_DIR;
-  var init_storage = __esm({
-    "src/core/storage.ts"() {
-      init_app();
-      init_settings_provider();
-      init_notice();
-      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
-    }
-  });
-
-  // src/dock/registry.ts
-  function registryPath() {
-    return storageFile(REGISTRY_FILENAME);
-  }
-  function readRegistry(fs = currentFs()) {
-    const text = readTextOf(registryPath(), fs);
+  // src/dock/registry-file.ts
+  function readRegistryAt(path, fs) {
+    const text = readTextOf(path, fs);
     if (text === null) return { registry: emptyRegistry() };
     let raw = null;
     try {
@@ -1308,27 +1287,79 @@ var BZW_dock = (() => {
     const parsed = parseRegistry(raw);
     return { registry: parsed.registry, error: parsed.errors[0] };
   }
-  function writeRegistry(reg, fs = currentFs()) {
+  function writeRegistryAt(path, reg, fs) {
     if (!fs) return false;
-    return writeAtomic(fs, registryPath(), JSON.stringify(reg, null, 2));
+    return writeAtomic(fs, path, JSON.stringify(reg, null, 2));
   }
-  function upsertTool(entry, fs) {
-    const f = fs === void 0 ? currentFs() : fs;
-    const { registry } = readRegistry(f);
+  function upsertToolAt(path, entry, fs) {
+    const { registry } = readRegistryAt(path, fs);
     const i = registry.tools.findIndex((t) => t.id === entry.id);
     const tools = registry.tools.slice();
     if (i >= 0) tools[i] = entry;
     else tools.push(entry);
     const next = { ...registry, tools };
-    writeRegistry(next, f);
+    writeRegistryAt(path, next, fs);
     return next;
   }
-  function removeTool(id, fs) {
-    const f = fs === void 0 ? currentFs() : fs;
-    const { registry } = readRegistry(f);
+  function removeToolAt(path, id, fs) {
+    const { registry } = readRegistryAt(path, fs);
     const next = { ...registry, tools: registry.tools.filter((t) => t.id !== id) };
-    writeRegistry(next, f);
+    writeRegistryAt(path, next, fs);
     return next;
+  }
+  var init_registry_file = __esm({
+    "src/dock/registry-file.ts"() {
+      init_parse();
+      init_files();
+    }
+  });
+
+  // src/core/storage-path.ts
+  function normalizeStorageDir(value) {
+    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
+    if (/\.json$/i.test(dir)) {
+      const idx = dir.lastIndexOf("/");
+      dir = idx >= 0 ? dir.slice(0, idx) : "";
+    }
+    return dir || DEFAULT_STORAGE_DIR;
+  }
+  var DEFAULT_STORAGE_DIR;
+  var init_storage_path = __esm({
+    "src/core/storage-path.ts"() {
+      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+    }
+  });
+
+  // src/core/storage.ts
+  function storageDir() {
+    const s = tryGetSettings();
+    return normalizeStorageDir(s && s.storagePath);
+  }
+  function storageFile(name, base) {
+    const dir = (base || storageDir()).trim().replace(/\/+$/, "");
+    return `${dir}/${name}`;
+  }
+  var init_storage = __esm({
+    "src/core/storage.ts"() {
+      init_app();
+      init_settings_provider();
+      init_notice();
+      init_storage_path();
+    }
+  });
+
+  // src/dock/registry.ts
+  function registryPath() {
+    return storageFile(REGISTRY_FILENAME);
+  }
+  function readRegistry(fs = currentFs()) {
+    return readRegistryAt(registryPath(), fs);
+  }
+  function upsertTool(entry, fs) {
+    return upsertToolAt(registryPath(), entry, fs === void 0 ? currentFs() : fs);
+  }
+  function removeTool(id, fs) {
+    return removeToolAt(registryPath(), id, fs === void 0 ? currentFs() : fs);
   }
   function readTrust() {
     const raw = tryGetSettings()[DOCK_TRUST_KEY];
@@ -1362,8 +1393,9 @@ var BZW_dock = (() => {
   var DOCK_TRUST_KEY;
   var init_registry = __esm({
     "src/dock/registry.ts"() {
-      init_parse();
       init_types();
+      init_parse();
+      init_registry_file();
       init_files();
       init_storage();
       init_settings_provider();
@@ -1601,7 +1633,7 @@ var BZW_dock = (() => {
     return { decisions, ready };
   }
   async function runTick(deps2) {
-    var _a;
+    var _a, _b;
     const plan = planTick({
       views: deps2.views,
       now: deps2.now,
@@ -1638,11 +1670,13 @@ var BZW_dock = (() => {
       if (Date.parse(d.dueAt) <= deps2.now) jobs.push({ toolId: view2.id, ruleId: rule.id, runId });
     }
     while (jobs.length && executed < MAX_RUNS_PER_TICK) {
+      if ((_b = deps2.shouldStop) == null ? void 0 : _b.call(deps2)) break;
       const job = jobs.shift();
       const view2 = deps2.views.find((v) => v.id === job.toolId);
       if (!view2) continue;
       const rule = view2.rules.find((r) => r.id === job.ruleId);
       if (!rule) continue;
+      markStarted(view2, rule.id, job.runId, deps2.now, deps2.fs);
       executed += 1;
       const startedAt = (/* @__PURE__ */ new Date()).toISOString();
       let outcome;
@@ -1708,7 +1742,56 @@ var BZW_dock = (() => {
     view2.runtime = runtime;
     writeRuntime(view2.path, runtime, fs != null ? fs : null);
   }
-  var MAX_RUNS_PER_TICK;
+  function markStarted(view2, ruleId, runId, now, fs) {
+    var _a, _b, _c, _d, _e;
+    const pending = (_b = (_a = view2.runtime.rules) == null ? void 0 : _a[ruleId]) == null ? void 0 : _b.pending;
+    const at = new Date(now).toISOString();
+    patchRule(
+      view2,
+      ruleId,
+      {
+        pending: {
+          runId,
+          dueAt: (_c = pending == null ? void 0 : pending.dueAt) != null ? _c : at,
+          claimedAt: (_d = pending == null ? void 0 : pending.claimedAt) != null ? _d : at,
+          startedAt: at,
+          attempts: ((_e = pending == null ? void 0 : pending.attempts) != null ? _e : 0) + 1
+        }
+      },
+      fs
+    );
+  }
+  function reclaimStale(view2, now, fs) {
+    var _a, _b, _c, _d;
+    const rules = { ...(_a = view2.runtime.rules) != null ? _a : {} };
+    let verdict = null;
+    for (const [id, st] of Object.entries(rules)) {
+      const pending = st.pending;
+      if (!(pending == null ? void 0 : pending.startedAt)) continue;
+      const started = Date.parse(pending.startedAt);
+      if (!Number.isFinite(started) || now - started <= RUN_TIMEOUT_MS + 6e4) continue;
+      if (((_b = pending.attempts) != null ? _b : 1) < MAX_ATTEMPTS) {
+        rules[id] = { ...st, pending: { ...pending, startedAt: void 0 } };
+        verdict = "requeue";
+      } else {
+        const facts = { ...(_c = view2.runtime.run) != null ? _c : {} };
+        facts.lastAttemptAt = new Date(now).toISOString();
+        facts.lastAttemptOk = false;
+        facts.consecutiveFailures = ((_d = facts.consecutiveFailures) != null ? _d : 0) + 1;
+        if (facts.consecutiveFailures >= BREAKER_THRESHOLD) facts.pausedAt = new Date(now).toISOString();
+        rules[id] = { ...st, lastFiredAt: new Date(now).toISOString(), lastStatus: "abandoned" };
+        delete rules[id].pending;
+        view2.runtime = { ...view2.runtime, run: facts };
+        verdict = "abandon";
+      }
+    }
+    if (verdict) {
+      view2.runtime = { ...view2.runtime, rules };
+      writeRuntime(view2.path, view2.runtime, fs != null ? fs : null);
+    }
+    return verdict;
+  }
+  var MAX_RUNS_PER_TICK, MAX_ATTEMPTS;
   var init_kernel = __esm({
     "src/dock/kernel.ts"() {
       init_types();
@@ -1716,6 +1799,7 @@ var BZW_dock = (() => {
       init_parse();
       init_files();
       MAX_RUNS_PER_TICK = 8;
+      MAX_ATTEMPTS = 3;
     }
   });
 
@@ -2098,18 +2182,25 @@ var BZW_dock = (() => {
     (_a = live2.get(toolId)) == null ? void 0 : _a.handle.stop();
   }
   function runToolNow(args) {
-    var _a, _b, _c, _d, _e, _f, _g;
-    const runId = makeRunId();
-    const trigger = (_a = args.trigger) != null ? _a : "manual";
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+    const runId = (_a = args.runId) != null ? _a : makeRunId();
+    const trigger = (_b = args.trigger) != null ? _b : "manual";
     const startedMs = Date.now();
     const startedAt = new Date(startedMs).toISOString();
     const rawTail = [];
     const steps = [];
     const spec = {
       cmd: args.entry.cmd,
-      args: [...(_b = args.entry.args) != null ? _b : [], ...buildArgs((_c = args.manifest) != null ? _c : { params: [] }, args.values), ...(_d = args.extraArgs) != null ? _d : []],
-      shell: (_e = args.entry.shell) != null ? _e : /\.(cmd|bat)$/i.test(args.entry.cmd),
-      cwd: args.entry.cwd,
+      args: [...(_c = args.entry.args) != null ? _c : [], ...buildArgs((_d = args.manifest) != null ? _d : { params: [] }, args.values), ...(_e = args.extraArgs) != null ? _e : []],
+      shell: (_f = args.entry.shell) != null ? _f : /\.(cmd|bat)$/i.test(args.entry.cmd),
+      /**
+       * 工作目录，契约写的是「缺省 = 声明所在目录」。
+       *
+       * 这一句必须显式给：不给的话子进程继承宿主进程的 cwd —— 插件里是 Obsidian 的目录，
+       * 值守里是仓库根。两种都不是工具目录，「`args: ['main.mjs']` 的相对路径」当场失效，
+       * 症状是「面板上跑得起来、值守里报找不到文件」。
+       */
+      cwd: (_g = args.entry.cwd) != null ? _g : dirOf(args.declPath),
       env: dockEnv({
         toolId: args.toolId,
         declPath: args.declPath,
@@ -2119,7 +2210,7 @@ var BZW_dock = (() => {
         manifest: args.manifest,
         values: args.values
       }),
-      interactive: typeof ((_f = args.cb) == null ? void 0 : _f.onAsk) === "function"
+      interactive: typeof ((_h = args.cb) == null ? void 0 : _h.onAsk) === "function"
     };
     let phase = null;
     let pct = null;
@@ -2182,7 +2273,7 @@ var BZW_dock = (() => {
       handle,
       done: Promise.resolve(void 0)
     };
-    const timeoutMs = (_g = args.timeoutMs) != null ? _g : RUN_TIMEOUT_MS;
+    const timeoutMs = (_i = args.timeoutMs) != null ? _i : RUN_TIMEOUT_MS;
     const timer = timeoutMs > 0 ? setTimeout(() => {
       timedOut = true;
       handle.stop();
@@ -2325,11 +2416,18 @@ var BZW_dock = (() => {
     return take();
   }
   function handleOf(fs, path, token) {
+    let lost = false;
     return {
       token,
+      lost() {
+        return lost;
+      },
       renew() {
         const held = readLock(fs, path);
-        if (!held || held.token !== token) return false;
+        if (!held || held.token !== token) {
+          lost = true;
+          return false;
+        }
         const next = JSON.stringify({ ...held, at: (/* @__PURE__ */ new Date()).toISOString() });
         if (fs.rename) {
           const tmp = `${path}.${token}.tmp`;
@@ -2343,7 +2441,9 @@ var BZW_dock = (() => {
           fs.writeText(path, next);
         }
         const after = readLock(fs, path);
-        return !!after && after.token === token;
+        const mine = !!after && after.token === token;
+        if (!mine) lost = true;
+        return mine;
       },
       release() {
         const held = readLock(fs, path);
@@ -2359,9 +2459,8 @@ var BZW_dock = (() => {
   async function withLock(dataDir2, owner, fn, opts = {}) {
     const lock = acquireLock(dataDir2, owner, opts);
     if (!lock) return null;
-    let lost = false;
     const hb = opts.keepAliveMs && opts.keepAliveMs > 0 ? setInterval(() => {
-      if (!lock.renew()) lost = true;
+      lock.renew();
     }, opts.keepAliveMs) : null;
     try {
       return await fn(lock);
@@ -2374,6 +2473,107 @@ var BZW_dock = (() => {
     "src/dock/lock.ts"() {
       init_types();
       init_files();
+    }
+  });
+
+  // src/dock/tick-once.ts
+  async function tickOnce(opts) {
+    var _a, _b, _c;
+    const fs = opts.fs === void 0 ? currentFs() : opts.fs;
+    if (!fs) return { skipped: "no-fs" };
+    const now = (_a = opts.now) != null ? _a : Date.now();
+    let inner;
+    try {
+      inner = await withLock(
+        opts.dataDir,
+        opts.owner,
+        async (lock) => {
+          var _a2, _b2, _c2, _d;
+          const { registry } = readRegistryAt(opts.registryPath, fs);
+          if (!registry.autoRun) return { skip: "auto-run-off", registry, views: [] };
+          if (opts.respectWatchdog && !registry.watchdog) return { skip: "watchdog-off", registry, views: [] };
+          const views2 = loadToolViews(registry.tools, { trust: opts.trust, fs });
+          for (const view2 of views2) {
+            try {
+              reclaimStale(view2, now, fs);
+            } catch (e) {
+              (_a2 = opts.onError) == null ? void 0 : _a2.call(opts, e);
+            }
+          }
+          const result = await runTick({
+            dataDir: opts.dataDir,
+            registry,
+            views: views2,
+            now,
+            sessionStart: opts.sessionStart,
+            events: (_b2 = opts.events) != null ? _b2 : [],
+            liveIds: (_c2 = opts.liveIds) != null ? _c2 : /* @__PURE__ */ new Set(),
+            fs,
+            execute: (view2, rule, runId) => executeOne(view2, rule, runId, opts, fs),
+            remind: (view2, rule) => {
+              var _a3;
+              return (_a3 = opts.onRemind) == null ? void 0 : _a3.call(opts, view2, rule);
+            },
+            shouldStop: () => lock.lost()
+          });
+          (_d = opts.onPlan) == null ? void 0 : _d.call(opts, result.decisions, result);
+          return { registry, views: views2, result };
+        },
+        { fs, now, keepAliveMs: (_b = opts.keepAliveMs) != null ? _b : KEEP_ALIVE_MS }
+      );
+    } catch (e) {
+      (_c = opts.onError) == null ? void 0 : _c.call(opts, e);
+      return {};
+    }
+    if (inner === null) return { skipped: "locked" };
+    return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
+  }
+  async function executeOne(view2, rule, runId, opts, fs) {
+    var _a;
+    const at = (/* @__PURE__ */ new Date()).toISOString();
+    if (!view2.entry) {
+      return {
+        ok: false,
+        status: "failed",
+        runId,
+        code: null,
+        stderr: "",
+        error: new Error("没有可执行的启动命令"),
+        kind: "config",
+        startedAt: at,
+        finishedAt: at,
+        durationMs: 0,
+        recordMissing: "声明里没有 entry，跑不起来"
+      };
+    }
+    const live3 = runToolNow({
+      toolId: view2.id,
+      declPath: view2.path,
+      entry: view2.entry,
+      manifest: view2.manifest,
+      values: view2.values,
+      vaultPath: opts.vaultPath,
+      trigger: "auto",
+      // 工单号由内核定（pending 里已经记下），这里必须原样传
+      runId,
+      records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), fs, RUNS_TAIL_BYTES), view2.id)
+    });
+    const outcome = await live3.done;
+    (_a = opts.onOutcome) == null ? void 0 : _a.call(opts, view2, outcome);
+    return outcome;
+  }
+  var KEEP_ALIVE_MS;
+  var init_tick_once = __esm({
+    "src/dock/tick-once.ts"() {
+      init_kernel();
+      init_lock();
+      init_view();
+      init_registry_file();
+      init_files();
+      init_parse();
+      init_exec();
+      init_types();
+      KEEP_ALIVE_MS = 2e4;
     }
   });
 
@@ -2398,70 +2598,31 @@ var BZW_dock = (() => {
     pendingEvents.push(ev);
     void kickDockScheduler();
   }
-  function toTrustMap(trust) {
-    return trust;
-  }
   async function tick() {
-    if (app === null || unloaded === null || ticking) return;
+    const a = app;
+    if (a === null || unloaded === null || ticking) return;
     if (unloaded()) return;
     ticking = true;
     try {
-      const result = await withLock(dataDir(), "plugin", async () => {
-        const { registry } = readRegistry();
-        if (!registry.autoRun) return null;
-        const trust = readTrust();
-        const views2 = loadToolViews(registry.tools, { trust: toTrustMap(trust), canRun: !Platform.isMobile });
-        const events = pendingEvents;
-        pendingEvents = [];
-        return runTick({
-          dataDir: dataDir(),
-          registry,
-          views: views2,
-          now: Date.now(),
-          sessionStart,
-          events,
-          liveIds: new Set(liveAll().map((r) => r.toolId)),
-          execute: (view2, rule, runId) => executeOne(view2, rule, runId),
-          remind: (view2, rule) => remindOf(view2, rule)
-        });
-      }, { keepAliveMs: KEEP_ALIVE_MS });
-      if (result === null) return;
-      reportMissingParams(result.decisions);
+      const res = await tickOnce({
+        dataDir: dataDir(),
+        registryPath: registryPath(),
+        trust: readTrust(),
+        sessionStart,
+        events: pendingEvents,
+        vaultPath: vaultBasePath(a),
+        owner: "plugin",
+        liveIds: new Set(liveAll().map((r) => r.toolId)),
+        onOutcome: announce,
+        onRemind: remindOf
+      });
+      if (res.skipped === "locked") return;
+      pendingEvents = [];
+      if (res.result && res.views) reportMissingParams(res.result.decisions, res.views);
     } catch (e) {
     } finally {
       ticking = false;
     }
-  }
-  async function executeOne(view2, rule, runId) {
-    const a = app;
-    if (!a || !view2.entry) {
-      return {
-        ok: false,
-        status: "failed",
-        runId,
-        code: null,
-        stderr: "",
-        error: new Error("没有可执行的启动命令"),
-        kind: "config",
-        startedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        finishedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        durationMs: 0,
-        recordMissing: "声明里没有 entry，跑不起来"
-      };
-    }
-    const live3 = runToolNow({
-      toolId: view2.id,
-      declPath: view2.path,
-      entry: view2.entry,
-      manifest: view2.manifest,
-      values: view2.values,
-      vaultPath: vaultBasePath(a),
-      trigger: "auto",
-      records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), currentFs(), RUNS_TAIL_BYTES), view2.id)
-    });
-    const outcome = await live3.done;
-    announce(view2, outcome);
-    return outcome;
   }
   function announce(view2, outcome) {
     var _a, _b, _c;
@@ -2481,13 +2642,12 @@ var BZW_dock = (() => {
     const why = ((_a = rule.name) == null ? void 0 : _a.trim()) || "规则";
     notify(`${(_c = (_b = view2.manifest) == null ? void 0 : _b.name) != null ? _c : view2.id}：该手动跑一次了（${why}）`, { type: "info" });
   }
-  function reportMissingParams(decisions) {
+  function reportMissingParams(decisions, views2) {
     var _a, _b;
     for (const d of decisions) {
       if (d.reason !== "missing-params" || warned.has(d.toolId)) continue;
       warned.add(d.toolId);
-      const { registry } = readRegistry();
-      const v = loadToolViews(registry.tools.filter((e) => e.id === d.toolId), { trust: readTrust() })[0];
+      const v = views2.find((x) => x.id === d.toolId);
       if (v) notify(`${(_b = (_a = v.manifest) == null ? void 0 : _a.name) != null ? _b : v.id} 没自动跑：必填参数还没填`, { type: "warning" });
     }
   }
@@ -2496,7 +2656,6 @@ var BZW_dock = (() => {
     if (!a) return null;
     if (liveOf(view2.id)) return null;
     const outcome = await withLock(dataDir(), "plugin", async () => {
-      const runId = makeRunId();
       if (!view2.entry) return null;
       const live3 = runToolNow({
         toolId: view2.id,
@@ -2507,6 +2666,7 @@ var BZW_dock = (() => {
         vaultPath: vaultBasePath(a),
         trigger: "manual",
         extraArgs: opts.extraArgs,
+        runId: makeRunId(),
         records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), currentFs(), RUNS_TAIL_BYTES), view2.id),
         cb: { onStep: opts.onStep }
       });
@@ -2515,7 +2675,14 @@ var BZW_dock = (() => {
     if (outcome) announce(view2, outcome);
     return outcome;
   }
-  var KEEP_ALIVE_MS, app, unloaded, sessionStart, ticking, pendingEvents, warned;
+  async function clearBreakerSafely(view2) {
+    const ok = await withLock(dataDir(), "plugin", () => {
+      clearBreaker(view2);
+      return true;
+    }, { keepAliveMs: KEEP_ALIVE_MS });
+    return ok === true;
+  }
+  var app, unloaded, sessionStart, ticking, pendingEvents, warned;
   var init_host = __esm({
     "src/dock/host.ts"() {
       init_fake_obsidian();
@@ -2525,12 +2692,12 @@ var BZW_dock = (() => {
       init_kernel();
       init_exec();
       init_lock();
+      init_tick_once();
       init_view();
       init_registry();
       init_files();
       init_parse();
       init_types();
-      KEEP_ALIVE_MS = 2e4;
       app = null;
       unloaded = null;
       sessionStart = 0;
@@ -2564,6 +2731,7 @@ var BZW_dock = (() => {
   init_kernel();
 
   // src/dock/command.ts
+  init_fake_obsidian();
   init_notice();
   init_view();
   init_registry();
@@ -2591,6 +2759,7 @@ var BZW_dock = (() => {
   var view = "list";
   var detailId = "";
   var pollTimer = null;
+  var detailKey = "";
   var liveOff = null;
   function ensureDock(a) {
     app2 = a;
@@ -2652,9 +2821,27 @@ var BZW_dock = (() => {
     stopPoll();
     pollTimer = setInterval(() => {
       if (!root || root.hasClass("is-hidden")) return;
-      if (view === "detail") renderDetail();
-      else renderListMeta();
+      if (view === "detail") {
+        const v = viewOf(detailId);
+        if (!v || detailSignature(v) !== detailKey) renderDetail();
+      } else {
+        renderListMeta();
+      }
     }, 3e3);
+  }
+  function detailSignature(v) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    return [
+      v.id,
+      v.path,
+      v.trusted ? "1" : "0",
+      v.trustStale ? "1" : "0",
+      (_b = (_a = v.runtime.run) == null ? void 0 : _a.lastAttemptAt) != null ? _b : "",
+      (_d = (_c = v.runtime.run) == null ? void 0 : _c.pausedAt) != null ? _d : "",
+      (_f = (_e = v.lastRun) == null ? void 0 : _e.runId) != null ? _f : "",
+      (_h = (_g = v.lastRun) == null ? void 0 : _g.status) != null ? _h : "",
+      String(v.rules.length)
+    ].join("|");
   }
   function stopPoll() {
     if (pollTimer) clearInterval(pollTimer);
@@ -2804,6 +2991,7 @@ var BZW_dock = (() => {
     var _a;
     if (!bodyEl) return;
     const v = viewOf(detailId);
+    detailKey = v ? detailSignature(v) : "";
     bodyEl.empty();
     if (!v) {
       bodyEl.createDiv({ cls: "bz-dock-empty-desc", text: "这个工具已经不在登记表里了" });
@@ -2865,8 +3053,13 @@ var BZW_dock = (() => {
     if ((_b = v.runtime.run) == null ? void 0 : _b.pausedAt) {
       const btn = btnOf(box, "恢复自动运行");
       btn.addEventListener("click", () => {
-        clearBreaker(v);
-        renderDetail();
+        void clearBreakerSafely(v).then((ok) => {
+          if (!ok) {
+            new Notice("有工具正在跑，等它跑完再恢复");
+            return;
+          }
+          renderDetail();
+        });
       });
     }
   }
@@ -2880,13 +3073,6 @@ var BZW_dock = (() => {
     frame.setAttribute("sandbox", "allow-same-origin allow-popups allow-popups-to-escape-sandbox");
     frame.setAttribute("referrerpolicy", "no-referrer");
     frame.srcdoc = html.toLowerCase().includes("<head>") ? html.replace(/<head([^>]*)>/i, `<head$1>${FRAME_SCROLLBAR_CSS}`) : `<!DOCTYPE html><html><head>${FRAME_SCROLLBAR_CSS}</head><body>${html}</body></html>`;
-    frame.addEventListener("load", () => {
-      try {
-        const doc = frame.contentDocument;
-        if (doc == null ? void 0 : doc.body) frame.style.height = `${Math.min(doc.body.scrollHeight + 8, 640)}px`;
-      } catch (e) {
-      }
-    });
   }
   function renderParams(v) {
     var _a, _b;

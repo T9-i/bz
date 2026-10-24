@@ -16,10 +16,10 @@ import { readRegistry, readTrust, removeTool, trustTool, untrustTool, upsertTool
 import { currentFs, writeIntent, writeSettings } from './files';
 import { parseManifest } from './parse';
 import { actionText, defaultRule, isEventTrigger, nextDueOf, ruleName, triggerText } from './rules';
-import { clearBreaker, missingParams } from './kernel';
+import { missingParams } from './kernel';
 import { judgeRunGate, runToolDirect } from './command';
 import { liveAll, liveOf, onLiveChanged, stopLive } from './exec';
-import { kickDockScheduler, notifyDockEvent, runToolManually } from './host';
+import { clearBreakerSafely, kickDockScheduler, notifyDockEvent, runToolManually } from './host';
 import {
   TRIGGER_KINDS,
   TRIGGER_LABEL,
@@ -40,6 +40,8 @@ let app: App | null = null;
 let view: 'list' | 'detail' = 'list';
 let detailId = '';
 let pollTimer: ReturnType<typeof setInterval> | null = null;
+/** 详情页上次渲染时的签名（轮询据此决定要不要重绘） */
+let detailKey = '';
 let liveOff: (() => void) | null = null;
 
 export function ensureDock(a: App): void {
@@ -115,9 +117,35 @@ function startPoll(): void {
   stopPoll();
   pollTimer = setInterval(() => {
     if (!root || root.hasClass('is-hidden')) return;
-    if (view === 'detail') renderDetail();
-    else renderListMeta();
+    if (view === 'detail') {
+      // 只在账本真的变了才重绘。整块重绘会重建展示板的 iframe ——
+      // 那块 `srcdoc` 里的东西会被从头加载一遍，用户正在里面点的东西每次清零。
+      const v = viewOf(detailId);
+      if (!v || detailSignature(v) !== detailKey) renderDetail();
+    } else {
+      renderListMeta();
+    }
   }, 3000);
+}
+
+/**
+ * 详情页的「有没有变化」签名。
+ *
+ * 只放**会改变渲染结果**的那几个字段：最近一次运行的工单号、上次尝试时刻、熔断状态、授权状态。
+ * 不放运行记录全文（每 3 秒读一遍全量记录，正是上一版面板卡顿的来源）。
+ */
+function detailSignature(v: DockToolView): string {
+  return [
+    v.id,
+    v.path,
+    v.trusted ? '1' : '0',
+    v.trustStale ? '1' : '0',
+    v.runtime.run?.lastAttemptAt ?? '',
+    v.runtime.run?.pausedAt ?? '',
+    v.lastRun?.runId ?? '',
+    v.lastRun?.status ?? '',
+    String(v.rules.length),
+  ].join('|');
 }
 
 function stopPoll(): void {
@@ -289,6 +317,7 @@ function showDetail(id: string): void {
 function renderDetail(): void {
   if (!bodyEl) return;
   const v = viewOf(detailId);
+  detailKey = v ? detailSignature(v) : '';
   bodyEl.empty();
   if (!v) {
     bodyEl.createDiv({ cls: 'bz-dock-empty-desc', text: '这个工具已经不在登记表里了' });
@@ -356,8 +385,13 @@ function renderProblem(v: DockToolView): void {
   if (v.runtime.run?.pausedAt) {
     const btn = btnOf(box, '恢复自动运行');
     btn.addEventListener('click', () => {
-      clearBreaker(v);
-      renderDetail();
+      void clearBreakerSafely(v).then((ok) => {
+        if (!ok) {
+          new Notice('有工具正在跑，等它跑完再恢复');
+          return;
+        }
+        renderDetail();
+      });
     });
   }
 }
@@ -384,14 +418,6 @@ function renderPanelBoard(v: DockToolView): void {
   frame.srcdoc = html.toLowerCase().includes('<head>')
     ? html.replace(/<head([^>]*)>/i, `<head$1>${FRAME_SCROLLBAR_CSS}`)
     : `<!DOCTYPE html><html><head>${FRAME_SCROLLBAR_CSS}</head><body>${html}</body></html>`;
-  frame.addEventListener('load', () => {
-    try {
-      const doc = frame.contentDocument;
-      if (doc?.body) frame.style.height = `${Math.min(doc.body.scrollHeight + 8, 640)}px`;
-    } catch {
-      /* 量不到就按默认高度 */
-    }
-  });
 }
 
 function renderParams(v: DockToolView): void {

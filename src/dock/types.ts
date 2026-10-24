@@ -66,8 +66,6 @@ export const RUNS_TAIL_BYTES = 256 * 1024;
 export const HEARTBEAT_STALE_MS = 60_000;
 /** 单次运行强杀线 */
 export const RUN_TIMEOUT_MS = 10 * 60_000;
-/** 领了号迟迟没有心跳（进程根本没起来）多久判废 */
-export const CLAIM_STALE_MS = 5 * 60_000;
 /** 执行权锁多久没续期就当持有者死了 */
 export const LOCK_STALE_MS = 90_000;
 /** 失败后的冷却 */
@@ -233,7 +231,14 @@ export interface DockRuleRuntime {
   /** 上次真正跑完（或放弃）的时刻 */
   lastFiredAt?: string;
   /** 已经排上队但还没跑：`dueAt` 是**算好的到期时刻**，不是内存里的定时器 */
-  pending?: { runId: string; dueAt: string; claimedAt: string };
+  /**
+   * 已排上队、还没跑完的那一次。
+   *
+   * - `claimedAt`：排上队的时刻（**不是**起跑时刻 —— 抖动可能把它推到 12 小时后）
+   * - `startedAt`：真正起跑的时刻。回收只看它：没有它的 pending 只是在等，不算卡住
+   * - `attempts`：为了这同一个待办起过几次进程。崩了重跑是好事，无限重跑不是
+   */
+  pending?: { runId: string; dueAt: string; claimedAt: string; startedAt?: string; attempts?: number };
   /** 上一轮的结果（给「为什么没跑」用） */
   lastRunId?: string;
   lastStatus?: DockRunStatus;

@@ -32,6 +32,12 @@ export interface LockHandle {
   token: string;
   /** 续期（每拍调一次）。返回 false = 锁已经不是我的了 */
   renew(): boolean;
+  /**
+   * 已经丢了。**续期失败过一次就算丢** —— 从那一刻起，另一个宿主随时可能在我没写好的
+   * 时候进来写同一本账，所以「丢了还在跑」比「不跑」危险得多。
+   * 调度循环每跑一个之前先看它（`TickDeps.shouldStop`）。
+   */
+  lost(): boolean;
   /** 主动释放 */
   release(): void;
 }
@@ -154,11 +160,18 @@ export function acquireLock(
 }
 
 function handleOf(fs: DockFs, path: string, token: string): LockHandle {
+  let lost = false;
   return {
     token,
+    lost(): boolean {
+      return lost;
+    },
     renew(): boolean {
       const held = readLock(fs, path);
-      if (!held || held.token !== token) return false;
+      if (!held || held.token !== token) {
+        lost = true;
+        return false;
+      }
       const next = JSON.stringify({ ...held, at: new Date().toISOString() });
       // 续期走原子写：读到的 token 还是我的才写，写完再确认一次
       if (fs.rename) {
@@ -173,7 +186,9 @@ function handleOf(fs: DockFs, path: string, token: string): LockHandle {
         fs.writeText(path, next);
       }
       const after = readLock(fs, path);
-      return !!after && after.token === token;
+      const mine = !!after && after.token === token;
+      if (!mine) lost = true;
+      return mine;
     },
     release(): void {
       const held = readLock(fs, path);
@@ -197,17 +212,15 @@ export async function withLock<T>(
 ): Promise<T | null> {
   const lock = acquireLock(dataDir, owner, opts);
   if (!lock) return null;
-  let lost = false;
   const hb = opts.keepAliveMs && opts.keepAliveMs > 0
     ? setInterval(() => {
-        if (!lock.renew()) lost = true;
+        lock.renew(); // 失败时句柄自己会把 lost() 置真，调用方据此停手
       }, opts.keepAliveMs)
     : null;
   try {
     return await fn(lock);
   } finally {
     if (hb) clearInterval(hb);
-    void lost;
     lock.release();
   }
 }

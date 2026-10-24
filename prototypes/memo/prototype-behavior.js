@@ -1,5 +1,5 @@
-/* 源指纹 8ce2d4bd0fcdb1d7 · 仓内输入 304 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/memo/fake-sim.ts","prototypes/memo/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/settings.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/settings.ts","src/dock/types.ts","src/dock/view.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/file-sync.ts","src/memo/reminder.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 3538d00f7a51e252 · 仓内输入 308 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/memo/fake-sim.ts","prototypes/memo/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/settings.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/settings.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/view.ts","src/dock/watchdog-status.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/file-sync.ts","src/memo/reminder.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/memo/fake-sim.ts → window.BZW_memo（行为单源预览包，issue 245/ADR-0106） */
 var BZW_memo = (() => {
   var __create = Object.create;
@@ -42,9 +42,9 @@ var BZW_memo = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -5096,15 +5096,23 @@ var BZW_memo = (() => {
     }
   });
 
-  // src/core/storage.ts
+  // src/core/storage-path.ts
   function normalizeStorageDir(value) {
-    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\/+$/, "");
+    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
     if (/\.json$/i.test(dir)) {
       const idx = dir.lastIndexOf("/");
       dir = idx >= 0 ? dir.slice(0, idx) : "";
     }
     return dir || DEFAULT_STORAGE_DIR;
   }
+  var DEFAULT_STORAGE_DIR;
+  var init_storage_path = __esm({
+    "src/core/storage-path.ts"() {
+      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+    }
+  });
+
+  // src/core/storage.ts
   function storageDir() {
     const s = tryGetSettings();
     return normalizeStorageDir(s && s.storagePath);
@@ -5328,13 +5336,13 @@ var BZW_memo = (() => {
       }
     };
   }
-  var DEFAULT_STORAGE_DIR, fileTaskQueues, CORRUPT_BACKUP_DIR, CORRUPT_NOTIFY_DEDUPE_MS, corruptNotifyAt;
+  var fileTaskQueues, CORRUPT_BACKUP_DIR, CORRUPT_NOTIFY_DEDUPE_MS, corruptNotifyAt;
   var init_storage = __esm({
     "src/core/storage.ts"() {
       init_app();
       init_settings_provider();
       init_notice();
-      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+      init_storage_path();
       fileTaskQueues = /* @__PURE__ */ new Map();
       CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
       CORRUPT_NOTIFY_DEDUPE_MS = 3e4;
@@ -63939,7 +63947,7 @@ ${n.content.slice(0, 2e3)}
   });
 
   // src/dock/types.ts
-  var LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, RUNS_TAIL_BYTES, RUN_TIMEOUT_MS, CLAIM_STALE_MS, FAIL_COOLDOWN_MS, TOOL_ID_RE, TOOL_ID_MAX_LEN;
+  var LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, RUNS_TAIL_BYTES, RUN_TIMEOUT_MS, FAIL_COOLDOWN_MS, TOOL_ID_RE, TOOL_ID_MAX_LEN;
   var init_types3 = __esm({
     "src/dock/types.ts"() {
       LOCK_FILENAME = "dock.lock";
@@ -63947,7 +63955,6 @@ ${n.content.slice(0, 2e3)}
       REGISTRY_VERSION = 3;
       RUNS_TAIL_BYTES = 256 * 1024;
       RUN_TIMEOUT_MS = 10 * 6e4;
-      CLAIM_STALE_MS = 5 * 6e4;
       FAIL_COOLDOWN_MS = 15 * 6e4;
       TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
       TOOL_ID_MAX_LEN = 64;
@@ -64224,12 +64231,9 @@ ${n.content.slice(0, 2e3)}
     }
   });
 
-  // src/dock/registry.ts
-  function registryPath() {
-    return storageFile(REGISTRY_FILENAME);
-  }
-  function readRegistry(fs = currentFs()) {
-    const text2 = readTextOf(registryPath(), fs);
+  // src/dock/registry-file.ts
+  function readRegistryAt(path, fs) {
+    const text2 = readTextOf(path, fs);
     if (text2 === null) return { registry: emptyRegistry() };
     let raw = null;
     try {
@@ -64240,21 +64244,52 @@ ${n.content.slice(0, 2e3)}
     const parsed = parseRegistry(raw);
     return { registry: parsed.registry, error: parsed.errors[0] };
   }
-  function writeRegistry(reg, fs = currentFs()) {
+  function writeRegistryAt(path, reg, fs) {
     if (!fs) return false;
-    return writeAtomic(fs, registryPath(), JSON.stringify(reg, null, 2));
+    return writeAtomic(fs, path, JSON.stringify(reg, null, 2));
+  }
+  function setSwitchAt(path, key, value, fs) {
+    const { registry } = readRegistryAt(path, fs);
+    const next = { ...registry, [key]: value };
+    writeRegistryAt(path, next, fs);
+    return next;
+  }
+  var init_registry_file = __esm({
+    "src/dock/registry-file.ts"() {
+      init_parse2();
+      init_files2();
+    }
+  });
+
+  // src/dock/tick-once.ts
+  var init_tick_once = __esm({
+    "src/dock/tick-once.ts"() {
+      init_kernel();
+      init_lock();
+      init_view3();
+      init_registry_file();
+      init_files2();
+      init_parse2();
+      init_exec();
+      init_types3();
+    }
+  });
+
+  // src/dock/registry.ts
+  function registryPath() {
+    return storageFile(REGISTRY_FILENAME);
+  }
+  function readRegistry(fs = currentFs()) {
+    return readRegistryAt(registryPath(), fs);
   }
   function setSwitch(key, value, fs) {
-    const f = fs === void 0 ? currentFs() : fs;
-    const { registry } = readRegistry(f);
-    const next = { ...registry, [key]: value };
-    writeRegistry(next, f);
-    return next;
+    return setSwitchAt(registryPath(), key, value, fs === void 0 ? currentFs() : fs);
   }
   var init_registry = __esm({
     "src/dock/registry.ts"() {
-      init_parse2();
       init_types3();
+      init_parse2();
+      init_registry_file();
       init_files2();
       init_storage();
       init_settings_provider();
@@ -64277,11 +64312,90 @@ ${n.content.slice(0, 2e3)}
       init_kernel();
       init_exec();
       init_lock();
+      init_tick_once();
       init_view3();
       init_registry();
       init_files2();
       init_parse2();
       init_types3();
+    }
+  });
+
+  // src/dock/watchdog-status.ts
+  function watchdogDirOf(env = guessEnv()) {
+    var _a2, _b2, _c;
+    const local = String((_a2 = env.LOCALAPPDATA) != null ? _a2 : "").trim();
+    if (local) return `${local.replace(/[\\/]+$/, "")}/${WATCHDOG_DIRNAME}`;
+    const home = String((_c = (_b2 = env.USERPROFILE) != null ? _b2 : env.HOME) != null ? _c : "").trim();
+    if (home) return `${home.replace(/[\\/]+$/, "")}/AppData/Local/${WATCHDOG_DIRNAME}`;
+    return WATCHDOG_DIRNAME;
+  }
+  function guessEnv() {
+    var _a2, _b2;
+    const g = globalThis;
+    const env = (_b2 = (_a2 = g.process) == null ? void 0 : _a2.env) != null ? _b2 : {};
+    return { LOCALAPPDATA: env.LOCALAPPDATA, USERPROFILE: env.USERPROFILE, HOME: env.HOME };
+  }
+  function watchdogStatus(fs = currentFs()) {
+    const file = `${watchdogDirOf()}/status.json`;
+    const text2 = fs ? fs.readText(file) : null;
+    if (text2 === null) return { present: false, alive: false, file };
+    let raw;
+    try {
+      raw = JSON.parse(text2);
+    } catch (e) {
+      return { present: false, alive: false, file };
+    }
+    if (!raw || typeof raw !== "object") return { present: false, alive: false, file };
+    const at3 = typeof raw.at === "string" ? raw.at : void 0;
+    const parsed = at3 ? Date.parse(at3) : NaN;
+    const alive = Number.isFinite(parsed) && Date.now() - parsed <= WATCHDOG_STALE_MS;
+    const out = { present: true, alive, file };
+    if (at3) out.at = at3;
+    if (typeof raw.mode === "string") out.mode = raw.mode;
+    if (typeof raw.pid === "number") out.pid = raw.pid;
+    if (typeof raw.core === "string") out.coreVersion = raw.core;
+    if (typeof raw.runsSinceBoot === "number") out.runsSinceBoot = raw.runsSinceBoot;
+    if (typeof raw.lastError === "string") out.lastError = raw.lastError;
+    if (raw.lastRun && typeof raw.lastRun === "object") {
+      const r = raw.lastRun;
+      out.lastRun = {
+        toolId: typeof r.toolId === "string" ? r.toolId : void 0,
+        name: typeof r.name === "string" ? r.name : void 0,
+        at: typeof r.at === "string" ? r.at : void 0,
+        ok: typeof r.ok === "boolean" ? r.ok : void 0,
+        status: typeof r.status === "string" ? r.status : void 0,
+        message: typeof r.message === "string" ? r.message : void 0
+      };
+    }
+    return out;
+  }
+  function watchdogModeText(mode) {
+    switch (mode) {
+      case "watch":
+        return "正在值守";
+      case "busy":
+        return "让给插件（锁在插件手里）";
+      case "off":
+        return "离场调度关着";
+      case "auto-off":
+        return "自动运行关着";
+      case "wait-net":
+        return "在等网络";
+      case "no-plugin-data":
+        return "读不到插件数据";
+      case "error":
+        return "上一拍出错";
+      default:
+        return mode ? mode : "未知";
+    }
+  }
+  var WATCHDOG_DIRNAME, WATCHDOG_STALE_MS;
+  var init_watchdog_status = __esm({
+    "src/dock/watchdog-status.ts"() {
+      init_files2();
+      WATCHDOG_DIRNAME = "bz-dock-watch";
+      WATCHDOG_STALE_MS = 9e4;
     }
   });
 
@@ -64313,13 +64427,30 @@ ${n.content.slice(0, 2e3)}
           name: "工具坞",
           rows: [
             switchRow("自动运行", "按各工具的规则到点自动跑。关掉之后只能手动点", "autoRun"),
+            switchRow("关掉 Obsidian 也让自动任务跑", "交给后台值守进程接手。关掉它，Obsidian 一关就全停", "watchdog"),
             {
-              // 契约 v2 起值守进程还没迁到新账本。这一行留着是**为了说清楚**，不是为了给开关 ——
-              // 给一个开着却不起作用的开关，比没有这个开关更糟。
+              // 开关只管「要不要」，这一行回答「现在到底在不在跑」—— 两件事分开显示，
+              // 否则用户看到开关是开的，就会以为已经在跑了。
               type: "custom",
-              name: "关掉 Obsidian 也让自动任务跑",
-              desc: "本版暂不支持：值守进程正在迁到新账本，Obsidian 关着时不会跑",
-              render: (body) => body.createDiv({ cls: "bz-dock-lock-line", text: "暂不可用" })
+              name: "值守状态",
+              desc: "后台进程最后一次心跳。装法见 tools/dock-watch/README.md",
+              render: (body) => {
+                var _a2, _b2, _c;
+                const st = watchdogStatus();
+                const line = (text2) => body.createDiv({ cls: "bz-dock-lock-line", text: text2 });
+                if (!st.present) {
+                  line("没装或从没启动过 —— Obsidian 关着时不会跑自动任务");
+                  return;
+                }
+                line(`${st.alive ? "在跑" : "没在跑"}（${watchdogModeText(st.mode)}）`);
+                if (st.at) line(`最后心跳 ${new Date(st.at).toLocaleString()}`);
+                if (typeof st.runsSinceBoot === "number") line(`这次启动跑了 ${st.runsSinceBoot} 次`);
+                if (st.lastRun) {
+                  const r = st.lastRun;
+                  line(`上次跑的是 ${(_b2 = (_a2 = r.name) != null ? _a2 : r.toolId) != null ? _b2 : "（未知）"}（${(_c = r.status) != null ? _c : r.ok ? "成功" : "失败"}）`);
+                }
+                if (st.lastError) line(`上次出错：${st.lastError}`);
+              }
             },
             switchRow("漏跑提醒", "该跑的时候没跑（比如电脑在睡觉），下次打开时告诉你一声", "notifyMissed"),
             {
@@ -64356,6 +64487,7 @@ ${n.content.slice(0, 2e3)}
       init_fake_obsidian();
       init_host();
       init_registry();
+      init_watchdog_status();
     }
   });
 

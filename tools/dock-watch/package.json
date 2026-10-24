@@ -2,7 +2,7 @@
   "name": "@jwbz/dock-watch",
   "version": "1.0.0",
   "private": true,
-  "description": "工具坞值守进程——Obsidian 关着时，替它按同一份规则表跑外部工具（判据复用 src/dock 的 ruleDue，打包进 dock-core.cjs）",
+  "description": "工具坞值守进程 —— Obsidian 关着时，替它按同一份规则表跑外部工具（判据/执行/记账全在 src/dock，打包成 dock-core.cjs）",
   "main": "watch.js",
   "bin": {
     "bz-dock-watch": "./cli.js"
@@ -10,21 +10,22 @@
   "files": [
     "cli.js",
     "watch.js",
-    "decide.js",
-    "ledger.js",
-    "launch.js",
+    "node-fs.js",
     "runtime.js",
+    "net.js",
     "dock-core.cjs",
     "core-version.json",
     "install.ps1",
     "uninstall.ps1",
+    "README.md",
+    "CONTEXT.md",
     "test/"
   ],
   "scripts": {
     "start": "node cli.js",
     "once": "node cli.js --once",
     "status": "node cli.js --status",
-    "check": "node --check cli.js && node --check watch.js && node --check decide.js && node --check ledger.js && node --check launch.js && node --check runtime.js",
+    "check": "node --check cli.js && node --check watch.js && node --check node-fs.js && node --check runtime.js && node --check net.js",
     "test": "npm run check && node --test \"test/*.test.mjs\""
   },
   "keywords": [

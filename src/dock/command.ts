@@ -5,7 +5,7 @@
  * 「能不能跑」，三处说法不一致时，用户看到的就是「面板能点、命令说不能」。
  */
 
-import type { App } from 'obsidian';
+import { Platform, type App } from 'obsidian';
 import { notify } from '../core/notice';
 import { displayNameOf, loadToolView } from './view';
 import { readRegistry, readTrust } from './registry';
@@ -50,7 +50,8 @@ export function dockToolLabel(entry: { id: string; path: string }): string {
 export async function runToolDirect(app: App, id: string): Promise<void> {
   void app;
   const view = findView(id);
-  const gate = judgeRunGate(view, true);
+  // 手机上「看得到、跑不了」—— 这个事实要在这里说，不能写死 `true` 让命令面板去撞
+  const gate = judgeRunGate(view, !Platform.isMobile);
   if (!gate.ok || !view) {
     notify(gate.text ?? '跑不了', { type: 'warning' });
     return;

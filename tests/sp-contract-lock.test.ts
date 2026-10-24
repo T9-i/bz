@@ -39,7 +39,7 @@ const COUNT_BASELINE: Record<string, number> = {
   'password-vault': 5,
   smartcat: 15,
   knowledge: 25, // 2026-09-26 issue 462：「外部工具」组回归知识盒页（Python/ffmpeg/ffprobe 三行，域无关键位）
-  dock: 5, // ADR-0235：登记直达 info 行（+1，action 钮不另计）+「漏跑提醒」toggle（+1）；ADR-0236：再加「启动后自动运行」toggle（+1）；ADR-0239：新增「信任」组（无登记工具时空态 info 行 +1；有工具时是该组两行列表，非本基准夹具）；ADR-0242：自动运行组加「离线值守」一行（+1，装没装值守件决定它是 toggle 还是 info —— 两种都算可见项）
+  dock: 6, // ADR-0235：登记直达 info 行（+1，action 钮不另计）+「漏跑提醒」toggle（+1）；ADR-0236：再加「启动后自动运行」toggle（+1）；ADR-0239：新增「信任」组（无登记工具时空态 info 行 +1；有工具时是该组两行列表，非本基准夹具）；ADR-0242：自动运行组加「离线值守」一行（+1，装没装值守件决定它是 toggle 还是 info —— 两种都算可见项）；ADR-0252：离场调度恢复为真开关，旁边加「值守状态」一行（+1）
 };
 
 describe('settings-panel 运行期契约锁', () => {

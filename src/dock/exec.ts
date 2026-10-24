@@ -20,7 +20,7 @@ import {
   type ExternalToolSpec,
 } from '../core/external-tool';
 import { buildArgs, findByRunId, makeRunId, secretEnvOf } from './parse';
-import { pathOf } from './files';
+import { dirOf, pathOf } from './files';
 import {
   CONTRACT_VERSION,
   RUN_TIMEOUT_MS,
@@ -247,11 +247,17 @@ export function runToolNow(args: {
   trigger?: 'auto' | 'manual';
   extraArgs?: string[];
   timeoutMs?: number;
+  /**
+   * 工单号。**自动运行必须传**：内核在落 pending 时就已经定下这个号，
+   * 账本记的、注入给工具的、收尾结算的必须是同一个 —— 各造一个就等于白记。
+   * 不传（手动运行、命令行自测）才自己生成。
+   */
+  runId?: string;
   /** 判定时要用这个工具最近的记录 */
   records: () => readonly DockRunRecord[];
   cb?: RunCallbacks;
 }): LiveRun {
-  const runId = makeRunId();
+  const runId = args.runId ?? makeRunId();
   const trigger = args.trigger ?? 'manual';
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
@@ -262,7 +268,14 @@ export function runToolNow(args: {
     cmd: args.entry.cmd,
     args: [...(args.entry.args ?? []), ...buildArgs(args.manifest ?? { params: [] }, args.values), ...(args.extraArgs ?? [])],
     shell: args.entry.shell ?? /\.(cmd|bat)$/i.test(args.entry.cmd),
-    cwd: args.entry.cwd,
+    /**
+     * 工作目录，契约写的是「缺省 = 声明所在目录」。
+     *
+     * 这一句必须显式给：不给的话子进程继承宿主进程的 cwd —— 插件里是 Obsidian 的目录，
+     * 值守里是仓库根。两种都不是工具目录，「`args: ['main.mjs']` 的相对路径」当场失效，
+     * 症状是「面板上跑得起来、值守里报找不到文件」。
+     */
+    cwd: args.entry.cwd ?? dirOf(args.declPath),
     env: dockEnv({
       toolId: args.toolId,
       declPath: args.declPath,

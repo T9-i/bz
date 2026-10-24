@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { planTick, runTick, missingParams, type TickDeps } from '../../src/dock/kernel';
+import { planTick, runTick, missingParams, reclaimStale, MAX_ATTEMPTS, type TickDeps } from '../../src/dock/kernel';
 import { fakeFs } from './_fake-fs';
 import { emptyIntent, emptyRuntime } from '../../src/dock/parse';
 import { pathOf } from '../../src/dock/files';
@@ -233,5 +233,71 @@ describe('跑一拍', () => {
     expect(out.executed).toBe(1);
     const saved = JSON.parse(fs.files.get(pathOf.runtime(d.views[0].path)) ?? '{}');
     expect(saved.rules.r1.lastStatus).toBe('failed');
+  });
+});
+
+describe('收尸：起跑了但没收尾的那一次', () => {
+  /** 造一个「已经起过跑」的视图 */
+  function started(over: { startedAt: string; attempts?: number }, now: number): DockToolView {
+    const v = viewOf({ rules: [daily], runtime: emptyRuntime('demo') });
+    v.runtime.rules = {
+      r1: {
+        pending: {
+          runId: 'r1-run',
+          dueAt: new Date(now - 3600_000).toISOString(),
+          claimedAt: new Date(now - 3600_000).toISOString(),
+          startedAt: over.startedAt,
+          attempts: over.attempts,
+        },
+      },
+    };
+    return v;
+  }
+
+  it('还在等抖动（没有 startedAt）—— 不碰它', () => {
+    const now = at(12);
+    const v = viewOf({ rules: [daily], runtime: emptyRuntime('demo') });
+    v.runtime.rules = {
+      r1: {
+        pending: {
+          runId: 'r1-run',
+          // 抖动可能把 dueAt 推到 12 小时后，但 claimedAt 是「刚排上队」，不能拿它判决
+          dueAt: new Date(now + 6 * 3600_000).toISOString(),
+          claimedAt: new Date(now - 10 * 60_000).toISOString(),
+        },
+      },
+    };
+    const fs = fakeFs();
+    expect(reclaimStale(v, now, fs)).toBeNull();
+    expect(v.runtime.rules?.r1.pending).toBeDefined();
+  });
+
+  it('起跑超时、还没到次数上限 —— 清掉 startedAt 让下一拍重跑', () => {
+    const now = at(12);
+    const v = started({ startedAt: new Date(now - 20 * 60_000).toISOString(), attempts: 1 }, now);
+    const fs = fakeFs();
+    expect(reclaimStale(v, now, fs)).toBe('requeue');
+    const p = v.runtime.rules?.r1.pending;
+    expect(p).toBeDefined();
+    expect(p?.startedAt).toBeUndefined();
+    expect(v.runtime.rules?.r1.lastStatus).toBeUndefined();
+  });
+
+  it('到了次数上限 —— 判废、清 pending、算一次失败', () => {
+    const now = at(12);
+    const v = started({ startedAt: new Date(now - 20 * 60_000).toISOString(), attempts: MAX_ATTEMPTS }, now);
+    const fs = fakeFs();
+    expect(reclaimStale(v, now, fs)).toBe('abandon');
+    expect(v.runtime.rules?.r1.pending).toBeUndefined();
+    expect(v.runtime.rules?.r1.lastStatus).toBe('abandoned');
+    expect(v.runtime.run?.consecutiveFailures).toBe(1);
+    expect(v.runtime.run?.lastAttemptOk).toBe(false);
+  });
+
+  it('刚起跑一分钟 —— 还不到超时线，不碰', () => {
+    const now = at(12);
+    const v = started({ startedAt: new Date(now - 60_000).toISOString(), attempts: 1 }, now);
+    const fs = fakeFs();
+    expect(reclaimStale(v, now, fs)).toBeNull();
   });
 });

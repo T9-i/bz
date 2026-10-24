@@ -29,15 +29,6 @@ const VERSION_FILE = path.join(OUT_DIR, 'core-version.json');
 export async function buildDockWatch() {
   const bzVersion = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8')).version;
 
-  // 契约 v2 起，值守进程（tools/dock-watch）还没迁到新账本，判据核心暂时没有入口。
-  // 这里**跳过而不是报错**：主构建不能被一个「本版不提供的能力」卡住。
-  // 迁移完成后删掉这段，恢复打包。
-  const entry = path.join(ROOT, 'src', 'dock', 'watch-core.ts');
-  if (!fs.existsSync(entry)) {
-    console.log('· 跳过 dock-core.cjs：值守进程待迁契约 v2（本版不提供离场调度）');
-    return false;
-  }
-
   await esbuild.build({
     entryPoints: [path.join(ROOT, 'src', 'dock', 'watch-core.ts')],
     bundle: true,

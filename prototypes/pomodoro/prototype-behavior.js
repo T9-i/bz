@@ -1,5 +1,5 @@
-/* 源指纹 0ee1606d86789220 · 仓内输入 30 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/pomodoro/fake-sim.ts","prototypes/pomodoro/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/http.ts","src/core/mobile.ts","src/core/notice.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-common.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/str.ts","src/core/utils.ts","src/core/z-order.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts"]*/
+/* 源指纹 759915f5018229af · 仓内输入 31 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/pomodoro/fake-sim.ts","prototypes/pomodoro/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/http.ts","src/core/mobile.ts","src/core/notice.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-common.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/str.ts","src/core/utils.ts","src/core/z-order.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/pomodoro/fake-sim.ts → window.BZW_pomodoro（行为单源预览包，issue 245/ADR-0106） */
 var BZW_pomodoro = (() => {
   var __create = Object.create;
@@ -42,9 +42,9 @@ var BZW_pomodoro = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -4897,15 +4897,23 @@ var BZW_pomodoro = (() => {
     }
   });
 
-  // src/core/storage.ts
+  // src/core/storage-path.ts
   function normalizeStorageDir(value) {
-    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\/+$/, "");
+    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
     if (/\.json$/i.test(dir)) {
       const idx = dir.lastIndexOf("/");
       dir = idx >= 0 ? dir.slice(0, idx) : "";
     }
     return dir || DEFAULT_STORAGE_DIR;
   }
+  var DEFAULT_STORAGE_DIR;
+  var init_storage_path = __esm({
+    "src/core/storage-path.ts"() {
+      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+    }
+  });
+
+  // src/core/storage.ts
   function storageDir() {
     const s = tryGetSettings();
     return normalizeStorageDir(s && s.storagePath);
@@ -5110,13 +5118,13 @@ var BZW_pomodoro = (() => {
       }
     };
   }
-  var DEFAULT_STORAGE_DIR, fileTaskQueues, CORRUPT_BACKUP_DIR, CORRUPT_NOTIFY_DEDUPE_MS, corruptNotifyAt;
+  var fileTaskQueues, CORRUPT_BACKUP_DIR, CORRUPT_NOTIFY_DEDUPE_MS, corruptNotifyAt;
   var init_storage = __esm({
     "src/core/storage.ts"() {
       init_app();
       init_settings_provider();
       init_notice();
-      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+      init_storage_path();
       fileTaskQueues = /* @__PURE__ */ new Map();
       CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
       CORRUPT_NOTIFY_DEDUPE_MS = 3e4;

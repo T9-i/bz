@@ -316,7 +316,14 @@ function parseRuleRuntime(raw: unknown): DockRuleRuntime | null {
     const runId = str(raw.pending.runId);
     const dueAt = str(raw.pending.dueAt);
     const claimedAt = str(raw.pending.claimedAt);
-    if (runId && dueAt && claimedAt) out.pending = { runId, dueAt, claimedAt };
+    if (runId && dueAt && claimedAt) {
+      const pending: NonNullable<DockRuleRuntime['pending']> = { runId, dueAt, claimedAt };
+      const startedAt = str(raw.pending.startedAt);
+      if (startedAt) pending.startedAt = startedAt;
+      const attempts = num(raw.pending.attempts, 0, 1000);
+      if (attempts) pending.attempts = attempts;
+      out.pending = pending;
+    }
   }
   return Object.keys(out).length ? out : null;
 }

@@ -9,6 +9,7 @@ import { Setting } from 'obsidian';
 import type { SettingsSchema } from '../core/settings-schema';
 import { dockLockState } from './host';
 import { readRegistry, setSwitch } from './registry';
+import { watchdogModeText, watchdogStatus } from './watchdog-status';
 
 function switchRow(
   name: string,
@@ -41,13 +42,29 @@ export function dockSettingsSchema(): SettingsSchema {
         name: '工具坞',
         rows: [
           switchRow('自动运行', '按各工具的规则到点自动跑。关掉之后只能手动点', 'autoRun'),
+          switchRow('关掉 Obsidian 也让自动任务跑', '交给后台值守进程接手。关掉它，Obsidian 一关就全停', 'watchdog'),
           {
-            // 契约 v2 起值守进程还没迁到新账本。这一行留着是**为了说清楚**，不是为了给开关 ——
-            // 给一个开着却不起作用的开关，比没有这个开关更糟。
+            // 开关只管「要不要」，这一行回答「现在到底在不在跑」—— 两件事分开显示，
+            // 否则用户看到开关是开的，就会以为已经在跑了。
             type: 'custom',
-            name: '关掉 Obsidian 也让自动任务跑',
-            desc: '本版暂不支持：值守进程正在迁到新账本，Obsidian 关着时不会跑',
-            render: (body) => body.createDiv({ cls: 'bz-dock-lock-line', text: '暂不可用' }),
+            name: '值守状态',
+            desc: '后台进程最后一次心跳。装法见 tools/dock-watch/README.md',
+            render: (body) => {
+              const st = watchdogStatus();
+              const line = (text: string): HTMLElement => body.createDiv({ cls: 'bz-dock-lock-line', text });
+              if (!st.present) {
+                line('没装或从没启动过 —— Obsidian 关着时不会跑自动任务');
+                return;
+              }
+              line(`${st.alive ? '在跑' : '没在跑'}（${watchdogModeText(st.mode)}）`);
+              if (st.at) line(`最后心跳 ${new Date(st.at).toLocaleString()}`);
+              if (typeof st.runsSinceBoot === 'number') line(`这次启动跑了 ${st.runsSinceBoot} 次`);
+              if (st.lastRun) {
+                const r = st.lastRun;
+                line(`上次跑的是 ${r.name ?? r.toolId ?? '（未知）'}（${r.status ?? (r.ok ? '成功' : '失败')}）`);
+              }
+              if (st.lastError) line(`上次出错：${st.lastError}`);
+            },
           },
           switchRow('漏跑提醒', '该跑的时候没跑（比如电脑在睡觉），下次打开时告诉你一声', 'notifyMissed'),
           {

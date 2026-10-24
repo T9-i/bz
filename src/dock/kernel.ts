@@ -16,8 +16,8 @@
 
 import {
   BREAKER_THRESHOLD,
-  CLAIM_STALE_MS,
   FAIL_COOLDOWN_MS,
+  RUN_TIMEOUT_MS,
   type DockOutcome,
   type DockRegistry,
   type DockRule,
@@ -211,6 +211,13 @@ export interface TickDeps {
   execute(view: DockToolView, rule: DockRule, runId: string): Promise<DockOutcome>;
   /** 只提醒：发一条通知（不拉进程） */
   remind?(view: DockToolView, rule: DockRule): void;
+  /**
+   * 该不该继续跑下一个。**执行权丢了就返回 true**。
+   *
+   * 为什么要有这个：锁丢了之后，另一个宿主随时会进来写同一本账；
+   * 此时继续跑、继续 `settle`，就是两个写者的现场。**宁可这次不跑**。
+   */
+  shouldStop?(): boolean;
 }
 
 export interface TickResult {
@@ -275,11 +282,16 @@ export async function runTick(deps: TickDeps): Promise<TickResult> {
 
   // 2) 串行跑（一次一个；跑完看下一个）
   while (jobs.length && executed < MAX_RUNS_PER_TICK) {
+    // 每跑一个之前看一眼：锁没了就收手，一条账都不再写
+    if (deps.shouldStop?.()) break;
     const job = jobs.shift()!;
     const view = deps.views.find((v) => v.id === job.toolId);
     if (!view) continue;
     const rule = view.rules.find((r) => r.id === job.ruleId);
     if (!rule) continue;
+
+    // 起跑前盖章：之后谁都能看出「这个待办已经起过跑」以及起过几次
+    markStarted(view, rule.id, job.runId, deps.now, deps.fs);
 
     executed += 1;
     const startedAt = new Date().toISOString();
@@ -369,22 +381,73 @@ export function clearBreaker(view: DockToolView, fs?: DockFs | null): void {
   writeRuntime(view.path, runtime, fs ?? null);
 }
 
-/** 领号但进程没起来：判废（把 pending 清掉，免得永远卡住） */
-export function abandonStale(view: DockToolView, now: number, fs?: DockFs | null): boolean {
-  let changed = false;
+/** 同一个待办最多起几次进程。崩了重跑是好事，无限重跑不是 */
+export const MAX_ATTEMPTS = 3;
+
+/**
+ * 起跑前盖一个章：`startedAt` + `attempts`。
+ *
+ * 为什么必须有它：`claimedAt` 是**排队时刻**，抖动可能把它推到 12 小时后 —— 拿它判
+ * 「卡住了没有」会把还在排队的待办当成尸体。只有真正起过跑的，才谈得上「没收尾」。
+ */
+function markStarted(view: DockToolView, ruleId: string, runId: string, now: number, fs: DockFs | null | undefined): void {
+  const pending = view.runtime.rules?.[ruleId]?.pending;
+  const at = new Date(now).toISOString();
+  patchRule(
+    view,
+    ruleId,
+    {
+      pending: {
+        runId,
+        dueAt: pending?.dueAt ?? at,
+        claimedAt: pending?.claimedAt ?? at,
+        startedAt: at,
+        attempts: (pending?.attempts ?? 0) + 1,
+      },
+    },
+    fs,
+  );
+}
+
+/**
+ * 回收「起跑了但没收尾」的待办 —— 三段式的第三段（claim → running → settle）里，
+ * settle 没来成的那一次。
+ *
+ * 两种情况分开处理：
+ *  - **还在等抖动**（没有 `startedAt`）→ 不碰。它没卡住，只是没到点。
+ *  - **起跑超过 `RUN_TIMEOUT_MS` + 1 分钟仍挂着** → 这次已经废了：
+ *    `attempts < MAX_ATTEMPTS` 就清掉 `startedAt`，让下一拍重跑（崩了重跑是好事）；
+ *    到了上限就清掉 pending、记一条 `abandoned`，并算一次失败 —— 无限重跑不是好事。
+ */
+export function reclaimStale(view: DockToolView, now: number, fs?: DockFs | null): 'requeue' | 'abandon' | null {
   const rules = { ...(view.runtime.rules ?? {}) };
+  let verdict: 'requeue' | 'abandon' | null = null;
+
   for (const [id, st] of Object.entries(rules)) {
-    if (!st.pending) continue;
-    const claimed = Date.parse(st.pending.claimedAt);
-    if (Number.isFinite(claimed) && now - claimed > CLAIM_STALE_MS) {
+    const pending = st.pending;
+    if (!pending?.startedAt) continue;
+    const started = Date.parse(pending.startedAt);
+    if (!Number.isFinite(started) || now - started <= RUN_TIMEOUT_MS + 60_000) continue;
+
+    if ((pending.attempts ?? 1) < MAX_ATTEMPTS) {
+      rules[id] = { ...st, pending: { ...pending, startedAt: undefined } };
+      verdict = 'requeue';
+    } else {
+      const facts = { ...(view.runtime.run ?? {}) };
+      facts.lastAttemptAt = new Date(now).toISOString();
+      facts.lastAttemptOk = false;
+      facts.consecutiveFailures = (facts.consecutiveFailures ?? 0) + 1;
+      if (facts.consecutiveFailures >= BREAKER_THRESHOLD) facts.pausedAt = new Date(now).toISOString();
       rules[id] = { ...st, lastFiredAt: new Date(now).toISOString(), lastStatus: 'abandoned' };
       delete rules[id].pending;
-      changed = true;
+      view.runtime = { ...view.runtime, run: facts };
+      verdict = 'abandon';
     }
   }
-  if (changed) {
+
+  if (verdict) {
     view.runtime = { ...view.runtime, rules };
     writeRuntime(view.path, view.runtime, fs ?? null);
   }
-  return changed;
+  return verdict;
 }
