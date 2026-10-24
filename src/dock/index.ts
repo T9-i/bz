@@ -1,31 +1,53 @@
 /**
- * 工具坞域入口（dock）：外部工具的登记、启动、回显、留痕、**调度**。
+ * 工具坞域入口（dock）：外部工具的登记、授权、运行、记账、调度。
  *
- * 命令注册都在 main.ts：`bz-dock-open` 在 COMMANDS 表；每个已登记工具的直达运行命令
- * （`bz-dock-run-<工具id>`）启动时按登记表各注册一条（域内不重复 addCommand）。
+ * 契约 v2 —— **不认旧文件、不认旧字段**。整域只有三份真相：
+ *  工具目录里的 `manifest.json`（作者写的）、`dock.intent.json`（人定的）、`dock.runtime.json`（机器记的）；
+ *  外加数据目录的 `dock.json`（有哪些工具）与本机设置里的 `dockTrust`（授权）。
  *
- * 本域**有一个常驻后台任务**：调度器（spec D1 修订 / ADR-0236）—— Obsidian 就绪后按各工具
- * 声明的节奏触发它。它只在桌面端起，且每次 tick 都现查「自动运行」总闸，中途开关立刻生效。
+ * 命令注册在 `main.ts`：`bz-dock-open` 在命令表里，每个已登记的工具另有一条直达运行命令。
  */
-export { openDock, closeDock, unloadDock, ensureDock, runToolDirect } from './ui';
-/** 直达运行命令的口径层：门槛判定（node 可直测，与面板/调度器同源）+ 命令名里的工具名 */
-export { judgeDirectRun, dockToolLabel } from './command';
-/** 调度器（D1 修订：bz 亲自调度自动化工具；关着 Obsidian 时不会跑） */
-export { startDockScheduler, stopDockScheduler, kickDockScheduler } from './scheduler';
-/** 状态栏：面板没开时也能看见「有工具在跑」，点击直达面板 */
+
+import { readRegistry, readTrust, setSwitch } from './registry';
+import { loadToolView } from './view';
+
+export { openDock, closeDock, unloadDock, ensureDock, openToolPanel } from './ui';
+export { runToolDirect, dockToolLabel, judgeRunGate } from './command';
+export { startDockScheduler, stopDockScheduler, kickDockScheduler, notifyDockEvent } from './host';
 export { mountDockStatusBar, unmountDockStatusBar } from './statusbar';
-/** 执行依赖注入缝（评审壳/测试塞假 child_process；插件侧不调用） */
-export { setDockRuntimeDeps } from './runner';
-/** fs 注入缝（评审壳/测试塞假 fs —— 声明文件与参数值住在工具目录，是 vault 外的路径） */
-export { setDockFs } from './declaration';
-/** 移动端只读读桥：vault adapter 预取 → 同步缓存（手机上没有 Node，fs 缝默认是 null） */
+
+/** 执行依赖注入缝（测试 / 评审壳塞假 child_process） */
+export { setExecDeps as setDockRuntimeDeps } from './exec';
+/** fs 注入缝（测试塞假 fs；移动端指向内存读桥） */
+export { setDockFs } from './files';
+/** 移动端只读读桥 */
 export { installVaultFs, uninstallVaultFs, hasVaultFs, primeVaultFs, primePathsOf } from './vault-fs';
-/** 登记表读取（main.ts 启动时按它注册直达运行命令）+ 两个全域开关（设置行 / 调度器） */
-export { readToolEntries, readDockSwitch, saveDockSwitch } from './data';
-/** 面板数据（`<数据目录>/dock.json`）：装载 / 迁移种子 / 路径 —— ADR-0239 */
-export {
-  loadDockStore,
-  migrateLegacyDockSettings,
-  dockStorePath,
-  DOCK_STORE_FILENAME,
-} from './store';
+
+/** 登记表读取（main.ts 启动时按它注册直达命令） */
+export function readToolEntries(): { id: string; path: string; enabled: boolean }[] {
+  const { registry } = readRegistry();
+  const trust = readTrust();
+  return registry.tools.map((e) => ({
+    id: e.id,
+    path: e.path,
+    enabled: loadToolView(e, { trust }).intent.enabled !== false,
+  }));
+}
+
+/** 三个全域开关（设置页 / 调度器读） */
+export function readDockSwitch(key: 'autoRun' | 'watchdog' | 'notifyMissed'): boolean {
+  return readRegistry().registry[key];
+}
+
+export function saveDockSwitch(key: 'autoRun' | 'watchdog' | 'notifyMissed', value: boolean): void {
+  setSwitch(key, value);
+}
+
+/** 登记表路径与文件名（诊断 / 数据体检用） */
+export { registryPath as dockStorePath, DOCK_TRUST_KEY } from './registry';
+export const DOCK_STORE_FILENAME = 'dock.json';
+
+/** 启动时初始化（一切都是现读，没有需要预热的缓存；保留入口给宿主统一调用） */
+export async function initDock(): Promise<void> {
+  /* 空实现：上面所有读都是现读 */
+}

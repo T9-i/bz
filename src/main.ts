@@ -100,13 +100,11 @@ import {
   runToolDirect,
   dockToolLabel,
   readToolEntries,
-  loadDockStore,
-  migrateLegacyDockSettings,
+  initDock,
   mountDockStatusBar,
   unmountDockStatusBar,
   installVaultFs,
   primeVaultFs,
-  primePathsOf,
 } from './dock';
 
 /** 命令表：id/name 统一命名（spec「命令 id 全清单」第 9 轮：bz-<域>-<动作>）。
@@ -320,9 +318,6 @@ export default class BzPlugin extends Plugin {
     const asrKeysMigrated = migrateAsrKeys(loaded);
     // issue 462/ADR-0195：knowledge 三路径键 → 外部工具组（pythonPath/ffmpegPath/ffprobePath）
     const externalToolKeysMigrated = migrateExternalToolKeys(loaded);
-    // ADR-0239：工具坞面板数据（登记表 / 台账 / 两个开关）搬出插件设置 → 数据目录的 dock.json；
-    // 信任（trustedAt/trustedRun）刻意留在设置里（`dockTrust`），故本条同时把老登记项里的信任摘出来
-    const dockMigrated = migrateLegacyDockSettings(loaded);
     this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
     setApp(this.app);
     // 移动端没有 Node：工具坞默认那条 `window.require('fs')` 读链整条是断的，
@@ -337,10 +332,8 @@ export default class BzPlugin extends Plugin {
     setSettingsProvider(() => this.settings);
     // 设置保存通道（域设置弹窗写回后持久化）
     setSettingsSaver(() => this.saveSettings());
-    // 工具坞面板数据装载（ADR-0239）：登记表 / 调度台账 / 两个开关自本轮起住数据目录的
-    // `dock.json`（跟其他域一样跟着 storagePath 走），而下面的直达运行命令注册与调度器都是
-    // **同步**读它 —— 所以在这里先装载一次。迁移种子只在文件此前不存在时落盘（老库搬一次家）。
-    await loadDockStore(dockMigrated?.seed ?? null);
+    // 工具坞（契约 v2）：登记表住数据目录的 `dock.json`，一切都是现读，没有缓存要预热。
+    await initDock();
     // 迁移落盘（读旧写新删旧的「删旧」一步）刻意排在 loadDockStore 之后：种子先落进
     // dock.json、再删旧键落盘设置 —— 反过来的话（saveSettings 与种子写入并发竞速），
     // 「设置已存下去（旧键没了）但种子没写成」之间崩溃一次，登记表与台账就静默丢失
@@ -353,8 +346,7 @@ export default class BzPlugin extends Plugin {
       retiredSecondBrainKeysMigrated ||
       retiredJevKeysMigrated ||
       asrKeysMigrated ||
-      externalToolKeysMigrated ||
-      dockMigrated
+      externalToolKeysMigrated
     ) {
       void this.saveSettings().catch((e) => console.error('[bz] 设置键迁移落盘失败:', e));
     }
@@ -383,7 +375,7 @@ export default class BzPlugin extends Plugin {
 
     // 移动端：工具目录那几份文件先预取进内存 —— 面板与设置页的读链都是同步的，
     // 没有这一遍它们只能看到「读不到」（面板打开时还会再刷一次，见 ui.refresh）
-    if (Platform.isMobile) await primeVaultFs(readToolEntries().flatMap(primePathsOf));
+    if (Platform.isMobile) await primeVaultFs(this.app, readToolEntries());
 
     // 命令裸注册（ADR-0004：app.commands.addCommand 原样 id 注册——plugin.addCommand 会被 Obsidian 自动加插件前缀，主页.js 等外部裸 id 调用会失效）
     for (const c of COMMANDS) {
@@ -422,7 +414,7 @@ export default class BzPlugin extends Plugin {
     mountEncryptStatusBar(this.addStatusBarItem());
 
     // 工具坞状态栏：面板没开也看得见「有工具在跑」，点击打开面板
-    mountDockStatusBar(this.addStatusBarItem(), this.app);
+    mountDockStatusBar(this.addStatusBarItem(), () => openDock(getApp()));
 
     // 设置页
     this.addSettingTab(new BzSettingTab(this.app, this));

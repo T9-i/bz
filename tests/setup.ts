@@ -194,4 +194,10 @@ if (typeof HTMLElement !== 'undefined' && !(HTMLElement.prototype as any).create
   (HTMLElement.prototype as any).toggleClass = function (c: string, on: boolean) {
     this.classList.toggle(c, on);
   };
+  (HTMLElement.prototype as any).removeClass = function (c: string) {
+    this.classList.remove(c);
+  };
+  (HTMLElement.prototype as any).setText = function (t: string) {
+    this.textContent = t;
+  };
 }

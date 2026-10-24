@@ -9,7 +9,7 @@ import { DEFAULT_PW_CHARSET } from './password-vault/data';
 import { AUTO_SUMMARY_KEYS } from './auto-summary/keys';
 import { unsharpenScore } from './secondbrain/vector-math';
 // 工具坞（dock 域）登记条目类型 —— **type-only**：类型层引用，运行时零依赖（不拖 dock 侧的 core/storage）
-import type { DockTrustRecord } from './dock/store';
+import type { DockTrustRecord } from './dock/registry';
 // AI 注册表/档位表（issue 411/ADR-0179）：迁移须与注册表同源判定「在册服务商」，防两处字面量漂移
 import { AI_PROVIDER_REGISTRY, DEFAULT_AI_PROVIDER, thinkingLevelsOf } from './core/ai';
 

@@ -1,0 +1,237 @@
+// @vitest-environment node
+/**
+ * 调度内核测试 —— 只验三件用户会疼的事：
+ *
+ *  1) **不丢**：崩在「记了账、还没跑」之间，下一拍还能接着办；
+ *  2) **不重**：同一拍里同一条规则只排一次；待办没到期不跑；
+ *  3) **说得清**：没跑的时候有明确原因（没授权 / 关着 / 缺参数 / 冷却）。
+ */
+
+import { describe, expect, it } from 'vitest';
+import { planTick, runTick, missingParams, type TickDeps } from '../../src/dock/kernel';
+import { fakeFs } from './_fake-fs';
+import { emptyIntent, emptyRuntime } from '../../src/dock/parse';
+import { pathOf } from '../../src/dock/files';
+import { emptyRegistry } from '../../src/dock/parse';
+import type { DockRule, DockToolView, DockRunRecord, DockOutcome } from '../../src/dock/types';
+
+function viewOf(over: Partial<DockToolView> = {}): DockToolView {
+  const base: DockToolView = {
+    id: 'demo',
+    path: '/tools/demo/manifest.json',
+    dir: '/tools/demo',
+    manifest: {
+      v: 2,
+      id: 'demo',
+      name: '演示',
+      entry: { cmd: 'node', args: ['main.mjs'] },
+      params: [],
+    },
+    entry: { cmd: 'node', args: ['main.mjs'] },
+    params: [],
+    values: {},
+    intent: emptyIntent('demo'),
+    runtime: emptyRuntime('demo'),
+    rules: [],
+    trusted: true,
+    trustStale: false,
+    runnable: true,
+  };
+  return { ...base, ...over };
+}
+
+const daily: DockRule = { id: 'r1', trigger: { kind: 'daily', at: '09:00' }, action: { kind: 'run' } };
+
+function at(hour: number, minute = 0): number {
+  const d = new Date(2026, 0, 5, hour, minute, 0, 0);
+  return d.getTime();
+}
+
+function plan(over: Partial<Parameters<typeof planTick>[0]> = {}) {
+  return planTick({
+    views: [viewOf({ rules: [daily] })],
+    now: at(10),
+    globalAutoRun: true,
+    liveIds: new Set<string>(),
+    ...over,
+  });
+}
+
+describe('判据排程', () => {
+  it('到点且今天还没跑 → 排上', () => {
+    const out = plan();
+    expect(out.decisions[0].kind).toBe('queue');
+  });
+
+  it('没到点 → 什么都不做', () => {
+    const out = plan({ now: at(8) });
+    expect(out.decisions).toHaveLength(0);
+  });
+
+  it('今天已经跑过 → 不再排', () => {
+    const v = viewOf({
+      rules: [daily],
+      runtime: { ...emptyRuntime('demo'), rules: { r1: { lastFiredAt: new Date(at(9, 30)).toISOString() } } },
+    });
+    expect(plan({ views: [v] }).decisions).toHaveLength(0);
+  });
+
+  it('总闸关着 → 明确说「全局关着」，不是静默不动', () => {
+    const out = plan({ globalAutoRun: false });
+    expect(out.decisions[0]).toMatchObject({ kind: 'skip', reason: 'global-off' });
+  });
+
+  it('没授权 → untrusted', () => {
+    const out = plan({ views: [viewOf({ rules: [daily], trusted: false })] });
+    expect(out.decisions[0]).toMatchObject({ kind: 'skip', reason: 'untrusted' });
+  });
+
+  it('缺必填参数 → missing-params，并且说清缺哪个', () => {
+    const v = viewOf({
+      rules: [daily],
+      params: [{ key: 'cookie', type: 'secret', required: true }],
+    });
+    expect(missingParams(v)).toEqual(['cookie']);
+    expect(plan({ views: [v] }).decisions[0]).toMatchObject({ reason: 'missing-params' });
+  });
+
+  it('上一轮还没跑完 → running（不叠加第二个进程）', () => {
+    const out = plan({ liveIds: new Set(['demo']) });
+    expect(out.decisions[0]).toMatchObject({ reason: 'running' });
+  });
+
+  it('失败冷却期内 → cooldown', () => {
+    const v = viewOf({
+      rules: [daily],
+      runtime: {
+        ...emptyRuntime('demo'),
+        run: { lastAttemptAt: new Date(at(9, 50)).toISOString(), lastAttemptOk: false },
+      },
+    });
+    expect(plan({ views: [v] }).decisions[0]).toMatchObject({ reason: 'cooldown' });
+  });
+
+  it('抖动：到期时刻被算出来写进账本，而不是挂个内存定时器', () => {
+    const rule: DockRule = { ...daily, jitterMin: 10 };
+    const out = plan({ views: [viewOf({ rules: [rule] })] });
+    const d = out.decisions[0];
+    expect(d.kind).toBe('queue');
+    expect(Date.parse(d.dueAt ?? '')).toBeGreaterThan(at(10));
+    expect(Date.parse(d.dueAt ?? '')).toBeLessThanOrEqual(at(10) + 10 * 60_000);
+  });
+
+  it('已经排上队但没到期 → waiting，不重复排', () => {
+    const v = viewOf({
+      rules: [daily],
+      runtime: {
+        ...emptyRuntime('demo'),
+        rules: {
+          r1: { pending: { runId: 'r-x', dueAt: new Date(at(11)).toISOString(), claimedAt: new Date(at(10)).toISOString() } },
+        },
+      },
+    });
+    const out = plan({ views: [v] });
+    expect(out.decisions[0]).toMatchObject({ kind: 'skip', reason: 'waiting' });
+    expect(out.ready).toHaveLength(0);
+  });
+
+  it('排上队且已到期 → 这一拍就跑（崩溃后靠它续上）', () => {
+    const v = viewOf({
+      rules: [daily],
+      runtime: {
+        ...emptyRuntime('demo'),
+        rules: {
+          r1: { pending: { runId: 'r-x', dueAt: new Date(at(9)).toISOString(), claimedAt: new Date(at(9)).toISOString() } },
+        },
+      },
+    });
+    const out = plan({ views: [v] });
+    expect(out.ready).toHaveLength(1);
+    expect(out.ready[0].runId).toBe('r-x');
+  });
+});
+
+describe('跑一拍', () => {
+  function deps(over: Partial<TickDeps> = {}): TickDeps {
+    const recs: DockRunRecord[] = [];
+    return {
+      dataDir: '/data',
+      registry: emptyRegistry(),
+      views: [viewOf({ rules: [daily] })],
+      now: at(10),
+      liveIds: new Set<string>(),
+      execute: async (_v, _r, runId) => {
+        const o: DockOutcome = {
+          ok: true,
+          status: 'ok',
+          runId,
+          code: 0,
+          stderr: '',
+          error: null,
+          kind: 'unknown',
+          startedAt: new Date(at(10)).toISOString(),
+          finishedAt: new Date(at(10, 1)).toISOString(),
+          durationMs: 60_000,
+          record: { runId, tool: 'demo', trigger: 'auto', status: 'ok', startedAt: new Date(at(10)).toISOString() },
+        };
+        recs.push(o.record as DockRunRecord);
+        return o;
+      },
+      ...over,
+    };
+  }
+
+  it('跑完：pending 清掉、lastFiredAt 落账、同一拍不会再跑第二遍', async () => {
+    const fs = fakeFs();
+    const d = deps();
+    d.fs = fs;
+    const out = await runTick(d);
+    expect(out.executed).toBe(1);
+    const saved = JSON.parse(fs.files.get(pathOf.runtime(d.views[0].path)) ?? '{}');
+    expect(saved.rules.r1.pending).toBeUndefined();
+    expect(saved.rules.r1.lastStatus).toBe('ok');
+    expect(saved.run.lastAttemptOk).toBe(true);
+
+    // 再拍一次：不应该再跑（今天已经跑过）
+    const again = await runTick({ ...d, now: at(10, 1) });
+    expect(again.executed).toBe(0);
+  });
+
+  it('失败会记账，连续三次就熔断', async () => {
+    const fs = fakeFs();
+    const fail = deps({
+      fs,
+      now: at(10),
+      execute: async (_v, _r, runId): Promise<DockOutcome> => ({
+        ok: false,
+        status: 'failed',
+        runId,
+        code: 1,
+        stderr: '',
+        error: null,
+        kind: 'unknown',
+        startedAt: new Date(at(10)).toISOString(),
+        finishedAt: new Date(at(10)).toISOString(),
+        durationMs: 0,
+      }),
+    });
+    await runTick(fail);
+    const saved = JSON.parse(fs.files.get(pathOf.runtime(fail.views[0].path)) ?? '{}');
+    expect(saved.run.consecutiveFailures).toBe(1);
+    expect(saved.run.pausedAt).toBeUndefined();
+  });
+
+  it('执行抛错不会把这一拍带走', async () => {
+    const fs = fakeFs();
+    const d = deps({
+      fs,
+      execute: async () => {
+        throw new Error('boom');
+      },
+    });
+    const out = await runTick(d);
+    expect(out.executed).toBe(1);
+    const saved = JSON.parse(fs.files.get(pathOf.runtime(d.views[0].path)) ?? '{}');
+    expect(saved.rules.r1.lastStatus).toBe('failed');
+  });
+});

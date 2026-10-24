@@ -1,5 +1,5 @@
-/* 源指纹 f67fd245c31beda3 · 仓内输入 328 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/action.ts","src/dock/command.ts","src/dock/data.ts","src/dock/declaration.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/runner.ts","src/dock/schedule.ts","src/dock/scheduler.ts","src/dock/schema.ts","src/dock/settings.ts","src/dock/store.ts","src/dock/tool-state.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/watchdog.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 82ecebc34d75be6d · 仓内输入 323 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/settings.ts","src/dock/types.ts","src/dock/view.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
   var __create = Object.create;
@@ -42,9 +42,9 @@ var BZW_home = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -1891,7 +1891,7 @@ var BZW_home = (() => {
             config._d = /* @__PURE__ */ new Date(config._i + (config._useUTC ? " UTC" : ""));
           }
         );
-        function defaults2(a, b, c) {
+        function defaults(a, b, c) {
           if (a != null) {
             return a;
           }
@@ -1921,7 +1921,7 @@ var BZW_home = (() => {
             dayOfYearFromWeekInfo(config);
           }
           if (config._dayOfYear != null) {
-            yearToUse = defaults2(config._a[YEAR], currentDate[YEAR]);
+            yearToUse = defaults(config._a[YEAR], currentDate[YEAR]);
             if (config._dayOfYear > daysInYear(yearToUse) || config._dayOfYear === 0) {
               getParsingFlags(config)._overflowDayOfYear = true;
             }
@@ -1960,13 +1960,13 @@ var BZW_home = (() => {
           if (w.GG != null || w.W != null || w.E != null) {
             dow = 1;
             doy = 4;
-            weekYear = defaults2(
+            weekYear = defaults(
               w.GG,
               config._a[YEAR],
               weekOfYear(createLocal(), 1, 4).year
             );
-            week = defaults2(w.W, 1);
-            weekday = defaults2(w.E, 1);
+            week = defaults(w.W, 1);
+            weekday = defaults(w.E, 1);
             if (weekday < 1 || weekday > 7) {
               weekdayOverflow = true;
             }
@@ -1974,8 +1974,8 @@ var BZW_home = (() => {
             dow = config._locale._week.dow;
             doy = config._locale._week.doy;
             curWeek = weekOfYear(createLocal(), dow, doy);
-            weekYear = defaults2(w.gg, config._a[YEAR], curWeek.year);
-            week = defaults2(w.w, curWeek.week);
+            weekYear = defaults(w.gg, config._a[YEAR], curWeek.year);
+            week = defaults(w.w, curWeek.week);
             if (w.d != null) {
               weekday = w.d;
               if (weekday < 0 || weekday > 6) {
@@ -4032,17 +4032,17 @@ var BZW_home = (() => {
   });
 
   // src/core/z-order.ts
-  function registerAlwaysOnTop(el3) {
-    alwaysOnTop.add(el3);
+  function registerAlwaysOnTop(el2) {
+    alwaysOnTop.add(el2);
     syncAlwaysOnTop();
   }
   function syncAlwaysOnTop() {
-    for (const el3 of alwaysOnTop) {
-      if (!el3.isConnected) {
-        alwaysOnTop.delete(el3);
+    for (const el2 of alwaysOnTop) {
+      if (!el2.isConnected) {
+        alwaysOnTop.delete(el2);
         continue;
       }
-      el3.style.zIndex = String(zCounter);
+      el2.style.zIndex = String(zCounter);
     }
   }
   function allocZBlock(n) {
@@ -4056,11 +4056,11 @@ var BZW_home = (() => {
     return allocZBlock(1);
   }
   function topifyZ(...els) {
-    const live3 = els.filter((el3) => !!el3);
-    if (live3.length === 0) return;
-    const base = allocZBlock(live3.length);
-    live3.forEach((el3, i) => {
-      el3.style.zIndex = String(base + i);
+    const live2 = els.filter((el2) => !!el2);
+    if (live2.length === 0) return;
+    const base = allocZBlock(live2.length);
+    live2.forEach((el2, i) => {
+      el2.style.zIndex = String(base + i);
     });
   }
   var zCounter, alwaysOnTop;
@@ -4359,7 +4359,7 @@ var BZW_home = (() => {
       setAction(actions) {
         const list = Array.isArray(actions) ? actions : [actions];
         const existing = new Set(
-          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el3) => el3.textContent || "")
+          Array.from(n.el.querySelectorAll(".bz-notice-action")).map((el2) => el2.textContent || "")
         );
         for (const a of list) {
           if (existing.has(a.label)) continue;
@@ -4403,10 +4403,10 @@ var BZW_home = (() => {
       recent[key] = { at: now, n: null };
     }
     evictOldest();
-    const el3 = document.createElement("div");
-    el3.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
-    el3.setAttribute("role", "status");
-    el3.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    const el2 = document.createElement("div");
+    el2.className = "bz-notice bz-notice--" + (isProgress ? "progress" : type) + " bz-notice--in-" + variant;
+    el2.setAttribute("role", "status");
+    el2.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
     const icon = document.createElement("div");
     icon.className = "bz-notice-icon";
     if (isProgress) {
@@ -4414,7 +4414,7 @@ var BZW_home = (() => {
     } else {
       icon.textContent = ICONS[type];
     }
-    el3.appendChild(icon);
+    el2.appendChild(icon);
     const body = document.createElement("div");
     body.className = "bz-notice-body";
     if (opts && opts.title) {
@@ -4427,14 +4427,14 @@ var BZW_home = (() => {
     msgEl.className = "bz-notice-msg";
     msgEl.textContent = msg;
     body.appendChild(msgEl);
-    el3.appendChild(body);
+    el2.appendChild(body);
     let progressEl = null;
     if (isProgress) {
       progressEl = document.createElement("div");
       progressEl.className = "bz-notice-progress";
-      el3.appendChild(progressEl);
+      el2.appendChild(progressEl);
     }
-    const n = { el: el3, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
+    const n = { el: el2, timer: null, msgEl, progressEl, iconEl: icon, variant, isProgress, persistent: false };
     const actions = [];
     if (opts && opts.action) actions.push(opts.action);
     if (opts && opts.actions) {
@@ -4443,9 +4443,9 @@ var BZW_home = (() => {
       }
     }
     for (const a of actions) appendActionBtn(n, a);
-    el3.addEventListener("click", () => hideNow(n));
+    el2.addEventListener("click", () => hideNow(n));
     container.style.zIndex = String(allocZ());
-    container.appendChild(el3);
+    container.appendChild(el2);
     live.push(n);
     if (opts && opts.dedupeKey) {
       const r = recent[opts.dedupeKey];
@@ -4559,8 +4559,8 @@ var BZW_home = (() => {
   });
 
   // src/core/app.ts
-  function setApp(app2) {
-    _app = app2;
+  function setApp(app) {
+    _app = app;
   }
   function getApp() {
     if (!_app) {
@@ -4676,8 +4676,8 @@ var BZW_home = (() => {
   function unescapeYamlText(s) {
     return s.replace(/\\(.)/g, (m, c) => c === '"' || c === "\\" ? c : m);
   }
-  function escapeHtml2(str4) {
-    return str4.replace(/[&<>"']/g, (m) => {
+  function escapeHtml2(str3) {
+    return str3.replace(/[&<>"']/g, (m) => {
       if (m === "&") return "&amp;";
       if (m === "<") return "&lt;";
       if (m === ">") return "&gt;";
@@ -4780,9 +4780,9 @@ var BZW_home = (() => {
     if (!f) return false;
     return path === f || path.startsWith(f + "/");
   }
-  function hash31(str4) {
+  function hash31(str3) {
     let h = 0;
-    const t = String(str4 || "");
+    const t = String(str3 || "");
     for (let i = 0; i < t.length; i++) h = h * 31 + t.charCodeAt(i) >>> 0;
     return h >>> 0;
   }
@@ -4858,9 +4858,9 @@ var BZW_home = (() => {
       }
     }
   }
-  function openExternalUrl(app2, url) {
+  function openExternalUrl(app, url) {
     try {
-      const r = app2.openUrl(url);
+      const r = app.openUrl(url);
       if (r && typeof r.catch === "function") {
         r.catch(() => {
           if (!openViaElectron(url)) openViaWindow(url);
@@ -4918,8 +4918,8 @@ var BZW_home = (() => {
   });
 
   // src/core/ui/focus-trap.ts
-  function isHidden(el3) {
-    let cur = el3;
+  function isHidden(el2) {
+    let cur = el2;
     while (cur && cur !== document.body) {
       if (cur.classList.contains("bz-setting-hidden")) return true;
       if (cur.style.display === "none") return true;
@@ -4928,10 +4928,10 @@ var BZW_home = (() => {
     return false;
   }
   function firstFocusable(container) {
-    const list = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el3) => {
-      if (isHidden(el3)) return false;
+    const list = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el2) => {
+      if (isHidden(el2)) return false;
       if (isMobileEnv()) {
-        const tag = el3.tagName;
+        const tag = el2.tagName;
         if (tag === "INPUT" || tag === "TEXTAREA") return false;
       }
       return true;
@@ -4942,7 +4942,7 @@ var BZW_home = (() => {
     const onKeydown = (e) => {
       if (e.key !== "Tab") return;
       const items = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
-        (el3) => !isHidden(el3) && !el3.hasAttribute("disabled")
+        (el2) => !isHidden(el2) && !el2.hasAttribute("disabled")
       );
       if (!items.length) return;
       const first = items[0];
@@ -5034,7 +5034,7 @@ var BZW_home = (() => {
       popup.innerHTML = parts.html;
       mask.appendChild(popup);
       document.body.appendChild(mask);
-      const escHandle9 = escManager.register("q3-confirm", {
+      const escHandle8 = escManager.register("q3-confirm", {
         isVisible: () => mask.isConnected,
         close: () => settle(void 0)
       });
@@ -5050,7 +5050,7 @@ var BZW_home = (() => {
         settled = true;
         if (activeSettle === settle) activeSettle = null;
         releaseFocusTrap();
-        escHandle9.unregister();
+        escHandle8.unregister();
         mask.remove();
         restoreFocus();
         resolve2(v);
@@ -5468,14 +5468,14 @@ var BZW_home = (() => {
     return i;
   }
   function mountIcons(root) {
-    root.querySelectorAll("[data-lucide]").forEach((el3) => {
-      const name = el3.getAttribute("data-lucide") || "";
+    root.querySelectorAll("[data-lucide]").forEach((el2) => {
+      const name = el2.getAttribute("data-lucide") || "";
       if (!name) return;
       try {
         const fresh = uiIconSpan(name);
-        const cls = el3.className;
+        const cls = el2.className;
         if (cls && cls !== "bz-ic") fresh.className = cls;
-        el3.replaceWith(fresh);
+        el2.replaceWith(fresh);
       } catch (e) {
       }
     });
@@ -5726,23 +5726,23 @@ var BZW_home = (() => {
 
   // src/core/ui/slider.ts
   function uiRange(opts) {
-    const el3 = document.createElement("input");
-    el3.type = "range";
-    el3.className = "bz-range" + (opts.className ? " " + opts.className : "");
-    if (opts.min !== void 0) el3.min = String(opts.min);
-    if (opts.max !== void 0) el3.max = String(opts.max);
-    if (opts.step !== void 0) el3.step = String(opts.step);
-    if (opts.value !== void 0) el3.value = String(opts.value);
-    if (opts.disabled) el3.disabled = true;
-    if (opts.onInput) el3.addEventListener("input", () => {
+    const el2 = document.createElement("input");
+    el2.type = "range";
+    el2.className = "bz-range" + (opts.className ? " " + opts.className : "");
+    if (opts.min !== void 0) el2.min = String(opts.min);
+    if (opts.max !== void 0) el2.max = String(opts.max);
+    if (opts.step !== void 0) el2.step = String(opts.step);
+    if (opts.value !== void 0) el2.value = String(opts.value);
+    if (opts.disabled) el2.disabled = true;
+    if (opts.onInput) el2.addEventListener("input", () => {
       var _a2;
-      return (_a2 = opts.onInput) == null ? void 0 : _a2.call(opts, parseFloat(el3.value));
+      return (_a2 = opts.onInput) == null ? void 0 : _a2.call(opts, parseFloat(el2.value));
     });
-    if (opts.onChange) el3.addEventListener("change", () => {
+    if (opts.onChange) el2.addEventListener("change", () => {
       var _a2;
-      return (_a2 = opts.onChange) == null ? void 0 : _a2.call(opts, parseFloat(el3.value));
+      return (_a2 = opts.onChange) == null ? void 0 : _a2.call(opts, parseFloat(el2.value));
     });
-    return el3;
+    return el2;
   }
   var init_slider = __esm({
     "src/core/ui/slider.ts"() {
@@ -5751,25 +5751,25 @@ var BZW_home = (() => {
 
   // src/core/ui/empty.ts
   function uiEmpty(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-empty";
+    const el2 = document.createElement("div");
+    el2.className = "bz-empty";
     if (opts.icon) {
       const ic2 = uiIcon(opts.icon);
       ic2.classList.add("bz-empty-ic");
-      el3.appendChild(ic2);
+      el2.appendChild(ic2);
     }
     const t = document.createElement("div");
     t.className = "bz-empty-title";
     t.textContent = opts.title;
-    el3.appendChild(t);
+    el2.appendChild(t);
     if (opts.desc) {
       const d = document.createElement("div");
       d.className = "bz-empty-desc";
       d.textContent = opts.desc;
-      el3.appendChild(d);
+      el2.appendChild(d);
     }
-    if (opts.actions) el3.appendChild(opts.actions);
-    return el3;
+    if (opts.actions) el2.appendChild(opts.actions);
+    return el2;
   }
   var init_empty = __esm({
     "src/core/ui/empty.ts"() {
@@ -5779,10 +5779,10 @@ var BZW_home = (() => {
 
   // src/core/ui/segmented.ts
   function uiSegmented(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-segmented" + (opts.className ? " " + opts.className : "");
-    el3.setAttribute("role", "radiogroup");
-    el3.setAttribute("aria-label", opts.label || "");
+    const el2 = document.createElement("div");
+    el2.className = "bz-segmented" + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "radiogroup");
+    el2.setAttribute("aria-label", opts.label || "");
     const btns = /* @__PURE__ */ new Map();
     opts.options.forEach((o) => {
       const b = document.createElement("button");
@@ -5809,7 +5809,7 @@ var BZW_home = (() => {
         (_a2 = btns.get(vals[nextIdx])) == null ? void 0 : _a2.focus();
       });
       btns.set(o.value, b);
-      el3.appendChild(b);
+      el2.appendChild(b);
     });
     let cur = opts.value;
     function current2() {
@@ -5823,7 +5823,7 @@ var BZW_home = (() => {
         b.setAttribute("aria-checked", String(on));
       });
     }
-    return { el: el3, setValue };
+    return { el: el2, setValue };
   }
   var init_segmented = __esm({
     "src/core/ui/segmented.ts"() {
@@ -5832,10 +5832,10 @@ var BZW_home = (() => {
 
   // src/core/ui/choice.ts
   function uiChoice(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-choice" + (opts.float ? " bz-choice--float" : "") + (opts.className ? " " + opts.className : "");
-    el3.setAttribute("role", "radiogroup");
-    el3.setAttribute("aria-label", opts.label || "");
+    const el2 = document.createElement("div");
+    el2.className = "bz-choice" + (opts.float ? " bz-choice--float" : "") + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "radiogroup");
+    el2.setAttribute("aria-label", opts.label || "");
     const btns = /* @__PURE__ */ new Map();
     let cur = opts.value;
     const seg = document.createElement("span");
@@ -5844,11 +5844,11 @@ var BZW_home = (() => {
     let segTries = 0;
     const syncSeg = (animate) => {
       if (!opts.float) return;
-      const on = el3.querySelector(".bz-choice-btn.is-on");
+      const on = el2.querySelector(".bz-choice-btn.is-on");
       if (!on) return;
-      const tb = el3.getBoundingClientRect();
+      const tb = el2.getBoundingClientRect();
       const bb = on.getBoundingClientRect();
-      if (!el3.isConnected || !tb.width || !bb.width) {
+      if (!el2.isConnected || !tb.width || !bb.width) {
         if (segTries++ > 120) return;
         cancelAnimationFrame(segRAF);
         segRAF = requestAnimationFrame(() => syncSeg(false));
@@ -5864,7 +5864,7 @@ var BZW_home = (() => {
       }
     };
     const onWinResize = () => {
-      if (!el3.isConnected) {
+      if (!el2.isConnected) {
         window.removeEventListener("resize", onWinResize);
         return;
       }
@@ -5904,9 +5904,9 @@ var BZW_home = (() => {
         (_a2 = btns.get(vals[nextIdx])) == null ? void 0 : _a2.focus();
       });
       btns.set(o.value, b);
-      el3.appendChild(b);
+      el2.appendChild(b);
     });
-    if (opts.float) el3.appendChild(seg);
+    if (opts.float) el2.appendChild(seg);
     function setValue(v) {
       cur = v;
       btns.forEach((b, k) => {
@@ -5921,7 +5921,7 @@ var BZW_home = (() => {
       cancelAnimationFrame(segRAF);
       window.removeEventListener("resize", onWinResize);
     };
-    return { el: el3, setValue, detach };
+    return { el: el2, setValue, detach };
   }
   var init_choice = __esm({
     "src/core/ui/choice.ts"() {
@@ -5930,10 +5930,10 @@ var BZW_home = (() => {
 
   // src/core/ui/cardpick.ts
   function uiCardChoice(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-cardpick" + (opts.className ? " " + opts.className : "");
-    el3.setAttribute("role", "radiogroup");
-    if (opts.label) el3.setAttribute("aria-label", opts.label);
+    const el2 = document.createElement("div");
+    el2.className = "bz-cardpick" + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "radiogroup");
+    if (opts.label) el2.setAttribute("aria-label", opts.label);
     const btns = /* @__PURE__ */ new Map();
     let cur = opts.value;
     const sync = (v) => {
@@ -5965,9 +5965,9 @@ var BZW_home = (() => {
         opts.onChange(o.value);
       });
       btns.set(o.value, card);
-      el3.appendChild(card);
+      el2.appendChild(card);
     });
-    el3.addEventListener("keydown", (e) => {
+    el2.addEventListener("keydown", (e) => {
       var _a2;
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       const list = opts.options.map((o) => o.value);
@@ -5976,7 +5976,7 @@ var BZW_home = (() => {
       (_a2 = btns.get(list[next])) == null ? void 0 : _a2.focus();
       e.preventDefault();
     });
-    return { el: el3, setValue: sync };
+    return { el: el2, setValue: sync };
   }
   var init_cardpick = __esm({
     "src/core/ui/cardpick.ts"() {
@@ -5985,37 +5985,37 @@ var BZW_home = (() => {
 
   // src/core/ui/switch.ts
   function uiSwitch(opts) {
-    const el3 = document.createElement("span");
-    el3.className = "bz-sw" + (opts.checked ? " on" : "") + (opts.disabled ? " is-disabled" : "");
-    el3.setAttribute("role", "switch");
-    el3.setAttribute("aria-checked", String(!!opts.checked));
-    el3.setAttribute("aria-disabled", String(!!opts.disabled));
-    el3.tabIndex = opts.disabled ? -1 : 0;
+    const el2 = document.createElement("span");
+    el2.className = "bz-sw" + (opts.checked ? " on" : "") + (opts.disabled ? " is-disabled" : "");
+    el2.setAttribute("role", "switch");
+    el2.setAttribute("aria-checked", String(!!opts.checked));
+    el2.setAttribute("aria-disabled", String(!!opts.disabled));
+    el2.tabIndex = opts.disabled ? -1 : 0;
     const setChecked = (v) => {
-      el3.classList.toggle("on", v);
-      el3.setAttribute("aria-checked", String(v));
+      el2.classList.toggle("on", v);
+      el2.setAttribute("aria-checked", String(v));
     };
     const setDisabled = (v) => {
-      el3.classList.toggle("is-disabled", v);
-      el3.setAttribute("aria-disabled", String(v));
-      el3.tabIndex = v ? -1 : 0;
+      el2.classList.toggle("is-disabled", v);
+      el2.setAttribute("aria-disabled", String(v));
+      el2.tabIndex = v ? -1 : 0;
     };
-    const enabled2 = () => !el3.classList.contains("is-disabled");
+    const enabled2 = () => !el2.classList.contains("is-disabled");
     const toggle = () => {
       var _a2;
       if (!enabled2()) return;
-      const next = !el3.classList.contains("on");
+      const next = !el2.classList.contains("on");
       setChecked(next);
       (_a2 = opts.onChange) == null ? void 0 : _a2.call(opts, next);
     };
-    el3.addEventListener("click", toggle);
-    el3.addEventListener("keydown", (e) => {
+    el2.addEventListener("click", toggle);
+    el2.addEventListener("keydown", (e) => {
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         toggle();
       }
     });
-    return { el: el3, setChecked, setDisabled };
+    return { el: el2, setChecked, setDisabled };
   }
   var init_switch = __esm({
     "src/core/ui/switch.ts"() {
@@ -6024,18 +6024,18 @@ var BZW_home = (() => {
 
   // src/core/ui/select.ts
   function uiSelect(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-select" + (opts.className ? " " + opts.className : "");
-    el3.setAttribute("role", "listbox");
-    el3.setAttribute("aria-expanded", "false");
-    el3.tabIndex = 0;
+    const el2 = document.createElement("div");
+    el2.className = "bz-select" + (opts.className ? " " + opts.className : "");
+    el2.setAttribute("role", "listbox");
+    el2.setAttribute("aria-expanded", "false");
+    el2.tabIndex = 0;
     const val = document.createElement("span");
     val.className = "bz-select-val";
-    el3.appendChild(val);
-    el3.appendChild(uiIcon("chevron-down", "bz-select-car"));
+    el2.appendChild(val);
+    el2.appendChild(uiIcon("chevron-down", "bz-select-car"));
     let current2 = opts.value;
     let menu = null;
-    let escHandle9 = null;
+    let escHandle8 = null;
     const labelOf = (v) => {
       const o = opts.options.find((x) => x.value === v);
       return o ? o.label : "";
@@ -6050,19 +6050,19 @@ var BZW_home = (() => {
         menu.remove();
         menu = null;
       }
-      if (escHandle9) {
-        escHandle9.unregister();
-        escHandle9 = null;
+      if (escHandle8) {
+        escHandle8.unregister();
+        escHandle8 = null;
       }
-      el3.classList.remove("open");
-      el3.setAttribute("aria-expanded", "false");
+      el2.classList.remove("open");
+      el2.setAttribute("aria-expanded", "false");
       if (notify2) (_a2 = opts.onOpenChange) == null ? void 0 : _a2.call(opts, false);
     };
     const open = () => {
       var _a2;
       close(false);
-      el3.classList.add("open");
-      el3.setAttribute("aria-expanded", "true");
+      el2.classList.add("open");
+      el2.setAttribute("aria-expanded", "true");
       (_a2 = opts.onOpenChange) == null ? void 0 : _a2.call(opts, true);
       const m = document.createElement("div");
       m.className = "bz-select-menu";
@@ -6087,7 +6087,7 @@ var BZW_home = (() => {
         });
         m.appendChild(b);
       });
-      el3.appendChild(m);
+      el2.appendChild(m);
       for (let round = 0; round < 3; round++) {
         let delta = 0;
         m.querySelectorAll(".bz-select-item > span").forEach((sp) => {
@@ -6112,7 +6112,7 @@ var BZW_home = (() => {
       if (need > 0 && spaceBelow < need && spaceBelow < mRect.top) {
         m.classList.add("is-flip-up");
       }
-      escHandle9 = escManager.register("bz-ui-select", {
+      escHandle8 = escManager.register("bz-ui-select", {
         isVisible: () => !!menu && menu.isConnected,
         close: () => close()
       });
@@ -6142,16 +6142,16 @@ var BZW_home = (() => {
         item.setAttribute("aria-selected", String(on));
       });
     };
-    el3.addEventListener("click", () => {
+    el2.addEventListener("click", () => {
       if (menu) close();
       else open();
     });
-    el3.addEventListener("keydown", (e) => {
+    el2.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         if (menu) {
           const on = menu == null ? void 0 : menu.querySelector(".bz-select-item.is-on");
-          if (on && on !== el3) {
+          if (on && on !== el2) {
             const v = opts.options[Number(on.dataset.index)];
             if (v) {
               setValue(v.value);
@@ -6170,11 +6170,11 @@ var BZW_home = (() => {
       }
     });
     const onDocClick = (e) => {
-      if (menu && !el3.contains(e.target)) close();
+      if (menu && !el2.contains(e.target)) close();
     };
     document.addEventListener("click", onDocClick);
     return {
-      el: el3,
+      el: el2,
       setValue,
       detach: () => {
         document.removeEventListener("click", onDocClick);
@@ -6191,15 +6191,15 @@ var BZW_home = (() => {
 
   // src/core/ui/search.ts
   function uiSearch(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-search";
-    el3.appendChild(uiIcon("search"));
+    const el2 = document.createElement("div");
+    el2.className = "bz-search";
+    el2.appendChild(uiIcon("search"));
     const input = uiInput({
       placeholder: opts.placeholder,
       value: opts.value,
       onInput: opts.onInput
     });
-    el3.appendChild(input);
+    el2.appendChild(input);
     let clearBtn = null;
     if (opts.clearable !== false) {
       clearBtn = document.createElement("button");
@@ -6217,7 +6217,7 @@ var BZW_home = (() => {
       input.addEventListener("input", () => {
         if (clearBtn) clearBtn.hidden = !input.value.trim();
       });
-      el3.appendChild(clearBtn);
+      el2.appendChild(clearBtn);
     }
     const syncClear = () => {
       if (clearBtn) clearBtn.hidden = !input.value.trim();
@@ -6226,7 +6226,7 @@ var BZW_home = (() => {
       input.value = v;
       syncClear();
     };
-    return { el: el3, input, setValue, syncClear };
+    return { el: el2, input, setValue, syncClear };
   }
   var init_search = __esm({
     "src/core/ui/search.ts"() {
@@ -6237,20 +6237,20 @@ var BZW_home = (() => {
 
   // src/core/ui/mainhead.ts
   function uiMainHead(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-main-head";
+    const el2 = document.createElement("div");
+    el2.className = "bz-main-head";
     const title = document.createElement("span");
     title.className = "bz-main-title";
     title.textContent = opts.title;
-    el3.appendChild(title);
+    el2.appendChild(title);
     const count = document.createElement("span");
     count.className = "bz-main-count";
-    el3.appendChild(count);
+    el2.appendChild(count);
     const sp = document.createElement("span");
     sp.className = "bz-main-spacer";
-    el3.appendChild(sp);
+    el2.appendChild(sp);
     if (opts.action) {
-      el3.appendChild(uiBtn({
+      el2.appendChild(uiBtn({
         label: opts.action.label,
         icon: opts.action.icon,
         tone: "primary",
@@ -6269,7 +6269,7 @@ var BZW_home = (() => {
     };
     setCount(opts.count);
     return {
-      el: el3,
+      el: el2,
       setTitle: (t) => {
         title.textContent = t;
       },
@@ -6339,11 +6339,11 @@ var BZW_home = (() => {
     return b;
   }
   function uiRail(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-rail";
+    const el2 = document.createElement("div");
+    el2.className = "bz-rail";
     const scroll = document.createElement("div");
     scroll.className = "bz-rail-scroll";
-    el3.appendChild(scroll);
+    el2.appendChild(scroll);
     const rows = /* @__PURE__ */ new Map();
     const setActive = (id) => {
       var _a2;
@@ -6393,10 +6393,10 @@ var BZW_home = (() => {
       const foot = document.createElement("div");
       foot.className = "bz-rail-foot";
       foot.appendChild(opts.foot);
-      el3.appendChild(foot);
+      el2.appendChild(foot);
     }
     setActive(opts.activeId);
-    return { el: el3, setActive };
+    return { el: el2, setActive };
   }
   var init_rail = __esm({
     "src/core/ui/rail.ts"() {
@@ -6407,8 +6407,8 @@ var BZW_home = (() => {
 
   // src/core/ui/mobstrip.ts
   function uiMobStrip(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-mobstrip";
+    const el2 = document.createElement("div");
+    el2.className = "bz-mobstrip";
     const chips = /* @__PURE__ */ new Map();
     const setValue = (id) => {
       chips.forEach((chip2) => chip2.classList.toggle("is-on", chip2.dataset.id === id));
@@ -6431,10 +6431,10 @@ var BZW_home = (() => {
         (_a2 = opts.onChange) == null ? void 0 : _a2.call(opts, it.id);
       });
       chips.set(it.id, chip2);
-      el3.appendChild(chip2);
+      el2.appendChild(chip2);
     });
     setValue(opts.value);
-    return { el: el3, setValue };
+    return { el: el2, setValue };
   }
   var init_mobstrip = __esm({
     "src/core/ui/mobstrip.ts"() {
@@ -6443,38 +6443,38 @@ var BZW_home = (() => {
 
   // src/core/ui/stat.ts
   function uiStat(opts) {
-    const el3 = document.createElement("div");
+    const el2 = document.createElement("div");
     const cls = ["bz-stat"];
     if (opts.tone) cls.push(`bz-stat--${opts.tone}`);
     if (opts.click) cls.push("bz-stat--click");
-    el3.className = cls.join(" ");
+    el2.className = cls.join(" ");
     const label = document.createElement("span");
     label.className = "bz-stat-label";
     if (opts.icon) label.appendChild(uiIcon(opts.icon));
     label.appendChild(document.createTextNode(opts.label));
-    el3.appendChild(label);
-    const num3 = document.createElement("span");
-    num3.className = "bz-stat-num";
-    num3.textContent = String(opts.num);
-    el3.appendChild(num3);
+    el2.appendChild(label);
+    const num2 = document.createElement("span");
+    num2.className = "bz-stat-num";
+    num2.textContent = String(opts.num);
+    el2.appendChild(num2);
     if (opts.hint) {
       const hint = document.createElement("span");
       hint.className = "bz-stat-hint";
       hint.textContent = opts.hint;
-      el3.appendChild(hint);
+      el2.appendChild(hint);
     }
     if (opts.onClick) {
-      el3.setAttribute("role", "button");
-      el3.tabIndex = 0;
-      el3.addEventListener("click", opts.onClick);
-      el3.addEventListener("keydown", (e) => {
+      el2.setAttribute("role", "button");
+      el2.tabIndex = 0;
+      el2.addEventListener("click", opts.onClick);
+      el2.addEventListener("keydown", (e) => {
         var _a2;
         if (e.key !== "Enter" && e.key !== " ") return;
         e.preventDefault();
         (_a2 = opts.onClick) == null ? void 0 : _a2.call(opts);
       });
     }
-    return el3;
+    return el2;
   }
   var init_stat = __esm({
     "src/core/ui/stat.ts"() {
@@ -6484,19 +6484,19 @@ var BZW_home = (() => {
 
   // src/core/ui/progress.ts
   function uiProgress(opts = {}) {
-    const el3 = document.createElement("div");
+    const el2 = document.createElement("div");
     const cls = ["bz-progress"];
     if (opts.thin) cls.push("bz-progress--thin");
     if (opts.tone) cls.push(`bz-progress--${opts.tone}`);
-    el3.className = cls.join(" ");
+    el2.className = cls.join(" ");
     const fill = document.createElement("i");
-    el3.appendChild(fill);
+    el2.appendChild(fill);
     const setValue = (n) => {
       const v = Math.min(100, Math.max(0, Number(n) || 0));
       fill.style.width = v + "%";
     };
     if (opts.value !== void 0) setValue(opts.value);
-    return { el: el3, setValue };
+    return { el: el2, setValue };
   }
   var init_progress = __esm({
     "src/core/ui/progress.ts"() {
@@ -6510,7 +6510,7 @@ var BZW_home = (() => {
     let current2 = (_a2 = opts.value) != null ? _a2 : "";
     let items = opts.options;
     let layer = null;
-    let escHandle9 = null;
+    let escHandle8 = null;
     const onDocClick = (e) => {
       if (!layer) return;
       const t = e.target;
@@ -6559,7 +6559,7 @@ var BZW_home = (() => {
         m.classList.add("is-flip-up");
       }
       document.addEventListener("click", onDocClick);
-      escHandle9 = escManager.register("bz-ui-popover", {
+      escHandle8 = escManager.register("bz-ui-popover", {
         isVisible: () => !!layer && layer.isConnected,
         close: () => close()
       });
@@ -6569,9 +6569,9 @@ var BZW_home = (() => {
       layer.remove();
       layer = null;
       document.removeEventListener("click", onDocClick);
-      if (escHandle9) {
-        escHandle9.unregister();
-        escHandle9 = null;
+      if (escHandle8) {
+        escHandle8.unregister();
+        escHandle8 = null;
       }
     };
     const setValue = (id) => {
@@ -6620,17 +6620,17 @@ var BZW_home = (() => {
       const line = raw.trim();
       if (!line) continue;
       const isItem = line.startsWith("- ");
-      const el3 = document.createElement("div");
-      el3.className = isItem ? "bz-help-li" : "bz-help-p";
-      el3.textContent = isItem ? line.slice(2).trim() : line;
-      out.push(el3);
+      const el2 = document.createElement("div");
+      el2.className = isItem ? "bz-help-li" : "bz-help-p";
+      el2.textContent = isItem ? line.slice(2).trim() : line;
+      out.push(el2);
     }
     return out;
   }
   function attachHelpTip(anchor, opts) {
     anchor.classList.add("bz-help-anchor");
     let layer = null;
-    let escHandle9 = null;
+    let escHandle8 = null;
     let pinned = false;
     let overAnchor = false;
     let overLayer = false;
@@ -6677,8 +6677,8 @@ var BZW_home = (() => {
       document.removeEventListener("pointerdown", onOutside, true);
       document.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", place);
-      escHandle9 == null ? void 0 : escHandle9.unregister();
-      escHandle9 = null;
+      escHandle8 == null ? void 0 : escHandle8.unregister();
+      escHandle8 = null;
       layer == null ? void 0 : layer.remove();
       layer = null;
       anchor.classList.remove("is-open");
@@ -6707,7 +6707,7 @@ var BZW_home = (() => {
       document.addEventListener("pointerdown", onOutside, true);
       document.addEventListener("scroll", onScroll, true);
       window.addEventListener("resize", place);
-      escHandle9 = escManager.register("bz-help-tip", { isVisible: isOpen, close });
+      escHandle8 = escManager.register("bz-help-tip", { isVisible: isOpen, close });
       currentClose = close;
     }
     function scheduleClose() {
@@ -7003,21 +7003,21 @@ var BZW_home = (() => {
     document.body.appendChild(mask);
     lockBodyScroll(true);
     show(idx);
-    let escHandle9 = null;
+    let escHandle8 = null;
     function close() {
       if (current !== mask) return;
       mask.remove();
       detachNavKeys();
-      escHandle9 == null ? void 0 : escHandle9.unregister();
-      if (currentEscHandle === escHandle9) currentEscHandle = null;
+      escHandle8 == null ? void 0 : escHandle8.unregister();
+      if (currentEscHandle === escHandle8) currentEscHandle = null;
       current = null;
       lockBodyScroll(false);
     }
-    escHandle9 = escManager.register("bz-lightbox", {
+    escHandle8 = escManager.register("bz-lightbox", {
       isVisible: () => mask.isConnected,
       close
     });
-    currentEscHandle = escHandle9;
+    currentEscHandle = escHandle8;
     mask.addEventListener("click", (e) => {
       if (!e.target.closest(".bz-lightbox-media, .bz-lightbox-head, .bz-lightbox-foot, .bz-lightbox-nav")) close();
     });
@@ -7111,7 +7111,7 @@ var BZW_home = (() => {
     popup.appendChild(body);
     mask.appendChild(popup);
     let closed = false;
-    let escHandle9 = null;
+    let escHandle8 = null;
     const releaseTrap = focusEnabled ? trapFocus(popup) : null;
     function close() {
       var _a3;
@@ -7120,7 +7120,7 @@ var BZW_home = (() => {
       liveModals.delete(close);
       releaseTrap == null ? void 0 : releaseTrap();
       mask.remove();
-      escHandle9 == null ? void 0 : escHandle9.unregister();
+      escHandle8 == null ? void 0 : escHandle8.unregister();
       if (focusEnabled && prevActive instanceof HTMLElement && prevActive.isConnected) {
         prevActive.focus();
       }
@@ -7133,7 +7133,7 @@ var BZW_home = (() => {
     mask.addEventListener("click", (e) => {
       if (e.target === mask) attemptClose();
     });
-    escHandle9 = escManager.register("bz-modal", {
+    escHandle8 = escManager.register("bz-modal", {
       isVisible: () => mask.isConnected,
       close: attemptClose
     });
@@ -7153,7 +7153,7 @@ var BZW_home = (() => {
   });
 
   // src/core/dom.ts
-  function longPress(el3, cb, dur, filter) {
+  function longPress(el2, cb, dur, filter) {
     if (!dur) dur = 500;
     let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
     let suppressClick = false;
@@ -7205,14 +7205,14 @@ var BZW_home = (() => {
         e.stopImmediatePropagation();
       }
     }
-    el3.addEventListener("mousedown", start);
-    el3.addEventListener("mouseup", endFromMouse);
-    el3.addEventListener("mouseleave", endFromMouse);
-    el3.addEventListener("touchstart", start, { passive: true });
-    el3.addEventListener("touchend", endFromTouch);
-    el3.addEventListener("touchmove", move, { passive: true });
-    el3.addEventListener("touchcancel", endFromTouch);
-    el3.addEventListener("click", onClick, true);
+    el2.addEventListener("mousedown", start);
+    el2.addEventListener("mouseup", endFromMouse);
+    el2.addEventListener("mouseleave", endFromMouse);
+    el2.addEventListener("touchstart", start, { passive: true });
+    el2.addEventListener("touchend", endFromTouch);
+    el2.addEventListener("touchmove", move, { passive: true });
+    el2.addEventListener("touchcancel", endFromTouch);
+    el2.addEventListener("click", onClick, true);
   }
   function swallowNextClick() {
     const swallow = (e) => {
@@ -7291,7 +7291,7 @@ var BZW_home = (() => {
     if (onS && !onN) return "s";
     return null;
   }
-  function uiResizable(el3, opts = {}) {
+  function uiResizable(el2, opts = {}) {
     var _a2, _b2, _c, _d, _e;
     const isCoarse = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
     if (isCoarse) {
@@ -7311,20 +7311,20 @@ var BZW_home = (() => {
     let startW = 0;
     let startH = 0;
     const cap = (isW) => {
-      const view2 = (isW ? window.innerWidth : window.innerHeight) * 0.92;
-      return Math.floor(Math.min(isW ? maxW : maxH, view2));
+      const view = (isW ? window.innerWidth : window.innerHeight) * 0.92;
+      return Math.floor(Math.min(isW ? maxW : maxH, view));
     };
     let persistTimer = null;
     let wantW = 0;
     let wantH = 0;
     const renderSize = () => {
       if (wantW <= 0 || wantH <= 0) return;
-      el3.style.width = Math.min(Math.max(wantW, minW), cap(true)) + "px";
-      el3.style.height = Math.min(Math.max(wantH, minH), cap(false)) + "px";
+      el2.style.width = Math.min(Math.max(wantW, minW), cap(true)) + "px";
+      el2.style.height = Math.min(Math.max(wantH, minH), cap(false)) + "px";
     };
-    const persist2 = opts.persist;
-    if (persist2 == null ? void 0 : persist2.load) {
-      const saved = persist2.load();
+    const persist = opts.persist;
+    if (persist == null ? void 0 : persist.load) {
+      const saved = persist.load();
       if (saved && saved.w > 0 && saved.h > 0) {
         wantW = Math.min(Math.max(saved.w, minW), maxW);
         wantH = Math.min(Math.max(saved.h, minH), maxH);
@@ -7332,7 +7332,7 @@ var BZW_home = (() => {
       }
     }
     const onWinResize = () => {
-      if (!el3.isConnected) {
+      if (!el2.isConnected) {
         window.removeEventListener("resize", onWinResize);
         return;
       }
@@ -7340,18 +7340,18 @@ var BZW_home = (() => {
     };
     window.addEventListener("resize", onWinResize);
     const regionAt = (e) => {
-      const rect = el3.getBoundingClientRect();
+      const rect = el2.getBoundingClientRect();
       return hitRegion(rect, e.clientX - rect.left, e.clientY - rect.top, edge);
     };
     const setCursor = (d) => {
-      el3.style.cursor = d === "e" ? "ew-resize" : d === "s" ? "ns-resize" : d === "se" ? "nwse-resize" : "";
+      el2.style.cursor = d === "e" ? "ew-resize" : d === "s" ? "ns-resize" : d === "se" ? "nwse-resize" : "";
     };
     const onHover = (e) => {
       if (dragging) return;
       setCursor(regionAt(e));
     };
     const onDragMove = (e) => {
-      if (!el3.isConnected) {
+      if (!el2.isConnected) {
         document.removeEventListener("mousemove", onDragMove);
         document.removeEventListener("mouseup", onMouseUp);
         return;
@@ -7364,12 +7364,12 @@ var BZW_home = (() => {
       if (dir === "s" || dir === "se") wantH = Math.min(Math.max(startH + dy, minH), maxH);
       renderSize();
       if (opts.onChange) opts.onChange(wantW, wantH);
-      if (persist2 == null ? void 0 : persist2.save) {
+      if (persist == null ? void 0 : persist.save) {
         if (persistTimer !== null) clearTimeout(persistTimer);
         persistTimer = setTimeout(() => {
           var _a3;
           persistTimer = null;
-          (_a3 = persist2.save) == null ? void 0 : _a3.call(persist2, wantW, wantH);
+          (_a3 = persist.save) == null ? void 0 : _a3.call(persist, wantW, wantH);
         }, 300);
       }
     };
@@ -7384,7 +7384,7 @@ var BZW_home = (() => {
       dragging = true;
       startX = e.clientX;
       startY = e.clientY;
-      const rect = el3.getBoundingClientRect();
+      const rect = el2.getBoundingClientRect();
       startW = rect.width;
       startH = rect.height;
       if (wantW <= 0) wantW = Math.min(Math.max(startW, minW), maxW);
@@ -7392,7 +7392,7 @@ var BZW_home = (() => {
       document.body.style.userSelect = "none";
     };
     const onMouseUp = () => {
-      if (!el3.isConnected) {
+      if (!el2.isConnected) {
         document.removeEventListener("mousemove", onDragMove);
         document.removeEventListener("mouseup", onMouseUp);
         return;
@@ -7404,24 +7404,24 @@ var BZW_home = (() => {
       setCursor(null);
       swallowNextClick();
     };
-    el3.addEventListener("mousemove", onHover);
-    el3.addEventListener("mouseleave", onMouseLeave);
-    el3.addEventListener("mousedown", onMouseDown);
+    el2.addEventListener("mousemove", onHover);
+    el2.addEventListener("mouseleave", onMouseLeave);
+    el2.addEventListener("mousedown", onMouseDown);
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("mouseup", onMouseUp);
     const flush = () => {
       if (persistTimer === null) return;
       clearTimeout(persistTimer);
       persistTimer = null;
-      if ((persist2 == null ? void 0 : persist2.save) && wantW > 0 && wantH > 0) persist2.save(wantW, wantH);
+      if ((persist == null ? void 0 : persist.save) && wantW > 0 && wantH > 0) persist.save(wantW, wantH);
     };
     return {
       flush,
       detach: () => {
         flush();
-        el3.removeEventListener("mousemove", onHover);
-        el3.removeEventListener("mouseleave", onMouseLeave);
-        el3.removeEventListener("mousedown", onMouseDown);
+        el2.removeEventListener("mousemove", onHover);
+        el2.removeEventListener("mouseleave", onMouseLeave);
+        el2.removeEventListener("mousedown", onMouseDown);
         document.removeEventListener("mousemove", onDragMove);
         document.removeEventListener("mouseup", onMouseUp);
         window.removeEventListener("resize", onWinResize);
@@ -7442,15 +7442,15 @@ var BZW_home = (() => {
     const left = opts.left;
     const minLeft = (_a2 = opts.minLeft) != null ? _a2 : 220;
     const minRight = (_b2 = opts.minRight) != null ? _b2 : 320;
-    const persist2 = opts.persist;
-    const el3 = document.createElement("div");
-    el3.className = "bz-vsplit";
-    el3.setAttribute("role", "separator");
-    el3.setAttribute("aria-orientation", "vertical");
-    el3.title = "拖动调整两侧宽度";
+    const persist = opts.persist;
+    const el2 = document.createElement("div");
+    el2.className = "bz-vsplit";
+    el2.setAttribute("role", "separator");
+    el2.setAttribute("aria-orientation", "vertical");
+    el2.title = "拖动调整两侧宽度";
     const isCoarse = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
     if (isCoarse) {
-      return { el: el3, restore: () => {
+      return { el: el2, restore: () => {
       }, flush: () => {
       }, detach: () => {
       } };
@@ -7465,7 +7465,7 @@ var BZW_home = (() => {
     const availW = () => {
       const parent = left.parentElement;
       if (!parent) return 0;
-      return parent.clientWidth - el3.offsetWidth;
+      return parent.clientWidth - el2.offsetWidth;
     };
     const clampW = (w) => {
       const avail = availW();
@@ -7476,18 +7476,18 @@ var BZW_home = (() => {
       left.style.width = w + "px";
     };
     const debSave = (w) => {
-      if (!(persist2 == null ? void 0 : persist2.save)) return;
+      if (!(persist == null ? void 0 : persist.save)) return;
       if (persistTimer !== null) clearTimeout(persistTimer);
       persistTimer = setTimeout(() => {
         var _a3;
         persistTimer = null;
-        (_a3 = persist2.save) == null ? void 0 : _a3.call(persist2, w);
+        (_a3 = persist.save) == null ? void 0 : _a3.call(persist, w);
       }, 300);
     };
     const restore = () => {
-      if (restored || !(persist2 == null ? void 0 : persist2.load) || !el3.isConnected) return;
+      if (restored || !(persist == null ? void 0 : persist.load) || !el2.isConnected) return;
       if (availW() <= 0) return;
-      const saved = persist2.load();
+      const saved = persist.load();
       restored = true;
       if (saved != null && saved > 0) {
         wantW = Math.max(saved, minLeft);
@@ -7519,7 +7519,7 @@ var BZW_home = (() => {
       dragging = true;
       startX = e.clientX;
       startW = left.getBoundingClientRect().width;
-      el3.classList.add("is-drag");
+      el2.classList.add("is-drag");
       document.body.style.userSelect = "none";
     };
     const onMouseUp = () => {
@@ -7530,30 +7530,30 @@ var BZW_home = (() => {
       }
       if (!dragging) return;
       dragging = false;
-      el3.classList.remove("is-drag");
+      el2.classList.remove("is-drag");
       document.body.style.userSelect = "";
       swallowNextClick();
     };
     document.addEventListener("mousemove", onDragMove);
-    el3.addEventListener("mousedown", onMouseDown);
+    el2.addEventListener("mousedown", onMouseDown);
     document.addEventListener("mouseup", onMouseUp);
     const flush = () => {
       if (persistTimer === null) return;
       clearTimeout(persistTimer);
       persistTimer = null;
-      if ((persist2 == null ? void 0 : persist2.save) && wantW > 0) persist2.save(wantW);
+      if ((persist == null ? void 0 : persist.save) && wantW > 0) persist.save(wantW);
     };
     return {
-      el: el3,
+      el: el2,
       restore,
       flush,
       detach: () => {
         flush();
         document.removeEventListener("mousemove", onDragMove);
-        el3.removeEventListener("mousedown", onMouseDown);
+        el2.removeEventListener("mousedown", onMouseDown);
         document.removeEventListener("mouseup", onMouseUp);
         document.body.style.userSelect = "";
-        el3.classList.remove("is-drag");
+        el2.classList.remove("is-drag");
       }
     };
   }
@@ -7648,11 +7648,11 @@ var BZW_home = (() => {
     } catch (e) {
     }
   }
-  function registerSheetCompanion(el3) {
-    sheetCompanions.add(el3);
+  function registerSheetCompanion(el2) {
+    sheetCompanions.add(el2);
   }
-  function unregisterSheetCompanion(el3) {
-    sheetCompanions.delete(el3);
+  function unregisterSheetCompanion(el2) {
+    sheetCompanions.delete(el2);
   }
   function inSheetCompanion(target) {
     for (const c of sheetCompanions) {
@@ -8523,11 +8523,11 @@ var BZW_home = (() => {
   function updateFileSections(filePath, writer, opts = {}) {
     return enqueueFileTask(filePath, async () => {
       var _a2;
-      const store3 = jsonFileStore(filePath, { ...opts, defaultValue: (_a2 = opts.defaultValue) != null ? _a2 : {} });
-      const current2 = assertPlainObject(filePath, await store3.read());
+      const store2 = jsonFileStore(filePath, { ...opts, defaultValue: (_a2 = opts.defaultValue) != null ? _a2 : {} });
+      const current2 = assertPlainObject(filePath, await store2.read());
       const set = await writer(current2) || {};
       const next = { ...current2, ...set };
-      await store3.write(next);
+      await store2.write(next);
       return next;
     });
   }
@@ -8535,10 +8535,10 @@ var BZW_home = (() => {
     const msg = e instanceof Error ? e.message : String(e);
     return /already exist/i.test(msg);
   }
-  async function diskPathExists(app2, p) {
+  async function diskPathExists(app, p) {
     var _a2, _b2, _c;
     try {
-      return !!await ((_c = (_b2 = (_a2 = app2.vault) == null ? void 0 : _a2.adapter) == null ? void 0 : _b2.exists) == null ? void 0 : _c.call(_b2, p));
+      return !!await ((_c = (_b2 = (_a2 = app.vault) == null ? void 0 : _a2.adapter) == null ? void 0 : _b2.exists) == null ? void 0 : _c.call(_b2, p));
     } catch (e) {
       return false;
     }
@@ -8550,24 +8550,24 @@ var BZW_home = (() => {
   function baseNameOf(p) {
     return p.includes("/") ? p.slice(p.lastIndexOf("/") + 1) : p;
   }
-  async function backupOriginal(app2, filePath, raw) {
+  async function backupOriginal(app, filePath, raw) {
     try {
-      const f = app2.vault.getAbstractFileByPath(filePath);
-      const content = raw !== void 0 ? raw : f ? await app2.vault.read(f) : void 0;
+      const f = app.vault.getAbstractFileByPath(filePath);
+      const content = raw !== void 0 ? raw : f ? await app.vault.read(f) : void 0;
       if (content === void 0) return null;
-      if (!app2.vault.getAbstractFileByPath(CORRUPT_BACKUP_DIR)) {
+      if (!app.vault.getAbstractFileByPath(CORRUPT_BACKUP_DIR)) {
         try {
-          await app2.vault.createFolder(CORRUPT_BACKUP_DIR);
+          await app.vault.createFolder(CORRUPT_BACKUP_DIR);
         } catch (e) {
         }
       }
       const base = baseNameOf(filePath);
       const stamp = corruptStamp();
       let backupPath = `${CORRUPT_BACKUP_DIR}/${base}.${stamp}.bak`;
-      for (let i = 2; app2.vault.getAbstractFileByPath(backupPath); i++) {
+      for (let i = 2; app.vault.getAbstractFileByPath(backupPath); i++) {
         backupPath = `${CORRUPT_BACKUP_DIR}/${base}.${stamp}-${i}.bak`;
       }
-      await app2.vault.create(backupPath, content);
+      await app.vault.create(backupPath, content);
       return backupPath;
     } catch (e) {
       console.warn("[storage] " + filePath + " 留档失败（" + CORRUPT_BACKUP_DIR + "），继续原流程", e);
@@ -8589,8 +8589,8 @@ var BZW_home = (() => {
   function serialize(v) {
     return JSON.stringify(v, null, 2);
   }
-  async function readFromDisk(app2, filePath) {
-    const raw = await app2.vault.adapter.read(filePath);
+  async function readFromDisk(app, filePath) {
+    const raw = await app.vault.adapter.read(filePath);
     return raw.charCodeAt(0) === 65279 ? raw.substring(1) : raw;
   }
   function jsonFileStore(filePath, opts = {}) {
@@ -8599,117 +8599,117 @@ var BZW_home = (() => {
       const d = opts.defaultValue;
       return typeof d === "function" ? d() : d === void 0 ? [] : d;
     };
-    async function ensureDir4(app2) {
+    async function ensureDir3(app) {
       const d = filePath.substring(0, filePath.lastIndexOf("/"));
-      if (!d || app2.vault.getAbstractFileByPath(d)) return;
-      if (await diskPathExists(app2, d)) return;
+      if (!d || app.vault.getAbstractFileByPath(d)) return;
+      if (await diskPathExists(app, d)) return;
       try {
-        await app2.vault.createFolder(d);
+        await app.vault.createFolder(d);
       } catch (e) {
-        if (await diskPathExists(app2, d)) return;
+        if (await diskPathExists(app, d)) return;
         throw e;
       }
     }
-    async function createIfMissing(app2, content) {
-      await ensureDir4(app2);
+    async function createIfMissing(app, content) {
+      await ensureDir3(app);
       try {
-        await app2.vault.create(filePath, content);
+        await app.vault.create(filePath, content);
         return true;
       } catch (e) {
-        if (isAlreadyExistsError(e) && (app2.vault.getAbstractFileByPath(filePath) || await diskPathExists(app2, filePath)))
+        if (isAlreadyExistsError(e) && (app.vault.getAbstractFileByPath(filePath) || await diskPathExists(app, filePath)))
           return false;
         throw e;
       }
     }
-    async function handleCorrupt(app2, err, raw) {
+    async function handleCorrupt(app, err, raw) {
       var _a2;
       if (((_a2 = opts.onCorrupt) == null ? void 0 : _a2.call(opts, filePath, err)) === false) {
         return null;
       }
-      const backupPath = await backupOriginal(app2, filePath, raw);
+      const backupPath = await backupOriginal(app, filePath, raw);
       if (backupPath && !opts.onCorrupt) notifyBackup(filePath, backupPath, "解析失败");
-      const f = app2.vault.getAbstractFileByPath(filePath);
+      const f = app.vault.getAbstractFileByPath(filePath);
       if (f) {
-        await app2.vault.modify(f, serialize(resolveDefault()));
-      } else if (await diskPathExists(app2, filePath)) {
-        await app2.vault.adapter.write(filePath, serialize(resolveDefault()));
+        await app.vault.modify(f, serialize(resolveDefault()));
+      } else if (await diskPathExists(app, filePath)) {
+        await app.vault.adapter.write(filePath, serialize(resolveDefault()));
       } else {
-        await createIfMissing(app2, serialize(resolveDefault()));
+        await createIfMissing(app, serialize(resolveDefault()));
       }
       return resolveDefault();
     }
-    async function modifyWithBackup(app2, f, c) {
+    async function modifyWithBackup(app, f, c) {
       try {
-        await app2.vault.modify(f, c);
+        await app.vault.modify(f, c);
       } catch (e) {
-        const backupPath = await backupOriginal(app2, filePath);
+        const backupPath = await backupOriginal(app, filePath);
         if (backupPath) notifyBackup(filePath, backupPath, "写入失败");
         throw e;
       }
     }
-    async function parseRaw(app2, raw) {
+    async function parseRaw(app, raw) {
       try {
         return JSON.parse(raw);
       } catch (e) {
-        return await handleCorrupt(app2, e, raw);
+        return await handleCorrupt(app, e, raw);
       }
     }
     return {
       async read() {
-        const app2 = resolveApp2();
-        let f = app2.vault.getAbstractFileByPath(filePath);
+        const app = resolveApp2();
+        let f = app.vault.getAbstractFileByPath(filePath);
         if (!f) {
-          const created = await createIfMissing(app2, serialize(resolveDefault()));
+          const created = await createIfMissing(app, serialize(resolveDefault()));
           if (created) return resolveDefault();
-          f = app2.vault.getAbstractFileByPath(filePath);
-          if (!f && await diskPathExists(app2, filePath)) {
-            return parseRaw(app2, await readFromDisk(app2, filePath));
+          f = app.vault.getAbstractFileByPath(filePath);
+          if (!f && await diskPathExists(app, filePath)) {
+            return parseRaw(app, await readFromDisk(app, filePath));
           }
           if (!f) return resolveDefault();
         }
-        return parseRaw(app2, await app2.vault.read(f));
+        return parseRaw(app, await app.vault.read(f));
       },
       async write(data) {
-        const app2 = resolveApp2();
+        const app = resolveApp2();
         const c = serialize(data);
-        let f = app2.vault.getAbstractFileByPath(filePath);
+        let f = app.vault.getAbstractFileByPath(filePath);
         if (f) {
           if (opts.writeIfChanged) {
             try {
-              const cur2 = await app2.vault.read(f);
+              const cur2 = await app.vault.read(f);
               if (cur2 === c) return;
             } catch (e) {
             }
           }
-          await modifyWithBackup(app2, f, c);
+          await modifyWithBackup(app, f, c);
           return;
         }
-        const created = await createIfMissing(app2, c);
+        const created = await createIfMissing(app, c);
         if (created) return;
-        let cur = app2.vault.getAbstractFileByPath(filePath);
-        if (!cur && await diskPathExists(app2, filePath)) {
+        let cur = app.vault.getAbstractFileByPath(filePath);
+        if (!cur && await diskPathExists(app, filePath)) {
           try {
             if (opts.writeIfChanged) {
               try {
-                if (await readFromDisk(app2, filePath) === c) return;
+                if (await readFromDisk(app, filePath) === c) return;
               } catch (e) {
               }
             }
-            await app2.vault.adapter.write(filePath, c);
+            await app.vault.adapter.write(filePath, c);
             return;
           } catch (e) {
-            const backupPath = await backupOriginal(app2, filePath);
+            const backupPath = await backupOriginal(app, filePath);
             if (backupPath) notifyBackup(filePath, backupPath, "写入失败");
             throw e;
           }
         }
         if (!cur) {
-          const retried = await createIfMissing(app2, c);
+          const retried = await createIfMissing(app, c);
           if (retried) return;
-          cur = app2.vault.getAbstractFileByPath(filePath);
+          cur = app.vault.getAbstractFileByPath(filePath);
           if (!cur) throw new Error("storage: create 竞态降级失败（" + filePath + "）");
         }
-        await modifyWithBackup(app2, cur, c);
+        await modifyWithBackup(app, cur, c);
       }
     };
   }
@@ -8933,9 +8933,9 @@ var BZW_home = (() => {
     }
     return Math.round(ms);
   }
-  function parseBookFile(file, app2, folderPath, bookTag) {
+  function parseBookFile(file, app, folderPath, bookTag) {
     var _a2, _b2, _c;
-    const metadata = app2.metadataCache.getFileCache(file);
+    const metadata = app.metadataCache.getFileCache(file);
     const fm2 = metadata == null ? void 0 : metadata.frontmatter;
     if (!fm2) return null;
     let tags = fm2.tags;
@@ -8979,10 +8979,10 @@ var BZW_home = (() => {
       epubVaultPath: null
     };
   }
-  function scanMarkdownBooks(app2) {
+  function scanMarkdownBooks(app) {
     const folderPath = resolveFolderPath();
     const bookTag = resolveBookTag();
-    const folder = app2.vault.getAbstractFileByPath(folderPath);
+    const folder = app.vault.getAbstractFileByPath(folderPath);
     const files = [];
     if (folder && Array.isArray(folder.children)) {
       const stack = [...folder.children];
@@ -8992,12 +8992,12 @@ var BZW_home = (() => {
         else if ((cur == null ? void 0 : cur.extension) === "md") files.push(cur);
       }
     } else {
-      files.push(...app2.vault.getMarkdownFiles().filter((f) => isBookshelfPath(f.path, folderPath)));
+      files.push(...app.vault.getMarkdownFiles().filter((f) => isBookshelfPath(f.path, folderPath)));
     }
     const items = [];
     for (const file of files) {
       try {
-        const item = parseBookFile(file, app2, folderPath, bookTag);
+        const item = parseBookFile(file, app, folderPath, bookTag);
         if (item) items.push(item);
       } catch (e) {
         console.warn("处理书目文件失败:", file.path, e);
@@ -9009,25 +9009,25 @@ var BZW_home = (() => {
     const raw = String(value || "").trim().replace(/^\/+|\/+$/g, "");
     return raw || "CONFIG/STORAGE";
   }
-  function resolveWeaveDataPath(app2) {
+  function resolveWeaveDataPath(app) {
     var _a2, _b2, _c;
-    const plugins = (_a2 = app2.plugins) == null ? void 0 : _a2.plugins;
+    const plugins = (_a2 = app.plugins) == null ? void 0 : _a2.plugins;
     const fromWeave = (_c = (_b2 = plugins == null ? void 0 : plugins[WEAVE_PLUGIN_ID]) == null ? void 0 : _b2.settings) == null ? void 0 : _c.dataPath;
     return normalizeWeaveDataPath(fromWeave);
   }
-  function isVaultImageFile(app2, path) {
+  function isVaultImageFile(app, path) {
     var _a2, _b2;
-    const file = (_b2 = (_a2 = app2.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, path);
+    const file = (_b2 = (_a2 = app.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, path);
     return Boolean(file) && /\.(png|jpe?g|gif|webp)$/i.test(file.name || path);
   }
-  function resolveEpubCoverPath(app2, meta) {
+  function resolveEpubCoverPath(app, meta) {
     const coverPath = typeof (meta == null ? void 0 : meta.coverPath) === "string" ? meta.coverPath.trim() : "";
-    if (coverPath && isVaultImageFile(app2, coverPath)) return coverPath;
+    if (coverPath && isVaultImageFile(app, coverPath)) return coverPath;
     const title = typeof (meta == null ? void 0 : meta.title) === "string" ? meta.title.trim() : "";
     if (title) {
       for (const ext of COVER_EXTENSIONS) {
         const candidate = `CONFIG/BOOK/EPUB COVER/${title}.${ext}`;
-        if (isVaultImageFile(app2, candidate)) return candidate;
+        if (isVaultImageFile(app, candidate)) return candidate;
       }
     }
     return null;
@@ -9055,7 +9055,7 @@ var BZW_home = (() => {
   function epubReadingDate(progress, lastReadTime) {
     return progress > 0 ? toDateString(lastReadTime) : null;
   }
-  function buildEpubItem(app2, aggregate) {
+  function buildEpubItem(app, aggregate) {
     var _a2, _b2, _c;
     const meta = aggregate == null ? void 0 : aggregate.meta;
     const fileRef = aggregate == null ? void 0 : aggregate.file;
@@ -9072,14 +9072,14 @@ var BZW_home = (() => {
     const totalReadTimeMs = Number.isFinite(stats == null ? void 0 : stats.totalReadTime) ? stats.totalReadTime : 0;
     const readingDate = epubReadingDate(progress, lastReadTime);
     const completionDate = toDateString(completedTime);
-    const vaultFile = (_c = (_b2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _b2.getAbstractFileByPath) == null ? void 0 : _c.call(_b2, vaultPath);
+    const vaultFile = (_c = (_b2 = app == null ? void 0 : app.vault) == null ? void 0 : _b2.getAbstractFileByPath) == null ? void 0 : _c.call(_b2, vaultPath);
     const epubCategoryValue = epubCategory(meta);
     return {
       file: vaultFile instanceof TFile ? vaultFile : null,
       title,
       author: typeof (meta == null ? void 0 : meta.author) === "string" && meta.author.trim() ? meta.author.trim() : "未知作者",
       category: epubCategoryValue,
-      cover: resolveEpubCoverPath(app2, meta),
+      cover: resolveEpubCoverPath(app, meta),
       bookReview: null,
       readingDate,
       completionDate,
@@ -9095,15 +9095,15 @@ var BZW_home = (() => {
       epubVaultPath: vaultPath
     };
   }
-  async function readWeaveAggregates(app2) {
+  async function readWeaveAggregates(app) {
     var _a2, _b2;
-    const dataPath = resolveWeaveDataPath(app2);
+    const dataPath = resolveWeaveDataPath(app);
     const dataFilePath = `${dataPath}/${WEAVE_DATA_FILE}`;
-    const file = (_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, dataFilePath);
+    const file = (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, dataFilePath);
     if (!file) return [];
     let parsed;
     try {
-      parsed = JSON.parse(await app2.vault.adapter.read(dataFilePath));
+      parsed = JSON.parse(await app.vault.adapter.read(dataFilePath));
     } catch (e) {
       console.warn("weave-data.json 读取/解析失败，EPUB 条目降级为空:", dataFilePath, e);
       if (!weaveCorruptWarned) {
@@ -9117,11 +9117,11 @@ var BZW_home = (() => {
     weaveCorruptWarned = false;
     return Object.values(books);
   }
-  async function loadEpubItems(app2) {
-    const aggregates = await readWeaveAggregates(app2);
+  async function loadEpubItems(app) {
+    const aggregates = await readWeaveAggregates(app);
     const items = [];
     for (const aggregate of aggregates) {
-      const item = buildEpubItem(app2, aggregate);
+      const item = buildEpubItem(app, aggregate);
       if (item) items.push(item);
     }
     return items;
@@ -9424,9 +9424,9 @@ var BZW_home = (() => {
   function normalizeLists(raw) {
     return normalizeTags(raw).filter(Boolean);
   }
-  function parseMovieFile(file, app2) {
+  function parseMovieFile(file, app) {
     var _a2, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
-    const cache = app2.metadataCache.getFileCache(file);
+    const cache = app.metadataCache.getFileCache(file);
     if (!cache || !cache.frontmatter) return null;
     const fm2 = cache.frontmatter;
     const name = extractMovieName(file.basename);
@@ -9850,15 +9850,15 @@ var BZW_home = (() => {
       version: "2.0"
     };
   }
-  async function loadSmartCatData(app2) {
+  async function loadSmartCatData(app) {
     const raw = await jsonFileStore(getSmartcatFilePath(), {
       defaultValue: () => defaultSmartCatData(),
-      app: app2
+      app
     }).read();
     return normalizeData(raw);
   }
-  async function saveSmartCatData(app2, data) {
-    await jsonFileStore(getSmartcatFilePath(), { writeIfChanged: true, app: app2 }).write(data);
+  async function saveSmartCatData(app, data) {
+    await jsonFileStore(getSmartcatFilePath(), { writeIfChanged: true, app }).write(data);
   }
   var SMARTCAT_FILE, SMARTCAT_VEC_FILE, DAY_MS2, MESSAGE_POOL_CAP;
   var init_data3 = __esm({
@@ -10524,10 +10524,10 @@ var BZW_home = (() => {
   function parseModelList(desc, data) {
     return desc.id === "ollama" ? ollamaModelIds(data) : openaiModelIds(data);
   }
-  async function fetchModelsJson(url, headers, timeoutMs, label, deps2) {
+  async function fetchModelsJson(url, headers, timeoutMs, label, deps) {
     var _a2;
-    const fetchFn = deps2.fetchFn || ((u, init) => fetch(u, init));
-    const requestUrlFn = deps2.requestUrlFn || requestUrl;
+    const fetchFn = deps.fetchFn || ((u, init) => fetch(u, init));
+    const requestUrlFn = deps.requestUrlFn || requestUrl;
     const fetchAttempt = async (signal) => {
       const resp2 = await fetchFn(url, { method: "GET", headers, signal });
       return { resp: resp2, via: "fetch" };
@@ -10569,7 +10569,7 @@ var BZW_home = (() => {
     }
     return resp.json();
   }
-  async function fetchProviderModels(providerId, deps2 = {}) {
+  async function fetchProviderModels(providerId, deps = {}) {
     const id = providerId || String(tryGetSettings().aiProvider || DEFAULT_AI_PROVIDER);
     const desc = providerDescriptorOf(id);
     const endpoint = desc.id === "ollama" ? OLLAMA_BASE_URL : endpointFor(id);
@@ -10581,7 +10581,7 @@ var BZW_home = (() => {
     const headers = {};
     if (key) headers["Authorization"] = `Bearer ${key}`;
     const timeoutMs = desc.id === "ollama" ? OLLAMA_TIMEOUT_MS : MODELS_TIMEOUT_MS;
-    const data = await fetchModelsJson(url, headers, timeoutMs, desc.label, deps2);
+    const data = await fetchModelsJson(url, headers, timeoutMs, desc.label, deps);
     const ids = parseModelList(desc, data);
     const seen = /* @__PURE__ */ new Set();
     return ids.filter((m) => seen.has(m) ? false : (seen.add(m), true)).map((m) => ({ id: m, detail: desc.label }));
@@ -10618,9 +10618,9 @@ var BZW_home = (() => {
     const remote = String(s.secondBrainRemoteOllamaUrl || "").trim();
     return isMobileEnv() && remote ? remote : local;
   }
-  async function fetchEmbeddingModels(deps2 = {}) {
+  async function fetchEmbeddingModels(deps = {}) {
     const url = `${embeddingServiceUrl().replace(/\/+$/, "")}/api/tags`;
-    const data = await fetchModelsJson(url, {}, OLLAMA_TIMEOUT_MS, "Ollama", deps2);
+    const data = await fetchModelsJson(url, {}, OLLAMA_TIMEOUT_MS, "Ollama", deps);
     const models = pickEmbeddingModels(data);
     if (!models.length) throw new Error("Ollama 未返回可用的向量化模型");
     return models;
@@ -10633,9 +10633,9 @@ var BZW_home = (() => {
     const rerank = tags.filter((t) => RERANK_NAME_RE.test(t.id));
     return (rerank.length ? rerank : tags).map((t) => ({ id: t.id, detail: t.detail }));
   }
-  async function fetchRerankModels(deps2 = {}) {
+  async function fetchRerankModels(deps = {}) {
     const url = `${embeddingServiceUrl().replace(/\/+$/, "")}/api/tags`;
-    const data = await fetchModelsJson(url, {}, OLLAMA_TIMEOUT_MS, "Ollama", deps2);
+    const data = await fetchModelsJson(url, {}, OLLAMA_TIMEOUT_MS, "Ollama", deps);
     const models = pickRerankModels(data);
     if (!models.length) throw new Error("Ollama 未返回可用的重排模型");
     return models;
@@ -11106,14 +11106,14 @@ var BZW_home = (() => {
     const s = tryGetSettings();
     return storageFile("review-fit.json", s && s.storagePath || "CONFIG/STORAGE");
   }
-  async function loadFittedParams(app2) {
+  async function loadFittedParams(app) {
     const data = await jsonFileStore(getReviewFitFilePath()).read();
     if (!data || !Array.isArray(data.w) || data.w.length < 8) return null;
     if (data.version === FIT_PARAMS_VERSION.FULL && data.w.length < 19) return null;
     if (!data.w.every((x) => Number.isFinite(x))) return null;
     return { ...data, w: clipWToBounds(data.w) };
   }
-  async function saveFittedParams(app2, fit3) {
+  async function saveFittedParams(app, fit3) {
     await enqueueFileTask(getReviewFitFilePath(), () => jsonFileStore(getReviewFitFilePath()).write(fit3));
   }
   var ReviewDataManager, FIT_PARAMS_VERSION;
@@ -11125,8 +11125,8 @@ var BZW_home = (() => {
       init_fsrs();
       init_fit();
       ReviewDataManager = class {
-        constructor(app2) {
-          this.app = app2;
+        constructor(app) {
+          this.app = app;
         }
         /** 加载条目（向后兼容旧字段；日期兼容 ISO 字符串与数字；非法 nextReviewDate 回退 reviewStart——见下）。
          *  走构造注入的 this.app.vault（A11 审查修复：注释如实——并非模块级 getApp）；
@@ -11165,9 +11165,9 @@ var BZW_home = (() => {
               console.warn("[review] nextReviewDate 非法，回退 reviewStart：", item.filePath, String(item.nextReviewDate));
               item.nextReviewDate = nextReview ? nextReview.toISOString() : null;
             }
-            const isOverdue2 = !!nextReview && now > nextReview && !isCompleted;
+            const isOverdue = !!nextReview && now > nextReview && !isCompleted;
             item.isCompleted = isCompleted;
-            item.isOverdue = isOverdue2;
+            item.isOverdue = isOverdue;
             item.currentStage = item.stage + 1;
             item.totalStages = TOTAL_STAGES;
             valid.push(item);
@@ -11340,15 +11340,15 @@ var BZW_home = (() => {
     const days = /* @__PURE__ */ new Set();
     for (const h of history2) days.add(dateKey(new Date(h.timestamp)));
     const totalReviews = days.size;
-    const todayKey2 = dateKey(/* @__PURE__ */ new Date());
+    const todayKey = dateKey(/* @__PURE__ */ new Date());
     let streak = 0;
     let cursor = /* @__PURE__ */ new Date();
-    if (!days.has(todayKey2)) cursor.setDate(cursor.getDate() - 1);
+    if (!days.has(todayKey)) cursor.setDate(cursor.getDate() - 1);
     while (days.has(dateKey(cursor))) {
       streak++;
       cursor.setDate(cursor.getDate() - 1);
     }
-    const todayCount2 = history2.filter((h) => dateKey(new Date(h.timestamp)) === todayKey2).length;
+    const todayCount2 = history2.filter((h) => dateKey(new Date(h.timestamp)) === todayKey).length;
     const ratingDist = { again: 0, hard: 0, good: 0, easy: 0 };
     for (const h of history2) {
       if (h.rating in ratingDist) ratingDist[h.rating]++;
@@ -11528,11 +11528,11 @@ var BZW_home = (() => {
       init_settings_provider();
       QuizManager = class {
         /** 加载（源码 L33-35；损坏 → {notes:{}}） */
-        async loadQuiz(app2) {
+        async loadQuiz(app) {
           try {
             const data = await jsonFileStore(getQuizFilePath(), {
               defaultValue: emptyQuiz(),
-              app: app2
+              app
             }).read();
             if (data && typeof data === "object" && data.notes) return data;
             return { notes: {} };
@@ -11540,8 +11540,8 @@ var BZW_home = (() => {
             return { notes: {} };
           }
         }
-        async saveQuiz(app2, quiz) {
-          await jsonFileStore(getQuizFilePath(), { app: app2 }).write(quiz);
+        async saveQuiz(app, quiz) {
+          await jsonFileStore(getQuizFilePath(), { app }).write(quiz);
         }
         /**
          * G3：quiz.json 读改写事务（写路径唯一入口，纯读勿入——队列只为串行化「读→改→写」）。
@@ -11549,22 +11549,22 @@ var BZW_home = (() => {
          * 队列不可重入：fn 内勿再调 mutateQuiz/enqueueFileTask 同路径（死锁）。
          * （session.ts 批量出题写回/清理非活跃键共用——AI 长耗时窗口内基于磁盘现值合并，不覆盖并发删题）
          */
-        mutateQuiz(app2, fn) {
+        mutateQuiz(app, fn) {
           return enqueueFileTask(getQuizFilePath(), async () => {
-            const quiz = await this.loadQuiz(app2);
+            const quiz = await this.loadQuiz(app);
             const result = await fn(quiz);
-            if (result !== false) await this.saveQuiz(app2, quiz);
+            if (result !== false) await this.saveQuiz(app, quiz);
             return result;
           });
         }
         /** 源码 L40-43 */
-        async getQuestionsForNote(app2, notePath) {
-          const quiz = await this.loadQuiz(app2);
+        async getQuestionsForNote(app, notePath) {
+          const quiz = await this.loadQuiz(app);
           return quiz.notes[notePath] || null;
         }
         /** 源码 L45-49（G3：RMW 入队，fn 内改现值） */
-        async saveQuestionsForNote(app2, notePath, questions) {
-          await this.mutateQuiz(app2, (quiz) => {
+        async saveQuestionsForNote(app, notePath, questions) {
+          await this.mutateQuiz(app, (quiz) => {
             quiz.notes[notePath] = questions.map((q3) => ({ ...q3 }));
           });
         }
@@ -11575,8 +11575,8 @@ var BZW_home = (() => {
          *  同内容多题：每次删除首个匹配＝按未答优先逐个消费。
          *  目标题已不在库中（并发刷新等）→ 终态已达成，静默成功不写盘（fn 返回 false）；
          *  空键仍保留（源码语义）。G3：RMW 入队，与批量出题写回互斥串行。 */
-        async removeQuestion(app2, notePath, target) {
-          await this.mutateQuiz(app2, (quiz) => {
+        async removeQuestion(app, notePath, target) {
+          await this.mutateQuiz(app, (quiz) => {
             const list = quiz.notes[notePath];
             if (!list) return false;
             const idx = list.findIndex((q3) => sameQuestion(q3, target));
@@ -11752,22 +11752,22 @@ ${n.content.slice(0, 2e3)}
       return false;
     }
   }
-  function waapi(el3, frames, opts) {
-    if (!el3 || typeof el3.animate !== "function") return null;
+  function waapi(el2, frames, opts) {
+    if (!el2 || typeof el2.animate !== "function") return null;
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
   }
   function tween(dur, step, ease = (t) => 1 - Math.pow(1 - t, 3)) {
     const t0 = performance.now();
-    const tick2 = (now) => {
+    const tick = (now) => {
       const p = Math.min(1, (now - t0) / dur);
       step(ease(p));
-      if (p < 1) requestAnimationFrame(tick2);
+      if (p < 1) requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick2);
+    requestAnimationFrame(tick);
   }
   function after(ms, fn) {
     const id = setTimeout(() => {
@@ -11783,8 +11783,8 @@ ${n.content.slice(0, 2e3)}
   function motionTeardown() {
     cancelPending();
   }
-  function ensureRelative(el3) {
-    if (getComputedStyle(el3).position === "static") el3.style.position = "relative";
+  function ensureRelative(el2) {
+    if (getComputedStyle(el2).position === "static") el2.style.position = "relative";
   }
   function seal(host, text2, big = false) {
     ensureRelative(host);
@@ -11806,11 +11806,11 @@ ${n.content.slice(0, 2e3)}
       after(360, () => s.remove());
     });
   }
-  function ringBurst(el3) {
-    const parent = el3.offsetParent instanceof HTMLElement ? el3.offsetParent : el3.parentElement;
+  function ringBurst(el2) {
+    const parent = el2.offsetParent instanceof HTMLElement ? el2.offsetParent : el2.parentElement;
     if (!parent) return;
     const pr = parent.getBoundingClientRect();
-    const r = el3.getBoundingClientRect();
+    const r = el2.getBoundingClientRect();
     const ring = document.createElement("i");
     ring.className = "bz-rv-ring";
     ring.setAttribute("aria-hidden", "true");
@@ -11874,8 +11874,8 @@ ${n.content.slice(0, 2e3)}
       }
     });
   }
-  function countUpNode(el3, dur) {
-    const node = el3.childNodes[0];
+  function countUpNode(el2, dur) {
+    const node = el2.childNodes[0];
     if (!node || node.nodeType !== Node.TEXT_NODE) return;
     const raw = node.textContent || "";
     const m = raw.match(/\d[\d,]*/);
@@ -11886,9 +11886,9 @@ ${n.content.slice(0, 2e3)}
       node.textContent = raw.replace(m[0], String(Math.round(target * v)));
     });
   }
-  function popCnt(el3) {
+  function popCnt(el2) {
     waapi(
-      el3,
+      el2,
       [
         { transform: "scale(.4)", opacity: 0 },
         { transform: "scale(1.18)", opacity: 1, offset: 0.7 },
@@ -12007,9 +12007,9 @@ ${n.content.slice(0, 2e3)}
       );
       const prog = host.querySelector(".bz-sprint-progress");
       if (prog) after(120, () => popCnt(prog));
-      host.querySelectorAll(".bz-sprint-opt").forEach((el3, i) => {
+      host.querySelectorAll(".bz-sprint-opt").forEach((el2, i) => {
         after(150 + i * STAG, () => waapi(
-          el3,
+          el2,
           [{ opacity: 0, transform: "translateX(-10px)" }, { opacity: 1, transform: "none" }],
           { duration: M3.base, easing: E.out, fill: "backwards" }
         ));
@@ -12236,17 +12236,17 @@ ${n.content.slice(0, 2e3)}
       });
     });
   }
-  function motionRatingBar(el3) {
+  function motionRatingBar(el2) {
     if (reduced()) return;
     waapi(
-      el3,
+      el2,
       [
         { opacity: 0, transform: "translateX(-50%) translateY(60px)" },
         { opacity: 1, transform: "translateX(-50%) translateY(0)" }
       ],
       { duration: 420, easing: "cubic-bezier(.22,.9,.32,1.15)", fill: "backwards" }
     );
-    el3.querySelectorAll(".bz-review-bar-btn").forEach((b, i) => {
+    el2.querySelectorAll(".bz-review-bar-btn").forEach((b, i) => {
       after(150 + i * STAG, () => popCnt(b));
     });
   }
@@ -12280,9 +12280,9 @@ ${n.content.slice(0, 2e3)}
       ],
       { duration: 380, easing: E.out, fill: "backwards" }
     );
-    popup.querySelectorAll(".quiz-option-btn").forEach((el3, i) => {
+    popup.querySelectorAll(".quiz-option-btn").forEach((el2, i) => {
       after(120 + i * STAG, () => waapi(
-        el3,
+        el2,
         [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }],
         { duration: M3.base, easing: E.out, fill: "backwards" }
       ));
@@ -12404,8 +12404,8 @@ ${n.content.slice(0, 2e3)}
          *  quiz-core/index.quizUpdate → 本方法 → manager.loadActiveItems 整链生产死（仅测试直达）。 */
         /** 确保指定笔记都有题目（源码 L346-398 逐字） */
         async ensureQuestions(notePaths) {
-          const app2 = getApp();
-          const quiz = await this.manager.loadQuiz(app2);
+          const app = getApp();
+          const quiz = await this.manager.loadQuiz(app);
           const settings = _QuizMasterUI.settings || {};
           const enableMultipleChoice = settings.enableMultipleChoice !== false;
           const questionsPerNote = parseInt(settings.questionsPerNote) || 0;
@@ -12414,9 +12414,9 @@ ${n.content.slice(0, 2e3)}
           for (const path of notePaths) {
             const existing = quiz.notes[path];
             if (!existing || existing.length === 0) {
-              const file = app2.vault.getAbstractFileByPath(path);
+              const file = app.vault.getAbstractFileByPath(path);
               if (!file) continue;
-              const content = await app2.vault.read(file);
+              const content = await app.vault.read(file);
               if (content.trim()) missing.push({ id: path, content });
             }
           }
@@ -12426,7 +12426,7 @@ ${n.content.slice(0, 2e3)}
               const h = notify(`正在为 ${missing.length} 篇笔记批量生成题目…`, { type: "progress", dedupeKey: "quiz-generate" });
               const batchResult = await this.generator.generateBatch(missing, _QuizMasterUI.ai, enableMultipleChoice, questionsPerNote, difficulty);
               let batchOk = 0;
-              await this.manager.mutateQuiz(app2, (quiz2) => {
+              await this.manager.mutateQuiz(app, (quiz2) => {
                 for (const [path, qs] of Object.entries(batchResult)) {
                   if (qs.length) {
                     quiz2.notes[path] = qs;
@@ -12450,7 +12450,7 @@ ${n.content.slice(0, 2e3)}
               if (!_QuizMasterUI.ai) throw new Error("AI 未初始化");
               const qs = await this.generator.generate(note.content, _QuizMasterUI.ai, enableMultipleChoice, questionsPerNote, difficulty);
               if (qs.length) {
-                await this.manager.saveQuestionsForNote(app2, note.id, qs);
+                await this.manager.saveQuestionsForNote(app, note.id, qs);
                 okCount++;
               } else {
                 failCount++;
@@ -12523,7 +12523,7 @@ ${n.content.slice(0, 2e3)}
           const selectedIndices = /* @__PURE__ */ new Set();
           const answeredRef = { value: false };
           const optionElements = this._buildOptionButtons(q3, answeredRef, selectedIndices, optionsContainer);
-          optionElements.forEach((el3) => optionsContainer.appendChild(el3));
+          optionElements.forEach((el2) => optionsContainer.appendChild(el2));
           if (this._pendingSubmitBtn) {
             optionsContainer.appendChild(this._pendingSubmitBtn);
             this._pendingSubmitBtn = null;
@@ -12592,7 +12592,7 @@ ${n.content.slice(0, 2e3)}
         _buildOptionButtons(q3, answeredRef, selectedIndices, optionsContainer) {
           const optionLabels = ["A", "B", "C", "D"];
           const isSingle = q3.correctIndices.length === 1;
-          const app2 = getApp();
+          const app = getApp();
           const optionElements = q3.options.map((opt, idx) => {
             const btn = document.createElement("button");
             btn.className = "quiz-option-btn";
@@ -12611,7 +12611,7 @@ ${n.content.slice(0, 2e3)}
                   });
                   const p = quizPopupEl();
                   if (p) motionQuizJudge(p, true);
-                  this._answerCorrect(q3, app2, () => {
+                  this._answerCorrect(q3, app, () => {
                     answeredRef.value = false;
                     optionElements.forEach((b) => b.classList.remove("disabled", "correct"));
                   });
@@ -12661,7 +12661,7 @@ ${n.content.slice(0, 2e3)}
               if (isCorrect) {
                 const p = quizPopupEl();
                 if (p) motionQuizJudge(p, true);
-                this._answerCorrect(q3, app2, () => {
+                this._answerCorrect(q3, app, () => {
                   answeredRef.value = false;
                   submitBtn.disabled = false;
                   optionElements.forEach((b) => b.classList.remove("disabled", "correct"));
@@ -12684,8 +12684,8 @@ ${n.content.slice(0, 2e3)}
          *  ticket 153：答对自动跳下一题（答对不出现「下一题」按钮，答错才由用户点按）；
          *  ticket 156：跳题延后 0.8s——亮绿正确选项让用户看到反馈再进入下一题；
          *  延时期间放弃做题/强制关闭 → 清除延时（回调内再校验会话态，防迟到渲染僵尸弹窗）。 */
-        _answerCorrect(q3, app2, onFailRestore) {
-          this.manager.removeQuestion(app2, q3.notePath, { question: q3.question, options: q3.options, correctIndices: q3.correctIndices }).then(() => {
+        _answerCorrect(q3, app, onFailRestore) {
+          this.manager.removeQuestion(app, q3.notePath, { question: q3.question, options: q3.options, correctIndices: q3.correctIndices }).then(() => {
             this.correctCount++;
             this.currentQuestions.splice(this.currentIndex, 1);
             this._clearJumpTimer();
@@ -12804,7 +12804,7 @@ ${n.content.slice(0, 2e3)}
     quizUI: () => quizUI,
     resetQuiz: () => resetQuiz
   });
-  function ensureQuiz(app2) {
+  function ensureQuiz(app) {
     if (initialized) return;
     initialized = true;
     QuizMasterUI.ai = createAI();
@@ -12855,7 +12855,7 @@ ${n.content.slice(0, 2e3)}
       REVIEW_AUTO_ADD_MERGE_MS = 3e3;
       RENAME_MERGE_MS = 3e3;
       ReviewWatcher = class {
-        constructor(app2, dataManager3) {
+        constructor(app, dataManager3) {
           /** 删除确认防抖缓冲（多文件删除合并为一次确认） */
           this.deleteQueue = [];
           this.deleteTimer = null;
@@ -12865,7 +12865,7 @@ ${n.content.slice(0, 2e3)}
           /** ticket n2：改名通知合并缓冲（3 秒窗口收集；列表/文件树更新仍即时） */
           this.renameQueue = [];
           this.renameTimer = null;
-          this.app = app2;
+          this.app = app;
           this.dataManager = dataManager3;
         }
         get watchedFolders() {
@@ -13842,10 +13842,10 @@ ${n.content.slice(0, 2e3)}
           (_c = this.opts.host.querySelector('[data-action="note"]')) == null ? void 0 : _c.addEventListener("click", () => {
             void this.finishNote();
           });
-          this.opts.host.querySelectorAll(".bz-sprint-opt").forEach((el3) => {
-            const activate = () => this.answer(Number(el3.dataset.i));
-            el3.addEventListener("click", activate);
-            el3.addEventListener("keydown", (e) => {
+          this.opts.host.querySelectorAll(".bz-sprint-opt").forEach((el2) => {
+            const activate = () => this.answer(Number(el2.dataset.i));
+            el2.addEventListener("click", activate);
+            el2.addEventListener("keydown", (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 activate();
@@ -13911,7 +13911,7 @@ ${n.content.slice(0, 2e3)}
   });
 
   // src/review/settings-schema.ts
-  function reviewSettingsSchema(deps2) {
+  function reviewSettingsSchema(deps) {
     return {
       groups: [
         {
@@ -14058,7 +14058,7 @@ ${n.content.slice(0, 2e3)}
                 const prev = [...getSettings().reviewWatchedFolders || []];
                 return (async () => {
                   const { ReviewWatcher: ReviewWatcher2 } = await Promise.resolve().then(() => (init_watch(), watch_exports));
-                  const watcher = new ReviewWatcher2(deps2.app, deps2.dataManager);
+                  const watcher = new ReviewWatcher2(deps.app, deps.dataManager);
                   const kept = [];
                   for (const folder of list) {
                     if (!folder) {
@@ -14096,7 +14096,7 @@ ${n.content.slice(0, 2e3)}
                   const removed = prev.filter((p) => !keys.includes(p));
                   if (removed.length === 0) return;
                   const { ReviewWatcher: ReviewWatcher2 } = await Promise.resolve().then(() => (init_watch(), watch_exports));
-                  const watcher = new ReviewWatcher2(deps2.app, deps2.dataManager);
+                  const watcher = new ReviewWatcher2(deps.app, deps.dataManager);
                   for (const path of removed) await watcher.removeExcludedNote(path);
                   notice("已解除排除", "success");
                 })();
@@ -14204,20 +14204,20 @@ ${n.content.slice(0, 2e3)}
         reviews: Array.isArray(it.reviewHistory) ? it.reviewHistory.length : 0
       };
     });
-    const live3 = embers.filter((e) => !e.done && !e.missing);
+    const live2 = embers.filter((e) => !e.done && !e.missing);
     const doneN = embers.filter((e) => e.done).length;
     const missingN = embers.filter((e) => e.missing).length;
-    const ladderN = live3.filter((e) => e.phase === "ladder").length;
-    const fsrsN = live3.filter((e) => e.phase === "fsrs").length;
+    const ladderN = live2.filter((e) => e.phase === "ladder").length;
+    const fsrsN = live2.filter((e) => e.phase === "fsrs").length;
     const stageDist = new Array(10).fill(0);
-    for (const e of live3) stageDist[e.phase === "fsrs" ? 9 : Math.min(8, e.stage)]++;
+    for (const e of live2) stageDist[e.phase === "fsrs" ? 9 : Math.min(8, e.stage)]++;
     const stagePeak = stageDist.some((n) => n > 0) ? stageDist.indexOf(Math.max(...stageDist)) : -1;
     const cols = partitionQueue(items, 0.9, w);
-    const rs = live3.map((e) => e.r).filter((v) => v != null);
+    const rs = live2.map((e) => e.r).filter((v) => v != null);
     const rHist = new Array(10).fill(0);
     for (const v of rs) rHist[Math.max(0, Math.min(9, Math.floor(v * 10)))]++;
     const avgR = rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : null;
-    const fsrsList = live3.filter((e) => e.phase === "fsrs" && e.s > 0);
+    const fsrsList = live2.filter((e) => e.phase === "fsrs" && e.s > 0);
     const sBuckets = sBucketsOf(fsrsList.map((e) => e.s));
     const sMax = fsrsList.reduce((m, e) => Math.max(m, e.s), 0);
     const dAvg = fsrsList.length ? fsrsList.reduce((a, e) => a + e.d, 0) / fsrsList.length : null;
@@ -14278,11 +14278,11 @@ ${n.content.slice(0, 2e3)}
     }
     const tomorrowN = (_c = (_b2 = next8[1]) == null ? void 0 : _b2.count) != null ? _c : 0;
     const againN = ratingDist["again"] || 0;
-    const redoN = live3.filter((e) => e.redo).length;
+    const redoN = live2.filter((e) => e.redo).length;
     const confList = items.map((it) => Number(it.averageConfidence)).filter((v) => Number.isFinite(v) && v > 0);
     return {
       total: embers.length,
-      active: live3.length,
+      active: live2.length,
       doneN,
       missingN,
       ladderN,
@@ -14290,8 +14290,8 @@ ${n.content.slice(0, 2e3)}
       stageDist,
       stagePeak,
       embers,
-      liveEmbers: live3,
-      overdueList: live3.filter((e) => e.overdue).sort((a, b) => b.overdueDays - a.overdueDays).map((e) => ({ name: e.name, days: e.overdueDays })),
+      liveEmbers: live2,
+      overdueList: live2.filter((e) => e.overdue).sort((a, b) => b.overdueDays - a.overdueDays).map((e) => ({ name: e.name, days: e.overdueDays })),
       overdueN: cols.overdue.length,
       todayN: cols.today.length,
       futureN: cols.future.length,
@@ -14647,23 +14647,23 @@ ${n.content.slice(0, 2e3)}
     };
   }
   function canvas(host, key) {
-    const el3 = host.querySelector(`canvas[data-cv="${key}"]`);
-    if (!el3) return null;
-    const ctx = typeof el3.getContext === "function" ? el3.getContext("2d") : null;
+    const el2 = host.querySelector(`canvas[data-cv="${key}"]`);
+    if (!el2) return null;
+    const ctx = typeof el2.getContext === "function" ? el2.getContext("2d") : null;
     if (!ctx) return null;
     const cv = {
-      el: el3,
+      el: el2,
       ctx,
       w: 0,
       h: 0,
       fit() {
         const dpr = Math.min(2, globalThis.devicePixelRatio || 1);
-        const w = Math.max(1, el3.offsetWidth), h = Math.max(1, el3.offsetHeight);
+        const w = Math.max(1, el2.offsetWidth), h = Math.max(1, el2.offsetHeight);
         if (w === cv.w && h === cv.h) return false;
         cv.w = w;
         cv.h = h;
-        el3.width = Math.round(w * dpr);
-        el3.height = Math.round(h * dpr);
+        el2.width = Math.round(w * dpr);
+        el2.height = Math.round(h * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         return true;
       },
@@ -14722,26 +14722,26 @@ ${n.content.slice(0, 2e3)}
     }
   }
   function tip(root, html, cx = 0, cy = 0) {
-    let el3 = tipNode.get(root);
-    if (!el3) {
+    let el2 = tipNode.get(root);
+    if (!el2) {
       if (typeof document === "undefined") return;
-      el3 = document.createElement("span");
-      el3.className = "ra-tip";
-      el3.setAttribute("aria-hidden", "true");
-      root.appendChild(el3);
-      tipNode.set(root, el3);
+      el2 = document.createElement("span");
+      el2.className = "ra-tip";
+      el2.setAttribute("aria-hidden", "true");
+      root.appendChild(el2);
+      tipNode.set(root, el2);
     }
     if (!html) {
-      if (el3.style.opacity !== "0") el3.style.opacity = "0";
+      if (el2.style.opacity !== "0") el2.style.opacity = "0";
       return;
     }
-    if (el3.dataset.h !== html) {
-      el3.dataset.h = html;
-      el3.innerHTML = html;
+    if (el2.dataset.h !== html) {
+      el2.dataset.h = html;
+      el2.innerHTML = html;
     }
-    el3.style.left = `${cx.toFixed(1)}px`;
-    el3.style.top = `${cy.toFixed(1)}px`;
-    el3.style.opacity = "1";
+    el2.style.left = `${cx.toFixed(1)}px`;
+    el2.style.top = `${cy.toFixed(1)}px`;
+    el2.style.opacity = "1";
   }
   var clamp01, lerp, at, easeOut, easeInOut, easeBack, spring, stagger, rollTo, cssVar, luma, rgba, qsa, localAt, tipNode, toward;
   var init_kits = __esm({
@@ -14788,10 +14788,10 @@ ${n.content.slice(0, 2e3)}
   });
 
   // src/review/analysis/motions.ts
-  function S(el3, v) {
+  function S(el2, v) {
     var _a2;
-    if (!el3 || lastStyle.get(el3) === v) return;
-    const prev = (_a2 = el3.getAttribute("style")) != null ? _a2 : "";
+    if (!el2 || lastStyle.get(el2) === v) return;
+    const prev = (_a2 = el2.getAttribute("style")) != null ? _a2 : "";
     if (prev) {
       const vars = prev.match(/--[\w-]+\s*:[^;]*/g);
       if (vars) {
@@ -14799,21 +14799,21 @@ ${n.content.slice(0, 2e3)}
         if (keep.length) v = `${keep.join(";")};${v}`;
       }
     }
-    lastStyle.set(el3, v);
-    el3.setAttribute("style", v);
+    lastStyle.set(el2, v);
+    el2.setAttribute("style", v);
   }
-  function T(el3, v) {
-    if (!el3 || lastText.get(el3) === v) return;
-    lastText.set(el3, v);
-    el3.textContent = v;
+  function T(el2, v) {
+    if (!el2 || lastText.get(el2) === v) return;
+    lastText.set(el2, v);
+    el2.textContent = v;
   }
   function buildPerfs(root, data, host = root) {
     const out = /* @__PURE__ */ new Map();
     const scn = (id) => root.querySelector(`[data-id="${id}"]`);
     if (!scn("open")) return out;
-    const vOf = (el3, name, fallback = 0) => {
+    const vOf = (el2, name, fallback = 0) => {
       var _a2;
-      const v = parseFloat(String((_a2 = el3 == null ? void 0 : el3.style.getPropertyValue(name)) != null ? _a2 : ""));
+      const v = parseFloat(String((_a2 = el2 == null ? void 0 : el2.style.getPropertyValue(name)) != null ? _a2 : ""));
       return Number.isFinite(v) ? v : fallback;
     };
     {
@@ -15069,10 +15069,10 @@ ${n.content.slice(0, 2e3)}
               }
             }
           }
-          dots.forEach((el3, i) => {
+          dots.forEach((el2, i) => {
             const p = at(t, 0.5, 1.4 + i * 0.028);
             const on = i === hotI && t > 2;
-            S(el3, `opacity:${(p * (on ? 1 : hotI >= 0 ? 0.4 : 0.9)).toFixed(3)};transform:translate(-50%,-50%) scale(${(on ? 2.1 : 0.55 + 0.45 * easeBack(p)).toFixed(3)})` + (on ? ";z-index:3" : ""));
+            S(el2, `opacity:${(p * (on ? 1 : hotI >= 0 ? 0.4 : 0.9)).toFixed(3)};transform:translate(-50%,-50%) scale(${(on ? 2.1 : 0.55 + 0.45 * easeBack(p)).toFixed(3)})` + (on ? ";z-index:3" : ""));
           });
           if (oncliff) {
             const p = at(t, 0.6, 2.2);
@@ -15163,25 +15163,25 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("debts");
       const debts = qsa(s, ".ra-debt");
-      const rots = debts.map((el3) => vOf(el3, "--rot", 0));
-      const swings = debts.map((el3) => vOf(el3, "--sw", 0));
+      const rots = debts.map((el2) => vOf(el2, "--rot", 0));
+      const swings = debts.map((el2) => vOf(el2, "--sw", 0));
       const total = s.querySelector(".ra-debt-total");
       let hotDebt = -1;
       out.set("debts", {
         dur: 2.8,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-debt");
-          hotDebt = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-debt");
+          hotDebt = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          debts.forEach((el3, i) => {
+          debts.forEach((el2, i) => {
             const p = at(t, 0.5, 0.2 + i * 0.09);
             const on = i === hotDebt && t > 1.2;
             const swing = Math.sin(t * 1.15 + i * 1.9 + swings[i] * 6.28) * (1.6 + swings[i]);
-            S(el3, `opacity:${Math.min(1, p * 1.6).toFixed(3)};transform:translate(-50%,${((1 - easeBack(p)) * -26).toFixed(1)}px) rotate(${(rots[i] * easeOut(p) + swing * (on ? 0.2 : 1)).toFixed(2)}deg)` + (on ? ";z-index:3;filter:brightness(1.14)" : ""));
+            S(el2, `opacity:${Math.min(1, p * 1.6).toFixed(3)};transform:translate(-50%,${((1 - easeBack(p)) * -26).toFixed(1)}px) rotate(${(rots[i] * easeOut(p) + swing * (on ? 0.2 : 1)).toFixed(2)}deg)` + (on ? ";z-index:3;filter:brightness(1.14)" : ""));
           });
           if (total) {
             const p = at(t, 0.6, 1.2);
@@ -15193,27 +15193,27 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("steppath");
       const steps = qsa(s, ".ra-step");
-      const bars = steps.map((el3) => el3.querySelector('[data-r="stepbar"]'));
-      const nums = steps.map((el3) => el3.querySelector('[data-r="stepn"]'));
+      const bars = steps.map((el2) => el2.querySelector('[data-r="stepbar"]'));
+      const nums = steps.map((el2) => el2.querySelector('[data-r="stepn"]'));
       const fly = s.querySelector('[data-r="fly"]');
-      const phs = steps.map((el3) => vOf(el3.querySelector('[data-r="stepbar"]'), "--ph", 0));
+      const phs = steps.map((el2) => vOf(el2.querySelector('[data-r="stepbar"]'), "--ph", 0));
       const row = s.querySelector('[data-r="steps"]');
       let hotStep = -1;
       out.set("steppath", {
         dur: 3,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-step");
-          hotStep = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-step");
+          hotStep = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          steps.forEach((el3, i) => {
+          steps.forEach((el2, i) => {
             const p = stagger(t, i, 0.12, 0.8);
             const on = i === hotStep && t > 1.6;
             S(bars[i], `height:${phs[i].toFixed(2)}%;transform:scaleY(${easeOut(p).toFixed(4)});transform-origin:bottom center`);
-            S(el3, `opacity:${(at(t, 0.4, i * 0.12) * (hotStep >= 0 && !on ? 0.55 : 1)).toFixed(3)}`);
+            S(el2, `opacity:${(at(t, 0.4, i * 0.12) * (hotStep >= 0 && !on ? 0.55 : 1)).toFixed(3)}`);
             T(nums[i], String(Math.round((data.stageDist[i] || 0) * easeOut(p))));
           });
           if (fly && row) {
@@ -15235,27 +15235,27 @@ ${n.content.slice(0, 2e3)}
       const blocks = qsa(s, ".ra-crystal");
       const cvs = blocks.map((_, i) => canvas(s, `crystal${i}`));
       const ns = data.sBuckets.map((b) => b.n);
-      const weights = blocks.map((el3) => vOf(el3, "--w", 0));
+      const weights = blocks.map((el2) => vOf(el2, "--w", 0));
       const crow = s.querySelector('[data-r="crow"]');
-      const numsEls = blocks.map((el3) => el3.querySelector('[data-r="cn"]'));
+      const numsEls = blocks.map((el2) => el2.querySelector('[data-r="cn"]'));
       let hotC = -1;
       out.set("crystal", {
         dur: 3.2,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-crystal");
-          hotC = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-crystal");
+          hotC = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t, pal, px, py }) {
           if (crow && t > 1.8) {
             S(crow, `transform:perspective(1100px) rotateX(${(-py * 2.6).toFixed(2)}deg) rotateY(${(px * 3).toFixed(2)}deg)`);
           }
-          blocks.forEach((el3, i) => {
+          blocks.forEach((el2, i) => {
             const p = at(t, 0.7, i * 0.16);
             const on = i === hotC && t > 1.6;
-            S(el3, `opacity:${(at(t, 0.3, i * 0.16) * (hotC >= 0 && !on ? 0.5 : 1)).toFixed(3)};transform:translateY(${((1 - easeOut(p)) * 14 - (on ? 6 : 0)).toFixed(1)}px)`);
+            S(el2, `opacity:${(at(t, 0.3, i * 0.16) * (hotC >= 0 && !on ? 0.5 : 1)).toFixed(3)};transform:translateY(${((1 - easeOut(p)) * 14 - (on ? 6 : 0)).toFixed(1)}px)`);
             T(numsEls[i], String(Math.round(ns[i] * easeOut(p))));
             const cv = cvs[i];
             if (!cv) return;
@@ -15299,8 +15299,8 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("strata");
       const strata = qsa(s, ".ra-stratum");
-      const phs = strata.map((el3) => vOf(el3, "--ph", 0));
-      const nsEls = strata.map((el3) => el3.querySelector('[data-r="stn"]'));
+      const phs = strata.map((el2) => vOf(el2, "--ph", 0));
+      const nsEls = strata.map((el2) => el2.querySelector('[data-r="stn"]'));
       const ns = data.dBuckets.map((b) => b.n);
       const bed = s.querySelector('[data-r="bed"]');
       let hotSt = -1;
@@ -15308,16 +15308,16 @@ ${n.content.slice(0, 2e3)}
         dur: 2.6,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-stratum");
-          hotSt = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-stratum");
+          hotSt = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          strata.forEach((el3, i) => {
+          strata.forEach((el2, i) => {
             const p = stagger(t, i, 0.16, 0.7);
             const on = i === hotSt && t > 1.2;
-            S(el3, `--scan:${(t > 1 ? (t - 1) % 4.4 / 4.4 : -1).toFixed(4)};transform:scaleX(${(easeOut(p) * (on ? 1.02 : 1)).toFixed(4)});transform-origin:left center;opacity:${(at(t, 0.4, i * 0.16) * (hotSt >= 0 && !on ? 0.5 : 1)).toFixed(3)}`);
+            S(el2, `--scan:${(t > 1 ? (t - 1) % 4.4 / 4.4 : -1).toFixed(4)};transform:scaleX(${(easeOut(p) * (on ? 1.02 : 1)).toFixed(4)});transform-origin:left center;opacity:${(at(t, 0.4, i * 0.16) * (hotSt >= 0 && !on ? 0.5 : 1)).toFixed(3)}`);
             T(nsEls[i], String(Math.round(ns[i] * easeOut(p))));
           });
           if (bed) S(bed, `transform:perspective(1100px) rotateY(${0 .toFixed(2)}deg)`);
@@ -15327,29 +15327,29 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("dailies");
       const woods = qsa(s, ".ra-wood");
-      const bars = woods.map((el3) => el3.querySelector('[data-r="woodbar"]'));
-      const flames = woods.map((el3) => el3.querySelector('[data-r="flame"]'));
-      const phs = woods.map((el3) => vOf(el3, "--ph", 0));
+      const bars = woods.map((el2) => el2.querySelector('[data-r="woodbar"]'));
+      const flames = woods.map((el2) => el2.querySelector('[data-r="flame"]'));
+      const phs = woods.map((el2) => vOf(el2, "--ph", 0));
       const wTotal = s.querySelector('[data-r="woodTotal"]');
       let hotW = -1;
       out.set("dailies", {
         dur: 2.8,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-wood");
-          hotW = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-wood");
+          hotW = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          woods.forEach((el3, i) => {
+          woods.forEach((el2, i) => {
             const p = stagger(t, i, 0.09, 0.6);
             const on = i === hotW && t > 1.4;
             S(bars[i], `height:${phs[i].toFixed(2)}%;transform:scaleY(${easeOut(p).toFixed(4)});transform-origin:bottom center`);
             const alive = phs[i] > 0 && p > 0.9 ? 1 : 0;
             const breath = 0.45 + 0.55 * Math.sin(t * 2.3 + i * 1.4);
             S(flames[i], `opacity:${(alive * (0.35 + 0.65 * breath) * (on ? 1.4 : 1)).toFixed(3)};transform:translateX(-50%) scale(${(on ? 1.5 : 0.8 + 0.3 * breath).toFixed(3)})`);
-            S(el3, `opacity:${(at(t, 0.3, i * 0.09) * (hotW >= 0 && !on ? 0.55 : 1)).toFixed(3)}`);
+            S(el2, `opacity:${(at(t, 0.3, i * 0.09) * (hotW >= 0 && !on ? 0.55 : 1)).toFixed(3)}`);
           });
           if (wTotal) {
             const p = easeOut(at(t, 1.4, 0.6));
@@ -15366,11 +15366,11 @@ ${n.content.slice(0, 2e3)}
       out.set("vigil", {
         dur: 3.4,
         update({ t, pal, px, py }) {
-          beads.forEach((el3, i) => {
+          beads.forEach((el2, i) => {
             const p = at(t, 0.3, 0.4 + i * 0.075);
             const lit = p > 0 ? 1 : 0;
             const pulse = i === beads.length - 1 && p >= 1 ? 0.4 + 0.6 * Math.abs(Math.sin(t * 1.8)) : 1;
-            S(el3, `opacity:${(lit * (i === beads.length - 1 ? pulse : 0.3 + 0.7 * p)).toFixed(3)};transform:scale(${(0.4 + 0.6 * easeBack(p)).toFixed(3)})`);
+            S(el2, `opacity:${(lit * (i === beads.length - 1 ? pulse : 0.3 + 0.7 * p)).toFixed(3)};transform:scale(${(0.4 + 0.6 * easeBack(p)).toFixed(3)})`);
           });
           if (streakN) {
             const p = easeOut(at(t, 1.6, 0.8));
@@ -15499,26 +15499,26 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("bedrock");
       const rows = qsa(s, ".ra-bed");
-      const bars = rows.map((el3) => el3.querySelector('[data-r="bedbar"]'));
-      const shines = rows.map((el3) => el3.querySelector('[data-r="shine"]'));
-      const phs = rows.map((el3) => vOf(el3, "--ph", 0));
+      const bars = rows.map((el2) => el2.querySelector('[data-r="bedbar"]'));
+      const shines = rows.map((el2) => el2.querySelector('[data-r="shine"]'));
+      const phs = rows.map((el2) => vOf(el2, "--ph", 0));
       let hotB = -1;
       out.set("bedrock", {
         dur: 3,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-bed");
-          hotB = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-bed");
+          hotB = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          rows.forEach((el3, i) => {
+          rows.forEach((el2, i) => {
             const p = stagger(t, i, 0.14, 0.9);
             const on = i === hotB && t > 1.5;
             S(bars[i], `width:${phs[i].toFixed(2)}%;transform:scaleX(${easeOut(p).toFixed(4)});transform-origin:left center;filter:${on ? "brightness(1.18)" : "none"}`);
             S(shines[i], `opacity:${(p >= 1 ? 0.4 + 0.5 * Math.max(0, Math.sin(t * 1.1 + i * 0.9)) : 0).toFixed(3)};transform:translateX(${((t * 22 + i * 60) % 160 - 30).toFixed(1)}px)`);
-            S(el3, `opacity:${(at(t, 0.3, i * 0.14) * (hotB >= 0 && !on ? 0.5 : 1)).toFixed(3)};transform:translateX(${(on ? 8 : 0).toFixed(1)}px)`);
+            S(el2, `opacity:${(at(t, 0.3, i * 0.14) * (hotB >= 0 && !on ? 0.5 : 1)).toFixed(3)};transform:translateX(${(on ? 8 : 0).toFixed(1)}px)`);
           });
         }
       });
@@ -15526,23 +15526,23 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("portide");
       const bars = qsa(s, ".ra-tidebar");
-      const columns = bars.map((el3) => el3.querySelector('[data-r="tidebar"]'));
-      const numsEls = bars.map((el3) => el3.querySelector('[data-r="tidebarN"]'));
-      const flies = bars.map((el3) => el3.querySelector('[data-r="tidefly"]'));
-      const phs = bars.map((el3) => vOf(el3, "--ph", 0));
+      const columns = bars.map((el2) => el2.querySelector('[data-r="tidebar"]'));
+      const numsEls = bars.map((el2) => el2.querySelector('[data-r="tidebarN"]'));
+      const flies = bars.map((el2) => el2.querySelector('[data-r="tidefly"]'));
+      const phs = bars.map((el2) => vOf(el2, "--ph", 0));
       const counts = data.next8.map((d) => d.count);
       let hotT = -1;
       out.set("portide", {
         dur: 2.8,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-tidebar");
-          hotT = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-tidebar");
+          hotT = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          bars.forEach((el3, i) => {
+          bars.forEach((el2, i) => {
             const p = stagger(t, i, 0.11, 0.7);
             const on = i === hotT && t > 1.4;
             S(columns[i], `height:${phs[i].toFixed(2)}%;transform:scaleY(${easeOut(p).toFixed(4)});transform-origin:bottom center;filter:${on ? "brightness(1.2)" : "none"}`);
@@ -15550,7 +15550,7 @@ ${n.content.slice(0, 2e3)}
             const alive = (counts[i] || 0) > 0 && p >= 1 ? 1 : 0;
             const blink = 0.3 + 0.7 * Math.abs(Math.sin(t * 1.7 + i * 1.1));
             S(flies[i], `opacity:${(alive * blink * (on ? 1 : 0.8)).toFixed(3)};transform:translate(-50%,${(-4 - 3 * Math.sin(t * 2 + i)).toFixed(1)}px) scale(${(on ? 1.5 : 1).toFixed(2)})`);
-            S(el3, `opacity:${(at(t, 0.3, i * 0.11) * (hotT >= 0 && !on ? 0.55 : 1)).toFixed(3)}`);
+            S(el2, `opacity:${(at(t, 0.3, i * 0.11) * (hotT >= 0 && !on ? 0.55 : 1)).toFixed(3)}`);
           });
         }
       });
@@ -15558,25 +15558,25 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("quarters");
       const quarters = qsa(s, ".ra-quarter");
-      const lamps = quarters.map((el3) => el3.querySelector('[data-r="qlamp"]'));
-      const numsEls = quarters.map((el3) => el3.querySelector('[data-r="qn"]'));
-      const phs = quarters.map((el3) => vOf(el3, "--ph", 0));
+      const lamps = quarters.map((el2) => el2.querySelector('[data-r="qlamp"]'));
+      const numsEls = quarters.map((el2) => el2.querySelector('[data-r="qn"]'));
+      const phs = quarters.map((el2) => vOf(el2, "--ph", 0));
       const counts = [data.overdueN, data.todayN, data.futureN, data.doneColN];
       let hotQ = -1;
       out.set("quarters", {
         dur: 2.8,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-quarter");
-          hotQ = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-quarter");
+          hotQ = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t }) {
-          quarters.forEach((el3, i) => {
+          quarters.forEach((el2, i) => {
             const p = stagger(t, i, 0.16, 0.8);
             const on = i === hotQ && t > 1.5;
-            S(el3, `opacity:${(at(t, 0.3, i * 0.16) * (hotQ >= 0 && !on ? 0.5 : 1)).toFixed(3)};transform:translateY(${((1 - easeOut(p)) * 16 - (on ? 6 : 0)).toFixed(1)}px);--breathe:${(0.5 + 0.5 * Math.sin(t * 1.4 + i * 1.6)).toFixed(3)}`);
+            S(el2, `opacity:${(at(t, 0.3, i * 0.16) * (hotQ >= 0 && !on ? 0.5 : 1)).toFixed(3)};transform:translateY(${((1 - easeOut(p)) * 16 - (on ? 6 : 0)).toFixed(1)}px);--breathe:${(0.5 + 0.5 * Math.sin(t * 1.4 + i * 1.6)).toFixed(3)}`);
             S(lamps[i], `transform:scaleY(${easeOut(p).toFixed(4)});transform-origin:bottom center;filter:brightness(${(on ? 1.4 : 0.8 + 0.45 * Math.abs(Math.sin(t * 1.4 + i * 1.6))).toFixed(3)})`);
             T(numsEls[i], String(Math.round((counts[i] || 0) * easeOut(p))));
           });
@@ -15586,9 +15586,9 @@ ${n.content.slice(0, 2e3)}
     {
       const s = scn("marks");
       const marks = qsa(s, ".ra-mark");
-      const cuts = marks.map((el3) => el3.querySelector('[data-r="cut"]'));
-      const numsEls = marks.map((el3) => el3.querySelector('[data-r="markn"]'));
-      const phs = marks.map((el3) => vOf(el3, "--ph", 0));
+      const cuts = marks.map((el2) => el2.querySelector('[data-r="cut"]'));
+      const numsEls = marks.map((el2) => el2.querySelector('[data-r="markn"]'));
+      const phs = marks.map((el2) => vOf(el2, "--ph", 0));
       const mrow = s.querySelector('[data-r="mrow"]');
       const counts = RA_RATING_ORDER.map((k) => data.lastDiffDist[k] || 0);
       let hotM = -1;
@@ -15596,21 +15596,21 @@ ${n.content.slice(0, 2e3)}
         dur: 2.8,
         move(p) {
           var _a2;
-          const el3 = under(p, ".ra-mark");
-          hotM = el3 ? Number((_a2 = el3.dataset.i) != null ? _a2 : -1) : -1;
-          if (el3 == null ? void 0 : el3.dataset.tip) tip(host, el3.dataset.tip, p.cx, p.cy);
+          const el2 = under(p, ".ra-mark");
+          hotM = el2 ? Number((_a2 = el2.dataset.i) != null ? _a2 : -1) : -1;
+          if (el2 == null ? void 0 : el2.dataset.tip) tip(host, el2.dataset.tip, p.cx, p.cy);
           else tip(host, "");
         },
         update({ t, px, py }) {
           if (mrow && t > 1.6) {
             S(mrow, `transform:perspective(1100px) rotateY(${(px * 2.4).toFixed(2)}deg) rotateX(${(-py * 1.8).toFixed(2)}deg)`);
           }
-          marks.forEach((el3, i) => {
+          marks.forEach((el2, i) => {
             const p = stagger(t, i, 0.14, 0.55);
             const on = i === hotM && t > 1.4;
             S(cuts[i], `transform:scaleX(${easeBack(p).toFixed(4)});transform-origin:left center;filter:${on ? "brightness(1.3)" : "none"}`);
             const sheen2 = p >= 1 ? Math.max(0, Math.sin(t * 0.9 + i * 1.3)) : 0;
-            S(el3, `opacity:${(at(t, 0.3, i * 0.14) * (hotM >= 0 && !on ? 0.5 : 1)).toFixed(3)};--sheen:${sheen2.toFixed(3)}`);
+            S(el2, `opacity:${(at(t, 0.3, i * 0.14) * (hotM >= 0 && !on ? 0.5 : 1)).toFixed(3)};--sheen:${sheen2.toFixed(3)}`);
             T(numsEls[i], String(Math.round((counts[i] || 0) * easeOut(p))));
           });
         }
@@ -15688,7 +15688,7 @@ ${n.content.slice(0, 2e3)}
   });
 
   // src/core/gesture.ts
-  function bindSwipeTurn(el3, go) {
+  function bindSwipeTurn(el2, go) {
     const TH = 46;
     let x0 = 0, y0 = 0, on = false, fired = false;
     const start = (e) => {
@@ -15713,15 +15713,15 @@ ${n.content.slice(0, 2e3)}
     const end = () => {
       on = false;
     };
-    el3.addEventListener("touchstart", start, { passive: true });
-    el3.addEventListener("touchmove", move, { passive: false });
-    el3.addEventListener("touchend", end, { passive: true });
-    el3.addEventListener("touchcancel", end, { passive: true });
+    el2.addEventListener("touchstart", start, { passive: true });
+    el2.addEventListener("touchmove", move, { passive: false });
+    el2.addEventListener("touchend", end, { passive: true });
+    el2.addEventListener("touchcancel", end, { passive: true });
     return () => {
-      el3.removeEventListener("touchstart", start);
-      el3.removeEventListener("touchmove", move);
-      el3.removeEventListener("touchend", end);
-      el3.removeEventListener("touchcancel", end);
+      el2.removeEventListener("touchstart", start);
+      el2.removeEventListener("touchmove", move);
+      el2.removeEventListener("touchend", end);
+      el2.removeEventListener("touchcancel", end);
     };
   }
   var init_gesture = __esm({
@@ -15900,7 +15900,7 @@ ${n.content.slice(0, 2e3)}
     function pump() {
       if (dead) return;
       clearTimeout(fallback);
-      tick2(performance.now());
+      tick(performance.now());
       raf = rafFn(() => {
         clearTimeout(fallback);
         pump();
@@ -15910,7 +15910,7 @@ ${n.content.slice(0, 2e3)}
         pump();
       }, 220);
     }
-    function tick2(now) {
+    function tick(now) {
       var _a2;
       if (dead || cur < 0) return;
       const perf = perfs.get((_a2 = scenes[cur].getAttribute("data-id")) != null ? _a2 : "");
@@ -16053,7 +16053,7 @@ ${n.content.slice(0, 2e3)}
     box.style.fontSize = `${base.toFixed(2)}px`;
     box.style.borderRadius = getComputedStyle(panel2).borderTopLeftRadius || "";
   }
-  async function openReviewAnalysis(app2) {
+  async function openReviewAnalysis(app) {
     var _a2;
     const noStage = typeof requestAnimationFrame !== "function" || typeof HTMLElement === "undefined" || typeof HTMLElement.prototype.animate !== "function";
     if (raOvl == null ? void 0 : raOvl.isConnected) {
@@ -16067,7 +16067,7 @@ ${n.content.slice(0, 2e3)}
     }
     let data;
     try {
-      ensureReview(app2);
+      ensureReview(app);
       const dm = dataManager;
       if (!dm || noStage) throw new Error("no-stage");
       const items = await dm.loadItems();
@@ -16081,7 +16081,7 @@ ${n.content.slice(0, 2e3)}
       data = deriveAnalysis(items, { w });
     } catch (e) {
       const { openReviewReport: openReviewReport2 } = await Promise.resolve().then(() => (init_review(), review_exports));
-      await openReviewReport2(app2);
+      await openReviewReport2(app);
       return;
     }
     const panel2 = document.querySelector("#review-popup");
@@ -16234,7 +16234,7 @@ ${n.content.slice(0, 2e3)}
       <span class="top-val">${it.meta}</span>
     </div>`).join("");
   }
-  async function showStatsModal(app2, dm) {
+  async function showStatsModal(app, dm) {
     const items = await dm.loadItems();
     let w;
     let fit3 = null;
@@ -16245,9 +16245,9 @@ ${n.content.slice(0, 2e3)}
     } catch (e) {
       w = void 0;
     }
-    renderStatsModal(app2, dm, items, w, fit3);
+    renderStatsModal(app, dm, items, w, fit3);
   }
-  function renderStatsModal(app2, dm, items, w, fit3) {
+  function renderStatsModal(app, dm, items, w, fit3) {
     closeStatsModal();
     statsMask = document.createElement("div");
     statsMask.id = "review-stats-mask";
@@ -16271,25 +16271,25 @@ ${n.content.slice(0, 2e3)}
     document.body.appendChild(statsMask);
     document.body.appendChild(statsPopup);
     const stats = computeStats(items, { w });
-    body.innerHTML = buildStatsHTML(app2, dm, items, stats, fit3);
+    body.innerHTML = buildStatsHTML(app, dm, items, stats, fit3);
     mountIcons(body);
     motionStats(body);
-    const openTimeline = (el3) => {
-      const idx = Number(el3.dataset.idx);
+    const openTimeline = (el2) => {
+      const idx = Number(el2.dataset.idx);
       const target = items.filter((i) => (i.reviewHistory || []).length).sort((a, b) => {
         var _a2, _b2, _c, _d;
         const la = ((_b2 = (_a2 = a.reviewHistory) == null ? void 0 : _a2[a.reviewHistory.length - 1]) == null ? void 0 : _b2.timestamp) || "";
         const lb = ((_d = (_c = b.reviewHistory) == null ? void 0 : _c[b.reviewHistory.length - 1]) == null ? void 0 : _d.timestamp) || "";
         return lb.localeCompare(la);
       })[idx];
-      if (target) void showTimeline(app2, dm, target);
+      if (target) void showTimeline(app, dm, target);
     };
-    body.querySelectorAll(".top-row[data-idx]").forEach((el3) => {
-      el3.addEventListener("click", () => openTimeline(el3));
-      el3.addEventListener("keydown", (e) => {
+    body.querySelectorAll(".top-row[data-idx]").forEach((el2) => {
+      el2.addEventListener("click", () => openTimeline(el2));
+      el2.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          openTimeline(el3);
+          openTimeline(el2);
         }
       });
     });
@@ -16298,7 +16298,7 @@ ${n.content.slice(0, 2e3)}
       close: closeStatsModal
     });
   }
-  function buildStatsHTML(app2, dm, items, stats, fit3) {
+  function buildStatsHTML(app, dm, items, stats, fit3) {
     var _a2, _b2;
     const cards = `
     <div class="stat-cards">
@@ -16331,13 +16331,13 @@ ${n.content.slice(0, 2e3)}
     const dist = loadDistribution(items, 14);
     const tmr = /* @__PURE__ */ new Date();
     tmr.setDate(tmr.getDate() + 1);
-    const todayKey2 = dateKey(/* @__PURE__ */ new Date());
+    const todayKey = dateKey(/* @__PURE__ */ new Date());
     const tmrKey = dateKey(tmr);
-    const todayCnt = ((_a2 = dist.find((d) => d.date === todayKey2)) == null ? void 0 : _a2.count) || 0;
+    const todayCnt = ((_a2 = dist.find((d) => d.date === todayKey)) == null ? void 0 : _a2.count) || 0;
     const tmrCnt = ((_b2 = dist.find((d) => d.date === tmrKey)) == null ? void 0 : _b2.count) || 0;
     const maxDist = Math.max(1, ...dist.map((d) => d.count));
     const distBars = dist.map((d) => ({
-      label: d.date === todayKey2 ? "今" : `+${dist.indexOf(d)}`,
+      label: d.date === todayKey ? "今" : `+${dist.indexOf(d)}`,
       value: d.count
     }));
     const loadHTML = sectionHTML(
@@ -16371,7 +16371,7 @@ ${n.content.slice(0, 2e3)}
     const weekHTML = sectionHTML("最近 7 天复习量", "bar-chart-3", barRowHTML(daily7, "#E6DFF5"));
     return cards + fitChips + ratingHTML + loadHTML + timelineHTML + weekHTML;
   }
-  async function showTimeline(app2, dm, item) {
+  async function showTimeline(app, dm, item) {
     closeTimeline();
     let w;
     try {
@@ -16488,33 +16488,33 @@ ${n.content.slice(0, 2e3)}
     reviewSettingsSchema: () => reviewSettingsSchema
   });
   function captureFocusKey(scope) {
-    const el3 = document.activeElement;
-    if (!(el3 instanceof HTMLElement) || !scope.contains(el3)) return null;
+    const el2 = document.activeElement;
+    if (!(el2 instanceof HTMLElement) || !scope.contains(el2)) return null;
     for (const attr of ["data-id", "data-act"]) {
-      const v = el3.getAttribute(attr);
+      const v = el2.getAttribute(attr);
       if (v != null) return `${attr}=${v}`;
     }
     return null;
   }
   function restoreFocusKey(scope, key) {
     const eq = key.indexOf("=");
-    const el3 = scope.querySelector(`[${key.slice(0, eq)}="${CSS.escape(key.slice(eq + 1))}"]`);
-    el3 == null ? void 0 : el3.focus({ preventScroll: true });
+    const el2 = scope.querySelector(`[${key.slice(0, eq)}="${CSS.escape(key.slice(eq + 1))}"]`);
+    el2 == null ? void 0 : el2.focus({ preventScroll: true });
   }
   function mountFloatingRatingBar(opts) {
-    const el3 = document.createElement("div");
-    el3.className = "bz-review-bar";
-    el3.style.zIndex = String(allocZ());
-    el3.innerHTML = reviewBarHtml(opts);
-    el3.tabIndex = -1;
+    const el2 = document.createElement("div");
+    el2.className = "bz-review-bar";
+    el2.style.zIndex = String(allocZ());
+    el2.innerHTML = reviewBarHtml(opts);
+    el2.tabIndex = -1;
     let closed = false;
     const close = () => {
       if (closed) return;
       closed = true;
       document.removeEventListener("keydown", onDigitKey);
-      el3.remove();
+      el2.remove();
     };
-    el3.querySelectorAll(".bz-review-bar-btn").forEach((btn) => {
+    el2.querySelectorAll(".bz-review-bar-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const r = btn.dataset.rating;
         if (r === "skip") opts.onSkip();
@@ -16528,7 +16528,7 @@ ${n.content.slice(0, 2e3)}
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       const i = ["1", "2", "3", "4"].indexOf(e.key);
       if (i < 0) return;
-      const btn = el3.querySelectorAll(".bz-review-bar-btn")[i];
+      const btn = el2.querySelectorAll(".bz-review-bar-btn")[i];
       if (btn) {
         e.preventDefault();
         btn.click();
@@ -16536,16 +16536,16 @@ ${n.content.slice(0, 2e3)}
     };
     document.addEventListener("keydown", onDigitKey);
     const prevFocus2 = document.activeElement;
-    el3.addEventListener("keydown", (e) => {
+    el2.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       e.preventDefault();
       e.stopPropagation();
       if (prevFocus2 && typeof prevFocus2.focus === "function" && prevFocus2 !== document.body) prevFocus2.focus();
-      else el3.blur();
+      else el2.blur();
     });
-    document.body.appendChild(el3);
-    motionRatingBar(el3);
-    el3.focus({ preventScroll: true });
+    document.body.appendChild(el2);
+    motionRatingBar(el2);
+    el2.focus({ preventScroll: true });
     return { close };
   }
   var isPlayable2, PANEL, UIManager;
@@ -16568,7 +16568,7 @@ ${n.content.slice(0, 2e3)}
       isPlayable2 = isPlayable;
       PANEL = { MIN_W: 640, MIN_H: 440, MAX_W: 1280, MAX_H: 880 };
       UIManager = class {
-        constructor(app2, dataManager3) {
+        constructor(app, dataManager3) {
           /** R 展示口径权重源（item 12：与调度排期同读拟合权重；ensureReview 注入 reviewApp.currentW，缺省回退默认） */
           this.wSource = () => DEFAULT_W;
           this.mask = null;
@@ -16585,7 +16585,7 @@ ${n.content.slice(0, 2e3)}
           this.motionBootPending = false;
           /** 桌面拖拽缩放句柄（ADR-0084/ADR-0094）：壳常驻 DOM，showMain 幂等挂 / hideMain 摘；null = 未挂 */
           this.panelResizeDetach = null;
-          this.app = app2;
+          this.app = app;
           this.dataManager = dataManager3;
           this.createMainUI();
           this.registerEscLayer();
@@ -16991,15 +16991,15 @@ ${n.content.slice(0, 2e3)}
     }
     return [...out].sort();
   }
-  async function collectVaultFolders(app2) {
+  async function collectVaultFolders(app) {
     var _a2, _b2, _c, _d;
     const out = /* @__PURE__ */ new Set([""]);
     try {
-      const files = ((_c = (_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getFiles) == null ? void 0 : _b2.call(_a2)) != null ? _c : []).map((f) => f.path);
+      const files = ((_c = (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getFiles) == null ? void 0 : _b2.call(_a2)) != null ? _c : []).map((f) => f.path);
       for (const p of foldersFromFiles(files)) out.add(p);
     } catch (e) {
     }
-    const adapter = (_d = app2 == null ? void 0 : app2.vault) == null ? void 0 : _d.adapter;
+    const adapter = (_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.adapter;
     if (adapter && typeof adapter.list === "function") {
       const walk = async (dir, depth) => {
         var _a3;
@@ -17122,7 +17122,7 @@ ${n.content.slice(0, 2e3)}
         void apply(list);
       }
     });
-    const render3 = () => renderPathChips(chipsWrap, current2, (next) => {
+    const render2 = () => renderPathChips(chipsWrap, current2, (next) => {
       void apply(next);
     }, "", openPicker);
     let btn = null;
@@ -17144,14 +17144,14 @@ ${n.content.slice(0, 2e3)}
     };
     const renderAll6 = () => {
       syncBtn();
-      render3();
+      render2();
     };
-    const refresh3 = () => {
+    const refresh2 = () => {
       current2 = readValue();
       renderAll6();
     };
     renderAll6();
-    return { refresh: refresh3, settingEl: setting.settingEl };
+    return { refresh: refresh2, settingEl: setting.settingEl };
   }
   function closePathPicker() {
     if (currentMask) {
@@ -17171,16 +17171,16 @@ ${n.content.slice(0, 2e3)}
       focusTimer = null;
     }
     if (focusRestore) {
-      const el3 = focusRestore;
+      const el2 = focusRestore;
       focusRestore = null;
-      if (el3.isConnected) el3.focus();
+      if (el2.isConnected) el2.focus();
     }
   }
   function openPathPicker(opts) {
     var _a2, _b2, _c;
     closePathPicker();
     focusRestore = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const app2 = getApp();
+    const app = getApp();
     const mode = opts.mode || "single";
     const selected = new Set(normalizePicked(opts.selected || []));
     const pinnedAtOpen = [...selected];
@@ -17240,7 +17240,7 @@ ${n.content.slice(0, 2e3)}
     };
     if (mode === "multi") mkBtn("清空", false, () => {
       selected.clear();
-      renderList3();
+      renderList2();
       updateSel();
     });
     const submit = () => {
@@ -17256,12 +17256,12 @@ ${n.content.slice(0, 2e3)}
       const full = parent ? `${parent}/${name}` : name;
       void (async () => {
         if (!state3.folders.includes(full)) {
-          await app2.vault.createFolder(full);
+          await app.vault.createFolder(full);
           if (!state3.folders.includes(full)) state3.folders.push(full);
         }
         if (mode === "single") selected.clear();
         selected.add(full);
-        renderList3();
+        renderList2();
         updateSel();
       })().catch((e) => notifyActionError(e, `新建文件夹 ${full}`));
     });
@@ -17280,7 +17280,7 @@ ${n.content.slice(0, 2e3)}
       rest.reverse();
       return [...pinned, ...root === null ? [] : [root], ...rest];
     }
-    function renderList3() {
+    function renderList2() {
       listEl2.innerHTML = "";
       const q3 = state3.q.trim().toLowerCase();
       const exact = !!q3 && state3.folders.includes(q3);
@@ -17316,7 +17316,7 @@ ${n.content.slice(0, 2e3)}
           } else {
             selected.add(folder);
           }
-          renderList3();
+          renderList2();
           updateSel();
         };
         row.tabIndex = 0;
@@ -17357,7 +17357,7 @@ ${n.content.slice(0, 2e3)}
     search.oninput = () => {
       state3.q = search.value;
       newBtn.disabled = !state3.q.trim();
-      renderList3();
+      renderList2();
     };
     search.addEventListener("keydown", (ev) => {
       if (ev.key !== "Enter") return;
@@ -17368,17 +17368,17 @@ ${n.content.slice(0, 2e3)}
       if (mode === "single") submit();
     });
     try {
-      const files = ((_c = (_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getFiles) == null ? void 0 : _b2.call(_a2)) != null ? _c : []).map((f) => f.path);
+      const files = ((_c = (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getFiles) == null ? void 0 : _b2.call(_a2)) != null ? _c : []).map((f) => f.path);
       state3.folders = foldersFromFiles(files);
     } catch (e) {
     }
-    void collectVaultFolders(app2).then((folders) => {
+    void collectVaultFolders(app).then((folders) => {
       if (!mask.isConnected) return;
       state3.folders = folders;
       popup.dataset.ready = "1";
-      renderList3();
+      renderList2();
     });
-    renderList3();
+    renderList2();
     updateSel();
     popup.append(head, search, listEl2, foot);
     document.body.appendChild(mask);
@@ -17407,82 +17407,6 @@ ${n.content.slice(0, 2e3)}
     const s = String(p != null ? p : "").trim().replace(/\\/g, "/");
     return s.length > 1 ? s.replace(/\/+$/, "") : s;
   }
-  function parentDirOf(filePath) {
-    const s = String(filePath).replace(/\\/g, "/");
-    const i = s.lastIndexOf("/");
-    return i <= 0 ? s : s.slice(0, i);
-  }
-  function fileDiskPath(f) {
-    var _a2, _b2;
-    const legacy = f.path;
-    if (typeof legacy === "string" && legacy) return legacy;
-    const webUtils = (_a2 = requireNode("electron")) == null ? void 0 : _a2.webUtils;
-    if (webUtils == null ? void 0 : webUtils.getPathForFile) {
-      try {
-        return String((_b2 = webUtils.getPathForFile(f)) != null ? _b2 : "");
-      } catch (e) {
-      }
-    }
-    return "";
-  }
-  function pickDirViaInput() {
-    return new Promise((resolve2) => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.setAttribute("webkitdirectory", "");
-      input.setAttribute("directory", "");
-      input.style.display = "none";
-      document.body.appendChild(input);
-      let settled = false;
-      const finish = (v) => {
-        if (settled) return;
-        settled = true;
-        window.removeEventListener("focus", onFocus);
-        input.remove();
-        resolve2(v);
-      };
-      const onFocus = () => {
-        window.setTimeout(() => {
-          var _a2;
-          const f = (_a2 = input.files) == null ? void 0 : _a2[0];
-          if (!f) finish(null);
-        }, 200);
-      };
-      input.addEventListener("change", () => {
-        var _a2;
-        const f = (_a2 = input.files) == null ? void 0 : _a2[0];
-        const p = f ? fileDiskPath(f) : "";
-        finish(p ? parentDirOf(p) : null);
-      });
-      window.addEventListener("focus", onFocus);
-      input.click();
-    });
-  }
-  async function nativePickSystemFolder() {
-    var _a2, _b2, _c, _d;
-    const remote = (_c = (_b2 = requireNode("@electron/remote")) != null ? _b2 : (_a2 = requireNode("electron")) == null ? void 0 : _a2.remote) != null ? _c : null;
-    const dialog = remote == null ? void 0 : remote.dialog;
-    if (dialog == null ? void 0 : dialog.showOpenDialog) {
-      const res = await dialog.showOpenDialog({
-        title: "选择文件夹",
-        properties: ["openDirectory", "dontAddToRecent"]
-      });
-      const picked = (_d = res == null ? void 0 : res.filePaths) == null ? void 0 : _d[0];
-      if (picked && !(res == null ? void 0 : res.canceled)) return normalizeSystemPath(picked);
-      return null;
-    }
-    return pickDirViaInput();
-  }
-  async function pickSystemFolder() {
-    try {
-      const pick = systemPickerImpl != null ? systemPickerImpl : nativePickSystemFolder;
-      const dir = await pick();
-      return dir ? normalizeSystemPath(dir) : null;
-    } catch (e) {
-      notifyActionError(e, "选择文件夹");
-      return null;
-    }
-  }
   async function pickSystemFiles(title, filters) {
     var _a2, _b2, _c, _d;
     const remote = (_c = (_b2 = requireNode("@electron/remote")) != null ? _b2 : (_a2 = requireNode("electron")) == null ? void 0 : _a2.remote) != null ? _c : null;
@@ -17502,7 +17426,7 @@ ${n.content.slice(0, 2e3)}
       return [];
     }
   }
-  var EXCLUDED_DIR_NAMES, currentMask, currentPopup, currentHandle, focusTimer, focusRestore, systemPickerImpl;
+  var EXCLUDED_DIR_NAMES, currentMask, currentPopup, currentHandle, focusTimer, focusRestore;
   var init_path_picker = __esm({
     "src/core/path-picker.ts"() {
       init_fake_obsidian();
@@ -17516,14 +17440,13 @@ ${n.content.slice(0, 2e3)}
       currentHandle = null;
       focusTimer = null;
       focusRestore = null;
-      systemPickerImpl = null;
     }
   });
 
   // src/review/quiz-panel-data.ts
-  function listVaultNotes(app2) {
+  function listVaultNotes(app) {
     var _a2, _b2;
-    const files = ((_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getMarkdownFiles) == null ? void 0 : _b2.call(_a2)) || [];
+    const files = ((_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getMarkdownFiles) == null ? void 0 : _b2.call(_a2)) || [];
     const out = [];
     for (const f of files) {
       const p = String((f == null ? void 0 : f.path) || "");
@@ -17532,8 +17455,8 @@ ${n.content.slice(0, 2e3)}
     }
     return out.sort();
   }
-  function notesInFolders(app2, folders) {
-    const all = listVaultNotes(app2);
+  function notesInFolders(app, folders) {
+    const all = listVaultNotes(app);
     if (folders.includes("")) return all;
     const picked = /* @__PURE__ */ new Set();
     for (const p of all) {
@@ -17546,14 +17469,14 @@ ${n.content.slice(0, 2e3)}
     }
     return [...picked].sort();
   }
-  function resolveScopeNotes(app2, scope, folders, notePath) {
+  function resolveScopeNotes(app, scope, folders, notePath) {
     var _a2, _b2;
-    if (scope === "folder") return notesInFolders(app2, folders);
+    if (scope === "folder") return notesInFolders(app, folders);
     if (scope === "note") {
-      const hit = notePath ? (_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, notePath) : null;
+      const hit = notePath ? (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, notePath) : null;
       return hit && hit.extension === "md" ? [notePath] : [];
     }
-    return listVaultNotes(app2);
+    return listVaultNotes(app);
   }
   async function collectQuestionsForNotes(bank, paths) {
     const notes = (bank == null ? void 0 : bank.notes) || {};
@@ -17609,40 +17532,40 @@ ${n.content.slice(0, 2e3)}
     if (/JSON|解析|answers|畸形|回复为空/.test(msg)) return "响应异常";
     return "请求失败";
   }
-  function clearResetTimer(el3) {
-    const prev = resetTimers.get(el3);
+  function clearResetTimer(el2) {
+    const prev = resetTimers.get(el2);
     if (prev !== void 0) {
       clearTimeout(prev);
-      resetTimers.delete(el3);
+      resetTimers.delete(el2);
     }
   }
-  function setRowBtnState(el3, state3, label, failText) {
-    if (!el3) return;
-    el3.classList.remove("bz-rowbtn--busy", "bz-rowbtn--ok", "bz-rowbtn--fail");
-    el3.disabled = state3 === "busy";
+  function setRowBtnState(el2, state3, label, failText) {
+    if (!el2) return;
+    el2.classList.remove("bz-rowbtn--busy", "bz-rowbtn--ok", "bz-rowbtn--fail");
+    el2.disabled = state3 === "busy";
     if (state3 === "busy") {
-      el3.classList.add("bz-rowbtn--busy");
-      clearResetTimer(el3);
+      el2.classList.add("bz-rowbtn--busy");
+      clearResetTimer(el2);
     } else if (state3 === "ok") {
-      el3.classList.add("bz-rowbtn--ok");
-      el3.textContent = ROW_BTN_OK_TEXT;
+      el2.classList.add("bz-rowbtn--ok");
+      el2.textContent = ROW_BTN_OK_TEXT;
     } else if (state3 === "fail") {
-      el3.classList.add("bz-rowbtn--fail");
-      el3.textContent = (failText || "失败").slice(0, 6);
+      el2.classList.add("bz-rowbtn--fail");
+      el2.textContent = (failText || "失败").slice(0, 6);
     } else {
-      el3.textContent = label;
+      el2.textContent = label;
     }
   }
-  function armRowBtnReset(el3, label) {
-    if (!el3) return;
-    const prev = resetTimers.get(el3);
+  function armRowBtnReset(el2, label) {
+    if (!el2) return;
+    const prev = resetTimers.get(el2);
     if (prev !== void 0) clearTimeout(prev);
     const t = setTimeout(() => {
-      resetTimers.delete(el3);
-      setRowBtnState(el3, "idle", label);
-      el3.disabled = false;
+      resetTimers.delete(el2);
+      setRowBtnState(el2, "idle", label);
+      el2.disabled = false;
     }, ROW_BTN_RESET_MS);
-    resetTimers.set(el3, t);
+    resetTimers.set(el2, t);
   }
   var ROW_BTN_RESET_MS, ROW_BTN_OK_TEXT, resetTimers;
   var init_settings_btn_state = __esm({
@@ -17675,8 +17598,8 @@ ${n.content.slice(0, 2e3)}
     container.appendChild(group);
     return body;
   }
-  function isItemHidden(el3) {
-    let cur = el3;
+  function isItemHidden(el2) {
+    let cur = el2;
     while (cur && cur !== document.body) {
       if (cur.classList.contains("bz-setting-hidden")) return true;
       if (cur.style.display === "none") return true;
@@ -17689,8 +17612,8 @@ ${n.content.slice(0, 2e3)}
       const body = g.querySelector(".bz-settings-group-body");
       const countEl = g.querySelector(".bz-settings-group-count");
       if (!body || !countEl) return;
-      const n = [...body.querySelectorAll(".setting-item")].filter((el3) => {
-        const h = el3;
+      const n = [...body.querySelectorAll(".setting-item")].filter((el2) => {
+        const h = el2;
         return !h.classList.contains("bz-setting-action-row") && !isItemHidden(h);
       }).length;
       countEl.textContent = `${n} 项`;
@@ -17698,10 +17621,10 @@ ${n.content.slice(0, 2e3)}
     });
   }
   function markSettingSplitRows(container) {
-    container.querySelectorAll(".setting-item").forEach((el3) => {
-      if (el3.classList.contains("bz-path-picker-setting-row")) return;
-      const ctl = el3.querySelector(".setting-item-control");
-      el3.classList.toggle("bz-setting-split", !!ctl && ctl.children.length >= 2);
+    container.querySelectorAll(".setting-item").forEach((el2) => {
+      if (el2.classList.contains("bz-path-picker-setting-row")) return;
+      const ctl = el2.querySelector(".setting-item-control");
+      el2.classList.toggle("bz-setting-split", !!ctl && ctl.children.length >= 2);
     });
   }
   function closeSettingsModal() {
@@ -17737,7 +17660,7 @@ ${n.content.slice(0, 2e3)}
     content.className = "bz-settings-content";
     renderSettingsInto(content, (_a2 = opts.schema) != null ? _a2 : { groups: [] });
     const hasVisibleItem = Array.from(content.querySelectorAll(".setting-item")).some(
-      (el3) => !el3.classList.contains("bz-setting-action-row") && !isItemHidden(el3)
+      (el2) => !el2.classList.contains("bz-setting-action-row") && !isItemHidden(el2)
     );
     if (!hasVisibleItem) {
       content.innerHTML = "";
@@ -17760,10 +17683,10 @@ ${n.content.slice(0, 2e3)}
     popup.style.display = "flex";
     popup.setAttribute("role", "dialog");
     popup.setAttribute("aria-modal", "true");
-    const firstFocusable2 = Array.from(popup.querySelectorAll(FOCUSABLE_SELECTOR2)).find((el3) => {
-      if (isItemHidden(el3)) return false;
+    const firstFocusable2 = Array.from(popup.querySelectorAll(FOCUSABLE_SELECTOR2)).find((el2) => {
+      if (isItemHidden(el2)) return false;
       if (isMobileEnv()) {
-        const tag = el3.tagName;
+        const tag = el2.tagName;
         if (tag === "INPUT" || tag === "TEXTAREA") return false;
       }
       return true;
@@ -17804,8 +17727,8 @@ ${n.content.slice(0, 2e3)}
   });
 
   // src/core/settings-schema.ts
-  function selectOptionsOf(options2, snapshot3) {
-    return typeof options2 === "function" ? options2(snapshot3) : options2;
+  function selectOptionsOf(options2, snapshot2) {
+    return typeof options2 === "function" ? options2(snapshot2) : options2;
   }
   function selectOptionsSignature(opts) {
     return opts.map((o) => o.value).join("");
@@ -17828,9 +17751,9 @@ ${n.content.slice(0, 2e3)}
     }
     return { read: () => binding.get(), write: (v) => binding.set(v), persist: () => binding.save() };
   }
-  function safePersist(persist2, what) {
+  function safePersist(persist, what) {
     try {
-      Promise.resolve(persist2()).catch((e) => notifySaveError(e, what));
+      Promise.resolve(persist()).catch((e) => notifySaveError(e, what));
     } catch (e) {
       notifySaveError(e, what);
     }
@@ -17838,10 +17761,10 @@ ${n.content.slice(0, 2e3)}
   function currentSnapshot() {
     return tryGetSettings();
   }
-  function resolveNumberBound(bound, snapshot3) {
+  function resolveNumberBound(bound, snapshot2) {
     if (bound === void 0) return void 0;
     if (typeof bound !== "function") return bound;
-    const v = bound(snapshot3);
+    const v = bound(snapshot2);
     return typeof v === "number" && Number.isFinite(v) ? v : void 0;
   }
   function parseClampedNumber(raw, min, max) {
@@ -17854,7 +17777,7 @@ ${n.content.slice(0, 2e3)}
     if (max !== void 0) out = Math.min(max, out);
     return out;
   }
-  function wireSecretEye(setting, el3) {
+  function wireSecretEye(setting, el2) {
     let revealed = false;
     setting.addExtraButton((b) => {
       b.setIcon("eye").setTooltip("显示 / 隐藏");
@@ -17862,7 +17785,7 @@ ${n.content.slice(0, 2e3)}
       b.extraSettingsEl.setAttribute("aria-pressed", "false");
       b.onClick(() => {
         revealed = !revealed;
-        el3.type = revealed ? "text" : "password";
+        el2.type = revealed ? "text" : "password";
         b.setIcon(revealed ? "eye-off" : "eye");
         b.extraSettingsEl.setAttribute("aria-pressed", String(revealed));
         b.extraSettingsEl.setAttribute("aria-label", revealed ? "隐藏密钥" : "显示密钥");
@@ -18002,18 +17925,18 @@ ${n.content.slice(0, 2e3)}
         const inputEl = t.inputEl;
         if (inputEl) {
           if (isNumber) {
-            const num3 = row;
+            const num2 = row;
             inputEl.type = "number";
             const applyBounds = () => {
               const snap = currentSnapshot();
-              const lo = resolveNumberBound(num3.min, snap);
-              const hi = resolveNumberBound(num3.max, snap);
+              const lo = resolveNumberBound(num2.min, snap);
+              const hi = resolveNumberBound(num2.max, snap);
               inputEl.min = lo === void 0 ? "" : String(lo);
               inputEl.max = hi === void 0 ? "" : String(hi);
             };
             applyBounds();
-            if (typeof num3.max === "function") customRefreshes.push(applyBounds);
-            if (num3.step !== void 0) inputEl.step = String(num3.step);
+            if (typeof num2.max === "function") customRefreshes.push(applyBounds);
+            if (num2.step !== void 0) inputEl.step = String(num2.step);
           }
           if (row.type === "secret") {
             inputEl.type = "password";
@@ -18059,16 +17982,16 @@ ${n.content.slice(0, 2e3)}
             b.setButtonText(a.text).onClick(() => {
               void (async () => {
                 var _a4;
-                const el3 = b.buttonEl;
+                const el2 = b.buttonEl;
                 try {
-                  if (a.stateful) setRowBtnState(el3, "busy", a.text);
+                  if (a.stateful) setRowBtnState(el2, "busy", a.text);
                   await a.onClick(last, ctx);
-                  if (a.stateful) setRowBtnState(el3, "ok", a.text);
+                  if (a.stateful) setRowBtnState(el2, "ok", a.text);
                 } catch (e) {
-                  if (a.stateful) setRowBtnState(el3, "fail", a.text, shortFailReason(e));
+                  if (a.stateful) setRowBtnState(el2, "fail", a.text, shortFailReason(e));
                   else throw e;
                 } finally {
-                  if (a.stateful) armRowBtnReset(el3, a.text);
+                  if (a.stateful) armRowBtnReset(el2, a.text);
                 }
                 if (currentText && currentText.setValue) {
                   dirty2 = false;
@@ -18551,20 +18474,20 @@ ${n.content.slice(0, 2e3)}
       return false;
     }
   }
-  function waapi2(el3, frames, opts) {
-    if (!el3 || reduced3() || typeof el3.animate !== "function") {
+  function waapi2(el2, frames, opts) {
+    if (!el2 || reduced3() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -18582,9 +18505,9 @@ ${n.content.slice(0, 2e3)}
   }
   function pumpFrame(now) {
     pumpRaf = 0;
-    for (const tick2 of [...pumpTicks]) {
+    for (const tick of [...pumpTicks]) {
       try {
-        tick2(now);
+        tick(now);
       } catch (e) {
       }
     }
@@ -18602,12 +18525,12 @@ ${n.content.slice(0, 2e3)}
       }, 220);
     }
   }
-  function pumpAdd(tick2) {
-    pumpTicks.add(tick2);
+  function pumpAdd(tick) {
+    pumpTicks.add(tick);
     pumpStart();
   }
-  function pumpDel(tick2) {
-    pumpTicks.delete(tick2);
+  function pumpDel(tick) {
+    pumpTicks.delete(tick);
     if (!pumpTicks.size && pumpGuard) {
       clearInterval(pumpGuard);
       pumpGuard = 0;
@@ -18645,9 +18568,9 @@ ${n.content.slice(0, 2e3)}
     if (reduced3()) return;
     const head = pane.querySelector(".bz-sp-page-head");
     if (head) {
-      [...head.children].forEach((el3, i) => {
+      [...head.children].forEach((el2, i) => {
         waapi2(
-          el3,
+          el2,
           [{ opacity: 0, transform: "translateY(-5px)", filter: "blur(2px)" }, { opacity: 1, transform: "none", filter: "blur(0px)" }],
           { duration: M4.base, delay: i * 40, easing: E2.out, fill: "backwards" }
         );
@@ -18685,10 +18608,10 @@ ${n.content.slice(0, 2e3)}
   function motionMobList(list) {
     if (!list || !list.isConnected || reduced3()) return;
     const items = [...list.querySelectorAll(".bz-sp-mob-item")];
-    items.forEach((el3, i) => {
+    items.forEach((el2, i) => {
       if (i >= 12) return;
       waapi2(
-        el3,
+        el2,
         [{ opacity: 0, transform: "translateY(8px)", filter: "blur(2px)" }, { opacity: 1, transform: "none", filter: "blur(0px)" }],
         { duration: M4.base, delay: Math.min(i, 11) * STAG2, easing: E2.out, fill: "backwards" }
       );
@@ -18700,18 +18623,18 @@ ${n.content.slice(0, 2e3)}
     if (!side) return;
     let st = cursorStates.get(nav);
     if (!st) {
-      const el3 = document.createElement("span");
-      el3.className = "bz-spm-cursor";
-      el3.setAttribute("aria-hidden", "true");
+      const el2 = document.createElement("span");
+      el2.className = "bz-spm-cursor";
+      el2.setAttribute("aria-hidden", "true");
       try {
-        side.prepend(el3);
+        side.prepend(el2);
       } catch (e) {
         return;
       }
       st = {
         side,
         nav,
-        el: el3,
+        el: el2,
         x: 0,
         y: 0,
         vx: 0,
@@ -19032,15 +18955,15 @@ ${n.content.slice(0, 2e3)}
     popup.addEventListener("pointerdown", (e) => {
       var _a2, _b2;
       if (reduced3()) return;
-      const el3 = (_b2 = (_a2 = e.target).closest) == null ? void 0 : _b2.call(_a2, PRESS_SEL);
-      if (!el3 || !popup.contains(el3)) return;
-      pressed.set(el3, Date.now());
-      waapi2(el3, [{ transform: "scale(1)" }, { transform: "scale(.955)" }], { duration: 110, easing: E2.out, fill: "forwards" });
+      const el2 = (_b2 = (_a2 = e.target).closest) == null ? void 0 : _b2.call(_a2, PRESS_SEL);
+      if (!el2 || !popup.contains(el2)) return;
+      pressed.set(el2, Date.now());
+      waapi2(el2, [{ transform: "scale(1)" }, { transform: "scale(.955)" }], { duration: 110, easing: E2.out, fill: "forwards" });
     });
     const release = (e) => {
       var _a2, _b2;
-      const el3 = (_b2 = (_a2 = e.target).closest) == null ? void 0 : _b2.call(_a2, PRESS_SEL);
-      const target = el3 && pressed.has(el3) ? el3 : null;
+      const el2 = (_b2 = (_a2 = e.target).closest) == null ? void 0 : _b2.call(_a2, PRESS_SEL);
+      const target = el2 && pressed.has(el2) ? el2 : null;
       if (!target) return;
       pressed.delete(target);
       waapi2(target, [{ transform: "scale(.955)" }, { transform: "scale(1.02)", offset: 0.6 }, { transform: "none" }], { duration: M4.move + 40, easing: E2.out });
@@ -19287,7 +19210,7 @@ ${n.content.slice(0, 2e3)}
     renderChips();
     return ctrl;
   }
-  function mountTextActions(ctrlEl, input, acc, actions, ctx, refresh3) {
+  function mountTextActions(ctrlEl, input, acc, actions, ctx, refresh2) {
     for (const a of actions != null ? actions : []) {
       const holder = document.createElement("div");
       holder.innerHTML = rowBtnHtml(a.text, a.cta);
@@ -19306,13 +19229,13 @@ ${n.content.slice(0, 2e3)}
             if (a.stateful) armRowBtnReset(btn, a.text);
           }
           (_b2 = displaySetters.get(input)) == null ? void 0 : _b2(String((_a2 = acc.read()) != null ? _a2 : ""));
-          refresh3();
+          refresh2();
         })();
       });
       ctrlEl.appendChild(btn);
     }
   }
-  function renderRow(row, refresh3, regRefresh) {
+  function renderRow(row, refresh2, regRefresh) {
     var _a2, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
     const rowName = row.name;
     const bindKey = (_a2 = row.binding) == null ? void 0 : _a2.key;
@@ -19332,15 +19255,15 @@ ${n.content.slice(0, 2e3)}
       desc: row.desc,
       note: row.note
     });
-    const el3 = holder.firstElementChild;
+    const el2 = holder.firstElementChild;
     const helpText = row.help;
     if (helpText) {
-      const nameEl = el3.querySelector(".bz-sp-set-name");
+      const nameEl = el2.querySelector(".bz-sp-set-name");
       if (nameEl) attachHelpTip(nameEl, { text: helpText, skinClassName: "bz-sp-skin" });
     }
-    const ctx = makeCtx(el3, refresh3);
-    ctx.rowEl = el3;
-    const ctrlEl = isCustom ? el3 : el3.querySelector(isCardsRow ? ".bz-sp-set-cards" : ".bz-sp-set-ctrl");
+    const ctx = makeCtx(el2, refresh2);
+    ctx.rowEl = el2;
+    const ctrlEl = isCustom ? el2 : el2.querySelector(isCardsRow ? ".bz-sp-set-cards" : ".bz-sp-set-ctrl");
     switch (row.type) {
       case "toggle": {
         const acc = bindValue(row.binding);
@@ -19360,7 +19283,7 @@ ${n.content.slice(0, 2e3)}
           motionSwitchFlip(sw, v);
           safePersist(() => acc.persist(), rowName || "开关设置");
           (_a3 = row.onChange) == null ? void 0 : _a3.call(row, v, ctx);
-          refresh3();
+          refresh2();
         });
         break;
       }
@@ -19381,10 +19304,10 @@ ${n.content.slice(0, 2e3)}
             safePersist(() => acc.persist(), rowName || "文本设置");
             (_a3 = row.onChange) == null ? void 0 : _a3.call(row, v, ctx);
             warn.fire(v);
-            refresh3();
+            refresh2();
           }
         });
-        mountTextActions(ctrlEl, input, acc, row.actions, ctx, refresh3);
+        mountTextActions(ctrlEl, input, acc, row.actions, ctx, refresh2);
         ctrlEl.appendChild(input);
         regRefreshDisplay(regRefresh, row.refreshKey, input);
         break;
@@ -19401,10 +19324,10 @@ ${n.content.slice(0, 2e3)}
             motionInputSaved(input.querySelector(".bz-sp-secret-input"));
             safePersist(() => acc.persist(), rowName || "密钥设置");
             (_a3 = sec.onChange) == null ? void 0 : _a3.call(sec, v, ctx);
-            refresh3();
+            refresh2();
           }
         });
-        mountTextActions(ctrlEl, input.querySelector(".bz-sp-secret-input"), acc, sec.actions, ctx, refresh3);
+        mountTextActions(ctrlEl, input.querySelector(".bz-sp-secret-input"), acc, sec.actions, ctx, refresh2);
         ctrlEl.appendChild(input);
         regRefreshDisplay(regRefresh, sec.refreshKey, input.querySelector(".bz-sp-secret-input"));
         break;
@@ -19425,7 +19348,7 @@ ${n.content.slice(0, 2e3)}
           motionInputSaved(ta);
           safePersist(() => acc.persist(), rowName || "多行文本设置");
           warn.fire(ta.value);
-          refresh3();
+          refresh2();
         };
         ta.addEventListener("input", () => {
           dirty2 = true;
@@ -19446,7 +19369,7 @@ ${n.content.slice(0, 2e3)}
             (_a3 = displaySetters.get(ta)) == null ? void 0 : _a3(String(fresh != null ? fresh : ""));
           });
         }
-        mountTextActions(ctrlEl, ta, acc, row.actions, ctx, refresh3);
+        mountTextActions(ctrlEl, ta, acc, row.actions, ctx, refresh2);
         ctrlEl.appendChild(ctrl);
         break;
       }
@@ -19476,12 +19399,12 @@ ${n.content.slice(0, 2e3)}
             safePersist(() => acc.persist(), rowName || "数字设置");
             (_b3 = row.onChange) == null ? void 0 : _b3.call(row, v, ctx);
             warn.fire(raw);
-            refresh3();
+            refresh2();
             return String(v) !== raw.trim() ? String(v) : void 0;
           }
         });
         input.step = String((_i = row.step) != null ? _i : 1);
-        mountTextActions(ctrlEl, input, acc, row.actions, ctx, refresh3);
+        mountTextActions(ctrlEl, input, acc, row.actions, ctx, refresh2);
         ctrlEl.appendChild(input);
         regRefreshDisplay(regRefresh, row.refreshKey, input);
         if (typeof row.max === "function") {
@@ -19560,7 +19483,7 @@ ${n.content.slice(0, 2e3)}
             motionSelectPick(sel);
             safePersist(() => acc.persist(), rowName || "下拉设置");
             (_a3 = row.onChange) == null ? void 0 : _a3.call(row, o.value, ctx);
-            refresh3();
+            refresh2();
           };
           const openMenu = () => {
             if (sel.querySelector(".bz-select-menu")) return;
@@ -19651,7 +19574,7 @@ ${n.content.slice(0, 2e3)}
           acc.write(v);
           safePersist(() => acc.persist(), rowName || "滑条设置");
           (_a3 = row.onChange) == null ? void 0 : _a3.call(row, v, ctx);
-          refresh3();
+          refresh2();
         });
         for (const a of (_m = row.actions) != null ? _m : []) {
           const holder2 = document.createElement("div");
@@ -19688,7 +19611,7 @@ ${n.content.slice(0, 2e3)}
             safePersist(() => acc.persist(), rowName || "路径设置");
             const res = (_a3 = row.onChange) == null ? void 0 : _a3.call(row, list, ctx);
             warn.fire(multi ? JSON.stringify(v) : String(v));
-            refresh3();
+            refresh2();
             if (res && typeof res.then === "function") {
               return Promise.resolve(res).then(
                 (final) => Array.isArray(final) ? final : list
@@ -19735,7 +19658,7 @@ ${n.content.slice(0, 2e3)}
                 } catch (e) {
                   notifySaveError(e, rowName || "列表项");
                 } finally {
-                  refresh3();
+                  refresh2();
                 }
               })();
             }
@@ -19780,7 +19703,7 @@ ${n.content.slice(0, 2e3)}
             motionCardChoose(c);
             safePersist(() => acc.persist(), rowName || "卡片设置");
             (_c2 = row.onChange) == null ? void 0 : _c2.call(row, (_b3 = c.dataset.spCard) != null ? _b3 : "", ctx);
-            refresh3();
+            refresh2();
           });
         });
         break;
@@ -19788,7 +19711,7 @@ ${n.content.slice(0, 2e3)}
       case "custom": {
         const slot = document.createElement("div");
         slot.className = "bz-sp-custom-slot bz-sp-custom-slot--full";
-        el3.appendChild(slot);
+        el2.appendChild(slot);
         try {
           row.render(slot, ctx);
         } catch (e) {
@@ -19806,9 +19729,9 @@ ${n.content.slice(0, 2e3)}
       default:
         break;
     }
-    return el3;
+    return el2;
   }
-  function renderGroup(container, group, refresh3, regRefresh) {
+  function renderGroup(container, group, refresh2, regRefresh) {
     const cardHolder = document.createElement("div");
     cardHolder.innerHTML = groupCardHtml(group.icon, group.name, `${group.rows.length} 项`);
     const card = cardHolder.firstElementChild;
@@ -19816,7 +19739,7 @@ ${n.content.slice(0, 2e3)}
     const body = card.querySelector(".bz-sp-group-body");
     const rowEls2 = [];
     group.rows.forEach((r) => {
-      const rowEl = renderRow(r, refresh3, regRefresh);
+      const rowEl = renderRow(r, refresh2, regRefresh);
       rowEls2.push(rowEl);
       body.appendChild(rowEl);
     });
@@ -19827,8 +19750,8 @@ ${n.content.slice(0, 2e3)}
       if (!groupHidden) {
         group.rows.forEach((r, i) => {
           if (r.type === "button") return;
-          const el3 = rowEls2[i];
-          if (el3 && el3.style.display !== "none") n++;
+          const el2 = rowEls2[i];
+          if (el2 && el2.style.display !== "none") n++;
         });
       }
       count.textContent = `${n} 项`;
@@ -19841,24 +19764,24 @@ ${n.content.slice(0, 2e3)}
   function renderPanelSchema(container, schema) {
     const visibleConditions = /* @__PURE__ */ new WeakMap();
     const valueRefreshes = [];
-    const applyCond = (el3, cond) => {
+    const applyCond = (el2, cond) => {
       let visible = true;
       try {
         visible = cond(snapshot());
       } catch (e) {
       }
-      el3.style.display = visible ? "" : "none";
+      el2.style.display = visible ? "" : "none";
     };
-    const refresh3 = () => {
-      container.querySelectorAll("[data-sp-row]").forEach((el3) => {
-        const cond = visibleConditions.get(el3);
+    const refresh2 = () => {
+      container.querySelectorAll("[data-sp-row]").forEach((el2) => {
+        const cond = visibleConditions.get(el2);
         if (!cond) return;
-        applyCond(el3, cond);
+        applyCond(el2, cond);
       });
-      container.querySelectorAll("[data-sp-group]").forEach((el3) => {
-        const cond = visibleConditions.get(el3);
+      container.querySelectorAll("[data-sp-group]").forEach((el2) => {
+        const cond = visibleConditions.get(el2);
         if (!cond) return;
-        applyCond(el3, cond);
+        applyCond(el2, cond);
       });
       container.querySelectorAll(".bz-sp-group").forEach((card) => {
         var _a2;
@@ -19868,7 +19791,7 @@ ${n.content.slice(0, 2e3)}
     };
     schema.groups.forEach((g) => {
       var _a2, _b2;
-      const card = renderGroup(container, g, refresh3, (fn) => valueRefreshes.push(fn));
+      const card = renderGroup(container, g, refresh2, (fn) => valueRefreshes.push(fn));
       card.dataset.spGroup = g.name;
       const groupVw = g.visibleWhen;
       if (groupVw) {
@@ -19899,7 +19822,7 @@ ${n.content.slice(0, 2e3)}
       });
     });
     mountIcons(container);
-    return { refresh: refresh3 };
+    return { refresh: refresh2 };
   }
   function closeAllSelectMenus(root) {
     root.querySelectorAll(".bz-select").forEach((sel) => {
@@ -19980,13 +19903,13 @@ ${n.content.slice(0, 2e3)}
     }
     return out;
   }
-  async function fetchJevModels(deps2 = {}) {
+  async function fetchJevModels(deps = {}) {
     var _a2, _b2, _c;
     const s = tryGetSettings();
     const cfg = resolveJevConfig();
     const desc = getJevProviderDescriptor(String((_a2 = s == null ? void 0 : s.jevProvider) != null ? _a2 : "") || DEFAULT_JEV_PROVIDER);
     if (!cfg.apiKey) throw new Error(`未配置 ${desc.label} 密钥（插件设置 → AI → JEV）`);
-    const requestUrlFn = deps2.requestUrlFn || requestUrl;
+    const requestUrlFn = deps.requestUrlFn || requestUrl;
     const resp = await requestUrlFn({
       url: desc.modelsUrl,
       method: "GET",
@@ -20420,7 +20343,7 @@ ${n.content.slice(0, 2e3)}
         desc: p.apiKeyDesc,
         binding: { key: p.apiKeyKey },
         placeholder: "粘贴密钥",
-        visibleWhen: (snapshot3) => snapshot3.aiProvider === p.id,
+        visibleWhen: (snapshot2) => snapshot2.aiProvider === p.id,
         actions: [{
           text: "测试",
           // issue 434 拍板：状态长在按钮上——点击转圈、成功绿✓、失败红✕，不弹通知不显详情
@@ -20635,7 +20558,7 @@ ${n.content.slice(0, 2e3)}
       desc: "改用 Jev 模型云端重排",
       help: "重排有两个通道：本地 rerank 模型，或 Jev 判定通道（云端）。开启即改用 Jev，下面本地「重排模型」一行随之隐藏。Jev 未配密钥时运行期自动回落余弦相似度排序，不报错。",
       binding: { key: "secondBrainRerankJev" },
-      visibleWhen: (snapshot3) => snapshot3.secondBrainRerank !== false
+      visibleWhen: (snapshot2) => snapshot2.secondBrainRerank !== false
     };
   }
   function rerankModelRow() {
@@ -20646,7 +20569,7 @@ ${n.content.slice(0, 2e3)}
       help: "本地 rerank 模型，留空回落内置的 Qwen3-Reranker-4B。本地重排只在嵌入模型是 Qwen3-Embedding-8B 时可用：换成别的嵌入模型后，即便总闸开着，重排通道判定为 off，这一行也不会出现。",
       placeholder: "dengcao/Qwen3-Reranker-4B:Q4_K_M",
       binding: { key: "secondBrainRerankModel" },
-      visibleWhen: (snapshot3) => isQwen3Embedding8b(snapshot3.secondBrainEmbeddingModel) && snapshot3.secondBrainRerank !== false && snapshot3.secondBrainRerankJev !== true,
+      visibleWhen: (snapshot2) => isQwen3Embedding8b(snapshot2.secondBrainEmbeddingModel) && snapshot2.secondBrainRerank !== false && snapshot2.secondBrainRerankJev !== true,
       actions: [{
         text: "获取模型",
         onClick: async (_value, ctx) => {
@@ -20732,7 +20655,7 @@ ${n.content.slice(0, 2e3)}
           { value: "large-v2", label: "large-v2" },
           { value: "large-v3", label: "large-v3（最准）" }
         ],
-        visibleWhen: (snapshot3) => snapshot3.asrEngine === "faster-whisper"
+        visibleWhen: (snapshot2) => snapshot2.asrEngine === "faster-whisper"
       },
       {
         type: "toggle",
@@ -20935,7 +20858,7 @@ ${n.content.slice(0, 2e3)}
   });
 
   // src/checkup/files.ts
-  function jsonScanTargets(app2) {
+  function jsonScanTargets(app) {
     const s = tryGetSettings();
     return [
       { file: storageFile("memo.json", storageDir()), label: "备忘录" },
@@ -20954,21 +20877,21 @@ ${n.content.slice(0, 2e3)}
       { file: storageFile("knowledge.json"), label: "知识盒" },
       { file: storageFile("secondbrain.json"), label: "第二大脑" },
       { file: storageFile("quiz.json"), label: "复习做题" },
-      { file: `${resolveWeaveDataPath(app2)}/${WEAVE_DATA_FILE}`, label: "EPUB 阅读数据（书库）" }
+      { file: `${resolveWeaveDataPath(app)}/${WEAVE_DATA_FILE}`, label: "EPUB 阅读数据（书库）" }
     ];
   }
-  function fileExists(app2, path) {
-    return !!app2.vault.getAbstractFileByPath(path);
+  function fileExists(app, path) {
+    return !!app.vault.getAbstractFileByPath(path);
   }
-  async function readRawFile(app2, path) {
+  async function readRawFile(app, path) {
     try {
-      return await app2.vault.adapter.read(path);
+      return await app.vault.adapter.read(path);
     } catch (e) {
       return null;
     }
   }
-  async function readRawJson(app2, path) {
-    const raw = await readRawFile(app2, path);
+  async function readRawJson(app, path) {
+    const raw = await readRawFile(app, path);
     if (raw === null) return null;
     try {
       return { ok: true, data: JSON.parse(raw) };
@@ -20976,14 +20899,14 @@ ${n.content.slice(0, 2e3)}
       return { ok: false, raw };
     }
   }
-  function listDirNames(app2, dir) {
-    const f = app2.vault.getAbstractFileByPath(dir);
+  function listDirNames(app, dir) {
+    const f = app.vault.getAbstractFileByPath(dir);
     if (!f || !Array.isArray(f.children)) return [];
     return f.children.map((c) => c && c.name || "").filter(Boolean);
   }
-  function corruptBackupsFor(app2, filePath) {
+  function corruptBackupsFor(app, filePath) {
     const base = filePath.includes("/") ? filePath.slice(filePath.lastIndexOf("/") + 1) : filePath;
-    return listDirNames(app2, CORRUPT_DIR).filter((n) => n.startsWith(base + ".") && n.endsWith(".bak")).sort();
+    return listDirNames(app, CORRUPT_DIR).filter((n) => n.startsWith(base + ".") && n.endsWith(".bak")).sort();
   }
   var CORRUPT_DIR;
   var init_files = __esm({
@@ -21036,16 +20959,16 @@ ${n.content.slice(0, 2e3)}
     const summary = bad.length ? `${existing.length} 个数据文件中 ${bad.length} 个无法解析` : stuck.length ? `${existing.length} 个数据文件中 ${stuck.length} 个读不动（请重新体检）` : `${existing.length} 个数据文件全部可解析`;
     return { summary, issues };
   }
-  async function checkJsonFiles(app2, opts = {}) {
+  async function checkJsonFiles(app, opts = {}) {
     var _a2, _b2;
-    const targets = jsonScanTargets(app2);
+    const targets = jsonScanTargets(app);
     const verdicts = [];
     for (let i = 0; i < targets.length; i++) {
       const t = targets[i];
       if ((_a2 = opts.isCancelled) == null ? void 0 : _a2.call(opts)) return null;
-      const parsed = await readRawJson(app2, t.file);
-      const unreadable = parsed === null && fileExists(app2, t.file);
-      verdicts.push(verdictOfJsonTarget(t.file, t.label, parsed, parsed && !parsed.ok ? corruptBackupsFor(app2, t.file) : [], unreadable));
+      const parsed = await readRawJson(app, t.file);
+      const unreadable = parsed === null && fileExists(app, t.file);
+      verdicts.push(verdictOfJsonTarget(t.file, t.label, parsed, parsed && !parsed.ok ? corruptBackupsFor(app, t.file) : [], unreadable));
       await ((_b2 = opts.tick) == null ? void 0 : _b2.call(opts, `${t.label}（${t.file}）`, { done: i + 1, total: targets.length }));
     }
     const { summary, issues } = jsonIssuesOf(verdicts);
@@ -21098,19 +21021,19 @@ ${n.content.slice(0, 2e3)}
   function countsToText(map) {
     return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ×${n}`).join("、");
   }
-  function driftPlans(app2) {
-    const targets = new Map(jsonScanTargets(app2).map((t) => [t.file, t.label]));
+  function driftPlans(app) {
+    const targets = new Map(jsonScanTargets(app).map((t) => [t.file, t.label]));
     const plans = [];
-    const pathOf = (name) => {
+    const pathOf2 = (name) => {
       const hit = [...targets.keys()].find((f) => f.endsWith("/" + name) || f === name);
       return hit || name;
     };
-    plans.push({ file: pathOf("memo.json"), label: targets.get(pathOf("memo.json")) || "备忘录", kind: "item" });
-    plans.push({ file: pathOf("favorites.json"), label: targets.get(pathOf("favorites.json")) || "收藏本", kind: "item" });
-    plans.push({ file: pathOf("pomodoro.json"), label: targets.get(pathOf("pomodoro.json")) || "番茄钟", kind: "history" });
+    plans.push({ file: pathOf2("memo.json"), label: targets.get(pathOf2("memo.json")) || "备忘录", kind: "item" });
+    plans.push({ file: pathOf2("favorites.json"), label: targets.get(pathOf2("favorites.json")) || "收藏本", kind: "item" });
+    plans.push({ file: pathOf2("pomodoro.json"), label: targets.get(pathOf2("pomodoro.json")) || "番茄钟", kind: "history" });
     for (const name of Object.keys(SEGMENT_FIELDS)) {
       if (name === "pomodoro.json") continue;
-      plans.push({ file: pathOf(name), label: targets.get(pathOf(name)) || name, kind: "segment" });
+      plans.push({ file: pathOf2(name), label: targets.get(pathOf2(name)) || name, kind: "segment" });
     }
     return plans;
   }
@@ -21210,14 +21133,14 @@ ${countsToText(s.missing)}
     const summary = drifted ? `${scannedDomains} 个数据文件中 ${drifted} 个存在字段漂移` : `${scannedDomains} 个数据文件字段形态与约定一致`;
     return { summary, issues };
   }
-  async function checkFieldDrift(app2, opts = {}) {
+  async function checkFieldDrift(app, opts = {}) {
     var _a2, _b2;
-    const plans = driftPlans(app2);
+    const plans = driftPlans(app);
     const results = [];
     for (let i = 0; i < plans.length; i++) {
       const plan = plans[i];
       if ((_a2 = opts.isCancelled) == null ? void 0 : _a2.call(opts)) return null;
-      const parsed = await readRawJson(app2, plan.file);
+      const parsed = await readRawJson(app, plan.file);
       if (parsed && parsed.ok) {
         if (plan.kind === "item") {
           const optional = plan.file.endsWith("favorites.json") ? OPTIONAL_ITEM_FIELDS["favorites.json"] : void 0;
@@ -21617,16 +21540,16 @@ ${countsToText(s.missing)}
     return `data:image/${extOfImageUrl(url)};base64,${btoa(bin)}`;
   }
   async function writeUniqueImage(dir, baseName2, ext, bytes) {
-    const app2 = getApp();
+    const app = getApp();
     const folder = String(dir || "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
     let path = `${folder}/${baseName2}.${ext}`;
-    for (let i = 2; app2.vault.getAbstractFileByPath(path); i++) path = `${folder}/${baseName2}_${i}.${ext}`;
+    for (let i = 2; app.vault.getAbstractFileByPath(path); i++) path = `${folder}/${baseName2}_${i}.${ext}`;
     try {
-      const exists = await app2.vault.adapter.exists(folder);
-      if (!exists) await app2.vault.createFolder(folder);
+      const exists = await app.vault.adapter.exists(folder);
+      if (!exists) await app.vault.createFolder(folder);
     } catch (e) {
     }
-    await app2.vault.createBinary(path, bytes);
+    await app.vault.createBinary(path, bytes);
     return path;
   }
   function splitName(name) {
@@ -21643,12 +21566,12 @@ ${countsToText(s.missing)}
     const name = splitName(imageNameFromUrl(url, 1, contentType));
     const local = await writeUniqueImage(clipbookImageDir(), name.base, name.ext, buf);
     if (opts.savedNotePath) {
-      const app2 = getApp();
-      const file = app2.vault.getAbstractFileByPath(opts.savedNotePath);
+      const app = getApp();
+      const file = app.vault.getAbstractFileByPath(opts.savedNotePath);
       if (file) {
-        const content = await app2.vault.read(file);
+        const content = await app.vault.read(file);
         const next = applyClipContentTransforms(content, [], [{ src: String(opts.src || "").trim(), local }]);
-        if (next !== content) await app2.vault.modify(file, next);
+        if (next !== content) await app.vault.modify(file, next);
       }
       notice("图片已保存并替换进笔记", "success");
       return { local, sidecar: null };
@@ -21750,15 +21673,15 @@ ${countsToText(s.missing)}
     const s = cleanUrlText(input);
     const m = s.match(/^(https?:\/\/)([^/?#]+)([^?#]*)(\?[^#]*)?(#.*)?$/i);
     if (!m) return s;
-    const [, scheme, host, path, query2, hash] = m;
+    const [, scheme, host, path, query, hash] = m;
     const bare = host.toLowerCase().replace(/^www\./, "");
     if (bare === "b23.tv") return scheme + host + path;
     if (bare.endsWith("bilibili.com") && /^\/video\//.test(path)) {
-      const keep = (query2 != null ? query2 : "").slice(1).split("&").filter((kv) => /^(p|t)=/.test(kv));
+      const keep = (query != null ? query : "").slice(1).split("&").filter((kv) => /^(p|t)=/.test(kv));
       return scheme + host + path + (keep.length ? "?" + keep.join("&") : "");
     }
-    if (!query2) return s;
-    const kept = query2.slice(1).split("&").filter(Boolean).filter((kv) => {
+    if (!query) return s;
+    const kept = query.slice(1).split("&").filter(Boolean).filter((kv) => {
       const k = kv.split("=")[0].toLowerCase();
       return !k.startsWith("utm_") && !k.startsWith("spm_") && !TRACK_KEYS.has(k);
     });
@@ -21951,11 +21874,11 @@ ${countsToText(s.missing)}
           if (this._legacyMigrated) return;
           this._legacyMigrated = true;
           try {
-            const app2 = getApp();
-            if (app2.vault.getAbstractFileByPath(this.filePath)) return;
+            const app = getApp();
+            if (app.vault.getAbstractFileByPath(this.filePath)) return;
             const legacyPath = this.filePath.replace(/knowledge\.json$/, "literature.json");
-            const legacy = app2.vault.getAbstractFileByPath(legacyPath);
-            if (legacy) await app2.vault.create(this.filePath, await app2.vault.read(legacy));
+            const legacy = app.vault.getAbstractFileByPath(legacyPath);
+            if (legacy) await app.vault.create(this.filePath, await app.vault.read(legacy));
           } catch (e) {
           }
         },
@@ -22154,11 +22077,11 @@ ${countsToText(s.missing)}
   function numOr(v, fallback) {
     return typeof v === "number" && Number.isFinite(v) ? v : fallback;
   }
-  function mountCtx(app2) {
+  function mountCtx(app) {
     var _a2;
     const s = (_a2 = tryGetSettings()) != null ? _a2 : {};
     return {
-      app: app2 != null ? app2 : safeApp(),
+      app: app != null ? app : safeApp(),
       cardboxDir: normDir(s == null ? void 0 : s.knowledgeCardboxDirectory, DEFAULT_CARDBOX) || DEFAULT_CARDBOX,
       litDir: normDir(s == null ? void 0 : s.knowledgeDirectory, DEFAULT_LIT) || DEFAULT_LIT
     };
@@ -22275,11 +22198,11 @@ ${countsToText(s.missing)}
   }
   function outboundTargetsViaCache(ctx, file) {
     var _a2, _b2, _c, _d, _e, _f, _g;
-    const app2 = (_a2 = ctx == null ? void 0 : ctx.app) != null ? _a2 : getApp();
+    const app = (_a2 = ctx == null ? void 0 : ctx.app) != null ? _a2 : getApp();
     const from = normSlashes(String((_b2 = file == null ? void 0 : file.path) != null ? _b2 : ""));
     if (!from) return [];
     const out = [];
-    const outs = (_d = (_c = app2 == null ? void 0 : app2.metadataCache) == null ? void 0 : _c.resolvedLinks) == null ? void 0 : _d[from];
+    const outs = (_d = (_c = app == null ? void 0 : app.metadataCache) == null ? void 0 : _c.resolvedLinks) == null ? void 0 : _d[from];
     if (outs && typeof outs === "object") {
       for (const to of Object.keys(outs)) {
         if (!outs[to]) continue;
@@ -22287,7 +22210,7 @@ ${countsToText(s.missing)}
         out.push(normSlashes(to));
       }
     }
-    const fm2 = (_g = (_f = (_e = app2 == null ? void 0 : app2.metadataCache) == null ? void 0 : _e.getFileCache) == null ? void 0 : _f.call(_e, file)) == null ? void 0 : _g.frontmatter;
+    const fm2 = (_g = (_f = (_e = app == null ? void 0 : app.metadataCache) == null ? void 0 : _e.getFileCache) == null ? void 0 : _f.call(_e, file)) == null ? void 0 : _g.frontmatter;
     for (const key of ["related", "mounted"]) {
       for (const item of fmValueList(fm2 == null ? void 0 : fm2[key])) {
         const target = linkTargetOf(item);
@@ -22301,10 +22224,10 @@ ${countsToText(s.missing)}
   }
   function hasOutboundViaCache(ctx, file) {
     var _a2, _b2, _c, _d, _e, _f, _g;
-    const app2 = (_a2 = ctx == null ? void 0 : ctx.app) != null ? _a2 : getApp();
+    const app = (_a2 = ctx == null ? void 0 : ctx.app) != null ? _a2 : getApp();
     const from = normSlashes(String((_b2 = file == null ? void 0 : file.path) != null ? _b2 : ""));
     if (!from) return false;
-    const cache = (_d = (_c = app2 == null ? void 0 : app2.metadataCache) == null ? void 0 : _c.getFileCache) == null ? void 0 : _d.call(_c, file);
+    const cache = (_d = (_c = app == null ? void 0 : app.metadataCache) == null ? void 0 : _c.getFileCache) == null ? void 0 : _d.call(_c, file);
     const isSelf = (raw) => {
       const target = linkTargetOf(raw);
       if (!target) return true;
@@ -23008,24 +22931,24 @@ ${lines}`;
     return localNow();
   }
   async function writeUniqueNote(dir, baseName2, content) {
-    const app2 = getApp();
+    const app = getApp();
     const folder = String(dir || "文献盒").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
     let path = `${folder}/${baseName2}.md`;
-    for (let i = 2; app2.vault.getAbstractFileByPath(path); i++) path = `${folder}/${baseName2}_${i}.md`;
+    for (let i = 2; app.vault.getAbstractFileByPath(path); i++) path = `${folder}/${baseName2}_${i}.md`;
     try {
-      const exists = await app2.vault.adapter.exists(folder);
-      if (!exists) await app2.vault.createFolder(folder);
+      const exists = await app.vault.adapter.exists(folder);
+      if (!exists) await app.vault.createFolder(folder);
     } catch (e) {
     }
-    await app2.vault.create(path, content);
+    await app.vault.create(path, content);
     return path;
   }
   function findDuplicateTermNote(term) {
-    const app2 = getApp();
+    const app = getApp();
     const s = tryGetSettings();
     const dir = String(s.knowledgeDirectory || "文献盒").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
     const path = `${dir}/${sanitizeMdTitle(term)}.md`;
-    return app2.vault.getAbstractFileByPath(path) ? path : null;
+    return app.vault.getAbstractFileByPath(path) ? path : null;
   }
   async function generateVideoNote(opts) {
     const ai = createAI();
@@ -23164,16 +23087,16 @@ ${text2}`;
     return writeUniqueNote(String(s.knowledgeDirectory || "文献盒"), sanitizeMdTitle(title || summary), body);
   }
   async function writeUniqueBinary(dir, baseName2, ext, bytes) {
-    const app2 = getApp();
+    const app = getApp();
     const folder = String(dir || "文献盒").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
     let path = `${folder}/${baseName2}.${ext}`;
-    for (let i = 2; app2.vault.getAbstractFileByPath(path); i++) path = `${folder}/${baseName2}_${i}.${ext}`;
+    for (let i = 2; app.vault.getAbstractFileByPath(path); i++) path = `${folder}/${baseName2}_${i}.${ext}`;
     try {
-      const exists = await app2.vault.adapter.exists(folder);
-      if (!exists) await app2.vault.createFolder(folder);
+      const exists = await app.vault.adapter.exists(folder);
+      if (!exists) await app.vault.createFolder(folder);
     } catch (e) {
     }
-    await app2.vault.createBinary(path, bytes);
+    await app.vault.createBinary(path, bytes);
     return path;
   }
   function imagePrompt(list, count, descs) {
@@ -23257,21 +23180,21 @@ ${notes.map((x) => `第 ${x.n} 张：${x.d}`).join("\n")}`;
     const body = [fm2.join("\n"), summary, ...imageLines].filter(Boolean).join("\n\n");
     return writeUniqueNote(dir, name, body);
   }
-  async function upgradeNoteSourceInFile(app2, notePath, internalLink) {
+  async function upgradeNoteSourceInFile(app, notePath, internalLink) {
     const path = String(notePath || "").trim();
     const link = String(internalLink || "").trim();
     if (!path || !link) return false;
-    const file = app2.vault.getAbstractFileByPath(path);
+    const file = app.vault.getAbstractFileByPath(path);
     if (!file || file.isFolder) return false;
     let content;
     try {
-      content = await app2.vault.read(file);
+      content = await app.vault.read(file);
     } catch (e) {
       return false;
     }
     const upgraded = upgradeSourceLine(content, link);
     if (upgraded === null) return false;
-    if (upgraded !== content) await app2.vault.modify(file, upgraded);
+    if (upgraded !== content) await app.vault.modify(file, upgraded);
     return true;
   }
   function parseFrontmatter2(content) {
@@ -23367,24 +23290,24 @@ ${content || ""}`;
   }
   async function backfillNotes(opts = {}) {
     var _a2, _b2;
-    const app2 = getApp();
+    const app = getApp();
     const s = tryGetSettings();
     const aiTimeoutMs = (_a2 = opts.aiTimeoutMs) != null ? _a2 : BACKFILL_AI_TIMEOUT_MS;
     const dir = String(s.knowledgeDirectory || "文献盒").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
-    const files = (app2.vault.getFiles() || []).filter((f) => f.path.startsWith(dir + "/") && f.path.endsWith(".md"));
+    const files = (app.vault.getFiles() || []).filter((f) => f.path.startsWith(dir + "/") && f.path.endsWith(".md"));
     const needDomain = [];
     let filled = 0;
     for (const f of files) {
-      let content = await app2.vault.read(f);
+      let content = await app.vault.read(f);
       const migrated = migrateVideoSourceKeys(content);
       if (migrated !== content) {
-        await app2.vault.modify(f, migrated);
+        await app.vault.modify(f, migrated);
         content = migrated;
         filled++;
       }
       const pruned = dropTermKeyIfTyped(content);
       if (pruned !== content) {
-        await app2.vault.modify(f, pruned);
+        await app.vault.modify(f, pruned);
         content = pruned;
         filled++;
       }
@@ -23401,7 +23324,7 @@ ${content || ""}`;
       if (patch.length) {
         const updated = dropTermKeyIfTyped(injectFrontmatter(content, patch));
         if (updated !== content) {
-          await app2.vault.modify(f, updated);
+          await app.vault.modify(f, updated);
           filled++;
         }
       }
@@ -23412,7 +23335,7 @@ ${content || ""}`;
       const list = parseDomainList(s.knowledgeDomainList);
       for (const { file } of needDomain) {
         try {
-          const latest = await app2.vault.read(file);
+          const latest = await app.vault.read(file);
           const sample = latest.replace(/^---[\s\S]*?---/, "").slice(0, 2e3);
           const raw = await withTimeout(
             ai.json(
@@ -23426,7 +23349,7 @@ ${sample}`
           );
           const domain = String(((_b2 = parseAiJson(raw)) == null ? void 0 : _b2.domain) || "").trim();
           if (domain) {
-            await app2.vault.modify(file, injectFrontmatter(latest, [`domain:${domain}`]));
+            await app.vault.modify(file, injectFrontmatter(latest, [`domain:${domain}`]));
             filled++;
           }
         } catch (e) {
@@ -24936,12 +24859,12 @@ ${sample}`
   function stripFrontmatter2(content) {
     return String(content != null ? content : "").replace(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/, "");
   }
-  async function readNoteText(app2, path) {
+  async function readNoteText(app, path) {
     var _a2, _b2, _c;
     try {
-      const file = (_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, path);
+      const file = (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, path);
       if (!file) return null;
-      return String((_c = await app2.vault.read(file)) != null ? _c : "");
+      return String((_c = await app.vault.read(file)) != null ? _c : "");
     } catch (e) {
       return null;
     }
@@ -25114,16 +25037,16 @@ ${sample}`
     if (unit === "paragraph") {
       const hit = String((_b2 = s == null ? void 0 : s.quote) != null ? _b2 : "").trim() ? locateInText(text2, String(s.quote)) : null;
       if (!hit) return text2;
-      const block2 = expandBlock(text2, hit.at, hit.len);
-      return text2.slice(block2.at, block2.at + block2.len).trim();
+      const block = expandBlock(text2, hit.at, hit.len);
+      return text2.slice(block.at, block.at + block.len).trim();
     }
     return text2;
   }
-  async function suggestionUnitMarkdown(app2, s) {
+  async function suggestionUnitMarkdown(app, s) {
     var _a2;
     const reason = String((_a2 = s == null ? void 0 : s.reason) != null ? _a2 : "").trim() || "AI 建议：这张卡与主卡有实质关联。";
     const head = `> ${reason}`;
-    const content = await readNoteText(app2, s == null ? void 0 : s.target);
+    const content = await readNoteText(app, s == null ? void 0 : s.target);
     if (content === null) return head;
     const unit = sliceUnitText(content, s);
     return unit ? `${head}
@@ -25134,25 +25057,25 @@ ${unit}` : head;
     return BLOCK_ID_PREFIX + hash8(`${idPath(path)}
 ${String(blockText != null ? blockText : "").trim()}`);
   }
-  async function ensureSuggestionBlockId(app2, targetPath, quote) {
+  async function ensureSuggestionBlockId(app, targetPath, quote) {
     const path = idPath(targetPath);
     if (!path || !String(quote != null ? quote : "").trim()) return { blockId: "", ok: false };
     try {
       return await enqueueFileTask(path, async () => {
         var _a2, _b2, _c;
-        const file = (_b2 = (_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, path);
+        const file = (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getAbstractFileByPath) == null ? void 0 : _b2.call(_a2, path);
         if (!file) return { blockId: "", ok: false };
-        const text2 = String((_c = await app2.vault.read(file)) != null ? _c : "");
+        const text2 = String((_c = await app.vault.read(file)) != null ? _c : "");
         const hit = locateInText(text2, quote);
         if (!hit) return { blockId: "", ok: false };
-        const block2 = expandBlock(text2, hit.at, hit.len);
-        const blockText = text2.slice(block2.at, block2.at + block2.len);
+        const block = expandBlock(text2, hit.at, hit.len);
+        const blockText = text2.slice(block.at, block.at + block.len);
         const existing = /\^([A-Za-z0-9-]+)\s*$/.exec(blockText);
         if (existing && existing[1].startsWith(BLOCK_ID_PREFIX)) return { blockId: existing[1], ok: true };
         const blockId = blockIdFor(path, blockText.replace(/\^([A-Za-z0-9-]+)\s*$/, "").trim());
         const trimmed = blockText.replace(/\s+$/, "");
-        const next = text2.slice(0, block2.at) + `${trimmed} ^${blockId}` + text2.slice(block2.at + block2.len);
-        if (next !== text2) await app2.vault.modify(file, next);
+        const next = text2.slice(0, block.at) + `${trimmed} ^${blockId}` + text2.slice(block.at + block.len);
+        if (next !== text2) await app.vault.modify(file, next);
         return { blockId, ok: true };
       });
     } catch (e) {
@@ -25635,11 +25558,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
     for (let i = SUGGEST_MAX_LOCATE_NOTES; i < adopted.length; i++) {
       suggestions.push(buildSuggestion(ctx, adopted[i], null, null));
     }
-    const filtered3 = filterSuggestions(suggestions, { dismissed, existing, minScore: SUGGEST_MIN_SCORE });
+    const filtered2 = filterSuggestions(suggestions, { dismissed, existing, minScore: SUGGEST_MIN_SCORE });
     tell("save");
     const generatedAt = Date.now();
-    await persistCardCache(cardPath, bodyHash, generatedAt, filtered3);
-    return { status: "fresh", suggestions: filtered3, generatedAt };
+    await persistCardCache(cardPath, bodyHash, generatedAt, filtered2);
+    return { status: "fresh", suggestions: filtered2, generatedAt };
   }
   function buildSuggestion(ctx, ad, pick, targetText) {
     var _a2, _b2, _c, _d, _e, _f;
@@ -25807,10 +25730,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
       return false;
     }
   }
-  function waapi3(el3, frames, opts) {
-    if (!el3 || reduced4() || typeof el3.animate !== "function") return null;
+  function waapi3(el2, frames, opts) {
+    if (!el2 || reduced4() || typeof el2.animate !== "function") return null;
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -25826,36 +25749,36 @@ ${String(blockText != null ? blockText : "").trim()}`);
     timers3.forEach(clearTimeout);
     timers3.clear();
   }
-  function motionClosing(el3) {
-    return !!el3 && el3.dataset.bzMotionClosing === "1";
+  function motionClosing(el2) {
+    return !!el2 && el2.dataset.bzMotionClosing === "1";
   }
-  function abortOut(el3) {
-    const run = outRuns.get(el3);
+  function abortOut(el2) {
+    const run = outRuns.get(el2);
     if (!run) return;
-    outRuns.delete(el3);
+    outRuns.delete(el2);
     run.abort();
   }
-  function sweepExit(el3, id) {
+  function sweepExit(el2, id) {
     try {
-      if (typeof el3.getAnimations !== "function") return;
-      for (const a of el3.getAnimations()) if (a.id === id) a.cancel();
+      if (typeof el2.getAnimations !== "function") return;
+      for (const a of el2.getAnimations()) if (a.id === id) a.cancel();
     } catch (e) {
     }
   }
-  function runOut(el3, id, frames, opts, done) {
+  function runOut(el2, id, frames, opts, done) {
     var _a2;
-    if (!el3) {
+    if (!el2) {
       done();
       return;
     }
-    if (motionClosing(el3)) return;
-    el3.dataset.bzMotionClosing = "1";
+    if (motionClosing(el2)) return;
+    el2.dataset.bzMotionClosing = "1";
     let finished = false;
     let anim = null;
     const run = {
       abort: () => {
         run.aborted = true;
-        delete el3.dataset.bzMotionClosing;
+        delete el2.dataset.bzMotionClosing;
         try {
           anim == null ? void 0 : anim.cancel();
         } catch (e) {
@@ -25863,19 +25786,19 @@ ${String(blockText != null ? blockText : "").trim()}`);
       },
       aborted: false
     };
-    outRuns.set(el3, run);
+    outRuns.set(el2, run);
     const finish = () => {
       if (finished || run.aborted) return;
       finished = true;
-      outRuns.delete(el3);
-      delete el3.dataset.bzMotionClosing;
+      outRuns.delete(el2);
+      delete el2.dataset.bzMotionClosing;
       try {
         anim == null ? void 0 : anim.cancel();
       } catch (e) {
       }
       done();
     };
-    anim = waapi3(el3, frames, { ...opts, fill: "forwards", id });
+    anim = waapi3(el2, frames, { ...opts, fill: "forwards", id });
     if (!anim) {
       finish();
       return;
@@ -26101,10 +26024,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
     if (!ovl || reduced4()) return;
     const body = ovl.querySelector("#bz-kb-preview-body");
     if (body) {
-      [...body.children].forEach((el3, i) => {
+      [...body.children].forEach((el2, i) => {
         if (i >= 12) return;
         waapi3(
-          el3,
+          el2,
           [
             { opacity: 0, transform: "translateY(6px)", filter: "blur(3px)" },
             { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -26320,10 +26243,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
     for (const pen of penPool) pen.remove();
     penPool.clear();
   }
-  function motionMetaSetValue(el3) {
-    if (!el3 || reduced4()) return;
+  function motionMetaSetValue(el2) {
+    if (!el2 || reduced4()) return;
     waapi3(
-      el3,
+      el2,
       [
         { opacity: 0.25, transform: "translateY(3px)", filter: "blur(3px)" },
         { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -26331,10 +26254,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
       { duration: M5.fast + 80, easing: E3.out, fill: "backwards" }
     );
   }
-  function motionContentArrive(el3) {
-    if (!el3 || reduced4()) return;
+  function motionContentArrive(el2) {
+    if (!el2 || reduced4()) return;
     waapi3(
-      el3,
+      el2,
       [{ filter: "blur(1.5px)" }, { filter: "blur(0px)" }],
       { duration: M5.fast + 60, easing: E3.out, fill: "backwards" }
     );
@@ -26507,8 +26430,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
   }
   function motionTeardown3() {
     cancelPending3();
-    for (const [el3, run] of [...outRuns.entries()]) {
-      outRuns.delete(el3);
+    for (const [el2, run] of [...outRuns.entries()]) {
+      outRuns.delete(el2);
       run.abort();
     }
     motionPenOff();
@@ -26592,15 +26515,15 @@ ${String(blockText != null ? blockText : "").trim()}`);
     var _a2, _b2;
     if (!id) return [];
     const byId2 = new Map(nodes.map((n) => [n.id, n]));
-    const chain3 = [];
+    const chain2 = [];
     const seen = /* @__PURE__ */ new Set();
     let cur = (_a2 = byId2.get(id)) != null ? _a2 : null;
     while (cur && !seen.has(cur.id)) {
       seen.add(cur.id);
-      chain3.unshift(cur);
+      chain2.unshift(cur);
       cur = cur.parent ? (_b2 = byId2.get(cur.parent)) != null ? _b2 : null : null;
     }
-    return chain3;
+    return chain2;
   }
   function lineageOf(edges, id) {
     const push = (map, key, val) => {
@@ -26696,7 +26619,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function defaultDeps(over) {
     var _a2, _b2, _c, _d;
     return {
-      measure: (_a2 = over == null ? void 0 : over.measure) != null ? _a2 : (el3) => ({ w: el3.offsetWidth || 0, h: el3.offsetHeight || 0 }),
+      measure: (_a2 = over == null ? void 0 : over.measure) != null ? _a2 : (el2) => ({ w: el2.offsetWidth || 0, h: el2.offsetHeight || 0 }),
       notice: (_b2 = over == null ? void 0 : over.notice) != null ? _b2 : (msg, type) => notice(msg, type != null ? type : "info"),
       openNote: (_c = over == null ? void 0 : over.openNote) != null ? _c : (path) => {
         var _a3, _b3, _c2;
@@ -26952,24 +26875,24 @@ ${String(blockText != null ? blockText : "").trim()}`);
     });
     st.win.addEventListener("mouseover", (e) => {
       var _a2, _b2, _c;
-      const el3 = e.target;
-      const dot = (_a2 = el3 == null ? void 0 : el3.closest) == null ? void 0 : _a2.call(el3, "[data-mt-edge]");
+      const el2 = e.target;
+      const dot = (_a2 = el2 == null ? void 0 : el2.closest) == null ? void 0 : _a2.call(el2, "[data-mt-edge]");
       if (dot) {
         setHover(st, dot.getAttribute("data-mt-edge") || "", true);
         return;
       }
-      const edgeEl = (_b2 = el3 == null ? void 0 : el3.closest) == null ? void 0 : _b2.call(el3, ".bz-kb-mt-edge");
+      const edgeEl = (_b2 = el2 == null ? void 0 : el2.closest) == null ? void 0 : _b2.call(el2, ".bz-kb-mt-edge");
       if (edgeEl) {
         setHover(st, edgeEl.getAttribute("data-mt-key") || "", true);
         return;
       }
-      const nodeEl = (_c = el3 == null ? void 0 : el3.closest) == null ? void 0 : _c.call(el3, ".bz-kb-mt-node");
+      const nodeEl = (_c = el2 == null ? void 0 : el2.closest) == null ? void 0 : _c.call(el2, ".bz-kb-mt-node");
       if (nodeEl) setHover(st, edgeKeyTo(st, nodeEl.getAttribute("data-mt-id") || ""), true);
     });
     st.win.addEventListener("mouseout", (e) => {
       var _a2;
-      const el3 = e.target;
-      if ((_a2 = el3 == null ? void 0 : el3.closest) == null ? void 0 : _a2.call(el3, "[data-mt-edge], .bz-kb-mt-edge, .bz-kb-mt-node")) setHover(st, "", false);
+      const el2 = e.target;
+      if ((_a2 = el2 == null ? void 0 : el2.closest) == null ? void 0 : _a2.call(el2, "[data-mt-edge], .bz-kb-mt-edge, .bz-kb-mt-node")) setHover(st, "", false);
     });
   }
   function num(v) {
@@ -27158,8 +27081,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
     if (st.progressTimer) st.progressTimer.textContent = "0s";
     stopTimer(st);
     st.timerId = setInterval(() => {
-      const el3 = st.progressTimer;
-      if (el3) el3.textContent = `${Math.round((Date.now() - st.startedAt) / 1e3)}s`;
+      const el2 = st.progressTimer;
+      if (el2) el2.textContent = `${Math.round((Date.now() - st.startedAt) / 1e3)}s`;
     }, 500);
   }
   function setProgress(st, p) {
@@ -27176,7 +27099,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
     st.timerId = null;
   }
   function clearCanvas(st) {
-    for (const el3 of Array.from(st.worldEl.querySelectorAll(".bz-kb-mt-node"))) el3.remove();
+    for (const el2 of Array.from(st.worldEl.querySelectorAll(".bz-kb-mt-node"))) el2.remove();
     st.svg.innerHTML = "";
     st.cards.clear();
     st.sizes.clear();
@@ -27218,9 +27141,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
     var _a2, _b2, _c;
     const rootNode2 = (_a2 = st.tree.nodes.find((n) => n.id === st.tree.root)) != null ? _a2 : null;
     const crumbs = crumbTrail(st.tree.nodes, (_b2 = st.selected) != null ? _b2 : st.tree.root);
-    const chain3 = crumbs.length ? crumbs : rootNode2 ? [rootNode2] : [];
-    st.win.querySelector("#bz-kb-mt-crumbs").innerHTML = chain3.map((n, i) => {
-      const last = i === chain3.length - 1;
+    const chain2 = crumbs.length ? crumbs : rootNode2 ? [rootNode2] : [];
+    st.win.querySelector("#bz-kb-mt-crumbs").innerHTML = chain2.map((n, i) => {
+      const last = i === chain2.length - 1;
       const label = escapeHtml2(displayTitle(n));
       const sep = i === 0 ? "" : '<span class="bz-kb-mt-sep">›</span>';
       if (last && !st.selected) return `${sep}<span class="bz-kb-mt-crumb is-cur">${label}</span>`;
@@ -27248,9 +27171,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function requestBuildIndex(st) {
     var _a2;
     try {
-      const app2 = getApp();
-      if (typeof ((_a2 = app2 == null ? void 0 : app2.commands) == null ? void 0 : _a2.executeCommandById) === "function") {
-        app2.commands.executeCommandById("bz-secondbrain-rebuild-index");
+      const app = getApp();
+      if (typeof ((_a2 = app == null ? void 0 : app.commands) == null ? void 0 : _a2.executeCommandById) === "function") {
+        app.commands.executeCommandById("bz-secondbrain-rebuild-index");
         st.deps.notice("已转交「重建索引」——建完回到白板点「重新生成」");
         return;
       }
@@ -27261,7 +27184,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
   async function renderCanvas(st, motionFresh) {
     var _a2, _b2, _c, _d, _e, _f, _g, _h;
     const worldEl = st.worldEl;
-    for (const el3 of Array.from(worldEl.querySelectorAll(".bz-kb-mt-node"))) el3.remove();
+    for (const el2 of Array.from(worldEl.querySelectorAll(".bz-kb-mt-node"))) el2.remove();
     st.svg.innerHTML = "";
     st.cards.clear();
     st.sizes.clear();
@@ -27276,17 +27199,17 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const rootId = st.tree.root;
     const jobs = [];
     for (const node of nodes) {
-      const el3 = buildCard(st, node, rootId);
-      worldEl.appendChild(el3);
-      st.cards.set(node.id, el3);
-      jobs.push(fillBody(st, node, el3));
+      const el2 = buildCard(st, node, rootId);
+      worldEl.appendChild(el2);
+      st.cards.set(node.id, el2);
+      jobs.push(fillBody(st, node, el2));
     }
     worldEl.appendChild(st.svg);
     await Promise.all(jobs);
     for (const node of nodes) {
-      const el3 = st.cards.get(node.id);
-      if (!el3) continue;
-      const raw = st.deps.measure(el3, node.kind);
+      const el2 = st.cards.get(node.id);
+      if (!el2) continue;
+      const raw = st.deps.measure(el2, node.kind);
       const w = (raw == null ? void 0 : raw.w) && raw.w > 0 ? raw.w : widthOf(st, node);
       const h = (raw == null ? void 0 : raw.h) && raw.h > 0 ? raw.h : (_b2 = HEIGHT_BY_KIND[node.kind]) != null ? _b2 : HEIGHT_BY_KIND.card;
       st.sizes.set(node.id, { w, h });
@@ -27305,14 +27228,14 @@ ${String(blockText != null ? blockText : "").trim()}`);
     st.pos = layout.pos;
     st.world = { w: layout.world.w, h: layout.world.h };
     for (const n of laid) {
-      const el3 = st.cards.get(n.id);
+      const el2 = st.cards.get(n.id);
       const p = layout.pos[n.id];
       if (!p) {
-        el3.style.display = "none";
+        el2.style.display = "none";
         continue;
       }
-      el3.style.left = `${p.x}px`;
-      el3.style.top = `${p.y}px`;
+      el2.style.left = `${p.x}px`;
+      el2.style.top = `${p.y}px`;
     }
     const dockGroups = /* @__PURE__ */ new Map();
     for (const n of nodes) {
@@ -27325,8 +27248,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
       const parentEl = st.cards.get(parentId);
       if (!parentPos || !parentEl || parentEl.style.display === "none") {
         for (const n of group) {
-          const el3 = st.cards.get(n.id);
-          if (el3) el3.style.display = "none";
+          const el2 = st.cards.get(n.id);
+          if (el2) el2.style.display = "none";
         }
         continue;
       }
@@ -27335,12 +27258,12 @@ ${String(blockText != null ? blockText : "").trim()}`);
       let top = parentPos.y + ph + DOCK_GAP;
       let right = parentPos.x + pw;
       for (const n of group) {
-        const el3 = st.cards.get(n.id);
+        const el2 = st.cards.get(n.id);
         const size = st.sizes.get(n.id);
-        if (!el3) continue;
-        el3.style.left = `${parentPos.x}px`;
-        el3.style.top = `${top}px`;
-        el3.style.width = `${pw}px`;
+        if (!el2) continue;
+        el2.style.left = `${parentPos.x}px`;
+        el2.style.top = `${top}px`;
+        el2.style.width = `${pw}px`;
         if (size) size.w = pw;
         top += ((_h = size == null ? void 0 : size.h) != null ? _h : HEIGHT_BY_KIND.note) + DOCK_GAP;
         if (top > st.world.h) st.world.h = top;
@@ -27369,7 +27292,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
   }
   function buildCard(st, node, rootId) {
     var _a2, _b2, _c;
-    const el3 = document.createElement("div");
+    const el2 = document.createElement("div");
     const ghost = st.ghosts.has(node.id);
     const stale = !!node.missing || ghost && !ghostTargetExists(st, node);
     const classes = ["bz-kb-mt-node", `is-${node.kind}`];
@@ -27379,11 +27302,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
     if (ghost) classes.push("is-ghost");
     if (node.id === rootId) classes.push("is-root");
     if (st.folded.has(node.id)) classes.push("is-folded");
-    el3.className = classes.join(" ");
-    el3.setAttribute("data-mt-id", node.id);
-    el3.setAttribute("data-mt-kind", node.kind);
-    el3.setAttribute("data-mt-source", node.source);
-    el3.style.width = `${widthOf(st, node)}px`;
+    el2.className = classes.join(" ");
+    el2.setAttribute("data-mt-id", node.id);
+    el2.setAttribute("data-mt-kind", node.kind);
+    el2.setAttribute("data-mt-source", node.source);
+    el2.style.width = `${widthOf(st, node)}px`;
     const head = document.createElement("div");
     head.className = "bz-kb-mt-head";
     const ttl = document.createElement("span");
@@ -27404,20 +27327,20 @@ ${String(blockText != null ? blockText : "").trim()}`);
         head.appendChild(why);
       }
     }
-    el3.appendChild(head);
+    el2.appendChild(head);
     const body = document.createElement("div");
     body.className = "bz-kb-mt-body";
-    el3.appendChild(body);
+    el2.appendChild(body);
     ttl.addEventListener("click", (e) => {
       e.stopPropagation();
       if (st.folded.has(node.id)) st.folded.delete(node.id);
       else st.folded.add(node.id);
       const folded = st.folded.has(node.id);
-      el3.classList.toggle("is-folded", folded);
-      const body2 = el3.querySelector(".bz-kb-mt-body");
-      if (!folded && body2 && !body2.querySelector("*")) void fillBody(st, node, el3);
+      el2.classList.toggle("is-folded", folded);
+      const body2 = el2.querySelector(".bz-kb-mt-body");
+      if (!folded && body2 && !body2.querySelector("*")) void fillBody(st, node, el2);
     });
-    return el3;
+    return el2;
   }
   function chip(text2, kind) {
     const s = document.createElement("span");
@@ -27427,54 +27350,54 @@ ${String(blockText != null ? blockText : "").trim()}`);
   }
   async function fillBody(st, node, cardEl) {
     var _a2;
-    const bodyEl4 = cardEl.querySelector(".bz-kb-mt-body");
-    if (!bodyEl4) return;
+    const bodyEl3 = cardEl.querySelector(".bz-kb-mt-body");
+    if (!bodyEl3) return;
     if (node.attached && st.folded.has(node.id)) return;
     const stale = !!node.missing || st.ghosts.has(node.id) && !ghostTargetExists(st, node);
     if (stale) {
-      bodyEl4.innerHTML = '<div class="bz-kb-mt-ph is-missing">失效：目标已不存在（改名或删除后残留）</div>';
+      bodyEl3.innerHTML = '<div class="bz-kb-mt-ph is-missing">失效：目标已不存在（改名或删除后残留）</div>';
       return;
     }
     if (node.kind === "image" || node.kind === "video") {
-      bodyEl4.innerHTML = `<div class="bz-kb-mt-ph">${escapeHtml2(node.path)}</div>`;
+      bodyEl3.innerHTML = `<div class="bz-kb-mt-ph">${escapeHtml2(node.path)}</div>`;
       return;
     }
-    const app2 = (_a2 = st.ctx.app) != null ? _a2 : getApp();
+    const app = (_a2 = st.ctx.app) != null ? _a2 : getApp();
     const ghost = st.ghosts.get(node.id);
-    const md = ghost ? await suggestionUnitMarkdown(app2, ghost) : bodyMarkdown(st, node);
+    const md = ghost ? await suggestionUnitMarkdown(app, ghost) : bodyMarkdown(st, node);
     if (md === null) {
-      bodyEl4.innerHTML = '<div class="bz-kb-mt-ph">（无正文）</div>';
+      bodyEl3.innerHTML = '<div class="bz-kb-mt-ph">（无正文）</div>';
       return;
     }
     if (!md.trim()) {
-      bodyEl4.innerHTML = '<div class="bz-kb-mt-ph">（无正文）</div>';
+      bodyEl3.innerHTML = '<div class="bz-kb-mt-ph">（无正文）</div>';
       return;
     }
     let ok = false;
-    if (app2 == null ? void 0 : app2.vault) {
+    if (app == null ? void 0 : app.vault) {
       try {
         const comp = new Component();
-        await MarkdownRenderer.render(app2, md, bodyEl4, node.path, comp);
+        await MarkdownRenderer.render(app, md, bodyEl3, node.path, comp);
         comp.unload();
         ok = true;
       } catch (e) {
         ok = false;
       }
     }
-    if (ok && bodyEl4.querySelector("*")) {
-      tagBodyLinks(st, node, bodyEl4);
+    if (ok && bodyEl3.querySelector("*")) {
+      tagBodyLinks(st, node, bodyEl3);
       return;
     }
-    bodyEl4.textContent = "";
+    bodyEl3.textContent = "";
     for (const part of md.split(/\r?\n\r?\n+/)) {
       const t = part.trim();
       if (!t) continue;
       const p = document.createElement("div");
       p.className = "bz-kb-mt-ptext";
       p.textContent = t;
-      bodyEl4.appendChild(p);
+      bodyEl3.appendChild(p);
     }
-    tagBodyLinks(st, node, bodyEl4);
+    tagBodyLinks(st, node, bodyEl3);
   }
   function normRef(v) {
     return String(v != null ? v : "").trim().replace(/\\/g, "/").replace(/^\.\//, "").replace(/\.md$/i, "").replace(/^\/+/, "").toLowerCase();
@@ -27497,9 +27420,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
     }
     return out;
   }
-  function tagBodyLinks(st, node, bodyEl4) {
+  function tagBodyLinks(st, node, bodyEl3) {
     var _a2;
-    const links = Array.from(bodyEl4.querySelectorAll("a.internal-link, a[data-href]"));
+    const links = Array.from(bodyEl3.querySelectorAll("a.internal-link, a[data-href]"));
     if (!links.length) return;
     const outgoing = ((_a2 = st.tree.edges) != null ? _a2 : []).filter(
       (e) => (st.direction === "downstream" ? e.from : e.to) === node.id
@@ -27531,9 +27454,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function ghostTargetExists(st, node) {
     var _a2, _b2, _c;
     if (!node.suggested) return true;
-    const app2 = (_a2 = st.ctx.app) != null ? _a2 : getApp();
+    const app = (_a2 = st.ctx.app) != null ? _a2 : getApp();
     try {
-      return !!((_c = (_b2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _b2.getAbstractFileByPath) == null ? void 0 : _c.call(_b2, node.path));
+      return !!((_c = (_b2 = app == null ? void 0 : app.vault) == null ? void 0 : _b2.getAbstractFileByPath) == null ? void 0 : _c.call(_b2, node.path));
     } catch (e) {
       return true;
     }
@@ -27558,23 +27481,23 @@ ${String(blockText != null ? blockText : "").trim()}`);
       const colorKind = (_b2 = kindById.get(st.direction === "downstream" ? e.to : e.from)) != null ? _b2 : "para";
       const cardEl = st.cards.get(bearerId);
       if (!cardEl || cardEl.style.display === "none") continue;
-      const bodyEl4 = cardEl.querySelector(".bz-kb-mt-body");
-      if (!bodyEl4) continue;
+      const bodyEl3 = cardEl.querySelector(".bz-kb-mt-body");
+      if (!bodyEl3) continue;
       const anchor = (_d = (_c = st.tree.nodes.find((n) => n.id === e.to)) == null ? void 0 : _c.anchor) != null ? _d : null;
-      const point = measureDot(st, cardEl, bodyEl4, anchor, key, colorKind, cursor, !!e.suggested);
+      const point = measureDot(st, cardEl, bodyEl3, anchor, key, colorKind, cursor, !!e.suggested);
       if (point) out.set(id, point);
     }
     return out;
   }
-  function measureDot(st, cardEl, bodyEl4, anchor, key, colorKind, cursor, highlight = false) {
+  function measureDot(st, cardEl, bodyEl3, anchor, key, colorKind, cursor, highlight = false) {
     var _a2;
     if (!anchor) return null;
     const needles = anchorNeedles(anchor);
     if (needles.length === 0) return null;
     const color = mountKindColor(colorKind);
-    const dot = insertAnchorDot(bodyEl4, needles, key, (_a2 = cursor.get(bodyEl4)) != null ? _a2 : 0, highlight, color);
+    const dot = insertAnchorDot(bodyEl3, needles, key, (_a2 = cursor.get(bodyEl3)) != null ? _a2 : 0, highlight, color);
     if (!dot) return null;
-    cursor.set(bodyEl4, Number(dot.getAttribute("data-mt-at") || 0));
+    cursor.set(bodyEl3, Number(dot.getAttribute("data-mt-at") || 0));
     dot.style.color = color;
     const nodeId = cardEl.getAttribute("data-mt-id") || "";
     const base = st.pos[nodeId];
@@ -27586,9 +27509,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
       y: base.y + dot.offsetTop + dot.offsetHeight / 2
     };
   }
-  function insertAnchorDot(bodyEl4, needles, key, from, highlight = false, color = "") {
+  function insertAnchorDot(bodyEl3, needles, key, from, highlight = false, color = "") {
     var _a2, _b2;
-    const idx = textIndexOf(bodyEl4);
+    const idx = textIndexOf(bodyEl3);
     const hit = locateInText2(idx.text, needles, from);
     if (!hit) return null;
     const dot = document.createElement("i");
@@ -27670,8 +27593,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
       if (n.attached) continue;
       const p = st.pos[n.id];
       const s = st.sizes.get(n.id);
-      const el3 = st.cards.get(n.id);
-      if (!p || !s || !el3 || el3.style.display === "none") continue;
+      const el2 = st.cards.get(n.id);
+      if (!p || !s || !el2 || el2.style.display === "none") continue;
       boxes.push({ id: n.id, x: p.x, y: p.y, w: s.w, h: s.h });
     }
     const boxIds = new Set(boxes.map((b) => b.id));
@@ -27702,8 +27625,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
       const key = (_a3 = keys.get(id)) != null ? _a3 : `e${i}`;
       const bearerId = st.direction === "downstream" ? r.from : r.to;
       const otherId = st.direction === "downstream" ? r.to : r.from;
-      (_b2 = st.cards.get(bearerId)) == null ? void 0 : _b2.querySelectorAll("[data-mt-to]").forEach((el3) => {
-        if (el3.getAttribute("data-mt-to") === otherId) el3.setAttribute("data-mt-edge", key);
+      (_b2 = st.cards.get(bearerId)) == null ? void 0 : _b2.querySelectorAll("[data-mt-to]").forEach((el2) => {
+        if (el2.getAttribute("data-mt-to") === otherId) el2.setAttribute("data-mt-edge", key);
       });
       const colorKind = (_c = kindById.get(st.direction === "downstream" ? r.to : r.from)) != null ? _c : "para";
       const color = mountKindColor(colorKind);
@@ -27740,13 +27663,13 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const sel = st.selected;
     const dockSelected = !!sel && !!((_a2 = st.cards.get(sel)) == null ? void 0 : _a2.classList.contains("is-dock"));
     const set = sel && !dockSelected ? lineageOf((_b2 = st.tree.edges) != null ? _b2 : [], sel) : null;
-    for (const [id, el3] of st.cards) {
-      el3.classList.remove("is-sel", "is-anc", "is-desc", "is-dim");
-      if (!set || el3.classList.contains("is-dock")) continue;
-      if (id === sel) el3.classList.add("is-sel");
-      else if (set.anc.has(id)) el3.classList.add("is-anc");
-      else if (set.desc.has(id)) el3.classList.add("is-desc");
-      else el3.classList.add("is-dim");
+    for (const [id, el2] of st.cards) {
+      el2.classList.remove("is-sel", "is-anc", "is-desc", "is-dim");
+      if (!set || el2.classList.contains("is-dock")) continue;
+      if (id === sel) el2.classList.add("is-sel");
+      else if (set.anc.has(id)) el2.classList.add("is-anc");
+      else if (set.desc.has(id)) el2.classList.add("is-desc");
+      else el2.classList.add("is-dim");
     }
     for (const e of st.edges) {
       const path = st.svg.querySelector(`.bz-kb-mt-edge[data-mt-key="${cssEscape(e.key)}"]`);
@@ -27763,7 +27686,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function setHover(st, key, on) {
     var _a2;
     if (!key) {
-      st.win.querySelectorAll(".is-hot").forEach((el3) => el3.classList.remove("is-hot"));
+      st.win.querySelectorAll(".is-hot").forEach((el2) => el2.classList.remove("is-hot"));
       return;
     }
     const edge = st.edges.find((e) => e.key === key);
@@ -27775,9 +27698,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
       ...Array.from(st.win.querySelectorAll(`[data-mt-edge="${cssEscape(key)}"]`)),
       (_a2 = st.cards.get(otherId)) != null ? _a2 : null
     ];
-    for (const el3 of list) {
-      if (!el3) continue;
-      el3.classList.toggle("is-hot", on);
+    for (const el2 of list) {
+      if (!el2) continue;
+      el2.classList.toggle("is-hot", on);
     }
   }
   function cssEscape(s) {
@@ -27939,11 +27862,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
   async function pinSuggestion(st, ghost) {
     var _a2, _b2, _c, _d, _e;
     const rootPath = st.tree.root;
-    const app2 = (_a2 = st.ctx.app) != null ? _a2 : getApp();
+    const app = (_a2 = st.ctx.app) != null ? _a2 : getApp();
     let unit = ghost.unit === "heading" || ghost.unit === "paragraph" ? ghost.unit : "whole";
     let subpath = String((_b2 = ghost.subpath) != null ? _b2 : "").trim();
     if (unit === "paragraph") {
-      const got = ghost.quote ? await ensureSuggestionBlockId(app2, ghost.target, ghost.quote) : { blockId: "", ok: false };
+      const got = ghost.quote ? await ensureSuggestionBlockId(app, ghost.target, ghost.quote) : { blockId: "", ok: false };
       if (got.ok && got.blockId) subpath = got.blockId;
       else unit = "whole";
     } else if (unit === "heading" && !subpath) {
@@ -27958,15 +27881,15 @@ ${String(blockText != null ? blockText : "").trim()}`);
     try {
       await enqueueFileTask(rootPath, async () => {
         var _a3, _b3;
-        const file = (_b3 = (_a3 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a3.getAbstractFileByPath) == null ? void 0 : _b3.call(_a3, rootPath);
+        const file = (_b3 = (_a3 = app == null ? void 0 : app.vault) == null ? void 0 : _a3.getAbstractFileByPath) == null ? void 0 : _b3.call(_a3, rootPath);
         if (!file) return;
         found = true;
-        const text2 = await app2.vault.read(file);
+        const text2 = await app.vault.read(file);
         const aliasNext = replaceAnchorWithAlias(text2, ghost.anchor, ghost.target, suggestionSubpath(shape));
         if (aliasNext !== null) written = `[[${linkInner}|${anchorText}]]`;
         const next = aliasNext != null ? aliasNext : insertLinkAtAnchor(text2, ghost.anchor, linkInner);
         if (next !== text2) {
-          await app2.vault.modify(file, next);
+          await app.vault.modify(file, next);
           changed = true;
         }
       });
@@ -27979,7 +27902,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
       return;
     }
     try {
-      await markSuggestion(rootPath, ghost, "fixed", { app: app2, cardboxDir: st.ctx.cardboxDir, litDir: st.ctx.litDir });
+      await markSuggestion(rootPath, ghost, "fixed", { app, cardboxDir: st.ctx.cardboxDir, litDir: st.ctx.litDir });
     } catch (e) {
     }
     const gid = suggestionId(ghost);
@@ -27994,9 +27917,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
   async function dismissSuggestion(st, ghost) {
     var _a2;
     const rootPath = st.tree.root;
-    const app2 = (_a2 = st.ctx.app) != null ? _a2 : getApp();
+    const app = (_a2 = st.ctx.app) != null ? _a2 : getApp();
     try {
-      await markSuggestion(rootPath, ghost, "dismissed", { app: app2, cardboxDir: st.ctx.cardboxDir, litDir: st.ctx.litDir });
+      await markSuggestion(rootPath, ghost, "dismissed", { app, cardboxDir: st.ctx.cardboxDir, litDir: st.ctx.litDir });
     } catch (e) {
     }
     if (st.run) st.run = { ...st.run, suggestions: st.run.suggestions.filter((s) => suggestionId(s) !== suggestionId(ghost)) };
@@ -28741,7 +28664,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
         return h > 0 ? `${h}:${String(m % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${m}:${String(s % 60).padStart(2, "0")}`;
       };
       UIManager2 = class {
-        constructor(app2) {
+        constructor(app) {
           // ---- 主壳（三部）----
           this.mask = null;
           this.popup = null;
@@ -28891,7 +28814,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
           /** 独立弹层宿主（issue 329 文献预览直达）：主面板不在场时预览弹层的全屏定位底座——
            *  纸墨变量随 .kb 作用域生效，topifyZ 发号；用完由 closeSheet 撤除，不常驻空壳节点 */
           this.previewHostEl = null;
-          this.app = app2;
+          this.app = app;
           this.createMainUI();
           this.createVideoUI();
           this.createAddDialog();
@@ -29071,10 +28994,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         /** 部壹文献扫描：文献目录下全部 .md（含子目录），metadataCache 解析 frontmatter */
         async loadLiterature(dir) {
-          const app2 = getApp();
+          const app = getApp();
           this.loadedLitDir = dir;
           const prefix = dir + "/";
-          const mdFiles2 = (app2.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
+          const mdFiles2 = (app.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
           const entries = [];
           for (const f of mdFiles2) {
             const e = await this.parseNoteFile(f);
@@ -29084,9 +29007,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.allNotes = entries;
         }
         async parseNoteFile(file) {
-          const app2 = getApp();
+          const app = getApp();
           try {
-            const cache = app2.metadataCache.getFileCache(file);
+            const cache = app.metadataCache.getFileCache(file);
             const fm2 = cache && cache.frontmatter;
             const title = fm2 && fm2.title ? String(fm2.title) : file.basename;
             const date = fm2 && fm2.date ? String(fm2.date) : "";
@@ -29140,10 +29063,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         /** 三部共用预览弹层（文献/卡片/主题同一样式）：正文真 Markdown 渲染（视频 ![[mp4]] 内嵌可播）+ 关联 + 可点来源（只读；关闭走 ✕/ESC） */
         async openPreview(n, kind = "lit") {
-          const app2 = getApp();
+          const app = getApp();
           let raw = "";
           try {
-            raw = await app2.vault.read(n.file);
+            raw = await app.vault.read(n.file);
           } catch (e) {
             raw = "";
           }
@@ -29163,21 +29086,21 @@ ${String(blockText != null ? blockText : "").trim()}`);
       ${srcHtml}`));
           motionSheetIn(ovl);
           this._previewNote = n;
-          const bodyEl4 = ovl ? q(ovl, "#bz-kb-preview-body") : null;
-          if (bodyEl4) {
-            bodyEl4.textContent = "";
+          const bodyEl3 = ovl ? q(ovl, "#bz-kb-preview-body") : null;
+          if (bodyEl3) {
+            bodyEl3.textContent = "";
             if (body) {
               try {
                 const comp = new Component();
-                await MarkdownRenderer.render(this.app, body, bodyEl4, n.path, comp);
+                await MarkdownRenderer.render(this.app, body, bodyEl3, n.path, comp);
                 comp.unload();
               } catch (e) {
               }
-              if (!bodyEl4.querySelector("*")) {
-                bodyEl4.innerHTML = parasHtml;
+              if (!bodyEl3.querySelector("*")) {
+                bodyEl3.innerHTML = parasHtml;
               }
             } else {
-              bodyEl4.innerHTML = parasHtml;
+              bodyEl3.innerHTML = parasHtml;
             }
           }
           const srcLinks = ovl ? ovl.querySelectorAll("[data-lit-src-url]") : [];
@@ -29214,14 +29137,14 @@ ${String(blockText != null ? blockText : "").trim()}`);
          *  它是历史别名，实测库里 0 张卡在用；写入侧唯一写 category 的落卡也已移除）。 */
         async loadCards(dir) {
           var _a2;
-          const app2 = getApp();
+          const app = getApp();
           this.loadedCardDir = dir;
           const prefix = dir + "/";
-          const mdFiles2 = (app2.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
+          const mdFiles2 = (app.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
           const out = [];
           for (const f of mdFiles2) {
             try {
-              const cache = app2.metadataCache.getFileCache(f);
+              const cache = app.metadataCache.getFileCache(f);
               const fm2 = cache && cache.frontmatter || {};
               let created = 0;
               try {
@@ -29435,10 +29358,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         /** 部叁主题扫描（仅展示） */
         async loadTopics(dir) {
-          const app2 = getApp();
+          const app = getApp();
           this.loadedTopicDir = dir;
           const prefix = dir + "/";
-          const mdFiles2 = (app2.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
+          const mdFiles2 = (app.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
           const out = mdFiles2.map((f) => {
             var _a2;
             let created = 0;
@@ -29673,8 +29596,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
           if (title) title.textContent = inHistory ? "历 史" : "影 像";
           if (top) top.textContent = inHistory ? "VIDEO · ARCHIVE" : "VIDEO · TO LITERATURE";
           const show = (sel, v) => {
-            const el3 = q(p, sel);
-            if (el3) el3.style.display = v ? "" : "none";
+            const el2 = q(p, sel);
+            if (el2) el2.style.display = v ? "" : "none";
           };
           show("#lit-btn-video-add", !inHistory);
           show("#lit-btn-video-run", !inHistory && !mobile);
@@ -29707,8 +29630,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this._showVideoWindow();
         }
         /** 面板内视图切换（处理 ⇄ 历史） */
-        switchVideoView(view2) {
-          this.videoView = view2;
+        switchVideoView(view) {
+          this.videoView = view;
           void this.refreshVideoPanel();
         }
         /** 面板显示 + 按当前视图重绘（两个入口共用的收尾） */
@@ -29800,14 +29723,14 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this._syncRunButton(active2);
         }
         _syncStatusCounts(tasks) {
-          const el3 = this.videoPopup ? q(this.videoPopup, "#lit-video-counts") : null;
-          if (!el3) return;
+          const el2 = this.videoPopup ? q(this.videoPopup, "#lit-video-counts") : null;
+          if (!el2) return;
           const count = (s) => tasks.filter((t) => t.status === s).length;
           const parts = [];
           if (count("pending")) parts.push(`${count("pending")} 待处理`);
           if (count("processing")) parts.push(`${count("processing")} 处理中`);
           if (count("failed")) parts.push(`${count("failed")} 失败`);
-          el3.textContent = parts.join(" · ");
+          el2.textContent = parts.join(" · ");
         }
         /** 单钮态机：空闲 play / 运行中 square（终止靠 title hover 区分），移动端整钮隐藏 */
         _syncRunButton(tasks) {
@@ -30233,8 +30156,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
             sel.innerHTML = pages.map((p) => `<option value="${p.page}">${esc3(this._pageLabel(p))}</option>`).join("");
             sel.value = String(this.addPage);
           }
-          const num3 = q(popup, "#lit-add-page-num");
-          if (num3 && !pages.length) num3.value = this.addPage > 1 ? String(this.addPage) : "";
+          const num2 = q(popup, "#lit-add-page-num");
+          if (num2 && !pages.length) num2.value = this.addPage > 1 ? String(this.addPage) : "";
           this._rebuildBar();
           this._paintRange();
           this._renderQualitySelect(prevQuality);
@@ -30372,11 +30295,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         /** 解析态提示行（解析中/失败原因；null = 隐藏） */
         _setResolveState(text2, kind = "error") {
-          const el3 = this.addPopup ? q(this.addPopup, "#lit-add-rstate") : null;
-          if (!el3) return;
-          el3.style.display = text2 ? "" : "none";
-          el3.textContent = text2 || "";
-          el3.classList.toggle("is-error", !!text2 && kind === "error");
+          const el2 = this.addPopup ? q(this.addPopup, "#lit-add-rstate") : null;
+          if (!el2) return;
+          el2.style.display = text2 ? "" : "none";
+          el2.textContent = text2 || "";
+          el2.classList.toggle("is-error", !!text2 && kind === "error");
         }
         /** 分P 切换（ADR-0133）：量程与范围重置为全选，档位按该 P 的 cid 静默重查（未登录/失败 → 清档回落固定列表） */
         async _switchAddPage(p) {
@@ -31203,50 +31126,50 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 值没变就不动 DOM——每帧都写会让流式期间的排版反复重排。
          */
         setTermContent(text2, pending) {
-          const el3 = this.termPopup ? q(this.termPopup, "#lit-term-content") : null;
-          if (!el3) return;
-          if (el3.textContent === text2 && el3.classList.contains("bz-lit-term-pending") === pending) return;
-          const wasPending = el3.classList.contains("bz-lit-term-pending");
-          el3.classList.toggle("bz-lit-term-pending", pending);
-          el3.textContent = text2;
-          if (wasPending && !pending && text2) motionContentArrive(el3);
+          const el2 = this.termPopup ? q(this.termPopup, "#lit-term-content") : null;
+          if (!el2) return;
+          if (el2.textContent === text2 && el2.classList.contains("bz-lit-term-pending") === pending) return;
+          const wasPending = el2.classList.contains("bz-lit-term-pending");
+          el2.classList.toggle("bz-lit-term-pending", pending);
+          el2.textContent = text2;
+          if (wasPending && !pending && text2) motionContentArrive(el2);
         }
         /**
          * 属性行的「分析中…」占位（ADR-0152 决策 4）：领域 / 标题这类 AI 产出的行，
          * 在值到达之前统一挂这一句灰字，与正文区的「正在生成…」同语气。
          */
         setTermMetaPending(sel, text2 = "分析中…") {
-          const el3 = this.termPopup ? q(this.termPopup, sel) : null;
-          if (!el3) return;
-          el3.innerHTML = `<span class="bz-lit-rel-bar" aria-hidden="true"></span>${text2}`;
-          el3.classList.add("bz-lit-meta-pending");
+          const el2 = this.termPopup ? q(this.termPopup, sel) : null;
+          if (!el2) return;
+          el2.innerHTML = `<span class="bz-lit-rel-bar" aria-hidden="true"></span>${text2}`;
+          el2.classList.add("bz-lit-meta-pending");
         }
         /** 属性行落值（到达即填）：值与占位同一出口，填完去掉占位灰；从「分析中…」落到真值时播「墨字落纸」 */
         setTermMetaValue(sel, text2) {
-          const el3 = this.termPopup ? q(this.termPopup, sel) : null;
-          if (!el3) return;
-          const wasPending = el3.classList.contains("bz-lit-meta-pending");
-          el3.textContent = text2;
-          el3.classList.remove("bz-lit-meta-pending");
-          if (wasPending) motionMetaSetValue(el3);
+          const el2 = this.termPopup ? q(this.termPopup, sel) : null;
+          if (!el2) return;
+          const wasPending = el2.classList.contains("bz-lit-meta-pending");
+          el2.textContent = text2;
+          el2.classList.remove("bz-lit-meta-pending");
+          if (wasPending) motionMetaSetValue(el2);
         }
         /* ---------- 属性行就地编辑（建议 5 / ADR-0152 决策 16-19） ---------- */
         /**
          * 进入编辑态：展示态 span **就地**换成同字号输入框（不跳布局），回车 / 失焦提交、ESC 放弃。
          * 领域行额外挂联想候选（见 domainCandidates）。已在编辑态（里面有 input）时不再套一层。
          */
-        beginMetaEdit(el3, field) {
+        beginMetaEdit(el2, field) {
           var _a2;
-          if (!this.termPopup || el3.querySelector("input")) return;
-          const cur = ((_a2 = el3.textContent) != null ? _a2 : "").trim();
-          el3.classList.remove("is-editable");
-          el3.textContent = "";
+          if (!this.termPopup || el2.querySelector("input")) return;
+          const cur = ((_a2 = el2.textContent) != null ? _a2 : "").trim();
+          el2.classList.remove("is-editable");
+          el2.textContent = "";
           const input = document.createElement("input");
           input.type = "text";
           input.className = "bz-lit-term-meta-edit";
           input.value = cur === "—" ? "" : cur;
           input.placeholder = field === "term" ? "术语" : field === "title" ? "标题" : "领域";
-          el3.appendChild(input);
+          el2.appendChild(input);
           let done = false;
           const finish = (commit) => {
             var _a3, _b2;
@@ -31256,8 +31179,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
             (_b2 = this.termDomainSuggest) == null ? void 0 : _b2.close();
             this.termDomainSuggest = null;
             const raw = input.value.trim();
-            el3.textContent = "";
-            el3.classList.add("is-editable");
+            el2.textContent = "";
+            el2.classList.add("is-editable");
             if (commit) this.commitMetaEdit(field, raw);
             else this.paintMetaField(field);
           };
@@ -31323,12 +31246,12 @@ ${String(blockText != null ? blockText : "").trim()}`);
         domainCandidates() {
           var _a2, _b2;
           const s = tryGetSettings();
-          const app2 = getApp();
+          const app = getApp();
           const prefix = litDirOf(s) + "/";
           const used = /* @__PURE__ */ new Map();
-          for (const f of app2.vault.getFiles() || []) {
+          for (const f of app.vault.getFiles() || []) {
             if (!f || f.extension !== "md" || !String(f.path).startsWith(prefix)) continue;
-            const fm2 = (_a2 = app2.metadataCache.getFileCache(f)) == null ? void 0 : _a2.frontmatter;
+            const fm2 = (_a2 = app.metadataCache.getFileCache(f)) == null ? void 0 : _a2.frontmatter;
             const d = fm2 && fm2.domain ? String(fm2.domain).trim() : "";
             if (d) used.set(d, ((_b2 = used.get(d)) != null ? _b2 : 0) + 1);
           }
@@ -31344,8 +31267,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 面板必须让「正在跑」这件事看得见（而不是一行静止的灰字）。
          */
         entryRelRefresh() {
-          const el3 = this.termPopup ? q(this.termPopup, "#lit-term-meta-rel") : null;
-          if (!el3) return;
+          const el2 = this.termPopup ? q(this.termPopup, "#lit-term-meta-rel") : null;
+          if (!el2) return;
           const st = this.entryRelState;
           const row = this.termPopup ? q(this.termPopup, "#lit-term-meta-relrow") : null;
           if (row) {
@@ -31353,47 +31276,47 @@ ${String(blockText != null ? blockText : "").trim()}`);
             row.style.display = st === "idle" ? "none" : "";
             if (wasHidden && st !== "idle") motionRelRowIn(row);
           }
-          el3.className = "bz-lit-term-meta-v";
+          el2.className = "bz-lit-term-meta-v";
           if (st === "loading") {
-            el3.classList.add("bz-lit-rel-idle");
-            el3.innerHTML = '<span class="bz-lit-rel-bar" aria-hidden="true"></span>分析中…';
+            el2.classList.add("bz-lit-rel-idle");
+            el2.innerHTML = '<span class="bz-lit-rel-bar" aria-hidden="true"></span>分析中…';
             return;
           }
           if (st === "done") {
-            el3.classList.add("bz-lit-rel-ok");
+            el2.classList.add("bz-lit-rel-ok");
             const items = this.entryPreviewItems;
             if (!items.length) {
-              el3.textContent = this.entryRelText || "已建立关联";
+              el2.textContent = this.entryRelText || "已建立关联";
               return;
             }
-            el3.innerHTML = items.map(
+            el2.innerHTML = items.map(
               (it, i) => `<span class="bz-lit-rel-chip"><span>${esc3(it.title)}</span><button type="button" data-rel-drop="${i}" title="这条不写入">✕</button></span>`
             ).join("");
-            motionRelChips(el3);
+            motionRelChips(el2);
             return;
           }
           if (st === "empty") {
-            el3.classList.add("bz-lit-rel-idle");
-            el3.textContent = "暂无关联";
+            el2.classList.add("bz-lit-rel-idle");
+            el2.textContent = "暂无关联";
             return;
           }
           if (st === "queued") {
-            el3.classList.add("bz-lit-rel-idle");
-            el3.textContent = "检索服务不可用，延后至桌面端处理";
+            el2.classList.add("bz-lit-rel-idle");
+            el2.textContent = "检索服务不可用，延后至桌面端处理";
             return;
           }
           if (st === "failed") {
-            el3.classList.add("bz-lit-rel-err");
-            el3.textContent = "关联失败";
+            el2.classList.add("bz-lit-rel-err");
+            el2.textContent = "关联失败";
             return;
           }
           if (st === "off") {
-            el3.classList.add("bz-lit-rel-idle");
-            el3.textContent = "自动双链未开启";
+            el2.classList.add("bz-lit-rel-idle");
+            el2.textContent = "自动双链未开启";
             return;
           }
-          el3.classList.add("bz-lit-rel-idle");
-          el3.textContent = "—";
+          el2.classList.add("bz-lit-rel-idle");
+          el2.textContent = "—";
         }
         /**
          * 点掉一条关联候选（建议 5）：本轮不写它——`entryPreviewPicks`（写入用）与
@@ -31440,11 +31363,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 结果出栈后直接落盘；面板侧只在这一轮仍是当前时才回写状态。**一次预演只算一遍**。
          */
         async runEntryRelPreview(content, title) {
-          const bridge2 = getLinkBridge();
+          const bridge = getLinkBridge();
           const seq = ++this.entryRelSeq;
           this.entryPreviewPicks = [];
           this.entryPreviewItems = [];
-          if (!bridge2) {
+          if (!bridge) {
             this.setEntryRel("off");
             return;
           }
@@ -31455,7 +31378,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.entryRelText = "";
           this.setEntryRel("loading");
           try {
-            const out = await bridge2.preview(content, title, { signal: ac.signal });
+            const out = await bridge.preview(content, title, { signal: ac.signal });
             if (inflight.commitPath) await this.settleEntryRelCommit(inflight.commitPath, out);
             if (seq !== this.entryRelSeq) return;
             if (out.status === "done") {
@@ -31488,8 +31411,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
          */
         async commitEntryLinks(path) {
           var _a2, _b2;
-          const bridge2 = getLinkBridge();
-          if (!bridge2) return;
+          const bridge = getLinkBridge();
+          if (!bridge) return;
           if (this.entryRelState === "loading") {
             const inflight = this.entryRelInflight;
             if (inflight) {
@@ -31501,7 +31424,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
           }
           if (this.entryPreviewDone && !this.entryPreviewPicks.length) return;
           if (this.entryPreviewPicks.length) {
-            await bridge2.apply(path, this.entryPreviewPicks);
+            await bridge.apply(path, this.entryPreviewPicks);
             return;
           }
           if (this.entryRelState === "failed") void this.backgroundRelNow(path);
@@ -31512,11 +31435,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 不再「abort 再重跑」。落盘与通知与接住路径共用 settleEntryRelCommit（用户视角同一条）。
          */
         async backgroundRelCommit(path, content, title) {
-          const bridge2 = getLinkBridge();
-          if (!bridge2) return;
+          const bridge = getLinkBridge();
+          if (!bridge) return;
           notify("知识盒关联：后台分析中…", { type: "progress", dedupeKey: REL_BG_NOTICE_KEY });
           try {
-            await this.settleEntryRelCommit(path, await bridge2.preview(content, title));
+            await this.settleEntryRelCommit(path, await bridge.preview(content, title));
           } catch (e) {
             notify(`知识盒关联失败：${e instanceof Error ? e.message : String(e)}`, { type: "error", dedupeKey: REL_BG_NOTICE_KEY });
           }
@@ -31526,8 +31449,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
          * 共用这一段——**都不重跑检索与裁判**，差别只在结果从哪来。通知同键原地更新，可读作一条。
          */
         async settleEntryRelCommit(path, out) {
-          const bridge2 = getLinkBridge();
-          if (!bridge2) return;
+          const bridge = getLinkBridge();
+          if (!bridge) return;
           if (out.status === "skipped") {
             notify("知识盒关联：自动关联未开启，未写入", { type: "info", dedupeKey: REL_BG_NOTICE_KEY });
             return;
@@ -31545,7 +31468,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
             return;
           }
           try {
-            const r = await bridge2.apply(path, out.picks.map((p) => p.path));
+            const r = await bridge.apply(path, out.picks.map((p) => p.path));
             notify(r.status === "done" ? `知识盒关联：已写入 ${r.created} 条关联` : "知识盒关联：自动关联未开启，未写入", {
               type: r.status === "done" ? "success" : "info",
               dedupeKey: REL_BG_NOTICE_KEY
@@ -31556,11 +31479,11 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         /** 后台兜底建链（issue 327）：预演失败时的 bridge.now 完整管线，通知口径同 backgroundRelCommit */
         async backgroundRelNow(path) {
-          const bridge2 = getLinkBridge();
-          if (!bridge2) return;
+          const bridge = getLinkBridge();
+          if (!bridge) return;
           notify("知识盒关联：后台建链中…", { type: "progress", dedupeKey: REL_BG_NOTICE_KEY });
           try {
-            const out = await bridge2.now(path);
+            const out = await bridge.now(path);
             if (out.status === "done" || out.status === "skipped-related") {
               const created = out.status === "done" ? out.created : 0;
               notify(created > 0 ? `知识盒关联：已写入 ${created} 条关联` : "知识盒关联：未发现实质关联", {
@@ -31896,8 +31819,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
           if (!this.termPopup) return false;
           if (this.termBusy || this.termPreview || this.termDraftBroken) return true;
           if (this.entryMode === "image") return this.entryImages.length > 0;
-          const el3 = this.entryMode === "passage" ? q(this.termPopup, "#lit-passage-input") : q(this.termPopup, "#lit-term-input");
-          return !!(el3 && el3.value.trim());
+          const el2 = this.entryMode === "passage" ? q(this.termPopup, "#lit-passage-input") : q(this.termPopup, "#lit-term-input");
+          return !!(el2 && el2.value.trim());
         }
         /** 录入面板关闭请求（issue 326）：脏 → 风格化二次确认（ADR-0125 统一壳 + 知识盒域皮）；干净态直关。
          *  遮罩点击与 ESC 都走这里；确认写入成功路径直接调 hideTermEntry（不自带确认）。 */
@@ -31917,10 +31840,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
         }
         // ==================== 通用小工具 ====================
         openNote(path) {
-          const app2 = getApp();
-          const file = app2.vault.getAbstractFileByPath(path);
+          const app = getApp();
+          const file = app.vault.getAbstractFileByPath(path);
           if (file) {
-            void app2.workspace.getLeaf(false).openFile(file);
+            void app.workspace.getLeaf(false).openFile(file);
             this.hideMain();
             this.hideVideo();
           } else {
@@ -31979,8 +31902,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.termPreview = null;
           this.entryImages = [];
           this.entryOnCreated = null;
-          for (const el3 of [this.mask, this.popup, this.videoMask, this.videoPopup, this.addMask, this.addPopup, this.termMask, this.termPopup, this.previewHostEl]) {
-            if (el3 && el3.parentNode) el3.parentNode.removeChild(el3);
+          for (const el2 of [this.mask, this.popup, this.videoMask, this.videoPopup, this.addMask, this.addPopup, this.termMask, this.termPopup, this.previewHostEl]) {
+            if (el2 && el2.parentNode) el2.parentNode.removeChild(el2);
           }
           this.previewHostEl = null;
           this.mask = null;
@@ -32003,15 +31926,15 @@ ${String(blockText != null ? blockText : "").trim()}`);
     var _a2, _b2;
     return String((_b2 = (_a2 = tryGetSettings()) == null ? void 0 : _a2.knowledgeDirectory) != null ? _b2 : "").trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "") || "文献盒";
   }
-  async function retireKnowledgeSources(app2, retiredPath, fallbackUrl) {
+  async function retireKnowledgeSources(app, retiredPath, fallbackUrl) {
     const target = String(retiredPath || "").trim();
     if (!target) return 0;
     const dir = knowledgeDirOf();
-    const files = (app2.vault.getMarkdownFiles() || []).filter((f) => f.path.startsWith(dir + "/") && f.path.endsWith(".md"));
+    const files = (app.vault.getMarkdownFiles() || []).filter((f) => f.path.startsWith(dir + "/") && f.path.endsWith(".md"));
     const hits = files.filter((f) => {
       var _a2, _b2, _c;
       try {
-        const fm2 = (_c = (_b2 = (_a2 = app2.metadataCache) == null ? void 0 : _a2.getFileCache) == null ? void 0 : _b2.call(_a2, f)) == null ? void 0 : _c.frontmatter;
+        const fm2 = (_c = (_b2 = (_a2 = app.metadataCache) == null ? void 0 : _a2.getFileCache) == null ? void 0 : _b2.call(_a2, f)) == null ? void 0 : _c.frontmatter;
         return !!fm2 && sourcePointsAt(fm2.source, target);
       } catch (e) {
         return false;
@@ -32020,10 +31943,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
     let changed = 0;
     for (const f of hits) {
       try {
-        const content = await app2.vault.read(f);
+        const content = await app.vault.read(f);
         const next = retireSourceLine(content, target, fallbackUrl);
         if (next !== null && next !== content) {
-          await app2.vault.modify(f, next);
+          await app.vault.modify(f, next);
           changed++;
         }
       } catch (e) {
@@ -32032,17 +31955,17 @@ ${String(blockText != null ? blockText : "").trim()}`);
     }
     return changed;
   }
-  async function retireKnowledgeSourcesForClip(app2, clipPath, clipUrl) {
+  async function retireKnowledgeSourcesForClip(app, clipPath, clipUrl) {
     const url = String(clipUrl != null ? clipUrl : "").trim();
-    const n = await retireKnowledgeSources(app2, clipPath, url || null);
+    const n = await retireKnowledgeSources(app, clipPath, url || null);
     if (n > 0) {
       if (url) notify(`已把 ${n} 张知识卡片来源回退为原链接`, { type: "success" });
       else notify(`已摘除 ${n} 张知识卡片的失效来源`, { type: "info" });
     }
     return n;
   }
-  async function retireSourcesOnMdDeleted(app2, deletedPath) {
-    const n = await retireKnowledgeSources(app2, deletedPath, null);
+  async function retireSourcesOnMdDeleted(app, deletedPath) {
+    const n = await retireKnowledgeSources(app, deletedPath, null);
     if (n > 0) notify(`已摘除 ${n} 张知识卡片的失效来源`, { type: "info" });
     return n;
   }
@@ -32106,7 +32029,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
     function inFolders(path, folders) {
       return folders.some((f) => path.startsWith(f + "/") || path === f);
     }
-    function createAgent(app2) {
+    function createAgent(app) {
       var _a2;
       const isMd = (file) => file && file.extension === "md" && inFolders(file.path, config.watchedFolders());
       const pseudoFile = (path) => ({
@@ -32142,17 +32065,17 @@ ${String(blockText != null ? blockText : "").trim()}`);
           if (isMd(file) || await config.referencedBy(evt.path)) {
             enqueue2(() => config.commit((data) => config.applyDelete(data, evt.path)));
           }
-          if (config.onMdDeleted) await config.onMdDeleted(app2, evt.path);
+          if (config.onMdDeleted) await config.onMdDeleted(app, evt.path);
         })();
       }));
     }
     return {
       /** 幂等初始化（main.ts onLayoutReady 调用；ADR-0003 同款幂等） */
-      ensure(app2) {
+      ensure(app) {
         if (initialized9) return;
         initialized9 = true;
         _cancelled = false;
-        createAgent(app2);
+        createAgent(app);
       },
       /** 卸载清理：置位 _cancelled 使积压任务首行短路并丢弃去抖窗口内未回放的事件，
        *  退订全部监听（总线退订幂等，重复卸载无双清风险）后重置模块状态。 */
@@ -32238,8 +32161,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
       return false;
     }
   }
-  function ensureFileSync(app2) {
-    agent.ensure(app2);
+  function ensureFileSync(app) {
+    agent.ensure(app);
   }
   function unloadFileSync() {
     agent.unload();
@@ -32263,7 +32186,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
         applyDelete: syncDelete,
         /** source 退役消费者（ADR-0149 决策 2）：卡片 source 可指向任意笔记（不限目录），
          *  任何被删 md 都过一遍 metadataCache 预筛；已降级卡片天然幂等跳过 */
-        onMdDeleted: (app2, path) => retireSourcesOnMdDeleted(app2, path)
+        onMdDeleted: (app, path) => retireSourcesOnMdDeleted(app, path)
       });
     }
   });
@@ -32291,71 +32214,71 @@ ${String(blockText != null ? blockText : "").trim()}`);
     if (src.kind === "url") return { kind: "external", url: src.url, title: (_a2 = src.title) != null ? _a2 : null };
     return { kind: "note", path: src.path, name: src.name };
   }
-  function ensureKnowledge(app2) {
+  function ensureKnowledge(app) {
     var _a2;
     if (initialized2) return;
     try {
       KnowledgeData.init({ storagePath: (_a2 = tryGetSettings()) == null ? void 0 : _a2.storagePath });
-      uiManager = new UIManager2(app2);
+      uiManager = new UIManager2(app);
       initialized2 = true;
     } catch (e) {
       console.error("bz: 文献盒初始化失败（下次打开命令将自动重试）", e);
       uiManager = null;
     }
   }
-  function openKnowledgePanel(app2) {
-    ensureKnowledge(app2);
+  function openKnowledgePanel(app) {
+    ensureKnowledge(app);
     uiManager == null ? void 0 : uiManager.showMain();
   }
-  function openKnowledgeAddTask(app2, prefill) {
-    ensureKnowledge(app2);
+  function openKnowledgeAddTask(app, prefill) {
+    ensureKnowledge(app);
     uiManager == null ? void 0 : uiManager.showVideoEntry(prefill);
   }
-  function openTermNote(app2, term, opts) {
+  function openTermNote(app, term, opts) {
     var _a2, _b2;
-    ensureKnowledge(app2);
+    ensureKnowledge(app);
     let t = term == null ? void 0 : term.trim();
     let src;
     if (opts == null ? void 0 : opts.source) src = prefillSource(opts.source);
     if (!t) {
-      const view2 = app2.workspace.getActiveViewOfType(MarkdownView);
-      t = ((_b2 = (_a2 = view2 == null ? void 0 : view2.editor) == null ? void 0 : _a2.getSelection()) == null ? void 0 : _b2.trim()) || void 0;
+      const view = app.workspace.getActiveViewOfType(MarkdownView);
+      t = ((_b2 = (_a2 = view == null ? void 0 : view.editor) == null ? void 0 : _a2.getSelection()) == null ? void 0 : _b2.trim()) || void 0;
       if (!src) {
-        const file = view2 == null ? void 0 : view2.file;
+        const file = view == null ? void 0 : view.file;
         if (file && file.extension === "md") src = { kind: "note", path: file.path };
       }
     }
     uiManager == null ? void 0 : uiManager.showTermEntry(t, src, opts);
   }
-  function openPassageNote(app2, opts) {
+  function openPassageNote(app, opts) {
     var _a2, _b2, _c;
-    ensureKnowledge(app2);
+    ensureKnowledge(app);
     let text2;
     let src;
     const explicit = String((_a2 = opts == null ? void 0 : opts.text) != null ? _a2 : "").trim();
     if (explicit) text2 = explicit;
     if (opts == null ? void 0 : opts.source) src = prefillSource(opts.source);
-    const view2 = app2.workspace.getActiveViewOfType(MarkdownView);
-    if (!text2) text2 = ((_c = (_b2 = view2 == null ? void 0 : view2.editor) == null ? void 0 : _b2.getSelection()) == null ? void 0 : _c.trim()) || void 0;
+    const view = app.workspace.getActiveViewOfType(MarkdownView);
+    if (!text2) text2 = ((_c = (_b2 = view == null ? void 0 : view.editor) == null ? void 0 : _b2.getSelection()) == null ? void 0 : _c.trim()) || void 0;
     if (!src) {
-      const file = view2 == null ? void 0 : view2.file;
+      const file = view == null ? void 0 : view.file;
       if (file && file.extension === "md") src = { kind: "note", path: file.path };
     }
     uiManager == null ? void 0 : uiManager.showPassageEntry(text2, src, opts);
   }
-  function openImageNote(app2, opts) {
-    ensureKnowledge(app2);
+  function openImageNote(app, opts) {
+    ensureKnowledge(app);
     let src;
     if (opts == null ? void 0 : opts.source) src = prefillSource(opts.source);
     if (!src) {
-      const view2 = app2.workspace.getActiveViewOfType(MarkdownView);
-      const file = view2 == null ? void 0 : view2.file;
+      const view = app.workspace.getActiveViewOfType(MarkdownView);
+      const file = view == null ? void 0 : view.file;
       if (file && file.extension === "md") src = { kind: "note", path: file.path };
     }
     uiManager == null ? void 0 : uiManager.showImageEntry(src, opts);
   }
-  async function openKnowledgePreview(app2, notePath) {
-    ensureKnowledge(app2);
+  async function openKnowledgePreview(app, notePath) {
+    ensureKnowledge(app);
     const path = String(notePath || "").trim();
     if (uiManager && await uiManager.openPreviewByPath(path).catch(() => false)) return;
     if (!path) {
@@ -32364,38 +32287,38 @@ ${String(blockText != null ? blockText : "").trim()}`);
     }
     notice("不在知识盒文献目录，改用 Obsidian 打开：" + path, "info");
     try {
-      await app2.workspace.openLinkText(path, "", false);
+      await app.workspace.openLinkText(path, "", false);
     } catch (e) {
       console.warn("[knowledge] openLinkText 回退失败", e);
     }
   }
-  async function upgradeNoteSourceInternal(app2, notePath, internalLink) {
-    ensureKnowledge(app2);
-    return upgradeNoteSourceInFile(app2, notePath, internalLink);
+  async function upgradeNoteSourceInternal(app, notePath, internalLink) {
+    ensureKnowledge(app);
+    return upgradeNoteSourceInFile(app, notePath, internalLink);
   }
   function takeLinkBridge() {
     if (tryGetSettings().linkAgentEnabled === false) {
       notice("自动关联已在知识盒设置中关闭", "info");
       return null;
     }
-    const bridge2 = getLinkBridge();
-    if (!bridge2) {
+    const bridge = getLinkBridge();
+    if (!bridge) {
       notice("自动关联暂不可用：第二大脑尚未就绪", "warning");
       return null;
     }
-    return bridge2;
+    return bridge;
   }
-  async function relinkActiveNote(app2) {
+  async function relinkActiveNote(app) {
     var _a2, _b2;
-    const file = (_b2 = (_a2 = app2.workspace).getActiveFile) == null ? void 0 : _b2.call(_a2);
+    const file = (_b2 = (_a2 = app.workspace).getActiveFile) == null ? void 0 : _b2.call(_a2);
     if (!file) {
       notice("请先打开一个笔记", "info");
       return;
     }
-    const bridge2 = takeLinkBridge();
-    if (!bridge2) return;
+    const bridge = takeLinkBridge();
+    if (!bridge) return;
     try {
-      const outcome = await bridge2.now(file.path, { force: true });
+      const outcome = await bridge.now(file.path, { force: true });
       if (outcome.status === "done") {
         notice(outcome.created > 0 ? `已新建关联 ${outcome.created} 条` : "未发现实质关联，未新建", "success");
       } else if (outcome.status === "queued") {
@@ -32413,10 +32336,10 @@ ${String(blockText != null ? blockText : "").trim()}`);
     }
   }
   async function linkAllInBoxes() {
-    const bridge2 = takeLinkBridge();
-    if (!bridge2) return;
+    const bridge = takeLinkBridge();
+    if (!bridge) return;
     try {
-      const result = await bridge2.backfill();
+      const result = await bridge.backfill();
       if (result.status === "done") {
         notice(
           result.created > 0 ? `批量补链完成：处理 ${result.processed} 篇 / 新建关联 ${result.created} 条` : "批量补链完成：未发现实质关联，未新建",
@@ -32471,18 +32394,18 @@ ${String(blockText != null ? blockText : "").trim()}`);
     return `${clipDir()}/${cleanClipTitleOf(title)}.md`;
   }
   async function writeClipNote(raw) {
-    const app2 = getApp();
+    const app = getApp();
     const cleanTitle = cleanClipTitleOf(raw && raw.title);
     if (!cleanTitle) {
       notice("标题为空", "error");
       return false;
     }
     let filePath = clipFilePathOf(cleanTitle);
-    if (app2.vault.getAbstractFileByPath(filePath)) {
+    if (app.vault.getAbstractFileByPath(filePath)) {
       const verdict = await confirmOverwrite(filePath);
       if (verdict === "rename") {
         let n = 2;
-        while (app2.vault.getAbstractFileByPath(clipFilePathOf(`${cleanTitle} · ${n}`))) n++;
+        while (app.vault.getAbstractFileByPath(clipFilePathOf(`${cleanTitle} · ${n}`))) n++;
         filePath = clipFilePathOf(`${cleanTitle} · ${n}`);
       } else if (verdict !== "ok") {
         return false;
@@ -32514,11 +32437,11 @@ await dv.view(\`CONFIG/SCRIPTS/DataView/摘要\`)
 ${body}`;
     try {
       const dir = clipDir();
-      const dirAf = app2.vault.getAbstractFileByPath(dir);
-      if (!dirAf) await app2.vault.createFolder(dir);
-      const existing = app2.vault.getAbstractFileByPath(filePath);
-      if (existing) await app2.vault.modify(existing, md);
-      else await app2.vault.create(filePath, md);
+      const dirAf = app.vault.getAbstractFileByPath(dir);
+      if (!dirAf) await app.vault.createFolder(dir);
+      const existing = app.vault.getAbstractFileByPath(filePath);
+      if (existing) await app.vault.modify(existing, md);
+      else await app.vault.create(filePath, md);
       notify(`已保存：${cleanTitle}`, {
         type: "success",
         action: {
@@ -32581,14 +32504,14 @@ ${body}`;
       if (p && !upgrades.includes(p)) upgrades.push(p);
     }
     if (!upgrades.length) return;
-    const app2 = getApp();
+    const app = getApp();
     try {
       const mod = await Promise.resolve().then(() => (init_knowledge(), knowledge_exports));
       if (typeof mod.upgradeNoteSourceInternal !== "function") return;
       const link = `[[${clipPath}|${linkAliasText(title)}]]`;
       for (const notePath of upgrades) {
         try {
-          await mod.upgradeNoteSourceInternal(app2, notePath, link);
+          await mod.upgradeNoteSourceInternal(app, notePath, link);
         } catch (e) {
           console.warn("[剪藏本] 回写文献来源失败（接受，静默）", notePath, e);
         }
@@ -32626,9 +32549,9 @@ ${body}`;
   function defaultCache(f) {
     var _a2;
     try {
-      const app2 = getApp();
-      if (app2 && typeof ((_a2 = app2.metadataCache) == null ? void 0 : _a2.getFileCache) === "function") {
-        return app2.metadataCache.getFileCache(f);
+      const app = getApp();
+      if (app && typeof ((_a2 = app.metadataCache) == null ? void 0 : _a2.getFileCache) === "function") {
+        return app.metadataCache.getFileCache(f);
       }
     } catch (e) {
     }
@@ -32669,11 +32592,11 @@ ${body}`;
       domain
     };
   }
-  async function scanClipDirectory(dirPath, deps2) {
-    const dir = deps2.vault.getAbstractFileByPath(dirPath);
+  async function scanClipDirectory(dirPath, deps) {
+    const dir = deps.vault.getAbstractFileByPath(dirPath);
     if (!dir || !Array.isArray(dir.children)) return null;
     const mdFiles2 = dir.children.filter((f) => f && f.extension === "md");
-    const parse = deps2.parse || ((f) => parseClipFile(f));
+    const parse = deps.parse || ((f) => parseClipFile(f));
     const notes = [];
     const rejectedPaths = [];
     for (const f of mdFiles2) {
@@ -33000,20 +32923,20 @@ ${body}`;
   function isLocalPath(v) {
     return typeof v === "string" && !!v.trim() && !/^(https?:)?\/\//i.test(v.trim()) && !v.trim().startsWith("data:");
   }
-  async function checkOrphans(app2, opts = {}) {
+  async function checkOrphans(app, opts = {}) {
     var _a2, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v;
     const issues = [];
     let scanned = 0;
     {
       const folder = resolveCinemaFolderPath();
-      const files = app2.vault.getMarkdownFiles().filter((f) => f.path.startsWith(folder + "/"));
+      const files = app.vault.getMarkdownFiles().filter((f) => f.path.startsWith(folder + "/"));
       for (let i = 0; i < files.length; i++) {
         if ((_a2 = opts.isCancelled) == null ? void 0 : _a2.call(opts)) return null;
-        const item = parseMovieFile(files[i], app2);
+        const item = parseMovieFile(files[i], app);
         if (!item) continue;
         scanned += 1;
         const poster = (item.poster || "").trim();
-        if (poster && !fileExists(app2, poster)) {
+        if (poster && !fileExists(app, poster)) {
           issues.push({
             severity: "warn",
             title: `影视《${item.name}》的海报文件不存在`,
@@ -33026,13 +32949,13 @@ ${body}`;
       }
     }
     {
-      const mdBooks = scanMarkdownBooks(app2);
+      const mdBooks = scanMarkdownBooks(app);
       for (let i = 0; i < mdBooks.length; i++) {
         if ((_c = opts.isCancelled) == null ? void 0 : _c.call(opts)) return null;
         const b = mdBooks[i];
         scanned += 1;
         const cover = (b.cover || "").trim();
-        if (cover && !fileExists(app2, cover)) {
+        if (cover && !fileExists(app, cover)) {
           issues.push({
             severity: "warn",
             title: `书目《${b.title}》的封面文件不存在`,
@@ -33043,13 +32966,13 @@ ${body}`;
         }
         await ((_e = opts.tick) == null ? void 0 : _e.call(opts, `书库 · ${b.title}`, { done: i + 1, total: mdBooks.length }));
       }
-      const epubs = await loadEpubItems(app2);
+      const epubs = await loadEpubItems(app);
       for (let i = 0; i < epubs.length; i++) {
         if ((_f = opts.isCancelled) == null ? void 0 : _f.call(opts)) return null;
         const b = epubs[i];
         scanned += 1;
         const p = (b.epubVaultPath || "").trim();
-        if (p && !fileExists(app2, p)) {
+        if (p && !fileExists(app, p)) {
           issues.push({
             severity: "warn",
             title: `EPUB 书目《${b.title}》指向的文件不存在`,
@@ -33062,20 +32985,20 @@ ${body}`;
     }
     {
       const folder = resolveGameshelfFolderPath();
-      const files = app2.vault.getMarkdownFiles().filter((f) => f.path.startsWith(folder + "/"));
+      const files = app.vault.getMarkdownFiles().filter((f) => f.path.startsWith(folder + "/"));
       for (let i = 0; i < files.length; i++) {
         if ((_h = opts.isCancelled) == null ? void 0 : _h.call(opts)) return null;
         const f = files[i];
-        const cache = app2.metadataCache.getFileCache(f);
+        const cache = app.metadataCache.getFileCache(f);
         const fm2 = cache == null ? void 0 : cache.frontmatter;
         const cover = fm2 == null ? void 0 : fm2[GS_FM.cover];
         scanned += 1;
         const rawShots = fm2 == null ? void 0 : fm2[GS_FM.shots];
         const shots = Array.isArray(rawShots) ? rawShots : [];
         const missing = [];
-        if (isLocalPath(cover) && !fileExists(app2, cover.trim())) missing.push(String(cover).trim());
+        if (isLocalPath(cover) && !fileExists(app, cover.trim())) missing.push(String(cover).trim());
         for (const s of shots) {
-          if (isLocalPath(s) && !fileExists(app2, String(s).trim())) missing.push(String(s).trim());
+          if (isLocalPath(s) && !fileExists(app, String(s).trim())) missing.push(String(s).trim());
         }
         if (missing.length) {
           const name = f.basename || f.path;
@@ -33092,13 +33015,13 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       }
     }
     {
-      const sidecarFile = ((_j = jsonScanTargets(app2).find((t) => t.file.endsWith("/clipbook.json"))) == null ? void 0 : _j.file) || "CONFIG/STORAGE/clipbook.json";
-      const parsed = await readRawJson(app2, sidecarFile);
+      const sidecarFile = ((_j = jsonScanTargets(app).find((t) => t.file.endsWith("/clipbook.json"))) == null ? void 0 : _j.file) || "CONFIG/STORAGE/clipbook.json";
+      const parsed = await readRawJson(app, sidecarFile);
       const data = parsed && parsed.ok && parsed.data && typeof parsed.data === "object" && !Array.isArray(parsed.data) ? parsed.data : null;
       if (data) {
         const savedArchive = data.savedArchive;
         if (Array.isArray(savedArchive)) {
-          const scannedNotes = await scanClipDirectory(clipDir(), { vault: app2.vault }) || [];
+          const scannedNotes = await scanClipDirectory(clipDir(), { vault: app.vault }) || [];
           const urls = clipUrlSet(scannedNotes);
           for (let i = 0; i < savedArchive.length; i++) {
             if ((_k = opts.isCancelled) == null ? void 0 : _k.call(opts)) return null;
@@ -33134,7 +33057,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
             if (!mk || typeof mk !== "object") continue;
             scanned += 1;
             const notePath = String(mk.notePath || "").trim();
-            if (notePath && !fileExists(app2, notePath)) {
+            if (notePath && !fileExists(app, notePath)) {
               const find = String(mk.find || "");
               issues.push({
                 severity: "warn",
@@ -33165,7 +33088,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
             pendingDone += 1;
             scanned += 1;
             const notePath = String(p || "").trim();
-            if (notePath && !fileExists(app2, notePath)) {
+            if (notePath && !fileExists(app, notePath)) {
               issues.push({
                 severity: "warn",
                 title: `剪藏待回写来源指向的笔记不存在（${notePath.split("/").pop() || notePath}）`,
@@ -33184,8 +33107,8 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       }
     }
     {
-      const favFile = ((_q = jsonScanTargets(app2).find((t) => t.file.endsWith("/favorites.json"))) == null ? void 0 : _q.file) || "CONFIG/STORAGE/favorites.json";
-      const parsed = await readRawJson(app2, favFile);
+      const favFile = ((_q = jsonScanTargets(app).find((t) => t.file.endsWith("/favorites.json"))) == null ? void 0 : _q.file) || "CONFIG/STORAGE/favorites.json";
+      const parsed = await readRawJson(app, favFile);
       if (parsed && parsed.ok && Array.isArray(parsed.data)) {
         const list = parsed.data;
         for (let i = 0; i < list.length; i++) {
@@ -33194,7 +33117,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
           if (!it || typeof it !== "object") continue;
           scanned += 1;
           const note = String(it.linkedNote || "").trim();
-          if (note && !fileExists(app2, note)) {
+          if (note && !fileExists(app, note)) {
             issues.push({
               severity: "warn",
               title: `收藏「${String(it.title || it.url || "(无标题)")}」的关联笔记不存在`,
@@ -33211,8 +33134,8 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       }
     }
     {
-      const kbFile = ((_t = jsonScanTargets(app2).find((t) => t.file.endsWith("/knowledge.json"))) == null ? void 0 : _t.file) || "CONFIG/STORAGE/knowledge.json";
-      const parsed = await readRawJson(app2, kbFile);
+      const kbFile = ((_t = jsonScanTargets(app).find((t) => t.file.endsWith("/knowledge.json"))) == null ? void 0 : _t.file) || "CONFIG/STORAGE/knowledge.json";
+      const parsed = await readRawJson(app, kbFile);
       if (parsed && parsed.ok && Array.isArray(parsed.data)) {
         const list = parsed.data;
         for (let i = 0; i < list.length; i++) {
@@ -33224,7 +33147,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
           const note = String(it.notePath || "").trim();
           const video = String(it.videoPath || "").trim();
           const title = String(it.title || it.url || "(无标题)");
-          if (note && !fileExists(app2, note)) {
+          if (note && !fileExists(app, note)) {
             issues.push({
               severity: "warn",
               title: `知识盒任务「${title}」的文献笔记不存在`,
@@ -33236,7 +33159,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
               fixLabel: "清除笔记引用"
             });
           }
-          if (video && !fileExists(app2, video)) {
+          if (video && !fileExists(app, video)) {
             issues.push({
               severity: "warn",
               title: `知识盒任务「${title}」的视频文件不存在`,
@@ -33464,11 +33387,11 @@ ${missing.map((m) => `- ${m}`).join("\n")}
         /** 公开课笔记（影视目录中含 公开课 标签的文件；结果走会话级缓存，见 _courseNotesCache 注） */
         async getCourseNotes() {
           if (this._courseNotesCache) return this._courseNotesCache;
-          const app2 = getApp();
+          const app = getApp();
           const result = [];
-          for (const file of app2.vault.getFiles()) {
+          for (const file of app.vault.getFiles()) {
             if (!isUnderFolder(this.cinemaFolderPath, file.path) || file.extension !== "md") continue;
-            const cache = app2.metadataCache.getFileCache(file);
+            const cache = app.metadataCache.getFileCache(file);
             if (!cache) continue;
             if (hasCourseTag(cache)) result.push({ name: file.basename, path: file.path });
           }
@@ -33611,11 +33534,11 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const summary = issues.some((i) => i.severity === "error") ? "发现结构异常" : bad > 0 ? `条数 ${stats.total} · 完成 ${stats.storeView.done}，双链口径一致，另有 ${bad} 处小问题` : `条数 ${stats.total} · 完成 ${stats.storeView.done}，双链口径一致`;
     return { summary, issues };
   }
-  async function checkSameSourceConsistency(app2, opts = {}) {
+  async function checkSameSourceConsistency(app, opts = {}) {
     var _a2, _b2, _c;
     if ((_a2 = opts.isCancelled) == null ? void 0 : _a2.call(opts)) return null;
-    const file = ((_b2 = jsonScanTargets(app2).find((t) => t.file.endsWith("/memo.json"))) == null ? void 0 : _b2.file) || "CONFIG/STORAGE/memo.json";
-    const parsed = await readRawJson(app2, file);
+    const file = ((_b2 = jsonScanTargets(app).find((t) => t.file.endsWith("/memo.json"))) == null ? void 0 : _b2.file) || "CONFIG/STORAGE/memo.json";
+    const parsed = await readRawJson(app, file);
     if (parsed === null) {
       return { id: "consistency", name: "同源一致性（备忘录）", summary: "memo.json 不存在（还没写过数据），跳过", issues: [], scanned: 0 };
     }
@@ -33635,7 +33558,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   });
 
   // src/checkup/run.ts
-  async function runCheckup(app2, opts = {}) {
+  async function runCheckup(app, opts = {}) {
     var _a2, _b2;
     const total = CHECKS.length;
     const sections = [];
@@ -33643,7 +33566,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       if ((_a2 = opts.isCancelled) == null ? void 0 : _a2.call(opts)) return null;
       (_b2 = opts.onProgress) == null ? void 0 : _b2.call(opts, { index: i, total, label: CHECKS[i].label });
       try {
-        const section = await CHECKS[i].runner(app2, {
+        const section = await CHECKS[i].runner(app, {
           tick: async (label, sub) => {
             var _a3;
             (_a3 = opts.onProgress) == null ? void 0 : _a3.call(opts, { index: i, total, label, subDone: sub == null ? void 0 : sub.done, subTotal: sub == null ? void 0 : sub.total });
@@ -33668,23 +33591,23 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
     const report = { sections, finishedAt: (/* @__PURE__ */ new Date()).toLocaleString() };
     lastReport = report;
-    lastFingerprints = collectFingerprints(app2);
+    lastFingerprints = collectFingerprints(app);
     return report;
   }
-  function collectFingerprints(app2) {
+  function collectFingerprints(app) {
     var _a2;
     const fp = {};
-    const get = (_a2 = app2.vault) == null ? void 0 : _a2.getAbstractFileByPath;
+    const get = (_a2 = app.vault) == null ? void 0 : _a2.getAbstractFileByPath;
     if (typeof get !== "function") return fp;
-    for (const t of jsonScanTargets(app2)) {
-      const f = get.call(app2.vault, t.file);
+    for (const t of jsonScanTargets(app)) {
+      const f = get.call(app.vault, t.file);
       if (f && f.stat && typeof f.stat.mtime === "number") fp[t.file] = f.stat.mtime;
     }
     return fp;
   }
-  function cacheFreshness(app2) {
+  function cacheFreshness(app) {
     if (!lastFingerprints || Object.keys(lastFingerprints).length === 0) return "changed";
-    const now = collectFingerprints(app2);
+    const now = collectFingerprints(app);
     const oldKeys = Object.keys(lastFingerprints);
     if (oldKeys.length !== Object.keys(now).length) return "changed";
     for (const k of oldKeys) {
@@ -33698,15 +33621,15 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   function fixKeysOf(issues, group) {
     return issues.filter((i) => i.fixGroup === group && i.fixKey).map((i) => i.fixKey);
   }
-  async function readJsonIfPresent(app2, file, make) {
-    if (!app2.vault.getAbstractFileByPath(file)) return null;
+  async function readJsonIfPresent(app, file, make) {
+    if (!app.vault.getAbstractFileByPath(file)) return null;
     return make().read();
   }
-  async function fixFavorites(app2, file, ids) {
+  async function fixFavorites(app, file, ids) {
     const restored = /* @__PURE__ */ new Map();
     const fixed = await enqueueFileTask(file, async () => {
       var _a2;
-      const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: [] }));
+      const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: [] }));
       if (data === null) return 0;
       const want = new Set(ids);
       let n = 0;
@@ -33729,7 +33652,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
         if (!restored.size) return;
         await enqueueFileTask(file, async () => {
           var _a2;
-          const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: [] }));
+          const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: [] }));
           if (data === null) return;
           for (const it of data) {
             if (!it || typeof it !== "object" || !restored.has(String(it.id))) continue;
@@ -33747,14 +33670,14 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     data[key] = {};
     return data[key];
   }
-  async function fixClipbookBatch(app2, file, urls, markKeys, srcKeys) {
+  async function fixClipbookBatch(app, file, urls, markKeys, srcKeys) {
     const removedSaved = [];
     const removedMarks = [];
     const removedSrc = [];
     const hasWork = urls.length > 0 || markKeys.length > 0 || srcKeys.length > 0;
     const counts = await enqueueFileTask(file, async () => {
       if (!hasWork) return { saved: 0, marks: 0, src: 0 };
-      const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
+      const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
       if (data === null) return { saved: 0, marks: 0, src: 0 };
       let cntSaved = 0;
       const list = Array.isArray(data.savedArchive) ? data.savedArchive : [];
@@ -33826,7 +33749,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const makeSavedUndo = () => async () => {
       if (!removedSaved.length) return;
       await enqueueFileTask(file, async () => {
-        const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
+        const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
         if (data === null) return;
         const list = Array.isArray(data.savedArchive) ? data.savedArchive : [];
         for (const r of removedSaved) {
@@ -33840,7 +33763,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const makeMarksUndo = () => async () => {
       if (!removedMarks.length) return;
       await enqueueFileTask(file, async () => {
-        const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
+        const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
         if (data === null) return;
         const marks = recordSectionOf(data, "marks");
         for (const r of removedMarks) {
@@ -33855,7 +33778,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const makeSrcUndo = () => async () => {
       if (!removedSrc.length) return;
       await enqueueFileTask(file, async () => {
-        const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
+        const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: emptySidecar }));
         if (data === null) return;
         const pending = recordSectionOf(data, "pendingSource");
         for (const r of removedSrc) {
@@ -33894,11 +33817,11 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
     return outcomes;
   }
-  async function fixKnowledge(app2, file, keys) {
+  async function fixKnowledge(app, file, keys) {
     const restored = /* @__PURE__ */ new Map();
     const fixed = await enqueueFileTask(file, async () => {
       var _a2;
-      const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: [] }));
+      const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: [] }));
       if (data === null) return 0;
       let n = 0;
       for (const key of keys) {
@@ -33926,7 +33849,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       undo: async () => {
         if (!restored.size) return;
         await enqueueFileTask(file, async () => {
-          const data = await readJsonIfPresent(app2, file, () => jsonFileStore(file, { defaultValue: [] }));
+          const data = await readJsonIfPresent(app, file, () => jsonFileStore(file, { defaultValue: [] }));
           if (data === null) return;
           for (const it of Array.isArray(data) ? data : []) {
             if (!it || typeof it !== "object" || !restored.has(String(it.id))) continue;
@@ -33939,10 +33862,10 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       }
     };
   }
-  async function fixOrphanIssues(app2, issues) {
+  async function fixOrphanIssues(app, issues) {
     const outcomes = [];
     const failures = [];
-    const targets = jsonScanTargets(app2);
+    const targets = jsonScanTargets(app);
     const fileOf = (suffix) => {
       var _a2;
       return ((_a2 = targets.find((t) => t.file.endsWith("/" + suffix))) == null ? void 0 : _a2.file) || storageFile(suffix);
@@ -33950,7 +33873,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const favIds = fixKeysOf(issues, "favorites");
     if (favIds.length) {
       try {
-        outcomes.push(await fixFavorites(app2, fileOf("favorites.json"), favIds));
+        outcomes.push(await fixFavorites(app, fileOf("favorites.json"), favIds));
       } catch (e) {
         failures.push("收藏关联");
       }
@@ -33960,7 +33883,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const srcKeys = fixKeysOf(issues, "clipbook-source");
     if (clipUrls.length || markKeys.length || srcKeys.length) {
       try {
-        outcomes.push(...await fixClipbookBatch(app2, fileOf("clipbook.json"), clipUrls, markKeys, srcKeys));
+        outcomes.push(...await fixClipbookBatch(app, fileOf("clipbook.json"), clipUrls, markKeys, srcKeys));
       } catch (e) {
         failures.push("剪藏残留/标注/待回写来源");
       }
@@ -33968,7 +33891,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const kbKeys = fixKeysOf(issues, "knowledge");
     if (kbKeys.length) {
       try {
-        outcomes.push(await fixKnowledge(app2, fileOf("knowledge.json"), kbKeys));
+        outcomes.push(await fixKnowledge(app, fileOf("knowledge.json"), kbKeys));
       } catch (e) {
         failures.push("知识盒任务引用");
       }
@@ -34002,10 +33925,10 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   function isPanelVisible() {
     return !!overlay && overlay.style.display === "flex";
   }
-  function openDataCheckup(app2) {
+  function openDataCheckup(app) {
     var _a2;
-    hostApp = app2;
-    if (!overlay) build(app2);
+    hostApp = app;
+    if (!overlay) build(app);
     topifyZ(overlay);
     overlay.style.display = "flex";
     trapPanelFocus((_a2 = overlay.querySelector(`#${FRAME_ID}`)) != null ? _a2 : overlay);
@@ -34027,7 +33950,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     overlay == null ? void 0 : overlay.remove();
     overlay = null;
   }
-  function build(app2) {
+  function build(app) {
     const ov = document.createElement("div");
     ov.id = OVERLAY_ID;
     ov.className = "bz-panel-overlay";
@@ -34472,15 +34395,15 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     padded.set(bytes);
     padded[dataLen] = 128;
     const bitLen = dataLen * 8;
-    const view2 = new DataView(padded.buffer);
-    view2.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296), false);
-    view2.setUint32(padded.length - 4, bitLen >>> 0, false);
+    const view = new DataView(padded.buffer);
+    view.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296), false);
+    view.setUint32(padded.length - 4, bitLen >>> 0, false);
     let h0 = 1779033703, h1 = 3144134277, h2 = 1013904242, h3 = 2773480762;
     let h4 = 1359893119, h5 = 2600822924, h6 = 528734635, h7 = 1541459225;
     const w = new Uint32Array(64);
     const rotr = (x, n) => (x >>> n | x << 32 - n) >>> 0;
     for (let off = 0; off < padded.length; off += 64) {
-      for (let i = 0; i < 16; i++) w[i] = view2.getUint32(off + i * 4, false);
+      for (let i = 0; i < 16; i++) w[i] = view.getUint32(off + i * 4, false);
       for (let i = 16; i < 64; i++) {
         const s0 = (rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ w[i - 15] >>> 3) >>> 0;
         const s1 = (rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ w[i - 2] >>> 10) >>> 0;
@@ -34607,17 +34530,17 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   function remotesFor(fileName) {
     return downloadRemotesFor(fileName);
   }
-  function assetVaultPath(app2, fileName) {
+  function assetVaultPath(app, fileName) {
     var _a2;
-    const configDir = String(((_a2 = app2.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
+    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
     return `${configDir}/plugins/bz/${fileName}`;
   }
-  function downloadsVaultPath(app2, fileName) {
-    return assetVaultPath(app2, `${DOWNLOADS_DIR}/${fileName}`);
+  function downloadsVaultPath(app, fileName) {
+    return assetVaultPath(app, `${DOWNLOADS_DIR}/${fileName}`);
   }
-  async function ensureDir(app2, relPath) {
+  async function ensureDir(app, relPath) {
     var _a2;
-    const adapter = (_a2 = app2.vault) == null ? void 0 : _a2.adapter;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
     if (!(adapter == null ? void 0 : adapter.mkdir)) return;
     const slash = relPath.lastIndexOf("/");
     if (slash <= 0) return;
@@ -34625,7 +34548,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     for (const part of relPath.slice(0, slash).split("/")) {
       cur = cur ? `${cur}/${part}` : part;
       try {
-        await adapter.mkdir(downloadsVaultPath(app2, cur));
+        await adapter.mkdir(downloadsVaultPath(app, cur));
       } catch (e) {
       }
     }
@@ -34647,14 +34570,14 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
     throw new Error(`${label}下载失败：${lastErr}`);
   }
-  async function writeAssetText(app2, fileName, text2) {
-    await ensureDir(app2, fileName);
-    await app2.vault.adapter.write(downloadsVaultPath(app2, fileName), text2);
+  async function writeAssetText(app, fileName, text2) {
+    await ensureDir(app, fileName);
+    await app.vault.adapter.write(downloadsVaultPath(app, fileName), text2);
     emitDomainEvent(DOWNLOADS_CHANGED_EVENT, { fileName });
   }
-  async function ensureAssetWithHash(app2, fileName, expected, label) {
+  async function ensureAssetWithHash(app, fileName, expected, label) {
     const want = String(expected || "").toLowerCase();
-    const cached = await readAsset(app2, fileName);
+    const cached = await readAsset(app, fileName);
     if (cached !== null && (!want || textSha256(cached) === want)) return cached;
     let lastErr = "";
     for (const url of remotesFor(fileName)) {
@@ -34665,7 +34588,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
           lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
           continue;
         }
-        await writeAssetText(app2, fileName, text2);
+        await writeAssetText(app, fileName, text2);
         return text2;
       } catch (e) {
         lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
@@ -34673,45 +34596,45 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
     throw new Error(`${label}下载失败：${lastErr}`);
   }
-  async function hasAsset(app2, fileName) {
+  async function hasAsset(app, fileName) {
     try {
-      return await app2.vault.adapter.exists(downloadsVaultPath(app2, fileName));
+      return await app.vault.adapter.exists(downloadsVaultPath(app, fileName));
     } catch (e) {
       return false;
     }
   }
-  async function downloadAsset(app2, fileName, validate, label) {
+  async function downloadAsset(app, fileName, validate, label) {
     const text2 = await fetchAssetText(fileName, validate, label, "页");
-    await writeAssetText(app2, fileName, text2);
+    await writeAssetText(app, fileName, text2);
   }
-  async function readAsset(app2, fileName) {
+  async function readAsset(app, fileName) {
     try {
-      if (!await hasAsset(app2, fileName)) return null;
-      return await app2.vault.adapter.read(downloadsVaultPath(app2, fileName));
+      if (!await hasAsset(app, fileName)) return null;
+      return await app.vault.adapter.read(downloadsVaultPath(app, fileName));
     } catch (e) {
       return null;
     }
   }
-  async function ensureAssetReady(app2, fileName, validate, label) {
-    let text2 = await readAsset(app2, fileName);
+  async function ensureAssetReady(app, fileName, validate, label) {
+    let text2 = await readAsset(app, fileName);
     if (!text2) {
-      await downloadAsset(app2, fileName, validate, label);
-      text2 = await readAsset(app2, fileName);
+      await downloadAsset(app, fileName, validate, label);
+      text2 = await readAsset(app, fileName);
     }
     if (!text2) throw new Error(`${label}下载后读取失败：插件目录写入异常`);
     return text2;
   }
-  async function refreshAsset(app2, fileName, validate, label, expectedSha256) {
+  async function refreshAsset(app, fileName, validate, label, expectedSha256) {
     try {
       const want = String(expectedSha256 || "").toLowerCase();
       if (want) {
-        const local2 = await readAsset(app2, fileName);
+        const local2 = await readAsset(app, fileName);
         if (local2 !== null && textSha256(local2) === want) return null;
       }
       const text2 = await fetchAssetText(fileName, validate, label, "页");
-      const local = await readAsset(app2, fileName);
+      const local = await readAsset(app, fileName);
       if (local !== null && textSha256(text2) === textSha256(local)) return null;
-      await writeAssetText(app2, fileName, text2);
+      await writeAssetText(app, fileName, text2);
       return text2;
     } catch (e) {
       return null;
@@ -34790,17 +34713,17 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
     return { version, docs, skins, rowOrder };
   }
-  async function cachedManifest(app2) {
-    return parseDownloadManifest(await readAsset(app2, MANIFEST_FILE));
+  async function cachedManifest(app) {
+    return parseDownloadManifest(await readAsset(app, MANIFEST_FILE));
   }
-  async function cachedSha256For(app2, file) {
+  async function cachedSha256For(app, file) {
     var _a2, _b2, _c, _d;
-    const m = await cachedManifest(app2);
+    const m = await cachedManifest(app);
     if (!m) return null;
     return (_d = (_c = (_a2 = m.docs.find((d) => d.file === file)) == null ? void 0 : _a2.sha256) != null ? _c : (_b2 = m.skins.find((s) => s.file === file)) == null ? void 0 : _b2.sha256) != null ? _d : null;
   }
-  async function refreshManifest(app2) {
-    const previous = await cachedManifest(app2);
+  async function refreshManifest(app) {
+    const previous = await cachedManifest(app);
     const text2 = await fetchAssetText(
       MANIFEST_FILE,
       (t) => parseDownloadManifest(t) !== null,
@@ -34808,11 +34731,11 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       ""
     );
     const manifest = parseDownloadManifest(text2);
-    await writeAssetText(app2, MANIFEST_FILE, text2);
+    await writeAssetText(app, MANIFEST_FILE, text2);
     return { manifest, previous };
   }
-  async function docStatus(app2, entry) {
-    const local = await readAsset(app2, entry.file);
+  async function docStatus(app, entry) {
+    const local = await readAsset(app, entry.file);
     if (local === null) return "missing";
     return textSha256(local) === entry.sha256 ? "ready" : "updated";
   }
@@ -34870,17 +34793,17 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       existing.textContent = css;
       return;
     }
-    const el3 = document.createElement("style");
-    el3.id = STYLE_ID;
-    el3.textContent = css;
-    document.head.appendChild(el3);
+    const el2 = document.createElement("style");
+    el2.id = STYLE_ID;
+    el2.textContent = css;
+    document.head.appendChild(el2);
   }
-  async function readPluginVersion(app2) {
+  async function readPluginVersion(app) {
     var _a2, _b2;
     try {
-      const adapter = (_a2 = app2.vault) == null ? void 0 : _a2.adapter;
+      const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
       if (!(adapter == null ? void 0 : adapter.read)) return "";
-      const text2 = await adapter.read(assetVaultPath(app2, "manifest.json"));
+      const text2 = await adapter.read(assetVaultPath(app, "manifest.json"));
       return String(((_b2 = JSON.parse(text2 || "{}")) == null ? void 0 : _b2.version) || "");
     } catch (e) {
       return "";
@@ -34897,10 +34820,10 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     injectSkinPackStyles(items.map((it) => `/* bz skin-pack · ${it.entry.domain}/${it.entry.id} */
 ${it.text}`).join("\n"));
   }
-  async function readVerified(app2, entries) {
+  async function readVerified(app, entries) {
     const out = [];
     for (const e of entries) {
-      const text2 = await readAsset(app2, e.file);
+      const text2 = await readAsset(app, e.file);
       if (text2 === null) continue;
       if (textSha256(text2) !== e.sha256) continue;
       out.push({ entry: e, text: text2 });
@@ -34921,35 +34844,35 @@ ${it.text}`).join("\n"));
     });
     await Promise.all(workers);
   }
-  async function removeLegacyFile(app2, file) {
+  async function removeLegacyFile(app, file) {
     var _a2;
-    const adapter = (_a2 = app2.vault) == null ? void 0 : _a2.adapter;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
     if (!(adapter == null ? void 0 : adapter.remove)) return;
     try {
-      await adapter.remove(assetVaultPath(app2, file));
+      await adapter.remove(assetVaultPath(app, file));
     } catch (e) {
     }
   }
-  async function skinStatus(app2, manifest) {
-    const pluginVersion = await readPluginVersion(app2);
+  async function skinStatus(app, manifest) {
+    const pluginVersion = await readPluginVersion(app);
     if (!pluginVersion) return { ready: 0, missing: 0, updated: 0 };
     const wanted = wantedEntries(manifest, pluginVersion);
-    const verified = await readVerified(app2, wanted);
+    const verified = await readVerified(app, wanted);
     const status = { ready: verified.length, missing: 0, updated: 0 };
     const goodFiles = new Set(verified.map((r) => r.entry.file));
     for (const e of wanted) {
       if (goodFiles.has(e.file)) continue;
-      if (await readAsset(app2, e.file) !== null) status.updated++;
+      if (await readAsset(app, e.file) !== null) status.updated++;
       else status.missing++;
     }
     return status;
   }
-  async function downloadSkinUpdates(app2, manifest) {
+  async function downloadSkinUpdates(app, manifest) {
     const result = { downloaded: 0, failed: 0 };
-    const pluginVersion = await readPluginVersion(app2);
+    const pluginVersion = await readPluginVersion(app);
     if (!pluginVersion) return result;
     const wanted = wantedEntries(manifest, pluginVersion);
-    const verified = await readVerified(app2, wanted);
+    const verified = await readVerified(app, wanted);
     const goodFiles = new Set(verified.map((r) => r.entry.file));
     const todo = wanted.filter((e) => !goodFiles.has(e.file));
     const byFile = /* @__PURE__ */ new Map();
@@ -34957,10 +34880,10 @@ ${it.text}`).join("\n"));
     for (const arr of ready.values()) for (const r of arr) byFile.set(r.entry.file, r);
     await mapLimit(todo, 4, async (e) => {
       try {
-        const text2 = await ensureAssetWithHash(app2, e.file, e.sha256, `皮肤「${e.name}」`);
+        const text2 = await ensureAssetWithHash(app, e.file, e.sha256, `皮肤「${e.name}」`);
         if (text2 !== null) {
           byFile.set(e.file, { entry: e, text: text2 });
-          await removeLegacyFile(app2, e.file);
+          await removeLegacyFile(app, e.file);
         }
         result.downloaded++;
       } catch (err) {
@@ -35017,8 +34940,8 @@ ${it.text}`).join("\n"));
     }
     return { version: o.version, groups };
   }
-  async function readLocalValidated(app2) {
-    const text2 = await readAsset(app2, CATEGORY_TABLE_FILE);
+  async function readLocalValidated(app) {
+    const text2 = await readAsset(app, CATEGORY_TABLE_FILE);
     if (text2 === null) return null;
     try {
       return validateCategoryTable(JSON.parse(text2));
@@ -35026,9 +34949,9 @@ ${it.text}`).join("\n"));
       return null;
     }
   }
-  async function loadCategoryTable(app2) {
+  async function loadCategoryTable(app) {
     if (memCache) return memCache;
-    const t = await readLocalValidated(app2);
+    const t = await readLocalValidated(app);
     if (t) memCache = t;
     return t;
   }
@@ -35245,8 +35168,8 @@ ${it.text}`).join("\n"));
     }
     return { version: o.version, updatedAt: o.updatedAt, meta: { sources }, categories: o.categories, feeds };
   }
-  async function readLocalValidated2(app2) {
-    const text2 = await readAsset(app2, RSS_CATALOG_FILE);
+  async function readLocalValidated2(app) {
+    const text2 = await readAsset(app, RSS_CATALOG_FILE);
     if (text2 === null) return null;
     try {
       return validateRssCatalog(JSON.parse(text2));
@@ -35254,33 +35177,33 @@ ${it.text}`).join("\n"));
       return null;
     }
   }
-  async function loadRssCatalog(app2) {
+  async function loadRssCatalog(app) {
     subscribeOnce();
     if (memCache2) return memCache2;
-    const c = await readLocalValidated2(app2);
+    const c = await readLocalValidated2(app);
     if (c) memCache2 = c;
     return c;
   }
-  async function manifestEntry(app2) {
+  async function manifestEntry(app) {
     var _a2;
-    let m = await cachedManifest(app2);
+    let m = await cachedManifest(app);
     if (!m) {
       try {
-        await refreshManifest(app2);
-        m = await cachedManifest(app2);
+        await refreshManifest(app);
+        m = await cachedManifest(app);
       } catch (e) {
         return null;
       }
     }
     return (_a2 = m == null ? void 0 : m.docs.find((d) => d && d.id === RSS_CATALOG_MANIFEST_ID)) != null ? _a2 : null;
   }
-  async function downloadRssCatalog(app2) {
+  async function downloadRssCatalog(app) {
     subscribeOnce();
-    const entry = await manifestEntry(app2);
+    const entry = await manifestEntry(app);
     if (!entry) {
       throw new Error("RSS 源库尚未登记到下载清单（可能网络不通，或插件版本过旧）");
     }
-    const text2 = await ensureAssetWithHash(app2, entry.file, entry.sha256, "RSS 源库");
+    const text2 = await ensureAssetWithHash(app, entry.file, entry.sha256, "RSS 源库");
     if (text2 === null) throw new Error("RSS 源库数据拉取失败");
     let parsed;
     try {
@@ -35384,8 +35307,8 @@ ${it.text}`).join("\n"));
       rows
     };
   }
-  async function readLocalValidated3(app2) {
-    const text2 = await readAsset(app2, DOUBAN_NAME_INDEX_FILE);
+  async function readLocalValidated3(app) {
+    const text2 = await readAsset(app, DOUBAN_NAME_INDEX_FILE);
     if (text2 === null) return null;
     try {
       return validateDoubanNameIndex(JSON.parse(text2));
@@ -35393,10 +35316,10 @@ ${it.text}`).join("\n"));
       return null;
     }
   }
-  async function loadDoubanNameIndex(app2) {
+  async function loadDoubanNameIndex(app) {
     subscribeOnce2();
     if (memCache3) return memCache3;
-    const idx = await readLocalValidated3(app2);
+    const idx = await readLocalValidated3(app);
     if (idx) memCache3 = idx;
     return idx;
   }
@@ -35457,11 +35380,11 @@ ${it.text}`).join("\n"));
     if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`;
     return "<1 KB";
   }
-  async function computeRowStates(app2) {
+  async function computeRowStates(app) {
     var _a2;
-    const manifest = await cachedManifest(app2);
+    const manifest = await cachedManifest(app);
     if (!manifest) return { rows: [], manifest: null };
-    const pluginVersion = await readPluginVersion(app2);
+    const pluginVersion = await readPluginVersion(app);
     const rows = [];
     for (const id of rowIdsOf(manifest)) {
       if (id === SKINS_ROW_ID) {
@@ -35469,7 +35392,7 @@ ${it.text}`).join("\n"));
           id,
           name: SKINS_ROW_NAME,
           doc: null,
-          skin: pluginVersion ? await skinStatus(app2, manifest) : null,
+          skin: pluginVersion ? await skinStatus(app, manifest) : null,
           extra: null,
           size: skinTotalSize(manifest, pluginVersion)
         });
@@ -35478,8 +35401,8 @@ ${it.text}`).join("\n"));
       const entry = manifest.docs.find((d) => d.id === id);
       if (!entry) continue;
       if (pluginVersion && !isInVersionRange(entry, pluginVersion)) continue;
-      const doc = await docStatus(app2, entry);
-      const extra = doc === "ready" && DESC_EXTRAS[id] ? await DESC_EXTRAS[id](app2, entry) : null;
+      const doc = await docStatus(app, entry);
+      const extra = doc === "ready" && DESC_EXTRAS[id] ? await DESC_EXTRAS[id](app, entry) : null;
       rows.push({ id, name: entry.name, doc, skin: null, extra, size: (_a2 = entry.size) != null ? _a2 : null });
     }
     return { rows, manifest };
@@ -35668,11 +35591,11 @@ ${it.text}`).join("\n"));
       const domRows = card.querySelectorAll(".bz-sp-group-body > .bz-sp-set-row");
       meta.rows.forEach((row, i) => {
         var _a2;
-        const el3 = domRows[i];
-        if (!el3) return;
+        const el2 = domRows[i];
+        if (!el2) return;
         const btnRow = row;
-        if (row === meta.retryRow && el3.dataset.spHitHidden !== "1") el3.style.display = meta.retryVisible ? "" : "none";
-        const desc = el3.querySelector(".bz-sp-set-desc");
+        if (row === meta.retryRow && el2.dataset.spHitHidden !== "1") el2.style.display = meta.retryVisible ? "" : "none";
+        const desc = el2.querySelector(".bz-sp-set-desc");
         if (desc) {
           const text2 = (_a2 = btnRow.desc) != null ? _a2 : "";
           if (desc.textContent !== text2) {
@@ -35680,7 +35603,7 @@ ${it.text}`).join("\n"));
             if (desc.dataset.spOrig !== void 0) desc.dataset.spOrig = text2;
           }
         }
-        const btn = el3.querySelector(".bz-sp-btn");
+        const btn = el2.querySelector(".bz-sp-btn");
         if (btn && !btn.classList.contains("bz-rowbtn--busy")) {
           setRowBtnState(btn, "idle", btnRow.buttonText);
           btn.disabled = btnRow.disabled === true;
@@ -35688,15 +35611,15 @@ ${it.text}`).join("\n"));
       });
     });
   }
-  async function downloadOne(app2, manifest, id) {
+  async function downloadOne(app, manifest, id) {
     if (id === SKINS_ROW_ID) {
-      const r = await downloadSkinUpdates(app2, manifest);
+      const r = await downloadSkinUpdates(app, manifest);
       if (r.failed > 0) throw new Error(`${r.failed} 套主题下载失败，可稍后重试`);
       return;
     }
     const entry = manifest.docs.find((d) => d.id === id);
     if (!entry) return;
-    await ensureAssetWithHash(app2, entry.file, entry.sha256, entry.name);
+    await ensureAssetWithHash(app, entry.file, entry.sha256, entry.name);
   }
   async function runAction(ctx, id) {
     var _a2, _b2, _c, _d;
@@ -35707,9 +35630,9 @@ ${it.text}`).join("\n"));
     setRowBtnState(btn, "busy", (_c = btn == null ? void 0 : btn.textContent) != null ? _c : "下载");
     if (row) row.disabled = true;
     try {
-      const app2 = getApp();
-      const manifest = await cachedManifest(app2);
-      if (manifest) await downloadOne(app2, manifest, id);
+      const app = getApp();
+      const manifest = await cachedManifest(app);
+      if (manifest) await downloadOne(app, manifest, id);
     } catch (e) {
       notice(e instanceof Error ? e.message : String(e), "error");
     }
@@ -35728,10 +35651,10 @@ ${it.text}`).join("\n"));
     if (allRow) allRow.disabled = true;
     let failed = 0;
     try {
-      const app2 = getApp();
-      const manifest = await cachedManifest(app2);
+      const app = getApp();
+      const manifest = await cachedManifest(app);
       if (manifest) {
-        const { rows: states } = await computeRowStates(app2);
+        const { rows: states } = await computeRowStates(app);
         for (const st of states) {
           if (busyIds.has(st.id)) continue;
           const isPending = st.skin ? st.skin.missing + st.skin.updated > 0 : st.doc === "missing" || st.doc === "updated";
@@ -35740,7 +35663,7 @@ ${it.text}`).join("\n"));
           const row = (_c = currentGroup == null ? void 0 : currentGroup.entries.find((e) => e.id === st.id)) == null ? void 0 : _c.row;
           if (row) row.disabled = true;
           try {
-            await downloadOne(app2, manifest, st.id);
+            await downloadOne(app, manifest, st.id);
           } catch (e) {
             failed++;
             console.warn(`[bz] 在线资源「${st.name}」下载失败:`, (e == null ? void 0 : e.message) || e);
@@ -35777,22 +35700,22 @@ ${it.text}`).join("\n"));
       SKINS_ROW_NAME = "主题";
       ALL_BUSY_ID = "__all__";
       DESC_EXTRAS = {
-        "belongings-categories": async (app2) => {
-          const table = await loadCategoryTable(app2);
+        "belongings-categories": async (app) => {
+          const table = await loadCategoryTable(app);
           if (!table) return null;
           const items = table.groups.reduce((n, g) => n + g.items.length, 0);
           return `${table.groups.length} 组 ${items} 条`;
         },
         // issue 495：RSS 源库就绪描述捎带「N 类 M 源」（只数非空大类，0 条的分类不冒充规模）
-        "rss-catalog": async (app2) => {
-          const catalog = await loadRssCatalog(app2);
+        "rss-catalog": async (app) => {
+          const catalog = await loadRssCatalog(app);
           if (!catalog) return null;
           const cats = catalogCategoryCounts(catalog).filter((c) => c.count > 0).length;
           return `${cats} 类 ${catalog.feeds.length} 源`;
         },
         // issue 498：豆瓣影视索引就绪描述捎带「N 条 · 各类型条数」（用户点名按类型给量级参考）
-        "cinema-douban-index": async (app2) => {
-          const idx = await loadDoubanNameIndex(app2);
+        "cinema-douban-index": async (app) => {
+          const idx = await loadDoubanNameIndex(app);
           if (!idx) return null;
           const parts = indexKindCounts(idx).map(({ k, count }) => `${k} ${thousand(count)}`);
           return `${thousand(idx.stats.total)} 条 · ${parts.join(" / ")}`;
@@ -35827,16 +35750,16 @@ ${it.text}`).join("\n"));
       hiddenMob: o.hiddenMob === void 0 ? legacy : strList(o.hiddenMob)
     };
   }
-  async function loadHomeOrder(app2) {
+  async function loadHomeOrder(app) {
     try {
-      return normalizeHomeOrder(await store(app2).read());
+      return normalizeHomeOrder(await store(app).read());
     } catch (e) {
       return emptyHomeOrder();
     }
   }
-  async function saveHomeConfig(order, app2) {
+  async function saveHomeConfig(order, app) {
     return enqueueFileTask(storageFile("home.json"), async () => {
-      await store(app2).write({
+      await store(app).write({
         version: HOME_ORDER_VERSION,
         desk: [...order.desk],
         mob: [...order.mob],
@@ -35850,12 +35773,12 @@ ${it.text}`).join("\n"));
     "src/home/order.ts"() {
       init_storage();
       HOME_ORDER_VERSION = 3;
-      store = (app2) => jsonFileStore(storageFile("home.json"), { defaultValue: () => emptyHomeOrder(), app: app2 });
+      store = (app) => jsonFileStore(storageFile("home.json"), { defaultValue: () => emptyHomeOrder(), app });
     }
   });
 
   // src/home/entry-editor.ts
-  function mountHomeEntryEditor(body, app2) {
+  function mountHomeEntryEditor(body, app) {
     blurController == null ? void 0 : blurController.abort();
     blurController = new AbortController();
     const scope = isMobileEnv() ? "mob" : "desk";
@@ -35876,9 +35799,9 @@ ${it.text}`).join("\n"));
       if (!order) return;
       order = scope === "mob" ? { ...order, mob: ids } : { ...order, desk: ids };
     }
-    function persist2() {
+    function persist() {
       if (!order) return;
-      void saveHomeConfig(order, app2).catch((e) => {
+      void saveHomeConfig(order, app).catch((e) => {
         notifySaveError(e, "入口顺序");
       });
     }
@@ -35890,17 +35813,17 @@ ${it.text}`).join("\n"));
     function applyShift(c) {
       for (let i = 0; i < c.total; i++) {
         if (i === c.from) continue;
-        const el3 = c.rows[i];
-        if (!el3) continue;
+        const el2 = c.rows[i];
+        if (!el2) continue;
         let shift = 0;
         if (c.to > c.from && i > c.from && i <= c.to) shift = -1;
         else if (c.to < c.from && i >= c.to && i < c.from) shift = 1;
         if (shift) {
-          el3.style.transform = `translateY(${shift * c.step}px)`;
-          el3.classList.add(SHIFT_CLS);
+          el2.style.transform = `translateY(${shift * c.step}px)`;
+          el2.classList.add(SHIFT_CLS);
         } else {
-          el3.style.transform = "";
-          el3.classList.remove(SHIFT_CLS);
+          el2.style.transform = "";
+          el2.classList.remove(SHIFT_CLS);
         }
       }
     }
@@ -35915,9 +35838,9 @@ ${it.text}`).join("\n"));
       window.removeEventListener("touchmove", onTouchMove);
       c.el.classList.remove(DRAG_CLS);
       c.el.style.transform = "";
-      for (const el3 of c.rows) {
-        el3.style.transform = "";
-        el3.classList.remove(SHIFT_CLS);
+      for (const el2 of c.rows) {
+        el2.style.transform = "";
+        el2.classList.remove(SHIFT_CLS);
       }
     }
     function onMove(e) {
@@ -35948,20 +35871,20 @@ ${it.text}`).join("\n"));
       if (!active2) return;
       suppressClickUntil = Date.now() + 300;
       if (!order || to === from || !id) {
-        render3();
+        render2();
         return;
       }
       setScopeOrder(reorderTo(order[scope], id, to, hiddenOf(order, scope)));
-      persist2();
-      render3(id || void 0);
+      persist();
+      render2(id || void 0);
     }
-    function attachDrag(el3, listEl2, rows) {
+    function attachDrag(el2, listEl2, rows) {
       const total = rows.length;
-      el3.addEventListener("pointerdown", (e) => {
+      el2.addEventListener("pointerdown", (e) => {
         var _a2, _b2;
         if (e.button) return;
         if (e.target.closest("[data-ent-remove]")) return;
-        const from = rows.indexOf(el3);
+        const from = rows.indexOf(el2);
         if (from < 0 || total < 2) return;
         let step = ((_b2 = (_a2 = rows[0]) == null ? void 0 : _a2.offsetHeight) != null ? _b2 : 40) + 6;
         if (rows.length >= 2) {
@@ -35969,7 +35892,7 @@ ${it.text}`).join("\n"));
           if (d > 0) step = d;
         }
         const c = {
-          el: el3,
+          el: el2,
           listEl: listEl2,
           rows,
           startY: e.clientY,
@@ -35999,7 +35922,7 @@ ${it.text}`).join("\n"));
       const grip = isHidden2 ? '<span class="bz-home-ent-grip" aria-hidden="true">' + iconSpan("grip-vertical") + "</span>" : '<span class="bz-home-ent-grip" role="button" tabindex="0" data-ent-grip="' + d.id + '" aria-label="调整' + d.name + '顺序（上/下方向键）">' + iconSpan("grip-vertical") + "</span>";
       return '<div class="bz-home-ent-row' + (isHidden2 ? " bz-home-ent-row--off" : "") + '" data-ent-row="' + d.id + '">' + grip + '<span class="bz-home-ent-ic" style="color:' + domainColor(d.id) + '">' + iconSpan(d.icon) + '</span><span class="bz-home-ent-nm">' + esc(d.name) + "</span>" + btn + "</div>";
     }
-    function render3(refocusId) {
+    function render2(refocusId) {
       if (!order) return;
       const ids = hiddenOf(order, scope);
       const visible = visibleDomains(order[scope], ids);
@@ -36010,7 +35933,7 @@ ${it.text}`).join("\n"));
       if (!listEl2) return;
       const rows = Array.from(listEl2.querySelectorAll(ROW_SEL));
       const movable = rows.slice(0, visible.length);
-      for (const el3 of movable) attachDrag(el3, listEl2, movable);
+      for (const el2 of movable) attachDrag(el2, listEl2, movable);
       if (refocusId) {
         const target = listEl2.querySelector(`[data-ent-row="${refocusId}"] button, [data-ent-row="${refocusId}"] [data-ent-grip]`);
         target == null ? void 0 : target.focus();
@@ -36028,8 +35951,8 @@ ${it.text}`).join("\n"));
       if (to < 0 || to >= visibleNow.length) return;
       e.preventDefault();
       setScopeOrder(reorderTo(order[scope], id, to, hiddenOf(order, scope)));
-      persist2();
-      render3(id);
+      persist();
+      render2(id);
     });
     root.addEventListener("contextmenu", (e) => {
       if (drag) e.preventDefault();
@@ -36055,8 +35978,8 @@ ${it.text}`).join("\n"));
         const ids = hiddenOf(order, scope);
         if (id && !ids.includes(id)) {
           setHidden([...ids, id]);
-          persist2();
-          render3(id);
+          persist();
+          render2(id);
         }
         return;
       }
@@ -36064,14 +35987,14 @@ ${it.text}`).join("\n"));
       if (rs) {
         const id = rs.dataset.entRestore || "";
         setHidden(hiddenOf(order, scope).filter((x) => x !== id));
-        persist2();
-        render3(id);
+        persist();
+        render2(id);
       }
     });
-    render3();
-    void loadHomeOrder(app2).then((o) => {
+    render2();
+    void loadHomeOrder(app).then((o) => {
       order = o;
-      render3();
+      render2();
     });
   }
   var ROW_SEL, DRAG_PX, TOUCH_ARM_MS, TOUCH_SLOP_PX, SHIFT_CLS, DRAG_CLS, FLUSH_CLS, blurController;
@@ -36275,9 +36198,9 @@ ${it.text}`).join("\n"));
       return false;
     }
   }
-  function pillKeyOf(el3, keys) {
+  function pillKeyOf(el2, keys) {
     for (const k of keys) {
-      const v = el3.dataset[k];
+      const v = el2.dataset[k];
       if (v) return v;
     }
     return "";
@@ -36289,9 +36212,9 @@ ${it.text}`).join("\n"));
     if (hoverable) {
       box.addEventListener("mouseover", (e) => {
         var _a2;
-        const el3 = (_a2 = e.target) == null ? void 0 : _a2.closest(t.item);
-        if (!el3 || !box.contains(el3)) return;
-        const k = pillKeyOf(el3, t.keys);
+        const el2 = (_a2 = e.target) == null ? void 0 : _a2.closest(t.item);
+        if (!el2 || !box.contains(el2)) return;
+        const k = pillKeyOf(el2, t.keys);
         if (!k || box.dataset.pillHover === k) return;
         box.dataset.pillHover = k;
         resync(true);
@@ -36318,8 +36241,8 @@ ${it.text}`).join("\n"));
     }
     const items = [...box.querySelectorAll(t.item)];
     const hoverKey = (_b2 = box.dataset.pillHover) != null ? _b2 : "";
-    const hovered = hoverKey ? items.find((el3) => pillKeyOf(el3, t.keys) === hoverKey) : void 0;
-    const target = hovered != null ? hovered : items.find((el3) => el3.classList.contains(onClass));
+    const hovered = hoverKey ? items.find((el2) => pillKeyOf(el2, t.keys) === hoverKey) : void 0;
+    const target = hovered != null ? hovered : items.find((el2) => el2.classList.contains(onClass));
     if (!target) {
       pill.classList.remove("is-visible");
       return;
@@ -36360,10 +36283,10 @@ ${it.text}`).join("\n"));
   });
 
   // src/core/ui/flip.ts
-  function safeAnimate(el3, frames, opts) {
-    if (typeof el3.animate !== "function") return null;
+  function safeAnimate(el2, frames, opts) {
+    if (typeof el2.animate !== "function") return null;
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       console.error("[flip] 动画不可用，跳过：", e);
       return null;
@@ -36434,26 +36357,26 @@ ${it.text}`).join("\n"));
       const stagger2 = (_d = opts.enter.stagger) != null ? _d : 26;
       const from = (_e = opts.enter.from) != null ? _e : "bottom";
       let idx = 0;
-      nodes.forEach((el3) => {
-        const k = el3.dataset[opts.key];
+      nodes.forEach((el2) => {
+        const k = el2.dataset[opts.key];
         if (!k || (before == null ? void 0 : before.has(k))) return;
         if (idx >= n) {
-          el3.style.opacity = "";
+          el2.style.opacity = "";
           return;
         }
         const delay = idx * stagger2;
         idx++;
         const fromCss = from === "right" ? "translateX(22px) scale(0.96)" : "translateY(6px) scale(0.99)";
-        const ea = safeAnimate(el3, [
+        const ea = safeAnimate(el2, [
           { opacity: 0, transform: fromCss, filter: "blur(3px)" },
           { opacity: 1, transform: "none", filter: "blur(0px)" }
         ], { duration: 300, delay, easing: EASE_OUT, fill: "both" });
         if (!ea) {
-          el3.style.opacity = "";
+          el2.style.opacity = "";
           return;
         }
         ea.onfinish = () => {
-          el3.style.opacity = "";
+          el2.style.opacity = "";
         };
       });
     }
@@ -37063,8 +36986,8 @@ ${it.text}`).join("\n"));
       init_state5();
       init_stats2();
       PomodoroDataManager = class {
-        constructor(app2) {
-          this.app = app2;
+        constructor(app) {
+          this.app = app;
         }
         /**
          * 读取数据（统一数据读写层：不存在 → 建默认数据文件；坏 JSON → 原文件留档 CONFIG/.CORRUPT 后重建默认）。
@@ -37230,28 +37153,28 @@ ${it.text}`).join("\n"));
       return false;
     }
   }
-  function waapi4(el3, frames, opts) {
-    if (!el3 || reduced5() || typeof el3.animate !== "function") {
+  function waapi4(el2, frames, opts) {
+    if (!el2 || reduced5() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
   }
-  function waapiLoop(el3, frames, opts) {
-    if (!el3 || reduced5() || typeof el3.animate !== "function") return null;
+  function waapiLoop(el2, frames, opts) {
+    if (!el2 || reduced5() || typeof el2.animate !== "function") return null;
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -37413,26 +37336,26 @@ ${it.text}`).join("\n"));
     const c = [0, 1, 2].map((i) => Math.round(a[i] + (target[i] - a[i]) * t));
     return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
   }
-  function varRgb(el3, name) {
+  function varRgb(el2, name) {
     try {
-      const v = el3 ? getComputedStyle(el3).getPropertyValue(name).trim() : "";
+      const v = el2 ? getComputedStyle(el2).getPropertyValue(name).trim() : "";
       return v ? parseRgb(v) : null;
     } catch (e) {
       return null;
     }
   }
-  function timeBoxOf(el3) {
+  function timeBoxOf(el2) {
     var _a2;
-    return (_a2 = el3 == null ? void 0 : el3.closest(".pomodoro-time-box")) != null ? _a2 : el3;
+    return (_a2 = el2 == null ? void 0 : el2.closest(".pomodoro-time-box")) != null ? _a2 : el2;
   }
-  function timeVisualOf(el3) {
-    if (!el3) return el3;
-    const box = el3.closest(".pomodoro-time-box");
+  function timeVisualOf(el2) {
+    if (!el2) return el2;
+    const box = el2.closest(".pomodoro-time-box");
     if (box && box.classList.contains("reel-on")) {
       const reel = box.querySelector(".pomodoro-time-reel");
       if (reel) return reel;
     }
-    return el3;
+    return el2;
   }
   function ensureFlowGrad(svg) {
     if (!svg) return null;
@@ -37751,10 +37674,10 @@ ${it.text}`).join("\n"));
       ],
       { duration: 480, easing: E4.out, delay: 50, fill: "backwards" }
     ));
-    const reveal = (el3, delay, dy = 5) => {
-      if (!el3) return;
+    const reveal = (el2, delay, dy = 5) => {
+      if (!el2) return;
       trackFx(waapi4(
-        el3,
+        el2,
         [
           { opacity: 0, transform: `translateY(${dy}px)`, filter: "blur(4px)" },
           { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -37920,10 +37843,10 @@ ${it.text}`).join("\n"));
     }
   }
   function revealTime(timeEl) {
-    const el3 = timeBoxOf(timeEl);
-    if (!el3) return;
+    const el2 = timeBoxOf(timeEl);
+    if (!el2) return;
     trackFx(waapi4(
-      el3,
+      el2,
       [
         { opacity: 0, transform: "translateY(7px) scale(.97)", filter: "blur(5px)" },
         { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -38042,8 +37965,8 @@ ${it.text}`).join("\n"));
     revealTime(byId("pomodoro-time"));
   }
   function motionTimeTick(timeEl, remain, running2) {
-    const el3 = timeBoxOf(timeEl);
-    if (!el3) {
+    const el2 = timeBoxOf(timeEl);
+    if (!el2) {
       lastRemain = -1;
       return;
     }
@@ -38053,20 +37976,20 @@ ${it.text}`).join("\n"));
     }
     const delta = lastRemain - remain;
     if (Math.abs(delta) > 2) {
-      revealTime(el3);
+      revealTime(el2);
     } else if (running2 && delta === 1 && remain > 0 && remain % 60 === 0) {
       trackFx(waapi4(
-        el3,
+        el2,
         [{ transform: "scale(1)" }, { transform: "scale(1.035)" }, { transform: "scale(1)" }],
         { duration: M8.fast + 120, easing: E4.out }
       ));
     }
     lastRemain = remain;
   }
-  function motionPhaseLabelSwap(el3) {
-    if (!el3) return;
+  function motionPhaseLabelSwap(el2) {
+    if (!el2) return;
     trackFx(waapi4(
-      el3,
+      el2,
       [
         { opacity: 0, transform: "translateY(4px)", filter: "blur(3px)" },
         { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -38074,14 +37997,14 @@ ${it.text}`).join("\n"));
       { duration: M8.base, easing: E4.out }
     ));
   }
-  function motionTaskLine(el3, has) {
-    if (!el3) {
+  function motionTaskLine(el2, has) {
+    if (!el2) {
       taskShown = false;
       return;
     }
     if (has && !taskShown) {
       trackFx(waapi4(
-        el3,
+        el2,
         [{ opacity: 0, transform: "translateY(3px)" }, { opacity: 1, transform: "none" }],
         { duration: M8.base, easing: E4.out }
       ));
@@ -38127,14 +38050,14 @@ ${it.text}`).join("\n"));
     if (!box || performance.now() < bootUntil) return;
     riseBars(box);
   }
-  function motionTodayBlip(el3, text2) {
-    if (!el3) {
+  function motionTodayBlip(el2, text2) {
+    if (!el2) {
       todayText = "";
       return;
     }
     if (todayText && text2 && text2 !== todayText) {
       trackFx(waapi4(
-        el3,
+        el2,
         [{ opacity: 0.35, transform: "translateY(3px)" }, { opacity: 1, transform: "none" }],
         { duration: M8.base, easing: E4.out }
       ));
@@ -38179,10 +38102,10 @@ ${it.text}`).join("\n"));
       btn.addEventListener("pointerleave", up);
     });
   }
-  function motionStatusbarPop(el3, sig, first) {
-    if (!el3 || first || reduced5()) return;
+  function motionStatusbarPop(el2, sig, first) {
+    if (!el2 || first || reduced5()) return;
     trackFx(waapi4(
-      el3,
+      el2,
       [{ transform: "scale(1)" }, { transform: "scale(1.14)" }, { transform: "scale(1)" }],
       { duration: M8.fast + 80, easing: E4.out }
     ));
@@ -38338,16 +38261,16 @@ ${it.text}`).join("\n"));
   }
   function durations() {
     const s = tryGetSettings();
-    const num3 = (v, def) => {
+    const num2 = (v, def) => {
       const n = parseInt(v != null ? v : "", 10);
       return Number.isFinite(n) && n > 0 ? n : def;
     };
     const preset = s.pomodoroPreset && s.pomodoroPreset !== CUSTOM_PRESET_ID ? PRESETS[s.pomodoroPreset] : null;
     return {
-      workMin: preset ? preset.workMin : num3(s.pomodoroWorkMin, 25),
-      shortBreakMin: preset ? preset.shortBreakMin : num3(s.pomodoroShortBreakMin, 5),
-      longBreakMin: preset ? preset.longBreakMin : num3(s.pomodoroLongBreakMin, 15),
-      longBreakInterval: num3(s.pomodoroLongBreakInterval, 4)
+      workMin: preset ? preset.workMin : num2(s.pomodoroWorkMin, 25),
+      shortBreakMin: preset ? preset.shortBreakMin : num2(s.pomodoroShortBreakMin, 5),
+      longBreakMin: preset ? preset.longBreakMin : num2(s.pomodoroLongBreakMin, 15),
+      longBreakInterval: num2(s.pomodoroLongBreakInterval, 4)
     };
   }
   function options() {
@@ -38465,10 +38388,10 @@ ${it.text}`).join("\n"));
       col.className = "pomodoro-stat-col";
       const numText = (_a3 = opts.valueLabel) == null ? void 0 : _a3.call(opts, r);
       if (numText) {
-        const num3 = document.createElement("span");
-        num3.className = "pomodoro-stat-num";
-        num3.textContent = numText;
-        col.appendChild(num3);
+        const num2 = document.createElement("span");
+        num2.className = "pomodoro-stat-num";
+        num2.textContent = numText;
+        col.appendChild(num2);
       }
       const h = document.createElement("div");
       h.className = "pomodoro-stat-bar";
@@ -38568,8 +38491,8 @@ ${it.text}`).join("\n"));
       timeReels = Array.from(layer.querySelectorAll(".pomodoro-rinn"));
     }
     const text2 = `${pad2(Math.floor(remain / 60))}${pad2(remain % 60)}`;
-    timeReels.forEach((el3, i) => {
-      el3.style.transform = `translateY(calc(var(--pomodoro-reel-cell) * -${Number(text2[i])}))`;
+    timeReels.forEach((el2, i) => {
+      el2.style.transform = `translateY(calc(var(--pomodoro-reel-cell) * -${Number(text2[i])}))`;
     });
   }
   function tickBeep(remain, running2) {
@@ -39014,10 +38937,10 @@ ${it.text}`).join("\n"));
     });
     return initInflight;
   }
-  async function openPomodoro(app2) {
-    appRef = app2;
+  async function openPomodoro(app) {
+    appRef = app;
     disposed = false;
-    if (!dataManager2) dataManager2 = new PomodoroDataManager(app2);
+    if (!dataManager2) dataManager2 = new PomodoroDataManager(app);
     if (!maskEl) {
       openInflight != null ? openInflight : openInflight = (async () => {
         await initDataOnce();
@@ -39029,7 +38952,7 @@ ${it.text}`).join("\n"));
         await openInflight;
       } catch (e) {
         console.error("番茄钟打开失败:", e);
-        notifyActionError(e, "打开番茄钟", { onRetry: () => void openPomodoro(app2) });
+        notifyActionError(e, "打开番茄钟", { onRetry: () => void openPomodoro(app) });
         return;
       } finally {
         openInflight = null;
@@ -39038,16 +38961,16 @@ ${it.text}`).join("\n"));
     const popupEl2 = maskEl ? maskEl.querySelector("#pomodoro-popup") : null;
     popupEl2 == null ? void 0 : popupEl2.classList.add("bz-panel-mtop");
   }
-  async function ensurePomodoro(app2) {
-    appRef = app2;
+  async function ensurePomodoro(app) {
+    appRef = app;
     disposed = false;
-    if (!dataManager2) dataManager2 = new PomodoroDataManager(app2);
+    if (!dataManager2) dataManager2 = new PomodoroDataManager(app);
     if (!loaded) {
       try {
         await initDataOnce();
       } catch (e) {
         console.error("番茄钟数据加载失败:", e);
-        notifyActionError(e, "加载番茄钟数据", { onRetry: () => void ensurePomodoro(app2) });
+        notifyActionError(e, "加载番茄钟数据", { onRetry: () => void ensurePomodoro(app) });
         return;
       }
       if (disposed) return;
@@ -39058,16 +38981,16 @@ ${it.text}`).join("\n"));
         const remainSec = Math.max(0, Math.ceil((state2.endTime - Date.now()) / 1e3));
         notice(`番茄钟继续：${phaseText(state2.phase, state2.cycleFocusCount, durations())}，还剩 ${fmt(remainSec)}`);
         const s = tryGetSettings();
-        if (s.pomodoroRestoreMode === "popup") void openPomodoro(app2);
+        if (s.pomodoroRestoreMode === "popup") void openPomodoro(app);
       }
     }
   }
   function closePomodoro(immediate = false) {
     if (armedBtn !== null) disarmConfirm();
     if (maskEl) {
-      const el3 = maskEl;
+      const el2 = maskEl;
       maskEl = null;
-      motionPanelClose(el3, () => el3.remove(), immediate);
+      motionPanelClose(el2, () => el2.remove(), immediate);
     }
     if (escHandle2) {
       escHandle2.unregister();
@@ -39075,8 +38998,8 @@ ${it.text}`).join("\n"));
     }
     lastStatsKey = "";
   }
-  async function startFocusForTask(app2, taskTitle) {
-    await ensurePomodoro(app2);
+  async function startFocusForTask(app, taskTitle) {
+    await ensurePomodoro(app);
     if (!loaded) return;
     const o = options();
     const d = durations();
@@ -39099,8 +39022,8 @@ ${it.text}`).join("\n"));
   function isFocusing() {
     return isFocusingPhase(menuPhase());
   }
-  async function toggleFocus(app2) {
-    await ensurePomodoro(app2);
+  async function toggleFocus(app) {
+    await ensurePomodoro(app);
     if (!loaded) return;
     if (isFocusing()) {
       const before = state2;
@@ -39122,8 +39045,8 @@ ${it.text}`).join("\n"));
     if (state2.paused) return "paused";
     return state2.endTime !== null ? "focusing" : "idle";
   }
-  async function skipBreak(app2) {
-    await ensurePomodoro(app2);
+  async function skipBreak(app) {
+    await ensurePomodoro(app);
     if (!loaded) return;
     if (state2.phase !== "short-break" && state2.phase !== "long-break") {
       notice("当前不在休息阶段", "warning");
@@ -39134,8 +39057,8 @@ ${it.text}`).join("\n"));
     render();
     applyAction("start");
   }
-  async function togglePause(app2) {
-    await ensurePomodoro(app2);
+  async function togglePause(app) {
+    await ensurePomodoro(app);
     if (!loaded) return;
     if (state2.endTime === null && !state2.paused) {
       notice("当前没有进行中的计时", "warning");
@@ -39377,16 +39300,16 @@ ${it.text}`).join("\n"));
   function skinClass() {
     return `bz-memo-skin-${normalizeMemoSkin(tryGetSettings().memoSkin)}`;
   }
-  function enterLayer(el3, delay, dy) {
-    if (!el3) return;
-    el3.style.opacity = "0";
-    el3.style.transform = `translateY(${dy}px)`;
+  function enterLayer(el2, delay, dy) {
+    if (!el2) return;
+    el2.style.opacity = "0";
+    el2.style.transform = `translateY(${dy}px)`;
     window.setTimeout(() => {
-      el3.style.transition = "opacity 300ms var(--bz-ease-out), transform 300ms var(--bz-ease-out)";
-      el3.style.opacity = "";
-      el3.style.transform = "";
+      el2.style.transition = "opacity 300ms var(--bz-ease-out), transform 300ms var(--bz-ease-out)";
+      el2.style.opacity = "";
+      el2.style.transform = "";
       window.setTimeout(() => {
-        el3.style.transition = "";
+        el2.style.transition = "";
       }, 340);
     }, delay);
   }
@@ -39396,13 +39319,13 @@ ${it.text}`).join("\n"));
       enterLayer(c, 20 + i * 34, 14);
     });
   }
-  function playPanelExit(overlay5) {
+  function playPanelExit(overlay4) {
     const wrap2 = document.createElement("div");
     wrap2.className = "bz-memo-exit";
     const mask = document.createElement("div");
     mask.className = "bz-memo-exit-mask";
     wrap2.appendChild(mask);
-    const panel2 = overlay5.querySelector(".bz-memo-panel");
+    const panel2 = overlay4.querySelector(".bz-memo-panel");
     if (panel2) {
       const r = panel2.getBoundingClientRect();
       if (r.width >= 4 && r.height >= 4) {
@@ -39472,9 +39395,9 @@ ${it.text}`).join("\n"));
     }
   }
   function renderMainHead(items) {
-    const overlay5 = M7.overlay;
-    const titleEl = overlay5.querySelector("[data-memo-main-title]");
-    const countEl = overlay5.querySelector("[data-memo-main-count]");
+    const overlay4 = M7.overlay;
+    const titleEl = overlay4.querySelector("[data-memo-main-title]");
+    const countEl = overlay4.querySelector("[data-memo-main-count]");
     if (!titleEl || !countEl) return;
     titleEl.textContent = sceneLabel(M7.activeScene);
     const undone = items.filter((i) => !i.completed).length;
@@ -39488,9 +39411,9 @@ ${it.text}`).join("\n"));
       ...MemoData.getScenarios().map((s) => ({ scene: s, dot: sceneDot(s) }))
     ];
   }
-  function attachSceneActions(el3, scene) {
+  function attachSceneActions(el2, scene) {
     if (scene === "全部" || scene === "今日" || scene === "重要") return;
-    attachItemActions(el3, buildSceneActions(scene), { sheetTitle: scene, sheetSub: "场景", menuClass: skinClass() || void 0 });
+    attachItemActions(el2, buildSceneActions(scene), { sheetTitle: scene, sheetSub: "场景", menuClass: skinClass() || void 0 });
   }
   function renderNav() {
     const nav = M7.overlay.querySelector("[data-memo-nav]");
@@ -39498,8 +39421,8 @@ ${it.text}`).join("\n"));
     const counts = sceneCounts();
     nav.innerHTML = sceneOptions().map((o) => navBtnHtml(o, M7.activeScene === o.scene, counts.get(o.scene) || 0)).join("");
     mountIcons(nav);
-    nav.querySelectorAll("[data-memo-scene]").forEach((el3) => {
-      attachSceneActions(el3, el3.dataset.memoScene);
+    nav.querySelectorAll("[data-memo-scene]").forEach((el2) => {
+      attachSceneActions(el2, el2.dataset.memoScene);
     });
   }
   function renderMobScenes() {
@@ -39510,8 +39433,8 @@ ${it.text}`).join("\n"));
     wrap2.innerHTML = sceneOptions().map((o) => mobChipHtml(o, M7.activeScene === o.scene)).join("") + mobAddSceneChipHtml();
     wrap2.scrollLeft = keepLeft;
     mountIcons(wrap2);
-    wrap2.querySelectorAll("[data-memo-scene]").forEach((el3) => {
-      attachSceneActions(el3, el3.dataset.memoScene);
+    wrap2.querySelectorAll("[data-memo-scene]").forEach((el2) => {
+      attachSceneActions(el2, el2.dataset.memoScene);
     });
   }
   function metaDueOf(it) {
@@ -39599,18 +39522,18 @@ ${it.text}`).join("\n"));
       spin: flipSpin
     });
     doneJustOpened = false;
-    content.querySelectorAll("[data-memo-openitem]").forEach((el3) => {
-      el3.addEventListener("click", (e) => {
+    content.querySelectorAll("[data-memo-openitem]").forEach((el2) => {
+      el2.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const it = M7.items.find((i) => i.id === el3.dataset.memoOpenitem);
+        const it = M7.items.find((i) => i.id === el2.dataset.memoOpenitem);
         if (it) openItem(it);
       });
     });
-    content.querySelectorAll("[data-memo-pos]").forEach((el3) => {
-      el3.addEventListener("click", (e) => {
+    content.querySelectorAll("[data-memo-pos]").forEach((el2) => {
+      el2.addEventListener("click", (e) => {
         e.stopPropagation();
-        const it = M7.items.find((i) => i.id === el3.dataset.memoPos);
+        const it = M7.items.find((i) => i.id === el2.dataset.memoPos);
         if (it) jumpToNote(it);
       });
     });
@@ -39657,30 +39580,30 @@ ${it.text}`).join("\n"));
     return head;
   }
   function openItem(it) {
-    const app2 = M7.appRef;
+    const app = M7.appRef;
     if (it.linkedNote) {
-      const file = app2.vault.getAbstractFileByPath(it.linkedNote);
+      const file = app.vault.getAbstractFileByPath(it.linkedNote);
       if (!file) {
         notice("关联笔记不存在");
         return;
       }
       closeMemoPanel();
-      void app2.workspace.getLeaf().openFile(file);
+      void app.workspace.getLeaf().openFile(file);
     } else if (it.url) {
       closeMemoPanel();
-      openExternalUrl(app2, it.url);
+      openExternalUrl(app, it.url);
     }
   }
   function jumpToNote(it) {
     if (!it.notePath) return;
-    const app2 = M7.appRef;
-    const file = app2.vault.getAbstractFileByPath(it.notePath);
+    const app = M7.appRef;
+    const file = app.vault.getAbstractFileByPath(it.notePath);
     if (!file) {
       notice("关联笔记不存在");
       return;
     }
     closeMemoPanel();
-    const leaf = app2.workspace.getLeaf();
+    const leaf = app.workspace.getLeaf();
     void (async () => {
       var _a2;
       await leaf.openFile(file);
@@ -39696,9 +39619,9 @@ ${it.text}`).join("\n"));
   function syncPendingCheck(id, pending) {
     document.querySelectorAll(
       `.bz-memo-card[data-memo-id="${id}"] [data-memo-check], .bz-memo-sheet-entry [data-memo-check]`
-    ).forEach((el3) => {
-      el3.classList.toggle("bz-memo-pending", pending);
-      const ring = el3.querySelector(":scope > .bz-memo-ring");
+    ).forEach((el2) => {
+      el2.classList.toggle("bz-memo-pending", pending);
+      const ring = el2.querySelector(":scope > .bz-memo-ring");
       if (pending && !ring) {
         const NS = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(NS, "svg");
@@ -39710,7 +39633,7 @@ ${it.text}`).join("\n"));
         c.setAttribute("cy", "10");
         c.setAttribute("r", "8.5");
         svg.appendChild(c);
-        el3.appendChild(svg);
+        el2.appendChild(svg);
       } else if (!pending && ring) {
         ring.remove();
       }
@@ -39796,9 +39719,9 @@ ${it.text}`).join("\n"));
   }
   function rollAway(id, away) {
     var _a2;
-    const overlay5 = M7.overlay;
-    const card = (_a2 = overlay5 == null ? void 0 : overlay5.querySelector(`.bz-memo-panel .bz-memo-card[data-memo-id="${id}"]`)) != null ? _a2 : null;
-    if (!overlay5 || !card) return;
+    const overlay4 = M7.overlay;
+    const card = (_a2 = overlay4 == null ? void 0 : overlay4.querySelector(`.bz-memo-panel .bz-memo-card[data-memo-id="${id}"]`)) != null ? _a2 : null;
+    if (!overlay4 || !card) return;
     const cr = card.getBoundingClientRect();
     if (cr.width < 4 || cr.height < 4) return;
     const EASE_FLY = "cubic-bezier(.4, 0, .3, 1)";
@@ -39822,7 +39745,7 @@ ${it.text}`).join("\n"));
         }, 240);
       });
     });
-    overlay5.appendChild(card);
+    overlay4.appendChild(card);
     card.classList.add("bz-memo-rollcard");
     card.style.left = `${cr.left}px`;
     card.style.top = `${cr.top}px`;
@@ -39856,7 +39779,7 @@ ${it.text}`).join("\n"));
           const g = document.createElement("div");
           g.className = "bz-memo-rollghost";
           g.style.cssText = `left:${cr.right - ROLL_CURL_W}px;top:${cr.top}px;width:${ROLL_CURL_W}px;height:${cr.height}px;opacity:${0.34 - i * 0.13};filter:blur(${(i + 1) * 1.5}px)`;
-          overlay5.appendChild(g);
+          overlay4.appendChild(g);
           const ga = safeAnimate(g, [
             { transform: `translate(0px, 0px) scaleY(1)`, opacity: 0.34 - i * 0.13 },
             { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 62}px) scaleY(1.14)`, opacity: 0.22 - i * 0.13 },
@@ -39867,7 +39790,7 @@ ${it.text}`).join("\n"));
         });
         window.setTimeout(() => {
           var _a3, _b2, _c;
-          const panel2 = overlay5.querySelector(".bz-memo-panel");
+          const panel2 = overlay4.querySelector(".bz-memo-panel");
           const bar = (_a3 = panel2 == null ? void 0 : panel2.querySelector("[data-memo-donebar]")) != null ? _a3 : null;
           if (bar) {
             bar.classList.remove("bz-memo-donebar-hit");
@@ -39879,7 +39802,7 @@ ${it.text}`).join("\n"));
           rp.className = "bz-memo-ripple";
           rp.style.left = `${Math.round(target.x)}px`;
           rp.style.top = `${Math.round(target.y)}px`;
-          overlay5.appendChild(rp);
+          overlay4.appendChild(rp);
           window.setTimeout(() => rp.remove(), 620);
           const cntEl = (_b2 = panel2 == null ? void 0 : panel2.querySelector("[data-memo-donebar] .bz-memo-donebar-cnt")) != null ? _b2 : null;
           const shown = Number(((_c = cntEl == null ? void 0 : cntEl.textContent) != null ? _c : "").trim());
@@ -40001,9 +39924,9 @@ ${it.text}`).join("\n"));
     await refresh();
   }
   function focusMemoItem(it) {
-    const app2 = M7.appRef;
-    if (!app2) return;
-    void Promise.resolve().then(() => (init_pomodoro(), pomodoro_exports)).then((m) => m.startFocusForTask(app2, it.title));
+    const app = M7.appRef;
+    if (!app) return;
+    void Promise.resolve().then(() => (init_pomodoro(), pomodoro_exports)).then((m) => m.startFocusForTask(app, it.title));
   }
   function buildCardActions(it) {
     const actions = [];
@@ -40469,10 +40392,10 @@ ${it.text}`).join("\n"));
     return actions;
   }
   function openMemoInSettings() {
-    const app2 = M7.appRef;
+    const app = M7.appRef;
     closeMemoPanel();
-    if (!app2) return;
-    void Promise.resolve().then(() => (init_settings_panel(), settings_panel_exports)).then((m) => m.openSettingsPanel(app2, "memo"));
+    if (!app) return;
+    void Promise.resolve().then(() => (init_settings_panel(), settings_panel_exports)).then((m) => m.openSettingsPanel(app, "memo"));
   }
   function commitScenarios(next, okMsg) {
     getSettings().memoScenarios = next.join(",");
@@ -40815,17 +40738,17 @@ ${it.text}`).join("\n"));
   });
 
   // src/smartcat/belongings-source.ts
-  function belongingsEditChanges(snapshot3, next) {
+  function belongingsEditChanges(snapshot2, next) {
     var _a2, _b2, _c, _d;
     const changes = [];
-    if (snapshot3.name !== next.name) changes.push("改了名称");
-    if (snapshot3.category !== next.category) changes.push("改了分类");
-    if (snapshot3.purchase_price !== next.purchase_price) changes.push("改了价格");
-    if (snapshot3.purchase_date !== next.purchase_date) changes.push("改了购买日期");
-    if (snapshot3.current_status !== next.current_status) changes.push("改了状态");
-    if (snapshot3.description !== next.description) changes.push("改了描述");
-    if (((_a2 = snapshot3.sold_price) != null ? _a2 : null) !== ((_b2 = next.sold_price) != null ? _b2 : null)) changes.push("改了售价");
-    if (((_c = snapshot3.exit_date) != null ? _c : null) !== ((_d = next.exit_date) != null ? _d : null)) changes.push("改了出离日期");
+    if (snapshot2.name !== next.name) changes.push("改了名称");
+    if (snapshot2.category !== next.category) changes.push("改了分类");
+    if (snapshot2.purchase_price !== next.purchase_price) changes.push("改了价格");
+    if (snapshot2.purchase_date !== next.purchase_date) changes.push("改了购买日期");
+    if (snapshot2.current_status !== next.current_status) changes.push("改了状态");
+    if (snapshot2.description !== next.description) changes.push("改了描述");
+    if (((_a2 = snapshot2.sold_price) != null ? _a2 : null) !== ((_b2 = next.sold_price) != null ? _b2 : null)) changes.push("改了售价");
+    if (((_c = snapshot2.exit_date) != null ? _c : null) !== ((_d = next.exit_date) != null ? _d : null)) changes.push("改了出离日期");
     return changes;
   }
   var init_belongings_source = __esm({
@@ -41034,18 +40957,18 @@ ${it.text}`).join("\n"));
   function statusCount(items, label) {
     return items.filter((i) => i.current_status === label).length;
   }
-  function filtered(items, view2) {
+  function filtered(items, view) {
     return items.filter((i) => {
-      if (!view2.status) return true;
-      if (view2.status === "asset") return inStock(i);
-      return i.current_status === statusOf(view2.status).label;
-    }).filter((i) => view2.year ? String(i.purchase_date || "").startsWith(view2.year) : true).filter((i) => {
-      if (!view2.q) return true;
-      const q3 = view2.q.toLowerCase();
+      if (!view.status) return true;
+      if (view.status === "asset") return inStock(i);
+      return i.current_status === statusOf(view.status).label;
+    }).filter((i) => view.year ? String(i.purchase_date || "").startsWith(view.year) : true).filter((i) => {
+      if (!view.q) return true;
+      const q3 = view.q.toLowerCase();
       return [i.name, i.category, i.description].join(" ").toLowerCase().includes(q3);
     }).sort((a, b) => {
-      if (view2.sort === "price") return (Number(b.purchase_price) || 0) - (Number(a.purchase_price) || 0);
-      if (view2.sort === "daily") return dailyCostOf(b) - dailyCostOf(a);
+      if (view.sort === "price") return (Number(b.purchase_price) || 0) - (Number(a.purchase_price) || 0);
+      if (view.sort === "daily") return dailyCostOf(b) - dailyCostOf(a);
       return String(b.purchase_date || "").localeCompare(String(a.purchase_date || "")) || String(a.name || "").localeCompare(String(b.name || ""), "zh");
     });
   }
@@ -41060,13 +40983,13 @@ ${it.text}`).join("\n"));
   function resolveYear(items, year) {
     return year && yearsAvailable(items).includes(year) ? year : "";
   }
-  function heroTitleText(view2) {
-    if (!view2.status) return "全部";
-    if (view2.status === "asset") return "资产";
-    return statusOf(view2.status).label;
+  function heroTitleText(view) {
+    if (!view.status) return "全部";
+    if (view.status === "asset") return "资产";
+    return statusOf(view.status).label;
   }
-  function heroSubText(items, view2) {
-    return view2.status ? `归物本 — ${filtered(items, view2).length} 件在列 · FILTERED VIEW` : "归物本 — NOTHING MORE, NOTHING LESS";
+  function heroSubText(items, view) {
+    return view.status ? `归物本 — ${filtered(items, view).length} 件在列 · FILTERED VIEW` : "归物本 — NOTHING MORE, NOTHING LESS";
   }
   function belDetailHtml(it, unit = "cny") {
     var _a2;
@@ -41352,20 +41275,20 @@ ${it.text}`).join("\n"));
       return false;
     }
   }
-  function waapi5(el3, frames, opts) {
-    if (!el3 || reduced6() || typeof el3.animate !== "function") {
+  function waapi5(el2, frames, opts) {
+    if (!el2 || reduced6() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -41373,12 +41296,12 @@ ${it.text}`).join("\n"));
   function tween2(dur, step, ease = (t) => 1 - Math.pow(1 - t, 3)) {
     if (typeof requestAnimationFrame !== "function" || reduced6()) return;
     const t0 = performance.now();
-    const tick2 = (now) => {
+    const tick = (now) => {
       const p = Math.min(1, (now - t0) / dur);
       step(ease(p));
-      if (p < 1) requestAnimationFrame(tick2);
+      if (p < 1) requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick2);
+    requestAnimationFrame(tick);
   }
   function after5(ms, fn) {
     const id = setTimeout(() => {
@@ -41395,10 +41318,10 @@ ${it.text}`).join("\n"));
     cancelPending5();
     flipBook = null;
   }
-  function stageable(el3) {
-    if (!el3) return false;
+  function stageable(el2) {
+    if (!el2) return false;
     try {
-      const r = el3.getBoundingClientRect();
+      const r = el2.getBoundingClientRect();
       if (r.width <= 2 || r.height <= 2) return false;
       const vh = typeof window !== "undefined" && window.innerHeight || 900;
       return r.top < vh + 120 && r.bottom > -120;
@@ -41416,8 +41339,8 @@ ${it.text}`).join("\n"));
     host.appendChild(d);
     return d;
   }
-  function motionPanelIn2(overlay5) {
-    const panel2 = overlay5.querySelector(".bz-bel-panel");
+  function motionPanelIn2(overlay4) {
+    const panel2 = overlay4.querySelector(".bz-bel-panel");
     if (!panel2) return;
     panel2.style.opacity = "";
     panel2.style.transform = "";
@@ -41430,8 +41353,8 @@ ${it.text}`).join("\n"));
       { duration: M9.base + 140, easing: E5.out }
     );
   }
-  function motionPanelOut(overlay5, done) {
-    const panel2 = overlay5.querySelector(".bz-bel-panel");
+  function motionPanelOut(overlay4, done) {
+    const panel2 = overlay4.querySelector(".bz-bel-panel");
     if (!panel2) {
       done();
       return;
@@ -41484,9 +41407,9 @@ ${it.text}`).join("\n"));
     }
     if (book) flipRepaint(panel2, book);
   }
-  function rollText(el3, dur) {
+  function rollText(el2, dur) {
     var _a2;
-    const finalText = (_a2 = el3.textContent) != null ? _a2 : "";
+    const finalText = (_a2 = el2.textContent) != null ? _a2 : "";
     const m = /^(\D*?)(\d[\d,]*(?:\.\d+)?)(\D*)$/.exec(finalText);
     if (!m) return;
     const prefix = m[1], target = parseFloat(m[2].replace(/,/g, "")), suffix = m[3];
@@ -41494,9 +41417,9 @@ ${it.text}`).join("\n"));
     const decimals = (m[2].split(".")[1] || "").length;
     const fmt2 = (v) => (target * v).toLocaleString("zh-CN", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     if (reduced6() || typeof requestAnimationFrame !== "function") return;
-    el3.textContent = prefix + fmt2(0) + suffix;
+    el2.textContent = prefix + fmt2(0) + suffix;
     tween2(dur, (v) => {
-      el3.textContent = v >= 1 ? finalText : prefix + fmt2(v) + suffix;
+      el2.textContent = v >= 1 ? finalText : prefix + fmt2(v) + suffix;
     });
   }
   function bootReveal(panel2) {
@@ -41545,8 +41468,8 @@ ${it.text}`).join("\n"));
         ],
         { duration: M9.base, delay: 140 + i * STAG5, easing: E5.out, fill: "backwards" }
       );
-      const num3 = kpi.querySelector("b");
-      if (num3 && stageable(num3)) rollText(num3, M9.impulse);
+      const num2 = kpi.querySelector("b");
+      if (num2 && stageable(num2)) rollText(num2, M9.impulse);
     });
     const stampN = panel2.querySelector("[data-bel-stampn]");
     if (stageable(stampN)) rollText(stampN, M9.impulse);
@@ -41755,10 +41678,10 @@ ${it.text}`).join("\n"));
     );
   }
   function relay(els, base, step = STAG5) {
-    els.forEach((el3, i) => {
-      if (!stageable(el3)) return;
+    els.forEach((el2, i) => {
+      if (!stageable(el2)) return;
       waapi5(
-        el3,
+        el2,
         [
           { opacity: 0, transform: "translateY(7px)" },
           { opacity: 1, transform: "none" }
@@ -42090,8 +42013,8 @@ ${it.text}`).join("\n"));
     return `<div class="bz-belr-sec-head"><span class="bz-belr-sec-title">${esc(title)}</span>${note ? `<span class="bz-belr-sec-note">${esc(note)}</span>` : ""}</div>`;
   }
   function summaryHtml(stats) {
-    const card = (num3, label, color) => `<div class="bz-belr-hero" style="background:${color};color:${CHART_INK}">
-      <b>${esc(num3)}</b><span>${esc(label)}</span>
+    const card = (num2, label, color) => `<div class="bz-belr-hero" style="background:${color};color:${CHART_INK}">
+      <b>${esc(num2)}</b><span>${esc(label)}</span>
     </div>`;
     return `<div class="bz-belr-sec">
   ${secHead(`${stats.year} 年购入与离场`)}
@@ -42109,10 +42032,10 @@ ${it.text}`).join("\n"));
   ${cols.map((c) => {
       const height = !c.future && c.value > 0 && max > 0 ? 12 + Math.round(c.value / max * 48) : 3;
       const bg = c.future ? "transparent" : c.accent ? CHART_HIGHLIGHT : CHART_PASTEL_SERIES[0];
-      const num3 = !c.future && c.value > 0 ? `<span class="bz-belr-col-num">${esc(c.display)}</span>` : "";
+      const num2 = !c.future && c.value > 0 ? `<span class="bz-belr-col-num">${esc(c.display)}</span>` : "";
       const cls = ["bz-belr-col", c.future ? "bz-belr-col--future" : "", c.accent ? "bz-belr-col--accent" : ""].filter(Boolean).join(" ");
       return `<div class="${cls}"${c.title ? ` title="${esc(c.title)}"` : ""}>
-        ${num3}
+        ${num2}
         <div class="bz-belr-col-bar" style="height:${height}px;${c.future ? "" : `background:${bg}`}"></div>
         <div class="bz-belr-col-label">${esc(c.label)}</div>
       </div>`;
@@ -42286,24 +42209,24 @@ ${it.text}`).join("\n"));
   </div>
 </div>`;
   }
-  function chipsHtml(items, view2) {
+  function chipsHtml(items, view) {
     const defs = [
       { key: "__all", label: "全部", cnt: items.length },
       { key: "asset", label: "资产", cnt: stockCount(items) },
       ...STATUS_ORDER.map((s) => ({ key: s.key, label: s.label, cnt: statusCount(items, s.label) }))
     ];
     return defs.map((d) => {
-      const active2 = d.key === "__all" ? view2.status === null : view2.status === d.key;
+      const active2 = d.key === "__all" ? view.status === null : view.status === d.key;
       return `<button type="button" class="bz-chip${active2 ? " bz-chip--on" : ""}" data-bel-st="${d.key}"><span>${esc(d.label)}</span><span class="bz-chip-cnt">${d.cnt}</span></button>`;
     }).join("");
   }
-  function mobChipsHtml(items, view2) {
+  function mobChipsHtml(items, view) {
     const defs = [
       { key: "__all", label: "全部", cnt: items.length },
       ...STATUS_ORDER.map((s) => ({ key: s.key, label: s.label, cnt: statusCount(items, s.label) }))
     ];
     return defs.map((d) => {
-      const active2 = d.key === "__all" ? view2.status === null : view2.status === d.key;
+      const active2 = d.key === "__all" ? view.status === null : view.status === d.key;
       return `<button class="bz-mobstrip-chip${active2 ? " is-on" : ""}" data-bel-st="${d.key}"><span>${esc(d.label)}</span><span class="bz-chip-cnt">${d.cnt}</span></button>`;
     }).join("");
   }
@@ -42322,7 +42245,7 @@ ${it.text}`).join("\n"));
       (s, i) => s + (i.current_status === "已转卖" && Number(i.sold_price) > 0 ? Number(i.sold_price) : 0),
       0
     );
-    const kpi = (num3, label, opts = {}) => `<div class="bz-bel-kpi${opts.hero ? " bz-bel-kpi--hero" : ""}${opts.click ? " bz-bel-kpi--click" : ""}"${opts.click ? ' data-bel-statclick="asset" title="只看在库（使用中与闲置）"' : ""}><b>${num3}</b><span>${esc(label)}</span></div>`;
+    const kpi = (num2, label, opts = {}) => `<div class="bz-bel-kpi${opts.hero ? " bz-bel-kpi--hero" : ""}${opts.click ? " bz-bel-kpi--click" : ""}"${opts.click ? ' data-bel-statclick="asset" title="只看在库（使用中与闲置）"' : ""}><b>${num2}</b><span>${esc(label)}</span></div>`;
     return kpi(String(stockCount(items)), "在库件数", { hero: true, click: true }) + kpi(moneyShort(totalAssets(items), unit), "在库投入", { click: true }) + kpi(moneyWith(avgDailyCost(items).toFixed(2), unit), "日均成本") + kpi(`${gone.length} 件 · ${moneyShort(recover2, unit)}`, "已离场 · 回收");
   }
   function stampCount(items) {
@@ -42360,26 +42283,26 @@ ${it.text}`).join("\n"));
     <span class="bz-bel-mut">${mut}</span>
   </div>`;
   }
-  function gridHtml(items, view2, unit = "cny", list) {
-    return `<div class="bz-bel-grid" data-bel-grid>${(list != null ? list : filtered(items, view2)).map((it, idx) => cellHtml(it, idx, unit)).join("")}</div>`;
+  function gridHtml(items, view, unit = "cny", list) {
+    return `<div class="bz-bel-grid" data-bel-grid>${(list != null ? list : filtered(items, view)).map((it, idx) => cellHtml(it, idx, unit)).join("")}</div>`;
   }
-  function renderPanelView(root, items, view2, hooks, unit = "cny") {
+  function renderPanelView(root, items, view, hooks, unit = "cny") {
     var _a2;
     const q3 = (sel) => root.querySelector(sel);
     const title = q3("[data-bel-herotitle]");
-    if (title) title.textContent = heroTitleText(view2);
+    if (title) title.textContent = heroTitleText(view);
     const sub = q3("[data-bel-herosub]");
-    if (sub) sub.textContent = heroSubText(items, view2);
+    if (sub) sub.textContent = heroSubText(items, view);
     const chips = q3("[data-bel-chips]");
-    if (chips) chips.innerHTML = chipsHtml(items, view2);
+    if (chips) chips.innerHTML = chipsHtml(items, view);
     const mob = q3("[data-bel-mobstatus]");
-    if (mob) mob.innerHTML = mobChipsHtml(items, view2);
-    view2.year = resolveYear(items, view2.year);
+    if (mob) mob.innerHTML = mobChipsHtml(items, view);
+    view.year = resolveYear(items, view.year);
     const yearSel = q3("[data-bel-year]");
     if (yearSel) {
-      yearSel.querySelector(".bz-bel-select-label").textContent = view2.year || "全部年份";
+      yearSel.querySelector(".bz-bel-select-label").textContent = view.year || "全部年份";
       const menu = q3("[data-bel-yearmenu]");
-      if (menu) menu.innerHTML = yearsOptionsHtml(items, view2.year);
+      if (menu) menu.innerHTML = yearsOptionsHtml(items, view.year);
     }
     const wrap2 = q3("[data-bel-kpis]");
     if (wrap2) wrap2.innerHTML = kpisHtml(items, unit);
@@ -42388,21 +42311,21 @@ ${it.text}`).join("\n"));
     const mobStats = q3("[data-bel-mobstats]");
     if (mobStats) mobStats.textContent = mobStatsText(items, unit);
     const sortHost = q3("[data-bel-sort]");
-    if (sortHost) sortHost.innerHTML = segmentedHtml(view2.sort);
+    if (sortHost) sortHost.innerHTML = segmentedHtml(view.sort);
     const mobSortSel = q3("[data-bel-mobsortsel]");
     if (mobSortSel) {
-      mobSortSel.querySelector(".bz-bel-select-label").textContent = ((_a2 = SORT_OPTS.find((o) => o.v === view2.sort)) != null ? _a2 : SORT_OPTS[0]).label;
+      mobSortSel.querySelector(".bz-bel-select-label").textContent = ((_a2 = SORT_OPTS.find((o) => o.v === view.sort)) != null ? _a2 : SORT_OPTS[0]).label;
       const menu = q3("[data-bel-mobsortmenu]");
-      if (menu) menu.innerHTML = sortOptionsHtml(view2.sort);
+      if (menu) menu.innerHTML = sortOptionsHtml(view.sort);
     }
     const content = q3("[data-bel-content]");
     if (!content) return;
-    const list = filtered(items, view2);
+    const list = filtered(items, view);
     if (!list.length) {
-      const noMatch = !!view2.q || view2.status !== null || view2.year !== "";
+      const noMatch = !!view.q || view.status !== null || view.year !== "";
       content.innerHTML = emptyHtml(noMatch);
     } else {
-      content.innerHTML = gridHtml(items, view2, unit, list);
+      content.innerHTML = gridHtml(items, view, unit, list);
       const gridEl = content.querySelector("[data-bel-grid]");
       const cols = (getComputedStyle(gridEl).gridTemplateColumns || "").split(" ").filter(Boolean).length || 1;
       const rem = list.length % cols;
@@ -42538,10 +42461,10 @@ ${it.text}`).join("\n"));
       return null;
     }
   }
-  async function suggestCategoryByCatalog(app2, name, history2, opts = {}) {
+  async function suggestCategoryByCatalog(app, name, history2, opts = {}) {
     var _a2;
     if ((_a2 = opts.signal) == null ? void 0 : _a2.aborted) throw abortError4();
-    const table = await loadCategoryTable(app2);
+    const table = await loadCategoryTable(app);
     if (!table) return null;
     const local = matchByAlias(name, table);
     if (local) return local;
@@ -42653,15 +42576,15 @@ ${it.text}`).join("\n"));
     return { category, icon };
   }
   async function aiSuggestCategory(name, history2) {
-    let app2 = null;
+    let app = null;
     try {
-      app2 = getApp();
+      app = getApp();
     } catch (e) {
-      app2 = null;
+      app = null;
     }
-    if (app2) {
+    if (app) {
       try {
-        const fromTable = await suggestCategoryByCatalog(app2, name, history2);
+        const fromTable = await suggestCategoryByCatalog(app, name, history2);
         if (fromTable) return fromTable;
       } catch (e) {
         throw e;
@@ -42985,19 +42908,19 @@ ${it.text}`).join("\n"));
     M10.sort = SORT_OPTS.some((o) => o.v === srt) ? srt : "recent";
     M10.year = "";
     M10.db = await loadDatabase();
-    const overlay5 = document.createElement("div");
-    overlay5.className = "bz-panel-overlay";
-    overlay5.innerHTML = panelHtml();
-    document.body.appendChild(overlay5);
-    topifyZ(overlay5);
-    M10.overlay = overlay5;
+    const overlay4 = document.createElement("div");
+    overlay4.className = "bz-panel-overlay";
+    overlay4.innerHTML = panelHtml();
+    document.body.appendChild(overlay4);
+    topifyZ(overlay4);
+    M10.overlay = overlay4;
     M10.renderFn = () => renderAll2();
-    mountIcons(overlay5);
-    motionPanelIn2(overlay5);
+    mountIcons(overlay4);
+    motionPanelIn2(overlay4);
     ensureBelongingsEsc();
-    trapPanelFocus((_a2 = overlay5.querySelector(".bz-bel-panel")) != null ? _a2 : overlay5);
+    trapPanelFocus((_a2 = overlay4.querySelector(".bz-bel-panel")) != null ? _a2 : overlay4);
     if (!isMobileEnv()) {
-      const panelEl = overlay5.querySelector(".bz-bel-panel");
+      const panelEl = overlay4.querySelector(".bz-bel-panel");
       if (panelEl) {
         panelResizeDetach2 = uiResizable(panelEl, {
           minW: PANEL3.MIN_W,
@@ -43048,7 +42971,7 @@ ${it.text}`).join("\n"));
     const onDropKey = (e) => {
       var _a3;
       const t = e.target;
-      const openWrap = overlay5.querySelector(".bz-bel-yearsel.is-open");
+      const openWrap = overlay4.querySelector(".bz-bel-yearsel.is-open");
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         if (openWrap) {
           e.preventDefault();
@@ -43074,11 +42997,11 @@ ${it.text}`).join("\n"));
       }
     };
     document.addEventListener("click", onDocClick);
-    overlay5.addEventListener("keydown", onDropKey);
+    overlay4.addEventListener("keydown", onDropKey);
     dropDocClick = onDocClick;
-    overlay5.addEventListener("click", (e) => {
+    overlay4.addEventListener("click", (e) => {
       const t = e.target;
-      if (e.target === overlay5) {
+      if (e.target === overlay4) {
         closePanel();
         return;
       }
@@ -43115,11 +43038,11 @@ ${it.text}`).join("\n"));
     });
     const bindSearch = (inp) => {
       const debounced = debounce(() => {
-        if (M10.overlay !== overlay5) return;
+        if (M10.overlay !== overlay4) return;
         M10.q = inp.value.trim();
         renderAll2();
       }, SEARCH_DEBOUNCE_MS2);
-      const clearBtn = overlay5.querySelector("[data-bel-search-clear]");
+      const clearBtn = overlay4.querySelector("[data-bel-search-clear]");
       const syncClear = () => {
         if (clearBtn) clearBtn.hidden = !inp.value;
       };
@@ -43145,8 +43068,8 @@ ${it.text}`).join("\n"));
         inp.blur();
       });
     };
-    bindSearch(overlay5.querySelector("[data-bel-search]"));
-    const content = overlay5.querySelector("[data-bel-content]");
+    bindSearch(overlay4.querySelector("[data-bel-search]"));
+    const content = overlay4.querySelector("[data-bel-content]");
     content.addEventListener("click", (e) => {
       const cell = e.target.closest("[data-bel-id]");
       if (!cell) return;
@@ -43230,9 +43153,9 @@ ${it.text}`).join("\n"));
   }
   function startAutoRefresh() {
     stopAutoRefresh();
-    const app2 = getApp();
+    const app = getApp();
     const filePath = getDataFilePath();
-    const off = app2.vault.on("modify", (file) => {
+    const off = app.vault.on("modify", (file) => {
       if ((file == null ? void 0 : file.path) !== filePath) return;
       if (selfWritePending > 0) return;
       void (async () => {
@@ -43258,7 +43181,7 @@ ${it.text}`).join("\n"));
         }
       })();
     });
-    autoRefreshOff = () => app2.vault.offref(off);
+    autoRefreshOff = () => app.vault.offref(off);
   }
   function stopAutoRefresh() {
     if (autoRefreshOff) {
@@ -43492,7 +43415,7 @@ ${it.text}`).join("\n"));
       (_a2 = M10.renderFn) == null ? void 0 : _a2.call(M10);
       return;
     }
-    const snapshot3 = { ...M10.db.items[it.id] };
+    const snapshot2 = { ...M10.db.items[it.id] };
     const strikeCell = (_b2 = M10.overlay) == null ? void 0 : _b2.querySelector(`[data-bel-id="${CSS.escape(it.id)}"]`);
     if (strikeCell) motionCellStrike(strikeCell);
     delete M10.db.items[it.id];
@@ -43500,7 +43423,7 @@ ${it.text}`).join("\n"));
     try {
       await saveAndRender();
     } catch (e) {
-      M10.db.items[snapshot3.id] = snapshot3;
+      M10.db.items[snapshot2.id] = snapshot2;
       notifySaveError(e, "删除物品");
       M10.db = await loadDatabase().catch(() => null);
       (_c = M10.renderFn) == null ? void 0 : _c.call(M10);
@@ -43512,13 +43435,13 @@ ${it.text}`).join("\n"));
         var _a3;
         try {
           if (!M10.db) M10.db = await loadDatabase();
-          if (M10.db.items[snapshot3.id]) {
-            notice(`已存在同 id 物品（${snapshot3.id}），跳过恢复`, "warning");
+          if (M10.db.items[snapshot2.id]) {
+            notice(`已存在同 id 物品（${snapshot2.id}），跳过恢复`, "warning");
             return;
           }
-          M10.db.items[snapshot3.id] = snapshot3;
+          M10.db.items[snapshot2.id] = snapshot2;
           await saveAndRender();
-          notice(`已恢复「${snapshot3.name}」`, "success");
+          notice(`已恢复「${snapshot2.name}」`, "success");
         } catch (e) {
           notifySaveError(e, "撤销删除");
           M10.db = await loadDatabase().catch(() => null);
@@ -43756,7 +43679,7 @@ ${it.text}`).join("\n"));
               closeBelForm();
               return;
             }
-            const snapshot3 = { ...cur };
+            const snapshot2 = { ...cur };
             cur.name = name;
             cur.category = category;
             cur.icon = formIcon;
@@ -43775,11 +43698,11 @@ ${it.text}`).join("\n"));
               if (redrew) openBelDetail(redrew);
             }
             if (isBelReportOpen()) void openBelongingsReportView();
-            if (snapshot3.current_status !== curStatus) {
+            if (snapshot2.current_status !== curStatus) {
               const editCell = (_a3 = M10.overlay) == null ? void 0 : _a3.querySelector(`[data-bel-id="${CSS.escape(cur.id)}"]`);
               if (editCell) motionCellFlow(editCell, exitedStatus(curStatus));
             }
-            emitDomainEvent("belongings", { kind: "edit", title: name, changes: belongingsEditChanges(snapshot3, cur) });
+            emitDomainEvent("belongings", { kind: "edit", title: name, changes: belongingsEditChanges(snapshot2, cur) });
           } else {
             if (!M10.db) throw new Error("数据库未加载");
             const newItem = {
@@ -44112,11 +44035,11 @@ ${it.text}`).join("\n"));
   }
   async function migrateLegacyStats(data) {
     if (statsHasData(data.stats)) return data;
-    const app2 = getApp();
-    const af = app2.vault.getAbstractFileByPath(STATS_JSON_PATH);
+    const app = getApp();
+    const af = app.vault.getAbstractFileByPath(STATS_JSON_PATH);
     if (!af) return data;
     try {
-      const raw = await app2.vault.read(af);
+      const raw = await app.vault.read(af);
       const old = JSON.parse(raw);
       const merged = mergeStatsInto(data, old);
       return merged === data ? data : merged;
@@ -44332,8 +44255,8 @@ ${it.text}`).join("\n"));
   });
 
   // src/core/note-trash.ts
-  async function trashNote(app2, file) {
-    await app2.vault.trash(file, false);
+  async function trashNote(app, file) {
+    await app.vault.trash(file, false);
   }
   var init_note_trash = __esm({
     "src/core/note-trash.ts"() {
@@ -44534,21 +44457,21 @@ ${bodyText.substring(0, 6e3)}`;
     }
     return null;
   }
-  async function renameToTitle(app2, file, title) {
+  async function renameToTitle(app, file, title) {
     var _a2;
     const clean = String(title).replace(/[\\/:*?"<>|\r\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
     if (!clean || clean === file.basename) return { target: file, renamed: false, failed: false };
     const dir = file.path.includes("/") ? file.path.slice(0, file.path.lastIndexOf("/")) : "/";
     let newPath = `${dir}/${clean}.md`;
     let n = 1;
-    while (app2.vault.getAbstractFileByPath(newPath)) {
+    while (app.vault.getAbstractFileByPath(newPath)) {
       newPath = `${dir}/${clean} (${n++}).md`;
     }
     try {
-      const fmRename = (_a2 = app2 == null ? void 0 : app2.fileManager) == null ? void 0 : _a2.renameFile;
-      if (fmRename) await fmRename.call(app2.fileManager, file, newPath);
-      else await app2.vault.rename(file, newPath);
-      return { target: app2.vault.getAbstractFileByPath(newPath) || file, renamed: true, failed: false };
+      const fmRename = (_a2 = app == null ? void 0 : app.fileManager) == null ? void 0 : _a2.renameFile;
+      if (fmRename) await fmRename.call(app.fileManager, file, newPath);
+      else await app.vault.rename(file, newPath);
+      return { target: app.vault.getAbstractFileByPath(newPath) || file, renamed: true, failed: false };
     } catch (e) {
       console.warn("[自动摘要] 重命名失败，仅写 frontmatter title:", e);
       return { target: file, renamed: false, failed: true };
@@ -44566,11 +44489,11 @@ ${bodyText.substring(0, 6e3)}`;
       action: { label: "重试", onClick: retry }
     });
   }
-  function retryViaQueue(app2, ai, file, force) {
-    void Promise.resolve().then(() => (init_auto_summary(), auto_summary_exports)).then((m) => m.retrySummaryWithAI(app2, ai, file, force)).catch(() => {
+  function retryViaQueue(app, ai, file, force) {
+    void Promise.resolve().then(() => (init_auto_summary(), auto_summary_exports)).then((m) => m.retrySummaryWithAI(app, ai, file, force)).catch(() => {
     });
   }
-  async function processFile(app2, ai, file, opts = {}) {
+  async function processFile(app, ai, file, opts = {}) {
     const force = opts.force === true;
     let h = null;
     let delivered = false;
@@ -44579,7 +44502,7 @@ ${bodyText.substring(0, 6e3)}`;
     const tagsEnabled = s[AUTO_SUMMARY_KEYS.tagsEnabled] !== false;
     const tagCount2 = String(s[AUTO_SUMMARY_KEYS.tagCount] || "3-6");
     try {
-      const content = await app2.vault.read(file);
+      const content = await app.vault.read(file);
       const { fm: fm2, body } = parseFrontmatter3(content);
       const bodyText = extractBodyForAI(body);
       if (!bodyText || bodyText.length < 100) {
@@ -44606,14 +44529,14 @@ ${bodyText.substring(0, 6e3)}`;
         const reason = await humanizeFailReason();
         if (h) h.hide();
         if (opts.quiet) console.warn("[自动摘要] AI 失败（批量批次，由收场汇总）:", reason);
-        else notifyRetryable(reason, () => retryViaQueue(app2, ai, file, force));
+        else notifyRetryable(reason, () => retryViaQueue(app, ai, file, force));
         return "ai-failed";
       }
       delivered = true;
       let targetFile = file;
       let renameFailed = false;
       if (missing.includes("title") && aiResult.title) {
-        const outcome = await renameToTitle(app2, file, aiResult.title);
+        const outcome = await renameToTitle(app, file, aiResult.title);
         targetFile = outcome.target;
         if (outcome.renamed) {
           notify(`已重命名为《${aiResult.title}》`, { type: "success" });
@@ -44621,7 +44544,7 @@ ${bodyText.substring(0, 6e3)}`;
           renameFailed = true;
         }
       }
-      const latest = await app2.vault.read(targetFile);
+      const latest = await app.vault.read(targetFile);
       const latestParsed = parseFrontmatter3(latest);
       const mergedFm = { ...latestParsed.fm || {} };
       if (missing.includes("title") && aiResult.title) mergedFm.title = aiResult.title;
@@ -44630,7 +44553,7 @@ ${bodyText.substring(0, 6e3)}`;
         mergedFm.tags = aiResult.tags;
       }
       const newContent = buildFrontmatter(mergedFm, latestParsed.extraLines) + "\n\n" + latestParsed.body;
-      await app2.vault.modify(targetFile, newContent);
+      await app.vault.modify(targetFile, newContent);
       if (renameFailed) {
         notify("自动改名失败，标题已写入笔记，请手动重命名", { type: "warning" });
       }
@@ -44643,7 +44566,7 @@ ${bodyText.substring(0, 6e3)}`;
         const missTxt = notDelivered.map((f) => FIELD_LABELS[f]).join("、");
         const msg = gotTxt ? `已写入${gotTxt}，${missTxt}未能生成` : `AI 未生成${missTxt}`;
         if (opts.quiet) console.warn(`[自动摘要] 部分补全（批量批次，由收场汇总）: ${msg}`);
-        else notifyRetryable(`${msg}，可重试`, () => retryViaQueue(app2, ai, targetFile, force));
+        else notifyRetryable(`${msg}，可重试`, () => retryViaQueue(app, ai, targetFile, force));
         return "partial";
       }
       if (!opts.quiet) {
@@ -44664,7 +44587,7 @@ ${bodyText.substring(0, 6e3)}`;
       if (h) h.hide();
       console.error(`[自动摘要] 处理失败: ${file.basename}`, e);
       if (delivered) {
-        notifyRetryable("摘要写入失败，请重试", () => retryViaQueue(app2, ai, file, force));
+        notifyRetryable("摘要写入失败，请重试", () => retryViaQueue(app, ai, file, force));
         return "write-failed";
       }
       return "error";
@@ -44811,66 +44734,66 @@ ${bodyText.substring(0, 6e3)}`;
       batchNotice = notify(msg, { type: "progress", dedupeKey: `auto-summary:batch#${++batchSeq}` });
     }
   }
-  function queueProcess(app2, file) {
+  function queueProcess(app, file) {
     if (!file || file.extension !== "md") return;
     if (!isWatchedTopLevel(file.path)) return;
     if (pendingPaths.has(file.path)) return;
     const timer = setTimeout(() => {
       pendingPaths.delete(file.path);
-      void enqueueJob({ app: app2, ai: createAI(), file });
+      void enqueueJob({ app, ai: createAI(), file });
     }, 1500);
     pendingPaths.set(file.path, timer);
   }
-  function regenerateSummary(app2, file) {
+  function regenerateSummary(app, file) {
     if (!file || file.extension !== "md") return Promise.resolve();
     if (processingPaths.has(file.path)) {
       notify("该篇正在处理中，请稍后再试", { type: "info" });
       return Promise.resolve();
     }
     if (draining) notify("已加入摘要队列，当前篇完成后优先处理", { type: "info" });
-    return enqueueJob({ app: app2, ai: createAI(), file, force: true }, true);
+    return enqueueJob({ app, ai: createAI(), file, force: true }, true);
   }
-  function retrySummaryWithAI(app2, ai, file, force) {
+  function retrySummaryWithAI(app, ai, file, force) {
     if (!file || file.extension !== "md") return Promise.resolve();
     if (processingPaths.has(file.path)) {
       notify("该篇正在处理中，请稍后再试", { type: "info" });
       return Promise.resolve();
     }
     if (draining) notify("已加入摘要队列，当前篇完成后优先处理", { type: "info" });
-    return enqueueJob({ app: app2, ai, file, force }, true);
+    return enqueueJob({ app, ai, file, force }, true);
   }
-  async function redoSummaryForActiveFile(app2) {
-    const ws = app2 && app2.workspace;
+  async function redoSummaryForActiveFile(app) {
+    const ws = app && app.workspace;
     const file = ws && typeof ws.getActiveFile === "function" ? ws.getActiveFile() : null;
     if (!file || file.extension !== "md" || !isWatchedTopLevel(String(file.path || ""))) {
       notify("当前打开的不是剪藏笔记，无法重新生成摘要", { type: "info" });
       return;
     }
-    await regenerateSummary(app2, file);
+    await regenerateSummary(app, file);
   }
-  function scheduleRegister(app2) {
+  function scheduleRegister(app) {
     registerTimer = setTimeout(() => {
       var _a2;
       registerTimer = null;
       if (!vaultRef) return;
       const timing = ((_a2 = tryGetSettings()) == null ? void 0 : _a2[AUTO_SUMMARY_KEYS.timing]) || "immediate";
       if (timing !== "lazy") {
-        fileListenerRef = vaultRef.on("create", (file) => queueProcess(app2, file));
+        fileListenerRef = vaultRef.on("create", (file) => queueProcess(app, file));
       }
       if (workspaceRef && typeof workspaceRef.on === "function") {
-        openListenerRef = workspaceRef.on("file-open", (file) => queueProcess(app2, file));
+        openListenerRef = workspaceRef.on("file-open", (file) => queueProcess(app, file));
       }
     }, 2e3);
   }
-  function ensureAutoSummary(app2) {
+  function ensureAutoSummary(app) {
     if (initialized3) {
-      if (!registerTimer && !openListenerRef) scheduleRegister(app2);
+      if (!registerTimer && !openListenerRef) scheduleRegister(app);
       return;
     }
     initialized3 = true;
-    vaultRef = app2.vault;
-    workspaceRef = app2.workspace;
-    scheduleRegister(app2);
+    vaultRef = app.vault;
+    workspaceRef = app.workspace;
+    scheduleRegister(app);
   }
   function isAutoSummaryInitialized() {
     return initialized3;
@@ -45132,11 +45055,11 @@ ${bodyText.substring(0, 6e3)}`;
       if (!s.byPlatform) s.byPlatform = {};
       if (!s.byDate) s.byDate = {};
       let bumped = 0;
-      const snapshot3 = [];
+      const snapshot2 = [];
       const list = (res.data.articles || []).map((a) => {
         if (a.read === true || !keys.has(articleKeyOf(a))) return a;
         bumped++;
-        snapshot3.push({ ...a });
+        snapshot2.push({ ...a });
         const next = { ...a, read: true, state: "skipped" };
         const platform = a.platform || "未知";
         s.byPlatform[platform] = (Number(s.byPlatform[platform]) || 0) + 1;
@@ -45147,13 +45070,13 @@ ${bodyText.substring(0, 6e3)}`;
       s.totalRead = (Number(s.totalRead) || 0) + bumped;
       s.totalSkipped = (Number(s.totalSkipped) || 0) + bumped;
       await writeNewsDataMerged({ set: { articles: list, stats: s } });
-      return { bumped, snapshot: snapshot3 };
+      return { bumped, snapshot: snapshot2 };
     });
   }
-  async function flowUndoMarkAllRead(snapshot3) {
-    if (!snapshot3 || !snapshot3.length) return;
+  async function flowUndoMarkAllRead(snapshot2) {
+    if (!snapshot2 || !snapshot2.length) return;
     const beforeByKey = /* @__PURE__ */ new Map();
-    for (const r of snapshot3) if (r) beforeByKey.set(articleKeyOf(r), r);
+    for (const r of snapshot2) if (r) beforeByKey.set(articleKeyOf(r), r);
     if (!beforeByKey.size) return;
     await enqueueNewsWrite(async () => {
       const res = await readNewsData();
@@ -45593,13 +45516,13 @@ ${bodyText.substring(0, 6e3)}`;
     const shown = tags.slice(0, 2).map((t) => `#${esc(t)}`).join(" ");
     return `<span class="bz-clip-item-tags">${shown}${tags.length > 2 ? " …" : ""}</span>`;
   }
-  function tocListHtml(list, curId, timeOf2, kw = "") {
+  function tocListHtml(list, curId, timeOf, kw = "") {
     return list.map((a, i) => `
     <div class="bz-clip-item bz-clip-item--${a.st}${curId && curId === a.id ? " on" : ""}" role="button" tabindex="0" data-id="${esc(a.id)}">
       <span class="bz-clip-no">${pad2(i + 1)}</span>
       <div class="bz-clip-item-main">
         <div class="bz-clip-item-t"><span>${highlightTitleHtml(a.title, kw)}</span></div>
-        <div class="bz-clip-item-meta">${esc(siteShort(a.srcName))} · ${esc(timeOf2(a))}${tocTagsHtml(a.tags)}</div>
+        <div class="bz-clip-item-meta">${esc(siteShort(a.srcName))} · ${esc(timeOf(a))}${tocTagsHtml(a.tags)}</div>
       </div>
     </div>`).join("");
   }
@@ -45638,13 +45561,13 @@ ${bodyText.substring(0, 6e3)}`;
     ${openNoteFoot}
   `;
   }
-  function mobListHtml(list, timeOf2) {
+  function mobListHtml(list, timeOf) {
     return list.map((a) => `
     <div class="bz-clip-mob-item ${a.st}" data-id="${esc(a.id)}">
       <span class="bz-clip-mob-dot ${a.st}"></span>
       <span class="bz-clip-mob-ttl">${esc(a.title)}</span>
       ${a.st === "reading" ? '<span class="bz-clip-mob-tag">在读</span>' : ""}
-      <span class="bz-clip-mob-time">${esc(timeOf2(a))}</span>
+      <span class="bz-clip-mob-time">${esc(timeOf(a))}</span>
     </div>`).join("");
   }
   function mobChHeadHtml(site, unread, readN, savedN, markAllN = 0) {
@@ -45887,20 +45810,20 @@ ${bodyText.substring(0, 6e3)}`;
   function canAnimate() {
     return !reduced7() && typeof document !== "undefined" && typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.animate === "function";
   }
-  function waapi6(el3, frames, opts) {
-    if (!el3 || reduced7() || typeof el3.animate !== "function") {
+  function waapi6(el2, frames, opts) {
+    if (!el2 || reduced7() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -45911,12 +45834,12 @@ ${bodyText.substring(0, 6e3)}`;
       return;
     }
     const t0 = performance.now();
-    const tick2 = (now) => {
+    const tick = (now) => {
       const p = Math.min(1, (now - t0) / dur);
       step(ease(p));
-      if (p < 1) requestAnimationFrame(tick2);
+      if (p < 1) requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick2);
+    requestAnimationFrame(tick);
   }
   function after6(ms, fn) {
     if (typeof setTimeout !== "function") return;
@@ -45935,23 +45858,23 @@ ${bodyText.substring(0, 6e3)}`;
     }
     panelAnim = null;
   }
-  function sweep2(el3, from, to, opts = {}) {
-    if (!el3 || !canAnimate()) return;
+  function sweep2(el2, from, to, opts = {}) {
+    if (!el2 || !canAnimate()) return;
     const { delay = 0, dur = M12.base, easing = E6.out, origin } = opts;
-    if (origin) el3.style.transformOrigin = origin;
-    el3.style.willChange = "transform,opacity,filter";
+    if (origin) el2.style.transformOrigin = origin;
+    el2.style.willChange = "transform,opacity,filter";
     let a = null;
     try {
-      a = el3.animate([from, to], { duration: dur, delay, easing, fill: "backwards" });
+      a = el2.animate([from, to], { duration: dur, delay, easing, fill: "backwards" });
     } catch (e) {
       a = null;
     }
     if (!a) {
-      cleanSweep(el3, from, to, !!origin);
+      cleanSweep(el2, from, to, !!origin);
       return;
     }
     const done = () => {
-      cleanSweep(el3, from, to, !!origin);
+      cleanSweep(el2, from, to, !!origin);
       try {
         a.cancel();
       } catch (e) {
@@ -45959,7 +45882,7 @@ ${bodyText.substring(0, 6e3)}`;
     };
     a.finished.then(done).catch(done);
   }
-  function cleanSweep(el3, from, to, hadOrigin) {
+  function cleanSweep(el2, from, to, hadOrigin) {
     const keys = /* @__PURE__ */ new Set([...Object.keys(from), ...Object.keys(to)]);
     if (hadOrigin) keys.add("transformOrigin");
     keys.add("willChange");
@@ -45967,14 +45890,14 @@ ${bodyText.substring(0, 6e3)}`;
       if (k === "offset" || k === "easing" || k === "composite") continue;
       const css = CSS_PROP[k] || k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
       try {
-        el3.style.removeProperty(css);
+        el2.style.removeProperty(css);
       } catch (e) {
       }
     }
   }
-  function cancelAnimsBy(el3, ids) {
-    if (typeof el3.getAnimations !== "function") return;
-    for (const a of el3.getAnimations()) {
+  function cancelAnimsBy(el2, ids) {
+    if (typeof el2.getAnimations !== "function") return;
+    for (const a of el2.getAnimations()) {
       if (ids.includes(a.id)) {
         try {
           a.cancel();
@@ -45983,8 +45906,8 @@ ${bodyText.substring(0, 6e3)}`;
       }
     }
   }
-  function motionPanelIn3(overlay5, reopen) {
-    const frame2 = overlay5.querySelector(".bz-clip-frame");
+  function motionPanelIn3(overlay4, reopen) {
+    const frame2 = overlay4.querySelector(".bz-clip-frame");
     if (!frame2) return;
     try {
       panelAnim == null ? void 0 : panelAnim.cancel();
@@ -45992,12 +45915,12 @@ ${bodyText.substring(0, 6e3)}`;
     }
     panelAnim = null;
     cancelAnimsBy(frame2, [EXIT_ANIM_ID]);
-    cancelAnimsBy(overlay5, [EXIT_MASK_ANIM_ID]);
+    cancelAnimsBy(overlay4, [EXIT_MASK_ANIM_ID]);
     frame2.style.opacity = "";
     frame2.style.transform = "";
     frame2.style.filter = "";
-    if (!overlay5.style.opacity) overlay5.style.opacity = "0";
-    waapi6(overlay5, [{ opacity: 0 }, { opacity: 1 }], { duration: M12.fast + 40, easing: E6.out });
+    if (!overlay4.style.opacity) overlay4.style.opacity = "0";
+    waapi6(overlay4, [{ opacity: 0 }, { opacity: 1 }], { duration: M12.fast + 40, easing: E6.out });
     const a = waapi6(
       frame2,
       [
@@ -46010,19 +45933,19 @@ ${bodyText.substring(0, 6e3)}`;
       panelAnim = a;
       a.finished.then(() => {
         if (panelAnim === a) panelAnim = null;
-        overlay5.style.opacity = "";
+        overlay4.style.opacity = "";
         frame2.style.opacity = "";
         frame2.style.transform = "";
         frame2.style.filter = "";
       }).catch(() => {
-        overlay5.style.opacity = "";
+        overlay4.style.opacity = "";
       });
     } else {
-      overlay5.style.opacity = "";
+      overlay4.style.opacity = "";
     }
   }
-  function motionPanelOut2(overlay5, done) {
-    const frame2 = overlay5.querySelector(".bz-clip-frame");
+  function motionPanelOut2(overlay4, done) {
+    const frame2 = overlay4.querySelector(".bz-clip-frame");
     if (!frame2) {
       done();
       return;
@@ -46056,28 +45979,28 @@ ${bodyText.substring(0, 6e3)}`;
       { duration: M12.move + 40, easing: E6.out, fill: "forwards", id: EXIT_ANIM_ID }
     );
     maskAnim = waapi6(
-      overlay5,
+      overlay4,
       [{ opacity: 1 }, { opacity: 0 }],
       { duration: M12.move + 40, easing: E6.out, id: EXIT_MASK_ANIM_ID }
     );
     if (!a) {
-      overlay5.style.opacity = "";
+      overlay4.style.opacity = "";
       finish();
       return;
     }
     panelAnim = a;
     a.finished.then(() => {
-      overlay5.style.opacity = "";
+      overlay4.style.opacity = "";
       finish();
     }).catch(() => {
-      overlay5.style.opacity = "";
+      overlay4.style.opacity = "";
       finish();
     });
     after6(M12.move + 200, finish);
   }
-  function motionHeadRevealed(overlay5) {
+  function motionHeadRevealed(overlay4) {
     var _a2, _b2, _c;
-    const head = overlay5.querySelector(".bz-clip-desk .bz-panel-head");
+    const head = overlay4.querySelector(".bz-clip-desk .bz-panel-head");
     if (!head || head.offsetParent === null) return;
     const wire = head.querySelector("[data-clip-title-wire]");
     const strip = head.querySelector(".bz-clip-head-strip");
@@ -46361,11 +46284,11 @@ ${bodyText.substring(0, 6e3)}`;
       );
     });
   }
-  function motionMobSearchbarIn(barEl2) {
-    sweep2(barEl2, { opacity: 0, transform: "translateY(-7px)" }, { opacity: 1, transform: "none" }, { dur: M12.fast + 40 });
+  function motionMobSearchbarIn(barEl) {
+    sweep2(barEl, { opacity: 0, transform: "translateY(-7px)" }, { opacity: 1, transform: "none" }, { dur: M12.fast + 40 });
   }
-  function motionSelbarIn(barEl2) {
-    sweep2(barEl2, { opacity: 0, transform: "translateY(5px) scale(.96)" }, { opacity: 1, transform: "none" }, { dur: M12.fast + 20 });
+  function motionSelbarIn(barEl) {
+    sweep2(barEl, { opacity: 0, transform: "translateY(5px) scale(.96)" }, { opacity: 1, transform: "none" }, { dur: M12.fast + 20 });
   }
   function motionArchStamp(host) {
     if (!host || !canAnimate() || host.querySelector(":scope > .bz-clm-stamp")) return;
@@ -46446,11 +46369,11 @@ ${bodyText.substring(0, 6e3)}`;
     if (a) a.finished.then(remove).catch(remove);
     else after6(M12.impulse, remove);
   }
-  function motionReportIn(overlay5) {
-    const frame2 = overlay5.querySelector(".bz-clip-report-frame");
+  function motionReportIn(overlay4) {
+    const frame2 = overlay4.querySelector(".bz-clip-report-frame");
     if (!frame2) return;
-    if (!overlay5.style.opacity) overlay5.style.opacity = "0";
-    waapi6(overlay5, [{ opacity: 0 }, { opacity: 1 }], { duration: M12.fast + 40, easing: E6.out });
+    if (!overlay4.style.opacity) overlay4.style.opacity = "0";
+    waapi6(overlay4, [{ opacity: 0 }, { opacity: 1 }], { duration: M12.fast + 40, easing: E6.out });
     const a = waapi6(
       frame2,
       [
@@ -46460,7 +46383,7 @@ ${bodyText.substring(0, 6e3)}`;
       { duration: M12.base + 60, easing: E6.out }
     );
     const clear = () => {
-      overlay5.style.opacity = "";
+      overlay4.style.opacity = "";
     };
     if (a) a.finished.then(clear).catch(clear);
     else clear();
@@ -46498,10 +46421,10 @@ ${bodyText.substring(0, 6e3)}`;
     sweep2(sec.querySelector(".bz-clp-rep-hours-note"), { opacity: 0 }, { opacity: 1 }, { delay: base + 460, dur: M12.base - 40 });
     sweep2(sec.querySelector(".bz-clp-rep-none"), { opacity: 0 }, { opacity: 1 }, { delay: base + 120, dur: M12.base - 40 });
   }
-  function motionLoadingPulse(el3) {
-    if (!el3 || reduced7() || typeof el3.animate !== "function") return;
+  function motionLoadingPulse(el2) {
+    if (!el2 || reduced7() || typeof el2.animate !== "function") return;
     try {
-      el3.animate([{ opacity: 1 }, { opacity: 0.45 }, { opacity: 1 }], { duration: 1400, iterations: Infinity, easing: "ease-in-out" });
+      el2.animate([{ opacity: 1 }, { opacity: 0.45 }, { opacity: 1 }], { duration: 1400, iterations: Infinity, easing: "ease-in-out" });
     } catch (e) {
     }
   }
@@ -46853,14 +46776,14 @@ ${bodyText.substring(0, 6e3)}`;
     const days = /* @__PURE__ */ new Set();
     const perDay = /* @__PURE__ */ new Map();
     let totalMinutes = 0;
-    const todayKey2 = dayKeyOf2(now.getTime());
+    const todayKey = dayKeyOf2(now.getTime());
     let todayMinutes2 = 0;
     let todaySessions = 0;
     let deepMinutes = 0;
     for (const e of valid) {
       const m = Math.round(Number(e.minutes) || 0);
       totalMinutes += m;
-      if (dayKeyOf2(e.ts) === todayKey2) {
+      if (dayKeyOf2(e.ts) === todayKey) {
         todayMinutes2 += m;
         todaySessions += 1;
       }
@@ -47339,10 +47262,10 @@ ${bodyText.substring(0, 6e3)}`;
       return s / 4294967296;
     };
   }
-  function S2(el3, v) {
+  function S2(el2, v) {
     var _a2;
-    if (!el3 || lastStyle2.get(el3) === v) return;
-    const he = el3;
+    if (!el2 || lastStyle2.get(el2) === v) return;
+    const he = el2;
     const prev = (_a2 = he.getAttribute("style")) != null ? _a2 : "";
     if (prev) {
       const incoming = new Set(v.split(";").map((d) => d.split(":")[0].trim()).filter(Boolean));
@@ -47355,10 +47278,10 @@ ${bodyText.substring(0, 6e3)}`;
     he.setAttribute("style", v);
     lastStyle2.set(he, v);
   }
-  function T2(el3, v) {
-    if (!el3 || lastText2.get(el3) === v) return;
-    el3.textContent = v;
-    lastText2.set(el3, v);
+  function T2(el2, v) {
+    if (!el2 || lastText2.get(el2) === v) return;
+    el2.textContent = v;
+    lastText2.set(el2, v);
   }
   function fit2(cv) {
     const ctx = cv.getContext("2d");
@@ -47388,10 +47311,10 @@ ${bodyText.substring(0, 6e3)}`;
     const f = (1 - dist / R) * force;
     return { dx: dx / dist * f, dy: dy / dist * f };
   }
-  function dolly(el3, t, from, dur = 1.1, delay = 0) {
-    if (!el3) return;
+  function dolly(el2, t, from, dur = 1.1, delay = 0) {
+    if (!el2) return;
     const rest = 1 - easeOut2(at2(t, dur, delay));
-    S2(el3, rest <= 5e-4 ? "transform:none" : `transform:${from(rest)}`);
+    S2(el2, rest <= 5e-4 ? "transform:none" : `transform:${from(rest)}`);
   }
   function drawTip(ctx, x, y, text2, pal) {
     ctx.font = `12px ${HEI}`;
@@ -47531,8 +47454,8 @@ ${bodyText.substring(0, 6e3)}`;
       return i === 0 ? 0 : (_a2 = sideBeat[i - 1]) != null ? _a2 : 0;
     };
     const rollDur = (i) => {
-      const el3 = nums[i];
-      const n = Math.round(Number((el3 == null ? void 0 : el3.dataset.n) || 0));
+      const el2 = nums[i];
+      const n = Math.round(Number((el2 == null ? void 0 : el2.dataset.n) || 0));
       return 0.9 + Math.min(6, String(n).length) * 0.12;
     };
     const dur = 4.4 + Math.min(1.2, String(Math.round(d.totalMinutes)).length * 0.18);
@@ -47547,10 +47470,10 @@ ${bodyText.substring(0, 6e3)}`;
           const dir = i === 0 ? `translateY(${((1 - p) * -22).toFixed(1)}px)` : `translateX(${((1 - p) * 30).toFixed(1)}px)`;
           S2(c, `opacity:${clamp013(p * 1.5).toFixed(3)};transform:${par} ${dir}`);
         });
-        nums.forEach((el3, i) => {
-          const n = Number(el3.dataset.n || 0);
+        nums.forEach((el2, i) => {
+          const n = Number(el2.dataset.n || 0);
           const p = easeOutExpo(at2(t, rollDur(i), 0.4 + beatOf(i) + 0.15));
-          T2(el3, el3.getAttribute("data-fmt") === "min" ? humanish(roll(n, p)) : comma(roll(n, p)));
+          T2(el2, el2.getAttribute("data-fmt") === "min" ? humanish(roll(n, p)) : comma(roll(n, p)));
         });
         S2(line, `transform:scaleX(${easeInOut2(at2(t, 1, 0.3)).toFixed(4)})`);
         if (brow) {
@@ -48312,10 +48235,10 @@ ${bodyText.substring(0, 6e3)}`;
           if (ringv) T2(ringv, `${Math.round(rate * clamp013(p))}%`);
         }
         cells.forEach((c, i) => {
-          const el3 = q2(c, '[data-r="num"]');
-          const n = Number((el3 == null ? void 0 : el3.dataset.n) || 0);
+          const el2 = q2(c, '[data-r="num"]');
+          const n = Number((el2 == null ? void 0 : el2.dataset.n) || 0);
           const p = easeOutExpo(at2(t, 1.1, 0.7 + i * 0.22));
-          T2(el3, comma(roll(n, p)));
+          T2(el2, comma(roll(n, p)));
           const depth = 0.6 + i * 0.4;
           S2(c, `opacity:${clamp013(p * 1.6).toFixed(3)};transform:translate(${(px * depth * 6).toFixed(1)}px, ${(py * depth * 4 + (1 - p) * 20).toFixed(1)}px)`);
         });
@@ -48410,10 +48333,10 @@ ${bodyText.substring(0, 6e3)}`;
         }
         cells.forEach((c, i) => {
           var _a2, _b2;
-          const el3 = (_a2 = nums[i]) != null ? _a2 : null;
-          const n = Number((el3 == null ? void 0 : el3.dataset.n) || 0);
+          const el2 = (_a2 = nums[i]) != null ? _a2 : null;
+          const n = Number((el2 == null ? void 0 : el2.dataset.n) || 0);
           const p = easeOutExpo(at2(t, 1.3, 0.4 + i * 0.28));
-          T2(el3, comma(roll(n, p)));
+          T2(el2, comma(roll(n, p)));
           const depth = (_b2 = depths[i]) != null ? _b2 : 1;
           const dip = i === 1 ? 12 : 0;
           S2(c, `opacity:${clamp013(p * 1.6).toFixed(3)};transform:translate(${(px * depth * 9).toFixed(1)}px, ${(py * depth * 6 + (1 - p) * 18).toFixed(1)}px) translateY(${dip}px)`);
@@ -48707,7 +48630,7 @@ ${bodyText.substring(0, 6e3)}`;
     function pump() {
       if (dead) return;
       clearTimeout(fallback);
-      tick2(performance.now());
+      tick(performance.now());
       raf = rafFn2(() => {
         clearTimeout(fallback);
         pump();
@@ -48717,7 +48640,7 @@ ${bodyText.substring(0, 6e3)}`;
         pump();
       }, 220);
     }
-    function tick2(now) {
+    function tick(now) {
       var _a3;
       if (dead || cur < 0) return;
       const perf = perfs.get((_a3 = scenes[cur].getAttribute("data-id")) != null ? _a3 : "");
@@ -48817,7 +48740,7 @@ ${bodyText.substring(0, 6e3)}`;
     box.style.fontSize = `${base.toFixed(2)}px`;
     box.style.borderRadius = getComputedStyle(panel2).borderTopLeftRadius || "";
   }
-  async function openReadingPress(app2) {
+  async function openReadingPress(app) {
     var _a2, _b2, _c;
     const noStage = typeof requestAnimationFrame !== "function" || typeof HTMLElement === "undefined" || typeof HTMLElement.prototype.animate !== "function";
     if (pressOvl == null ? void 0 : pressOvl.isConnected) {
@@ -48833,7 +48756,7 @@ ${bodyText.substring(0, 6e3)}`;
     const sidecar = await readClipbookData();
     const log = sidecar.readLog || [];
     if (noStage || !log.length) {
-      await openClipbookReport(app2);
+      await openClipbookReport(app);
       return;
     }
     let raw = null;
@@ -49010,8 +48933,8 @@ ${bodyText.substring(0, 6e3)}`;
       return false;
     }
   }
-  function ensureFileSync2(app2) {
-    agent2.ensure(app2);
+  function ensureFileSync2(app) {
+    agent2.ensure(app);
   }
   function unloadFileSync2() {
     agent2.unload();
@@ -49051,12 +48974,12 @@ ${bodyText.substring(0, 6e3)}`;
     unloadClipbook: () => unloadClipbook,
     unloadClipbookFileSync: () => unloadFileSync2
   });
-  function openClipbook(app2) {
+  function openClipbook(app) {
     if (!initialized4) {
       initialized4 = true;
-      registerAutoRefresh(app2);
+      registerAutoRefresh(app);
       setNewsFetchDoneListener(() => reloadIfOpen());
-      initPanel(app2, true);
+      initPanel(app, true);
     } else {
       showPanel();
     }
@@ -49083,13 +49006,13 @@ ${bodyText.substring(0, 6e3)}`;
       ]
     });
     if (ok !== "ok") return;
-    const { bumped, snapshot: snapshot3 } = await flowMarkAllRead(unread);
+    const { bumped, snapshot: snapshot2 } = await flowMarkAllRead(unread);
     if (!bumped) {
       void reloadIfOpen();
       return;
     }
     notifyUndo(`已把 ${bumped} 篇标为已读`, () => void (async () => {
-      await flowUndoMarkAllRead(snapshot3);
+      await flowUndoMarkAllRead(snapshot2);
       notice("已撤销：条目恢复未读", "success");
       void reloadIfOpen();
     })());
@@ -49111,7 +49034,7 @@ ${bodyText.substring(0, 6e3)}`;
     setNewsFetchDoneListener(() => {
     });
   }
-  function registerAutoRefresh(app2) {
+  function registerAutoRefresh(app) {
     if (autoRefreshRegistered) return;
     autoRefreshRegistered = true;
     let timer = null;
@@ -49268,8 +49191,8 @@ ${c.trim()}
       if (j > i) {
         try {
           const raw = html.slice(i + "window.INITIAL_STORE=".length, j).trim().replace(/;\s*$/, "");
-          const store3 = JSON.parse(raw);
-          const art = store3.articleStore && store3.articleStore.article;
+          const store2 = JSON.parse(raw);
+          const art = store2.articleStore && store2.articleStore.article;
           if (art && art.content) return art.content;
         } catch (e) {
         }
@@ -49280,9 +49203,9 @@ ${c.trim()}
   function decodeXmlEntities(s) {
     return s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&nbsp;/g, " ").replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCharCode(parseInt(h, 16))).replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n))).replace(/&amp;/g, "&");
   }
-  function tagText(block2, tag) {
+  function tagText(block, tag) {
     const re = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "i");
-    const m = block2.match(re);
+    const m = block.match(re);
     if (!m) return null;
     const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
     const raw = cdata ? cdata[1] : m[1].replace(/<[^>]+>/g, "");
@@ -49291,17 +49214,17 @@ ${c.trim()}
   function parseRssXml(xml) {
     const out = [];
     const blocks = String(xml || "").match(/<(?:item|entry)[\s>][\s\S]*?<\/(?:item|entry)>/gi) || [];
-    for (const block2 of blocks) {
-      const title = tagText(block2, "title") || "";
-      let link = tagText(block2, "link") || "";
+    for (const block of blocks) {
+      const title = tagText(block, "title") || "";
+      let link = tagText(block, "link") || "";
       if (!link) {
-        const hrefM = block2.match(/<link[^>]*href=["']([^"']+)["']/i);
+        const hrefM = block.match(/<link[^>]*href=["']([^"']+)["']/i);
         link = hrefM ? decodeXmlEntities(hrefM[1]).trim() : "";
       }
-      const guid = tagText(block2, "guid") || tagText(block2, "id") || "";
-      const pubDate = tagText(block2, "pubDate") || tagText(block2, "published") || tagText(block2, "updated") || "";
-      const content = tagText(block2, "content:encoded") || tagText(block2, "content") || "";
-      const summary = tagText(block2, "description") || tagText(block2, "summary") || "";
+      const guid = tagText(block, "guid") || tagText(block, "id") || "";
+      const pubDate = tagText(block, "pubDate") || tagText(block, "published") || tagText(block, "updated") || "";
+      const content = tagText(block, "content:encoded") || tagText(block, "content") || "";
+      const summary = tagText(block, "description") || tagText(block, "summary") || "";
       if (!title && !link) continue;
       out.push({ title, link, guid, pubDate, content, summary });
     }
@@ -49590,10 +49513,10 @@ ${c.trim()}
     }
     return { articles, perFeed, titleUpdates, requestFailed: attempted > 0 && failedRequests === attempted };
   }
-  async function runNewsFetchRound(deps2) {
-    const httpGet = deps2.httpGet;
-    const now = deps2.now || Date.now;
-    const disk = await deps2.store.read();
+  async function runNewsFetchRound(deps) {
+    const httpGet = deps.httpGet;
+    const now = deps.now || Date.now;
+    const disk = await deps.store.read();
     if (!disk) {
       return { added: 0, prunedBilibili: 0, prunedRss: 0, failedSources: ["读取 news.json 失败"], needsCookieNotice: false };
     }
@@ -49648,7 +49571,7 @@ ${c.trim()}
       seenRemoveKeys.add(k);
       removeArticleKeys.push(k);
     }
-    await deps2.store.write({
+    await deps.store.write({
       set: {
         articles: newArticles,
         ...allFailed ? {} : { lastFetchAt: now() }
@@ -49670,14 +49593,14 @@ ${c.trim()}
   function setNewsFetchDoneListener(fn) {
     onFetched = fn;
   }
-  async function executeFetchRound(deps2, opts) {
+  async function executeFetchRound(deps, opts) {
     if (fetching) return null;
     fetching = true;
     try {
       const r = await runNewsFetchRound({
-        httpGet: (deps2 == null ? void 0 : deps2.httpGet) || requestUrlHttpGet(),
-        store: (deps2 == null ? void 0 : deps2.store) || defaultFetchStore(),
-        now: deps2 == null ? void 0 : deps2.now
+        httpGet: (deps == null ? void 0 : deps.httpGet) || requestUrlHttpGet(),
+        store: (deps == null ? void 0 : deps.store) || defaultFetchStore(),
+        now: deps == null ? void 0 : deps.now
       });
       if (r.failedSources.length > 0) {
         notice(`聚合讯抓取部分失败：${r.failedSources.join("、")}`, "warning");
@@ -49698,21 +49621,21 @@ ${c.trim()}
       fetching = false;
     }
   }
-  async function maybeFetchNews(deps2) {
+  async function maybeFetchNews(deps) {
     if (fetching) return null;
-    const store3 = (deps2 == null ? void 0 : deps2.store) || defaultFetchStore();
+    const store2 = (deps == null ? void 0 : deps.store) || defaultFetchStore();
     let disk;
     try {
-      disk = await store3.read();
+      disk = await store2.read();
     } catch (e) {
       console.warn("[剪藏本] 聚合讯抓取失败", e);
       return null;
     }
     if (!disk) return null;
     const intervalMin = normalizeFetchIntervalMin(disk.fetchIntervalMin);
-    const now = (deps2 == null ? void 0 : deps2.now) || Date.now;
+    const now = (deps == null ? void 0 : deps.now) || Date.now;
     if (now() - disk.lastFetchAt < intervalMin * 60 * 1e3) return null;
-    return executeFetchRound(deps2, { silent: true });
+    return executeFetchRound(deps, { silent: true });
   }
   function notifyManualFetchResult(r) {
     if (!r) {
@@ -49730,8 +49653,8 @@ ${c.trim()}
       }
     });
   }
-  async function fetchNowNews(deps2) {
-    return executeFetchRound(deps2);
+  async function fetchNowNews(deps) {
+    return executeFetchRound(deps);
   }
   var WINDOW_MS, RSS_MAX_PER_FEED, FETCH_TIMEOUT_MS, HEADERS, BILIBILI_API, BILIBILI_HOME, fetching, onFetched;
   var init_news_fetcher = __esm({
@@ -49898,8 +49821,8 @@ ${c.trim()}
     ];
   }
   function setRowDesc(ctx, text2) {
-    const el3 = ctx.rowEl.querySelector(".bz-sp-set-desc") || ctx.rowEl.querySelector(".setting-item-description");
-    if (el3) el3.textContent = text2;
+    const el2 = ctx.rowEl.querySelector(".bz-sp-set-desc") || ctx.rowEl.querySelector(".setting-item-description");
+    if (el2) el2.textContent = text2;
   }
   function notifyWriteFailed(what) {
     notifySaveError(new Error("news.json 不可读或已损坏"), what);
@@ -49974,7 +49897,7 @@ ${c.trim()}
   function upDisplayName(uid, info) {
     return info && info.name ? info.name : `UP ${uid}`;
   }
-  async function backfillUpProfiles(uids, box, refresh3) {
+  async function backfillUpProfiles(uids, box, refresh2) {
     var _a2, _b2;
     let filled = false;
     let writeFailed = false;
@@ -49994,7 +49917,7 @@ ${c.trim()}
       box.upInfo[uid] = { ...box.upInfo[uid], ...info };
       filled = true;
     }
-    if (filled) refresh3();
+    if (filled) refresh2();
     if (filled) return "filled";
     return writeFailed ? "write-failed" : "none";
   }
@@ -50067,8 +49990,8 @@ ${c.trim()}
     const box = { inputValue: "", ups: [...opts.ups], upInfo: { ...opts.upInfo } };
     try {
       const { renderPanelSchema: renderPanelSchema2 } = await Promise.resolve().then(() => (init_renderer(), renderer_exports));
-      const { refresh: refresh3 } = renderPanelSchema2(content, upManagerSettingsSchema(opts, box));
-      void backfillUpProfiles(box.ups, box, refresh3);
+      const { refresh: refresh2 } = renderPanelSchema2(content, upManagerSettingsSchema(opts, box));
+      void backfillUpProfiles(box.ups, box, refresh2);
     } catch (e) {
       close();
       throw e;
@@ -50234,7 +50157,7 @@ ${c.trim()}
     registerClose(close);
     const instance = (_a2 = normalizeRsshubInstance(opts.instance)) != null ? _a2 : RSS_HUB_DEFAULT_INSTANCE;
     const templateParams = parseRouteTemplate(feed.via);
-    const defaults2 = feed.viaExample ? reverseTemplateExample(feed.via, feed.viaExample) : {};
+    const defaults = feed.viaExample ? reverseTemplateExample(feed.via, feed.viaExample) : {};
     const header = document.createElement("div");
     header.className = "bz-settings-header";
     const title = document.createElement("h3");
@@ -50273,7 +50196,7 @@ ${c.trim()}
       input.type = "text";
       input.className = "bz-rss-route-input";
       input.placeholder = ((_b2 = feed.params) == null ? void 0 : _b2[p.name]) || "参数值";
-      input.value = defaults2[p.name] || "";
+      input.value = defaults[p.name] || "";
       values[p.name] = input.value;
       input.addEventListener("input", () => {
         values[p.name] = input.value;
@@ -50358,11 +50281,11 @@ ${c.trim()}
       close
     });
   }
-  function createRssCatalogPane(root, deps2) {
+  function createRssCatalogPane(root, deps) {
     let catalog = null;
     let subscribed4 = /* @__PURE__ */ new Set();
     let instance = RSS_HUB_DEFAULT_INSTANCE;
-    let query2 = "";
+    let query = "";
     let activeCat = "";
     let searchTimer = null;
     const readSubscribed = async () => {
@@ -50380,7 +50303,7 @@ ${c.trim()}
         subscribed4.add(url);
         btn.textContent = "已订阅";
         notice(`已订阅 ${feed.title || url}`, "success");
-        deps2.onChanged();
+        deps.onChanged();
         return;
       }
       if (outcome === "exists") {
@@ -50434,7 +50357,7 @@ ${c.trim()}
       if (!isSub) {
         btn.addEventListener("click", () => {
           if (parametrized) {
-            openRssRouteFormModal({ feed, instance, onSubscribed: deps2.onChanged });
+            openRssRouteFormModal({ feed, instance, onSubscribed: deps.onChanged });
             return;
           }
           void subscribeFeed(feed, btn);
@@ -50443,9 +50366,9 @@ ${c.trim()}
       row.append(info, tags, btn);
       return row;
     };
-    const renderList3 = (hit, list) => {
+    const renderList2 = (hit, list) => {
       if (!catalog) return;
-      const all = filterCatalogFeeds(catalog, { query: query2, cat: activeCat });
+      const all = filterCatalogFeeds(catalog, { query, cat: activeCat });
       hit.textContent = all.length === catalog.feeds.length ? `共 ${all.length} 个源` : `命中 ${all.length} / ${catalog.feeds.length} 个源`;
       const shown = all.slice(0, RSS_CAT_RENDER_LIMIT);
       if (all.length === 0) {
@@ -50484,7 +50407,7 @@ ${c.trim()}
             catalog = c;
             await readSubscribed();
             notice(`源库已就绪，共收录 ${c.feeds.length} 个源`, "success");
-            render3();
+            render2();
           } catch (e) {
             notice(e instanceof Error ? e.message : String(e), "error");
             btn.disabled = false;
@@ -50509,13 +50432,13 @@ ${c.trim()}
       search.type = "text";
       search.className = "bz-rss-cat-search";
       search.placeholder = "搜索名称、域名、标签或路由…";
-      search.value = query2;
+      search.value = query;
       search.addEventListener("input", () => {
         if (searchTimer) clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
           searchTimer = null;
-          query2 = search.value;
-          renderList3(hit, list);
+          query = search.value;
+          renderList2(hit, list);
         }, RSS_CAT_SEARCH_DEBOUNCE_MS);
       });
       const chips = document.createElement("div");
@@ -50534,7 +50457,7 @@ ${c.trim()}
           chip2.addEventListener("click", () => {
             activeCat = cat;
             renderChips();
-            renderList3(hit, list);
+            renderList2(hit, list);
           });
           chips.appendChild(chip2);
         };
@@ -50544,10 +50467,10 @@ ${c.trim()}
         }
       };
       renderChips();
-      renderList3(hit, list);
+      renderList2(hit, list);
       root.replaceChildren(meta, src, search, chips, hit, list);
     };
-    const render3 = () => {
+    const render2 = () => {
       if (catalog) renderReady();
       else renderEmpty();
     };
@@ -50555,14 +50478,14 @@ ${c.trim()}
       reload: async () => {
         catalog = await loadRssCatalog(getApp());
         await readSubscribed();
-        render3();
+        render2();
       },
       refreshSubscribed: async () => {
         await readSubscribed();
         if (catalog) {
           const hit = root.querySelector(".bz-rss-cat-hit");
           const list = root.querySelector(".bz-rss-cat-list");
-          if (hit && list) renderList3(hit, list);
+          if (hit && list) renderList2(hit, list);
         }
       },
       dispose: () => {
@@ -50826,9 +50749,9 @@ ${c.trim()}
     showPanel: () => showPanel,
     unloadPanel: () => unloadPanel
   });
-  function initPanel(app2, showNow = false) {
-    M11.appRef = app2;
-    if (!overlayEl2) buildDom2(app2);
+  function initPanel(app, showNow = false) {
+    M11.appRef = app;
+    if (!overlayEl2) buildDom2(app);
     if (showNow) showPanel();
     else void loadIfNeeded();
   }
@@ -50998,7 +50921,7 @@ ${c.trim()}
     mobItemOrder = [];
     resetClipbookState();
   }
-  function buildDom2(app2) {
+  function buildDom2(app) {
     var _a2, _b2;
     overlayEl2 = document.createElement("div");
     overlayEl2.className = "bz-panel-overlay";
@@ -51027,17 +50950,17 @@ ${c.trim()}
       if (e.target === overlayEl2) closePanel2();
     });
     railFootEl.addEventListener("click", (e) => {
-      if (e.target.closest("[data-clp-rep-entry]")) void openReadingPress(app2);
+      if (e.target.closest("[data-clp-rep-entry]")) void openReadingPress(app);
     });
     railFootEl.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       if (e.target.closest("[data-clp-rep-entry]")) {
         e.preventDefault();
-        void openReadingPress(app2);
+        void openReadingPress(app);
       }
     });
     const mobReportBtn = overlayEl2.querySelector("[data-clip-mob-report]");
-    mobReportBtn.addEventListener("click", () => void openReadingPress(app2));
+    mobReportBtn.addEventListener("click", () => void openReadingPress(app));
     railListEl.addEventListener("click", (e) => {
       const row = e.target.closest("[data-src]");
       if (!row) return;
@@ -51323,8 +51246,8 @@ ${c.trim()}
   }
   function renderHeadIssue() {
     if (!overlayEl2) return;
-    overlayEl2.querySelectorAll("[data-clip-issue]").forEach((el3) => {
-      el3.textContent = `第 ${M11.articles.length} 期`;
+    overlayEl2.querySelectorAll("[data-clip-issue]").forEach((el2) => {
+      el2.textContent = `第 ${M11.articles.length} 期`;
     });
   }
   function currentSrc() {
@@ -51358,9 +51281,9 @@ ${c.trim()}
     return snap;
   }
   function resolveSnap(snap, src) {
-    const live3 = /* @__PURE__ */ new Map();
-    for (const a of queryBySourceFull(M11.articles, M11.sidecar, M11.clipUrls, M11.clipNotes || [], src, M11.upInfo)) live3.set(a.id, a);
-    const pick = (ids) => ids.map((id) => live3.get(id)).filter((a) => !!a);
+    const live2 = /* @__PURE__ */ new Map();
+    for (const a of queryBySourceFull(M11.articles, M11.sidecar, M11.clipUrls, M11.clipNotes || [], src, M11.upInfo)) live2.set(a.id, a);
+    const pick = (ids) => ids.map((id) => live2.get(id)).filter((a) => !!a);
     return { unread: pick(snap.unread), read: pick(snap.read), saved: pick(snap.saved) };
   }
   function dirFor(src) {
@@ -51500,13 +51423,13 @@ ${c.trim()}
       ]
     });
     if (ok !== "ok") return;
-    const { bumped, snapshot: snapshot3 } = await flowMarkAllRead(items.map((a) => a.raw).filter(Boolean));
+    const { bumped, snapshot: snapshot2 } = await flowMarkAllRead(items.map((a) => a.raw).filter(Boolean));
     if (!bumped) {
       await refreshAfterAction();
       return;
     }
     notifyUndo(`已把 ${bumped} 篇标为已读`, () => void (async () => {
-      await flowUndoMarkAllRead(snapshot3);
+      await flowUndoMarkAllRead(snapshot2);
       notice("已撤销：条目恢复未读", "success");
       await refreshAfterAction();
     })());
@@ -51568,7 +51491,7 @@ ${c.trim()}
     if (!flat.some((a) => a.id === (M11.cur && M11.cur.id))) {
       M11.cur = flat[0];
     }
-    const timeOf2 = (a) => relTime2(a.timeTs);
+    const timeOf = (a) => relTime2(a.timeTs);
     const curId = M11.cur ? M11.cur.id : null;
     if (searchKw) {
       const hit = flat.filter(matchesSearch);
@@ -51580,23 +51503,23 @@ ${c.trim()}
         M11.list = [];
         return;
       }
-      listEl.innerHTML = tocListHtml(hit, curId, timeOf2, searchKw);
+      listEl.innerHTML = tocListHtml(hit, curId, timeOf, searchKw);
       M11.list = hit;
       bindItemMenus();
       return;
     }
     const b = dirFor(src);
     const snapUnreadN = b.unread.length;
-    let html = tocListHtml(b.unread, curId, timeOf2, searchKw);
+    let html = tocListHtml(b.unread, curId, timeOf, searchKw);
     if (b.read.length) {
       const open = deskFoldIsOpen("read", b.read.length, b.saved.length, snapUnreadN);
       html += deskFoldRowHtml("read", b.read.length, open);
-      html += foldBodyHtml(tocListHtml(b.read, curId, timeOf2, searchKw), open);
+      html += foldBodyHtml(tocListHtml(b.read, curId, timeOf, searchKw), open);
     }
     if (b.saved.length) {
       const open = deskFoldIsOpen("saved", b.saved.length, b.saved.length, snapUnreadN);
       html += deskFoldRowHtml("saved", b.saved.length, open);
-      html += foldBodyHtml(tocListHtml(b.saved, curId, timeOf2, searchKw), open);
+      html += foldBodyHtml(tocListHtml(b.saved, curId, timeOf, searchKw), open);
     }
     listEl.innerHTML = html;
     M11.list = flat;
@@ -51686,17 +51609,17 @@ ${c.trim()}
     out.push({ icon: "trash-2", label: "删除", kind: "danger", title: "从收件流删除", onClick: () => deleteNewsItem(a) });
     return out;
   }
-  async function hydrateArticleMarkdown(el3, md, sourcePath, alive) {
+  async function hydrateArticleMarkdown(el2, md, sourcePath, alive) {
     var _a2;
     try {
       const comp = new Component();
-      await MarkdownRenderer.render(getApp(), md, el3, sourcePath, comp);
+      await MarkdownRenderer.render(getApp(), md, el2, sourcePath, comp);
       comp.unload();
     } catch (e) {
     }
     if (!alive()) return;
-    if (!el3.querySelector("*") || !((_a2 = el3.textContent) == null ? void 0 : _a2.trim())) el3.textContent = md;
-    bindImgFallback(el3);
+    if (!el2.querySelector("*") || !((_a2 = el2.textContent) == null ? void 0 : _a2.trim())) el2.textContent = md;
+    bindImgFallback(el2);
   }
   function transformBodyForRead(a, body) {
     var _a2, _b2;
@@ -52051,7 +51974,7 @@ ${c.trim()}
     const clipNotes = M11.clipNotes || [];
     const savedUrls = new Set((M11.sidecar.savedArchive || []).map((x) => x.url));
     const searching = !!searchKw;
-    const timeOf2 = (a) => relTime2(a.timeTs);
+    const timeOf = (a) => relTime2(a.timeTs);
     const chapters = [];
     const byId2 = /* @__PURE__ */ new Map();
     const order = [];
@@ -52082,9 +52005,9 @@ ${c.trim()}
         readN: read.length,
         savedN: saved.length,
         markAllN: markN,
-        activeHtml: mobListHtml(unread, timeOf2),
-        readHtml: read.length ? mobListHtml(read, timeOf2) : "",
-        savedHtml: saved.length ? mobListHtml(saved, timeOf2) : ""
+        activeHtml: mobListHtml(unread, timeOf),
+        readHtml: read.length ? mobListHtml(read, timeOf) : "",
+        savedHtml: saved.length ? mobListHtml(saved, timeOf) : ""
       });
       [...unread, ...read, ...saved].forEach((a) => {
         byId2.set(a.id, a);
@@ -52299,8 +52222,8 @@ ${c.trim()}
     if (!text2) return null;
     const range = sel.getRangeAt(0);
     const node = range.commonAncestorContainer;
-    const el3 = node && node.nodeType === 3 ? node.parentElement : node;
-    const container = el3 && typeof el3.closest === "function" ? el3.closest("[data-clip-md],[data-clip-mob-md]") : null;
+    const el2 = node && node.nodeType === 3 ? node.parentElement : node;
+    const container = el2 && typeof el2.closest === "function" ? el2.closest("[data-clip-md],[data-clip-mob-md]") : null;
     if (!container) return null;
     const r = typeof range.getBoundingClientRect === "function" ? range.getBoundingClientRect() : null;
     return { text: text2, rect: r || { top: 0, left: 0, bottom: 0, right: 0 } };
@@ -52491,12 +52414,12 @@ ${c.trim()}
     if (!notePath) return;
     try {
       if (a.origin === "clip" && a.notePath) {
-        const app2 = getApp();
-        const file = app2.vault.getAbstractFileByPath(a.notePath);
+        const app = getApp();
+        const file = app.vault.getAbstractFileByPath(a.notePath);
         if (file) {
-          const content = await app2.vault.read(file);
+          const content = await app.vault.read(file);
           const next = applyClipContentTransforms(content, [{ find: snap.text, notePath, kind }], []);
-          if (next !== content) await app2.vault.modify(file, next);
+          if (next !== content) await app.vault.modify(file, next);
           invalidateClipBodyCache(a.notePath);
         }
         await upgradeSourceFor(notePath, a);
@@ -52601,7 +52524,7 @@ ${c.trim()}
     return getKnowledgeBoxes(tryGetSettings()).lit;
   }
   function resolveInternalTarget(href) {
-    const app2 = getApp();
+    const app = getApp();
     let p = String(href || "").split("#")[0].trim().replace(/\\/g, "/");
     if (!p) return null;
     try {
@@ -52610,18 +52533,18 @@ ${c.trim()}
     }
     if (!p.toLowerCase().endsWith(".md")) {
       const withMd = p + ".md";
-      if (app2.vault.getAbstractFileByPath(withMd)) p = withMd;
+      if (app.vault.getAbstractFileByPath(withMd)) p = withMd;
     }
-    if (app2.vault.getAbstractFileByPath(p)) return p;
+    if (app.vault.getAbstractFileByPath(p)) return p;
     if (!p.includes("/")) {
       const inBox = knowledgeDir() + "/" + p + ".md";
-      if (app2.vault.getAbstractFileByPath(inBox)) return inBox;
+      if (app.vault.getAbstractFileByPath(inBox)) return inBox;
       try {
-        const mc = app2.metadataCache;
+        const mc = app.metadataCache;
         if (mc && typeof mc.getFirstLinkpathDest === "function") {
           const dest = mc.getFirstLinkpathDest(p, "");
           const destPath = dest && typeof dest === "object" ? dest.path : dest;
-          if (destPath && app2.vault.getAbstractFileByPath(destPath)) return String(destPath);
+          if (destPath && app.vault.getAbstractFileByPath(destPath)) return String(destPath);
         }
       } catch (e) {
       }
@@ -52734,7 +52657,7 @@ ${c.trim()}
       ]
     };
   }
-  async function openSettings(app2) {
+  async function openSettings(app) {
     const dataSource = await readDataSourceState();
     const schema = clipbookSettingsSchema(dataSource);
     openSettingsModal({
@@ -52893,17 +52816,17 @@ ${c.trim()}
   function archivedItems(items) {
     return items.filter((i) => !!i.archived);
   }
-  function poolOf(items, view2) {
-    return view2.archived ? archivedItems(items) : visibleItems(items);
+  function poolOf(items, view) {
+    return view.archived ? archivedItems(items) : visibleItems(items);
   }
   function tagCount(items, label) {
     return visibleItems(items).filter((i) => (i.tags || []).includes(label)).length;
   }
-  function filteredItems(items, view2) {
-    let list = poolOf(items, view2);
-    if (!view2.archived && view2.tag) list = list.filter((i) => (i.tags || []).includes(view2.tag));
+  function filteredItems(items, view) {
+    let list = poolOf(items, view);
+    if (!view.archived && view.tag) list = list.filter((i) => (i.tags || []).includes(view.tag));
     const byTimeDesc = (a, b) => (b.created || "").localeCompare(a.created || "") || (b.id || "").localeCompare(a.id || "");
-    const cmp = view2.sort === "old" ? (a, b) => (a.created || "").localeCompare(b.created || "") || (a.id || "").localeCompare(b.id || "") : view2.sort === "title" ? (a, b) => (a.title || "").localeCompare(b.title || "", "zh-CN") || byTimeDesc(a, b) : byTimeDesc;
+    const cmp = view.sort === "old" ? (a, b) => (a.created || "").localeCompare(b.created || "") || (a.id || "").localeCompare(b.id || "") : view.sort === "title" ? (a, b) => (a.title || "").localeCompare(b.title || "", "zh-CN") || byTimeDesc(a, b) : byTimeDesc;
     const base = [...list].sort(cmp);
     const pinned = base.filter((i) => i.pinned);
     const rest = base.filter((i) => !i.pinned);
@@ -52927,13 +52850,13 @@ ${c.trim()}
       <span>${esc(relTime(it.created))}</span></div>
   </div>`;
   }
-  function emptyHtml2(view2, items) {
-    if (view2 && items) {
-      if (view2.archived) {
+  function emptyHtml2(view, items) {
+    if (view && items) {
+      if (view.archived) {
         return `<div class="bz-fav-empty">${emptyHtmlStr("archive", "归档箱是空的", "归档的收藏会冷存在这里，可随时恢复")}</div>`;
       }
-      if (view2.tag && !visibleItems(items).some((i) => (i.tags || []).includes(view2.tag))) {
-        return `<div class="bz-fav-empty">${emptyHtmlStr("inbox", `「${view2.tag}」标签下还没有收藏`, "换个标签看看，或添加一条试试")}</div>`;
+      if (view.tag && !visibleItems(items).some((i) => (i.tags || []).includes(view.tag))) {
+        return `<div class="bz-fav-empty">${emptyHtmlStr("inbox", `「${view.tag}」标签下还没有收藏`, "换个标签看看，或添加一条试试")}</div>`;
       }
     }
     return `<div class="bz-fav-empty">${emptyHtmlStr("inbox", "这块板上还没有卡片", "添加第一条收藏试试")}</div>`;
@@ -53017,41 +52940,41 @@ ${c.trim()}
   <div class="bz-fav-board" data-fav-content></div>
 </div>`;
   }
-  function chipsHtml2(items, view2, mobile) {
+  function chipsHtml2(items, view, mobile) {
     const mk = (dataVal, display, ic2, cnt, active2, grey = false, empty = false) => `<button class="bz-fav-chip${active2 ? " bz-fav-on" : ""}${grey ? " bz-fav-chip--grey" : ""}${empty ? " bz-fav-chip--empty" : ""}" data-fav-tag="${esc(dataVal)}"${active2 ? ' aria-pressed="true"' : ' aria-pressed="false"'}>${ic2 ? iconSpan(ic2, "bz-ic--xs") : ""}<span>${esc(display)} ${cnt}</span></button>`;
     const add = `<button class="bz-fav-chip-add" data-fav-add title="添加收藏" aria-label="添加收藏">${iconSpan(ICON2.add, "bz-ic--xs")}<span>新收藏</span></button>`;
-    const chips = mk(VIEW_ALL, "全部", "", visibleItems(items).length, !view2.archived && view2.tag === null) + mk(VIEW_ARCHIVED, "已归档", "archive", archivedItems(items).length, view2.archived, true) + getTags().map((t) => {
+    const chips = mk(VIEW_ALL, "全部", "", visibleItems(items).length, !view.archived && view.tag === null) + mk(VIEW_ARCHIVED, "已归档", "archive", archivedItems(items).length, view.archived, true) + getTags().map((t) => {
       const n = tagCount(items, t.label);
-      const active2 = !view2.archived && view2.tag === t.label;
+      const active2 = !view.archived && view.tag === t.label;
       if (!n && !active2) return "";
       return mk(t.label, t.label, safeTagIcon(t.ic), n, active2, false, !n);
     }).join("");
     return mobile ? add + chips : chips + add;
   }
-  function boardHtml(items, view2) {
-    const list = filteredItems(items, view2);
-    if (!list.length) return emptyHtml2(view2, items);
+  function boardHtml(items, view) {
+    const list = filteredItems(items, view);
+    if (!list.length) return emptyHtml2(view, items);
     const idxMap = new Map(items.map((it, i) => [it, i]));
     return list.map((it) => {
       var _a2;
       return cardHtml3(it, (_a2 = idxMap.get(it)) != null ? _a2 : 0);
     }).join("");
   }
-  function renderTagsInto(mount, items, view2, hooks) {
-    mount.innerHTML = chipsHtml2(items, view2, hooks.mobile);
+  function renderTagsInto(mount, items, view, hooks) {
+    mount.innerHTML = chipsHtml2(items, view, hooks.mobile);
     hooks.mountIcons(mount);
   }
-  function renderBoardInto(board, items, view2, hooks) {
+  function renderBoardInto(board, items, view, hooks) {
     const keep = board.scrollTop;
-    board.innerHTML = boardHtml(items, view2);
+    board.innerHTML = boardHtml(items, view);
     board.scrollTop = keep;
     hooks.mountIcons(board);
   }
-  function renderPanelView2(panel2, items, view2, hooks) {
+  function renderPanelView2(panel2, items, view, hooks) {
     const tags = panel2.querySelector("[data-fav-tags]");
-    if (tags) renderTagsInto(tags, items, view2, hooks);
+    if (tags) renderTagsInto(tags, items, view, hooks);
     const board = panel2.querySelector("[data-fav-content]");
-    if (board) renderBoardInto(board, items, view2, hooks);
+    if (board) renderBoardInto(board, items, view, hooks);
   }
   var init_render9 = __esm({
     "src/favorites/layouts/board/render.ts"() {
@@ -53407,20 +53330,20 @@ ${c.trim()}
       return false;
     }
   }
-  function waapi7(el3, frames, opts) {
-    if (!el3 || reduced8() || typeof el3.animate !== "function") {
+  function waapi7(el2, frames, opts) {
+    if (!el2 || reduced8() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -53444,9 +53367,9 @@ ${c.trim()}
     }
     return board.querySelector(`.bz-fav-card[data-fav-id="${id.replace(/"/g, "")}"]`);
   }
-  function cancelAnimsBy2(el3, ids) {
-    if (typeof el3.getAnimations !== "function") return;
-    for (const a of el3.getAnimations()) {
+  function cancelAnimsBy2(el2, ids) {
+    if (typeof el2.getAnimations !== "function") return;
+    for (const a of el2.getAnimations()) {
       if (ids.includes(a.id)) {
         try {
           a.cancel();
@@ -53455,15 +53378,15 @@ ${c.trim()}
       }
     }
   }
-  function motionPanelIn4(overlay5) {
-    const panel2 = overlay5.querySelector(".bz-fav-panel");
+  function motionPanelIn4(overlay4) {
+    const panel2 = overlay4.querySelector(".bz-fav-panel");
     if (!panel2) return;
     cancelAnimsBy2(panel2, [EXIT_ANIM_ID2]);
-    cancelAnimsBy2(overlay5, [EXIT_MASK_ANIM_ID2]);
+    cancelAnimsBy2(overlay4, [EXIT_MASK_ANIM_ID2]);
     panel2.style.opacity = "";
     panel2.style.transform = "";
     panel2.style.filter = "";
-    waapi7(overlay5, [{ opacity: 0 }, { opacity: 1 }], { duration: M13.move + 40, easing: E7.out });
+    waapi7(overlay4, [{ opacity: 0 }, { opacity: 1 }], { duration: M13.move + 40, easing: E7.out });
     waapi7(
       panel2,
       [
@@ -53474,8 +53397,8 @@ ${c.trim()}
       { duration: 460, easing: E7.out }
     );
   }
-  function motionPanelOut3(overlay5, done) {
-    const panel2 = overlay5.querySelector(".bz-fav-panel");
+  function motionPanelOut3(overlay4, done) {
+    const panel2 = overlay4.querySelector(".bz-fav-panel");
     if (!panel2) {
       done();
       return;
@@ -53495,7 +53418,7 @@ ${c.trim()}
       done();
     };
     let maskAnim = waapi7(
-      overlay5,
+      overlay4,
       [{ opacity: 1 }, { opacity: 0 }],
       { duration: M13.fast + 40, easing: E7.out, fill: "forwards", id: EXIT_MASK_ANIM_ID2 }
     );
@@ -53514,12 +53437,12 @@ ${c.trim()}
     a.finished.then(finish).catch(finish);
     setTimeout(finish, M13.fast + 120);
   }
-  function motionRendered3(overlay5, boot) {
+  function motionRendered3(overlay4, boot) {
     var _a2, _b2;
     cancelPending6();
-    const panel2 = overlay5.querySelector(".bz-fav-panel");
+    const panel2 = overlay4.querySelector(".bz-fav-panel");
     if (!panel2) return;
-    const board = overlay5.querySelector("[data-fav-content]");
+    const board = overlay4.querySelector("[data-fav-content]");
     if (!boot) {
       if (board) ensureEmptyFloat(board);
       return;
@@ -53843,9 +53766,9 @@ ${c.trim()}
     const rows = [
       ...popup.querySelectorAll(":scope > h2, :scope > .bz-fav-fld, :scope > .bz-fav-err, :scope > .bz-fav-btns")
     ];
-    rows.forEach((el3, i) => {
+    rows.forEach((el2, i) => {
       waapi7(
-        el3,
+        el2,
         [
           { opacity: 0, transform: "translateY(8px)", filter: "blur(2px)" },
           { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -53854,10 +53777,10 @@ ${c.trim()}
       );
     });
   }
-  function motionSwitchPop(el3) {
+  function motionSwitchPop(el2) {
     if (reduced8()) return;
     waapi7(
-      el3,
+      el2,
       [{ transform: "scale(1)" }, { transform: "scale(1.16)", offset: 0.42 }, { transform: "none" }],
       { duration: M13.base - 40, easing: E7.out }
     );
@@ -53902,9 +53825,9 @@ ${c.trim()}
   }
   function motionTagMgrRows(wrap2) {
     if (reduced8()) return;
-    [...wrap2.querySelectorAll(".bz-fav-tagmgr-row, .bz-fav-tagmgr-add")].forEach((el3, i) => {
+    [...wrap2.querySelectorAll(".bz-fav-tagmgr-row, .bz-fav-tagmgr-add")].forEach((el2, i) => {
       waapi7(
-        el3,
+        el2,
         [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
         { duration: M13.base, delay: Math.min(i, 10) * STAG7, easing: E7.out, fill: "both" }
       );
@@ -53938,7 +53861,7 @@ ${c.trim()}
     }
     aiAnims.clear();
     try {
-      document.querySelectorAll(".bz-favm-sheen").forEach((el3) => el3.remove());
+      document.querySelectorAll(".bz-favm-sheen").forEach((el2) => el2.remove());
     } catch (e) {
     }
   }
@@ -54010,16 +53933,16 @@ ${c.trim()}
           }
         }
         /** 打开收藏面板（toggle 语义在 ui.openPanel 内） */
-        async openPanel(app2) {
+        async openPanel(app) {
           await this.init();
           if (this.dataManager && this.aiService) {
-            openPanel2(app2, this.dataManager, this.aiService);
+            openPanel2(app, this.dataManager, this.aiService);
           }
         }
         /** 直接打开添加弹窗（bz-favorites-add 命令；无需先开面板） */
-        openAdd(app2) {
+        openAdd(app) {
           if (this.dataManager && this.aiService) {
-            initFavoritesUI(app2, this.dataManager, this.aiService);
+            initFavoritesUI(app, this.dataManager, this.aiService);
             openForm2(null);
           }
         }
@@ -54127,24 +54050,24 @@ ${c.trim()}
       }
     );
   }
-  function initFavoritesUI(app2, dm, ai) {
-    _app2 = app2;
+  function initFavoritesUI(app, dm, ai) {
+    _app2 = app;
     _dm = dm;
     _ai = ai;
   }
-  function openPanel2(app2, dm, ai) {
+  function openPanel2(app, dm, ai) {
     var _a2, _b2;
-    initFavoritesUI(app2, dm, ai);
+    initFavoritesUI(app, dm, ai);
     if (M14.overlay) {
       closePanel3();
       return;
     }
-    const overlay5 = document.createElement("div");
-    overlay5.className = "bz-panel-overlay";
-    overlay5.innerHTML = panelHtml3(isMobileEnv());
-    document.body.appendChild(overlay5);
-    topifyZ(overlay5);
-    M14.overlay = overlay5;
+    const overlay4 = document.createElement("div");
+    overlay4.className = "bz-panel-overlay";
+    overlay4.innerHTML = panelHtml3(isMobileEnv());
+    document.body.appendChild(overlay4);
+    topifyZ(overlay4);
+    M14.overlay = overlay4;
     M14.renderFn = (reveal) => renderAll4(reveal);
     M14.stage = "placeholder";
     motionTeardown7();
@@ -54152,11 +54075,11 @@ ${c.trim()}
     M14.tag = openFilter.tag;
     M14.archived = openFilter.archived;
     M14.sort = normalizeFavSort((_a2 = tryGetSettings()) == null ? void 0 : _a2.favoritesDefaultSort);
-    mountIcons(overlay5);
+    mountIcons(overlay4);
     ensureFavoritesEsc();
-    trapPanelFocus((_b2 = overlay5.querySelector(".bz-fav-panel")) != null ? _b2 : overlay5);
+    trapPanelFocus((_b2 = overlay4.querySelector(".bz-fav-panel")) != null ? _b2 : overlay4);
     if (!isMobileEnv()) {
-      const panelEl = overlay5.querySelector(".bz-fav-panel");
+      const panelEl = overlay4.querySelector(".bz-fav-panel");
       if (panelEl) {
         panelResizeDetach4 = uiResizable(panelEl, {
           minW: PANEL4.MIN_W,
@@ -54167,16 +54090,16 @@ ${c.trim()}
         });
       }
     }
-    motionPanelIn4(overlay5);
+    motionPanelIn4(overlay4);
     window.__bzFavReplay = () => {
-      if (M14.overlay !== overlay5) return;
-      motionPanelIn4(overlay5);
+      if (M14.overlay !== overlay4) return;
+      motionPanelIn4(overlay4);
       M14.stage = "boot";
       renderAll4();
     };
-    overlay5.addEventListener("click", (e) => {
+    overlay4.addEventListener("click", (e) => {
       const t = e.target;
-      if (e.target === overlay5) {
+      if (e.target === overlay4) {
         closePanel3();
         return;
       }
@@ -54189,13 +54112,13 @@ ${c.trim()}
         return;
       }
     });
-    const stickers = overlay5.querySelector("[data-fav-tags]");
+    const stickers = overlay4.querySelector("[data-fav-tags]");
     stickers.addEventListener("click", (e) => {
       const b = e.target.closest("[data-fav-tag]");
       if (!b) return;
       applyTagFilter(b.dataset.favTag);
     });
-    const content = overlay5.querySelector("[data-fav-content]");
+    const content = overlay4.querySelector("[data-fav-content]");
     const openCardDefault = (it, card) => {
       if (card) motionCardPick(card);
       if (isMobileEnv()) {
@@ -54429,7 +54352,7 @@ ${c.trim()}
     }
   }
   async function deleteItem2(it) {
-    const snapshot3 = it;
+    const snapshot2 = it;
     try {
       const depart = motionCardDepart(boardEl(), it.id, "del");
       await Promise.all([dataManagerOf().delete(it.id), depart]);
@@ -54438,9 +54361,9 @@ ${c.trim()}
       notifyUndo(`已删除收藏「${it.title}」`, () => {
         void (async () => {
           try {
-            await dataManagerOf().restoreItem(snapshot3);
+            await dataManagerOf().restoreItem(snapshot2);
             emitDomainEvent("favorites", { kind: "restored", title: it.title });
-            await reload2({ id: snapshot3.id, kind: "restore" });
+            await reload2({ id: snapshot2.id, kind: "restore" });
           } catch (e) {
             notifySaveError(e, "恢复收藏");
           }
@@ -54609,8 +54532,8 @@ ${c.trim()}
       if (!data) throw new Error("AI 返回格式错误");
       const res = normalizeAiOrganizeResult(data);
       const setVal = (id, v) => {
-        const el3 = popup.querySelector(id);
-        if (el3 && !el3.value.trim() && v) el3.value = String(v);
+        const el2 = popup.querySelector(id);
+        if (el2 && !el2.value.trim() && v) el2.value = String(v);
       };
       if (ghInfo == null ? void 0 : ghInfo.fetched) setVal("#fz-title", ghInfo.title);
       setVal("#fz-title", res.title);
@@ -55526,8 +55449,8 @@ GitHub 仓库：${ghInfo.title}
   function hasFn(adapter, name) {
     return typeof (adapter == null ? void 0 : adapter[name]) === "function";
   }
-  async function readJsonIfExists2(app2, path) {
-    const adapter = app2.vault.adapter;
+  async function readJsonIfExists2(app, path) {
+    const adapter = app.vault.adapter;
     try {
       if (hasFn(adapter, "exists") && !await adapter.exists(path)) return null;
       if (!hasFn(adapter, "read")) return null;
@@ -55542,8 +55465,8 @@ GitHub 仓库：${ghInfo.title}
       return null;
     }
   }
-  async function migrateLegacy(app2) {
-    const adapter = app2.vault.adapter;
+  async function migrateLegacy(app) {
+    const adapter = app.vault.adapter;
     const storePath = getSecondBrainStorePath();
     try {
       if (hasFn(adapter, "exists") && await adapter.exists(storePath)) return false;
@@ -55551,22 +55474,22 @@ GitHub 仓库：${ghInfo.title}
       return false;
     }
     let anyLegacy = false;
-    const store3 = emptyStore();
+    const store2 = emptyStore();
     for (const name of LEGACY_FILES) {
       const legacyPath = storeDir() + "/" + name;
-      const raw = await readJsonIfExists2(app2, legacyPath).catch(() => null);
+      const raw = await readJsonIfExists2(app, legacyPath).catch(() => null);
       if (raw === null) continue;
       anyLegacy = true;
-      if (name === "secondbrain_meta.json" && raw && typeof raw === "object") store3.meta = raw;
-      else if (name === "secondbrain_panel.json" && raw && typeof raw === "object") store3.panel = raw;
+      if (name === "secondbrain_meta.json" && raw && typeof raw === "object") store2.meta = raw;
+      else if (name === "secondbrain_panel.json" && raw && typeof raw === "object") store2.panel = raw;
       else if (name === "secondbrain_link_queue.json") {
-        if (Array.isArray(raw)) store3.link.queue = raw;
+        if (Array.isArray(raw)) store2.link.queue = raw;
       } else if (name === "secondbrain_link_state.json") {
-        if (raw && typeof raw === "object" && !Array.isArray(raw)) store3.link.state = raw;
+        if (raw && typeof raw === "object" && !Array.isArray(raw)) store2.link.state = raw;
       }
     }
     if (!anyLegacy) return false;
-    await adapter.write(storePath, JSON.stringify(store3));
+    await adapter.write(storePath, JSON.stringify(store2));
     for (const name of LEGACY_FILES) {
       const legacyPath = storeDir() + "/" + name;
       try {
@@ -55609,8 +55532,8 @@ GitHub 仓库：${ghInfo.title}
     );
     return run;
   }
-  function resolveApp(app2) {
-    return app2 != null ? app2 : getApp();
+  function resolveApp(app) {
+    return app != null ? app : getApp();
   }
   function isConflictJsonName(name) {
     return /^secondbrain\.sync-conflict-.*\.json$/.test(name);
@@ -55803,23 +55726,23 @@ GitHub 仓库：${ghInfo.title}
       }
     }
   }
-  async function reconcileConflicts(a, store3) {
+  async function reconcileConflicts(a, store2) {
     var _a2;
     const adapter = (_a2 = a == null ? void 0 : a.vault) == null ? void 0 : _a2.adapter;
-    if (!adapter || typeof adapter.list !== "function") return store3;
+    if (!adapter || typeof adapter.list !== "function") return store2;
     let listed = [];
     try {
       const r = await adapter.list(storeDir());
       listed = Array.isArray(r == null ? void 0 : r.files) ? r.files : [];
     } catch (e) {
-      return store3;
+      return store2;
     }
     const conflictJson = listed.filter((f) => isConflictJsonName(f.split("/").pop() || f));
     const conflictVec = listed.filter((f) => isConflictVecName(f.split("/").pop() || f));
-    if (!conflictJson.length && !conflictVec.length) return store3;
-    const primaryMeta = store3.meta;
+    if (!conflictJson.length && !conflictVec.length) return store2;
+    const primaryMeta = store2.meta;
     const conflictMetas = [];
-    let merged = store3;
+    let merged = store2;
     let jsonMerged = false;
     for (const name of conflictJson) {
       try {
@@ -55845,9 +55768,9 @@ GitHub 仓库：${ghInfo.title}
     if (conflictVec.length) await reconcileVecConflicts(a, primaryMeta, merged, conflictVec, conflictMetas);
     return merged;
   }
-  async function readStoreRawInner(app2) {
+  async function readStoreRawInner(app) {
     var _a2;
-    const a = resolveApp(app2);
+    const a = resolveApp(app);
     const adapter = (_a2 = a == null ? void 0 : a.vault) == null ? void 0 : _a2.adapter;
     if (!adapter) return emptyStore();
     const storePath = getSecondBrainStorePath();
@@ -55900,14 +55823,14 @@ GitHub 仓库：${ghInfo.title}
       return emptyStore();
     }
   }
-  async function readStoreRaw(app2) {
-    const a = resolveApp(app2);
-    const store3 = await readStoreRawInner(a);
-    return reconcileConflicts(a, store3);
+  async function readStoreRaw(app) {
+    const a = resolveApp(app);
+    const store2 = await readStoreRawInner(a);
+    return reconcileConflicts(a, store2);
   }
-  async function saveStoreRaw(data, app2) {
+  async function saveStoreRaw(data, app) {
     var _a2;
-    const a = resolveApp(app2);
+    const a = resolveApp(app);
     const adapter = (_a2 = a == null ? void 0 : a.vault) == null ? void 0 : _a2.adapter;
     if (!adapter) return;
     const next = JSON.stringify(data);
@@ -55917,8 +55840,8 @@ GitHub 仓库：${ghInfo.title}
     }
     await adapter.write(getSecondBrainStorePath(), next);
   }
-  async function loadStore(app2) {
-    return enqueue(() => readStoreRaw(app2));
+  async function loadStore(app) {
+    return enqueue(() => readStoreRaw(app));
   }
   var STORE_VERSION, CHAT_HISTORY_LIMIT, LEGACY_FILES, LEGACY_VEC, chain;
   var init_store_file = __esm({
@@ -56043,7 +55966,7 @@ GitHub 仓库：${ghInfo.title}
     const roots = /* @__PURE__ */ new Map();
     const childOf = /* @__PURE__ */ new Map();
     const nodeOf = /* @__PURE__ */ new Map();
-    const ensureDir4 = (dir) => {
+    const ensureDir3 = (dir) => {
       let node = nodeOf.get(dir);
       if (node) return node;
       const segs = dir.split("/").filter(Boolean);
@@ -56058,7 +55981,7 @@ GitHub 仓库：${ghInfo.title}
       if (segs.length === 1) {
         roots.set(dir, node);
       } else {
-        const parent = ensureDir4(segs.slice(0, -1).join("/"));
+        const parent = ensureDir3(segs.slice(0, -1).join("/"));
         const siblings = childOf.get(parent.path) || [];
         siblings.push(node);
         childOf.set(parent.path, siblings);
@@ -56068,7 +55991,7 @@ GitHub 仓库：${ghInfo.title}
     for (const [path, entry] of Object.entries(meta.notes)) {
       const idx = path.lastIndexOf("/");
       const dir = idx === -1 ? "（根目录）" : path.slice(0, idx);
-      let cursor = ensureDir4(dir);
+      let cursor = ensureDir3(dir);
       while (cursor) {
         cursor.notes++;
         cursor.chunks += entry.chunks.length;
@@ -56260,28 +56183,28 @@ GitHub 仓库：${ghInfo.title}
       return false;
     }
   }
-  function baseTransformOf(el3) {
+  function baseTransformOf(el2) {
     try {
-      const t = getComputedStyle(el3).transform;
+      const t = getComputedStyle(el2).transform;
       return t && t !== "none" ? t : "";
     } catch (e) {
       return "";
     }
   }
-  function waapi8(el3, frames, opts) {
-    if (!el3 || reduced9() || typeof el3.animate !== "function") {
+  function waapi8(el2, frames, opts) {
+    if (!el2 || reduced9() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -56297,14 +56220,14 @@ GitHub 仓库：${ghInfo.title}
     timers8.forEach(clearTimeout);
     timers8.clear();
   }
-  function cancelExit(el3, id) {
+  function cancelExit(el2, id) {
     try {
-      if (typeof el3.getAnimations !== "function") return;
-      for (const a of el3.getAnimations()) if (a.id === id) a.cancel();
+      if (typeof el2.getAnimations !== "function") return;
+      for (const a of el2.getAnimations()) if (a.id === id) a.cancel();
     } catch (e) {
     }
   }
-  function playExit(el3, id, frames, dur, done) {
+  function playExit(el2, id, frames, dur, done) {
     let finished = false;
     const finish = () => {
       if (finished) return;
@@ -56315,7 +56238,7 @@ GitHub 仓库：${ghInfo.title}
       }
       done();
     };
-    const a = waapi8(el3, frames, { duration: dur, easing: E8.out, fill: "forwards", id });
+    const a = waapi8(el2, frames, { duration: dur, easing: E8.out, fill: "forwards", id });
     if (!a) {
       finish();
       return;
@@ -56323,10 +56246,10 @@ GitHub 仓库：${ghInfo.title}
     a.finished.then(finish).catch(finish);
     after8(dur + 160, finish);
   }
-  function synapseLoop(el3) {
-    stopLoop(el3);
-    if (reduced9() || typeof el3.animate !== "function") return;
-    const a = el3.animate(
+  function synapseLoop(el2) {
+    stopLoop(el2);
+    if (reduced9() || typeof el2.animate !== "function") return;
+    const a = el2.animate(
       [
         { transform: "scale(1)", filter: "drop-shadow(0 0 0px rgba(163,61,42,0))" },
         { transform: "scale(1.055)", filter: "drop-shadow(0 0 7px rgba(163,61,42,.45))" },
@@ -56334,18 +56257,18 @@ GitHub 仓库：${ghInfo.title}
       ],
       { duration: 2400, iterations: Infinity, easing: "ease-in-out" }
     );
-    loops2.set(el3, () => {
+    loops2.set(el2, () => {
       try {
         a.cancel();
       } catch (e) {
       }
     });
   }
-  function stopLoop(el3) {
-    const stop = loops2.get(el3);
+  function stopLoop(el2) {
+    const stop = loops2.get(el2);
     if (stop) {
       stop();
-      loops2.delete(el3);
+      loops2.delete(el2);
     }
   }
   function stopAllLoops() {
@@ -56356,10 +56279,10 @@ GitHub 仓库：${ghInfo.title}
     cancelPending7();
     stopAllLoops();
   }
-  function ensureRelative2(el3) {
-    if (!el3) return;
+  function ensureRelative2(el2) {
+    if (!el2) return;
     try {
-      if (getComputedStyle(el3).position === "static") el3.style.position = "relative";
+      if (getComputedStyle(el2).position === "static") el2.style.position = "relative";
     } catch (e) {
     }
   }
@@ -56624,9 +56547,9 @@ GitHub 仓库：${ghInfo.title}
     const foot = content.querySelector(".bz-sb-foot");
     if (foot) after8(700, () => {
       if (!foot.isConnected) return;
-      [...foot.children].forEach((el3, i) => {
+      [...foot.children].forEach((el2, i) => {
         waapi8(
-          el3,
+          el2,
           [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
           { duration: M15.base, easing: E8.out, fill: "backwards", delay: i * 40 }
         );
@@ -56653,12 +56576,12 @@ GitHub 仓库：${ghInfo.title}
     if (icon) synapseLoop(icon);
     const seq = [".bz-sb-onboard-title", ".bz-sb-onboard-desc", ".bz-sb-init-btn"];
     seq.forEach((sel, i) => {
-      const el3 = onboard.querySelector(sel);
-      if (!el3) return;
+      const el2 = onboard.querySelector(sel);
+      if (!el2) return;
       after8(80 + i * 90, () => {
-        if (!el3.isConnected) return;
+        if (!el2.isConnected) return;
         waapi8(
-          el3,
+          el2,
           [
             { opacity: 0, transform: "translateY(8px)", filter: "blur(4px)" },
             { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -56699,16 +56622,16 @@ GitHub 仓库：${ghInfo.title}
       { duration: M15.base + 60, easing: E8.out }
     );
   }
-  function motionWeeklyShellIn(overlay5) {
-    if (!overlay5) return;
-    overlay5.style.opacity = "";
-    overlay5.style.transform = "";
-    overlay5.style.filter = "";
-    cancelExit(overlay5, WEEKLY_EXIT);
-    const base = baseTransformOf(overlay5);
+  function motionWeeklyShellIn(overlay4) {
+    if (!overlay4) return;
+    overlay4.style.opacity = "";
+    overlay4.style.transform = "";
+    overlay4.style.filter = "";
+    cancelExit(overlay4, WEEKLY_EXIT);
+    const base = baseTransformOf(overlay4);
     const withBase = (extra) => base ? `${base} ${extra}` : extra;
     waapi8(
-      overlay5,
+      overlay4,
       [
         { opacity: 0, transform: withBase("scale(.965) translateY(10px)"), filter: "blur(6px)" },
         { opacity: 1, transform: base || "none", filter: "blur(0px)" }
@@ -56796,15 +56719,15 @@ GitHub 仓库：${ghInfo.title}
       });
     });
   }
-  function motionWeeklyOut(overlay5, done) {
-    if (!overlay5) {
+  function motionWeeklyOut(overlay4, done) {
+    if (!overlay4) {
       done();
       return;
     }
-    const base = baseTransformOf(overlay5);
+    const base = baseTransformOf(overlay4);
     const withBase = (extra) => base ? `${base} ${extra}` : extra;
     playExit(
-      overlay5,
+      overlay4,
       WEEKLY_EXIT,
       [
         { opacity: 1, transform: base || "none", filter: "blur(0px)" },
@@ -56855,9 +56778,9 @@ GitHub 仓库：${ghInfo.title}
     const legacyVector = c.mode === "vector" && digest.scale !== "cos";
     return Math.round((legacyVector ? unsharpenScore(c.score) : c.score) * 100);
   }
-  function ensureModal(app2) {
+  function ensureModal(app) {
     var _a2;
-    appRef2 = app2;
+    appRef2 = app;
     if (!overlayEl3) {
       const { mask, popup } = createOverlay({
         maskId: "bz-sb-weekly-mask",
@@ -56880,15 +56803,15 @@ GitHub 仓库：${ghInfo.title}
         else notice("文件不存在或已被移动", "info");
       };
       body == null ? void 0 : body.addEventListener("click", (e) => {
-        const el3 = e.target.closest("[data-path]");
-        if (el3 == null ? void 0 : el3.dataset.path) jump(el3.dataset.path);
+        const el2 = e.target.closest("[data-path]");
+        if (el2 == null ? void 0 : el2.dataset.path) jump(el2.dataset.path);
       });
       body == null ? void 0 : body.addEventListener("keydown", (e) => {
         if (e.key !== "Enter" && e.key !== " ") return;
-        const el3 = e.target.closest("[data-path]");
-        if (el3 == null ? void 0 : el3.dataset.path) {
+        const el2 = e.target.closest("[data-path]");
+        if (el2 == null ? void 0 : el2.dataset.path) {
           e.preventDefault();
-          jump(el3.dataset.path);
+          jump(el2.dataset.path);
         }
       });
       escHandle5 = escManager.register("bz-sb-weekly-modal", {
@@ -56902,16 +56825,16 @@ GitHub 仓库：${ghInfo.title}
     motionSeq++;
     motionWeeklyShellIn(overlayEl3);
   }
-  function openWeeklyDigest(app2) {
+  function openWeeklyDigest(app) {
     void (async () => {
       var _a2, _b2;
       try {
-        const store3 = await loadStore(app2);
-        ensureModal(app2);
-        showWeeklyModal((_b2 = (_a2 = store3.weekly) == null ? void 0 : _a2.digest) != null ? _b2 : null);
+        const store2 = await loadStore(app);
+        ensureModal(app);
+        showWeeklyModal((_b2 = (_a2 = store2.weekly) == null ? void 0 : _a2.digest) != null ? _b2 : null);
       } catch (e) {
         console.warn("[secondbrain] 每周动态读取失败", e);
-        ensureModal(app2);
+        ensureModal(app);
         showWeeklyModal(null, { loadFailed: true });
       }
     })();
@@ -56986,7 +56909,7 @@ GitHub 仓库：${ghInfo.title}
     mountIcons(body);
     motionWeeklyContent(body);
   }
-  function renderPanelWeeklyCard(popup, app2, digest) {
+  function renderPanelWeeklyCard(popup, app, digest) {
     const card = popup.querySelector("#bz-sb-weekly-card");
     if (!card) return;
     if (!digest) {
@@ -57005,7 +56928,7 @@ GitHub 仓库：${ghInfo.title}
     motionSummaryIn(card);
     if (!card.dataset.bound) {
       card.dataset.bound = "1";
-      const open = () => openWeeklyDigest(app2);
+      const open = () => openWeeklyDigest(app);
       card.addEventListener("click", open);
       card.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -57185,7 +57108,7 @@ GitHub 仓库：${ghInfo.title}
       init_render13();
       PANEL5 = { MIN_W: 640, MIN_H: 440, MAX_W: 1280, MAX_H: 880 };
       SecondBrainPanel = class {
-        constructor(app2, store3, opts) {
+        constructor(app, store2, opts) {
           this.mask = null;
           this.popup = null;
           /** ESC 层级句柄（ticket 141 迁移：原私挂 document keydown 废弃） */
@@ -57203,8 +57126,8 @@ GitHub 仓库：${ghInfo.title}
           this.motionSeq = 0;
           /** 桌面拖动缩放句柄（ADR-0084/0094）：open 挂、close 摘，与面板显隐成对 */
           this.panelResizeDetach = null;
-          this.app = app2;
-          this.store = store3;
+          this.app = app;
+          this.store = store2;
           this.opts = opts;
         }
         /** 设置页「重新索引」调用（index.ts 入口转发）：标记意图后打开面板自动跑 */
@@ -57657,18 +57580,18 @@ GitHub 仓库：${ghInfo.title}
         async loadSummaryAndLinks() {
           var _a2, _b2, _c, _d, _e;
           try {
-            const store3 = await loadStore(this.app);
+            const store2 = await loadStore(this.app);
             const popup = this.popup;
             if (!popup || !popup.isConnected) return;
-            const summary = ((_a2 = store3.panel) == null ? void 0 : _a2.summary) || "";
+            const summary = ((_a2 = store2.panel) == null ? void 0 : _a2.summary) || "";
             const aiCard = popup.querySelector("#bz-sb-ai-card");
             const aiTxt = popup.querySelector("#bz-sb-ai-txt");
             if (aiCard) aiCard.style.display = summary ? "" : "none";
             if (aiTxt && summary) {
-              aiTxt.innerHTML = panelSummaryHtml(summary, ((_b2 = store3.panel) == null ? void 0 : _b2.generatedAt) ? formatRelativeTime(store3.panel.generatedAt) : "");
+              aiTxt.innerHTML = panelSummaryHtml(summary, ((_b2 = store2.panel) == null ? void 0 : _b2.generatedAt) ? formatRelativeTime(store2.panel.generatedAt) : "");
               motionSummaryIn(aiCard);
             }
-            const linkedTotal = Object.keys(((_c = store3.link) == null ? void 0 : _c.state) || {}).length;
+            const linkedTotal = Object.keys(((_c = store2.link) == null ? void 0 : _c.state) || {}).length;
             const log = popup.querySelector("#bz-sb-log");
             if (log && linkedTotal) {
               log.insertAdjacentHTML(
@@ -57676,7 +57599,7 @@ GitHub 仓库：${ghInfo.title}
                 `<span class="bz-sb-log-sep">·</span>${panelLogHtml([{ text: `自动建链 ${linkedTotal} 条` }])}`
               );
             }
-            renderPanelWeeklyCard(popup, this.app, (_e = (_d = store3.weekly) == null ? void 0 : _d.digest) != null ? _e : null);
+            renderPanelWeeklyCard(popup, this.app, (_e = (_d = store2.weekly) == null ? void 0 : _d.digest) != null ? _e : null);
           } catch (e) {
           }
         }
@@ -58095,21 +58018,21 @@ GitHub 仓库：${ghInfo.title}
          * 还原写回原路径用；走 vault 使 Obsidian 认可目录）。
          */
         async ensureVaultParentFolder(filePath) {
-          const app2 = getApp();
+          const app = getApp();
           const idx = filePath.lastIndexOf("/");
           if (idx <= 0) return;
           let dir = filePath.slice(0, idx);
           const missing = [];
           let probe = dir;
           while (probe && probe !== "." && probe !== "/") {
-            if (app2.vault.getAbstractFileByPath(probe)) break;
+            if (app.vault.getAbstractFileByPath(probe)) break;
             missing.unshift(probe);
             const slash = probe.lastIndexOf("/");
             if (slash <= 0) break;
             probe = probe.slice(0, slash);
           }
           for (const p of missing) {
-            await app2.vault.createFolder(p);
+            await app.vault.createFolder(p);
           }
         }
         /**
@@ -58198,10 +58121,10 @@ GitHub 仓库：${ghInfo.title}
          *  **硬删，刻意不进回收站**（ADR-0245 例外）：这里摘的是刚存进保险库的明文原件，
          *  回收站里留一份等于加密白做。日常删除笔记请走 core/note-trash 的 trashNote。 */
         async deleteVaultFile(path) {
-          const app2 = getApp();
-          const file = app2.vault.getAbstractFileByPath(path);
+          const app = getApp();
+          const file = app.vault.getAbstractFileByPath(path);
           if (file && file.isFolder !== true) {
-            await app2.vault.delete(file);
+            await app.vault.delete(file);
           }
         }
         /** 是否存在 vault 文件（非点前缀原路径判断用） */
@@ -58666,7 +58589,7 @@ GitHub 仓库：${ghInfo.title}
         async restoreNoteSerial(noteId, onProgress) {
           var _a2, _b2;
           if (!this.unlocked || !this.password) throw new Error("未解锁，无法还原笔记");
-          const app2 = getApp();
+          const app = getApp();
           const note = this.manifest.notes.find((n) => n.id === noteId);
           if (!note) throw new Error("未找到该笔记");
           const conflicts = [];
@@ -58710,9 +58633,9 @@ GitHub 仓库：${ghInfo.title}
               if (!mergeOk) throw new Error("日记块 merge 失败");
             } else {
               await this.ensureVaultParentFolder(note.path);
-              const file = await app2.vault.create(note.path, plain);
+              const file = await app.vault.create(note.path, plain);
               created.push(note.path);
-              (_b2 = (_a2 = app2.metadataCache) == null ? void 0 : _a2.trigger) == null ? void 0 : _b2.call(_a2, "changed", file);
+              (_b2 = (_a2 = app.metadataCache) == null ? void 0 : _a2.trigger) == null ? void 0 : _b2.call(_a2, "changed", file);
             }
           } catch (e) {
             for (const p of created) {
@@ -58737,10 +58660,10 @@ GitHub 仓库：${ghInfo.title}
         /** 目标文件内容与待还原明文是否一致（归一化行尾；占用幂等放行判断用） */
         async isSameTextFile(path, plain) {
           try {
-            const app2 = getApp();
-            const f = app2.vault.getAbstractFileByPath(path);
+            const app = getApp();
+            const f = app.vault.getAbstractFileByPath(path);
             if (!f) return false;
-            const existing = await app2.vault.read(f);
+            const existing = await app.vault.read(f);
             return existing.replace(/\r\n/g, "\n") === plain.replace(/\r\n/g, "\n");
           } catch (e) {
             return false;
@@ -58840,11 +58763,11 @@ GitHub 仓库：${ghInfo.title}
          * - note.path 为旧格式日期文件路径时兜底换算为条目文件路径（历史清单兼容）。
          * @returns 成功写入（或幂等跳过）返回 true；路径无法换算日期返回 false。
          */
-        async mergeDiaryBlock(datePath, block2) {
+        async mergeDiaryBlock(datePath, block) {
           var _a2;
-          const app2 = getApp();
-          if (!datePath || !block2) return false;
-          const md = block2.replace(/\r\n/g, "\n");
+          const app = getApp();
+          if (!datePath || !block) return false;
+          const md = block.replace(/\r\n/g, "\n");
           const lines = md.split("\n");
           const head = parseDiaryBlockHeader((_a2 = lines[0]) != null ? _a2 : "");
           if (!head) return false;
@@ -58875,22 +58798,22 @@ GitHub 仓库：${ghInfo.title}
           await enqueueFileTask(targetPath, async () => {
             var _a3, _b2, _c, _d;
             const serialized = serializeDiaryEntryFile({ date, time }, tags, body);
-            const existing = app2.vault.getAbstractFileByPath(targetPath);
+            const existing = app.vault.getAbstractFileByPath(targetPath);
             if (existing && existing.isFolder !== true) {
-              const text2 = await app2.vault.read(existing);
+              const text2 = await app.vault.read(existing);
               if (text2.replace(/\n$/, "") === serialized.replace(/\n$/, "")) return;
               let seq = 2;
               let alt = diaryEntryPath(dir, date, time, seq);
-              while (app2.vault.getAbstractFileByPath(alt)) {
+              while (app.vault.getAbstractFileByPath(alt)) {
                 seq += 1;
                 alt = diaryEntryPath(dir, date, time, seq);
               }
-              const shifted = await app2.vault.create(alt, serialized);
-              (_b2 = (_a3 = app2.metadataCache) == null ? void 0 : _a3.trigger) == null ? void 0 : _b2.call(_a3, "changed", shifted);
+              const shifted = await app.vault.create(alt, serialized);
+              (_b2 = (_a3 = app.metadataCache) == null ? void 0 : _a3.trigger) == null ? void 0 : _b2.call(_a3, "changed", shifted);
               return;
             }
-            const file = await app2.vault.create(targetPath, serialized);
-            (_d = (_c = app2.metadataCache) == null ? void 0 : _c.trigger) == null ? void 0 : _d.call(_c, "changed", file);
+            const file = await app.vault.create(targetPath, serialized);
+            (_d = (_c = app.metadataCache) == null ? void 0 : _c.trigger) == null ? void 0 : _d.call(_c, "changed", file);
           });
           return true;
         }
@@ -58914,9 +58837,9 @@ GitHub 仓库：${ghInfo.title}
           if (currentFp !== a.fingerprint) return null;
           if (this.fileExists(a.path)) {
             try {
-              const app2 = getApp();
-              const existing = app2.vault.getAbstractFileByPath(a.path);
-              const buf = await app2.vault.readBinary(existing);
+              const app = getApp();
+              const existing = app.vault.getAbstractFileByPath(a.path);
+              const buf = await app.vault.readBinary(existing);
               const existingFp = await fingerprintOf(bytesToBase64(new Uint8Array(buf)));
               if (existingFp !== a.fingerprint) return null;
             } catch (e) {
@@ -58931,17 +58854,17 @@ GitHub 仓库：${ghInfo.title}
          */
         async commitRestoreAttachment(a, plainB64) {
           var _a2, _b2;
-          const app2 = getApp();
+          const app = getApp();
           const data = base64ToBytes(plainB64);
           const buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-          const existing = app2.vault.getAbstractFileByPath(a.path);
+          const existing = app.vault.getAbstractFileByPath(a.path);
           if (existing) {
-            await app2.vault.writeBinary(existing, buf);
+            await app.vault.writeBinary(existing, buf);
             return false;
           }
           await this.ensureVaultParentFolder(a.path);
-          const file = await app2.vault.createBinary(a.path, buf);
-          (_b2 = (_a2 = app2.metadataCache) == null ? void 0 : _a2.trigger) == null ? void 0 : _b2.call(_a2, "changed", file);
+          const file = await app.vault.createBinary(a.path, buf);
+          (_b2 = (_a2 = app.metadataCache) == null ? void 0 : _a2.trigger) == null ? void 0 : _b2.call(_a2, "changed", file);
           return true;
         }
         /**
@@ -59616,9 +59539,9 @@ GitHub 仓库：${ghInfo.title}
 
   // src/core/ui/lock-screen.ts
   function uiLockScreen(opts) {
-    const el3 = document.createElement("div");
-    el3.className = `bz-lockscreen bz-lockscreen--${opts.kind}` + (opts.inline ? " bz-lockscreen--inline" : " bz-lockscreen--mask");
-    el3.dataset.ls = opts.inline ? "box" : "mask";
+    const el2 = document.createElement("div");
+    el2.className = `bz-lockscreen bz-lockscreen--${opts.kind}` + (opts.inline ? " bz-lockscreen--inline" : " bz-lockscreen--mask");
+    el2.dataset.ls = opts.inline ? "box" : "mask";
     const box = document.createElement("div");
     box.className = "bz-lockscreen-box";
     box.dataset.ls = "box";
@@ -59645,13 +59568,13 @@ GitHub 仓库：${ghInfo.title}
       (list || []).forEach((s) => {
         const card = document.createElement("div");
         card.className = "bz-lockscreen-stat";
-        const num3 = document.createElement("b");
-        num3.className = "bz-lockscreen-num";
-        num3.textContent = s.num;
+        const num2 = document.createElement("b");
+        num2.className = "bz-lockscreen-num";
+        num2.textContent = s.num;
         const lab = document.createElement("span");
         lab.className = "bz-lockscreen-label";
         lab.textContent = s.label;
-        card.appendChild(num3);
+        card.appendChild(num2);
         card.appendChild(lab);
         statsWrap.appendChild(card);
       });
@@ -59732,8 +59655,8 @@ GitHub 仓库：${ghInfo.title}
     hint.textContent = opts.hint || "";
     hint.style.display = opts.hint ? "" : "none";
     box.appendChild(hint);
-    if (!opts.inline) el3.style.display = "flex";
-    el3.appendChild(box);
+    if (!opts.inline) el2.style.display = "flex";
+    el2.appendChild(box);
     const focus = () => {
       try {
         input.focus({ preventScroll: true });
@@ -59742,7 +59665,7 @@ GitHub 仓库：${ghInfo.title}
       }
     };
     return {
-      el: el3,
+      el: el2,
       input,
       input2,
       ackBox,
@@ -59777,7 +59700,7 @@ GitHub 仓库：${ghInfo.title}
       },
       focus,
       close: () => {
-        el3.remove();
+        el2.remove();
       }
     };
   }
@@ -59824,20 +59747,20 @@ GitHub 仓库：${ghInfo.title}
       return false;
     }
   }
-  function motionWaapi(el3, frames, opts) {
-    if (!el3 || motionReduced() || typeof el3.animate !== "function") {
+  function motionWaapi(el2, frames, opts) {
+    if (!el2 || motionReduced() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
@@ -59897,8 +59820,8 @@ GitHub 仓库：${ghInfo.title}
     if (anim) anim.finished.then(gone).catch(gone);
     motionShellAfter(dur + 150, gone);
   }
-  function motionVisible(el3) {
-    return !!el3 && el3.offsetWidth > 0 && el3.offsetHeight > 0;
+  function motionVisible(el2) {
+    return !!el2 && el2.offsetWidth > 0 && el2.offsetHeight > 0;
   }
   function motionArmBoot() {
     intent = "boot";
@@ -59909,14 +59832,14 @@ GitHub 仓库：${ghInfo.title}
   function motionArmSearch() {
     if (!intent) intent = "search";
   }
-  function rise(el3, delay, dur = M16.base, from = {}) {
+  function rise(el2, delay, dur = M16.base, from = {}) {
     var _a2, _b2, _c;
     const y = (_a2 = from.y) != null ? _a2 : 8;
     const blur = (_b2 = from.blur) != null ? _b2 : 4;
     const scale = (_c = from.scale) != null ? _c : 1;
     motionAfter(delay, () => {
       motionWaapi(
-        el3,
+        el2,
         [
           { opacity: 0, transform: `translateY(${y}px)${scale !== 1 ? ` scale(${scale})` : ""}`, filter: `blur(${blur}px)` },
           { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -59949,22 +59872,22 @@ GitHub 仓库：${ghInfo.title}
           ],
           { duration: 380, easing: E9.out, fill: "backwards" }
         ));
-        items.forEach((el3, i) => rise(el3, 90 + i * 45, M16.base, { y: 6 }));
-        side.forEach((el3, i) => {
-          if (el3) rise(el3, 240 + i * 60, M16.base, { y: 6 });
+        items.forEach((el2, i) => rise(el2, 90 + i * 45, M16.base, { y: 6 }));
+        side.forEach((el2, i) => {
+          if (el2) rise(el2, 240 + i * 60, M16.base, { y: 6 });
         });
         const title = desk.querySelector("[data-vault-title]");
         if (title) rise(title, 60, M16.base, { y: 5 });
         motionBootSweep(popup);
       }
-      if (phase === "boot") rows.forEach((el3, i) => {
-        if (i < 14) rise(el3, 300 + i * STAG9, M16.base, { y: 7 });
+      if (phase === "boot") rows.forEach((el2, i) => {
+        if (i < 14) rise(el2, 300 + i * STAG9, M16.base, { y: 7 });
       });
-      else if (phase === "switch") rows.forEach((el3, i) => {
-        if (i < 12) rise(el3, i * 20, M16.fast + 60, { y: 6, blur: 3 });
+      else if (phase === "switch") rows.forEach((el2, i) => {
+        if (i < 12) rise(el2, i * 20, M16.fast + 60, { y: 6, blur: 3 });
       });
-      else if (phase === "search") rows.forEach((el3, i) => {
-        if (i < 10) rise(el3, i * 14, M16.fast + 40, { y: 4, blur: 2 });
+      else if (phase === "search") rows.forEach((el2, i) => {
+        if (i < 10) rise(el2, i * 14, M16.fast + 40, { y: 4, blur: 2 });
       });
       if (detail) {
         if (phase === "boot" || phase === "switch") revealDetail(detail, phase === "boot" ? 220 : 40);
@@ -59974,14 +59897,14 @@ GitHub 仓库：${ghInfo.title}
     }
     if (motionVisible(mob) && mob) {
       const rows = [...mob.querySelectorAll("[data-mob-body] > .bz-vault-row")];
-      if (phase === "boot") rows.forEach((el3, i) => {
-        if (i < 12) rise(el3, 260 + i * STAG9, M16.base, { y: 7 });
+      if (phase === "boot") rows.forEach((el2, i) => {
+        if (i < 12) rise(el2, 260 + i * STAG9, M16.base, { y: 7 });
       });
-      else if (phase === "switch") rows.forEach((el3, i) => {
-        if (i < 10) rise(el3, i * 20, M16.fast + 60, { y: 6, blur: 3 });
+      else if (phase === "switch") rows.forEach((el2, i) => {
+        if (i < 10) rise(el2, i * 20, M16.fast + 60, { y: 6, blur: 3 });
       });
-      else if (phase === "search") rows.forEach((el3, i) => {
-        if (i < 8) rise(el3, i * 14, M16.fast + 40, { y: 4, blur: 2 });
+      else if (phase === "search") rows.forEach((el2, i) => {
+        if (i < 8) rise(el2, i * 14, M16.fast + 40, { y: 4, blur: 2 });
       });
     }
   }
@@ -60138,11 +60061,11 @@ GitHub 仓库：${ghInfo.title}
     );
     const lines = ['[data-ls="title"]', '[data-ls="sub"]', '[data-ls="row"]'];
     lines.forEach((sel, i) => {
-      const el3 = lsEl.querySelector(sel);
-      if (el3) {
+      const el2 = lsEl.querySelector(sel);
+      if (el2) {
         motionShellAfter(120 + i * 70, () => {
           motionWaapi(
-            el3,
+            el2,
             [
               { opacity: 0, transform: "translateY(6px)", filter: "blur(3px)" },
               { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -60153,10 +60076,10 @@ GitHub 仓库：${ghInfo.title}
       }
     });
     const stats = [...lsEl.querySelectorAll('[data-ls="stats"] .bz-lockscreen-stat')];
-    stats.forEach((el3, i) => {
+    stats.forEach((el2, i) => {
       motionShellAfter(200 + i * 60, () => {
         motionWaapi(
-          el3,
+          el2,
           [
             { opacity: 0, transform: "translateY(6px)", filter: "blur(3px)" },
             { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -60227,10 +60150,10 @@ GitHub 仓库：${ghInfo.title}
     );
     motionBootSweep(popup);
   }
-  function motionRevealBody(el3) {
-    if (!el3 || motionReduced() || !motionVisible(el3)) return;
+  function motionRevealBody(el2) {
+    if (!el2 || motionReduced() || !motionVisible(el2)) return;
     motionWaapi(
-      el3,
+      el2,
       [
         { opacity: 0.3, filter: "blur(7px) brightness(1.35)" },
         { opacity: 1, filter: "blur(0px) brightness(1)" }
@@ -60294,8 +60217,8 @@ GitHub 仓库：${ghInfo.title}
       { duration: M16.base, easing: E9.out, fill: "backwards" }
     );
     const secs = [...body.querySelectorAll(".bz-encrypt-health-section, .bz-encrypt-health-item, .bz-encrypt-health-hint")];
-    secs.forEach((el3, i) => {
-      if (i < 12) rise(el3, 90 + i * 35, M16.base, { y: 4, blur: 2 });
+    secs.forEach((el2, i) => {
+      if (i < 12) rise(el2, 90 + i * 35, M16.base, { y: 4, blur: 2 });
     });
   }
   function motionFindRowIn(row) {
@@ -60309,9 +60232,9 @@ GitHub 仓库：${ghInfo.title}
       { duration: M16.fast + 40, easing: E9.out, fill: "backwards" }
     );
   }
-  function motionStatusbarSpin(el3) {
-    if (!el3 || motionReduced()) return;
-    const ic2 = el3.querySelector(".bz-vault-ic");
+  function motionStatusbarSpin(el2) {
+    if (!el2 || motionReduced()) return;
+    const ic2 = el2.querySelector(".bz-vault-ic");
     if (!ic2) return;
     motionWaapi(
       ic2,
@@ -60406,18 +60329,18 @@ GitHub 仓库：${ghInfo.title}
     }
     return [...valid];
   }
-  function collectNoteAttachmentPaths(app2, file, content) {
+  function collectNoteAttachmentPaths(app, file, content) {
     var _a2, _b2, _c;
     const embedLinks = [];
     try {
-      const cache = (_b2 = (_a2 = app2 == null ? void 0 : app2.metadataCache) == null ? void 0 : _a2.getFileCache) == null ? void 0 : _b2.call(_a2, file);
+      const cache = (_b2 = (_a2 = app == null ? void 0 : app.metadataCache) == null ? void 0 : _a2.getFileCache) == null ? void 0 : _b2.call(_a2, file);
       const embeds = cache && Array.isArray(cache.embeds) ? cache.embeds : [];
       for (const e of embeds) {
         if (e && typeof e.link === "string") embedLinks.push(e.link);
       }
     } catch (e) {
     }
-    const vaultFiles = ((_c = app2 == null ? void 0 : app2.vault) == null ? void 0 : _c.getFiles) && app2.vault.getFiles() || [];
+    const vaultFiles = ((_c = app == null ? void 0 : app.vault) == null ? void 0 : _c.getFiles) && app.vault.getFiles() || [];
     return collectNoteAttachments(content, embedLinks, vaultFiles);
   }
   function findSharedAttachmentPaths(notePath, attPaths, others) {
@@ -60454,12 +60377,12 @@ GitHub 仓库：${ghInfo.title}
     }
     return [...shared2];
   }
-  function collectSharedAttachmentPaths(app2, notePath, attPaths) {
+  function collectSharedAttachmentPaths(app, notePath, attPaths) {
     var _a2, _b2, _c;
     if (!attPaths.length) return [];
     let mds = [];
     try {
-      mds = ((_a2 = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a2.getMarkdownFiles) && app2.vault.getMarkdownFiles() || [];
+      mds = ((_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.getMarkdownFiles) && app.vault.getMarkdownFiles() || [];
     } catch (e) {
       return [];
     }
@@ -60467,7 +60390,7 @@ GitHub 仓库：${ghInfo.title}
     for (const f of mds) {
       const links = [];
       try {
-        const cache = (_c = (_b2 = app2 == null ? void 0 : app2.metadataCache) == null ? void 0 : _b2.getFileCache) == null ? void 0 : _c.call(_b2, f);
+        const cache = (_c = (_b2 = app == null ? void 0 : app.metadataCache) == null ? void 0 : _b2.getFileCache) == null ? void 0 : _c.call(_b2, f);
         const embeds = cache && Array.isArray(cache.embeds) ? cache.embeds : [];
         const mdLinks = cache && Array.isArray(cache.links) ? cache.links : [];
         for (const e of embeds) {
@@ -60917,11 +60840,11 @@ GitHub 仓库：${ghInfo.title}
             motionArmSwitch();
             this.renderAll();
           };
-          this.desk.nav.querySelectorAll(".bz-vault-item").forEach((el3) => {
-            el3.addEventListener("click", () => setAsset(el3.getAttribute("data-asset") || "overview"));
+          this.desk.nav.querySelectorAll(".bz-vault-item").forEach((el2) => {
+            el2.addEventListener("click", () => setAsset(el2.getAttribute("data-asset") || "overview"));
           });
-          this.mob.seg.querySelectorAll(".sg").forEach((el3) => {
-            el3.addEventListener("click", () => setAsset(el3.getAttribute("data-masset") || "overview"));
+          this.mob.seg.querySelectorAll(".sg").forEach((el2) => {
+            el2.addEventListener("click", () => setAsset(el2.getAttribute("data-masset") || "overview"));
           });
           (_a2 = this.popup.querySelector('[data-act="lock"]')) == null ? void 0 : _a2.addEventListener("click", () => this.lockNow());
           (_b2 = this.popup.querySelector('[data-act="mob-close"]')) == null ? void 0 : _b2.addEventListener("click", () => this.hide());
@@ -61104,18 +61027,18 @@ GitHub 仓库：${ghInfo.title}
         /** 左栏「立即上锁」旁的已解锁时长（mm:ss，超 1 小时 h:mm:ss） */
         updateUnlockDuration() {
           var _a2;
-          const el3 = (_a2 = this.popup) == null ? void 0 : _a2.querySelector("[data-unlock-dur]");
-          if (!el3) return;
+          const el2 = (_a2 = this.popup) == null ? void 0 : _a2.querySelector("[data-unlock-dur]");
+          if (!el2) return;
           if (!this.dataManager.unlocked || this.unlockedAt === null) {
-            el3.textContent = "";
+            el2.textContent = "";
             return;
           }
           const s = Math.max(0, Math.floor((Date.now() - this.unlockedAt) / 1e3));
           const mm = String(Math.floor(s / 60) % 60).padStart(2, "0");
           const ss = String(s % 60).padStart(2, "0");
           const h = Math.floor(s / 3600);
-          el3.textContent = h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
-          el3.title = "已解锁时长";
+          el2.textContent = h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+          el2.title = "已解锁时长";
         }
         bumpIdleLock() {
           this.clearIdleLock();
@@ -61233,13 +61156,13 @@ GitHub 仓库：${ghInfo.title}
             bar.el.classList.add("bz-encrypt-health-bar");
             body.appendChild(progress);
             body.appendChild(bar.el);
-            const live3 = document.createElement("div");
-            live3.className = "bz-encrypt-health-live";
+            const live2 = document.createElement("div");
+            live2.className = "bz-encrypt-health-live";
             const liveTitle = document.createElement("div");
             liveTitle.className = "bz-encrypt-health-section-title";
             liveTitle.textContent = "发现的异常";
-            live3.appendChild(liveTitle);
-            body.appendChild(live3);
+            live2.appendChild(liveTitle);
+            body.appendChild(live2);
             motionScanStart(this.healthPopup);
             try {
               const report = await this.dataManager.scanHealth((p) => {
@@ -61249,7 +61172,7 @@ GitHub 仓库：${ghInfo.title}
                   const row = document.createElement("div");
                   row.className = "bz-encrypt-health-item " + (item.cat === "corrupted-body" || item.cat === "corrupted-attachment" ? "bz-encrypt-health-item--bad" : item.cat === "missing-attachment" ? "bz-encrypt-health-item--warn" : "");
                   row.textContent = item.label;
-                  live3.appendChild(row);
+                  live2.appendChild(row);
                   motionFindRowIn(row);
                 }
               });
@@ -61850,21 +61773,21 @@ GitHub 仓库：${ghInfo.title}
         renderNav() {
           const c = this.counts();
           const setCnt = (a, v) => {
-            const el3 = this.popup.querySelector(`[data-cnt="${a}"]`);
-            if (el3) el3.textContent = String(v);
+            const el2 = this.popup.querySelector(`[data-cnt="${a}"]`);
+            if (el2) el2.textContent = String(v);
           };
           setCnt("overview", c.note + c.diary);
           setCnt("note", c.note);
           setCnt("diary", c.diary);
-          this.desk.nav.querySelectorAll(".bz-vault-item").forEach((el3) => {
-            const on = el3.getAttribute("data-asset") === this.asset;
-            el3.classList.toggle("on", on);
-            el3.setAttribute("aria-current", on ? "true" : "false");
+          this.desk.nav.querySelectorAll(".bz-vault-item").forEach((el2) => {
+            const on = el2.getAttribute("data-asset") === this.asset;
+            el2.classList.toggle("on", on);
+            el2.setAttribute("aria-current", on ? "true" : "false");
           });
-          this.mob.seg.querySelectorAll(".sg").forEach((el3) => {
-            const on = el3.getAttribute("data-masset") === this.asset;
-            el3.classList.toggle("on", on);
-            el3.setAttribute("aria-current", on ? "true" : "false");
+          this.mob.seg.querySelectorAll(".sg").forEach((el2) => {
+            const on = el2.getAttribute("data-masset") === this.asset;
+            el2.classList.toggle("on", on);
+            el2.setAttribute("aria-current", on ? "true" : "false");
           });
           const ht = this.popup.querySelector("[data-health-t]");
           const hd = this.popup.querySelector("[data-health-d]");
@@ -61958,21 +61881,21 @@ GitHub 仓库：${ghInfo.title}
           var _a2, _b2;
           mountIcons(area);
           area.querySelectorAll(".card[data-nav]").forEach(
-            (el3) => el3.addEventListener("click", () => this.setAssetFromNav(el3.getAttribute("data-nav")))
+            (el2) => el2.addEventListener("click", () => this.setAssetFromNav(el2.getAttribute("data-nav")))
           );
           (_a2 = area.querySelector('[data-hero="lock-note"]')) == null ? void 0 : _a2.addEventListener("click", () => {
             var _a3;
             return (_a3 = this.onLockCurrentNote) == null ? void 0 : _a3.call(this);
           });
           area.querySelectorAll('[data-hero="health"]').forEach(
-            (el3) => el3.addEventListener("click", () => void this.openHealthDialog())
+            (el2) => el2.addEventListener("click", () => void this.openHealthDialog())
           );
           (_b2 = area.querySelector('[data-hero="recent-all"]')) == null ? void 0 : _b2.addEventListener("click", () => this.setAssetFromNav("note"));
           area.querySelectorAll(".bz-vault-minirow[data-recent]").forEach(
-            (el3) => el3.addEventListener("click", () => {
-              const rid = el3.getAttribute("data-recent-id");
+            (el2) => el2.addEventListener("click", () => {
+              const rid = el2.getAttribute("data-recent-id");
               if (rid) this._selNoteId = rid;
-              this.setAssetFromNav(el3.getAttribute("data-recent"));
+              this.setAssetFromNav(el2.getAttribute("data-recent"));
             })
           );
         }
@@ -62027,17 +61950,17 @@ GitHub 仓库：${ghInfo.title}
           for (const n of notes) {
             const row = document.createElement("div");
             row.innerHTML = noteRowHTML(n, kind, n.id === selId);
-            const el3 = row.firstElementChild;
-            el3.addEventListener("click", () => {
+            const el2 = row.firstElementChild;
+            el2.addEventListener("click", () => {
               this._selNoteId = n.id;
               this.renderDesktop();
             });
-            el3.addEventListener("dblclick", () => {
+            el2.addEventListener("dblclick", () => {
               if (this.previewMask) registerSheetCompanion(this.previewMask);
               void this.openPreview(n);
             });
-            this.attachNoteDrawer(el3, n, kind);
-            listBody.appendChild(el3);
+            this.attachNoteDrawer(el2, n, kind);
+            listBody.appendChild(el2);
           }
           mountIcons(listBody);
           if (keepHead) listBody.scrollTop = prevScroll;
@@ -62118,9 +62041,9 @@ GitHub 仓库：${ghInfo.title}
           return { actions, opts: { sheetHead: this.buildSheetHead(note, isDiary) } };
         }
         /** 笔记行/详情统一右键抽屉（预览/还原/删除） */
-        attachNoteDrawer(el3, note, kind) {
+        attachNoteDrawer(el2, note, kind) {
           const { actions, opts } = this.noteDrawerActions(note, kind);
-          attachItemActions(el3, actions, opts);
+          attachItemActions(el2, actions, opts);
         }
         buildSheetHead(note, isDiary = false) {
           const head = document.createElement("div");
@@ -62157,10 +62080,10 @@ GitHub 仓库：${ghInfo.title}
           var _a2;
           if (activeUnlock && ((_a2 = activeUnlock.el) == null ? void 0 : _a2.isConnected)) activeUnlock.cancel();
           this.activeChangePw = null;
-          document.querySelectorAll("body > .bz-vault-dlg-mask").forEach((el3) => el3.remove());
-          document.querySelectorAll("body > .bz-lockscreen--mask").forEach((el3) => {
-            if (el3.classList.contains("bz-lockscreen--password-vault") || el3.classList.contains("bz-lockscreen--diary")) return;
-            el3.remove();
+          document.querySelectorAll("body > .bz-vault-dlg-mask").forEach((el2) => el2.remove());
+          document.querySelectorAll("body > .bz-lockscreen--mask").forEach((el2) => {
+            if (el2.classList.contains("bz-lockscreen--password-vault") || el2.classList.contains("bz-lockscreen--diary")) return;
+            el2.remove();
           });
           this.hideHealthDialog();
           cancelActiveFlowDialog();
@@ -62190,10 +62113,10 @@ GitHub 仓库：${ghInfo.title}
           this.asset = a;
           lastVisitedAsset = a;
           this.desk.nav.querySelectorAll(".bz-vault-item").forEach(
-            (el3) => el3.classList.toggle("on", el3.getAttribute("data-asset") === a)
+            (el2) => el2.classList.toggle("on", el2.getAttribute("data-asset") === a)
           );
           this.mob.seg.querySelectorAll(".sg").forEach(
-            (el3) => el3.classList.toggle("on", el3.getAttribute("data-masset") === a)
+            (el2) => el2.classList.toggle("on", el2.getAttribute("data-masset") === a)
           );
           motionArmSwitch();
           this.renderAll();
@@ -62289,8 +62212,8 @@ GitHub 仓库：${ghInfo.title}
           const kind = this.asset;
           const notes = [...this.dataManager.manifest.notes].filter((n) => kind === "diary" ? n.kind === "diary-entry" : n.kind !== "diary-entry" && n.kind !== "password-vault" && n.kind !== "people").sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
           const kw = this.searchKw;
-          const filtered3 = kw ? notes.filter((n) => (n.title || "").toLowerCase().includes(kw.toLowerCase()) || (n.path || "").toLowerCase().includes(kw.toLowerCase())) : notes;
-          if (!filtered3.length) {
+          const filtered2 = kw ? notes.filter((n) => (n.title || "").toLowerCase().includes(kw.toLowerCase()) || (n.path || "").toLowerCase().includes(kw.toLowerCase())) : notes;
+          if (!filtered2.length) {
             body.replaceChildren(
               uiEmpty(
                 kind === "diary" ? { title: "还没有加密日记", desc: "日记面板把条目改分类为「加密」后移入这里" } : { title: "还没有笔记", desc: "用「加密当前笔记」把整篇笔记移入保险库" }
@@ -62298,16 +62221,16 @@ GitHub 仓库：${ghInfo.title}
             );
             return;
           }
-          for (const n of filtered3) {
+          for (const n of filtered2) {
             const row = document.createElement("div");
             row.innerHTML = noteRowHTML(n, kind, false);
-            const el3 = row.firstElementChild;
-            el3.addEventListener("click", () => {
+            const el2 = row.firstElementChild;
+            el2.addEventListener("click", () => {
               this._selNoteId = n.id;
               this.openNoteMobPage(n, kind);
             });
-            this.attachNoteDrawer(el3, n, kind);
-            body.appendChild(el3);
+            this.attachNoteDrawer(el2, n, kind);
+            body.appendChild(el2);
           }
         }
         /** 移动端二级页骨架：顶栏（返回 + 标题 + ⋮）+ 内容体；back/menu 绑定由调用方接 */
@@ -62547,11 +62470,11 @@ GitHub 仓库：${ghInfo.title}
         /** 还原成功后打开该笔记（Obsidian 当前叶子页打开） */
         openRestoredNote(note) {
           var _a2, _b2;
-          const app2 = getApp();
+          const app = getApp();
           try {
-            const file = app2.vault.getAbstractFileByPath(note.path);
+            const file = app.vault.getAbstractFileByPath(note.path);
             if (file && file.isFolder !== true) {
-              (_b2 = (_a2 = app2.workspace).openLinkText) == null ? void 0 : _b2.call(_a2, note.path, note.path);
+              (_b2 = (_a2 = app.workspace).openLinkText) == null ? void 0 : _b2.call(_a2, note.path, note.path);
             }
           } catch (e) {
           }
@@ -62610,12 +62533,12 @@ GitHub 仓库：${ghInfo.title}
             const [plain, previewResults] = await Promise.all([bodyP, Promise.all(previewP)]);
             const dataUrls = /* @__PURE__ */ new Map();
             for (const r of previewResults) dataUrls.set(r.path, r.du);
-            let bodyEl4;
+            let bodyEl3;
             let inlined = /* @__PURE__ */ new Set();
             if (plain === null) {
               const err = document.createElement("div");
               err.textContent = "正文解密失败";
-              bodyEl4 = err;
+              bodyEl3 = err;
             } else {
               const { text: text2, slots, inlined: inl } = collectMediaSlots(plain, note.attachments);
               inlined = inl;
@@ -62632,11 +62555,11 @@ GitHub 仓库：${ghInfo.title}
               } else {
                 mdEl.textContent = plain;
               }
-              bodyEl4 = mdEl;
+              bodyEl3 = mdEl;
             }
             body.innerHTML = "";
-            body.appendChild(bodyEl4);
-            motionRevealBody(bodyEl4);
+            body.appendChild(bodyEl3);
+            motionRevealBody(bodyEl3);
             const residuals = note.attachments.filter((a) => !inlined.has(a.path));
             if (residuals.length) {
               const gallery = document.createElement("div");
@@ -62676,13 +62599,13 @@ GitHub 仓库：${ghInfo.title}
          * 返回全新容器给调用方走纯文本兜底，正文不再「纯文本 + 迟到渲染」叠双份。
          * T13：返回渲染 Component，调用链在关窗/下一次填充前 unload 收掉生命周期。
          */
-        async renderWithTimeout(app2, text2, path, timeoutMs = PREVIEW_RENDER_TIMEOUT_MS) {
+        async renderWithTimeout(app, text2, path, timeoutMs = PREVIEW_RENDER_TIMEOUT_MS) {
           this.unloadPreviewComponent();
-          const el3 = document.createElement("div");
+          const el2 = document.createElement("div");
           const component = new Component();
           this._previewComponent = component;
           let finished = false;
-          const render3 = MarkdownRenderer.render(app2, text2, el3, path, component).then(
+          const render2 = MarkdownRenderer.render(app, text2, el2, path, component).then(
             () => {
               finished = true;
             },
@@ -62690,9 +62613,9 @@ GitHub 仓库：${ghInfo.title}
               finished = true;
             }
           );
-          await Promise.race([render3, new Promise((r) => setTimeout(r, timeoutMs))]);
+          await Promise.race([render2, new Promise((r) => setTimeout(r, timeoutMs))]);
           if (!finished) return { ok: false, el: document.createElement("div"), component };
-          return { ok: true, el: el3, component };
+          return { ok: true, el: el2, component };
         }
         /** 预览窗内所有缩略图/占位 slot 绑定点击：只加载被点的那一张原始层 */
         bindMediaClicks(root, attachments) {
@@ -62825,8 +62748,8 @@ GitHub 仓库：${ghInfo.title}
          * 状态栏挂载（main.ts onload 调用）：初始为锁定态；订阅解锁态变化刷新，
          * 点击打开统一保险库面板（openEncrypt 有解锁引导）。
          */
-        attachStatusBar(el3) {
-          this.statusBarEl = el3;
+        attachStatusBar(el2) {
+          this.statusBarEl = el2;
           this.dataManager.onUnlockChange = (unlocked) => {
             var _a2, _b2;
             if (this.statusBarEl) {
@@ -62874,21 +62797,21 @@ GitHub 仓库：${ghInfo.title}
          * 读取附件原始内容并按设置生成预览层。
          * Q3-A：任一附件读取失败 → 整笔放弃（返回 null，不落任何东西、原文件不动）；预览失败不算失败（可选增强）。
          */
-        async readAttachmentInputs(app2, attPaths) {
+        async readAttachmentInputs(app, attPaths) {
           var _a2, _b2;
           const attachments = [];
           const size = this.config.previewSize || 384;
           const quality = this.config.previewQuality || 0.5;
           for (const p of attPaths) {
             try {
-              const f = app2.vault.getAbstractFileByPath(p);
+              const f = app.vault.getAbstractFileByPath(p);
               if (!f) throw new Error("附件不存在");
-              const buf = await app2.vault.readBinary(f);
+              const buf = await app.vault.readBinary(f);
               const data = bytesToBase64(new Uint8Array(buf));
               let previewData;
               if (this.config.previewEnabled) {
                 try {
-                  const resourceUrl = ((_b2 = (_a2 = app2.vault).getResourcePath) == null ? void 0 : _b2.call(_a2, f)) || "";
+                  const resourceUrl = ((_b2 = (_a2 = app.vault).getResourcePath) == null ? void 0 : _b2.call(_a2, f)) || "";
                   const result = kindOf(p) === "video" ? await videoFrame(resourceUrl, size, quality) : await compressImage(resourceUrl, size, quality);
                   if (result) previewData = result.dataUrl;
                 } catch (e) {
@@ -62911,8 +62834,8 @@ GitHub 仓库：${ghInfo.title}
           }
           this._locking = true;
           try {
-            const app2 = getApp();
-            const file = app2.workspace.getActiveFile();
+            const app = getApp();
+            const file = app.workspace.getActiveFile();
             if (!file) {
               notice("请先打开要加密的笔记");
               return;
@@ -62924,11 +62847,11 @@ GitHub 仓库：${ghInfo.title}
                 return;
               }
             }
-            const content = await app2.vault.read(file);
-            const attPaths = collectNoteAttachmentPaths(app2, file, content);
-            const sharedSet = new Set(collectSharedAttachmentPaths(app2, file.path, attPaths));
+            const content = await app.vault.read(file);
+            const attPaths = collectNoteAttachmentPaths(app, file, content);
+            const sharedSet = new Set(collectSharedAttachmentPaths(app, file.path, attPaths));
             if (!await this.confirmLockProceed(file, attPaths.length, sharedSet.size)) return;
-            const attachments = await this.readAttachmentInputs(app2, attPaths);
+            const attachments = await this.readAttachmentInputs(app, attPaths);
             if (!attachments) return;
             for (const a of attachments) {
               if (sharedSet.has(a.path)) a.keptShared = true;
@@ -62975,8 +62898,8 @@ GitHub 仓库：${ghInfo.title}
           this.uiManager.captureForUnload();
           const ids = ["bz-encrypt-mask", "bz-encrypt-popup", "bz-encrypt-preview-mask", "bz-encrypt-preview-popup", "bz-encrypt-health-mask", "bz-encrypt-health-popup"];
           for (const id of ids) {
-            const el3 = document.getElementById(id);
-            if (el3) el3.remove();
+            const el2 = document.getElementById(id);
+            if (el2) el2.remove();
           }
           this.uiManager.closeAllDialogs();
           this.uiManager.detachGlobalListeners();
@@ -63550,22 +63473,22 @@ GitHub 仓库：${ghInfo.title}
     }
     return controller;
   }
-  async function ensureEncrypt(app2) {
+  async function ensureEncrypt(app) {
     if (initialized5) return;
     await getController().init();
     initialized5 = true;
   }
   function mountEncryptStatusBar(container) {
     if (statusBarEl) return;
-    const el3 = document.createElement("span");
-    el3.className = "bz-encrypt-statusbar";
-    el3.title = "保险库：点击打开";
-    el3.innerHTML = statusbarHtml(false);
-    mountIcons(el3);
-    el3.addEventListener("click", () => openEncrypt(getApp()));
-    container.appendChild(el3);
-    statusBarEl = el3;
-    void ensureEncrypt(getApp()).then(() => getController().attachStatusBar(el3)).catch(() => {
+    const el2 = document.createElement("span");
+    el2.className = "bz-encrypt-statusbar";
+    el2.title = "保险库：点击打开";
+    el2.innerHTML = statusbarHtml(false);
+    mountIcons(el2);
+    el2.addEventListener("click", () => openEncrypt(getApp()));
+    container.appendChild(el2);
+    statusBarEl = el2;
+    void ensureEncrypt(getApp()).then(() => getController().attachStatusBar(el2)).catch(() => {
     });
   }
   function unmountEncryptStatusBar() {
@@ -63574,18 +63497,18 @@ GitHub 仓库：${ghInfo.title}
       statusBarEl = null;
     }
   }
-  function openEncrypt(app2) {
-    void ensureEncrypt(app2).then(() => getController().openManager()).catch(() => notice("保险库初始化失败，请重试", "error"));
+  function openEncrypt(app) {
+    void ensureEncrypt(app).then(() => getController().openManager()).catch(() => notice("保险库初始化失败，请重试", "error"));
   }
-  function encryptCurrentNote(app2) {
-    void ensureEncrypt(app2).then(() => getController().lockCurrentNote()).catch(() => notice("保险库初始化失败，请重试", "error"));
+  function encryptCurrentNote(app) {
+    void ensureEncrypt(app).then(() => getController().lockCurrentNote()).catch(() => notice("保险库初始化失败，请重试", "error"));
   }
   function getSafeManager() {
     return getController().dataManager;
   }
-  async function lockSafe(app2) {
+  async function lockSafe(app) {
     try {
-      await ensureEncrypt(app2);
+      await ensureEncrypt(app);
     } catch (e) {
       return false;
     }
@@ -63593,14 +63516,14 @@ GitHub 仓库：${ghInfo.title}
     getController().uiManager.lockNow(true);
     return true;
   }
-  async function lockEncrypt(app2) {
-    const ok = await lockSafe(app2);
+  async function lockEncrypt(app) {
+    const ok = await lockSafe(app);
     if (ok) notice("保险库已锁定", "success");
     else notice("保险库本来就是锁着的", "warning");
   }
-  async function changeSafePassword(app2) {
+  async function changeSafePassword(app) {
     try {
-      await ensureEncrypt(app2);
+      await ensureEncrypt(app);
     } catch (e) {
       notice("保险库初始化失败，请重试", "error");
       return;
@@ -63677,7 +63600,7 @@ GitHub 仓库：${ghInfo.title}
       imports: Array.isArray(personRaw.imports) ? personRaw.imports : []
     };
     const storeRaw = raw.store && typeof raw.store === "object" ? raw.store : {};
-    const store3 = {
+    const store2 = {
       ...storeRaw,
       msgs: Array.isArray(storeRaw.msgs) ? storeRaw.msgs : [],
       watermarkSid: Number((_d = storeRaw.watermarkSid) != null ? _d : 0) || 0,
@@ -63685,7 +63608,7 @@ GitHub 仓库：${ghInfo.title}
       updatedAt: String((_e = storeRaw.updatedAt) != null ? _e : "")
     };
     const job = raw.job && typeof raw.job === "object" ? raw.job : null;
-    return { version: 1, person, store: store3, job };
+    return { version: 1, person, store: store2, job };
   }
   function stashRecordRecovery(talker, json, avatar) {
     pendingRecordRecovery.push({ talker, json, avatar });
@@ -63698,11 +63621,11 @@ GitHub 仓库：${ghInfo.title}
     });
   }
   async function flushRecordRecovery() {
-    const store3 = await getPeopleSafeStore();
+    const store2 = await getPeopleSafeStore();
     for (let i = pendingRecordRecovery.length - 1; i >= 0; i--) {
       const it = pendingRecordRecovery[i];
       try {
-        await store3.lockNoteFresh(it.talker, JSON.parse(it.json), it.avatar);
+        await store2.lockNoteFresh(it.talker, JSON.parse(it.json), it.avatar);
         pendingRecordRecovery.splice(i, 1);
         notice(`「${it.talker}」的记录已在解锁后自动恢复`, "success");
       } catch (e) {
@@ -63710,9 +63633,9 @@ GitHub 仓库：${ghInfo.title}
       }
     }
   }
-  function setPeopleSafeStoreForTests(store3) {
+  function setPeopleSafeStoreForTests(store2) {
     shared == null ? void 0 : shared.destroy();
-    shared = store3;
+    shared = store2;
   }
   async function getPeopleSafeStore() {
     if (!shared) {
@@ -64041,14 +63964,14 @@ GitHub 仓库：${ghInfo.title}
       return false;
     }
   }
-  function waapi9(el3, frames, opts) {
-    if (!el3 || reduced10() || typeof el3.animate !== "function") {
+  function waapi9(el2, frames, opts) {
+    if (!el2 || reduced10() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && reduced10() && last) {
+      if (el2 && reduced10() && last) {
         for (const k of Object.keys(last)) {
           if (k === "offset") continue;
           try {
-            el3.style[k] = String(last[k]);
+            el2.style[k] = String(last[k]);
           } catch (e) {
           }
         }
@@ -64056,7 +63979,7 @@ GitHub 仓库：${ghInfo.title}
       return null;
     }
     try {
-      return el3.animate(frames, {
+      return el2.animate(frames, {
         duration: opts.duration,
         delay: opts.delay,
         easing: opts.easing,
@@ -64089,9 +64012,9 @@ GitHub 仓库：${ghInfo.title}
     }
     orchestra.clear();
   }
-  function cancelById(el3, id) {
-    if (!el3 || typeof el3.getAnimations !== "function") return;
-    for (const a of el3.getAnimations()) {
+  function cancelById(el2, id) {
+    if (!el2 || typeof el2.getAnimations !== "function") return;
+    for (const a of el2.getAnimations()) {
       if (a.id === id) {
         try {
           a.cancel();
@@ -64215,8 +64138,8 @@ GitHub 仓库：${ghInfo.title}
   function unmountCatContainer() {
     const ids = [CAT_CONTAINER_ID, "settings-panel", "chat-panel", "panel-mask"];
     for (const id of ids) {
-      const el3 = document.getElementById(id);
-      if (el3 && el3.parentNode) el3.parentNode.removeChild(el3);
+      const el2 = document.getElementById(id);
+      if (el2 && el2.parentNode) el2.parentNode.removeChild(el2);
     }
   }
   function applyAppearance(container, appearance) {
@@ -64529,706 +64452,24 @@ GitHub 仓库：${ghInfo.title}
     }
   });
 
-  // src/dock/schema.ts
-  function isPlainObject3(v) {
-    return !!v && typeof v === "object" && !Array.isArray(v);
-  }
-  function str2(v) {
-    return typeof v === "string" ? v : void 0;
-  }
-  function num2(v) {
-    return typeof v === "number" && Number.isFinite(v) ? v : void 0;
-  }
-  function bool2(v) {
-    return typeof v === "boolean" ? v : void 0;
-  }
-  function nonEmptyStr(v) {
-    const s = str2(v);
-    return s !== void 0 && s.trim() !== "" ? s : void 0;
-  }
-  function intInRange(v, lo, hi) {
-    return typeof v === "number" && Number.isInteger(v) && v >= lo && v <= hi ? v : void 0;
-  }
-  function parseJsonObjectText(text2) {
-    if (typeof text2 !== "string") return null;
-    const trimmed = text2.charCodeAt(0) === 65279 ? text2.slice(1) : text2;
-    if (trimmed.trim() === "") return null;
-    try {
-      const v = JSON.parse(trimmed);
-      return isPlainObject3(v) ? v : null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function parseParam(raw) {
-    var _a2;
-    if (!isPlainObject3(raw)) return null;
-    const key = nonEmptyStr(raw.key);
-    const label = nonEmptyStr(raw.label);
-    const type = str2(raw.type);
-    if (!key || !label || !type || !PARAM_TYPES.has(type)) return null;
-    let options2;
-    if (type === "choice" || type === "multichoice") {
-      if (Array.isArray(raw.options)) {
-        const kept = [];
-        for (const o of raw.options) {
-          if (!isPlainObject3(o)) continue;
-          const value = str2(o.value);
-          if (value === void 0) continue;
-          kept.push({ value, label: (_a2 = nonEmptyStr(o.label)) != null ? _a2 : value });
-        }
-        options2 = kept;
-      }
-    }
-    const out = { key, label, type };
-    if ("default" in raw) out.default = raw.default;
-    const help = nonEmptyStr(raw.help);
-    if (help) out.help = help;
-    const placeholder = nonEmptyStr(raw.placeholder);
-    if (placeholder) out.placeholder = placeholder;
-    const required = bool2(raw.required);
-    if (required !== void 0) out.required = required;
-    const min = num2(raw.min);
-    if (min !== void 0) out.min = min;
-    const max = num2(raw.max);
-    if (max !== void 0) out.max = max;
-    const step = num2(raw.step);
-    if (step !== void 0) out.step = step;
-    const rows = num2(raw.rows);
-    if (rows !== void 0) out.rows = rows;
-    if (type === "path") {
-      const mode = str2(raw.mode);
-      out.mode = mode === "file" || mode === "dir" ? mode : "file";
-    }
-    if (options2) out.options = options2;
-    return out;
-  }
-  function parseSchedule(raw) {
-    if (!isPlainObject3(raw)) return void 0;
-    const kind = str2(raw.kind);
-    if (!kind || !SCHEDULE_KINDS.has(kind)) return void 0;
-    const s = { kind };
-    const note = nonEmptyStr(raw.note);
-    if (note) s.note = note;
-    const hour = intInRange(raw.hour, 0, 23);
-    if (hour !== void 0) s.hour = hour;
-    const weekday = intInRange(raw.weekday, 0, 6);
-    if (weekday !== void 0) s.weekday = weekday;
-    const everyHours = num2(raw.everyHours);
-    if (everyHours !== void 0 && everyHours > 0) s.everyHours = everyHours;
-    return s;
-  }
-  function parseAction(raw) {
-    if (!isPlainObject3(raw)) return null;
-    const out = { ...raw };
-    const argSpecs = {};
-    if (isPlainObject3(raw.args)) {
-      for (const [key, v] of Object.entries(raw.args)) {
-        if (!ARG_NAME_RE.test(key)) continue;
-        if (!isPlainObject3(v)) continue;
-        const type = str2(v.type);
-        if (!type || !ACTION_ARG_TYPES.has(type)) continue;
-        const spec = { type };
-        const many = bool2(v.many);
-        if (many !== void 0) spec.many = many;
-        argSpecs[key] = spec;
-      }
-    }
-    if (Object.keys(argSpecs).length) out.args = argSpecs;
-    else delete out.args;
-    if (isPlainObject3(raw.run) && Array.isArray(raw.run.args)) {
-      const tpl = raw.run.args.filter((x) => typeof x === "string");
-      const declared = new Set(Object.keys(argSpecs));
-      const ok = tpl.every((t) => [...t.matchAll(ARG_PLACEHOLDER_RE)].every((m) => declared.has(m[1])));
-      if (!ok) return null;
-      if (tpl.length) out.run = { args: tpl };
-      else delete out.run;
-    } else {
-      delete out.run;
-    }
-    if (!out.run) return null;
-    return out;
-  }
-  function parseActions(raw) {
-    if (!isPlainObject3(raw)) return void 0;
-    const out = {};
-    for (const [id, v] of Object.entries(raw)) {
-      if (id.length > DOCK_ACTION_ID_MAX_LEN || !DOCK_ACTION_ID_RE.test(id)) continue;
-      const parsed = parseAction(v);
-      if (parsed) out[id] = parsed;
-    }
-    return Object.keys(out).length ? out : void 0;
-  }
-  function parseManifest(raw) {
-    var _a2, _b2;
-    if (!isPlainObject3(raw)) return null;
-    if (raw.v !== DOCK_CONTRACT_VERSION) return null;
-    const id = str2(raw.id);
-    if (!id || id.length > DOCK_ID_MAX_LEN || !DOCK_ID_RE.test(id)) return null;
-    const name = nonEmptyStr(raw.name);
-    if (!name) return null;
-    const params = [];
-    if (Array.isArray(raw.params)) {
-      const seen = /* @__PURE__ */ new Set();
-      for (const p of raw.params) {
-        const parsed = parseParam(p);
-        if (!parsed) continue;
-        if (seen.has(parsed.key)) continue;
-        seen.add(parsed.key);
-        params.push(parsed);
-      }
-    }
-    const out = { ...raw, v: DOCK_CONTRACT_VERSION, id, name, params };
-    out.description = nonEmptyStr(raw.description);
-    out.author = nonEmptyStr(raw.author);
-    out.toolVersion = nonEmptyStr(raw.toolVersion);
-    out.icon = nonEmptyStr(raw.icon);
-    out.group = nonEmptyStr(raw.group);
-    out.docs = nonEmptyStr(raw.docs);
-    out.desktopOnly = bool2(raw.desktopOnly);
-    if (Array.isArray(raw.produces)) {
-      out.produces = raw.produces.filter((x) => typeof x === "string");
-    }
-    if (isPlainObject3(raw.run)) {
-      const cmd = (_a2 = nonEmptyStr(raw.run.cmd)) == null ? void 0 : _a2.trim();
-      if (cmd) {
-        const r = { cmd };
-        if (Array.isArray(raw.run.args)) {
-          const args = raw.run.args.filter((x) => typeof x === "string");
-          if (args.length) r.args = args;
-        }
-        const cwd = (_b2 = nonEmptyStr(raw.run.cwd)) == null ? void 0 : _b2.trim();
-        if (cwd) r.cwd = cwd;
-        const shell = bool2(raw.run.shell);
-        if (shell !== void 0) r.shell = shell;
-        out.run = r;
-      } else {
-        delete out.run;
-      }
-    } else {
-      delete out.run;
-    }
-    const schedule = parseSchedule(raw.schedule);
-    if (schedule) out.schedule = schedule;
-    else delete out.schedule;
-    const actions = parseActions(raw.actions);
-    if (actions) out.actions = actions;
-    else delete out.actions;
-    if (isPlainObject3(raw.runtime)) {
-      const estimatedSec = num2(raw.runtime.estimatedSec);
-      out.runtime = estimatedSec !== void 0 && estimatedSec > 0 ? { estimatedSec } : {};
-    } else {
-      delete out.runtime;
-    }
-    return out;
-  }
-  function parseRunRecord(raw) {
-    var _a2, _b2;
-    if (!isPlainObject3(raw)) return null;
-    const startedAt = nonEmptyStr(raw.startedAt);
-    const status = str2(raw.status);
-    if (!startedAt || !status || !RUN_STATUSES.has(status)) return null;
-    const runId = (_a2 = nonEmptyStr(raw.runId)) != null ? _a2 : startedAt;
-    const trigger = str2(raw.trigger) === "auto" ? "auto" : "manual";
-    const out = { ...raw, runId, trigger, status, startedAt };
-    out.finishedAt = nonEmptyStr(raw.finishedAt);
-    if (raw.exitCode === null) out.exitCode = null;
-    else out.exitCode = num2(raw.exitCode);
-    out.durationMs = num2(raw.durationMs);
-    out.message = nonEmptyStr(raw.message);
-    if (isPlainObject3(raw.params)) out.params = raw.params;
-    else delete out.params;
-    if (Array.isArray(raw.steps)) {
-      const steps = [];
-      for (const s of raw.steps) {
-        if (!isPlainObject3(s)) continue;
-        const text2 = nonEmptyStr(s.text);
-        if (!text2) continue;
-        const step = { text: text2 };
-        const at4 = nonEmptyStr(s.at);
-        if (at4) step.at = at4;
-        const st = nonEmptyStr(s.status);
-        if (st) step.status = st;
-        steps.push(step);
-      }
-      if (steps.length) out.steps = steps;
-      else delete out.steps;
-    } else {
-      delete out.steps;
-    }
-    if (isPlainObject3(raw.progress)) {
-      const phase = (_b2 = nonEmptyStr(raw.progress.phase)) != null ? _b2 : null;
-      const pctRaw = raw.progress.pct;
-      const pct = typeof pctRaw === "number" && Number.isFinite(pctRaw) ? pctRaw : null;
-      out.progress = { phase, pct };
-    } else {
-      delete out.progress;
-    }
-    if (!Array.isArray(raw.info)) delete out.info;
-    if (!("result" in raw)) delete out.result;
-    if (isPlainObject3(raw.metrics)) {
-      const metrics = {};
-      for (const [k, v] of Object.entries(raw.metrics)) {
-        const n = num2(v);
-        if (n !== void 0) metrics[k] = n;
-      }
-      if (Object.keys(metrics).length) out.metrics = metrics;
-      else delete out.metrics;
-    } else {
-      delete out.metrics;
-    }
-    if (Array.isArray(raw.artifacts)) {
-      const artifacts = [];
-      for (const a of raw.artifacts) {
-        if (!isPlainObject3(a)) continue;
-        const path = nonEmptyStr(a.path);
-        if (!path) continue;
-        const label = nonEmptyStr(a.label);
-        artifacts.push(label ? { path, label } : { path });
-      }
-      if (artifacts.length) out.artifacts = artifacts;
-      else delete out.artifacts;
-    } else {
-      delete out.artifacts;
-    }
-    if (isPlainObject3(raw.error)) {
-      const kindRaw = str2(raw.error.kind);
-      const kind = kindRaw && ERROR_KINDS.has(kindRaw) ? kindRaw : "unknown";
-      const error = { kind };
-      const detail = nonEmptyStr(raw.error.detail);
-      if (detail) error.detail = detail;
-      const stderr = nonEmptyStr(raw.error.stderr);
-      if (stderr) error.stderr = stderr;
-      out.error = error;
-    } else {
-      delete out.error;
-    }
-    return out;
-  }
-  function parseRunsFile(raw, expectToolId) {
-    if (!isPlainObject3(raw)) return null;
-    if (raw.v !== DOCK_CONTRACT_VERSION) return null;
-    const tool = str2(raw.tool);
-    if (!tool) return null;
-    if (expectToolId !== void 0 && tool !== expectToolId) return null;
-    const runs = [];
-    if (Array.isArray(raw.runs)) {
-      for (const r of raw.runs) {
-        const parsed = parseRunRecord(r);
-        if (parsed) runs.push(parsed);
-      }
-    }
-    const out = { ...raw, v: DOCK_CONTRACT_VERSION, tool, runs };
-    const updatedAt = nonEmptyStr(raw.updatedAt);
-    if (updatedAt) out.updatedAt = updatedAt;
-    else delete out.updatedAt;
-    return out;
-  }
-  function parseRunsFileText(text2, expectToolId) {
-    return parseRunsFile(parseJsonObjectText(text2), expectToolId);
-  }
-  function buildArgs(manifest, values) {
-    const args = [];
-    for (const p of manifest.params) {
-      const v = values[p.key];
-      if (v === void 0 || v === null) continue;
-      if (p.type === "bool") {
-        if (v === true) args.push(`--${p.key}`);
-        continue;
-      }
-      if (p.type === "multichoice") {
-        const list = Array.isArray(v) ? v : [v];
-        for (const item of list) {
-          const s2 = String(item);
-          if (s2 !== "") args.push(`--${p.key}=${s2}`);
-        }
-        continue;
-      }
-      const s = String(v);
-      if (s === "" && !p.required) continue;
-      args.push(`--${p.key}=${s}`);
-    }
-    return args;
-  }
-  var DOCK_CONTRACT_VERSION, DOCK_ID_RE, DOCK_ID_MAX_LEN, PARAM_TYPES, SCHEDULE_KINDS, DOCK_ACTION_ID_RE, DOCK_ACTION_ID_MAX_LEN, ACTION_ARG_TYPES, RUN_STATUSES, ERROR_KINDS, DOCK_RUNS_PER_TOOL_LIMIT, ARG_NAME_RE, ARG_PLACEHOLDER_RE;
-  var init_schema2 = __esm({
-    "src/dock/schema.ts"() {
-      DOCK_CONTRACT_VERSION = 1;
-      DOCK_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
-      DOCK_ID_MAX_LEN = 64;
-      PARAM_TYPES = /* @__PURE__ */ new Set([
-        "text",
-        "multiline",
-        "number",
-        "bool",
-        "choice",
-        "multichoice",
-        "path",
-        "secret"
-      ]);
-      SCHEDULE_KINDS = /* @__PURE__ */ new Set([
-        "daily",
-        "weekly",
-        "interval",
-        "on-demand",
-        "unknown"
-      ]);
-      DOCK_ACTION_ID_RE = /^[a-z0-9][a-z0-9:._-]*$/;
-      DOCK_ACTION_ID_MAX_LEN = 64;
-      ACTION_ARG_TYPES = /* @__PURE__ */ new Set(["appid", "text"]);
-      RUN_STATUSES = /* @__PURE__ */ new Set([
-        "ok",
-        "failed",
-        "stopped",
-        "running",
-        "timeout"
-      ]);
-      ERROR_KINDS = /* @__PURE__ */ new Set([
-        "auth",
-        "network",
-        "config",
-        "timeout",
-        "aborted",
-        "unknown"
-      ]);
-      DOCK_RUNS_PER_TOOL_LIMIT = 200;
-      ARG_NAME_RE = /^[a-z][a-z0-9_]*$/;
-      ARG_PLACEHOLDER_RE = /\{\{([a-z][a-z0-9_]*)\}\}/g;
+  // src/dock/types.ts
+  var LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, RUNS_TAIL_BYTES, RUN_TIMEOUT_MS, CLAIM_STALE_MS, FAIL_COOLDOWN_MS, TOOL_ID_RE, TOOL_ID_MAX_LEN;
+  var init_types3 = __esm({
+    "src/dock/types.ts"() {
+      LOCK_FILENAME = "dock.lock";
+      REGISTRY_FILENAME = "dock.json";
+      REGISTRY_VERSION = 3;
+      RUNS_TAIL_BYTES = 256 * 1024;
+      RUN_TIMEOUT_MS = 10 * 6e4;
+      CLAIM_STALE_MS = 5 * 6e4;
+      FAIL_COOLDOWN_MS = 15 * 6e4;
+      TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+      TOOL_ID_MAX_LEN = 64;
     }
   });
 
-  // src/dock/rules.ts
-  function atSecondsOf(at4) {
-    if (!at4) return void 0;
-    const m = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/.exec(at4.trim());
-    if (!m) return void 0;
-    const h = Number(m[1]);
-    const mi = Number(m[2]);
-    const s = m[3] === void 0 ? 0 : Number(m[3]);
-    if (h > 23 || mi > 59 || s > 59) return void 0;
-    return h * 3600 + mi * 60 + s;
-  }
-  function startOfDay(ts) {
-    const d = new Date(ts);
-    d.setHours(0, 0, 0, 0);
-    return d.getTime();
-  }
-  function todayAt(trigger, now) {
-    const sec = atSecondsOf(trigger.at);
-    if (sec === void 0) return void 0;
-    return startOfDay(now) + sec * 1e3;
-  }
-  function ruleDue(rule, ctx) {
-    var _a2, _b2, _c, _d, _e, _f, _g, _h;
-    const t = rule.trigger;
-    switch (t.kind) {
-      case "daily": {
-        const at4 = todayAt(t, ctx.now);
-        if (at4 === void 0) return false;
-        if (ctx.now < at4) return false;
-        return ((_a2 = ctx.lastFiredAt) != null ? _a2 : 0) < at4;
-      }
-      case "interval": {
-        if (!(t.everyMin > 0)) return false;
-        if (ctx.lastFiredAt === void 0) return true;
-        return ctx.now - ctx.lastFiredAt >= t.everyMin * 6e4;
-      }
-      case "on-launch": {
-        const base = ctx.sessionStart;
-        if (base === void 0) return false;
-        if (ctx.now < base + t.delayMin * 6e4) return false;
-        return ((_b2 = ctx.lastFiredAt) != null ? _b2 : 0) < base;
-      }
-      case "panel-open":
-        return ((_c = ctx.event) == null ? void 0 : _c.kind) === "panel-open";
-      case "tool-ok":
-        return ((_d = ctx.event) == null ? void 0 : _d.kind) === "tool-ok" && ctx.event.toolId === t.toolId;
-      case "tool-fail":
-        return ((_e = ctx.event) == null ? void 0 : _e.kind) === "tool-fail" && ctx.event.toolId === t.toolId;
-      case "domain-event":
-        return ((_f = ctx.event) == null ? void 0 : _f.kind) === "domain-event" && ctx.event.channel === t.channel;
-      case "vault-file": {
-        if (((_g = ctx.event) == null ? void 0 : _g.kind) !== "vault-file") return false;
-        const p = (_h = ctx.event.path) != null ? _h : "";
-        if (!p) return false;
-        const target = t.target.replace(/\/+$/, "");
-        return p === target || p.startsWith(target + "/");
-      }
-      case "data-threshold": {
-        if (ctx.value === void 0) return false;
-        if (t.op === ">") return ctx.value > t.value;
-        if (t.op === "<") return ctx.value < t.value;
-        return ctx.value === t.value;
-      }
-    }
-  }
-  function clockText(at4) {
-    const sec = atSecondsOf(at4);
-    if (sec === void 0) return at4;
-    return `${pad23(Math.floor(sec / 3600))}:${pad23(Math.floor(sec % 3600 / 60))}`;
-  }
-  function durationText(min) {
-    if (min % 60 === 0 && min >= 60) return `${min / 60} 小时`;
-    return `${min} 分钟`;
-  }
-  function triggerText(t, toolNameOf) {
-    const name = (id) => toolNameOf ? toolNameOf(id) : id;
-    switch (t.kind) {
-      case "daily":
-        return `每天 ${clockText(t.at)}`;
-      case "interval":
-        return `每 ${durationText(t.everyMin)}`;
-      case "on-launch":
-        return `启动后 ${durationText(t.delayMin)}`;
-      case "panel-open":
-        return "打开工具坞时";
-      case "tool-ok":
-        return `${name(t.toolId)} 成功后`;
-      case "tool-fail":
-        return `${name(t.toolId)} 失败后`;
-      case "domain-event":
-        return `事件 ${t.channel}`;
-      case "vault-file":
-        return `${t.target} 有变动`;
-      case "data-threshold":
-        return `${t.path} ${t.key} ${t.op} ${t.value}`;
-    }
-  }
-  function actionText(a) {
-    if (a.kind === "remind") return a.open ? "只提醒（通知可跳转）" : "只提醒";
-    return a.notify === "always" ? "运行并提醒" : a.notify === "fail" ? "运行（失败才提醒）" : "运行";
-  }
-  function newRuleId(now = Date.now()) {
-    return `r${now.toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`;
-  }
-  function defaultAction() {
-    return { kind: "run", notify: "fail" };
-  }
-  function seedRuleFromSchedule(s, id) {
-    var _a2;
-    if (!s) return null;
-    if (s.kind === "daily") {
-      const h = (_a2 = s.hour) != null ? _a2 : 12;
-      return { id, trigger: { kind: "daily", at: `${pad23(h)}:00` }, action: defaultAction() };
-    }
-    if (s.kind === "interval" && s.everyHours) {
-      return {
-        id,
-        trigger: { kind: "interval", everyMin: s.everyHours * 60 },
-        action: defaultAction()
-      };
-    }
-    return null;
-  }
-  function effectiveRules(rules, override, declared) {
-    var _a2;
-    if (rules && rules.length) return rules.slice();
-    const seed = (_a2 = seedRuleFromSchedule(override, "seed")) != null ? _a2 : seedRuleFromSchedule(declared, "seed");
-    return seed ? [seed] : [];
-  }
-  function hasActiveRule(rules) {
-    return rules.some((r) => r.enabled !== false);
-  }
-  function str3(v) {
-    return typeof v === "string" ? v.trim() : void 0;
-  }
-  function intOf(v, min, max) {
-    if (typeof v !== "number" || !Number.isFinite(v)) return void 0;
-    const n = Math.floor(v);
-    if (n < min || n > max) return void 0;
-    return n;
-  }
-  function parseTrigger(raw) {
-    var _a2, _b2, _c, _d, _e, _f;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-    const r = raw;
-    switch (r.kind) {
-      case "daily": {
-        const at4 = str3(r.at);
-        if (!at4 || atSecondsOf(at4) === void 0) return null;
-        return { kind: "daily", at: clockText(at4) };
-      }
-      case "interval": {
-        const everyMin = intOf(r.everyMin, 1, 43200);
-        return everyMin === void 0 ? null : { kind: "interval", everyMin };
-      }
-      case "on-launch": {
-        const delayMin = intOf(r.delayMin, 0, 1440);
-        return delayMin === void 0 ? null : { kind: "on-launch", delayMin };
-      }
-      case "panel-open":
-        return { kind: "panel-open" };
-      case "tool-ok":
-        return { kind: "tool-ok", toolId: (_a2 = str3(r.toolId)) != null ? _a2 : "" };
-      case "tool-fail":
-        return { kind: "tool-fail", toolId: (_b2 = str3(r.toolId)) != null ? _b2 : "" };
-      case "domain-event":
-        return { kind: "domain-event", channel: (_c = str3(r.channel)) != null ? _c : "" };
-      case "vault-file":
-        return { kind: "vault-file", target: (_d = str3(r.target)) != null ? _d : "" };
-      case "data-threshold": {
-        const op = r.op;
-        if (op !== ">" && op !== "<" && op !== "=") return null;
-        const value = r.value;
-        if (typeof value !== "number" || !Number.isFinite(value)) return null;
-        return {
-          kind: "data-threshold",
-          path: (_e = str3(r.path)) != null ? _e : "",
-          key: (_f = str3(r.key)) != null ? _f : "",
-          op,
-          value
-        };
-      }
-      default:
-        return null;
-    }
-  }
-  function parseAction2(raw) {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-    const r = raw;
-    if (r.kind === "remind") {
-      const open = str3(r.open);
-      return open ? { kind: "remind", open } : { kind: "remind" };
-    }
-    if (r.kind !== "run") return null;
-    const n = r.notify;
-    return { kind: "run", notify: n === "always" || n === "fail" || n === "never" ? n : "fail" };
-  }
-  function parseRule(raw) {
-    var _a2;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-    const r = raw;
-    const id = str3(r.id);
-    if (!id) return null;
-    const trigger = parseTrigger(r.trigger);
-    if (!trigger) return null;
-    const out = { id, trigger, action: (_a2 = parseAction2(r.action)) != null ? _a2 : defaultAction() };
-    const name = str3(r.name);
-    if (name) out.name = name;
-    if (typeof r.enabled === "boolean") out.enabled = r.enabled;
-    const jit = intOf(r.jitterMin, 0, 720);
-    if (jit !== void 0) out.jitterMin = jit;
-    return out;
-  }
-  function parseRules(raw) {
-    if (!Array.isArray(raw)) return [];
-    const out = [];
-    const seen = /* @__PURE__ */ new Set();
-    for (const item of raw) {
-      const parsed = parseRule(item);
-      if (!parsed || seen.has(parsed.id)) continue;
-      seen.add(parsed.id);
-      out.push(parsed);
-    }
-    return out;
-  }
-  function parseRuleState(raw) {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return void 0;
-    const out = {};
-    let any = false;
-    for (const [k, v] of Object.entries(raw)) {
-      if (!v || typeof v !== "object" || Array.isArray(v)) continue;
-      const at4 = str3(v.lastFiredAt);
-      if (!at4) continue;
-      out[k] = { lastFiredAt: at4 };
-      any = true;
-    }
-    return any ? out : void 0;
-  }
-  var TRIGGER_KINDS, TRIGGER_LABEL, pad23;
-  var init_rules = __esm({
-    "src/dock/rules.ts"() {
-      TRIGGER_KINDS = [
-        "daily",
-        "interval",
-        "on-launch",
-        "panel-open",
-        "tool-ok",
-        "tool-fail",
-        "domain-event",
-        "vault-file",
-        "data-threshold"
-      ];
-      TRIGGER_LABEL = {
-        daily: "每天某时",
-        interval: "每隔一段时间",
-        "on-launch": "启动 Obsidian 后",
-        "panel-open": "打开工具坞时",
-        "tool-ok": "某个工具成功后",
-        "tool-fail": "某个工具失败后",
-        "domain-event": "某个事件发生时",
-        "vault-file": "某个目录有变动",
-        "data-threshold": "某个数值达到条件"
-      };
-      pad23 = (n) => String(n).padStart(2, "0");
-    }
-  });
-
-  // src/dock/tool-state.ts
-  function isPlainObject4(v) {
-    return !!v && typeof v === "object" && !Array.isArray(v);
-  }
-  function parseRunState(raw) {
-    if (!isPlainObject4(raw)) return {};
-    const out = {};
-    if (typeof raw.lastAttemptAt === "string" && raw.lastAttemptAt !== "") out.lastAttemptAt = raw.lastAttemptAt;
-    if (typeof raw.lastAttemptOk === "boolean") out.lastAttemptOk = raw.lastAttemptOk;
-    if (typeof raw.consecutiveFailures === "number" && Number.isInteger(raw.consecutiveFailures) && raw.consecutiveFailures > 0) {
-      out.consecutiveFailures = raw.consecutiveFailures;
-    }
-    if (typeof raw.pausedAt === "string" && raw.pausedAt !== "") out.pausedAt = raw.pausedAt;
-    return out;
-  }
-  function parseToolState(raw, toolId) {
-    if (!isPlainObject4(raw)) return null;
-    if (raw.v !== TOOL_STATE_VERSION) return null;
-    if (typeof raw.tool !== "string" || raw.tool !== toolId) return null;
-    const out = {};
-    if (typeof raw.enabled === "boolean") out.enabled = raw.enabled;
-    if (typeof raw.autoRun === "boolean") out.autoRun = raw.autoRun;
-    const rules = parseRules(raw.rules);
-    if (rules.length) out.rules = rules;
-    const ruleState = parseRuleState(raw.ruleState);
-    if (ruleState) out.ruleState = ruleState;
-    const runState = parseRunState(raw.runState);
-    if (Object.keys(runState).length) out.runState = runState;
-    const override = parseSchedule(raw.scheduleOverride);
-    if (override) {
-      out.scheduleOverride = override;
-      if (typeof raw.overrideDeclSig === "string" && raw.overrideDeclSig !== "") {
-        out.overrideDeclSig = raw.overrideDeclSig;
-      }
-    }
-    return out;
-  }
-  function toolStateOf(entry) {
-    const out = {};
-    if (typeof entry.enabled === "boolean") out.enabled = entry.enabled;
-    if (typeof entry.autoRun === "boolean") out.autoRun = entry.autoRun;
-    if (entry.scheduleOverride) {
-      out.scheduleOverride = entry.scheduleOverride;
-      if (entry.overrideDeclSig !== void 0) out.overrideDeclSig = entry.overrideDeclSig;
-    }
-    if (entry.rules && entry.rules.length) out.rules = entry.rules;
-    if (entry.ruleState) out.ruleState = entry.ruleState;
-    if (entry.runState && Object.keys(entry.runState).length) out.runState = entry.runState;
-    return out;
-  }
-  function toolStateFileOf(toolId, state3) {
-    return { v: TOOL_STATE_VERSION, tool: toolId, ...toolStateOf(state3) };
-  }
-  var TOOL_STATE_FILENAME, TOOL_STATE_VERSION;
-  var init_tool_state = __esm({
-    "src/dock/tool-state.ts"() {
-      init_rules();
-      init_schema2();
-      TOOL_STATE_FILENAME = "dock-state.json";
-      TOOL_STATE_VERSION = 1;
-    }
-  });
-
-  // src/dock/declaration.ts
-  function defaultDockFs() {
+  // src/dock/files.ts
+  function defaultFs() {
     if (typeof window === "undefined") return null;
     const w = window;
     if (!w.require) return null;
@@ -65244,38 +64485,67 @@ GitHub 仓库：${ghInfo.title}
         },
         writeText: (p, d) => fs.writeFileSync(p, d),
         rename: typeof fs.renameSync === "function" ? (a, b) => fs.renameSync(a, b) : void 0,
-        exists: typeof fs.existsSync === "function" ? (p) => {
+        createExclusive: typeof fs.openSync === "function" ? (p, d) => {
           try {
-            if (!fs.existsSync(p)) return false;
-            return fs.statSync ? fs.statSync(p).isFile() : true;
+            const fd = fs.openSync(p, "wx");
+            if (typeof fs.writeSync === "function") fs.writeSync(fd, d);
+            if (typeof fs.closeSync === "function") fs.closeSync(fd);
+            return true;
           } catch (e) {
             return false;
           }
         } : void 0,
         unlink: typeof fs.unlinkSync === "function" ? (p) => fs.unlinkSync(p) : void 0,
+        exists: (() => {
+          const existsSync = fs.existsSync;
+          if (typeof existsSync !== "function") return void 0;
+          return (p) => {
+            try {
+              if (!existsSync(p)) return false;
+              return fs.statSync ? fs.statSync(p).isFile() : true;
+            } catch (e) {
+              return false;
+            }
+          };
+        })(),
         mkdir: typeof fs.mkdirSync === "function" ? (p) => {
           try {
             fs.mkdirSync(p, { recursive: true });
           } catch (e) {
           }
         } : void 0,
-        readdir: typeof fs.readdirSync === "function" ? (p) => {
+        readTail: (p, bytes) => {
           try {
-            return fs.readdirSync(p, { withFileTypes: true }).map((d) => ({
-              name: d.name,
-              dir: d.isDirectory()
-            }));
+            const size = fs.statSync(p).size;
+            const start = Math.max(0, size - bytes);
+            const readSync = fs.readSync;
+            if (typeof readSync !== "function" || typeof Buffer === "undefined") return fs.readFileSync(p, "utf8");
+            const fd = fs.openSync(p, "r");
+            try {
+              const buf = Buffer.alloc(size - start);
+              readSync(fd, buf, 0, buf.length, start);
+              return buf.toString("utf8");
+            } finally {
+              fs.closeSync(fd);
+            }
           } catch (e) {
             return null;
           }
-        } : void 0
+        },
+        size: (p) => {
+          try {
+            return fs.statSync(p).size;
+          } catch (e) {
+            return void 0;
+          }
+        }
       };
     } catch (e) {
       return null;
     }
   }
   function currentFs() {
-    return injectedFs !== void 0 ? injectedFs : defaultDockFs();
+    return injected !== void 0 ? injected : defaultFs();
   }
   function dirOf(p) {
     const s = p.replace(/\\/g, "/");
@@ -65289,4474 +64559,243 @@ GitHub 仓库：${ghInfo.title}
     const d = dir.replace(/\\/g, "/").replace(/\/+$/, "");
     return d === "" ? name : `${d}/${name}`;
   }
-  function settingsPathFor(declPath) {
-    return joinPath(dirOf(declPath), SETTINGS_FILENAME);
-  }
-  function runsPathFor(declPath) {
-    return joinPath(dirOf(declPath), RUNS_FILENAME);
-  }
-  function panelPathFor(declPath) {
-    return joinPath(dirOf(declPath), PANEL_FILENAME);
-  }
-  function toolStatePathFor(declPath) {
-    return joinPath(dirOf(declPath), TOOL_STATE_FILENAME);
-  }
-  function aliasOf(p, from, to) {
-    var _a2;
-    const base = (_a2 = p.replace(/\\/g, "/").split("/").pop()) != null ? _a2 : "";
-    if (base !== from) return null;
-    return joinPath(dirOf(p), to);
-  }
-  function resolveRun(manifest, declPath, conventional) {
-    var _a2, _b2, _c, _d;
-    const run = (_a2 = manifest == null ? void 0 : manifest.run) != null ? _a2 : conventional;
-    if (!run || !run.cmd) return null;
-    return {
-      cmd: run.cmd,
-      args: [...(_b2 = run.args) != null ? _b2 : []],
-      cwd: (_c = run.cwd) != null ? _c : dirOf(declPath) || void 0,
-      shell: (_d = run.shell) != null ? _d : /\.(cmd|bat)$/i.test(run.cmd)
-    };
-  }
-  function hasMainEntry(dir, fs) {
-    const p = joinPath(dir, MAIN_ENTRY_FILENAME);
-    return fs.exists ? fs.exists(p) : fs.readText(p) !== null;
-  }
-  function readDeclaration(declPath, fs = currentFs()) {
-    var _a2;
-    if (!fs) return { ok: false, error: "读声明需要桌面端（移动端只读面板）" };
-    let text2 = fs.readText(declPath);
-    let usedPath = declPath;
-    if (text2 === null) {
-      const alias = (_a2 = aliasOf(declPath, DECLARATION_FILENAME, DECLARATION_FILENAME_LEGACY)) != null ? _a2 : aliasOf(declPath, DECLARATION_FILENAME_LEGACY, DECLARATION_FILENAME);
-      if (alias !== null) {
-        const alt = fs.readText(alias);
-        if (alt !== null) {
-          text2 = alt;
-          usedPath = alias;
-        }
-      }
+  function pidText() {
+    var _a2, _b2;
+    try {
+      return String((_b2 = (_a2 = globalThis.process) == null ? void 0 : _a2.pid) != null ? _b2 : 0);
+    } catch (e) {
+      return "0";
     }
-    if (text2 === null) return { ok: false, error: `声明文件读不到：${declPath}` };
-    const raw = parseJsonObjectText(text2);
-    if (raw === null) return { ok: false, error: `声明文件不是合法 JSON：${usedPath}` };
-    const manifest = parseManifest(raw);
-    if (!manifest) {
-      return {
-        ok: false,
-        error: `声明文件校验不过（v 须为 1、id 只能小写字母数字连字符、name 不能空）：${usedPath}`
-      };
-    }
-    const conventionalRun = manifest.run || !hasMainEntry(dirOf(usedPath), fs) ? void 0 : { cmd: "node", args: [MAIN_ENTRY_FILENAME] };
-    return { ok: true, manifest, path: usedPath, conventionalRun };
   }
-  function findDeclarationFiles(root, fs = currentFs()) {
-    if (!(fs == null ? void 0 : fs.readdir)) return [];
-    const out = [];
-    let dirs = 0;
-    const walk = (dir, depth) => {
-      if (depth > SCAN_MAX_DEPTH || dirs++ >= SCAN_MAX_DIRS) return;
-      const entries = fs.readdir(dir);
-      if (!entries) return;
-      const files = new Set(entries.filter((e) => !e.dir).map((e) => e.name));
-      const decl = files.has(DECLARATION_FILENAME) ? DECLARATION_FILENAME : files.has(DECLARATION_FILENAME_LEGACY) ? DECLARATION_FILENAME_LEGACY : null;
-      if (decl) out.push(joinPath(dir, decl));
-      for (const e of entries) {
-        if (!e.dir) continue;
-        if (e.name.startsWith(".") || SCAN_SKIP_DIRS.has(e.name)) continue;
-        walk(joinPath(dir, e.name), depth + 1);
-      }
-    };
-    walk(root.replace(/[\\/]+$/, ""), 0);
-    return out.sort((a, b) => a.localeCompare(b));
-  }
-  function isPlainObject5(v) {
-    return !!v && typeof v === "object" && !Array.isArray(v);
-  }
-  function parseSettingsText(text2, toolId) {
-    if (text2 === null) return null;
-    const raw = parseJsonObjectText(text2);
-    if (!raw) return {};
-    if (raw.v !== DOCK_SETTINGS_VERSION) return {};
-    if (raw.tool !== toolId) return {};
-    return isPlainObject5(raw.values) ? { ...raw.values } : {};
-  }
-  function readSettings(declPath, toolId, fs = currentFs()) {
-    if (!fs) return {};
-    const direct = parseSettingsText(fs.readText(settingsPathFor(declPath)), toolId);
-    if (direct !== null) return direct;
-    const legacy = parseSettingsText(fs.readText(joinPath(dirOf(declPath), SETTINGS_FILENAME_LEGACY)), toolId);
-    return legacy != null ? legacy : {};
-  }
-  function writeSettings(declPath, toolId, values, fs = currentFs()) {
-    if (!fs) return false;
-    const target = settingsPathFor(declPath);
-    const payload = { v: DOCK_SETTINGS_VERSION, tool: toolId, values };
-    const text2 = JSON.stringify(payload, null, 2);
+  function writeAtomic(fs, target, text2) {
     try {
       if (fs.rename) {
-        const tmp = `${target}.tmp`;
+        const tmp = `${target}.${pidText()}.${writeSeq++}.tmp`;
         fs.writeText(tmp, text2);
         fs.rename(tmp, target);
       } else {
         fs.writeText(target, text2);
       }
-    } catch (e) {
-      return false;
-    }
-    const legacy = joinPath(dirOf(declPath), SETTINGS_FILENAME_LEGACY);
-    if (fs.unlink) {
-      try {
-        const gone = fs.exists ? fs.exists(legacy) : fs.readText(legacy) !== null;
-        if (gone) fs.unlink(legacy);
-      } catch (e) {
-      }
-    }
-    return true;
-  }
-  function readToolState(declPath, toolId, fs = currentFs()) {
-    var _a2;
-    if (!fs) return {};
-    const text2 = fs.readText(toolStatePathFor(declPath));
-    if (text2 === null) return {};
-    const raw = parseJsonObjectText(text2);
-    return (_a2 = parseToolState(raw, toolId)) != null ? _a2 : {};
-  }
-  function writeToolState(declPath, toolId, state3, fs = currentFs()) {
-    if (!fs) return false;
-    const target = toolStatePathFor(declPath);
-    const keep = {};
-    try {
-      const prev = parseJsonObjectText(fs.readText(target));
-      if (prev) for (const [k, v] of Object.entries(prev)) keep[k] = v;
-    } catch (e) {
-    }
-    const fresh = toolStateFileOf(toolId, state3);
-    const next = { ...keep, ...fresh };
-    for (const k of [
-      "enabled",
-      "autoRun",
-      "scheduleOverride",
-      "overrideDeclSig",
-      "rules",
-      "ruleState",
-      "runState"
-    ]) {
-      if (!(k in fresh)) delete next[k];
-    }
-    const text2 = JSON.stringify(next, null, 2);
-    try {
-      if (fs.readText(target) === text2) return false;
-    } catch (e) {
-    }
-    try {
-      if (fs.rename) {
-        const tmp = `${target}.tmp`;
-        fs.writeText(tmp, text2);
-        fs.rename(tmp, target);
-      } else {
-        fs.writeText(target, text2);
-      }
-    } catch (e) {
-      return false;
-    }
-    return true;
-  }
-  function readRunsText(declPath, fs = currentFs()) {
-    var _a2;
-    if (!fs) return null;
-    return (_a2 = fs.readText(runsPathFor(declPath))) != null ? _a2 : fs.readText(joinPath(dirOf(declPath), RUNS_FILENAME_LEGACY));
-  }
-  function readPanelText(declPath, fs = currentFs()) {
-    if (!fs) return null;
-    const text2 = fs.readText(panelPathFor(declPath));
-    return text2 === null || text2.trim() === "" ? null : text2;
-  }
-  var DECLARATION_FILENAME, DECLARATION_FILENAME_LEGACY, SETTINGS_FILENAME, SETTINGS_FILENAME_LEGACY, RUNS_FILENAME, RUNS_FILENAME_LEGACY, MAIN_ENTRY_FILENAME, PANEL_FILENAME, DOCK_SETTINGS_VERSION, injectedFs, SCAN_MAX_DEPTH, SCAN_MAX_DIRS, SCAN_SKIP_DIRS;
-  var init_declaration = __esm({
-    "src/dock/declaration.ts"() {
-      init_schema2();
-      init_tool_state();
-      DECLARATION_FILENAME = "manifest.json";
-      DECLARATION_FILENAME_LEGACY = "dock.json";
-      SETTINGS_FILENAME = "data.json";
-      SETTINGS_FILENAME_LEGACY = "dock.settings.json";
-      RUNS_FILENAME = "runs.json";
-      RUNS_FILENAME_LEGACY = "dock.runs.json";
-      MAIN_ENTRY_FILENAME = "main.mjs";
-      PANEL_FILENAME = "panel.html";
-      DOCK_SETTINGS_VERSION = 1;
-      SCAN_MAX_DEPTH = 3;
-      SCAN_MAX_DIRS = 500;
-      SCAN_SKIP_DIRS = /* @__PURE__ */ new Set(["node_modules", ".git", ".obsidian"]);
-    }
-  });
-
-  // src/dock/store.ts
-  function defaults() {
-    return {
-      v: DOCK_STORE_VERSION,
-      tools: [],
-      runState: {},
-      autoRun: true,
-      notifyMissed: true,
-      watchdog: true
-    };
-  }
-  function isPlainObject6(v) {
-    return !!v && typeof v === "object" && !Array.isArray(v);
-  }
-  function normalizeDockStore(raw) {
-    if (!isPlainObject6(raw)) return defaults();
-    if (raw.v !== 1 && raw.v !== DOCK_STORE_VERSION) return defaults();
-    return {
-      v: DOCK_STORE_VERSION,
-      tools: Array.isArray(raw.tools) ? raw.tools : [],
-      runState: isPlainObject6(raw.runState) ? raw.runState : {},
-      // 三个开关缺省都是「开」：键缺失/形态不对一律视为开，与旧口径（`!== false` 即开）一致
-      autoRun: raw.autoRun !== false,
-      notifyMissed: raw.notifyMissed !== false,
-      watchdog: raw.watchdog !== false
-    };
-  }
-  function diskFileOf(snapshot3) {
-    const tools = [];
-    for (const raw of snapshot3.tools) {
-      if (!isPlainObject6(raw)) continue;
-      const id = typeof raw.id === "string" ? raw.id : "";
-      const path = typeof raw.path === "string" ? raw.path : "";
-      if (!id || !path) continue;
-      tools.push({ id, path });
-    }
-    return {
-      v: DOCK_STORE_VERSION,
-      tools,
-      autoRun: snapshot3.autoRun,
-      notifyMissed: snapshot3.notifyMissed,
-      watchdog: snapshot3.watchdog
-    };
-  }
-  function dockStorePath() {
-    return storageFile(DOCK_STORE_FILENAME);
-  }
-  function readTrustMap() {
-    var _a2;
-    const raw = (_a2 = tryGetSettings()) == null ? void 0 : _a2[DOCK_TRUST_SETTINGS_KEY];
-    if (!isPlainObject6(raw)) return {};
-    const out = {};
-    for (const [id, v] of Object.entries(raw)) {
-      if (!isPlainObject6(v)) continue;
-      const at4 = v.at;
-      if (typeof at4 !== "string" || at4 === "") continue;
-      const run = typeof v.run === "string" && v.run !== "" ? v.run : void 0;
-      out[id] = run !== void 0 ? { at: at4, run } : { at: at4 };
-    }
-    return out;
-  }
-  async function writeTrustMap(map) {
-    const before = JSON.stringify(readTrustMap());
-    const after11 = JSON.stringify(map);
-    if (before === after11) return false;
-    const s = tryGetSettings();
-    s[DOCK_TRUST_SETTINGS_KEY] = map;
-    await saveSettings();
-    return true;
-  }
-  function dockStoreSnapshot() {
-    return snapshot2 != null ? snapshot2 : defaults();
-  }
-  function store2() {
-    return jsonFileStore(dockStorePath(), {
-      defaultValue: () => diskFileOf(defaults()),
-      // 写前比对：面板开关反复点、台账无变化时不刷 mtime（Syncthing 止血）
-      writeIfChanged: true
-    });
-  }
-  async function persistToolStates(ids) {
-    const snap = dockStoreSnapshot();
-    const want = ids ? new Set(ids) : null;
-    for (const raw of snap.tools) {
-      if (!isPlainObject6(raw)) continue;
-      const id = typeof raw.id === "string" ? raw.id : "";
-      const path = typeof raw.path === "string" ? raw.path : "";
-      if (!id || !path) continue;
-      if (want && !want.has(id)) continue;
-      const merged = { ...raw };
-      const runState = snap.runState[id];
-      writeToolState(path, id, toolStateOf({
-        ...merged,
-        runState: isPlainObject6(runState) ? runState : void 0
-      }));
-    }
-  }
-  function hydrate(indexFile) {
-    const tools = [];
-    const runState = { ...indexFile.runState };
-    for (const raw of indexFile.tools) {
-      if (!isPlainObject6(raw)) {
-        tools.push(raw);
-        continue;
-      }
-      const id = typeof raw.id === "string" ? raw.id : "";
-      const path = typeof raw.path === "string" ? raw.path : "";
-      if (!id || !path) {
-        tools.push(raw);
-        continue;
-      }
-      const state3 = readToolState(path, id);
-      if (state3.runState && Object.keys(state3.runState).length) runState[id] = state3.runState;
-      const merged = { ...raw, ...state3 };
-      delete merged.runState;
-      tools.push(merged);
-    }
-    return { ...indexFile, tools, runState };
-  }
-  async function splitLegacyState(file) {
-    let allOk = true;
-    for (const raw of file.tools) {
-      if (!isPlainObject6(raw)) continue;
-      const id = typeof raw.id === "string" ? raw.id : "";
-      const path = typeof raw.path === "string" ? raw.path : "";
-      if (!id || !path) continue;
-      const runState = file.runState[id];
-      const state3 = toolStateOf({
-        ...raw,
-        runState: isPlainObject6(runState) ? runState : void 0
-      });
-      if (!writeToolState(path, id, state3)) allOk = false;
-    }
-    return allOk;
-  }
-  async function loadDockStore(seed) {
-    const path = dockStorePath();
-    const app2 = getApp();
-    const existed = !!app2.vault.getAbstractFileByPath(path) || await diskPathExists(app2, path);
-    const raw = await store2().read();
-    const seeded = !existed && !!seed;
-    const file = seeded ? seed : normalizeDockStore(raw);
-    const isV1 = !seeded && isPlainObject6(raw) && raw.v === 1;
-    const next = hydrate(file);
-    snapshot2 = next;
-    if (isV1) {
-      if (await splitLegacyState(next)) await persistDockStore();
-    } else if (seeded) {
-      await persistToolStates();
-      await persistDockStore();
-    }
-    return next;
-  }
-  function setDockStoreMemory(patch) {
-    snapshot2 = { ...dockStoreSnapshot(), ...patch, v: DOCK_STORE_VERSION };
-  }
-  async function persistDockStore() {
-    await enqueueFileTask(dockStorePath(), async () => {
-      await store2().write(diskFileOf(dockStoreSnapshot()));
-    });
-  }
-  async function mutateDockStore(patch) {
-    setDockStoreMemory(patch);
-    await persistDockStore();
-  }
-  var DOCK_STORE_VERSION, DOCK_STORE_FILENAME, DOCK_TRUST_SETTINGS_KEY, snapshot2;
-  var init_store2 = __esm({
-    "src/dock/store.ts"() {
-      init_app();
-      init_storage();
-      init_settings_provider();
-      init_declaration();
-      init_tool_state();
-      DOCK_STORE_VERSION = 2;
-      DOCK_STORE_FILENAME = "dock.json";
-      DOCK_TRUST_SETTINGS_KEY = "dockTrust";
-      snapshot2 = null;
-    }
-  });
-
-  // src/dock/registry.ts
-  function runSignature(run) {
-    var _a2;
-    return [run.cmd, run.shell ? "shell" : "raw", ...(_a2 = run.args) != null ? _a2 : []].join("\0");
-  }
-  function parseToolEntry(raw) {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-    const r = raw;
-    const id = typeof r.id === "string" ? r.id.trim() : "";
-    const path = typeof r.path === "string" ? r.path.trim() : "";
-    if (!id || id.length > TOOL_ID_MAX_LEN || !TOOL_ID_RE.test(id)) return null;
-    if (!path) return null;
-    const out = { id, path };
-    if (typeof r.enabled === "boolean") out.enabled = r.enabled;
-    if (typeof r.trustedAt === "string" && r.trustedAt.trim()) out.trustedAt = r.trustedAt.trim();
-    if (typeof r.trustedRun === "string" && r.trustedRun !== "") out.trustedRun = r.trustedRun;
-    if (typeof r.autoRun === "boolean") out.autoRun = r.autoRun;
-    const rules = parseRules(r.rules);
-    if (rules.length) out.rules = rules;
-    const ruleState = parseRuleState(r.ruleState);
-    if (ruleState) out.ruleState = ruleState;
-    const override = parseSchedule(r.scheduleOverride);
-    if (override) {
-      out.scheduleOverride = override;
-      if (typeof r.overrideDeclSig === "string" && r.overrideDeclSig !== "") {
-        out.overrideDeclSig = r.overrideDeclSig;
-      }
-    }
-    return out;
-  }
-  function parseToolEntries(raw) {
-    if (!Array.isArray(raw)) return [];
-    const out = [];
-    const seen = /* @__PURE__ */ new Set();
-    for (const item of raw) {
-      const parsed = parseToolEntry(item);
-      if (!parsed || seen.has(parsed.id)) continue;
-      seen.add(parsed.id);
-      out.push(parsed);
-    }
-    return out;
-  }
-  var TOOL_ID_RE, TOOL_ID_MAX_LEN;
-  var init_registry = __esm({
-    "src/dock/registry.ts"() {
-      init_schema2();
-      init_rules();
-      TOOL_ID_RE = /^[a-z0-9][a-z0-9-]*$/;
-      TOOL_ID_MAX_LEN = 64;
-    }
-  });
-
-  // src/dock/schedule.ts
-  function offlineRunningOf(runs, runsAt, now = Date.now()) {
-    var _a2;
-    const r = runs.find((x) => x.status === "running");
-    if (!r) return null;
-    const beat = Date.parse(runsAt != null ? runsAt : "") || Date.parse((_a2 = r.startedAt) != null ? _a2 : "") || 0;
-    if (!beat || now - beat > OFFLINE_STALE_MS) return null;
-    return r;
-  }
-  function triggerOf(schedule) {
-    if (!schedule) return "manual";
-    return schedule.kind === "on-demand" || schedule.kind === "unknown" ? "manual" : "auto";
-  }
-  function effectiveSchedule(declared, override) {
-    return override != null ? override : declared;
-  }
-  function scheduleSignature(s) {
-    var _a2, _b2, _c;
-    if (!s) return "";
-    return [s.kind, (_a2 = s.hour) != null ? _a2 : "", (_b2 = s.weekday) != null ? _b2 : "", (_c = s.everyHours) != null ? _c : ""].join("|");
-  }
-  function isDueToRun(schedule, runs, now = Date.now()) {
-    if (!schedule || schedule.kind === "on-demand" || schedule.kind === "unknown") return false;
-    if (schedule.kind === "interval" && lastRun(runs) === void 0) return true;
-    return judgeDue(schedule, runs, now).state === "due";
-  }
-  function missingRequiredParams(params, values) {
-    const out = [];
-    for (const p of params != null ? params : []) {
-      if (!p.required) continue;
-      const v = values[p.key];
-      const empty = v === void 0 || v === null || v === "" || Array.isArray(v) && v.length === 0;
-      if (empty) out.push(p.label || p.key);
-    }
-    return out;
-  }
-  function dayKey2(ts) {
-    const d = new Date(ts);
-    const p = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-  }
-  function timeOf(s) {
-    if (!s) return void 0;
-    const t = new Date(s.replace(" ", "T")).getTime();
-    return Number.isFinite(t) ? t : void 0;
-  }
-  function terminalRuns(runs) {
-    return runs.filter((r) => TERMINAL.has(r.status)).slice().sort((a, b) => {
-      var _a2, _b2;
-      return ((_a2 = timeOf(b.startedAt)) != null ? _a2 : 0) - ((_b2 = timeOf(a.startedAt)) != null ? _b2 : 0);
-    });
-  }
-  function lastRun(runs) {
-    return terminalRuns(runs)[0];
-  }
-  function isAlarm(runs, overdue) {
-    if (overdue) return true;
-    const last = lastRun(runs);
-    return !!last && (last.status === "failed" || last.status === "timeout");
-  }
-  function judgeDue(schedule, runs, now = Date.now()) {
-    if (!schedule || schedule.kind === "on-demand" || schedule.kind === "unknown") {
-      return { state: "none", detail: "未声明节奏" };
-    }
-    const latest = lastRun(runs);
-    const latestAt = latest ? timeOf(latest.startedAt) : void 0;
-    const d = new Date(now);
-    const DAY = 864e5;
-    switch (schedule.kind) {
-      case "daily": {
-        if (schedule.hour !== void 0 && d.getHours() < schedule.hour) {
-          return { state: "pending", detail: `今天 ${String(schedule.hour).padStart(2, "0")}:00 之后应有记录` };
-        }
-        if (latestAt !== void 0 && dayKey2(latestAt) === dayKey2(now)) {
-          return { state: "ok", detail: "今天已有记录" };
-        }
-        return { state: "due", detail: "今天还没有记录" };
-      }
-      case "weekly": {
-        if (schedule.weekday !== void 0) {
-          const back = (d.getDay() - schedule.weekday + 7) % 7;
-          const expected = new Date(d.getFullYear(), d.getMonth(), d.getDate() - back).getTime();
-          if (latestAt !== void 0 && latestAt >= expected) {
-            return { state: "ok", detail: "本周这份记录已到位" };
-          }
-          return { state: "due", detail: "本周该跑的还没跑" };
-        }
-        const weekAgo = now - 7 * DAY;
-        if (latestAt !== void 0 && latestAt >= weekAgo) {
-          return { state: "ok", detail: "最近 7 天内有记录" };
-        }
-        return { state: "due", detail: "最近 7 天没有任何记录" };
-      }
-      case "interval": {
-        if (schedule.everyHours === void 0) return { state: "none", detail: "未声明间隔时长" };
-        if (latestAt === void 0) {
-          return { state: "unknown", detail: "还没有任何运行记录，无法判定" };
-        }
-        const gap = now - latestAt;
-        const limit = schedule.everyHours * 36e5;
-        if (gap <= limit) return { state: "ok", detail: `距上次 ${Math.round(gap / 6e4)} 分钟` };
-        const overdueH = Math.floor(gap / 36e5);
-        return { state: "due", detail: `距上次已 ${overdueH} 小时，超过声明的 ${schedule.everyHours} 小时` };
-      }
-      default:
-        return { state: "none", detail: "未声明节奏" };
-    }
-  }
-  function overviewOf(items, now = Date.now()) {
-    var _a2, _b2, _c;
-    const d = new Date(now);
-    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-    const weekAgo = now - 7 * 864e5;
-    let autoTotal = 0;
-    let autoDoneToday = 0;
-    let runs7d = 0;
-    let ok7d = 0;
-    let alarms = 0;
-    let alarmHint = null;
-    let nextDue = null;
-    for (const it of items) {
-      if (it.trigger === "auto") {
-        autoTotal += 1;
-        const done = terminalRuns(it.runs).some(
-          (r) => {
-            var _a3;
-            return r.status === "ok" && ((_a3 = timeOf(r.startedAt)) != null ? _a3 : 0) >= dayStart;
-          }
-        );
-        if (done) autoDoneToday += 1;
-      }
-      for (const r of terminalRuns(it.runs)) {
-        const at4 = timeOf(r.startedAt);
-        if (at4 === void 0 || at4 < weekAgo) continue;
-        runs7d += 1;
-        if (r.status === "ok") ok7d += 1;
-      }
-      const last = lastRun(it.runs);
-      if (isAlarm(it.runs, it.overdue)) {
-        alarms += 1;
-        if (!alarmHint) {
-          alarmHint = {
-            name: it.name,
-            reason: it.overdue ? "该跑没跑" : (_c = ERROR_KIND_LABEL[(_b2 = (_a2 = last == null ? void 0 : last.error) == null ? void 0 : _a2.kind) != null ? _b2 : "unknown"]) != null ? _c : "未知错误"
-          };
-        }
-      }
-      const dueAt = nextDueAt(it.schedule, it.runs, now);
-      if (dueAt !== null && dueAt > now && (nextDue === null || dueAt < nextDue.at)) {
-        nextDue = { at: dueAt, name: it.name };
-      }
-    }
-    return {
-      autoDoneToday,
-      autoTotal,
-      runs7d,
-      ok7d,
-      rate7d: runs7d ? ok7d / runs7d : null,
-      alarms,
-      alarmHint,
-      nextDue
-    };
-  }
-  function nextDueAt(schedule, runs, now = Date.now()) {
-    var _a2;
-    if (!schedule) return null;
-    const d = new Date(now);
-    const DAY = 864e5;
-    switch (schedule.kind) {
-      case "daily": {
-        const hour = (_a2 = schedule.hour) != null ? _a2 : 0;
-        const todayAt2 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour).getTime();
-        return todayAt2 > now ? todayAt2 : todayAt2 + DAY;
-      }
-      case "weekly": {
-        if (schedule.weekday === void 0) return null;
-        const back = (d.getDay() - schedule.weekday + 7) % 7;
-        const slot = new Date(d.getFullYear(), d.getMonth(), d.getDate() - back).getTime();
-        return slot > now ? slot : slot + 7 * DAY;
-      }
-      case "interval": {
-        if (schedule.everyHours === void 0) return null;
-        const latest = lastRun(runs);
-        const latestAt = latest ? timeOf(latest.startedAt) : void 0;
-        if (latestAt === void 0) return null;
-        return latestAt + schedule.everyHours * 36e5;
-      }
-      default:
-        return null;
-    }
-  }
-  function recentRuns(runs, n = 7) {
-    const list = terminalRuns(runs).slice(0, n).reverse();
-    const out = [];
-    for (let i = 0; i < n - list.length; i++) out.push(null);
-    for (const r of list) out.push(r);
-    return out;
-  }
-  function successRate(runs) {
-    const list = terminalRuns(runs);
-    if (!list.length) return null;
-    return list.filter((r) => r.status === "ok").length / list.length;
-  }
-  function durationText2(run) {
-    let ms = run.durationMs;
-    if (ms === void 0) {
-      const a = timeOf(run.startedAt);
-      const b = timeOf(run.finishedAt);
-      if (a !== void 0 && b !== void 0 && b >= a) ms = b - a;
-    }
-    if (ms === void 0) return "";
-    if (ms < 1e3) return `${ms} 毫秒`;
-    const s = ms / 1e3;
-    if (s < 60) return `${s.toFixed(s < 10 ? 1 : 0)} 秒`;
-    const m = Math.floor(s / 60);
-    return `${m} 分 ${Math.round(s - m * 60)} 秒`;
-  }
-  var OFFLINE_STALE_MS, TERMINAL, ERROR_KIND_LABEL;
-  var init_schedule = __esm({
-    "src/dock/schedule.ts"() {
-      OFFLINE_STALE_MS = 9e4;
-      TERMINAL = /* @__PURE__ */ new Set(["ok", "failed", "stopped", "timeout"]);
-      ERROR_KIND_LABEL = {
-        auth: "认证失效",
-        network: "网络异常",
-        config: "配置不对",
-        timeout: "超时",
-        aborted: "被中止",
-        unknown: "未知错误"
-      };
-    }
-  });
-
-  // src/dock/data.ts
-  function runsPathOf(entry) {
-    return runsPathFor(entry.path);
-  }
-  function stripTrustFields(e) {
-    delete e.trustedAt;
-    delete e.trustedRun;
-    return e;
-  }
-  function entriesFromFile(raw) {
-    return parseToolEntries(raw).map(stripTrustFields);
-  }
-  function entriesToFile(entries) {
-    return entries.map((e) => stripTrustFields({ ...e }));
-  }
-  function trustFromEntries(entries) {
-    const trust = {};
-    for (const e of entries) {
-      if (typeof e.trustedAt !== "string" || e.trustedAt === "") continue;
-      const t = { at: e.trustedAt };
-      if (typeof e.trustedRun === "string") t.run = e.trustedRun;
-      trust[e.id] = t;
-    }
-    return trust;
-  }
-  function readToolEntries() {
-    const trust = readTrustMap();
-    return entriesFromFile(dockStoreSnapshot().tools).map((e) => {
-      const t = trust[e.id];
-      if (!t) return e;
-      e.trustedAt = t.at;
-      if (t.run !== void 0) e.trustedRun = t.run;
-      return e;
-    });
-  }
-  async function saveToolEntries(entries) {
-    await mutateDockStore({ tools: entriesToFile(entries) });
-    await persistToolStates();
-    await writeTrustMap(trustFromEntries(entries));
-  }
-  function readTrustRecords() {
-    return readTrustMap();
-  }
-  async function untrustTool(id) {
-    const trust = readTrustMap();
-    if (!(id in trust)) return;
-    delete trust[id];
-    await writeTrustMap(trust);
-  }
-  function isTrusted(entry) {
-    return typeof entry.trustedAt === "string" && entry.trustedAt !== "";
-  }
-  function isEnabled(entry) {
-    return entry.enabled !== false;
-  }
-  async function updateToolEntry(id, patch) {
-    const entries = readToolEntries();
-    const i = entries.findIndex((e) => e.id === id);
-    if (i < 0) return;
-    const next = { ...entries[i] };
-    for (const [k, v] of Object.entries(patch)) {
-      if (v === void 0) delete next[k];
-      else next[k] = v;
-    }
-    entries[i] = next;
-    await saveToolEntries(entries);
-  }
-  async function patchRuleFired(toolId, ruleId, at4) {
-    var _a2;
-    const entry = readToolEntries().find((e) => e.id === toolId);
-    if (!entry) return;
-    const state3 = { ...(_a2 = entry.ruleState) != null ? _a2 : {} };
-    state3[ruleId] = { lastFiredAt: new Date(at4).toISOString() };
-    await updateToolEntry(toolId, { ruleState: state3 });
-  }
-  function readRunStates() {
-    const raw = dockStoreSnapshot().runState;
-    const out = {};
-    for (const [id, v] of Object.entries(raw)) {
-      const st = parseRunState(v);
-      if (Object.keys(st).length) out[id] = st;
-    }
-    return out;
-  }
-  async function patchRunState(id, patch) {
-    const all = readRunStates();
-    if (patch === null) {
-      delete all[id];
-    } else {
-      const next = { ...all[id] };
-      for (const [k, v] of Object.entries(patch)) {
-        if (v === void 0) delete next[k];
-        else next[k] = v;
-      }
-      const st = parseRunState(next);
-      if (Object.keys(st).length) all[id] = st;
-      else delete all[id];
-    }
-    setDockStoreMemory({ runState: all });
-    await persistToolStates([id]);
-  }
-  async function recordRunSuccess(id, finishedAt) {
-    await patchRunState(id, {
-      lastAttemptAt: finishedAt,
-      lastAttemptOk: true,
-      consecutiveFailures: 0,
-      pausedAt: void 0
-    });
-  }
-  function readDockSwitch(key) {
-    return dockStoreSnapshot()[key] !== false;
-  }
-  function setDockSwitch(key, value) {
-    const patch = { [key]: value === true };
-    setDockStoreMemory(patch);
-  }
-  function readRunsFile(entry) {
-    const raw = readRunsText(entry.path);
-    if (raw === null) return { file: null, existed: false };
-    return { file: parseRunsFileText(raw, entry.id), existed: true };
-  }
-  function readToolValues(entry) {
-    return readSettings(entry.path, entry.id);
-  }
-  function saveToolValues(entry, values) {
-    return writeSettings(entry.path, entry.id, values);
-  }
-  function displayName2(view2) {
-    var _a2;
-    return ((_a2 = view2.manifest) == null ? void 0 : _a2.name) || view2.entry.id;
-  }
-  function displayDesc(view2) {
-    var _a2;
-    return ((_a2 = view2.manifest) == null ? void 0 : _a2.description) || "";
-  }
-  function displayIcon(view2) {
-    var _a2;
-    return ((_a2 = view2.manifest) == null ? void 0 : _a2.icon) || "square-terminal";
-  }
-  function triggerOfView(view2) {
-    return triggerOf(view2.schedule);
-  }
-  function isOverdue(state3) {
-    return state3 === "due";
-  }
-  async function loadToolViews(app2) {
-    const entries = readToolEntries();
-    const states = readRunStates();
-    return Promise.all(entries.map((entry) => loadToolView(app2, entry, states)));
-  }
-  function firedAtMapOf(entry) {
-    var _a2;
-    const out = {};
-    for (const [key, v] of Object.entries((_a2 = entry.ruleState) != null ? _a2 : {})) {
-      const t = (v == null ? void 0 : v.lastFiredAt) ? Date.parse(v.lastFiredAt) : NaN;
-      if (Number.isFinite(t)) out[key] = t;
-    }
-    return out;
-  }
-  async function loadToolView(app2, entry, runStates = readRunStates()) {
-    var _a2, _b2, _c, _d, _e, _f;
-    const decl = readDeclaration(entry.path);
-    const manifest = (_a2 = decl.manifest) != null ? _a2 : null;
-    const declPath = (_b2 = decl.path) != null ? _b2 : entry.path;
-    const run = resolveRun(manifest, declPath, decl.conventionalRun);
-    const trustStale = isTrusted(entry) && (run ? runSignature(run) : void 0) !== entry.trustedRun;
-    const runsRead = readRunsFile(entry);
-    const runs = (_d = (_c = runsRead.file) == null ? void 0 : _c.runs) != null ? _d : [];
-    const declaredSchedule = manifest == null ? void 0 : manifest.schedule;
-    const schedule = effectiveSchedule(declaredSchedule, entry.scheduleOverride);
-    const scheduleOverridden = entry.scheduleOverride !== void 0;
-    const declChangedSinceOverride = scheduleOverridden && entry.overrideDeclSig !== void 0 && entry.overrideDeclSig !== scheduleSignature(declaredSchedule);
-    return {
-      entry,
-      manifest,
-      declError: manifest ? null : (_e = decl.error) != null ? _e : "声明读不到",
-      declPath,
-      valuesPath: settingsPathFor(declPath),
-      run,
-      values: readToolValues(entry),
-      trustStale,
-      runs,
-      runsAt: (_f = runsRead.file) == null ? void 0 : _f.updatedAt,
-      runsUnreadable: runsRead.existed && runsRead.file === null,
-      due: judgeDue(schedule, runs),
-      dueToRun: isDueToRun(schedule, runs),
-      declaredSchedule,
-      schedule,
-      scheduleOverridden,
-      declChangedSinceOverride,
-      rules: effectiveRules(entry.rules, entry.scheduleOverride, declaredSchedule),
-      ruleFiredAt: firedAtMapOf(entry),
-      nextDue: nextDueAt(schedule, runs),
-      runState: runStates[entry.id],
-      overLimit: runs.length > DOCK_RUNS_PER_TOOL_LIMIT,
-      runsPath: runsPathOf(entry)
-    };
-  }
-  function summarize(views2) {
-    let auto = 0;
-    let manual = 0;
-    let overdue = 0;
-    let totalRuns = 0;
-    for (const v of views2) {
-      if (triggerOfView(v) === "auto") auto += 1;
-      else manual += 1;
-      if (isOverdue(v.due.state)) overdue += 1;
-      totalRuns += v.runs.length;
-    }
-    return { total: views2.length, auto, manual, overdue, totalRuns };
-  }
-  function overview(views2, now = Date.now()) {
-    return overviewOf(
-      views2.map((v) => ({
-        trigger: triggerOfView(v),
-        name: displayName2(v),
-        schedule: v.schedule,
-        runs: v.runs,
-        overdue: isOverdue(v.due.state)
-      })),
-      now
-    );
-  }
-  var init_data16 = __esm({
-    "src/dock/data.ts"() {
-      init_store2();
-      init_schema2();
-      init_registry();
-      init_declaration();
-      init_schedule();
-      init_rules();
-      init_tool_state();
-      init_registry();
-    }
-  });
-
-  // src/dock/action.ts
-  function parseActHref(href) {
-    const s = String(href != null ? href : "").trim();
-    if (!s.startsWith(ACT_HREF_PREFIX)) return null;
-    const body = s.slice(ACT_HREF_PREFIX.length);
-    if (!body) return null;
-    const q3 = body.indexOf("?");
-    const rawId = (q3 < 0 ? body : body.slice(0, q3)).trim();
-    if (!rawId || rawId.length > 64 || !DOCK_ACTION_ID_RE.test(rawId)) return null;
-    const args = {};
-    if (q3 >= 0) {
-      const sp = new URLSearchParams(body.slice(q3 + 1));
-      for (const [k, v] of sp) {
-        if (!(k in args)) args[k] = v;
-      }
-    }
-    return { id: rawId, args };
-  }
-  function checkValue(type, v) {
-    if (type === "appid") {
-      return /^\d{1,10}$/.test(v) ? v : null;
-    }
-    if (v.length === 0 || v.length > TEXT_MAX_LEN) return null;
-    if (/^-/.test(v)) return null;
-    if (/[\u0000-\u001f\u007f]/.test(v)) return null;
-    if (TEXT_BANNED_RE.test(v)) return null;
-    return v;
-  }
-  function resolveActArgs(spec, raw) {
-    var _a2;
-    const declared = (_a2 = spec.args) != null ? _a2 : {};
-    const out = {};
-    for (const [k, v] of Object.entries(raw)) {
-      if (!(k in declared)) return { ok: false, reason: `动作没声明参数「${k}」` };
-      const arg = declared[k];
-      const list = arg.many ? v.split(",") : [v];
-      if (list.length > MANY_MAX) return { ok: false, reason: `参数「${k}」一次最多 ${MANY_MAX} 个` };
-      const checked = [];
-      for (const item of list) {
-        const one = checkValue(arg.type, item.trim());
-        if (one === null) return { ok: false, reason: `参数「${k}」的取值不合法：${item.slice(0, 40)}` };
-        checked.push(one);
-      }
-      out[k] = checked.join(",");
-    }
-    return { ok: true, values: out };
-  }
-  function buildActArgs(spec, values) {
-    var _a2;
-    const tpl = (_a2 = spec.run) == null ? void 0 : _a2.args;
-    if (!tpl || !tpl.length) return [];
-    return tpl.map((t) => t.replace(/\{\{([a-z][a-z0-9_]*)\}\}/g, (_m, name) => {
-      var _a3;
-      return (_a3 = values[name]) != null ? _a3 : "";
-    }));
-  }
-  var ACT_HREF_PREFIX, TEXT_MAX_LEN, MANY_MAX, TEXT_BANNED_RE;
-  var init_action = __esm({
-    "src/dock/action.ts"() {
-      init_schema2();
-      ACT_HREF_PREFIX = "#bz-act:";
-      TEXT_MAX_LEN = 200;
-      MANY_MAX = 50;
-      TEXT_BANNED_RE = /[&|<>^%!"'`\\;$(){}\[\]]/;
-    }
-  });
-
-  // src/dock/command.ts
-  var init_command = __esm({
-    "src/dock/command.ts"() {
-      init_declaration();
-      init_data16();
-      init_schedule();
-    }
-  });
-
-  // src/core/external-tool.ts
-  function parseAskBody(body) {
-    const id = typeof body.id === "string" ? body.id.trim() : "";
-    if (!id) return null;
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    if (!title) return null;
-    const raw = typeof body.body === "string" ? body.body : "";
-    const html = typeof body.bodyHtml === "string" ? body.bodyHtml.trim() : "";
-    const sec = Number(body.timeoutSec);
-    const timeoutSec = Number.isFinite(sec) ? Math.min(ASK_TIMEOUT_MAX_SEC, Math.max(ASK_TIMEOUT_MIN_SEC, Math.floor(sec))) : ASK_TIMEOUT_DEFAULT_SEC;
-    return {
-      id,
-      title,
-      body: raw,
-      bodyHtml: html,
-      confirmText: typeof body.confirmText === "string" && body.confirmText.trim() ? body.confirmText.trim() : "确认",
-      cancelText: typeof body.cancelText === "string" && body.cancelText.trim() ? body.cancelText.trim() : "取消",
-      timeoutSec
-    };
-  }
-  function parseBzLine(line) {
-    const text2 = line.endsWith("\r") ? line.slice(0, -1) : line;
-    const m = text2.match(BZ_LINE_PREFIX_RE);
-    if (!m) {
-      if (!text2.trim()) return null;
-      return { kind: "raw", text: text2 };
-    }
-    const body = text2.slice(m[0].length).trim();
-    switch (m[1]) {
-      case "step":
-        return body ? { kind: "step", text: body } : null;
-      case "p": {
-        const p = parseJsonObject(body);
-        if (!p) return null;
-        return {
-          kind: "progress",
-          phase: typeof p.phase === "string" ? p.phase : null,
-          // pct 允许 null = 该阶段不可估；缺失/非有限数一律归 null（绝不假报）
-          pct: Number.isFinite(p.pct) ? Number(p.pct) : null
-        };
-      }
-      case "info": {
-        const info = parseJsonObject(body);
-        return info ? { kind: "info", data: info } : null;
-      }
-      case "ask": {
-        const b = parseJsonObject(body);
-        const ask = b ? parseAskBody(b) : null;
-        return ask ? { kind: "ask", ask } : null;
-      }
-      default: {
-        const r = parseJsonObject(body);
-        return r ? { kind: "result", data: r } : null;
-      }
-    }
-  }
-  function parseJsonObject(body) {
-    try {
-      const v = JSON.parse(body);
-      return v && typeof v === "object" && !Array.isArray(v) ? v : null;
-    } catch (e) {
-      return null;
-    }
-  }
-  function defaultChildProcess() {
-    if (typeof window === "undefined") return null;
-    const w = window;
-    if (!w.require) return null;
-    try {
-      return w.require("child_process");
-    } catch (e) {
-      return null;
-    }
-  }
-  function runExternalTool(spec, cb, deps2) {
-    var _a2, _b2;
-    const cp = deps2 && deps2.cp ? deps2.cp : defaultChildProcess();
-    const splitter = new BzLineSplitter();
-    let stderrTail = "";
-    let settled = false;
-    let stopped = false;
-    let child = null;
-    let exitSeen = false;
-    let exitCode = null;
-    let forceTimer = null;
-    let resolveDone;
-    const done = new Promise((r) => {
-      resolveDone = r;
-    });
-    const settle = (o) => {
-      if (settled) return;
-      settled = true;
-      if (forceTimer !== null) {
-        clearTimeout(forceTimer);
-        forceTimer = null;
-      }
-      resolveDone(o);
-    };
-    const collectStderr = (d) => {
-      stderrTail += String(d);
-      if (stderrTail.length > STDERR_TAIL_CHARS) stderrTail = stderrTail.slice(-STDERR_TAIL_CHARS);
-    };
-    const dispatchLine = (line) => {
-      var _a3;
-      const ev = parseBzLine(line);
-      if (!ev) return;
-      switch (ev.kind) {
-        case "step":
-          cb.onStep(ev.text);
-          break;
-        case "progress":
-          cb.onProgress(ev.phase, ev.pct);
-          break;
-        case "info":
-          cb.onInfo(ev.data);
-          break;
-        case "result":
-          cb.onResult(ev.data);
-          break;
-        case "ask":
-          (_a3 = cb.onAsk) == null ? void 0 : _a3.call(cb, ev.ask);
-          break;
-        case "raw":
-          if (cb.onRaw) cb.onRaw(ev.text);
-          break;
-      }
-    };
-    if (!cp) {
-      settle({ ok: false, stopped: false, code: null, stderr: "", error: new Error("仅桌面端可用：外部工具需要 Node.js 子进程") });
-      return { stop: () => {
-      }, answer: () => {
-      }, done };
-    }
-    const spawnOpts = {
-      shell: !!spec.shell,
-      windowsHide: true,
-      // stdin 只在交互运行下开 pipe（见 spec.interactive 的说明）：给所有工具无差别开管道，
-      // 等于让一个「顺手读了 stdin」的工具凭空挂住——而它本来只是想要 /dev/null。
-      stdio: [spec.interactive ? "pipe" : "ignore", "pipe", "pipe"]
-    };
-    if (spec.cwd) spawnOpts.cwd = spec.cwd;
-    if (spec.env) spawnOpts.env = spec.env;
-    try {
-      child = cp.spawn(spec.cmd, spec.args || [], spawnOpts);
-    } catch (e) {
-      settle({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${(e == null ? void 0 : e.message) || String(e)}`) });
-      return { stop: () => {
-      }, answer: () => {
-      }, done };
-    }
-    (_a2 = child.stdout) == null ? void 0 : _a2.on("data", (d) => {
-      for (const line of splitter.push(d)) dispatchLine(line);
-    });
-    (_b2 = child.stderr) == null ? void 0 : _b2.on("data", collectStderr);
-    child.on("error", (e) => {
-      if (settled) return;
-      settle({ ok: false, stopped: false, code: null, stderr: stderrTail.trim(), error: new Error(`外部工具启动失败：${e.message}`) });
-    });
-    child.on("exit", (code) => {
-      exitSeen = true;
-      exitCode = code;
-    });
-    child.on("close", (code) => {
-      if (settled) return;
-      const rest = splitter.flush();
-      if (rest !== null) dispatchLine(rest);
-      const stderr = stderrTail.trim();
-      if (stopped) {
-        settle({ ok: false, stopped: true, code, stderr, error: null });
-        return;
-      }
-      if (code === 0) {
-        settle({ ok: true, stopped: false, code: 0, stderr, error: null });
-        return;
-      }
-      const err = new Error(code === null ? `外部工具异常退出（无退出码）${stderr ? "：" + stderr : ""}` : `外部工具异常退出（退出码 ${code}）${stderr ? "：" + stderr : ""}`);
-      err.stderr = stderr;
-      settle({ ok: false, stopped: false, code, stderr, error: err });
-    });
-    const isWindows = () => process.platform === "win32";
-    const spawnSuppressed = (cmd, args) => {
-      var _a3;
-      try {
-        const killer = cp.spawn(cmd, args, { stdio: "ignore", windowsHide: true });
-        (_a3 = killer.on) == null ? void 0 : _a3.call(killer, "error", () => {
-        });
-      } catch (e) {
-      }
-    };
-    const escalateForceKill = () => {
-      forceTimer = null;
-      if (settled) return;
-      const pid = child == null ? void 0 : child.pid;
-      if (typeof pid !== "number" || pid <= 0) return;
-      if (exitSeen) {
-        settle({ ok: false, stopped: true, code: exitCode, stderr: stderrTail.trim(), error: null });
-        return;
-      }
-      if (isWindows()) {
-        spawnSuppressed("taskkill", ["/pid", String(pid), "/T", "/F"]);
-        return;
-      }
-      try {
-        process.kill(pid, "SIGKILL");
-      } catch (e) {
-      }
-    };
-    const stopChild = () => {
-      var _a3;
-      const pid = child == null ? void 0 : child.pid;
-      if (spec.shell && isWindows() && typeof pid === "number" && pid > 0) {
-        spawnSuppressed("taskkill", ["/pid", String(pid), "/T"]);
-      } else {
-        try {
-          (_a3 = child == null ? void 0 : child.kill) == null ? void 0 : _a3.call(child);
-        } catch (e) {
-        }
-      }
-      if (typeof pid === "number" && pid > 0) {
-        forceTimer = setTimeout(escalateForceKill, FORCE_KILL_GRACE_MS);
-      }
-    };
-    return {
-      stop: () => {
-        if (settled || stopped) return;
-        stopped = true;
-        stopChild();
-      },
-      answer: (id, ok) => {
-        const s = child == null ? void 0 : child.stdin;
-        if (!s || s.destroyed || s.writableEnded) return;
-        try {
-          s.write(`[bz-answer] ${JSON.stringify({ id, ok: !!ok })}
-`);
-        } catch (e) {
-        }
-      },
-      done
-    };
-  }
-  var ASK_TIMEOUT_DEFAULT_SEC, ASK_TIMEOUT_MIN_SEC, ASK_TIMEOUT_MAX_SEC, BZ_LINE_PREFIX_RE, MAX_LINE_BYTES, BzLineSplitter, STDERR_TAIL_CHARS, FORCE_KILL_GRACE_MS;
-  var init_external_tool = __esm({
-    "src/core/external-tool.ts"() {
-      ASK_TIMEOUT_DEFAULT_SEC = 300;
-      ASK_TIMEOUT_MIN_SEC = 10;
-      ASK_TIMEOUT_MAX_SEC = 600;
-      BZ_LINE_PREFIX_RE = /^\[bz-(step|p|info|result|ask)\]/;
-      MAX_LINE_BYTES = 1024 * 1024;
-      BzLineSplitter = class {
-        constructor(maxLineBytes = MAX_LINE_BYTES) {
-          this.maxLineBytes = maxLineBytes;
-          this.parts = [];
-          this.len = 0;
-          this.overflowed = false;
-        }
-        /** 喂一段 stdout（Buffer 或 string），返回其中切出的完整行（不含行尾符） */
-        push(chunk) {
-          const buf = typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk;
-          const lines = [];
-          let pos = 0;
-          while (pos < buf.length) {
-            const nl = buf.indexOf(10, pos);
-            if (nl === -1) {
-              this.accumulate(buf.subarray(pos));
-              break;
-            }
-            this.accumulate(buf.subarray(pos, nl));
-            lines.push(this.takeLine());
-            pos = nl + 1;
-          }
-          return lines;
-        }
-        /** 进程终结时冲刷残留半行（无残留返回 null）——无尾换行的最后一行靠这里出列 */
-        flush() {
-          return this.len > 0 || this.overflowed ? this.takeLine() : null;
-        }
-        /** 累积字节；超出单行上限后丢弃后续字节（截断语义，待换行时一并出列） */
-        accumulate(part) {
-          if (this.overflowed) return;
-          const room = this.maxLineBytes - this.len;
-          if (part.length <= room) {
-            this.parts.push(part);
-            this.len += part.length;
-          } else {
-            this.parts.push(part.subarray(0, room));
-            this.len = this.maxLineBytes;
-            this.overflowed = true;
-          }
-        }
-        /** 出列一行（overflow 时为截断行）；CRLF 的 \r 在此剥除 */
-        takeLine() {
-          const s = Buffer.concat(this.parts).toString("utf8");
-          this.parts = [];
-          this.len = 0;
-          this.overflowed = false;
-          return s.endsWith("\r") ? s.slice(0, -1) : s;
-        }
-      };
-      STDERR_TAIL_CHARS = 2048;
-      FORCE_KILL_GRACE_MS = 3e3;
-    }
-  });
-
-  // src/dock/runner.ts
-  function vaultBasePath(app2) {
-    var _a2;
-    const adapter = app2.vault.adapter;
-    try {
-      return (_a2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _a2.call(adapter);
-    } catch (e) {
-      return void 0;
-    }
-  }
-  function dockEnvOf(entry, app2, trigger = "manual") {
-    const vaultPath = vaultBasePath(app2);
-    const env = {
-      BZ_DOCK_CONTRACT: "1",
-      BZ_DOCK_TOOL: entry.id,
-      // 本次是 bz 按节奏自动触发（auto）还是用户手动（manual）—— 工具据此给记录标 `trigger`。
-      // 工具**不需要**猜：bz 是父进程，它最清楚这次是被谁拉起来的。
-      BZ_DOCK_TRIGGER: trigger,
-      // 记录就写在工具目录里（与声明、参数值同一层）—— 路径从声明文件位置推出来，天然是绝对值。
-      // 从前这里是「vault 根 + vault 内相对路径」，而工具进程的 cwd 是它自己的目录，相对路径
-      // 会被解析到那儿去（记录写进了 `<工具目录>/CONFIG/...`，bz 在 vault 里找不到）。
-      BZ_DOCK_RUNS_FILE: runsPathFor(entry.path)
-    };
-    if (vaultPath) env.BZ_DOCK_VAULT = vaultPath.replace(/[\\/]+$/, "");
-    return env;
-  }
-  function lastRawTailOf(toolId) {
-    return lastRawTails.get(toolId);
-  }
-  function liveRunOf(toolId) {
-    return live2.get(toolId);
-  }
-  function liveRunsAll() {
-    const at4 = (r) => {
-      const t = Date.parse(r.startedAt);
-      return Number.isFinite(t) ? t : 0;
-    };
-    return Array.from(live2.values()).sort((a, b) => at4(a) - at4(b));
-  }
-  function stopRun(toolId) {
-    var _a2;
-    (_a2 = live2.get(toolId)) == null ? void 0 : _a2.handle.stop();
-  }
-  function notifyLiveChanged() {
-    for (const fn of liveListeners) {
-      try {
-        fn();
-      } catch (e) {
-      }
-    }
-  }
-  function runTool(app2, entry, launch, manifest, values, cb = {}, opts = {}) {
-    var _a2, _b2, _c;
-    const startedAtDate = /* @__PURE__ */ new Date();
-    const startedAt = startedAtDate.toISOString();
-    const rawTail = [];
-    const spec = {
-      cmd: launch.cmd,
-      args: [...launch.args, ...buildArgs(manifest != null ? manifest : { params: [] }, values), ...(_a2 = opts.extraArgs) != null ? _a2 : []],
-      shell: launch.shell,
-      cwd: launch.cwd,
-      env: dockEnvOf(entry, app2, (_b2 = opts.trigger) != null ? _b2 : "manual"),
-      // 只有这次运行**有人可问**（调用方给了 onAsk）才开 stdin。给不开交互的运行开管道，
-      // 只是多一条没人写的管道；反过来（开了却没人答）才是事故——所以这两个开关必须同一件事。
-      interactive: typeof cb.onAsk === "function"
-    };
-    const steps = [];
-    const infos = [];
-    let result;
-    const myProgress = { phase: null, pct: null };
-    const handle = runExternalTool(
-      spec,
-      {
-        onStep: (text2) => {
-          var _a3;
-          steps.push({ text: text2, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
-          (_a3 = cb.onStep) == null ? void 0 : _a3.call(cb, text2);
-        },
-        onProgress: (phase, pct) => {
-          var _a3;
-          myProgress.phase = phase;
-          myProgress.pct = pct;
-          (_a3 = cb.onProgress) == null ? void 0 : _a3.call(cb, phase, pct);
-        },
-        onInfo: (data) => {
-          var _a3;
-          infos.push({ at: (/* @__PURE__ */ new Date()).toISOString(), data });
-          (_a3 = cb.onInfo) == null ? void 0 : _a3.call(cb, data);
-        },
-        onResult: (data) => {
-          var _a3;
-          result = data;
-          (_a3 = cb.onResult) == null ? void 0 : _a3.call(cb, data);
-        },
-        onRaw: (t) => {
-          rawTail.push(t);
-          if (rawTail.length > 200) rawTail.shift();
-        },
-        // 询问的回程：弹窗是异步的，这里只负责把「答案」写回工具。
-        // 两条兜底——没人可问、或弹窗那头抛错——都落到 `false`（取消），
-        // 并顺手把这件事说进步骤流：否则用户只看到工具自己认输了，不知道其实是没问着人。
-        onAsk: (req) => {
-          var _a3, _b3;
-          const ask = cb.onAsk;
-          if (typeof ask !== "function") {
-            steps.push({ text: `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
-            (_a3 = cb.onStep) == null ? void 0 : _a3.call(cb, `工具想问「${req.title}」，但这次运行没人可问 —— 按取消处理`);
-            (_b3 = handle.answer) == null ? void 0 : _b3.call(handle, req.id, false);
-            return;
-          }
-          void Promise.resolve().then(() => ask(req)).then((yes) => {
-            var _a4;
-            return (_a4 = handle.answer) == null ? void 0 : _a4.call(handle, req.id, !!yes);
-          }).catch((e) => {
-            var _a4, _b4;
-            steps.push({ text: `询问「${req.title}」的弹窗出了岔子（${(_a4 = e == null ? void 0 : e.message) != null ? _a4 : e}）—— 按取消处理`, at: (/* @__PURE__ */ new Date()).toISOString(), status: "ok" });
-            (_b4 = handle.answer) == null ? void 0 : _b4.call(handle, req.id, false);
-          });
-        }
-      },
-      deps
-    );
-    const run = {
-      toolId: entry.id,
-      startedAt,
-      steps,
-      progress: myProgress,
-      infos,
-      result,
-      rawTail,
-      estimatedSec: (_c = manifest == null ? void 0 : manifest.runtime) == null ? void 0 : _c.estimatedSec,
-      handle,
-      done: void 0
-    };
-    run.done = handle.done.then((o) => {
-      var _a3;
-      const finishedAt = (/* @__PURE__ */ new Date()).toISOString();
-      const outcome = {
-        ok: o.ok,
-        stopped: o.stopped,
-        code: o.code,
-        stderr: o.stderr,
-        error: o.error,
-        kind: classify(o),
-        startedAt,
-        finishedAt,
-        durationMs: new Date(finishedAt).getTime() - startedAtDate.getTime()
-      };
-      live2.delete(entry.id);
-      notifyLiveChanged();
-      if (rawTail.length) lastRawTails.set(entry.id, rawTail.slice(-50));
-      const settled = reconcileWithRecord(outcome, entry.path);
-      (_a3 = cb.onDone) == null ? void 0 : _a3.call(cb, settled, run);
-      return settled;
-    });
-    live2.set(entry.id, run);
-    notifyLiveChanged();
-    return run;
-  }
-  function classify(o) {
-    if (o.stopped) return "aborted";
-    if (o.ok) return "unknown";
-    if (o.code === null) return "config";
-    return "unknown";
-  }
-  function reconcileWithRecord(outcome, declPath) {
-    var _a2, _b2, _c;
-    if (outcome.stopped) return outcome;
-    const file = parseRunsFileText(readRunsText(declPath));
-    if (!file) return outcome;
-    const runStart = Date.parse(outcome.startedAt);
-    if (!Number.isFinite(runStart)) return outcome;
-    let best = null;
-    for (const r of (_a2 = file == null ? void 0 : file.runs) != null ? _a2 : []) {
-      const t = Date.parse(r.startedAt);
-      if (!Number.isFinite(t) || t < runStart - RECORD_MATCH_GRACE_MS) continue;
-      if (!best || t > Date.parse(best.startedAt)) best = r;
-    }
-    if (!best) return { ...outcome, recordStatus: null };
-    const ok = best.status === "ok";
-    return {
-      ...outcome,
-      ok,
-      kind: ok ? "unknown" : (_c = (_b2 = best.error) == null ? void 0 : _b2.kind) != null ? _c : "unknown",
-      recordStatus: best.status,
-      recordMessage: best.message
-    };
-  }
-  function statusText(status) {
-    switch (status) {
-      case "ok":
-        return "成功";
-      case "failed":
-        return "失败";
-      case "stopped":
-        return "已中止";
-      case "timeout":
-        return "超时";
-      case "running":
-        return "运行中";
-      default:
-        return status;
-    }
-  }
-  function errorHint(kind) {
-    switch (kind) {
-      case "auth":
-        return "登录态已失效，去重新导出凭据（cookie / token）";
-      case "network":
-        return "网络不通，检查代理或稍后重试";
-      case "config":
-        return "命令或参数配错了，检查工具的命令路径与工作目录";
-      case "timeout":
-        return "执行超时，可能是网络慢或任务量变大";
-      case "aborted":
-        return "被手动中止";
-      default:
-        return "查看运行记录里的 stderr 尾部定位";
-    }
-  }
-  function notifyRunOutcome(name, outcome, onView) {
-    const secs = (outcome.durationMs / 1e3).toFixed(outcome.durationMs < 1e4 ? 1 : 0);
-    const action = onView ? { label: "查看", onClick: onView } : void 0;
-    if (outcome.ok) {
-      notify(`${name} 完成（${secs} 秒）`, { type: "success", action });
-      return;
-    }
-    if (outcome.stopped) {
-      notify(`${name} 已中止`, { type: "warning", action });
-      return;
-    }
-    const hint = outcome.recordStatus === null ? "工具没留下这次运行的记录，多半没跑到写记录那一步；它的启动报错在控制台" : errorHint(outcome.kind);
-    notify(`${name} 失败：${hint}`, { type: "error", action });
-  }
-  function initialValuesOf(params, stored = {}) {
-    const out = {};
-    for (const p of params != null ? params : []) {
-      if (p.default !== void 0) out[p.key] = p.default;
-      else if (p.type === "bool") out[p.key] = false;
-      else if (p.type === "multichoice") out[p.key] = [];
-    }
-    for (const p of params != null ? params : []) {
-      if (Object.prototype.hasOwnProperty.call(stored, p.key)) out[p.key] = stored[p.key];
-    }
-    return out;
-  }
-  var deps, live2, liveListeners, lastRawTails, RECORD_MATCH_GRACE_MS;
-  var init_runner = __esm({
-    "src/dock/runner.ts"() {
-      init_notice();
-      init_external_tool();
-      init_schema2();
-      init_declaration();
-      live2 = /* @__PURE__ */ new Map();
-      liveListeners = /* @__PURE__ */ new Set();
-      lastRawTails = /* @__PURE__ */ new Map();
-      RECORD_MATCH_GRACE_MS = 2e3;
-    }
-  });
-
-  // src/dock/watchdog.ts
-  function processEnv() {
-    var _a2;
-    try {
-      const p = globalThis.process;
-      return (_a2 = p == null ? void 0 : p.env) != null ? _a2 : {};
-    } catch (e) {
-      return {};
-    }
-  }
-  function watchdogDirOf(env = processEnv()) {
-    var _a2, _b2, _c;
-    const local = (_a2 = env.LOCALAPPDATA) == null ? void 0 : _a2.trim();
-    if (local) return joinPath(local, WATCHDOG_DIRNAME);
-    const home = ((_b2 = env.USERPROFILE) == null ? void 0 : _b2.trim()) || ((_c = env.HOME) == null ? void 0 : _c.trim());
-    if (home) return joinPath(joinPath(joinPath(home, "AppData"), "Local"), WATCHDOG_DIRNAME);
-    return WATCHDOG_DIRNAME;
-  }
-  function watchdogPathOf(name, env = processEnv()) {
-    return joinPath(watchdogDirOf(env), name);
-  }
-  function depsOf2(d = {}) {
-    var _a2, _b2;
-    return {
-      env: (_a2 = d.env) != null ? _a2 : processEnv(),
-      fs: d.fs !== void 0 ? d.fs : currentFs(),
-      now: (_b2 = d.now) != null ? _b2 : Date.now()
-    };
-  }
-  function isPlainObject7(v) {
-    return !!v && typeof v === "object" && !Array.isArray(v);
-  }
-  function writeAtomic(fs, dir, path, data) {
-    ensureDir3(fs, dir);
-    if (fs.rename) {
-      const tmp = `${path}.tmp`;
-      fs.writeText(tmp, data);
-      fs.rename(tmp, path);
-      return;
-    }
-    fs.writeText(path, data);
-  }
-  function ensureDir3(fs, dir) {
-    var _a2;
-    (_a2 = fs.mkdir) == null ? void 0 : _a2.call(fs, dir);
-  }
-  function writeWatchdogLease(opts = {}) {
-    var _a2, _b2;
-    const { fs, now } = depsOf2(opts);
-    if (!fs) return false;
-    const payload = {
-      v: WATCHDOG_CONTRACT_VERSION,
-      owner: "bz-plugin",
-      pid: processPid(),
-      at: new Date(now).toISOString(),
-      tickMs: (_a2 = opts.tickMs) != null ? _a2 : 6e4
-    };
-    const vault = (_b2 = opts.vault) == null ? void 0 : _b2.trim();
-    if (vault) payload.vault = vault.replace(/[\\/]+$/, "");
-    try {
-      const dir = watchdogDirOf(opts.env);
-      writeAtomic(fs, dir, joinPath(dir, WATCHDOG_LEASE_FILENAME), JSON.stringify(payload, null, 2));
       return true;
     } catch (e) {
       return false;
     }
   }
-  function processPid() {
-    try {
-      const p = globalThis.process;
-      return typeof (p == null ? void 0 : p.pid) === "number" && p.pid > 0 ? p.pid : 0;
-    } catch (e) {
-      return 0;
-    }
+  function readTextOf(path, fs = currentFs()) {
+    return fs ? fs.readText(path) : null;
   }
-  function parseRunNote(raw) {
-    if (!isPlainObject7(raw)) return null;
-    const toolId = typeof raw.toolId === "string" ? raw.toolId : "";
-    const at4 = typeof raw.at === "string" ? raw.at : "";
-    if (!toolId || !at4) return null;
-    if (!Number.isFinite(Date.parse(at4))) return null;
-    const note = { toolId, at: at4, ok: raw.ok === true };
-    if (typeof raw.name === "string" && raw.name) note.name = raw.name;
-    if (typeof raw.message === "string" && raw.message) note.message = raw.message;
-    if (typeof raw.kind === "string" && raw.kind) note.kind = raw.kind;
-    return note;
-  }
-  function isWatchdogInstalled(opts = {}) {
-    const { fs } = depsOf2(opts);
-    if (!fs) return false;
-    const path = watchdogPathOf(WATCHDOG_CONFIG_FILENAME, opts.env);
-    return fs.exists ? fs.exists(path) : fs.readText(path) !== null;
-  }
-  function readWatchdogQueue(opts = {}) {
-    const { fs } = depsOf2(opts);
-    if (!fs) return [];
-    const raw = fs.readText(watchdogPathOf(WATCHDOG_QUEUE_FILENAME, opts.env));
-    if (raw === null) return [];
-    let obj;
-    try {
-      obj = JSON.parse(raw);
-    } catch (e) {
-      return [];
-    }
-    if (!isPlainObject7(obj) || obj.v !== WATCHDOG_CONTRACT_VERSION || !Array.isArray(obj.items)) return [];
-    const out = [];
-    for (const item of obj.items) {
-      const note = parseRunNote(item);
-      if (note) out.push(note);
-    }
-    return out.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
-  }
-  function consumeWatchdogQueue(played, opts = {}) {
-    const { fs } = depsOf2(opts);
-    if (!fs || !played.length) return;
-    const path = watchdogPathOf(WATCHDOG_QUEUE_FILENAME, opts.env);
-    const raw = fs.readText(path);
-    if (raw === null) return;
-    let obj;
-    try {
-      obj = JSON.parse(raw);
-    } catch (e) {
-      return;
-    }
-    if (!isPlainObject7(obj) || !Array.isArray(obj.items)) return;
-    const playedKeys = new Set(played.map((n) => `${n.at}\0${n.toolId}`));
-    const rest = obj.items.filter((item) => {
-      const note = parseRunNote(item);
-      return !note || !playedKeys.has(`${note.at}\0${note.toolId}`);
-    });
-    const payload = { v: WATCHDOG_CONTRACT_VERSION, items: rest };
-    try {
-      writeAtomic(fs, watchdogDirOf(opts.env), path, JSON.stringify(payload, null, 2));
-    } catch (e) {
-    }
-  }
-  function summarizeWatchdogRuns(items) {
-    if (!items.length) return null;
-    const byTool = /* @__PURE__ */ new Map();
-    let ok = 0;
-    for (const it of items) {
-      const runOk = it.ok === true;
-      if (runOk) ok += 1;
-      const cur = byTool.get(it.toolId);
-      if (!cur) {
-        const row = {
-          toolId: it.toolId,
-          name: it.name || it.toolId,
-          runs: 1,
-          ok: runOk ? 1 : 0,
-          fail: runOk ? 0 : 1,
-          lastAt: it.at,
-          lastOk: runOk
-        };
-        if (it.message) row.message = it.message;
-        if (!runOk && it.kind) row.kind = it.kind;
-        byTool.set(it.toolId, row);
-        continue;
-      }
-      cur.runs += 1;
-      if (runOk) cur.ok += 1;
-      else cur.fail += 1;
-      if (Date.parse(it.at) >= Date.parse(cur.lastAt)) {
-        cur.lastAt = it.at;
-        cur.lastOk = runOk;
-        if (it.message) cur.message = it.message;
-        else delete cur.message;
-        if (!runOk && it.kind) cur.kind = it.kind;
-        else delete cur.kind;
-      }
-    }
-    const rows = [...byTool.values()].sort((a, b) => {
-      if (a.fail > 0 !== b.fail > 0) return a.fail > 0 ? -1 : 1;
-      return Date.parse(b.lastAt) - Date.parse(a.lastAt);
-    });
-    const byTime = [...items].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
-    return {
-      runs: items.length,
-      ok,
-      fail: items.length - ok,
-      from: byTime[0].at,
-      to: byTime[byTime.length - 1].at,
-      rows
-    };
-  }
-  var WATCHDOG_DIRNAME, WATCHDOG_LEASE_FILENAME, WATCHDOG_QUEUE_FILENAME, WATCHDOG_CONFIG_FILENAME, WATCHDOG_CONTRACT_VERSION;
-  var init_watchdog = __esm({
-    "src/dock/watchdog.ts"() {
-      init_declaration();
-      WATCHDOG_DIRNAME = "bz-dock-watch";
-      WATCHDOG_LEASE_FILENAME = "lease.json";
-      WATCHDOG_QUEUE_FILENAME = "pending.json";
-      WATCHDOG_CONFIG_FILENAME = "config.json";
-      WATCHDOG_CONTRACT_VERSION = 1;
+  var injected, writeSeq;
+  var init_files2 = __esm({
+    "src/dock/files.ts"() {
+      init_types3();
+      writeSeq = 0;
     }
   });
 
-  // src/dock/scheduler.ts
-  function globalAutoOn() {
-    return readDockSwitch("autoRun");
-  }
-  function writeLease() {
-    const vault = app ? vaultBasePath(app) : void 0;
-    writeWatchdogLease({ vault, tickMs: TICK_MS });
-  }
-  function kickDockScheduler() {
-    if (app === null) return;
-    void tick();
-  }
-  function notifyDockEvent(ev) {
-    if (app === null) return;
-    pendingEvents.push(ev);
-    if (ticking) {
-      kickQueued = true;
-      return;
+  // src/dock/rules.ts
+  var init_rules = __esm({
+    "src/dock/rules.ts"() {
     }
-    kickDockScheduler();
+  });
+
+  // src/dock/parse.ts
+  function isObj(v) {
+    return !!v && typeof v === "object" && !Array.isArray(v);
   }
-  function pathOfPayload(evt) {
-    var _a2;
-    const e = evt;
-    if (!e) return "";
-    if (typeof e.path === "string") return e.path;
-    const p = (_a2 = e.file) == null ? void 0 : _a2.path;
-    return typeof p === "string" ? p : "";
+  function str2(v) {
+    if (typeof v !== "string") return void 0;
+    const s = v.trim();
+    return s === "" ? void 0 : s;
   }
-  function fromBus(channel, evt) {
-    if (channel.startsWith("vault:")) return { kind: "vault-file", path: pathOfPayload(evt) };
-    return { kind: "domain-event", channel };
+  function bool2(v) {
+    return typeof v === "boolean" ? v : void 0;
   }
-  function syncSubscriptions(views2) {
-    const wanted = /* @__PURE__ */ new Set();
-    for (const v of views2) {
-      for (const r of v.rules) {
-        if (r.enabled === false) continue;
-        if (r.trigger.kind === "domain-event") wanted.add(r.trigger.channel);
-        else if (r.trigger.kind === "vault-file") for (const c of VAULT_CHANNELS) wanted.add(c);
-      }
+  function isToolId(v) {
+    return typeof v === "string" && v.length <= TOOL_ID_MAX_LEN && TOOL_ID_RE.test(v);
+  }
+  function parseRegistryEntry(raw) {
+    if (!isObj(raw)) return null;
+    if (!isToolId(raw.id)) return null;
+    const path = str2(raw.path);
+    if (!path) return null;
+    return { id: raw.id, path };
+  }
+  function emptyRegistry() {
+    return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
+  }
+  function parseRegistry(raw) {
+    const errors = [];
+    const base = emptyRegistry();
+    if (!isObj(raw)) {
+      if (raw !== null && raw !== void 0) errors.push("登记表不是 JSON 对象，已按空处理");
+      return { registry: base, errors };
     }
-    for (const [ch, off] of [...subscriptions]) {
-      if (!wanted.has(ch)) {
-        off();
-        subscriptions.delete(ch);
-      }
+    if (raw.v !== REGISTRY_VERSION) {
+      errors.push(`登记表版本是 ${String(raw.v)}，本版认 ${REGISTRY_VERSION} —— 已按空处理`);
+      return { registry: base, errors };
     }
-    for (const ch of wanted) {
-      if (subscriptions.has(ch)) continue;
-      subscriptions.set(
-        ch,
-        onDomainEvent(ch, (evt) => notifyDockEvent(fromBus(ch, evt)))
-      );
-    }
-  }
-  function runGate(v, now) {
-    var _a2, _b2, _c;
-    if (!isEnabled(v.entry)) return "disabled";
-    if (!isTrusted(v.entry)) return "untrusted";
-    if (v.trustStale) return "trust-stale";
-    if (!v.run) return "no-run";
-    if ((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) return "paused";
-    if (inFlight.has(v.entry.id) || liveRunOf(v.entry.id) !== void 0 || offlineRunOf(v)) return "running";
-    if (((_b2 = cooldownUntil.get(v.entry.id)) != null ? _b2 : 0) > now) return "cooldown";
-    if (missingRequiredParams((_c = v.manifest) == null ? void 0 : _c.params, v.values).length > 0) return "params";
-    return null;
-  }
-  function remindGate(v) {
-    return isEnabled(v.entry) ? null : "disabled";
-  }
-  async function readJsonNumber(a, path, key) {
-    try {
-      const raw = await a.vault.adapter.read(path);
-      const obj = JSON.parse(raw);
-      const v = key.split(".").reduce(
-        (o, k) => typeof o === "object" && o !== null ? o[k] : void 0,
-        obj
-      );
-      return typeof v === "number" ? v : void 0;
-    } catch (e) {
-      return void 0;
-    }
-  }
-  async function cachedValue(key, read) {
-    const hit = valueCache.get(key);
-    const now = Date.now();
-    if (hit && now - hit.at < VALUE_TTL_MS) return hit.v;
-    const v = await read();
-    valueCache.set(key, { at: now, v });
-    return v;
-  }
-  async function thresholdValueOf(a, t) {
-    if (t.kind !== "data-threshold") return void 0;
-    return cachedValue(`${t.path}#${t.key}`, () => readJsonNumber(a, t.path, t.key));
-  }
-  async function tick() {
-    if (app === null || isUnloaded === null) return;
-    if (isUnloaded()) return;
-    if (ticking) return;
-    ticking = true;
-    try {
-      writeLease();
-      try {
-        await loadDockStore();
-      } catch (e) {
-      }
-      if (!globalAutoOn()) return;
-      let views2;
-      try {
-        views2 = await loadToolViews(app);
-      } catch (e) {
-        return;
-      }
-      if (isUnloaded()) return;
-      syncSubscriptions(views2);
-      const now = Date.now();
-      const events = pendingEvents;
-      pendingEvents = [];
-      for (const v of views2) {
-        if (!v.rules.length) continue;
-        for (const rule of v.rules) {
-          if (rule.enabled === false) continue;
-          const lastFiredAt = v.ruleFiredAt[rule.id];
-          const base = { now, lastFiredAt, sessionStart };
-          const value = rule.trigger.kind === "data-threshold" ? await thresholdValueOf(app, rule.trigger) : void 0;
-          const ctx = value === void 0 ? base : { ...base, value };
-          const hit = ruleDue(rule, ctx) || events.some((e) => {
-            if ((e.kind === "tool-ok" || e.kind === "tool-fail") && e.toolId === v.entry.id) {
-              return false;
-            }
-            return ruleDue(rule, { ...ctx, event: e });
-          });
-          if (!hit) continue;
-          const isRemind = rule.action.kind === "remind";
-          const gate = isRemind ? remindGate(v) : runGate(v, now);
-          if (gate === "params" && !warnedParams.has(v.entry.id)) {
-            warnedParams.add(v.entry.id);
-            notify(`${displayName2(v)} 没自动跑：必填参数还没填`, { type: "warning" });
-          }
-          if (gate) continue;
-          await patchRuleFired(v.entry.id, rule.id, now);
-          if (isRemind) remindOf(v, rule);
-          else scheduleRun(v, rule);
+    const tools = [];
+    const seen = /* @__PURE__ */ new Set();
+    if (Array.isArray(raw.tools)) {
+      for (const item of raw.tools) {
+        const e = parseRegistryEntry(item);
+        if (!e) continue;
+        if (seen.has(e.id)) {
+          errors.push(`登记表里有重复的 id：${e.id}（只留第一条）`);
+          continue;
         }
-      }
-    } finally {
-      ticking = false;
-      if (kickQueued) {
-        kickQueued = false;
-        void tick();
+        seen.add(e.id);
+        tools.push(e);
       }
     }
-  }
-  function remindOf(v, rule) {
-    var _a2;
-    const why = ((_a2 = rule.name) == null ? void 0 : _a2.trim()) ? rule.name.trim() : "规则";
-    notify(`${displayName2(v)}：该手动跑一次了（${why}）`, {
-      type: "info",
-      action: { label: "查看", onClick: () => openDockTool(app, v.entry.id) }
-    });
-  }
-  function scheduleRun(v, rule) {
-    var _a2;
-    const min = (_a2 = rule.jitterMin) != null ? _a2 : 0;
-    const delayMs = min > 0 ? Math.floor(Math.random() * min * 6e4) : 0;
-    const go = () => {
-      const batch = chain2.then(() => runOne(v));
-      chain2 = batch.then(
-        () => void 0,
-        () => void 0
-      );
+    const autoRun = bool2(raw.autoRun);
+    const watchdog = bool2(raw.watchdog);
+    const notifyMissed = bool2(raw.notifyMissed);
+    return {
+      registry: {
+        v: REGISTRY_VERSION,
+        tools,
+        autoRun: autoRun != null ? autoRun : true,
+        watchdog: watchdog != null ? watchdog : true,
+        notifyMissed: notifyMissed != null ? notifyMissed : true
+      },
+      errors
     };
-    if (delayMs > 0) setTimeout(go, delayMs);
-    else go();
   }
-  async function runOne(view2) {
-    var _a2, _b2;
-    const launch = view2.run;
-    if (app === null || !launch) return "skip";
-    const entry = view2.entry;
-    inFlight.add(entry.id);
-    const handle = runTool(app, entry, launch, view2.manifest, view2.values, {}, { trigger: "auto" });
-    let timedOut = false;
-    const timer = setTimeout(() => {
-      timedOut = true;
-      stopRun(entry.id);
-    }, RUN_TIMEOUT_MS);
-    let outcome;
+  var init_parse2 = __esm({
+    "src/dock/parse.ts"() {
+      init_types3();
+    }
+  });
+
+  // src/dock/kernel.ts
+  var init_kernel = __esm({
+    "src/dock/kernel.ts"() {
+      init_types3();
+      init_rules();
+      init_parse2();
+      init_files2();
+    }
+  });
+
+  // src/core/external-tool.ts
+  var MAX_LINE_BYTES;
+  var init_external_tool = __esm({
+    "src/core/external-tool.ts"() {
+      MAX_LINE_BYTES = 1024 * 1024;
+    }
+  });
+
+  // src/dock/exec.ts
+  var init_exec = __esm({
+    "src/dock/exec.ts"() {
+      init_external_tool();
+      init_parse2();
+      init_files2();
+      init_types3();
+    }
+  });
+
+  // src/dock/lock.ts
+  function readLock(fs, path) {
+    const text2 = fs.readText(path);
+    if (!text2) return null;
     try {
-      outcome = await handle.done;
-    } finally {
-      clearTimeout(timer);
-      inFlight.delete(entry.id);
+      const v = JSON.parse(text2);
+      if (typeof v.owner !== "string" || typeof v.token !== "string" || typeof v.at !== "string") return null;
+      return {
+        owner: v.owner,
+        pid: typeof v.pid === "number" ? v.pid : 0,
+        bootId: typeof v.bootId === "string" ? v.bootId : "",
+        at: v.at,
+        token: v.token
+      };
+    } catch (e) {
+      return null;
     }
-    if (outcome.ok) {
-      await recordRunSuccess(entry.id, outcome.finishedAt);
-      notifyDockEvent({ kind: "tool-ok", toolId: entry.id });
-      return "ok";
-    }
-    if (outcome.stopped && !timedOut) return "skip";
-    const failures = ((_b2 = (_a2 = view2.runState) == null ? void 0 : _a2.consecutiveFailures) != null ? _b2 : 0) + 1;
-    const trip = failures >= BREAKER_THRESHOLD;
-    await patchRunState(entry.id, {
-      lastAttemptAt: outcome.finishedAt,
-      lastAttemptOk: false,
-      consecutiveFailures: failures,
-      ...trip ? { pausedAt: outcome.finishedAt } : {}
-    });
-    cooldownUntil.set(entry.id, Date.now() + FAIL_COOLDOWN_MS);
-    notify(`${displayName2(view2)} 自动运行失败：${errorHint(timedOut ? "timeout" : outcome.kind)}`, {
-      type: "error",
-      action: { label: "查看", onClick: () => openDockTool(app, view2.entry.id) }
-    });
-    if (trip) {
-      notify(`${displayName2(view2)} 连续失败 ${failures} 次，已暂停自动运行（面板里可恢复）`, {
-        type: "warning"
-      });
-    }
-    notifyDockEvent({ kind: "tool-fail", toolId: entry.id });
-    return "fail";
   }
-  var TICK_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, RUN_TIMEOUT_MS, VAULT_CHANNELS, app, isUnloaded, sessionStart, inFlight, cooldownUntil, chain2, warnedParams, pendingEvents, subscriptions, ticking, kickQueued, valueCache, VALUE_TTL_MS;
-  var init_scheduler = __esm({
-    "src/dock/scheduler.ts"() {
+  function lockPathOf(dataDir2) {
+    return joinPath(dataDir2, LOCK_FILENAME);
+  }
+  function inspectLock(dataDir2, fs = currentFs()) {
+    if (!fs) return null;
+    return readLock(fs, lockPathOf(dataDir2));
+  }
+  var init_lock = __esm({
+    "src/dock/lock.ts"() {
+      init_types3();
+      init_files2();
+    }
+  });
+
+  // src/dock/view.ts
+  var init_view3 = __esm({
+    "src/dock/view.ts"() {
+      init_parse2();
+      init_files2();
+      init_parse2();
+      init_types3();
+    }
+  });
+
+  // src/dock/registry.ts
+  function registryPath() {
+    return storageFile(REGISTRY_FILENAME);
+  }
+  function readRegistry(fs = currentFs()) {
+    const text2 = readTextOf(registryPath(), fs);
+    if (text2 === null) return { registry: emptyRegistry() };
+    let raw = null;
+    try {
+      raw = JSON.parse(text2);
+    } catch (e) {
+      return { registry: emptyRegistry(), error: "登记表不是合法 JSON，已按空处理" };
+    }
+    const parsed = parseRegistry(raw);
+    return { registry: parsed.registry, error: parsed.errors[0] };
+  }
+  function writeRegistry(reg, fs = currentFs()) {
+    if (!fs) return false;
+    return writeAtomic(fs, registryPath(), JSON.stringify(reg, null, 2));
+  }
+  function setSwitch(key, value, fs) {
+    const f = fs === void 0 ? currentFs() : fs;
+    const { registry } = readRegistry(f);
+    const next = { ...registry, [key]: value };
+    writeRegistry(next, f);
+    return next;
+  }
+  var init_registry = __esm({
+    "src/dock/registry.ts"() {
+      init_parse2();
+      init_types3();
+      init_files2();
+      init_storage();
+      init_settings_provider();
+    }
+  });
+
+  // src/dock/host.ts
+  function dataDir() {
+    return dirOf(registryPath());
+  }
+  function dockLockState() {
+    return inspectLock(dataDir());
+  }
+  var init_host = __esm({
+    "src/dock/host.ts"() {
       init_fake_obsidian();
       init_notice();
       init_domain_bus();
-      init_data16();
-      init_store2();
-      init_schedule();
-      init_rules();
-      init_ui13();
-      init_runner();
-      init_watchdog();
-      TICK_MS = 6e4;
-      FAIL_COOLDOWN_MS = 15 * 6e4;
-      BREAKER_THRESHOLD = 3;
-      RUN_TIMEOUT_MS = 10 * 6e4;
-      VAULT_CHANNELS = ["vault:md-created", "vault:md-modified", "vault:md-deleted"];
-      app = null;
-      isUnloaded = null;
-      sessionStart = 0;
-      inFlight = /* @__PURE__ */ new Set();
-      cooldownUntil = /* @__PURE__ */ new Map();
-      chain2 = Promise.resolve();
-      warnedParams = /* @__PURE__ */ new Set();
-      pendingEvents = [];
-      subscriptions = /* @__PURE__ */ new Map();
-      ticking = false;
-      kickQueued = false;
-      valueCache = /* @__PURE__ */ new Map();
-      VALUE_TTL_MS = 1e4;
-    }
-  });
-
-  // src/dock/vault-fs.ts
-  function normPath(p) {
-    return p.replace(/\\/g, "/").replace(/\/+$/, "");
-  }
-  function primePathsOf(entry) {
-    const dir = dirOf(entry.path);
-    const paths = [
-      entry.path,
-      joinPath(dir, DECLARATION_FILENAME),
-      joinPath(dir, DECLARATION_FILENAME_LEGACY),
-      joinPath(dir, MAIN_ENTRY_FILENAME),
-      joinPath(dir, RUNS_FILENAME),
-      joinPath(dir, RUNS_FILENAME_LEGACY),
-      joinPath(dir, SETTINGS_FILENAME),
-      joinPath(dir, SETTINGS_FILENAME_LEGACY),
-      joinPath(dir, PANEL_FILENAME)
-    ];
-    return [...new Set(paths.map(normPath))];
-  }
-  function hasVaultFs() {
-    return bridge !== null;
-  }
-  async function primeVaultFs(paths) {
-    if (!bridge) return;
-    const b = bridge;
-    const queue = [...paths];
-    await Promise.all(
-      Array.from({ length: Math.min(PRIME_CONCURRENCY, queue.length) }, async () => {
-        while (queue.length) {
-          const p = queue.shift();
-          await b.read(p);
-        }
-      })
-    );
-  }
-  function resetVaultFs() {
-    bridge == null ? void 0 : bridge.drop();
-  }
-  var PRIME_CONCURRENCY, bridge;
-  var init_vault_fs = __esm({
-    "src/dock/vault-fs.ts"() {
-      init_declaration();
-      PRIME_CONCURRENCY = 6;
-      bridge = null;
-    }
-  });
-
-  // src/dock/ui.ts
-  function el2(tag, cls, text2) {
-    const n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text2 !== void 0) n.textContent = text2;
-    return n;
-  }
-  function todayKey() {
-    const d = /* @__PURE__ */ new Date();
-    const p = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-  }
-  function openArtifact(p) {
-    var _a2, _b2, _c, _d;
-    const w = window;
-    const shell = (_b2 = (_a2 = w.require) == null ? void 0 : _a2.call(w, "electron")) == null ? void 0 : _b2.shell;
-    if (!shell) {
-      void copyText2(p, "产物路径");
-      return;
-    }
-    const norm = p.replace(/\\/g, "/");
-    const isAbsolute = /^[a-zA-Z]:\//.test(norm) || norm.startsWith("//") || norm.startsWith("/");
-    if (!isAbsolute && hostApp2) {
-      const file = hostApp2.vault.getAbstractFileByPath(norm);
-      if (file) {
-        void hostApp2.workspace.openLinkText(norm, "", true);
-        return;
-      }
-    }
-    const base = hostApp2 ? (_d = (_c = hostApp2.vault.adapter) == null ? void 0 : _c.getBasePath) == null ? void 0 : _d.call(_c) : void 0;
-    shell.showItemInFolder(isAbsolute || !base ? p : `${base}/${norm}`);
-  }
-  async function copyText2(text2, what) {
-    try {
-      await navigator.clipboard.writeText(text2);
-      notice(`已复制${what}`);
-    } catch (e) {
-      notice(`复制失败，请手动复制：${text2}`, "warning");
-    }
-  }
-  function dotClass(health) {
-    switch (health) {
-      case "ok":
-        return "bz-dock-dot bz-dock-dot--ok";
-      case "due":
-      case "failed":
-      case "timeout":
-        return "bz-dock-dot bz-dock-dot--bad";
-      case "pending":
-      case "running":
-      case "stopped":
-        return "bz-dock-dot bz-dock-dot--warn";
-      default:
-        return "bz-dock-dot bz-dock-dot--idle";
-    }
-  }
-  function whenTextOf(v, last) {
-    if (v.runsUnreadable) return "记录读不懂";
-    if (!last) return "还没有运行过";
-    return relTime(last.startedAt.replace("T", " "));
-  }
-  function messageTextOf(v, last) {
-    var _a2;
-    if (v.runsUnreadable) return "文件在，但内容不合契约";
-    const live3 = liveRunOf(v.entry.id);
-    if (live3) return live3.progress.phase ? `正在${live3.progress.phase}…` : "正在运行…";
-    if (!v.manifest) return (_a2 = v.declError) != null ? _a2 : "声明文件读不到，先把路径修好";
-    if (!v.run) return "没写怎么跑（既无 run 段，目录里也没有 main.mjs）";
-    if (!last) return "等它按自己的节奏跑一次";
-    return last.message || statusText(last.status);
-  }
-  function failHintOf(last) {
-    if (!last || !last.error) return null;
-    if (last.status === "ok" || last.status === "running") return null;
-    return errorHint(last.error.kind);
-  }
-  function viewById(id) {
-    return views.find((v) => v.entry.id === id);
-  }
-  function canRun() {
-    return !Platform.isMobile;
-  }
-  function canStart(v) {
-    return canRun() && isTrusted(v.entry) && !v.trustStale && !!v.run && !runningNowOf(v);
-  }
-  function trustTagOf(v) {
-    if (!canRun()) return null;
-    if (!isTrusted(v.entry)) return "未信任";
-    if (v.trustStale) return "命令已变，待重新确认";
-    return null;
-  }
-  function openDock(app2) {
-    var _a2;
-    hostApp2 = app2;
-    if (!overlay2) build2(app2);
-    topifyZ(overlay2);
-    overlay2.classList.remove("is-off");
-    trapPanelFocus((_a2 = overlay2.querySelector(`#${FRAME_ID2}`)) != null ? _a2 : overlay2);
-    escHandle6 == null ? void 0 : escHandle6.unregister();
-    escHandle6 = escManager.register("bz-dock", {
-      isVisible: () => isPanelVisible2(),
-      close: () => closeDock()
-    });
-    render2();
-    ensureRunGateTick();
-    void refresh2();
-    notifyDockEvent({ kind: "panel-open" });
-  }
-  function closeDock() {
-    overlay2 == null ? void 0 : overlay2.classList.add("is-off");
-    stopLiveTick();
-    stopRunGateTick();
-  }
-  function openDockTool(app2, id) {
-    view = { kind: "detail", id };
-    openDock(app2);
-  }
-  function isPanelVisible2() {
-    return !!overlay2 && !overlay2.classList.contains("is-off");
-  }
-  function build2(app2) {
-    const ov = el2("div", "bz-panel-overlay bz-dock-mask is-off");
-    ov.id = OVERLAY_ID2;
-    const frame2 = el2("div", "bz-panel-frame bz-dock-panel bz-panel-mtop");
-    frame2.id = FRAME_ID2;
-    const head = el2("div", "bz-panel-head");
-    const brand = el2("div", "bz-panel-brand");
-    brand.appendChild(uiIcon("square-terminal"));
-    const title = el2("div", "bz-panel-title", "工具坞");
-    const pipe = el2("div", "bz-panel-head-pipe");
-    const sub = el2("div", "bz-panel-head-sub");
-    sub.id = "bz-dock-headsub";
-    const sp = el2("div", "bz-panel-head-sp");
-    const btns = el2("div", "bz-panel-head-btns");
-    btns.id = "bz-dock-headbtns";
-    head.append(brand, title, pipe, sub, sp, btns);
-    const kpi = el2("div", "bz-dock-kpi");
-    kpi.id = "bz-dock-kpi";
-    const runbar = el2("div", "bz-dock-runbar");
-    runbar.id = "bz-dock-runbar";
-    const bar = el2("div", "bz-dock-bar");
-    bar.id = "bz-dock-bar";
-    const body = el2("div", "bz-dock-body");
-    body.id = "bz-dock-body";
-    frame2.append(head, kpi, runbar, bar, body);
-    ov.appendChild(frame2);
-    ov.addEventListener("click", (e) => {
-      if (e.target === ov) closeDock();
-    });
-    document.body.appendChild(ov);
-    overlay2 = ov;
-  }
-  function kpiEl() {
-    var _a2;
-    return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-kpi")) != null ? _a2 : null;
-  }
-  function runbarEl() {
-    var _a2;
-    return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-runbar")) != null ? _a2 : null;
-  }
-  function barEl() {
-    var _a2;
-    return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-bar")) != null ? _a2 : null;
-  }
-  function bodyEl3() {
-    var _a2;
-    return (_a2 = overlay2 == null ? void 0 : overlay2.querySelector("#bz-dock-body")) != null ? _a2 : null;
-  }
-  async function refresh2() {
-    if (!hostApp2 || refreshing) return;
-    refreshing = true;
-    renderHead();
-    try {
-      await loadDockStore();
-      if (hasVaultFs()) {
-        resetVaultFs();
-        await primeVaultFs(readToolEntries().flatMap(primePathsOf));
-      }
-      views = await loadToolViews(hostApp2);
-      runDueNotifications();
-    } catch (e) {
-      console.warn("[dock] 载入工具视图失败", e);
-      notice("工具坞载入失败，详见控制台", "error");
-    } finally {
-      refreshing = false;
-      render2();
-      showOfflineReportIfAny();
-    }
-  }
-  function errorKindOf(kind) {
-    switch (kind) {
-      case "auth":
-      case "network":
-      case "config":
-      case "timeout":
-      case "aborted":
-      case "unknown":
-        return kind;
-      default:
-        return "unknown";
-    }
-  }
-  function showOfflineReportIfAny() {
-    if (offlineReportDone) return;
-    offlineReportDone = true;
-    const items = readWatchdogQueue();
-    if (!items.length) return;
-    const report = summarizeWatchdogRuns(items);
-    if (!report) return;
-    openOfflineReport(report);
-    consumeWatchdogQueue(items);
-  }
-  function shortStamp(iso) {
-    const t = Date.parse(iso);
-    if (!Number.isFinite(t)) return iso;
-    const d = new Date(t);
-    const p = (n) => String(n).padStart(2, "0");
-    return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
-  }
-  function reportRowFact(row) {
-    return row.fail === 0 ? `${row.runs} 次 · 全成功` : `${row.runs} 次 · ${row.fail} 次失败`;
-  }
-  function openOfflineReport(report) {
-    const box = el2("div", "bz-dock-rep");
-    const sum = el2("div", "bz-dock-rep-sum");
-    sum.appendChild(el2("div", "bz-dock-rep-lead", `Obsidian 关闭期间跑了 ${report.runs} 次`));
-    const tally = el2("div", "bz-dock-rep-tally");
-    tally.appendChild(el2("span", "bz-dock-rep-ok", `${report.ok} 成功`));
-    if (report.fail > 0) tally.appendChild(el2("span", "bz-dock-rep-bad", `${report.fail} 失败`));
-    const days = Math.max(1, Math.ceil((Date.parse(report.to) - Date.parse(report.from)) / 864e5));
-    tally.appendChild(
-      el2(
-        "span",
-        "bz-dock-rep-span",
-        `${shortStamp(report.from)} → ${shortStamp(report.to)}${days > 1 ? ` · 跨 ${days} 天` : ""}`
-      )
-    );
-    sum.appendChild(tally);
-    box.appendChild(sum);
-    const list = el2("div", "bz-dock-rep-list");
-    for (const row of report.rows) {
-      const bad = row.fail > 0;
-      const item = el2("div", `bz-dock-rep-item${bad ? " is-bad" : ""}`);
-      const line = el2("div", "bz-dock-rep-line");
-      line.appendChild(el2("span", "bz-dock-rep-dot"));
-      line.appendChild(el2("span", "bz-dock-rep-name", row.name));
-      line.appendChild(el2("span", "bz-dock-rep-fact", reportRowFact(row)));
-      item.appendChild(line);
-      const detail = bad ? `${shortStamp(row.lastAt)} · ${row.message || errorHint(errorKindOf(row.kind))}` : `${shortStamp(row.lastAt)}${row.message ? ` · ${row.message}` : ""}`;
-      item.appendChild(el2("div", "bz-dock-rep-detail", detail));
-      list.appendChild(item);
-    }
-    box.appendChild(list);
-    uiModal({ head: true, title: "离线简报", maxWidth: 460, content: box });
-  }
-  function runDueNotifications() {
-    if (!readDockSwitch("notifyMissed")) return;
-    const day = todayKey();
-    for (const v of views) {
-      if (!isEnabled(v.entry)) continue;
-      if (v.due.state !== "due") continue;
-      if (willAutoRun(v)) continue;
-      const key = `${v.entry.id}:${day}`;
-      if (dueNotified.has(key)) continue;
-      dueNotified.add(key);
-      notify(`${displayName2(v)} 今天该跑没跑：${v.due.detail}`, {
-        type: "warning",
-        dedupeKey: `dock-due-${key}`,
-        action: { label: "查看", onClick: () => openDockTool(hostApp2, v.entry.id) }
-      });
-    }
-  }
-  function willAutoRun(v) {
-    var _a2, _b2;
-    if (!readDockSwitch("autoRun")) return false;
-    if (!isEnabled(v.entry) || !isTrusted(v.entry) || v.trustStale) return false;
-    if (!v.run || !hasActiveRule(v.rules)) return false;
-    if ((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) return false;
-    return missingRequiredParams((_b2 = v.manifest) == null ? void 0 : _b2.params, v.values).length === 0;
-  }
-  function render2() {
-    renderHead();
-    renderKpi();
-    renderRunbar();
-    renderBar();
-    renderBody3();
-    ensureLiveTick();
-  }
-  function renderKpi() {
-    const host = kpiEl();
-    if (!host) return;
-    host.innerHTML = "";
-    if (!views.length || view.kind === "detail") {
-      host.classList.add("is-off");
-      return;
-    }
-    host.classList.remove("is-off");
-    const o = overview(views);
-    const tile = (num3, unit, label, sub, tone, key) => {
-      const t = el2("div", tone ? `bz-dock-kpi-tile is-${tone}` : "bz-dock-kpi-tile");
-      const v = el2("div", "bz-dock-kpi-v", num3);
-      if (unit) v.appendChild(el2("small", void 0, unit));
-      t.appendChild(v);
-      t.appendChild(el2("div", "bz-dock-kpi-l", label));
-      t.appendChild(el2("div", tone === "up" ? "bz-dock-kpi-d is-up" : "bz-dock-kpi-d", sub));
-      if (key) {
-        t.classList.add("is-click");
-        if (kpiFilter === key) t.classList.add("is-selected");
-        t.addEventListener("click", () => {
-          kpiFilter = kpiFilter === key ? "all" : key;
-          renderKpi();
-          renderBody3();
-        });
-      }
-      return t;
-    };
-    const left = o.autoTotal - o.autoDoneToday;
-    host.appendChild(
-      tile(
-        String(o.autoDoneToday),
-        ` / ${o.autoTotal}`,
-        "今日自动化达标",
-        o.autoTotal === 0 ? "还没有自动化工具" : left > 0 ? `还差 ${left} 个` : "今天都跑成了",
-        o.autoTotal > 0 && left > 0 ? "warn" : void 0
-      )
-    );
-    host.appendChild(
-      tile(
-        o.rate7d === null ? "—" : String(Math.round(o.rate7d * 100)),
-        o.rate7d === null ? "" : "%",
-        "近 7 天成功率",
-        o.runs7d ? `${o.runs7d} 次里成功 ${o.ok7d} 次` : "还没有可比的记录"
-      )
-    );
-    host.appendChild(
-      tile(
-        String(o.alarms),
-        "",
-        "待处理异常",
-        o.alarmHint ? `${o.alarmHint.name} · ${o.alarmHint.reason}` : "没有要管的事",
-        o.alarms ? "bad" : void 0,
-        "alarms"
-      )
-    );
-    if (o.nextDue) {
-      const left2 = untilText(o.nextDue.at - Date.now());
-      host.appendChild(tile(left2.num, left2.unit, "距下次到期", o.nextDue.name));
-    } else {
-      host.appendChild(tile("—", "", "距下次到期", "没有能算出下次到期的工具"));
-    }
-  }
-  function untilText(ms) {
-    const m = ms / 6e4;
-    if (m < 60) return { num: String(Math.max(1, Math.round(m))), unit: "m" };
-    const h = m / 60;
-    if (h < 24) return { num: String(Math.round(h)), unit: "h" };
-    return { num: String(Math.round(h / 24)), unit: "d" };
-  }
-  function renderRunbar() {
-    const host = runbarEl();
-    if (!host) return;
-    host.innerHTML = "";
-    const runs = liveRunsAll();
-    const offs = view.kind === "detail" ? [] : views.map((v) => ({ v, r: offlineRunOf(v) })).filter((x) => x.r !== null);
-    if (!runs.length && !offs.length) {
-      host.classList.add("is-off");
-      return;
-    }
-    host.classList.remove("is-off");
-    for (const run of runs) host.appendChild(makeRunbarRow(run));
-    for (const o of offs) host.appendChild(makeOfflineRow(o.v, o.r));
-    if (offs.length) ensureOfflineTick();
-  }
-  function makeOfflineRow(v, run) {
-    const row = el2("div", "bz-dock-rb");
-    row.dataset.tool = v.entry.id;
-    row.appendChild(el2("span", "bz-dock-rb-pulse"));
-    row.appendChild(el2("span", "bz-dock-rb-name", displayName2(v)));
-    row.appendChild(el2("span", "bz-dock-rb-tag", "离线"));
-    const last = run.steps && run.steps.length ? run.steps[run.steps.length - 1].text : "";
-    row.appendChild(el2("span", "bz-dock-rb-step", last || run.message || "正在跑…"));
-    row.title = "值守进程拉起的运行：bz 不是它的父进程，拿不到实时进度";
-    return row;
-  }
-  function makeRunbarRow(run) {
-    var _a2;
-    const row = el2("div", "bz-dock-rb");
-    row.dataset.tool = run.toolId;
-    row.appendChild(el2("span", "bz-dock-rb-pulse"));
-    const v = viewById(run.toolId);
-    row.appendChild(el2("span", "bz-dock-rb-name", v ? displayName2(v) : run.toolId));
-    row.appendChild(
-      el2("span", "bz-dock-rb-phase", run.progress.phase ? `正在${run.progress.phase}…` : "运行中…")
-    );
-    const lastStep = run.steps.length ? run.steps[run.steps.length - 1].text : "";
-    row.appendChild(el2("span", "bz-dock-rb-step", lastStep));
-    const bar = uiProgress({ value: (_a2 = run.progress.pct) != null ? _a2 : 0 });
-    bar.el.classList.add("bz-dock-rb-track");
-    if (run.progress.pct === null) bar.el.classList.add("is-indeterminate");
-    row.appendChild(bar.el);
-    row.appendChild(el2("span", "bz-dock-rb-pct", run.progress.pct === null ? "—" : `${Math.round(run.progress.pct)}%`));
-    if (canRun()) {
-      row.appendChild(
-        uiBtn({
-          label: "停止",
-          icon: "square",
-          tone: "danger",
-          size: "sm",
-          onClick: () => stopRun(run.toolId)
-        })
-      );
-    }
-    return row;
-  }
-  function offlineRunOf(v, now = Date.now()) {
-    if (liveRunOf(v.entry.id)) return null;
-    return offlineRunOfRecord(v.runs, v.runsAt, now);
-  }
-  function runningNowOf(v) {
-    if (liveRunOf(v.entry.id)) return "这一轮正在跑（bz 亲手拉起的）";
-    if (offlineRunOf(v)) return "值守那轮还在跑 —— 跑完按钮自己会亮";
-    return "";
-  }
-  function runningNowFresh(v) {
-    if (liveRunOf(v.entry.id)) return "这一轮正在跑（bz 亲手拉起的）";
-    const { file } = readRunsFile(v.entry);
-    if (file && offlineRunOfRecord(file.runs, file.updatedAt)) {
-      return "值守那轮还在跑 —— 跑完按钮自己会亮";
-    }
-    return "";
-  }
-  function makeRunBtn(v, size) {
-    const why = runningNowOf(v);
-    const btn = uiBtn({
-      label: "运行",
-      icon: "play",
-      tone: "primary",
-      size,
-      disabled: !canStart(v),
-      title: why || void 0,
-      onClick: () => void runFlow(v)
-    });
-    btn.setAttribute(RUN_BTN_ATTR, v.entry.id);
-    return btn;
-  }
-  function syncRunBtns() {
-    var _a2;
-    const btns = overlay2 == null ? void 0 : overlay2.querySelectorAll(`button[${RUN_BTN_ATTR}]`);
-    if (!(btns == null ? void 0 : btns.length)) return;
-    for (const b of Array.from(btns)) {
-      const v = viewById((_a2 = b.getAttribute(RUN_BTN_ATTR)) != null ? _a2 : "");
-      if (!v) continue;
-      if (!canRun() || !isTrusted(v.entry) || v.trustStale || !v.run) continue;
-      const why = runningNowFresh(v);
-      b.disabled = !!why;
-      if (why) b.title = why;
-      else b.removeAttribute("title");
-    }
-  }
-  function ensureRunGateTick() {
-    if (runGateTick !== null) return;
-    runGateTick = setInterval(() => {
-      try {
-        syncRunBtns();
-      } catch (e) {
-      }
-    }, 5e3);
-  }
-  function stopRunGateTick() {
-    if (runGateTick !== null) {
-      clearInterval(runGateTick);
-      runGateTick = null;
-    }
-  }
-  function offlineHost(v) {
-    const host = el2("div", "bz-dock-offline");
-    host.dataset.tool = v.entry.id;
-    renderOfflineInto(host, v);
-    if (!host.classList.contains("is-off")) ensureOfflineTick();
-    return host;
-  }
-  function renderOfflineInto(host, v) {
-    var _a2;
-    host.innerHTML = "";
-    const run = offlineRunOf(v);
-    if (!run) {
-      host.classList.add("is-off");
-      return;
-    }
-    host.classList.remove("is-off");
-    const head = el2("div", "bz-dock-offline-head");
-    head.appendChild(el2("span", "bz-dock-rb-pulse"));
-    head.appendChild(el2("span", "bz-dock-offline-title", "值守进程在跑"));
-    const started = Date.parse((_a2 = run.startedAt) != null ? _a2 : "") || 0;
-    if (started) head.appendChild(el2("span", "bz-dock-offline-ago", `已 ${elapsedText(Date.now() - started)}`));
-    host.appendChild(head);
-    const last = run.steps && run.steps.length ? run.steps[run.steps.length - 1] : void 0;
-    host.appendChild(el2("div", "bz-dock-offline-step", last && last.text || run.message || "正在跑…"));
-    host.appendChild(
-      el2(
-        "div",
-        "bz-dock-offline-note",
-        "bz 不是这一轮的父进程，拿不到实时进度 —— 上面那行是它自己写进记录的原话，每十来秒更新"
-      )
-    );
-  }
-  function ensureOfflineTick() {
-    if (offlineTick !== null) return;
-    offlineTick = setInterval(() => void tickOffline(), 5e3);
-  }
-  function stopOfflineTick() {
-    if (offlineTick !== null) {
-      clearInterval(offlineTick);
-      offlineTick = null;
-    }
-  }
-  async function tickOffline() {
-    var _a2;
-    if (!hostApp2) {
-      stopOfflineTick();
-      return;
-    }
-    const ids = /* @__PURE__ */ new Set();
-    for (const h of (_a2 = overlay2 == null ? void 0 : overlay2.querySelectorAll(".bz-dock-offline")) != null ? _a2 : []) {
-      if (h.dataset.tool) ids.add(h.dataset.tool);
-    }
-    for (const v of views) if (offlineRunOf(v)) ids.add(v.entry.id);
-    if (!ids.size) {
-      stopOfflineTick();
-      renderRunbar();
-      return;
-    }
-    let alive = 0;
-    for (const id of ids) {
-      const cur = viewById(id);
-      if (!cur) continue;
-      let nv = null;
-      try {
-        nv = await loadToolView(hostApp2, cur.entry);
-      } catch (e) {
-        nv = null;
-      }
-      if (!nv) continue;
-      const i = views.findIndex((x) => x.entry.id === nv.entry.id);
-      if (i >= 0) views[i] = nv;
-      if (offlineRunOf(nv)) alive += 1;
-      overlay2 == null ? void 0 : overlay2.querySelectorAll(`.bz-dock-offline[data-tool="${id}"]`).forEach((h) => renderOfflineInto(h, nv));
-    }
-    if (!alive) stopOfflineTick();
-    renderRunbar();
-  }
-  function renderHead() {
-    var _a2;
-    const headEl = (_a2 = overlay2 == null ? void 0 : overlay2.querySelector(".bz-panel-head")) != null ? _a2 : null;
-    if (!headEl) return;
-    if (view.kind === "detail") {
-      const v = viewById(view.id);
-      if (v) {
-        renderToolHead(headEl, v);
-        return;
-      }
-    }
-    headEl.classList.remove("bz-dock-toolhead");
-    let sub = headEl.querySelector("#bz-dock-headsub");
-    let btns = headEl.querySelector("#bz-dock-headbtns");
-    if (!sub || !btns) {
-      headEl.innerHTML = "";
-      const brand = el2("div", "bz-panel-brand");
-      brand.appendChild(uiIcon("square-terminal"));
-      sub = el2("div", "bz-panel-head-sub");
-      sub.id = "bz-dock-headsub";
-      btns = el2("div", "bz-panel-head-btns");
-      btns.id = "bz-dock-headbtns";
-      headEl.append(
-        brand,
-        el2("div", "bz-panel-title", "工具坞"),
-        el2("div", "bz-panel-head-pipe"),
-        sub,
-        el2("div", "bz-panel-head-sp"),
-        btns
-      );
-    }
-    const s = summarize(views);
-    sub.textContent = views.length ? `${s.total} 个工具${s.overdue ? ` · ${s.overdue} 个待关注` : ""}` : "还没有登记任何外部工具";
-    btns.innerHTML = "";
-    btns.appendChild(
-      uiIconBtn({
-        icon: "search",
-        title: "搜索工具",
-        on: searchOpen,
-        onClick: () => {
-          searchOpen = !searchOpen;
-          render2();
-        }
-      })
-    );
-    if (canRun()) {
-      btns.appendChild(
-        uiIconBtn({
-          icon: "refresh-cw",
-          title: "重新读取运行记录",
-          disabled: refreshing,
-          onClick: () => void refresh2()
-        })
-      );
-      btns.appendChild(
-        uiIconBtn({
-          icon: "plus",
-          title: "导入工具（选文件夹）",
-          onClick: () => importToolFlow()
-        })
-      );
-    }
-    btns.appendChild(
-      uiIconBtn({
-        icon: "x",
-        title: "关闭",
-        // ⚠️ 刻意**不**传 close:true —— 那个标记会带上 `bz-icon-btn--close`，而 core/styles.css 有
-        // `button.bz-icon-btn--close { display: none !important }`（「非真全屏一律隐藏关闭钮」），
-        // 域内后置的移动端 display 覆盖不动 !important。桌面对齐：关闭钮显隐由本域自己管。
-        className: "bz-dock-close",
-        onClick: () => closeDock()
-      })
-    );
-  }
-  function renderToolHead(host, v) {
-    host.innerHTML = "";
-    host.classList.add("bz-dock-toolhead");
-    const back = uiIconBtn({
-      icon: "chevron-left",
-      title: "返回列表",
-      className: "bz-dock-back",
-      onClick: () => {
-        view = { kind: "list" };
-        render2();
-      }
-    });
-    const main = el2("div", "bz-dock-covermain");
-    const ic2 = el2("div", "bz-dock-coveric");
-    ic2.appendChild(uiIcon(displayIcon(v), "bz-ic--lg"));
-    const txt = el2("div", "bz-dock-covertxt");
-    const line = el2("div", "bz-dock-coverline");
-    line.appendChild(el2("div", "bz-dock-detail-name", displayName2(v)));
-    const tags = el2("div", "bz-dock-detail-tags");
-    if (isOverdue(v.due.state)) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--due", v.due.detail));
-    const trustTag = trustTagOf(v);
-    if (trustTag) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--warn", trustTag));
-    if (tags.children.length) line.appendChild(tags);
-    txt.appendChild(line);
-    const desc = displayDesc(v);
-    if (desc) txt.appendChild(el2("div", "bz-dock-detail-desc", desc));
-    main.append(back, ic2, txt);
-    host.appendChild(main);
-  }
-  function renderBar() {
-    const bar = barEl();
-    if (!bar) return;
-    bar.innerHTML = "";
-    if (refreshing) bar.classList.add("is-loading");
-    else bar.classList.remove("is-loading");
-    if (!searchOpen || view.kind === "detail") {
-      bar.classList.add("is-off");
-      return;
-    }
-    bar.classList.remove("is-off");
-    const sp = el2("div", "bz-dock-search");
-    const search = uiSearch({
-      placeholder: "搜工具名 / 描述 / 命令",
-      value: query,
-      onInput: (v) => {
-        query = v;
-        renderBody3();
-      }
-    });
-    sp.appendChild(search.el);
-    bar.appendChild(sp);
-    if (!Platform.isMobile) queueMicrotask(() => search.input.focus());
-  }
-  function isAlarmView(v) {
-    return isAlarm(v.runs, isOverdue(v.due.state));
-  }
-  function filtered2() {
-    let list = views.slice();
-    const q3 = query.trim().toLowerCase();
-    if (q3) {
-      list = list.filter((v) => {
-        var _a2, _b2;
-        const hay = [v.entry.id, displayName2(v), displayDesc(v), (_b2 = (_a2 = v.run) == null ? void 0 : _a2.cmd) != null ? _b2 : v.declPath].join(" ").toLowerCase();
-        return hay.includes(q3);
-      });
-    }
-    if (kpiFilter === "alarms") list = list.filter(isAlarmView);
-    return list;
-  }
-  function renderBody3() {
-    const body = bodyEl3();
-    if (!body) return;
-    body.innerHTML = "";
-    if (view.kind === "detail") {
-      const v = viewById(view.id);
-      if (v) {
-        renderDetail(body, v);
-        return;
-      }
-      view = { kind: "list" };
-    }
-    renderList2(body);
-  }
-  function renderList2(body) {
-    if (!views.length) {
-      body.appendChild(
-        uiEmpty({
-          icon: "square-terminal",
-          title: "还没有外部工具",
-          desc: canRun() ? "选一个工具文件夹，bz 会自己找里面的 manifest.json（旧名 dock.json 也认）；工具坞据此知道它叫什么、有哪些参数、该怎么跑，运行记录也归它收口" : "工具要在桌面端导入。手机上只读 —— 工具目录同步过来之后，这里就能看到它的声明、展示板与运行记录",
-          actions: canRun() ? uiBtnRow(
-            [uiBtn({ label: "导入工具", icon: "file-input", tone: "primary", onClick: () => importToolFlow() })],
-            { center: true }
-          ) : void 0
-        })
-      );
-      return;
-    }
-    const list = filtered2();
-    if (!list.length) {
-      body.appendChild(
-        uiEmpty({
-          icon: "search-x",
-          title: "没有匹配的工具",
-          desc: kpiFilter === "alarms" ? "这个口径下没有 —— 点顶上的 KPI 格回到全部" : "换个词试试"
-        })
-      );
-      return;
-    }
-    const grid = el2("div", "bz-dock-grid");
-    for (const v of list) grid.appendChild(makeCard(v));
-    body.appendChild(grid);
-  }
-  function makeCard(v) {
-    var _a2;
-    const id = v.entry.id;
-    const card = el2("article", "bz-dock-card");
-    card.dataset.tool = id;
-    if (isOverdue(v.due.state)) card.classList.add("is-due");
-    if (!isEnabled(v.entry)) card.classList.add("is-disabled");
-    if (liveRunOf(id)) card.classList.add("is-running");
-    const top = el2("div", "bz-dock-card-top");
-    const ic2 = el2("span", "bz-dock-card-ic");
-    ic2.appendChild(uiIcon(displayIcon(v), "bz-ic--md"));
-    const idbox = el2("div", "bz-dock-card-idbox");
-    const name = el2("div", "bz-dock-card-name", displayName2(v));
-    const tags = el2("div", "bz-dock-card-tags");
-    if (isOverdue(v.due.state)) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--due", "今日未跑"));
-    const trustTag = trustTagOf(v);
-    if (trustTag) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--warn", trustTag));
-    if (!v.manifest) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--muted", "声明读不到"));
-    if (v.manifest && !v.run) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--muted", "只能看"));
-    if ((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) tags.appendChild(el2("span", "bz-dock-tag bz-dock-tag--warn", "自动已暂停"));
-    idbox.append(name, tags);
-    top.append(ic2, idbox);
-    card.appendChild(top);
-    const desc = displayDesc(v);
-    if (desc) card.appendChild(el2("div", "bz-dock-card-desc", desc));
-    const state3 = el2("div", "bz-dock-card-state");
-    const last = lastOf(v);
-    state3.appendChild(el2("span", dotClass(last ? last.status : v.due.state)));
-    state3.appendChild(el2("span", "bz-dock-card-when", whenTextOf(v, last)));
-    state3.appendChild(el2("span", "bz-dock-card-msg", messageTextOf(v, last)));
-    const rate = successRate(v.runs);
-    if (rate !== null) {
-      const rateEl = el2("span", "bz-dock-rate", `${Math.round(rate * 100)}% 成功`);
-      rateEl.title = `${v.runs.length} 条记录里成功了几条`;
-      if (rate < 1) rateEl.classList.add("is-warn");
-      state3.appendChild(rateEl);
-    }
-    card.appendChild(state3);
-    const hint = failHintOf(last);
-    if (hint) {
-      const box = el2("div", "bz-dock-card-fail");
-      box.appendChild(uiIcon("alert-triangle", "bz-ic--xs"));
-      box.appendChild(el2("span", "bz-dock-card-failtext", hint));
-      card.appendChild(box);
-    }
-    const strip = el2("div", "bz-dock-strip");
-    strip.title = "最近 7 次运行（左旧右新）";
-    for (const r of recentRuns(v.runs, 7)) {
-      const cell = el2("i", "bz-dock-pip");
-      if (r) {
-        cell.classList.add(`bz-dock-pip--${r.status}`);
-        cell.title = `${relTime(r.startedAt.replace("T", " "))} · ${statusText(r.status)}${r.message ? ` · ${r.message}` : ""}`;
-      } else {
-        cell.title = "这一次没有运行记录";
-      }
-      strip.appendChild(cell);
-    }
-    card.appendChild(strip);
-    const foot = el2("div", "bz-dock-card-foot");
-    if (canRun()) {
-      const live3 = liveRunOf(id);
-      if (live3) {
-        foot.appendChild(
-          uiBtn({
-            label: "停止",
-            icon: "square",
-            tone: "danger",
-            size: "sm",
-            onClick: () => {
-              stopRun(id);
-            }
-          })
-        );
-      } else {
-        foot.appendChild(makeRunBtn(v, "sm"));
-      }
-    } else {
-      foot.appendChild(el2("span", "bz-dock-mobilehint", "移动端仅查看"));
-    }
-    card.appendChild(foot);
-    attachItemActions(card, canRun() ? cardActions(v) : []);
-    card.addEventListener("click", (e) => {
-      const t = e.target;
-      if (t.closest("button")) return;
-      view = { kind: "detail", id };
-      render2();
-    });
-    return card;
-  }
-  function lastOf(v) {
-    return v.runs.slice().sort((a, b) => {
-      var _a2, _b2;
-      return ((_a2 = timeOf(b.startedAt)) != null ? _a2 : 0) - ((_b2 = timeOf(a.startedAt)) != null ? _b2 : 0);
-    })[0];
-  }
-  function cardActions(v) {
-    var _a2;
-    const id = v.entry.id;
-    const acts = [
-      {
-        icon: "chevron-right",
-        label: "打开详情",
-        onClick: () => {
-          view = { kind: "detail", id };
-          render2();
-        }
-      },
-      {
-        icon: "refresh-cw",
-        label: "重新读声明",
-        onClick: () => void reloadDeclaration(v)
-      }
-    ];
-    if (canStart(v)) {
-      acts.push({
-        icon: "play",
-        label: "运行",
-        onClick: () => void runFlow(v)
-      });
-    }
-    if ((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) {
-      acts.push({ icon: "play", label: "恢复并立即重试", onClick: () => void resumeAndRetry(v) });
-    }
-    acts.push({ icon: "pencil", label: "重新导入", onClick: () => void importToolFlow(v.entry) });
-    acts.push({
-      icon: "trash-2",
-      label: v.entry.enabled === false ? "启用" : "停用",
-      onClick: () => void toggleEnabled(v.entry)
-    });
-    acts.push({
-      icon: "x-circle",
-      label: "移除登记",
-      kind: "danger",
-      onClick: () => void removeToolFlow(v)
-    });
-    return acts;
-  }
-  function clampInt(raw, lo, hi, fallback) {
-    if (raw.trim() === "") return fallback;
-    const n = Number(raw);
-    if (!Number.isFinite(n)) return fallback;
-    return Math.min(hi, Math.max(lo, Math.round(n)));
-  }
-  function defaultTriggerOf(kind) {
-    switch (kind) {
-      case "daily":
-        return { kind: "daily", at: "12:00" };
-      case "interval":
-        return { kind: "interval", everyMin: 60 };
-      case "on-launch":
-        return { kind: "on-launch", delayMin: 5 };
-      case "panel-open":
-        return { kind: "panel-open" };
-      case "tool-ok":
-        return { kind: "tool-ok", toolId: "" };
-      case "tool-fail":
-        return { kind: "tool-fail", toolId: "" };
-      case "domain-event":
-        return { kind: "domain-event", channel: "" };
-      case "vault-file":
-        return { kind: "vault-file", target: "" };
-      case "data-threshold":
-        return { kind: "data-threshold", path: "", key: "", op: ">", value: 0 };
-    }
-  }
-  async function saveRules(v, next) {
-    await updateToolEntry(v.entry.id, { rules: next });
-    kickDockScheduler();
-    await refresh2();
-  }
-  async function removeRule(v, ruleId) {
-    await saveRules(v, v.rules.filter((r) => r.id !== ruleId));
-  }
-  function openRuleEditor(v, rule) {
-    var _a2;
-    const draft = rule ? { ...rule, trigger: { ...rule.trigger }, action: { ...rule.action } } : { id: newRuleId(), trigger: defaultTriggerOf("daily"), action: { kind: "run", notify: "fail" } };
-    const form = el2("div", "bz-dock-ruleform");
-    const params = el2("div", "bz-dock-ruleparams");
-    const err = el2("div", "bz-dock-ruleformerr");
-    const preview = el2("div", "bz-dock-rulepreview");
-    const syncPreview = () => {
-      const jit = draft.jitterMin ? ` · 抖 ${durationText(draft.jitterMin)}` : "";
-      preview.textContent = `${triggerText(draft.trigger)} → ${actionText(draft.action)}${jit}`;
-    };
-    const rebuild = () => {
-      params.replaceChildren(...triggerFields(draft, rebuild));
-      syncPreview();
-    };
-    const triggerPick = uiChoice({
-      options: TRIGGER_KINDS.map((k) => ({ value: k, label: TRIGGER_LABEL[k] })),
-      value: draft.trigger.kind,
-      label: "触发条件",
-      onChange: (kind) => {
-        draft.trigger = defaultTriggerOf(kind);
-        rebuild();
-      }
-    });
-    const actionPick = uiChoice({
-      options: [
-        { value: "run", label: "运行" },
-        { value: "run-notify", label: "运行并提醒" },
-        { value: "remind", label: "只提醒" }
-      ],
-      value: draft.action.kind === "remind" ? "remind" : draft.action.notify === "always" ? "run-notify" : "run",
-      label: "执行",
-      onChange: (val) => {
-        draft.action = val === "remind" ? { kind: "remind" } : { kind: "run", notify: val === "run-notify" ? "always" : "fail" };
-        syncPreview();
-      }
-    });
-    const jitter = uiInput({
-      type: "number",
-      value: String((_a2 = draft.jitterMin) != null ? _a2 : 0),
-      onInput: (val) => {
-        draft.jitterMin = clampInt(val, 0, 720, 0);
-        syncPreview();
-      }
-    });
-    jitter.min = "0";
-    form.appendChild(sectionOf("触发条件", [triggerPick.el, params]));
-    form.appendChild(sectionOf("执行", [actionPick.el]));
-    form.appendChild(
-      sectionOf("随机延迟（错峰用）", [
-        uiField({ label: "到点后再等", desc: "0 = 不抖", control: jitter }),
-        quickRow(
-          [
-            { label: "不抖", value: 0 },
-            { label: "2 分", value: 2 },
-            { label: "10 分", value: 10 },
-            { label: "30 分", value: 30 }
-          ],
-          (n) => {
-            draft.jitterMin = n;
-            jitter.value = String(n);
-            syncPreview();
-          }
-        )
-      ])
-    );
-    form.appendChild(preview);
-    form.appendChild(err);
-    rebuild();
-    const { popup, close } = uiModal({
-      head: true,
-      title: rule ? "编辑规则" : "新建规则",
-      content: form,
-      maxWidth: 480,
-      className: "bz-dock-rulemodal"
-    });
-    const problem = () => {
-      const t = draft.trigger;
-      if (t.kind === "tool-ok" || t.kind === "tool-fail") return t.toolId ? null : "还没选工具";
-      if (t.kind === "domain-event") return t.channel.trim() ? null : "还没填事件通道";
-      if (t.kind === "vault-file") return t.target.trim() ? null : "还没填目录";
-      if (t.kind === "data-threshold") return t.path.trim() && t.key.trim() ? null : "还没填文件与键";
-      return null;
-    };
-    const commit = () => {
-      const next = rule ? v.rules.map((r) => r.id === rule.id ? draft : r) : [...v.rules, draft];
-      close();
-      void saveRules(v, next);
-    };
-    const ok = uiBtn({
-      label: "保存",
-      tone: "primary",
-      size: "sm",
-      onClick: () => {
-        const p = problem();
-        if (p) {
-          err.textContent = p;
-          return;
-        }
-        err.textContent = "";
-        commit();
-      }
-    });
-    const foot = el2("div", "bz-dock-ruleformfoot");
-    foot.appendChild(
-      uiBtn({
-        label: "取消",
-        size: "sm",
-        onClick: () => close()
-      })
-    );
-    foot.appendChild(el2("div", "bz-dock-ruleformsp"));
-    if (rule) {
-      foot.appendChild(
-        uiBtn({
-          label: "删除",
-          size: "sm",
-          danger: true,
-          onClick: () => {
-            close();
-            void removeRule(v, rule.id);
-          }
-        })
-      );
-    }
-    foot.appendChild(ok);
-    form.appendChild(foot);
-    bindFormSubmit(popup, () => ok.click());
-  }
-  function sectionOf(title, children) {
-    const sec = el2("div", "bz-dock-ruleformsec");
-    sec.appendChild(el2("div", "bz-dock-ruleformlegend", title));
-    for (const c of children) sec.appendChild(c);
-    return sec;
-  }
-  function quickRow(items, onPick) {
-    const row = el2("div", "bz-dock-rulequick");
-    for (const it of items) {
-      row.appendChild(uiBtn({ label: it.label, size: "sm", onClick: () => onPick(it.value) }));
-    }
-    return row;
-  }
-  function triggerFields(draft, rebuild) {
-    const t = draft.trigger;
-    switch (t.kind) {
-      case "daily": {
-        const inp = uiInput({
-          type: "time",
-          value: atSecondsOf(t.at) === void 0 ? "" : t.at,
-          onInput: (val) => {
-            draft.trigger = { kind: "daily", at: val || "12:00" };
-          }
-        });
-        return [
-          uiField({ label: "时刻", control: inp }),
-          quickRow(
-            [
-              { label: "08:00", value: 8 * 60 },
-              { label: "12:00", value: 12 * 60 },
-              { label: "20:00", value: 20 * 60 }
-            ],
-            (mins) => {
-              const at4 = `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
-              draft.trigger = { kind: "daily", at: at4 };
-              rebuild();
-            }
-          )
-        ];
-      }
-      case "interval": {
-        const inp = uiInput({
-          type: "number",
-          value: String(t.everyMin),
-          onInput: (val) => {
-            draft.trigger = { kind: "interval", everyMin: clampInt(val, 1, 43200, 60) };
-          }
-        });
-        inp.min = "1";
-        return [
-          uiField({ label: "每隔（分钟）", control: inp }),
-          quickRow(
-            [
-              { label: "30 分", value: 30 },
-              { label: "1 小时", value: 60 },
-              { label: "6 小时", value: 360 },
-              { label: "1 天", value: 1440 }
-            ],
-            (n) => {
-              draft.trigger = { kind: "interval", everyMin: n };
-              rebuild();
-            }
-          )
-        ];
-      }
-      case "on-launch": {
-        const inp = uiInput({
-          type: "number",
-          value: String(t.delayMin),
-          onInput: (val) => {
-            draft.trigger = { kind: "on-launch", delayMin: clampInt(val, 0, 1440, 5) };
-          }
-        });
-        inp.min = "0";
-        return [
-          uiField({ label: "启动后等（分钟）", control: inp }),
-          quickRow(
-            [
-              { label: "立刻", value: 0 },
-              { label: "1 分", value: 1 },
-              { label: "5 分", value: 5 },
-              { label: "30 分", value: 30 }
-            ],
-            (n) => {
-              draft.trigger = { kind: "on-launch", delayMin: n };
-              rebuild();
-            }
-          )
-        ];
-      }
-      case "panel-open":
-        return [el2("div", "bz-dock-ruleformhint", "打开工具坞面板时触发，没有要填的")];
-      case "tool-ok":
-      case "tool-fail": {
-        const sel = uiSelect({
-          options: [{ value: "", label: "选一个工具" }, ...toolOptions()],
-          value: t.toolId,
-          onChange: (val) => {
-            draft.trigger = { kind: t.kind, toolId: val };
-          }
-        });
-        return [uiField({ label: t.kind === "tool-ok" ? "哪个工具成功后" : "哪个工具失败后", control: sel.el })];
-      }
-      case "domain-event": {
-        const inp = uiInput({
-          type: "text",
-          value: t.channel,
-          placeholder: "域名:事件",
-          onInput: (val) => {
-            draft.trigger = { kind: "domain-event", channel: val };
-          }
-        });
-        return [uiField({ label: "事件通道", desc: "如 people:changed", control: inp })];
-      }
-      case "vault-file": {
-        const inp = uiInput({
-          type: "text",
-          value: t.target,
-          placeholder: "vault 里的目录",
-          onInput: (val) => {
-            draft.trigger = { kind: "vault-file", target: val };
-          }
-        });
-        return [uiField({ label: "哪个目录有变动", control: inp })];
-      }
-      case "data-threshold": {
-        const path = uiInput({
-          type: "text",
-          value: t.path,
-          placeholder: "数据文件",
-          onInput: (val) => {
-            draft.trigger = { ...t, path: val };
-          }
-        });
-        const key = uiInput({
-          type: "text",
-          value: t.key,
-          placeholder: "键",
-          onInput: (val) => {
-            draft.trigger = { ...t, key: val };
-          }
-        });
-        const op = uiSelect({
-          options: [
-            { value: ">", label: "大于" },
-            { value: "<", label: "小于" },
-            { value: "=", label: "等于" }
-          ],
-          value: t.op,
-          onChange: (val) => {
-            draft.trigger = { ...t, op: val };
-          }
-        });
-        const num3 = uiInput({
-          type: "number",
-          value: String(t.value),
-          onInput: (val) => {
-            draft.trigger = { ...t, value: Number(val) || 0 };
-          }
-        });
-        const grid = el2("div", "bz-dock-rulegrid");
-        grid.append(uiField({ label: "文件", control: path }), uiField({ label: "键", control: key }));
-        grid.append(uiField({ label: "比较", control: op.el }), uiField({ label: "阈值", control: num3 }));
-        return [grid];
-      }
-    }
-  }
-  function ruleRow(v, rule) {
-    const row = el2("div", "bz-dock-rule");
-    const main = el2("div", "bz-dock-rulemain");
-    main.appendChild(el2("div", "bz-dock-ruleline", triggerText(rule.trigger)));
-    main.appendChild(el2("div", "bz-dock-rulemeta", actionText(rule.action) + (rule.jitterMin ? ` · 抖 ${durationText(rule.jitterMin)}` : "")));
-    row.appendChild(main);
-    if (!canRun()) {
-      row.classList.add("is-readonly");
-      return row;
-    }
-    row.tabIndex = 0;
-    row.setAttribute("role", "button");
-    row.appendChild(el2("span", "bz-dock-rulearrow", "›"));
-    const open = () => openRuleEditor(v, rule);
-    row.addEventListener("click", open);
-    row.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      e.preventDefault();
-      open();
-    });
-    return row;
-  }
-  function toolOptions() {
-    return readToolEntries().map((e) => ({ value: e.id, label: e.id }));
-  }
-  function autoSection(v) {
-    var _a2;
-    const sec = el2("section", "bz-dock-pane bz-dock-autopane");
-    const head = el2("div", "bz-dock-pane-head");
-    head.appendChild(el2("h3", "bz-dock-pane-title", "自动运行"));
-    sec.appendChild(head);
-    if (((_a2 = v.runState) == null ? void 0 : _a2.pausedAt) && canRun()) {
-      const last = lastRun(v.runs);
-      const hint = (last == null ? void 0 : last.error) ? errorHint(last.error.kind) : null;
-      const bar = el2("div", "bz-dock-runbtns");
-      bar.appendChild(
-        uiBtn({
-          label: hint ? `恢复并重试（上次：${hint}）` : "恢复并重试",
-          size: "sm",
-          tone: "primary",
-          onClick: () => void resumeAndRetry(v)
-        })
-      );
-      sec.appendChild(bar);
-    }
-    const list = el2("div", "bz-dock-rulelist");
-    if (v.rules.length) for (const rule of v.rules) list.appendChild(ruleRow(v, rule));
-    else list.appendChild(el2("div", "bz-dock-ruleempty", "没有规则 —— 加一条就有了"));
-    sec.appendChild(list);
-    if (canRun()) {
-      sec.appendChild(
-        uiBtn({ label: "添加规则", size: "sm", onClick: () => openRuleEditor(v, null) })
-      );
-    } else {
-      sec.appendChild(el2("div", "bz-dock-mobilehint", "移动端只读，改节奏 / 规则请回桌面端"));
-    }
-    return sec;
-  }
-  function renderDetail(body, v) {
-    var _a2, _b2, _c;
-    const wrap2 = el2("div", "bz-dock-detail");
-    if (v.declError) {
-      const box = el2("div", "bz-dock-meta-warn");
-      box.textContent = canRun() ? v.declError : `${v.declError}（手机端只读：文件没同步到这台设备，或工具目录不在仓库里）`;
-      wrap2.appendChild(box);
-    }
-    const board = boardSection(v);
-    if (board) wrap2.appendChild(board);
-    wrap2.appendChild(toolStats(v));
-    const meta = el2("div", "bz-dock-meta");
-    const who = [(_a2 = v.manifest) == null ? void 0 : _a2.author, (_b2 = v.manifest) == null ? void 0 : _b2.toolVersion].filter(Boolean).join(" · ");
-    if (who) meta.appendChild(metaRow("作者", who));
-    if ((_c = v.manifest) == null ? void 0 : _c.docs) {
-      const docs = v.manifest.docs;
-      const row = el2("div", "bz-dock-meta-row");
-      row.appendChild(el2("span", "bz-dock-meta-label", "文档"));
-      row.appendChild(el2("span", "bz-dock-meta-val", docs));
-      if (/^https?:\/\//i.test(docs)) {
-        row.appendChild(
-          uiIconBtn({ icon: "external-link", title: "打开文档", xs: true, onClick: () => window.open(docs, "_blank") })
-        );
-      } else {
-        row.appendChild(uiIconBtn({ icon: "copy", title: "复制", xs: true, onClick: () => void copyText2(docs, "文档地址") }));
-      }
-      meta.appendChild(row);
-    }
-    meta.appendChild(
-      metaRow("声明文件", v.declPath, true, () => void copyText2(v.declPath, "声明文件路径"))
-    );
-    if (v.run) {
-      meta.appendChild(metaRow("命令", v.run.cmd, true));
-      if (v.run.args.length) meta.appendChild(metaRow("固定参数", v.run.args.join(" "), true));
-      if (v.run.cwd) meta.appendChild(metaRow("工作目录", v.run.cwd, true));
-      if (v.run.shell) meta.appendChild(metaRow("经 shell 启动", "是"));
-    } else {
-      meta.appendChild(metaRow("命令", "没写怎么跑（既无 run 段，目录里也没有 main.mjs）"));
-    }
-    meta.appendChild(
-      metaRow("参数值文件", v.valuesPath, true, () => void copyText2(v.valuesPath, "参数值文件路径"))
-    );
-    meta.appendChild(metaRow("运行记录", v.runsPath, true, () => void copyText2(v.runsPath, "运行记录路径")));
-    if (v.overLimit) {
-      meta.appendChild(el2("div", "bz-dock-meta-warn", "记录条数已超约定上限 —— 裁剪是工具自己的活，去检查它的 GC"));
-    }
-    if (v.runsUnreadable) {
-      meta.appendChild(el2("div", "bz-dock-meta-warn", "运行记录文件读不懂（坏 JSON 或结构不符）；工具坞不打补丁、不改写，等工具自己修好"));
-    }
-    wrap2.appendChild(meta);
-    wrap2.appendChild(autoSection(v));
-    const cols = el2("div", "bz-dock-cols");
-    cols.appendChild(runPane(v));
-    cols.appendChild(histPane(v));
-    wrap2.appendChild(cols);
-    body.appendChild(wrap2);
-  }
-  function frameBaseStyle() {
-    const cs = getComputedStyle(document.body);
-    const parts = BOARD_THEME_VARS.map((name) => {
-      const value = cs.getPropertyValue(name).trim();
-      return value ? `${name}:${escapeStyleAttr(value)}` : "";
-    }).filter(Boolean);
-    parts.push(
-      "margin:0",
-      "padding:var(--bz-space-md)",
-      "background:transparent",
-      "color:var(--bz-text-1)",
-      "font-family:var(--bz-font-ui)",
-      "font-size:var(--bz-font-label)",
-      "line-height:1.6"
-    );
-    return parts.join(";");
-  }
-  function escapeStyleAttr(v) {
-    return v.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-  }
-  function frameRootStyle() {
-    return "scrollbar-width:none";
-  }
-  function fitFrameHeight(frame2) {
-    const doc = frame2.contentDocument;
-    if (!doc) return;
-    let last = -1;
-    const measure = () => {
-      var _a2, _b2, _c, _d;
-      const h = Math.max((_b2 = (_a2 = doc.documentElement) == null ? void 0 : _a2.scrollHeight) != null ? _b2 : 0, (_d = (_c = doc.body) == null ? void 0 : _c.scrollHeight) != null ? _d : 0);
-      if (h > 0 && Math.abs(h - last) > 1) {
-        last = h;
-        frame2.style.height = `${h}px`;
-      }
-    };
-    measure();
-    try {
-      const ro = new ResizeObserver(measure);
-      if (doc.body) ro.observe(doc.body);
-      ro.observe(doc.documentElement);
-    } catch (e) {
-    }
-  }
-  function sandboxFrame(html, className, title, opts = {}) {
-    const frame2 = document.createElement("iframe");
-    frame2.className = className;
-    const sandbox = ["allow-same-origin"];
-    if (opts.allowPopups) sandbox.push("allow-popups", "allow-popups-to-escape-sandbox");
-    if (opts.allowScripts) sandbox.push("allow-scripts");
-    frame2.setAttribute("sandbox", sandbox.join(" "));
-    frame2.setAttribute("title", title);
-    if (opts.maxHeight) frame2.style.maxHeight = `${opts.maxHeight}px`;
-    frame2.srcdoc = `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head><body style="${frameBaseStyle()}">${html}</body></html>`;
-    frame2.addEventListener("load", () => {
-      fitFrameHeight(frame2);
-      if (opts.allowPopups || opts.onAct) wireExternalLinks(frame2, opts.onAct);
-    });
-    return frame2;
-  }
-  function wireExternalLinks(frame2, onAct) {
-    const doc = frame2.contentDocument;
-    if (!doc) return;
-    doc.addEventListener(
-      "click",
-      (ev) => {
-        var _a2, _b2, _c;
-        const target = ev.target;
-        const a = target && typeof target.closest === "function" ? target.closest("a[href]") : null;
-        if (!a) return;
-        const href = (_a2 = a.getAttribute("href")) != null ? _a2 : "";
-        const act = onAct ? parseActHref(href) : null;
-        if (act) {
-          ev.preventDefault();
-          onAct(act);
-          return;
-        }
-        if (!/^https?:\/\//i.test(href)) return;
-        ev.preventDefault();
-        const shell = (_c = (_b2 = window.require) == null ? void 0 : _b2.call(window, "electron")) == null ? void 0 : _c.shell;
-        if (shell) shell.openExternal(href);
-        else window.open(href, "_blank", "noopener");
-      },
-      true
-    );
-  }
-  function boardSection(v) {
-    var _a2;
-    const html = readPanelText(v.declPath);
-    if (html === null) return null;
-    const host = el2("div", "bz-dock-board");
-    const bytes = new TextEncoder().encode(html).length;
-    if (bytes > BOARD_MAX_BYTES) {
-      host.appendChild(
-        el2(
-          "div",
-          "bz-dock-board-warn",
-          `panel.html 有 ${Math.round(bytes / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`
-        )
-      );
-      return host;
-    }
-    host.appendChild(
-      sandboxFrame(html, "bz-dock-board-frame", `${displayName2(v)} 的展示板`, {
-        maxHeight: BOARD_MAX_HEIGHT,
-        allowPopups: true,
-        // 展示板可以自己跑脚本（ADR-0249）：工具要画搜索框这类「读输入、改列表」的交互，
-        // 光靠预设的 :checked 状态做不到。询问框不跟着开。
-        allowScripts: true,
-        // 声明里没写 actions 就不拦（省得把「点了没反应」造出来）
-        onAct: ((_a2 = v.manifest) == null ? void 0 : _a2.actions) ? (ref) => void runBoardAction(v, ref) : void 0
-      })
-    );
-    return host;
-  }
-  function toolStats(v) {
-    const host = el2("div", "bz-dock-kpi bz-dock-toolstats");
-    const tile = (num3, unit, label, sub, tone) => {
-      const t = el2("div", tone ? `bz-dock-kpi-tile is-${tone}` : "bz-dock-kpi-tile");
-      const v2 = el2("div", "bz-dock-kpi-v", num3);
-      if (unit) v2.appendChild(el2("small", void 0, unit));
-      t.appendChild(v2);
-      t.appendChild(el2("div", "bz-dock-kpi-l", label));
-      t.appendChild(el2("div", "bz-dock-kpi-d", sub));
-      return t;
-    };
-    const rate = successRate(v.runs);
-    host.appendChild(
-      tile(
-        rate === null ? "—" : String(Math.round(rate * 100)),
-        rate === null ? "" : "%",
-        "成功率",
-        rate === null ? "还没有运行记录" : `共 ${v.runs.length} 条记录`,
-        rate !== null && rate < 1 ? "warn" : void 0
-      )
-    );
-    const last = lastOf(v);
-    host.appendChild(
-      tile(
-        last ? relTime(last.startedAt.replace("T", " ")) : "—",
-        "",
-        "最近一次",
-        last ? statusText(last.status) + (last.message ? ` · ${last.message}` : "") : "这个脚本还没跑过",
-        (last == null ? void 0 : last.status) === "failed" ? "bad" : void 0
-      )
-    );
-    const next = nextDueOfView(v);
-    if (next) {
-      const left = untilText(next.at - Date.now());
-      host.appendChild(tile(left.num, left.unit, "下次预计", next.sub, next.at < Date.now() ? "warn" : void 0));
-    } else {
-      host.appendChild(tile("—", "", "下次预计", "没有基于时间的规则（事件触发不算钟点）"));
-    }
-    return host;
-  }
-  function nextDueOfView(v) {
-    const now = Date.now();
-    let best = null;
-    for (const r of v.rules) {
-      if (r.enabled === false) continue;
-      const last = v.ruleFiredAt[r.id];
-      let at4;
-      if (r.trigger.kind === "daily") {
-        const t = todayAt(r.trigger, now);
-        if (t === void 0) continue;
-        at4 = now < t && (last != null ? last : 0) < t ? t : t + 864e5;
-      } else if (r.trigger.kind === "interval" && r.trigger.everyMin > 0) {
-        at4 = (last != null ? last : now) + r.trigger.everyMin * 6e4;
-      }
-      if (at4 === void 0) continue;
-      if (!best || at4 < best.at) best = { at: at4, sub: triggerText(r.trigger) };
-    }
-    return best;
-  }
-  function metaRow(label, value, mono = false, onCopy) {
-    const row = el2("div", "bz-dock-meta-row");
-    row.appendChild(el2("span", "bz-dock-meta-label", label));
-    const val = el2("span", "bz-dock-meta-val" + (mono ? " is-mono" : ""), value);
-    val.title = value;
-    row.appendChild(val);
-    if (onCopy) {
-      row.appendChild(uiIconBtn({ icon: "copy", title: "复制", xs: true, onClick: onCopy }));
-    }
-    return row;
-  }
-  function runPane(v) {
-    var _a2, _b2;
-    const pane = el2("section", "bz-dock-pane bz-dock-runpane");
-    pane.appendChild(el2("h3", "bz-dock-pane-title", "运行台"));
-    if (!v.manifest) {
-      const box = el2("div", "bz-dock-noManifest");
-      box.appendChild(el2("div", "bz-dock-note", (_a2 = v.declError) != null ? _a2 : "声明文件读不到。"));
-      if (canRun()) {
-        box.appendChild(
-          uiBtn({
-            label: "重新读声明",
-            icon: "refresh-cw",
-            onClick: () => void reloadDeclaration(v)
-          })
-        );
-      }
-      pane.appendChild(box);
-      pane.appendChild(liveHost(v.entry.id));
-      return pane;
-    }
-    const params = (_b2 = v.manifest.params) != null ? _b2 : [];
-    if (params.length) {
-      const form = el2("div", "bz-dock-form");
-      const values = valuesOf(v);
-      for (const p of params) form.appendChild(paramRow(p, values, v));
-      pane.appendChild(form);
-    } else {
-      pane.appendChild(el2("div", "bz-dock-note", "这个工具没有参数。"));
-    }
-    if (!v.run) {
-      pane.appendChild(
-        el2("div", "bz-dock-meta-warn", "这份声明没写 run 段 —— 能看它的记录，但不知道该怎么跑。")
-      );
-    }
-    const btns = el2("div", "bz-dock-runbtns");
-    if (canRun()) {
-      const live3 = liveRunOf(v.entry.id);
-      btns.appendChild(
-        live3 ? uiBtn({ label: "停止", icon: "square", tone: "danger", onClick: () => stopRun(v.entry.id) }) : makeRunBtn(v)
-      );
-      if (params.length) {
-        btns.appendChild(
-          uiBtn({ label: "重置参数", size: "sm", onClick: () => resetValues(v) })
-        );
-      }
-    } else {
-      btns.appendChild(el2("span", "bz-dock-mobilehint", "移动端不能启动进程，只能看"));
-    }
-    pane.appendChild(btns);
-    pane.appendChild(offlineHost(v));
-    if (!liveRunOf(v.entry.id)) {
-      const lastTail = lastRawTailOf(v.entry.id);
-      if (lastTail == null ? void 0 : lastTail.length) {
-        const box = el2("div", "bz-dock-lastraw");
-        box.appendChild(el2("div", "bz-dock-lastraw-head", "上次现场输出（尾部）"));
-        const tail = el2("pre", "bz-dock-raw");
-        tail.textContent = lastTail.slice(-12).join("\n");
-        box.appendChild(tail);
-        pane.appendChild(box);
-      }
-    }
-    pane.appendChild(liveHost(v.entry.id));
-    return pane;
-  }
-  function liveHost(id) {
-    const host = el2("div", "bz-dock-live");
-    host.dataset.tool = id;
-    renderLiveInto(host, id);
-    return host;
-  }
-  function elapsedText(ms) {
-    const s = Math.max(0, Math.round(ms / 1e3));
-    if (s < 60) return `${s} 秒`;
-    const m = Math.floor(s / 60);
-    return `${m} 分 ${s - m * 60} 秒`;
-  }
-  function ensureLiveTick() {
-    if (liveTick !== null || !liveRunsAll().length) return;
-    liveTick = setInterval(() => {
-      const runs = liveRunsAll();
-      if (!runs.length) {
-        stopLiveTick();
-        renderRunbar();
-        return;
-      }
-      for (const r of runs) {
-        overlay2 == null ? void 0 : overlay2.querySelectorAll(`.bz-dock-live[data-tool="${r.toolId}"]`).forEach((h) => renderLiveInto(h, r.toolId));
-      }
-      renderRunbar();
-    }, 5e3);
-  }
-  function stopLiveTick() {
-    if (liveTick !== null) {
-      clearInterval(liveTick);
-      liveTick = null;
-    }
-  }
-  function renderLiveInto(host, id) {
-    var _a2, _b2;
-    host.innerHTML = "";
-    const run = liveRunOf(id);
-    if (!run) {
-      host.classList.add("is-off");
-      return;
-    }
-    host.classList.remove("is-off");
-    host.appendChild(el2("div", "bz-dock-live-head", "正在跑（bz 亲手启动的，所以有实时进度）"));
-    const ptxt = run.progress.phase ? `${run.progress.phase}${run.progress.pct === null ? "" : ` ${Math.round(run.progress.pct)}%`}` : "进行中";
-    host.appendChild(el2("div", "bz-dock-live-phase", ptxt));
-    const est = run.estimatedSec;
-    if (est !== void 0 && est > 0) {
-      const elapsed = Date.now() - ((_a2 = timeOf(run.startedAt)) != null ? _a2 : Date.now());
-      if (elapsed > est * 1e3 * 3) {
-        host.appendChild(
-          el2(
-            "div",
-            "bz-dock-live-hint",
-            `已跑 ${elapsedText(elapsed)}，超过声明预估的 ${est} 秒不少 —— 可能卡住了，必要时点停止`
-          )
-        );
-      }
-    }
-    const bar = uiProgress({ value: (_b2 = run.progress.pct) != null ? _b2 : 0 });
-    if (run.progress.pct === null) bar.el.classList.add("is-indeterminate");
-    host.appendChild(bar.el);
-    const steps = el2("ol", "bz-dock-steps");
-    for (const s of run.steps.slice(-8)) {
-      const li = el2("li", "bz-dock-step");
-      li.appendChild(el2("span", "bz-dock-step-dot"));
-      li.appendChild(el2("span", "bz-dock-step-text", s.text));
-      steps.appendChild(li);
-    }
-    host.appendChild(steps);
-    if (run.rawTail.length) {
-      const tail = el2("pre", "bz-dock-raw");
-      tail.textContent = run.rawTail.slice(-12).join("\n");
-      host.appendChild(tail);
-    }
-  }
-  function valuesOf(v) {
-    var _a2;
-    const id = v.entry.id;
-    if (!draftValues.has(id)) {
-      draftValues.set(id, initialValuesOf((_a2 = v.manifest) == null ? void 0 : _a2.params, v.values));
-    }
-    return draftValues.get(id);
-  }
-  function queueValueSave(v) {
-    const id = v.entry.id;
-    const prev = valueSaveTimers.get(id);
-    if (prev) clearTimeout(prev);
-    valueSaveTimers.set(
-      id,
-      setTimeout(() => {
-        valueSaveTimers.delete(id);
-        saveValuesNow(v);
-      }, VALUE_SAVE_DEBOUNCE_MS)
-    );
-  }
-  function saveValuesNow(v) {
-    const id = v.entry.id;
-    const t = valueSaveTimers.get(id);
-    if (t) {
-      clearTimeout(t);
-      valueSaveTimers.delete(id);
-    }
-    const draft = draftValues.get(id);
-    if (!draft) return;
-    if (!saveToolValues(v.entry, draft)) {
-      notice("参数没存住（写不进工具目录），检查那个目录是否能写", "warning");
-    }
-  }
-  function resetValues(v) {
-    var _a2;
-    const prev = { ...valuesOf(v) };
-    draftValues.set(v.entry.id, initialValuesOf((_a2 = v.manifest) == null ? void 0 : _a2.params));
-    saveValuesNow(v);
-    render2();
-    notifyUndo(
-      "已重置参数",
-      () => {
-        draftValues.set(v.entry.id, prev);
-        saveValuesNow(v);
-        render2();
-      },
-      { type: "info" }
-    );
-  }
-  function paramRow(p, values, v) {
-    var _a2, _b2, _c, _d;
-    const ro = !canRun();
-    const set = (val) => {
-      if (ro) return;
-      values[p.key] = val;
-      queueValueSave(v);
-    };
-    let control;
-    switch (p.type) {
-      case "bool": {
-        const sw = uiSwitch({ checked: values[p.key] === true, disabled: ro, onChange: (c) => set(c) });
-        control = sw.el;
-        break;
-      }
-      case "choice": {
-        const opts = ((_a2 = p.options) != null ? _a2 : []).map((o) => ({ value: o.value, label: o.label }));
-        if (!opts.length) opts.push({ value: "", label: "（无选项）" });
-        const seed = values[p.key] !== void 0 ? String(values[p.key]) : String((_b2 = p.default) != null ? _b2 : opts[0].value);
-        const picked = opts.some((o) => o.value === seed) ? seed : opts[0].value;
-        set(picked);
-        const sel = uiSelect({
-          options: opts,
-          value: picked,
-          placeholder: "请选择",
-          onChange: (val) => set(val)
-        });
-        if (ro) {
-          sel.el.classList.add("is-readonly");
-          sel.el.tabIndex = -1;
-          sel.el.setAttribute("aria-disabled", "true");
-        }
-        control = sel.el;
-        break;
-      }
-      case "multichoice": {
-        const box = el2("div", "bz-dock-multichoice");
-        const cur = new Set(Array.isArray(values[p.key]) ? values[p.key] : []);
-        for (const o of (_c = p.options) != null ? _c : []) {
-          box.appendChild(
-            uiChip({
-              label: o.label,
-              selectedSoft: cur.has(o.value),
-              disabled: ro,
-              onClick: () => {
-                if (cur.has(o.value)) cur.delete(o.value);
-                else cur.add(o.value);
-                set([...cur]);
-                render2();
-              }
-            })
-          );
-        }
-        control = box;
-        break;
-      }
-      case "number": {
-        const inp = uiInput({
-          type: "number",
-          value: values[p.key] === void 0 ? "" : String(values[p.key]),
-          placeholder: p.placeholder,
-          disabled: ro,
-          onInput: (val) => set(val === "" ? void 0 : Number(val))
-        });
-        if (p.min !== void 0) inp.min = String(p.min);
-        if (p.max !== void 0) inp.max = String(p.max);
-        if (p.step !== void 0) inp.step = String(p.step);
-        control = inp;
-        break;
-      }
-      case "multiline": {
-        const ta = el2("textarea", "bz-dock-textarea");
-        ta.rows = (_d = p.rows) != null ? _d : 4;
-        ta.value = values[p.key] === void 0 ? "" : String(values[p.key]);
-        if (p.placeholder) ta.placeholder = p.placeholder;
-        ta.disabled = ro;
-        ta.addEventListener("input", () => set(ta.value));
-        control = ta;
-        break;
-      }
-      case "path": {
-        const row = el2("div", "bz-dock-pathrow");
-        const inp = uiInput({
-          value: values[p.key] === void 0 ? "" : String(values[p.key]),
-          placeholder: p.placeholder,
-          disabled: ro,
-          onInput: (val) => set(val)
-        });
-        row.appendChild(inp);
-        if (!ro) {
-          row.appendChild(
-            uiIconBtn({
-              icon: "folder-open",
-              title: p.mode === "dir" ? "选择文件夹" : "选择文件",
-              onClick: () => {
-                void (async () => {
-                  if (p.mode === "dir") {
-                    const dir = await pickSystemFolder();
-                    if (dir) {
-                      inp.value = dir;
-                      set(dir);
-                    }
-                  } else {
-                    const files = await pickSystemFiles(`选择${p.label}`, []);
-                    if (files.length) {
-                      inp.value = files[0];
-                      set(files[0]);
-                    }
-                  }
-                })();
-              }
-            })
-          );
-        }
-        control = row;
-        break;
-      }
-      case "secret": {
-        const inp = uiInput({
-          type: "password",
-          value: values[p.key] === void 0 ? "" : String(values[p.key]),
-          placeholder: p.placeholder || "只存在本机工具目录",
-          disabled: ro,
-          onInput: (val) => set(val)
-        });
-        control = inp;
-        break;
-      }
-      default: {
-        const inp = uiInput({
-          value: values[p.key] === void 0 ? "" : String(values[p.key]),
-          placeholder: p.placeholder,
-          disabled: ro,
-          onInput: (val) => set(val)
-        });
-        control = inp;
-        break;
-      }
-    }
-    const desc = p.help || (p.type === "secret" ? "存在本机工具目录里，不进 vault、不写运行记录" : void 0);
-    return uiField({ label: p.label + (p.required ? " *" : ""), desc, control });
-  }
-  function histPane(v) {
-    const pane = el2("section", "bz-dock-pane bz-dock-histpane");
-    const head = el2("div", "bz-dock-pane-head");
-    head.appendChild(el2("h3", "bz-dock-pane-title", "运行记录"));
-    head.appendChild(el2("span", "bz-dock-pane-count", `${v.runs.length} 条`));
-    pane.appendChild(head);
-    if (!v.runs.length) {
-      pane.appendChild(
-        uiEmpty({
-          icon: "history",
-          title: v.runsUnreadable ? "记录读不懂" : "还没有运行记录",
-          desc: v.runsUnreadable ? "文件在，但内容不合契约；工具坞只读不改" : "跑一次，或等它按声明的节奏自动跑完，记录就会出现"
-        })
-      );
-      return pane;
-    }
-    const list = el2("div", "bz-dock-histlist");
-    const newestFirst = [...v.runs].sort(
-      (a, b) => {
-        var _a2, _b2;
-        return ((_a2 = timeOf(b.startedAt)) != null ? _a2 : 0) - ((_b2 = timeOf(a.startedAt)) != null ? _b2 : 0);
-      }
-    );
-    for (const r of newestFirst.slice(0, 60)) list.appendChild(histRow(r));
-    pane.appendChild(list);
-    if (v.runs.length > 60) pane.appendChild(el2("div", "bz-dock-note", "只显示最近 60 条"));
-    return pane;
-  }
-  function histRow(r) {
-    var _a2, _b2, _c, _d, _e;
-    const row = el2("article", "bz-dock-histrow");
-    const head = el2("div", "bz-dock-histhead");
-    head.appendChild(el2("span", dotClass(r.status)));
-    head.appendChild(el2("span", "bz-dock-histtime", relTime(r.startedAt.replace("T", " "))));
-    head.appendChild(el2("span", "bz-dock-histstatus", statusText(r.status)));
-    const dur = durationText2(r);
-    if (dur) head.appendChild(el2("span", "bz-dock-histdur", dur));
-    head.appendChild(el2("span", "bz-dock-histtrig", r.trigger === "auto" ? "自动" : "手动"));
-    row.appendChild(head);
-    if (r.message) row.appendChild(el2("div", "bz-dock-histmsg", r.message));
-    if (r.error) {
-      const box = el2("div", "bz-dock-histerr");
-      box.appendChild(el2("div", "bz-dock-histerr-hint", errorHint(r.error.kind)));
-      if (r.error.detail) box.appendChild(el2("div", "bz-dock-histerr-detail", r.error.detail));
-      row.appendChild(box);
-    }
-    const hasMore = r.steps && r.steps.length > 0 || r.info && r.info.length > 0 || r.result !== void 0 || r.metrics !== void 0 || r.artifacts && r.artifacts.length > 0 || ((_a2 = r.error) == null ? void 0 : _a2.stderr);
-    if (hasMore) {
-      const btn = uiBtn({
-        label: "展开",
-        size: "sm",
-        className: "bz-dock-histtoggle",
-        onClick: () => {
-          const open = row.classList.toggle("is-open");
-          btn.querySelector("span").textContent = open ? "收起" : "展开";
-        }
-      });
-      row.appendChild(btn);
-      const more = el2("div", "bz-dock-histmore");
-      if ((_b2 = r.steps) == null ? void 0 : _b2.length) more.appendChild(block("步骤", r.steps.map((s) => s.text).join("\n")));
-      if (r.metrics) more.appendChild(block("指标", JSON.stringify(r.metrics, null, 2)));
-      if ((_c = r.artifacts) == null ? void 0 : _c.length) {
-        const box = el2("div", "bz-dock-block");
-        box.appendChild(el2("div", "bz-dock-block-label", "产物"));
-        for (const a of r.artifacts) {
-          const row2 = el2("div", "bz-dock-artrow");
-          row2.appendChild(el2("span", "bz-dock-artrow-path", `${a.label ? a.label + " · " : ""}${a.path}`));
-          row2.appendChild(
-            uiIconBtn({ icon: "external-link", title: "打开 / 定位产物", xs: true, onClick: () => openArtifact(a.path) })
-          );
-          box.appendChild(row2);
-        }
-        more.appendChild(box);
-      }
-      if (r.result !== void 0) more.appendChild(block("结果", JSON.stringify(r.result, null, 2)));
-      if ((_d = r.info) == null ? void 0 : _d.length) more.appendChild(block("信息", JSON.stringify(r.info, null, 2)));
-      if ((_e = r.error) == null ? void 0 : _e.stderr) more.appendChild(block("stderr 尾部", r.error.stderr));
-      row.appendChild(more);
-    }
-    if (r.startedAt) {
-      const exact = el2("div", "bz-dock-histexact", r.startedAt.replace("T", " ").replace(/\..*$/, ""));
-      row.appendChild(exact);
-    }
-    return row;
-  }
-  function block(label, text2) {
-    const b = el2("div", "bz-dock-block");
-    b.appendChild(el2("div", "bz-dock-block-label", label));
-    const pre = el2("pre", "bz-dock-json");
-    pre.textContent = text2;
-    b.appendChild(pre);
-    return b;
-  }
-  async function runFlow(v, opts = {}) {
-    var _a2;
-    if (!hostApp2) return;
-    if (!canRun()) {
-      notice("移动端不能启动本机进程", "warning");
-      return;
-    }
-    const runningWhy = runningNowFresh(v);
-    if (runningWhy) {
-      notice(`这次没有启动：${runningWhy}`, "warning");
-      return;
-    }
-    if (!v.run) {
-      notice("这份声明没写怎么跑：既无 run 段，目录里也没有 main.mjs", "warning");
-      return;
-    }
-    if (!isTrusted(v.entry) || v.trustStale) {
-      const ok = await applyTrust(v.entry, v.manifest, v.declPath, v.run, {
-        title: v.trustStale ? "启动命令变了，重新确认信任" : "信任此命令",
-        accept: "信任"
-      });
-      if (!ok) return;
-    }
-    saveValuesNow(v);
-    const values = valuesOf(v);
-    const missing = missingRequiredParams((_a2 = v.manifest) == null ? void 0 : _a2.params, values);
-    if (missing.length) {
-      notice(`还差必填参数：${missing.join("、")}`, "warning");
-      return;
-    }
-    const run = runTool(hostApp2, v.entry, v.run, v.manifest, values, {
-      ...liveCallbacks(v.entry.id),
-      onDone: (outcome) => {
-        notifyRunOutcome(displayName2(v), outcome, () => openDockTool(hostApp2, v.entry.id));
-        if (outcome.ok) void recordRunSuccess(v.entry.id, outcome.finishedAt);
-        void refresh2();
-        updateLive(v.entry.id);
-      }
-    }, opts.extraArgs ? { extraArgs: opts.extraArgs } : {});
-    render2();
-  }
-  async function runBoardAction(v, ref) {
-    var _a2, _b2;
-    const spec = (_b2 = (_a2 = v.manifest) == null ? void 0 : _a2.actions) == null ? void 0 : _b2[ref.id];
-    if (!spec) {
-      notice(`展示板引用了一个没声明的动作：${ref.id}`, "warning");
-      return;
-    }
-    const checked = resolveActArgs(spec, ref.args);
-    if (!checked.ok) {
-      notice(`动作 ${ref.id} 没有执行：${checked.reason}`, "warning");
-      return;
-    }
-    await runFlow(v, { extraArgs: buildActArgs(spec, checked.values) });
-  }
-  function liveCallbacks(id) {
-    return {
-      onStep: () => updateLive(id),
-      onProgress: () => updateLive(id),
-      onInfo: () => updateLive(id),
-      onResult: () => updateLive(id),
-      // 工具问人：刷新一次（运行台要显示「在等你拍板」），然后弹窗等答案
-      onAsk: (req) => {
-        updateLive(id);
-        return confirmAsk(req);
-      }
-    };
-  }
-  function askBody(req) {
-    var _a2, _b2;
-    const host = el2("div", "bz-dock-ask");
-    const pane = el2("div", "bz-dock-ask-pane");
-    host.appendChild(pane);
-    const html = String((_a2 = req.bodyHtml) != null ? _a2 : "").trim();
-    if (html) {
-      const bytes = new TextEncoder().encode(html).length;
-      if (bytes <= ASK_HTML_MAX_BYTES) {
-        pane.classList.add("is-framed");
-        pane.appendChild(sandboxFrame(html, "bz-dock-ask-frame", req.title));
-        return { el: host, framed: true };
-      }
-      pane.appendChild(el2(
-        "p",
-        "bz-dock-ask-p",
-        `工具给的正文有 ${Math.round(bytes / 1024)} KB，超过 ${ASK_HTML_MAX_BYTES / 1024} KB 就不按 HTML 渲染了，退回纯文本。`
-      ));
-    }
-    const paras = String((_b2 = req.body) != null ? _b2 : "").split("\n").map((s) => s.trim()).filter(Boolean);
-    if (!paras.length) {
-      pane.appendChild(el2("p", "bz-dock-ask-p", html ? "（HTML 正文超上限，工具也没给纯文本）" : "（工具没说要做什么）"));
-    }
-    for (const p of paras) pane.appendChild(el2("p", "bz-dock-ask-p", p));
-    return { el: host, framed: false };
-  }
-  function confirmAsk(req) {
-    if (document.querySelector(".bz-dock-askmodal")) return Promise.resolve(false);
-    const { el: body, framed } = askBody(req);
-    return new Promise((resolve2) => {
-      var _a2, _b2;
-      let settled = false;
-      let closeRef = () => void 0;
-      let timer = null;
-      let tick2 = null;
-      const stopClocks = () => {
-        if (timer !== null) {
-          clearTimeout(timer);
-          timer = null;
-        }
-        if (tick2 !== null) {
-          clearInterval(tick2);
-          tick2 = null;
-        }
-      };
-      const settle = (v) => {
-        if (settled) return;
-        settled = true;
-        stopClocks();
-        resolve2(v);
-        closeRef();
-      };
-      const left = el2("span", "bz-dock-ask-left", `${req.timeoutSec}`);
-      const countdown = el2("div", "bz-dock-ask-clock");
-      countdown.append("不操作就取消，还剩 ", left, " 秒");
-      const actions = uiDialogActions({
-        cancelText: req.cancelText,
-        okText: req.confirmText,
-        onCancel: () => settle(false),
-        onOk: () => settle(true)
-      });
-      actions.row.appendChild(countdown);
-      body.appendChild(actions.row);
-      const { close } = uiModal({
-        head: true,
-        title: req.title,
-        content: body,
-        maxWidth: framed ? ASK_HTML_MODAL_WIDTH : ASK_MODAL_WIDTH,
-        className: "bz-dock-askmodal",
-        onClose: () => settle(false)
-        // 遮罩 / ESC = 取消
-      });
-      closeRef = close;
-      const deadline = Date.now() + req.timeoutSec * 1e3;
-      tick2 = setInterval(() => {
-        const s = Math.max(0, Math.ceil((deadline - Date.now()) / 1e3));
-        left.textContent = String(s);
-      }, 1e3);
-      timer = setTimeout(() => settle(false), req.timeoutSec * 1e3);
-      (_b2 = (_a2 = actions.cancelBtn) == null ? void 0 : _a2.focus) == null ? void 0 : _b2.call(_a2);
-    });
-  }
-  async function resumeAndRetry(v) {
-    await patchRunState(v.entry.id, null);
-    kickDockScheduler();
-    await refresh2();
-    const nv = viewById(v.entry.id);
-    if (nv && canStart(nv)) await runFlow(nv);
-  }
-  function updateLive(id) {
-    const hosts = overlay2 == null ? void 0 : overlay2.querySelectorAll(`.bz-dock-live[data-tool="${id}"]`);
-    hosts == null ? void 0 : hosts.forEach((h) => renderLiveInto(h, id));
-    renderRunbar();
-    ensureLiveTick();
-  }
-  async function reloadDeclaration(v) {
-    var _a2, _b2, _c;
-    const res = readDeclaration(v.entry.path);
-    if (!res.ok || !res.manifest) {
-      notice((_a2 = res.error) != null ? _a2 : "声明读不到", "error");
-      return;
-    }
-    const m = res.manifest;
-    if (m.id !== v.entry.id) {
-      notice(
-        `声明里的 id 是「${m.id}」，与登记的「${v.entry.id}」不一致 —— 当两个工具看，或移除后重新导入`,
-        "warning"
-      );
-    }
-    const run = resolveRun(m, (_b2 = res.path) != null ? _b2 : v.entry.path, res.conventionalRun);
-    const sig = run ? runSignature(run) : void 0;
-    if (isTrusted(v.entry) && sig !== v.entry.trustedRun) {
-      if (await applyTrust(v.entry, m, (_c = res.path) != null ? _c : v.entry.path, run, {
-        title: "启动命令变了，重新确认信任",
-        accept: "信任"
-      })) {
-        return;
-      }
-      notice("已保留原样 —— 但这条命令在你重新确认之前不会被运行", "warning");
-      return;
-    }
-    notice(`声明已重新读取：${m.params.length} 个参数`, "success");
-    await refresh2();
-  }
-  function scheduleTextOf(s, withNote = true) {
-    var _a2;
-    if (!s) return "未声明";
-    const base = {
-      daily: "每天一次",
-      weekly: s.weekday !== void 0 ? `每周${"日一二三四五六"[s.weekday]}` : "每周一次",
-      interval: s.everyHours !== void 0 ? `每 ${s.everyHours} 小时` : "按间隔",
-      "on-demand": "按需（只手动）",
-      unknown: "未声明"
-    };
-    const parts = [(_a2 = base[s.kind]) != null ? _a2 : s.kind];
-    if (s.kind === "daily" && s.hour !== void 0) parts.push(`${String(s.hour).padStart(2, "0")}:00 前`);
-    if (withNote && s.note) parts.push(`（${s.note}）`);
-    return parts.join("");
-  }
-  function runTextOf(run) {
-    if (!run) return "没写怎么跑（既无 run 段，目录里也没有 main.mjs）";
-    return [run.cmd, ...run.args].join(" ");
-  }
-  function confirmTrust(manifest, declPath, run, title, accept) {
-    if (document.querySelector(".bz-dock-trustmodal")) return Promise.resolve(false);
-    const body = el2("div", "bz-dock-trust");
-    const who = el2("div", "bz-dock-trust-who");
-    who.appendChild(el2("div", "bz-dock-trust-name", manifest.name));
-    if (manifest.description) who.appendChild(el2("div", "bz-dock-trust-desc", manifest.description));
-    body.appendChild(who);
-    const runSec = el2("div", "bz-dock-trust-runsec");
-    runSec.appendChild(el2("div", "bz-dock-trust-runlabel", "会跑什么"));
-    const runText = runTextOf(run);
-    const cmd = el2("code", "bz-dock-trust-cmd", runText);
-    cmd.title = runText;
-    runSec.appendChild(cmd);
-    body.appendChild(runSec);
-    const facts = el2("dl", "bz-dock-trust-facts");
-    const fact = (label, value, isPath = false) => {
-      const row = el2("div", "bz-dock-trust-fact");
-      row.appendChild(el2("dt", "bz-dock-trust-factk", label));
-      const v = el2("dd", `bz-dock-trust-factv${isPath ? " is-path" : ""}`, value);
-      v.title = value;
-      row.appendChild(v);
-      facts.appendChild(row);
-    };
-    if (run == null ? void 0 : run.cwd) fact("工作目录", run.cwd, true);
-    fact("声明文件", declPath, true);
-    fact("节奏", manifest.schedule ? scheduleTextOf(manifest.schedule, false) : "未声明（只手动跑）");
-    fact("参数", `${manifest.params.length} 个`);
-    body.appendChild(facts);
-    body.appendChild(
-      el2(
-        "div",
-        "bz-dock-trust-note",
-        "读声明不需要信任，建立之后工具坞才会运行它。信任的对象是「那条命令」——建立一次长期有效，命令变了会重新问。节奏取声明里的默认值（可在工具详情页改），bz 开着的时候才会按它跑。"
-      )
-    );
-    return new Promise((resolve2) => {
-      let settled = false;
-      let closeRef = () => void 0;
-      const settle = (v) => {
-        if (settled) return;
-        settled = true;
-        resolve2(v);
-        closeRef();
-      };
-      const actions = uiDialogActions({
-        cancelText: "取消",
-        okText: accept,
-        onCancel: () => settle(false),
-        onOk: () => settle(true)
-      });
-      body.appendChild(actions.row);
-      const { close } = uiModal({
-        head: true,
-        title,
-        content: body,
-        maxWidth: 520,
-        // 比确认框的 400 宽：这一屏要摆两条完整路径
-        className: "bz-dock-trustmodal",
-        onClose: () => resolve2(false)
-        // 遮罩 / ESC = 取消
-      });
-      closeRef = close;
-      actions.okBtn.focus();
-    });
-  }
-  async function applyTrust(entry, manifest, declPath, run, opts) {
-    const ok = await confirmTrust(manifest, declPath, run, opts.title, opts.accept);
-    if (!ok) return false;
-    const next = { ...entry, trustedAt: (/* @__PURE__ */ new Date()).toISOString() };
-    if (run) next.trustedRun = runSignature(run);
-    else delete next.trustedRun;
-    await persist(readToolEntries().map((e) => e.id === entry.id ? next : e), `已信任 ${manifest.name}`);
-    return true;
-  }
-  function chooseDeclaration(root, paths) {
-    return new Promise((resolve2) => {
-      var _a2;
-      const box = el2("div", "bz-dock-pick");
-      let settled = false;
-      let close = () => {
-      };
-      const finish = (p) => {
-        if (settled) return;
-        settled = true;
-        close();
-        resolve2(p);
-      };
-      for (const p of paths) {
-        const res = readDeclaration(p);
-        const rel = relPathOf(root, p);
-        const row = el2("button", "bz-dock-pickrow");
-        row.type = "button";
-        row.appendChild(el2("span", "bz-dock-pickname", ((_a2 = res.manifest) == null ? void 0 : _a2.name) || rel));
-        row.appendChild(el2("span", "bz-dock-pickpath", rel));
-        row.addEventListener("click", () => finish(p));
-        box.appendChild(row);
-      }
-      const modal = uiModal({
-        head: true,
-        title: `找到 ${paths.length} 个工具，选一个`,
-        content: box,
-        maxWidth: 460,
-        className: "bz-dock-pickmodal",
-        onClose: () => finish(null)
-      });
-      close = modal.close;
-    });
-  }
-  function relPathOf(root, p) {
-    const a = root.replace(/[\\/]+$/, "");
-    const b = p.replace(/[\\/]+$/, "");
-    return b.startsWith(`${a}/`) ? b.slice(a.length + 1) : b;
-  }
-  async function importToolFlow(entry) {
-    var _a2, _b2;
-    if (!canRun()) {
-      notice("导入声明需要桌面端（要读本机文件）", "warning");
-      return;
-    }
-    const dir = await pickSystemFolder();
-    if (!dir) return;
-    const found = findDeclarationFiles(dir);
-    if (!found.length) {
-      notice(`这个文件夹里没找到 ${DECLARATION_FILENAME}（或旧名 dock.json）`, "warning");
-      return;
-    }
-    const declPath = found.length === 1 ? found[0] : await chooseDeclaration(dir, found);
-    if (!declPath) return;
-    const res = readDeclaration(declPath);
-    if (!res.ok || !res.manifest) {
-      notice((_a2 = res.error) != null ? _a2 : "声明读不到", "error");
-      return;
-    }
-    const manifest = res.manifest;
-    const run = resolveRun(manifest, declPath, res.conventionalRun);
-    const entries = readToolEntries();
-    if (entries.some((e) => e.id === manifest.id && e.id !== (entry == null ? void 0 : entry.id))) {
-      notice(`id「${manifest.id}」已被另一个登记占用 —— 改声明里的 id，或先移除那个`, "warning");
-      return;
-    }
-    const next = { id: (_b2 = entry == null ? void 0 : entry.id) != null ? _b2 : manifest.id, path: declPath };
-    if (entry) {
-      if (entry.enabled !== void 0) next.enabled = entry.enabled;
-      if (entry.scheduleOverride !== void 0) next.scheduleOverride = entry.scheduleOverride;
-      if (entry.overrideDeclSig !== void 0) next.overrideDeclSig = entry.overrideDeclSig;
-      const sig = run ? runSignature(run) : void 0;
-      if (sig !== void 0 && sig === entry.trustedRun) {
-        next.trustedAt = entry.trustedAt;
-        next.trustedRun = entry.trustedRun;
-      }
-    }
-    if (!isTrusted(next)) {
-      const ok = await confirmTrust(
-        manifest,
-        declPath,
-        run,
-        entry ? "重新导入声明" : "导入工具声明",
-        entry ? "确认并信任" : "信任并登记"
-      );
-      if (!ok) return;
-      next.trustedAt = (/* @__PURE__ */ new Date()).toISOString();
-      const sig = run ? runSignature(run) : void 0;
-      if (sig !== void 0) next.trustedRun = sig;
-    }
-    const list = entry ? entries.map((e) => e.id === entry.id ? next : e) : [...entries, next];
-    await persist(list, entry ? `已更新 ${manifest.name}` : `已登记 ${manifest.name}`);
-  }
-  function nameOfEntry(id) {
-    const v = viewById(id);
-    return v ? displayName2(v) : id;
-  }
-  async function persist(list, msg) {
-    var _a2;
-    for (const v of views) saveValuesNow(v);
-    try {
-      await saveToolEntries(list);
-      notice(msg, "success");
-    } catch (e) {
-      notice(`保存失败：${(_a2 = e == null ? void 0 : e.message) != null ? _a2 : e}`, "error");
-      return;
-    }
-    draftValues.clear();
-    await refresh2();
-  }
-  async function toggleEnabled(entry) {
-    const entries = readToolEntries();
-    const next = { ...entry, enabled: entry.enabled === false };
-    const name = nameOfEntry(entry.id);
-    await persist(
-      entries.map((e) => e.id === entry.id ? next : e),
-      next.enabled ? `已启用 ${name}` : `已停用 ${name}`
-    );
-  }
-  async function removeToolFlow(v) {
-    const res = await openFlowDialog({
-      title: "移除登记",
-      message: `确定把「${displayName2(v)}」从工具坞移除？
-
-只移除 bz 这边的登记 —— 声明文件、参数值文件、运行记录文件都不会被删（前两个是工具目录里的，后一个是工具的账本）。调度台账（失败计数 / 熔断标记）一并清掉。`,
-      actions: [
-        { label: "取消", value: "cancel" },
-        { label: "移除", value: "ok", cta: true, danger: true }
-      ]
-    });
-    if (res !== "ok") return;
-    const entries = readToolEntries().filter((e) => e.id !== v.entry.id);
-    if (view.kind === "detail" && view.id === v.entry.id) view = { kind: "list" };
-    await patchRunState(v.entry.id, null);
-    await persist(entries, `已移除 ${displayName2(v)}`);
-  }
-  var hostApp2, overlay2, escHandle6, view, query, searchOpen, kpiFilter, refreshing, views, draftValues, valueSaveTimers, VALUE_SAVE_DEBOUNCE_MS, dueNotified, OVERLAY_ID2, FRAME_ID2, offlineReportDone, offlineRunOfRecord, RUN_BTN_ATTR, runGateTick, offlineTick, BOARD_MAX_BYTES, BOARD_MAX_HEIGHT, FRAME_SCROLLBAR_CSS, BOARD_THEME_VARS, liveTick, ASK_MODAL_WIDTH, ASK_HTML_MODAL_WIDTH, ASK_HTML_MAX_BYTES;
-  var init_ui13 = __esm({
-    "src/dock/ui.ts"() {
-      init_fake_obsidian();
-      init_z_order();
-      init_esc_manager();
-      init_focus_trap();
-      init_notice();
-      init_ui();
-      init_modal();
-      init_flow_dialog();
-      init_path_picker();
-      init_item_actions();
-      init_str();
-      init_data16();
-      init_store2();
-      init_action();
-      init_command();
-      init_runner();
-      init_scheduler();
-      init_rules();
-      init_declaration();
-      init_vault_fs();
-      init_watchdog();
-      init_schedule();
-      init_schedule();
-      hostApp2 = null;
-      overlay2 = null;
-      escHandle6 = null;
-      view = { kind: "list" };
-      query = "";
-      searchOpen = false;
-      kpiFilter = "all";
-      refreshing = false;
-      views = [];
-      draftValues = /* @__PURE__ */ new Map();
-      valueSaveTimers = /* @__PURE__ */ new Map();
-      VALUE_SAVE_DEBOUNCE_MS = 500;
-      dueNotified = /* @__PURE__ */ new Set();
-      OVERLAY_ID2 = "bz-dock-mask";
-      FRAME_ID2 = "bz-dock-panel";
-      offlineReportDone = false;
-      offlineRunOfRecord = offlineRunningOf;
-      RUN_BTN_ATTR = "data-bz-run-btn";
-      runGateTick = null;
-      offlineTick = null;
-      BOARD_MAX_BYTES = 512 * 1024;
-      BOARD_MAX_HEIGHT = 560;
-      FRAME_SCROLLBAR_CSS = "<style>html,body{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}</style>";
-      BOARD_THEME_VARS = [
-        "--bz-surface-0",
-        "--bz-surface-1",
-        "--bz-surface-2",
-        "--bz-surface-3",
-        "--bz-text-1",
-        "--bz-text-2",
-        "--bz-text-3",
-        "--bz-border",
-        "--bz-brand",
-        "--bz-success",
-        "--bz-warning",
-        "--bz-danger",
-        "--bz-radius-sm",
-        "--bz-radius-md",
-        "--bz-font-ui",
-        "--bz-font-mono",
-        "--bz-space-xs",
-        "--bz-space-sm",
-        "--bz-space-md",
-        "--bz-space-lg"
-      ];
-      liveTick = null;
-      ASK_MODAL_WIDTH = 460;
-      ASK_HTML_MODAL_WIDTH = 560;
-      ASK_HTML_MAX_BYTES = 128 * 1024;
+      init_files2();
+      init_kernel();
+      init_exec();
+      init_lock();
+      init_view3();
+      init_registry();
+      init_files2();
+      init_parse2();
+      init_types3();
     }
   });
 
@@ -69765,173 +64804,65 @@ GitHub 仓库：${ghInfo.title}
   __export(settings_exports9, {
     dockSettingsSchema: () => dockSettingsSchema
   });
-  function switchBinding(key) {
+  function switchRow(name, desc, key) {
     return {
-      get: () => readDockSwitch(key),
-      set: (v) => setDockSwitch(key, v),
-      // 落盘前先对齐盘上现值：外部（同步盘）改过 dock.json 的窗口内，不拿过期快照整文件覆盖
-      // （persist 是整文件写）。顺序关键 —— 先取用户本次拨的值（还在内存快照里），重载
-      // （会用盘上现值覆盖快照），再把本次拨动补回去，最后整文件落盘
-      save: async () => {
-        const v = readDockSwitch(key);
-        await loadDockStore();
-        setDockSwitch(key, v);
-        await persistDockStore();
+      type: "custom",
+      name,
+      desc,
+      render: (body) => {
+        const { registry } = readRegistry();
+        new Setting(body).setName(name).setDesc(desc).addToggle(
+          (t) => t.setValue(registry[key]).onChange((v) => {
+            setSwitch(key, v);
+          })
+        );
       }
     };
-  }
-  function watchdogRows() {
-    if (!isWatchdogInstalled()) {
-      return [
-        {
-          type: "info",
-          name: "离线值守",
-          desc: "还没装值守进程 —— Obsidian 关着时不会自动跑（装法：tools/dock-watch/install.ps1）"
-        }
-      ];
-    }
-    return [
-      {
-        type: "toggle",
-        name: "离线值守",
-        desc: "Obsidian 关着时由值守进程按同一份规则表跑（要求工具已信任、自动运行总闸开着）",
-        binding: switchBinding("watchdog")
-      }
-    ];
-  }
-  function resolvedRunOf(entry) {
-    var _a2, _b2;
-    const decl = readDeclaration(entry.path);
-    return resolveRun((_a2 = decl.manifest) != null ? _a2 : null, (_b2 = decl.path) != null ? _b2 : entry.path, decl.conventionalRun);
-  }
-  function commandTextOf(entry, run) {
-    if (run) return [run.cmd, ...run.args].join(" ");
-    return readDeclaration(entry.path).ok ? "声明里没写怎么跑" : "声明文件读不到";
-  }
-  function trustItemOf(entry) {
-    var _a2;
-    const run = resolvedRunOf(entry);
-    return {
-      key: entry.id,
-      label: ((_a2 = readDeclaration(entry.path).manifest) == null ? void 0 : _a2.name) || entry.id,
-      sub: commandTextOf(entry, run)
-    };
-  }
-  function trustItems(wantTrusted) {
-    const trust = readTrustRecords();
-    return readToolEntries().filter((e) => e.id in trust === wantTrusted).map(trustItemOf);
-  }
-  function trustRows() {
-    if (readToolEntries().length === 0) {
-      return [{ type: "info", name: "还没有登记工具", desc: "在工具坞面板里「导入声明」登记一个外部脚本" }];
-    }
-    return [
-      {
-        type: "list",
-        name: "已信任的命令",
-        desc: "信任绑的是这条启动命令；声明里的命令一改，信任自动作废",
-        variant: "dense",
-        removeLabel: "撤销信任",
-        emptyText: "还没有授权过任何命令",
-        items: () => trustItems(true),
-        onChange: async (rest) => {
-          const revoked = Object.keys(readTrustRecords()).filter((id) => !rest.includes(id));
-          for (const id of revoked) await untrustTool(id);
-          if (revoked.length) notice(`已撤销 ${revoked.length} 个工具的信任`, "success");
-        }
-      },
-      {
-        type: "list",
-        name: "还没确认的命令",
-        desc: "确认后才自动运行；点「信任这条命令」即按上面这条命令授权",
-        variant: "dense",
-        removeLabel: "信任这条命令",
-        emptyText: "没有待确认的工具",
-        items: () => trustItems(false),
-        onChange: async (rest) => {
-          var _a2;
-          const trust = readTrustRecords();
-          const granted = readToolEntries().filter((e) => !(e.id in trust) && !rest.includes(e.id));
-          const skipped = [];
-          let ok = 0;
-          for (const e of granted) {
-            const run = resolvedRunOf(e);
-            if (!run) {
-              skipped.push(((_a2 = readDeclaration(e.path).manifest) == null ? void 0 : _a2.name) || e.id);
-              continue;
-            }
-            await updateToolEntry(e.id, { trustedAt: (/* @__PURE__ */ new Date()).toISOString(), trustedRun: runSignature(run) });
-            ok += 1;
-          }
-          if (ok) notice(`已信任 ${ok} 个工具的命令`, "success");
-          if (skipped.length) notice(`${skipped.join("、")} 的声明读不到命令，去工具坞面板里确认`, "warning");
-        }
-      }
-    ];
   }
   function dockSettingsSchema() {
     return {
       groups: [
         {
-          icon: "container",
-          name: "工具",
+          icon: "layout-grid",
+          name: "工具坞",
           rows: [
+            switchRow("自动运行", "按各工具的规则到点自动跑。关掉之后只能手动点", "autoRun"),
+            switchRow("关掉 Obsidian 也让自动任务跑", "交给后台值守进程接手。关掉它，Obsidian 一关就全停", "watchdog"),
+            switchRow("漏跑提醒", "该跑的时候没跑（比如电脑在睡觉），下次打开时告诉你一声", "notifyMissed"),
             {
-              type: "info",
-              name: "外部工具登记",
-              desc: "添加、编辑、信任与运行都在工具坞面板里",
-              actions: [
-                {
-                  text: "打开工具坞",
-                  cta: true,
-                  onClick: () => openDock(getApp())
-                }
-              ]
-            }
-          ]
-        },
-        {
-          icon: "rocket",
-          name: "自动运行",
-          rows: [
-            {
-              type: "toggle",
-              name: "启动后自动运行",
-              desc: "Obsidian 就绪后，bz 按各工具声明的规则触发它：到点跑、该跑没跑就补跑。关掉则全部只手点",
-              binding: switchBinding("autoRun")
+              type: "custom",
+              name: "已登记工具",
+              desc: "在面板里导入与移除；这里只看个数",
+              render: (body) => {
+                const { registry } = readRegistry();
+                body.createDiv({
+                  cls: "bz-dock-lock-line",
+                  text: registry.tools.length ? `${registry.tools.length} 个工具在册` : "还没有登记任何工具"
+                });
+              }
             },
-            ...watchdogRows()
-          ]
-        },
-        {
-          icon: "bell",
-          name: "提醒",
-          rows: [
             {
-              type: "toggle",
-              name: "漏跑提醒",
-              desc: "工具声明了节奏、当天却没有记录时发一条通知",
-              binding: switchBinding("notifyMissed")
+              type: "custom",
+              name: "当前调度锁",
+              desc: "谁在负责调度。正常情况下插件开着就是插件，关掉就是后台值守",
+              render: (body) => {
+                const lock = dockLockState();
+                body.createDiv({
+                  cls: "bz-dock-lock-line",
+                  text: lock ? `${lock.owner === "plugin" ? "插件" : "后台值守"} 持有（${new Date(lock.at).toLocaleTimeString()}）` : "当前没有人在调度"
+                });
+              }
             }
           ]
-        },
-        {
-          icon: "shield-check",
-          name: "信任",
-          rows: trustRows()
         }
       ]
     };
   }
   var init_settings9 = __esm({
     "src/dock/settings.ts"() {
-      init_app();
-      init_notice();
-      init_ui13();
-      init_data16();
-      init_declaration();
-      init_store2();
-      init_watchdog();
+      init_fake_obsidian();
+      init_host();
+      init_registry();
     }
   });
 
@@ -69946,27 +64877,27 @@ GitHub 仓库：${ghInfo.title}
     readManual: () => readManual,
     refreshManual: () => refreshManual
   });
-  function manualVaultPath(app2) {
-    return downloadsVaultPath(app2, MANUAL_FILENAME);
+  function manualVaultPath(app) {
+    return downloadsVaultPath(app, MANUAL_FILENAME);
   }
   function looksLikeManual(text2) {
     const t = String(text2 || "");
     return /<!DOCTYPE/i.test(t) || /<html/i.test(t) || t.includes("包仔");
   }
-  function hasManual(app2) {
-    return hasAsset(app2, MANUAL_FILENAME);
+  function hasManual(app) {
+    return hasAsset(app, MANUAL_FILENAME);
   }
-  function downloadManual(app2) {
-    return downloadAsset(app2, MANUAL_FILENAME, looksLikeManual, "手册");
+  function downloadManual(app) {
+    return downloadAsset(app, MANUAL_FILENAME, looksLikeManual, "手册");
   }
-  function readManual(app2) {
-    return readAsset(app2, MANUAL_FILENAME);
+  function readManual(app) {
+    return readAsset(app, MANUAL_FILENAME);
   }
-  function ensureManualReady(app2) {
-    return ensureAssetReady(app2, MANUAL_FILENAME, looksLikeManual, "手册");
+  function ensureManualReady(app) {
+    return ensureAssetReady(app, MANUAL_FILENAME, looksLikeManual, "手册");
   }
-  async function refreshManual(app2) {
-    return refreshAsset(app2, MANUAL_FILENAME, looksLikeManual, "手册", await cachedSha256For(app2, MANUAL_FILENAME));
+  async function refreshManual(app) {
+    return refreshAsset(app, MANUAL_FILENAME, looksLikeManual, "手册", await cachedSha256For(app, MANUAL_FILENAME));
   }
   var MANUAL_FILENAME;
   var init_manual = __esm({
@@ -69986,41 +64917,41 @@ GitHub 仓库：${ghInfo.title}
     unloadManualViewer: () => unloadManualViewer
   });
   function isVisible() {
-    return !!overlay3 && overlay3.style.display === "flex";
+    return !!overlay2 && overlay2.style.display === "flex";
   }
   function hide2() {
-    if (!overlay3) return;
-    overlay3.style.display = "none";
-    const frame2 = overlay3.querySelector(`#${FRAME_ID3} iframe`);
+    if (!overlay2) return;
+    overlay2.style.display = "none";
+    const frame2 = overlay2.querySelector(`#${FRAME_ID2} iframe`);
     if (frame2) frame2.srcdoc = "";
   }
   function isManualViewerOpen() {
     return isVisible();
   }
   function unloadManualViewer() {
-    escHandle7 == null ? void 0 : escHandle7.unregister();
-    escHandle7 = null;
-    overlay3 == null ? void 0 : overlay3.remove();
-    overlay3 = null;
+    escHandle6 == null ? void 0 : escHandle6.unregister();
+    escHandle6 = null;
+    overlay2 == null ? void 0 : overlay2.remove();
+    overlay2 = null;
   }
   function openManualViewer(html) {
     var _a2;
-    if (!overlay3) build3();
-    topifyZ(overlay3);
-    overlay3.style.display = "flex";
-    trapPanelFocus((_a2 = overlay3.querySelector(`#${FRAME_ID3}`)) != null ? _a2 : overlay3);
-    escHandle7 == null ? void 0 : escHandle7.unregister();
-    escHandle7 = escManager.register("bz-manual-viewer", { isVisible, close: hide2 });
-    const frame2 = overlay3.querySelector(`#${FRAME_ID3} iframe`);
+    if (!overlay2) build2();
+    topifyZ(overlay2);
+    overlay2.style.display = "flex";
+    trapPanelFocus((_a2 = overlay2.querySelector(`#${FRAME_ID2}`)) != null ? _a2 : overlay2);
+    escHandle6 == null ? void 0 : escHandle6.unregister();
+    escHandle6 = escManager.register("bz-manual-viewer", { isVisible, close: hide2 });
+    const frame2 = overlay2.querySelector(`#${FRAME_ID2} iframe`);
     frame2.srcdoc = html;
   }
-  function build3() {
+  function build2() {
     var _a2;
     const ov = document.createElement("div");
-    ov.id = OVERLAY_ID3;
+    ov.id = OVERLAY_ID2;
     ov.className = "bz-panel-overlay";
     const frame2 = document.createElement("div");
-    frame2.id = FRAME_ID3;
+    frame2.id = FRAME_ID2;
     frame2.className = "bz-panel-frame bz-sp-skin bz-panel-mtop bz-manv-popup";
     frame2.innerHTML = shellHtml();
     (_a2 = frame2.querySelector(".bz-manv-close")) == null ? void 0 : _a2.addEventListener("click", hide2);
@@ -70029,21 +64960,21 @@ GitHub 仓库：${ghInfo.title}
       if (e.target === ov) hide2();
     });
     document.body.appendChild(ov);
-    overlay3 = ov;
+    overlay2 = ov;
   }
   function shellHtml() {
     return `${CLOSE_BTN}<div class="bz-manv-body"><iframe class="bz-manv-frame" title="使用手册"></iframe></div>`;
   }
-  var OVERLAY_ID3, FRAME_ID3, overlay3, escHandle7, CLOSE_BTN;
+  var OVERLAY_ID2, FRAME_ID2, overlay2, escHandle6, CLOSE_BTN;
   var init_manual_viewer = __esm({
     "src/settings-panel/manual-viewer.ts"() {
       init_z_order();
       init_esc_manager();
       init_focus_trap();
-      OVERLAY_ID3 = "bz-manual-overlay";
-      FRAME_ID3 = "bz-manual-popup";
-      overlay3 = null;
-      escHandle7 = null;
+      OVERLAY_ID2 = "bz-manual-overlay";
+      FRAME_ID2 = "bz-manual-popup";
+      overlay2 = null;
+      escHandle6 = null;
       CLOSE_BTN = `<button class="bz-manv-close" type="button" aria-label="关闭使用手册" title="关闭">
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -70059,18 +64990,18 @@ GitHub 仓库：${ghInfo.title}
     ensureChangelogReady: () => ensureChangelogReady,
     refreshChangelog: () => refreshChangelog
   });
-  function changelogVaultPath(app2) {
-    return downloadsVaultPath(app2, CHANGELOG_FILENAME);
+  function changelogVaultPath(app) {
+    return downloadsVaultPath(app, CHANGELOG_FILENAME);
   }
   function looksLikeChangelog(text2) {
     const t = String(text2 || "");
     return (/<!DOCTYPE/i.test(t) || /<html/i.test(t)) && t.includes("const DATA =");
   }
-  function ensureChangelogReady(app2) {
-    return ensureAssetReady(app2, CHANGELOG_FILENAME, looksLikeChangelog, "更新日志");
+  function ensureChangelogReady(app) {
+    return ensureAssetReady(app, CHANGELOG_FILENAME, looksLikeChangelog, "更新日志");
   }
-  async function refreshChangelog(app2) {
-    return refreshAsset(app2, CHANGELOG_FILENAME, looksLikeChangelog, "更新日志", await cachedSha256For(app2, CHANGELOG_FILENAME));
+  async function refreshChangelog(app) {
+    return refreshAsset(app, CHANGELOG_FILENAME, looksLikeChangelog, "更新日志", await cachedSha256For(app, CHANGELOG_FILENAME));
   }
   var CHANGELOG_FILENAME;
   var init_changelog = __esm({
@@ -70089,41 +65020,41 @@ GitHub 仓库：${ghInfo.title}
     unloadChangelog: () => unloadChangelog
   });
   function isVisible2() {
-    return !!overlay4 && overlay4.style.display === "flex";
+    return !!overlay3 && overlay3.style.display === "flex";
   }
   function hide3() {
-    if (!overlay4) return;
-    overlay4.style.display = "none";
-    const frame2 = overlay4.querySelector(`#${FRAME_ID4} iframe`);
+    if (!overlay3) return;
+    overlay3.style.display = "none";
+    const frame2 = overlay3.querySelector(`#${FRAME_ID3} iframe`);
     if (frame2) frame2.srcdoc = "";
   }
   function isChangelogOpen() {
     return isVisible2();
   }
   function unloadChangelog() {
-    escHandle8 == null ? void 0 : escHandle8.unregister();
-    escHandle8 = null;
-    overlay4 == null ? void 0 : overlay4.remove();
-    overlay4 = null;
+    escHandle7 == null ? void 0 : escHandle7.unregister();
+    escHandle7 = null;
+    overlay3 == null ? void 0 : overlay3.remove();
+    overlay3 = null;
   }
   function openChangelogModal(html) {
     var _a2;
-    if (!overlay4) build4();
-    topifyZ(overlay4);
-    overlay4.style.display = "flex";
-    trapPanelFocus((_a2 = overlay4.querySelector(`#${FRAME_ID4}`)) != null ? _a2 : overlay4);
-    escHandle8 == null ? void 0 : escHandle8.unregister();
-    escHandle8 = escManager.register("bz-changelog", { isVisible: isVisible2, close: hide3 });
-    const frame2 = overlay4.querySelector(`#${FRAME_ID4} iframe`);
+    if (!overlay3) build3();
+    topifyZ(overlay3);
+    overlay3.style.display = "flex";
+    trapPanelFocus((_a2 = overlay3.querySelector(`#${FRAME_ID3}`)) != null ? _a2 : overlay3);
+    escHandle7 == null ? void 0 : escHandle7.unregister();
+    escHandle7 = escManager.register("bz-changelog", { isVisible: isVisible2, close: hide3 });
+    const frame2 = overlay3.querySelector(`#${FRAME_ID3} iframe`);
     frame2.srcdoc = html;
   }
-  function build4() {
+  function build3() {
     var _a2;
     const ov = document.createElement("div");
-    ov.id = OVERLAY_ID4;
+    ov.id = OVERLAY_ID3;
     ov.className = "bz-panel-overlay";
     const frame2 = document.createElement("div");
-    frame2.id = FRAME_ID4;
+    frame2.id = FRAME_ID3;
     frame2.className = "bz-panel-frame bz-sp-skin bz-panel-mtop bz-chg-popup";
     frame2.innerHTML = shellHtml2();
     (_a2 = frame2.querySelector(".bz-chg-close")) == null ? void 0 : _a2.addEventListener("click", hide3);
@@ -70132,21 +65063,21 @@ GitHub 仓库：${ghInfo.title}
       if (e.target === ov) hide3();
     });
     document.body.appendChild(ov);
-    overlay4 = ov;
+    overlay3 = ov;
   }
   function shellHtml2() {
     return `${CLOSE_BTN2}<div class="bz-chg-body"><iframe class="bz-chg-frame" title="更新日志"></iframe></div>`;
   }
-  var OVERLAY_ID4, FRAME_ID4, overlay4, escHandle8, CLOSE_BTN2;
+  var OVERLAY_ID3, FRAME_ID3, overlay3, escHandle7, CLOSE_BTN2;
   var init_changelog2 = __esm({
     "src/settings-panel/changelog.ts"() {
       init_z_order();
       init_esc_manager();
       init_focus_trap();
-      OVERLAY_ID4 = "bz-changelog-overlay";
-      FRAME_ID4 = "bz-changelog-popup";
-      overlay4 = null;
-      escHandle8 = null;
+      OVERLAY_ID3 = "bz-changelog-overlay";
+      FRAME_ID3 = "bz-changelog-popup";
+      overlay3 = null;
+      escHandle7 = null;
       CLOSE_BTN2 = `<button class="bz-chg-close" type="button" aria-label="关闭更新日志" title="关闭">
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -70762,7 +65693,7 @@ GitHub 仓库：${ghInfo.title}
     return n;
   }
   var SEARCH_DEBOUNCE_MS4, PANEL7, spMatch, DOC_ENTRY_NAMES, schemaLoaders, DOMAINS2, NAV_SECS, schemaRowCache, schemaCache, loadedCounts, listableDomains, navBadges, SettingsPanelUI;
-  var init_ui14 = __esm({
+  var init_ui13 = __esm({
     "src/settings-panel/ui.ts"() {
       init_fake_obsidian();
       init_dom();
@@ -70826,9 +65757,9 @@ GitHub 仓库：${ghInfo.title}
         review: async () => {
           const { reviewApp: reviewApp2 } = await Promise.resolve().then(() => (init_app3(), app_exports));
           const { reviewSettingsSchema: reviewSettingsSchema2 } = await Promise.resolve().then(() => (init_ui2(), ui_exports2));
-          const app2 = getApp();
-          reviewApp2.ensure(app2);
-          return reviewSettingsSchema2({ app: app2, dataManager: reviewApp2.dataManager });
+          const app = getApp();
+          reviewApp2.ensure(app);
+          return reviewSettingsSchema2({ app, dataManager: reviewApp2.dataManager });
         },
         secondbrain: async () => (await Promise.resolve().then(() => (init_panel(), panel_exports))).secondBrainSettingsSchema(),
         pomodoro: async () => (await Promise.resolve().then(() => (init_ui5(), ui_exports4))).pomodoroSettingsSchema(),
@@ -70867,12 +65798,12 @@ GitHub 仓库：${ghInfo.title}
         smartcat: async () => {
           const { loadSmartCatData: loadSmartCatData2 } = await Promise.resolve().then(() => (init_data3(), data_exports));
           const { smartcatSettingsSchema: smartcatSettingsSchema2 } = await Promise.resolve().then(() => (init_ui12(), ui_exports9));
-          const app2 = getApp();
-          const data = await loadSmartCatData2(app2);
+          const app = getApp();
+          const data = await loadSmartCatData2(app);
           const saveConfig = async (config) => {
             const { saveSmartCatData: saveSmartCatData2 } = await Promise.resolve().then(() => (init_data3(), data_exports));
             data.config = config;
-            await saveSmartCatData2(app2, data);
+            await saveSmartCatData2(app, data);
           };
           return smartcatSettingsSchema2({
             getConfig: () => data.config,
@@ -71064,10 +65995,10 @@ GitHub 仓库：${ghInfo.title}
             items[next].focus();
           });
           const renderNav2 = (q3) => {
-            const query2 = q3.trim();
+            const query = q3.trim();
             nav.innerHTML = "";
             const visible = listableDomains();
-            const matches = (d) => !query2 || spMatch(d.name, query2) || spMatch(d.desc, query2) || (schemaRowCache.get(d.id) || []).some((r) => spMatch(r.name, query2));
+            const matches = (d) => !query || spMatch(d.name, query) || spMatch(d.desc, query) || (schemaRowCache.get(d.id) || []).some((r) => spMatch(r.name, query));
             const secs = groupDomains(visible, matches);
             for (const sec of secs) {
               if (!sec.domains.length) continue;
@@ -71078,12 +66009,12 @@ GitHub 仓库：${ghInfo.title}
                   icon: d.icon,
                   name: d.name,
                   count: badgeOf(d),
-                  on: d.id === this.activeDomainId && !query2
+                  on: d.id === this.activeDomainId && !query
                 });
               });
               nav.insertAdjacentHTML("beforeend", navSecHtml(sec.title, itemsHtml));
             }
-            if (!query2 || DOC_ENTRY_NAMES.some((n) => spMatch(n, query2))) {
+            if (!query || DOC_ENTRY_NAMES.some((n) => spMatch(n, query))) {
               nav.insertAdjacentHTML("beforeend", navDocSecHtml());
             }
             mountIcons(nav);
@@ -71205,9 +66136,9 @@ GitHub 仓库：${ghInfo.title}
         /** 文档资产后台核对（issue 476）：`refresh` 返回新文本才调 `swap` 换内容；
          *  同版 / 离线 / 任何异常一律静默——后台动作失败不是用户的操作失败，
          *  不出通知、不转圈，保持本地已存的那一版即可。 */
-        async refreshDocInBackground(refresh3, swap) {
+        async refreshDocInBackground(refresh2, swap) {
           try {
-            const fresh = await refresh3();
+            const fresh = await refresh2();
             if (fresh) swap(fresh);
           } catch (e) {
           }
@@ -71405,13 +66336,13 @@ GitHub 仓库：${ghInfo.title}
          */
         markHitText(row, q3) {
           const needle = q3.trim().toLowerCase();
-          row.querySelectorAll(".bz-sp-set-name, .bz-sp-set-desc").forEach((el3) => {
+          row.querySelectorAll(".bz-sp-set-name, .bz-sp-set-desc").forEach((el2) => {
             var _a2, _b2;
-            if (el3.dataset.spOrig === void 0) el3.dataset.spOrig = (_a2 = el3.textContent) != null ? _a2 : "";
-            const text2 = (_b2 = el3.dataset.spOrig) != null ? _b2 : "";
-            el3.textContent = "";
+            if (el2.dataset.spOrig === void 0) el2.dataset.spOrig = (_a2 = el2.textContent) != null ? _a2 : "";
+            const text2 = (_b2 = el2.dataset.spOrig) != null ? _b2 : "";
+            el2.textContent = "";
             if (!needle) {
-              el3.textContent = text2;
+              el2.textContent = text2;
               return;
             }
             const lower = text2.toLowerCase();
@@ -71419,14 +66350,14 @@ GitHub 仓库：${ghInfo.title}
             for (; ; ) {
               const at4 = lower.indexOf(needle, cursor);
               if (at4 < 0) break;
-              if (at4 > cursor) el3.append(document.createTextNode(text2.slice(cursor, at4)));
+              if (at4 > cursor) el2.append(document.createTextNode(text2.slice(cursor, at4)));
               const mark = document.createElement("mark");
               mark.className = "bz-sp-mark";
               mark.textContent = text2.slice(at4, at4 + needle.length);
-              el3.append(mark);
+              el2.append(mark);
               cursor = at4 + needle.length;
             }
-            if (cursor < text2.length) el3.append(document.createTextNode(text2.slice(cursor)));
+            if (cursor < text2.length) el2.append(document.createTextNode(text2.slice(cursor)));
           });
         }
         /**
@@ -71460,8 +66391,8 @@ GitHub 仓库：${ghInfo.title}
         }
         /** 搜索命中域集（导航视觉序；↑↓ 切域与 Enter 首跳共用同一口径，F-6 不漂移） */
         matchedDomains(q3) {
-          const query2 = q3.trim();
-          const matches = (d) => !query2 || spMatch(d.name, query2) || spMatch(d.desc, query2) || (schemaRowCache.get(d.id) || []).some((r) => spMatch(r.name, query2));
+          const query = q3.trim();
+          const matches = (d) => !query || spMatch(d.name, query) || spMatch(d.desc, query) || (schemaRowCache.get(d.id) || []).some((r) => spMatch(r.name, query));
           return groupDomains(listableDomains(), matches).flatMap((s) => s.domains);
         }
         /**
@@ -71504,11 +66435,11 @@ GitHub 仓库：${ghInfo.title}
           });
           if (ans !== "ok") return;
           const { DEFAULT_SETTINGS: DEFAULT_SETTINGS2 } = await Promise.resolve().then(() => (init_settings10(), settings_exports10));
-          const defaults2 = DEFAULT_SETTINGS2;
+          const defaults = DEFAULT_SETTINGS2;
           const s = getSettings();
           let n = 0;
           for (const k of keys) {
-            const def = defaults2[k];
+            const def = defaults[k];
             if (def === void 0) continue;
             s[k] = Array.isArray(def) ? [...def] : def;
             n++;
@@ -71535,10 +66466,10 @@ GitHub 仓库：${ghInfo.title}
           mountIcons(popup);
           const list = popup.querySelector(".bz-sp-mob-list");
           const searchIn = popup.querySelector(".bz-sp-mob-search .bz-input");
-          const render3 = (q3) => {
-            const query2 = q3.trim();
+          const render2 = (q3) => {
+            const query = q3.trim();
             list.innerHTML = "";
-            if (!query2) {
+            if (!query) {
               const secs = groupDomains(listableDomains());
               for (const sec of secs) {
                 if (!sec.domains.length) continue;
@@ -71550,13 +66481,13 @@ GitHub 仓库：${ghInfo.title}
               }
               list.insertAdjacentHTML("beforeend", mobDocSecHtml());
             } else {
-              const doms = listableDomains().filter((d) => spMatch(d.name, query2) || spMatch(d.desc, query2));
+              const doms = listableDomains().filter((d) => spMatch(d.name, query) || spMatch(d.desc, query));
               const rows = [];
               schemaRowCache.forEach((rowsOf, did) => {
                 const d = DOMAINS2.find((x) => x.id === did);
                 if (!d) return;
                 rowsOf.forEach((r) => {
-                  if (spMatch(r.name, query2) || r.desc && spMatch(r.desc, query2)) rows.push({ domain: d, name: r.name, desc: r.desc || d.name });
+                  if (spMatch(r.name, query) || r.desc && spMatch(r.desc, query)) rows.push({ domain: d, name: r.name, desc: r.desc || d.name });
                 });
               });
               let html = "";
@@ -71566,14 +66497,14 @@ GitHub 仓库：${ghInfo.title}
                   html += mobItemHtml({ id: d.id, icon: d.icon, name: d.name, desc: d.desc });
                 });
               }
-              if (DOC_ENTRY_NAMES.some((n) => spMatch(n, query2))) html += mobDocSecHtml();
+              if (DOC_ENTRY_NAMES.some((n) => spMatch(n, query))) html += mobDocSecHtml();
               if (rows.length) {
                 html += `<div class="bz-sp-mob-sec">设置项（${rows.length}）</div>`;
                 rows.forEach((r) => {
                   html += mobItemHtml({ id: r.domain.id, icon: r.domain.icon, name: r.name, desc: `${r.domain.name} · ${r.desc}`, kind: "设置", row: r.name });
                 });
               }
-              if (!doms.length && !rows.length) html = `<div class="bz-sp-mob-empty">没有匹配「${esc(query2)}」的设置或域</div>`;
+              if (!doms.length && !rows.length) html = `<div class="bz-sp-mob-empty">没有匹配「${esc(query)}」的设置或域</div>`;
               list.innerHTML = html;
             }
             list.querySelectorAll(".bz-sp-mob-item").forEach((b) => {
@@ -71587,7 +66518,7 @@ GitHub 仓库：${ghInfo.title}
             mountIcons(list);
             motionMobList(list);
           };
-          const applySearch = debounce(() => render3(searchIn.value), SEARCH_DEBOUNCE_MS4);
+          const applySearch = debounce(() => render2(searchIn.value), SEARCH_DEBOUNCE_MS4);
           searchIn.addEventListener("input", () => applySearch());
           searchIn.addEventListener("keydown", (e) => {
             const q3 = searchIn.value.trim();
@@ -71595,7 +66526,7 @@ GitHub 仓库：${ghInfo.title}
               e.preventDefault();
               e.stopImmediatePropagation();
               searchIn.value = "";
-              render3("");
+              render2("");
               searchIn.focus();
               return;
             }
@@ -71621,12 +66552,12 @@ GitHub 仓库：${ghInfo.title}
               }
             }
           });
-          render3("");
+          render2("");
           motionPanelIn(popup, this.mask);
           motionBindPressFeel(popup);
           motionEnsureDust(popup);
           this.rerenderList = () => {
-            if (!this.mobPushed) render3(searchIn.value);
+            if (!this.mobPushed) render2(searchIn.value);
           };
         }
         /** 推入域设置页（全屏页切换；返回/ESC 弹回首页）。
@@ -71654,9 +66585,9 @@ GitHub 仓库：${ghInfo.title}
         /** 滚动定位到指定行并高亮（行名匹配 .bz-sp-set-name；找不到静默跳过）。 */
         focusRowIn(body, rowName) {
           const target = [...body.querySelectorAll(".bz-sp-set-row")].find(
-            (el3) => {
+            (el2) => {
               var _a2;
-              return ((_a2 = el3.querySelector(".bz-sp-set-name")) == null ? void 0 : _a2.textContent) === rowName;
+              return ((_a2 = el2.querySelector(".bz-sp-set-name")) == null ? void 0 : _a2.textContent) === rowName;
             }
           );
           if (!target) return;
@@ -71739,8 +66670,8 @@ GitHub 仓库：${ghInfo.title}
     if (initialized6) return;
     initialized6 = true;
   }
-  function openSettingsPanel(app2, domainId) {
-    void ensureSettingsPanel(app2).then(() => getUI().open(domainId));
+  function openSettingsPanel(app, domainId) {
+    void ensureSettingsPanel(app).then(() => getUI().open(domainId));
   }
   function unloadSettingsPanel() {
     motionTeardown2();
@@ -71753,7 +66684,7 @@ GitHub 仓库：${ghInfo.title}
   var initialized6, ui;
   var init_settings_panel = __esm({
     "src/settings-panel/index.ts"() {
-      init_ui14();
+      init_ui13();
       init_motion2();
       init_changelog2();
       init_manual_viewer();
@@ -71783,13 +66714,13 @@ GitHub 仓库：${ghInfo.title}
       return false;
     }
   }
-  async function openQuizPanel(app2) {
+  async function openQuizPanel(app) {
     if (quizUI._sessionActive) {
       notice("做题进行中，先完成或放弃当前这轮再开", "info");
       return;
     }
-    ensureQuiz(app2);
-    if (!panel) panel = new QuizPracticePanel(app2);
+    ensureQuiz(app);
+    if (!panel) panel = new QuizPracticePanel(app);
     panel.show();
   }
   function unloadQuizPanel() {
@@ -71818,7 +66749,7 @@ GitHub 仓库：${ghInfo.title}
       DEFAULT_BATCH = 20;
       ENSURE_BATCH = 10;
       QuizPracticePanel = class {
-        constructor(app2) {
+        constructor(app) {
           this.escHandle = null;
           this.state = {
             scope: "all",
@@ -71837,7 +66768,7 @@ GitHub 仓库：${ghInfo.title}
           /** E5：题库计数缓存键（scope+folders+notePath）——切「本轮题量」等纯本地档位不再重读整库 */
           this.bankCacheKey = "";
           this.bankCacheCount = null;
-          this.app = app2;
+          this.app = app;
           this.mask = document.createElement("div");
           this.mask.id = MASK_ID2;
           this.mask.classList.add("bz-panel-overlay");
@@ -71907,20 +66838,20 @@ GitHub 仓库：${ghInfo.title}
         }
         /** E5：面板内焦点控件 → data-* 特征键，null = 面板外/无可记忆焦点 */
         captureFocusKey() {
-          const el3 = document.activeElement;
-          if (!(el3 instanceof HTMLElement) || !this.content.contains(el3)) return null;
+          const el2 = document.activeElement;
+          if (!(el2 instanceof HTMLElement) || !this.content.contains(el2)) return null;
           for (const attr of ["data-scope", "data-batch", "data-rm-folder", "data-act", "data-role"]) {
-            const v = el3.getAttribute(attr);
+            const v = el2.getAttribute(attr);
             if (v != null) return `${attr}=${v}`;
           }
           return null;
         }
         restoreFocus(key) {
           const eq = key.indexOf("=");
-          const el3 = this.content.querySelector(
+          const el2 = this.content.querySelector(
             `[${key.slice(0, eq)}="${CSS.escape(key.slice(eq + 1))}"]`
           );
-          el3 == null ? void 0 : el3.focus();
+          el2 == null ? void 0 : el2.focus();
         }
         /** 范围内现有题数（一次读题库文件内存账，null = 读取失败不挡开面板）。
          *  E5：按 scope+folders+notePath 键缓存，仅范围变化重算——题库读盘不再跟随每次档位点击。 */
@@ -72015,8 +66946,8 @@ GitHub 仓库：${ghInfo.title}
           const startBtn = this.content.querySelector('[data-act="start"]');
           startBtn == null ? void 0 : startBtn.setAttribute("disabled", "");
           try {
-            const app2 = this.app;
-            const paths = resolveScopeNotes(app2, this.state.scope, this.state.folders, this.state.notePath);
+            const app = this.app;
+            const paths = resolveScopeNotes(app, this.state.scope, this.state.folders, this.state.notePath);
             if (!paths.length) {
               notice(
                 this.state.scope === "note" ? "找不到这篇笔记，可能已被移动或重命名，重新选一篇吧" : "当前范围没有可出题的笔记",
@@ -72037,7 +66968,7 @@ GitHub 仓库：${ghInfo.title}
               progress.hide();
             }
             if (this.cancelled) return;
-            const bank = await quizUI.manager.loadQuiz(app2);
+            const bank = await quizUI.manager.loadQuiz(app);
             const collected = await collectQuestionsForNotes(bank, paths);
             const picked = pickRoundQuestions(collected, this.state.batch);
             if (!picked.length) {
@@ -72118,26 +67049,26 @@ GitHub 仓库：${ghInfo.title}
     const base = path.split("/").pop() || "";
     return { path, basename: stripMdExt(base), extension: "md" };
   }
-  function ensureReview(app2) {
+  function ensureReview(app) {
     if (initialized7) return;
     initialized7 = true;
-    dataManager = new ReviewDataManager(app2);
+    dataManager = new ReviewDataManager(app);
     reviewApp.dataManager = dataManager;
-    uiManager2 = new UIManager(app2, dataManager);
+    uiManager2 = new UIManager(app, dataManager);
     uiManager2.wSource = () => reviewApp.currentW();
-    reviewWatcher = new ReviewWatcher(app2, dataManager);
-    void reviewApp.loadFitParams(app2).catch(() => {
+    reviewWatcher = new ReviewWatcher(app, dataManager);
+    void reviewApp.loadFitParams(app).catch(() => {
     });
     firstCheckTimer = setTimeout(() => {
       firstCheckTimer = null;
       reviewApp.checkOverdueAndNotify();
       checkInterval = setInterval(() => reviewApp.checkOverdueAndNotify(), 6e4);
     }, 2e3);
-    listen(app2.metadataCache, "resolved", async () => {
-      await reviewApp.applyReviewStyles(app2);
+    listen(app.metadataCache, "resolved", async () => {
+      await reviewApp.applyReviewStyles(app);
     });
-    listen(app2.vault, "modify", async (file) => {
-      if (file.extension === "md") await reviewApp.applyReviewStylesForFile(app2, file);
+    listen(app.vault, "modify", async (file) => {
+      if (file.extension === "md") await reviewApp.applyReviewStylesForFile(app, file);
     });
     listenBus("vault:md-created", (evt) => {
       void (reviewWatcher == null ? void 0 : reviewWatcher.onVaultCreate(pseudoMdFile(evt.path)));
@@ -72150,33 +67081,33 @@ GitHub 仓库：${ghInfo.title}
       file.oldPath = evt.oldPath;
       reviewWatcher == null ? void 0 : reviewWatcher.onVaultRename(file, evt.oldPath);
     });
-    listen(app2.workspace, "quit", () => {
+    listen(app.workspace, "quit", () => {
       if (checkInterval) {
         clearInterval(checkInterval);
         checkInterval = null;
       }
     });
   }
-  function openReviewPanel(app2) {
-    ensureReview(app2);
+  function openReviewPanel(app) {
+    ensureReview(app);
     uiManager2 == null ? void 0 : uiManager2.showMain();
   }
-  async function openReviewReport(app2) {
-    ensureReview(app2);
+  async function openReviewReport(app) {
+    ensureReview(app);
     const { showStatsModal: showStatsModal2 } = await Promise.resolve().then(() => (init_stats_ui(), stats_ui_exports));
-    await showStatsModal2(app2, dataManager);
+    await showStatsModal2(app, dataManager);
   }
-  async function openReviewAnalysis2(app2) {
-    ensureReview(app2);
+  async function openReviewAnalysis2(app) {
+    ensureReview(app);
     const mod = await Promise.resolve().then(() => (init_analysis(), analysis_exports));
-    await mod.openReviewAnalysis(app2);
+    await mod.openReviewAnalysis(app);
   }
-  function openQuizPractice(app2) {
-    void openQuizPanel(app2);
+  function openQuizPractice(app) {
+    void openQuizPanel(app);
   }
-  async function reviewAddCurrent(app2) {
-    ensureReview(app2);
-    const file = app2.workspace.getActiveFile();
+  async function reviewAddCurrent(app) {
+    ensureReview(app);
+    const file = app.workspace.getActiveFile();
     if (!file) {
       notice("请先打开一个笔记");
       return;
@@ -72184,14 +67115,14 @@ GitHub 仓库：${ghInfo.title}
     try {
       await reviewApp.addCurrentToReview(file);
       await uiManager2.refreshPanel();
-      await reviewApp.applyReviewStyles(app2);
+      await reviewApp.applyReviewStyles(app);
     } catch (e) {
-      notifyActionError(e, "加入复习计划", { onRetry: () => void reviewAddCurrent(app2) });
+      notifyActionError(e, "加入复习计划", { onRetry: () => void reviewAddCurrent(app) });
     }
   }
-  async function reviewRemoveCurrent(app2) {
-    ensureReview(app2);
-    const file = app2.workspace.getActiveFile();
+  async function reviewRemoveCurrent(app) {
+    ensureReview(app);
+    const file = app.workspace.getActiveFile();
     if (!file) {
       notice("请先打开一个笔记");
       return;
@@ -72216,22 +67147,22 @@ GitHub 仓库：${ghInfo.title}
         })();
       });
       await uiManager2.refreshPanel();
-      await reviewApp.applyReviewStyles(app2);
+      await reviewApp.applyReviewStyles(app);
     } catch (e) {
       notifySaveError(e, "移出复习条目");
     }
   }
-  async function reviewJumpOverdue(app2) {
-    ensureReview(app2);
+  async function reviewJumpOverdue(app) {
+    ensureReview(app);
     await reviewApp.autoJumpOverdue();
   }
-  async function reviewStart(app2) {
-    ensureReview(app2);
+  async function reviewStart(app) {
+    ensureReview(app);
     await reviewApp.autoJumpOverdue();
   }
-  async function reviewMarkDialog(app2) {
-    ensureReview(app2);
-    const file = app2.workspace.getActiveFile();
+  async function reviewMarkDialog(app) {
+    ensureReview(app);
+    const file = app.workspace.getActiveFile();
     if (!file) {
       notice("请先打开一个笔记");
       return;
@@ -72248,12 +67179,12 @@ GitHub 仓库：${ghInfo.title}
     }
     uiManager2 == null ? void 0 : uiManager2.showDifficultyDialog(item, async (diff) => {
       await reviewApp.markReview(file.path, diff);
-      await reviewApp.applyReviewStyles(app2);
+      await reviewApp.applyReviewStyles(app);
     });
   }
-  async function reviewMarkRating(app2, rating) {
-    ensureReview(app2);
-    const file = app2.workspace.getActiveFile();
+  async function reviewMarkRating(app, rating) {
+    ensureReview(app);
+    const file = app.workspace.getActiveFile();
     if (!file) {
       notice("请先打开一个笔记");
       return;
@@ -72269,7 +67200,7 @@ GitHub 仓库：${ghInfo.title}
       return;
     }
     await reviewApp.markReview(file.path, rating);
-    await reviewApp.applyReviewStyles(app2);
+    await reviewApp.applyReviewStyles(app);
   }
   function unloadReview() {
     var _a2, _b2;
@@ -72434,14 +67365,14 @@ GitHub 仓库：${ghInfo.title}
           }
           return quiz;
         },
-        ensure(app2) {
-          if (!this.dataManager) this.dataManager = new ReviewDataManager(app2);
+        ensure(app) {
+          if (!this.dataManager) this.dataManager = new ReviewDataManager(app);
         },
         /** ADR-0077：加载拟合参数到 _fittedW（无则 null 回退默认）；ensureReview 启动时调用。
          *  issue 361：同时留存 _fitMeta（契约版本/样本数/档位），统计弹窗标注拟合档位用 */
-        async loadFitParams(app2) {
+        async loadFitParams(app) {
           try {
-            const fit3 = await loadFittedParams(app2);
+            const fit3 = await loadFittedParams(app);
             this._fitMeta = fit3;
             this._fittedW = fit3 ? mergeFittedW(fit3.w) : null;
           } catch (e) {
@@ -72458,7 +67389,7 @@ GitHub 仓库：${ghInfo.title}
          * markReview 每次评级后调用（count+1）；达阈值且开关开 → 异步后台跑，完成后轻提示；
          * 样本不足/失败静默回退默认；防重入。
          */
-        async maybeRunFit(app2) {
+        async maybeRunFit(app) {
           const s = getSettings();
           if (s.reviewEnableFit === false) return;
           const n = Number(s.reviewFitEveryN) || 10;
@@ -72480,7 +67411,7 @@ GitHub 仓库：${ghInfo.title}
                 full: result.fit.full,
                 version
               };
-              await saveFittedParams(app2, meta);
+              await saveFittedParams(app, meta);
               this._fitMeta = meta;
               this._fittedW = mergeFittedW(result.fit.w);
               notice(`已根据 ${result.count} 条复习记录拟合记忆参数`, "success");
@@ -72512,8 +67443,8 @@ GitHub 仓库：${ghInfo.title}
           return dailyLimit > 0 ? sorted.slice(0, dailyLimit) : sorted;
         },
         async markReview(filePath, selectedDifficulty, opts) {
-          const app2 = getApp();
-          this.ensure(app2);
+          const app = getApp();
+          this.ensure(app);
           const dm = this.dataManager;
           const items = await dm.loadItems();
           const item = items.find((i) => i.filePath === filePath);
@@ -72633,25 +67564,25 @@ GitHub 仓库：${ghInfo.title}
             notify("做题家未初始化（缺少 AI），已改用普通复习", { type: "warning", dedupeKey: "review-quiz-ai" });
             return {};
           }
-          const app2 = getApp();
+          const app = getApp();
           const leftovers = /* @__PURE__ */ new Map();
           for (const item of items) {
-            const cur = await quiz.manager.getQuestionsForNote(app2, item.filePath) || [];
+            const cur = await quiz.manager.getQuestionsForNote(app, item.filePath) || [];
             leftovers.set(item.filePath, cur);
-            await quiz.manager.saveQuestionsForNote(app2, item.filePath, []);
+            await quiz.manager.saveQuestionsForNote(app, item.filePath, []);
           }
           try {
             await quiz.ensureQuestions(items.map((i) => i.filePath));
           } catch (e) {
             for (const item of items) {
               const leftover = leftovers.get(item.filePath) || [];
-              if (leftover.length) await quiz.manager.saveQuestionsForNote(app2, item.filePath, leftover);
+              if (leftover.length) await quiz.manager.saveQuestionsForNote(app, item.filePath, leftover);
             }
             throw e;
           }
           const out = {};
           for (const item of items) {
-            const qs = await quiz.manager.getQuestionsForNote(app2, item.filePath);
+            const qs = await quiz.manager.getQuestionsForNote(app, item.filePath);
             if (qs && qs.length) {
               out[item.filePath] = qs.map((q3, i) => ({
                 ...q3,
@@ -72660,7 +67591,7 @@ GitHub 仓库：${ghInfo.title}
               }));
             } else {
               const leftover = leftovers.get(item.filePath) || [];
-              if (leftover.length) await quiz.manager.saveQuestionsForNote(app2, item.filePath, leftover);
+              if (leftover.length) await quiz.manager.saveQuestionsForNote(app, item.filePath, leftover);
             }
           }
           return out;
@@ -72678,8 +67609,8 @@ GitHub 仓库：${ghInfo.title}
             notice("本轮复习进行中，先完成当前轮次再做单条");
             return;
           }
-          const app2 = getApp();
-          this.ensure(app2);
+          const app = getApp();
+          this.ensure(app);
           emitDomainEvent("review", { kind: "started" });
           const quiz = await this.quizWithAI();
           if (!quiz || !quiz.ai || !await aiReady()) {
@@ -72698,8 +67629,8 @@ GitHub 仓库：${ghInfo.title}
             notice("做题冲刺进行中，先结束当前会话再开始本轮");
             return;
           }
-          const app2 = getApp();
-          this.ensure(app2);
+          const app = getApp();
+          this.ensure(app);
           emitDomainEvent("review", { kind: "started" });
           let items = await this.dataManager.loadItems();
           const pend = this.pendingRedoItems(items);
@@ -72755,7 +67686,7 @@ GitHub 仓库：${ghInfo.title}
          *  - redo：通过 → 仅清 pendingRedo（ADR-0044 不写 FSRS）；未通过 → 开笔记（保持待重做）
          */
         async runSprintSession(items, mode) {
-          const app2 = getApp();
+          const app = getApp();
           const { uiManager: uiManager3 } = await Promise.resolve().then(() => (init_review(), review_exports));
           if (!uiManager3) return;
           let streakDays2 = 0;
@@ -72782,7 +67713,7 @@ GitHub 仓库：${ghInfo.title}
             streakDays: streakDays2,
             fetchQuestions: async (item) => {
               var _a2;
-              const qs = await ((_a2 = quiz == null ? void 0 : quiz.manager) == null ? void 0 : _a2.getQuestionsForNote(app2, item.filePath));
+              const qs = await ((_a2 = quiz == null ? void 0 : quiz.manager) == null ? void 0 : _a2.getQuestionsForNote(app, item.filePath));
               if (qs && qs.length) {
                 return qs.map((q3, i) => ({ ...q3, notePath: item.filePath, _index: i }));
               }
@@ -72807,7 +67738,7 @@ GitHub 仓库：${ghInfo.title}
               }
               await this.markReview(item.filePath, rating, { autoPending: true });
               const fresh = await this.dataManager.loadItems();
-              await this.applyReviewStyles(app2, void 0, fresh);
+              await this.applyReviewStyles(app, void 0, fresh);
               const updated = fresh.find((i) => i.filePath === item.filePath);
               if (!updated || updated.lastReviewed !== item.lastReviewed) return void 0;
               return updated.nextReviewDate || void 0;
@@ -72815,17 +67746,17 @@ GitHub 仓库：${ghInfo.title}
             onFailed: async (item, rating, entry) => {
               if (mode !== "redo") {
                 await this.markReview(item.filePath, rating, { autoPending: true });
-                await this.applyReviewStyles(app2);
+                await this.applyReviewStyles(app);
               }
-              const file = app2.vault.getAbstractFileByPath(item.filePath);
+              const file = app.vault.getAbstractFileByPath(item.filePath);
               if (file) {
-                const leaf = app2.workspace.getLeaf(false);
+                const leaf = app.workspace.getLeaf(false);
                 await leaf.openFile(file);
               }
             }
           });
           await this.refreshPanel();
-          await this.applyReviewStyles(app2);
+          await this.applyReviewStyles(app);
         },
         /** 顺序复习循环（源码 L686-709 逐字；item 4 悬浮评级条 + item 5 离篇宽限/断点可恢复）
          *  - 屏幕底部挂迷你评级条（忘了/困难/一般/简单 + 跳过）：点评级写盘 → 轮询检测翻篇；跳过不评级直接下一篇
@@ -72837,8 +67768,8 @@ GitHub 仓库：${ghInfo.title}
             notice("本轮复习已在进行");
             return;
           }
-          const app2 = getApp();
-          this.ensure(app2);
+          const app = getApp();
+          this.ensure(app);
           const dm = this.dataManager;
           if (index >= overdueNotes.length) {
             this._pendingRound = null;
@@ -72853,14 +67784,14 @@ GitHub 仓库：${ghInfo.title}
             return;
           }
           const item = overdueNotes[index];
-          const file = app2.vault.getAbstractFileByPath(item.filePath);
+          const file = app.vault.getAbstractFileByPath(item.filePath);
           if (!file) {
             await dm.removeItem(item.filePath);
             await this.reviewLoop(overdueNotes, index + 1);
             return;
           }
           this._pendingRound = { items: overdueNotes, index };
-          const leaf = app2.workspace.getLeaf(false);
+          const leaf = app.workspace.getLeaf(false);
           await leaf.openFile(file);
           const reviewMsg = `复习中 (${index + 1}/${overdueNotes.length}): ${item.name}`;
           if (this._reviewNotice && ((_a2 = this._reviewNotice.el) == null ? void 0 : _a2.isConnected)) {
@@ -72894,7 +67825,7 @@ GitHub 仓库：${ghInfo.title}
           const storageMtime = () => {
             var _a3, _b2;
             try {
-              const f = app2.vault.getAbstractFileByPath(getReviewFilePath());
+              const f = app.vault.getAbstractFileByPath(getReviewFilePath());
               return (_b2 = (_a3 = f == null ? void 0 : f.stat) == null ? void 0 : _a3.mtime) != null ? _b2 : null;
             } catch (e) {
               return null;
@@ -72909,7 +67840,7 @@ GitHub 仓库：${ghInfo.title}
           };
           const interval = setInterval(async () => {
             checkCount++;
-            const activeFile = app2.workspace.getActiveFile();
+            const activeFile = app.workspace.getActiveFile();
             if (!activeFile || activeFile.path !== item.filePath) {
               const nowMs = Date.now();
               if (awaySince === null) awaySince = nowMs;
@@ -72990,9 +67921,9 @@ GitHub 仓库：${ghInfo.title}
          *   ticket 48 收敛：不再全库 getMarkdownFiles + 逐路径 querySelector——
          *   处理范围 = 复习条目路径 + 曾染色路径（移出计划后回退），树节点一次 querySelectorAll 建 Map 查找；
          *   可选 items 参数：checkOverdueAndNotify 传本轮已加载结果，避免每轮二次读盘。 */
-        async applyReviewStyles(app2, changedFile, items) {
+        async applyReviewStyles(app, changedFile, items) {
           if (getSettings().reviewTreeBadge === false) return;
-          this.ensure(app2);
+          this.ensure(app);
           const allItems = items || await this.dataManager.loadItems();
           this._lastItems = allItems;
           const itemByPath = /* @__PURE__ */ new Map();
@@ -73007,18 +67938,18 @@ GitHub 仓库：${ghInfo.title}
             for (const p of this._styledPaths) paths.add(p);
           }
           const els = /* @__PURE__ */ new Map();
-          for (const el3 of Array.from(document.querySelectorAll("div[data-path]"))) {
-            const p = el3.getAttribute("data-path");
-            if (p && !els.has(p)) els.set(p, el3);
+          for (const el2 of Array.from(document.querySelectorAll("div[data-path]"))) {
+            const p = el2.getAttribute("data-path");
+            if (p && !els.has(p)) els.set(p, el2);
           }
           const fsrs = new FSRS(this.currentW());
           for (const path of paths) {
-            const el3 = els.get(path);
-            if (!el3) {
+            const el2 = els.get(path);
+            if (!el2) {
               this._styledPaths.delete(path);
               continue;
             }
-            const target = el3.querySelector("div.tree-item-inner");
+            const target = el2.querySelector("div.tree-item-inner");
             if (!target) continue;
             const badge = target.querySelector(".review-stage-badge");
             if (badge) badge.remove();
@@ -73087,19 +68018,19 @@ GitHub 仓库：${ghInfo.title}
         /** F9：单文件染色刷新（vault modify 高频路径）——优先复用最近快照（60s 轮询/全量刷维护，
          *  时效与原 60s 轮询同档），无快照才全量读盘；只处理该文件路径，
          *  不再每次保存任意 md 都全量读 review.json */
-        async applyReviewStylesForFile(app2, file) {
-          this.ensure(app2);
+        async applyReviewStylesForFile(app, file) {
+          this.ensure(app);
           const items = this._lastItems || await this.dataManager.loadItems();
-          await this.applyReviewStyles(app2, file, items);
+          await this.applyReviewStyles(app, file, items);
         },
         /** A3/U3：卸载回退文件树染色与徽标（按曾染色路径逐个 revert，与 applyReviewStyles 的
          *  缩范围回退同口径；幂等）——插件禁用后彩色节点/徽标不再残留文件树 */
         revertReviewStyles() {
           var _a2, _b2;
           const els = /* @__PURE__ */ new Map();
-          for (const el3 of Array.from(document.querySelectorAll("div[data-path]"))) {
-            const p = el3.getAttribute("data-path");
-            if (p && !els.has(p)) els.set(p, el3);
+          for (const el2 of Array.from(document.querySelectorAll("div[data-path]"))) {
+            const p = el2.getAttribute("data-path");
+            if (p && !els.has(p)) els.set(p, el2);
           }
           for (const path of this._styledPaths) {
             const target = (_a2 = els.get(path)) == null ? void 0 : _a2.querySelector("div.tree-item-inner");
@@ -73378,23 +68309,23 @@ GitHub 仓库：${ghInfo.title}
   function numOr0(v) {
     return typeof v === "number" && Number.isFinite(v) ? v : 0;
   }
-  function fileIfExists(app2, filePath) {
+  function fileIfExists(app, filePath) {
     try {
-      const f = app2.vault.getAbstractFileByPath(filePath);
+      const f = app.vault.getAbstractFileByPath(filePath);
       return f && "basename" in f ? f : null;
     } catch (e) {
       return null;
     }
   }
-  async function readJsonIfExists(app2, filePath) {
-    const f = fileIfExists(app2, filePath);
+  async function readJsonIfExists(app, filePath) {
+    const f = fileIfExists(app, filePath);
     if (!f) return void 0;
-    return JSON.parse(await app2.vault.read(f));
+    return JSON.parse(await app.vault.read(f));
   }
   function localDayStr(anchor) {
     return localDayKey(anchor);
   }
-  async function collectRecap(app2, now = Date.now()) {
+  async function collectRecap(app, now = Date.now()) {
     var _a2, _b2, _c, _d, _e;
     const range = todayRange(now);
     const failed = [];
@@ -73409,10 +68340,10 @@ GitHub 仓库：${ghInfo.title}
       const dir = settingDir(["diaryDirectory"], "我的/日记");
       const dateStr = localDayStr(now);
       const times = [];
-      for (const f of ((_b2 = (_a2 = app2.vault).getMarkdownFiles) == null ? void 0 : _b2.call(_a2)) || []) {
+      for (const f of ((_b2 = (_a2 = app.vault).getMarkdownFiles) == null ? void 0 : _b2.call(_a2)) || []) {
         if (!f.path.startsWith(`${dir}/`)) continue;
         if (diaryDateFromEntryPath(f.path) !== dateStr) continue;
-        const e = parseEntryFile(await app2.vault.read(f), f.path);
+        const e = parseEntryFile(await app.vault.read(f), f.path);
         if (!e) continue;
         if (e.tags.includes("加密")) continue;
         times.push(e.time);
@@ -73423,9 +68354,9 @@ GitHub 仓库：${ghInfo.title}
     }
     try {
       const folder = settingDir(["cinemaFolderPath"], "我的/影视");
-      for (const f of app2.vault.getMarkdownFiles()) {
+      for (const f of app.vault.getMarkdownFiles()) {
         if (!f.path.startsWith(folder + "/")) continue;
-        const item = parseMovieFile(f, app2);
+        const item = parseMovieFile(f, app);
         if (!item) continue;
         const stat = (_c = item.file) == null ? void 0 : _c.stat;
         const wd = parseLocalDay(item.watchDate);
@@ -73444,7 +68375,7 @@ GitHub 仓库：${ghInfo.title}
       failed.push("cinema");
     }
     try {
-      for (const b of scanMarkdownBooks(app2)) {
+      for (const b of scanMarkdownBooks(app)) {
         const finished = parseLocalDay(b.completionDate) === range.start;
         const mtime = numOr0((_e = (_d = b.file) == null ? void 0 : _d.stat) == null ? void 0 : _e.mtime);
         if (finished) {
@@ -73453,7 +68384,7 @@ GitHub 仓库：${ghInfo.title}
           sources.books.push({ title: b.title, finished: false, progress: b.progress, ts: mtime });
         }
       }
-      for (const b of await loadEpubItems(app2)) {
+      for (const b of await loadEpubItems(app)) {
         if (parseLocalDay(b.completionDate) === range.start) {
           sources.books.push({ title: b.title, finished: true, progress: null, ts: range.start });
         }
@@ -73462,7 +68393,7 @@ GitHub 仓库：${ghInfo.title}
       failed.push("bookshelf");
     }
     try {
-      const raw = await readJsonIfExists(app2, storageFile("memo.json"));
+      const raw = await readJsonIfExists(app, storageFile("memo.json"));
       const all = Array.isArray(raw) ? raw : [];
       for (const it of all) {
         const title = typeof (it == null ? void 0 : it.title) === "string" ? it.title : "";
@@ -73476,7 +68407,7 @@ GitHub 仓库：${ghInfo.title}
       failed.push("memo");
     }
     try {
-      const raw = await readJsonIfExists(app2, storageFile("pomodoro.json"));
+      const raw = await readJsonIfExists(app, storageFile("pomodoro.json"));
       const history2 = Array.isArray(raw == null ? void 0 : raw.history) ? raw.history : [];
       for (const h of history2) {
         const ts = numOr0(h == null ? void 0 : h.ts);
@@ -73761,8 +68692,8 @@ GitHub 仓库：${ghInfo.title}
       indexMap.set(lines.length + 1, s.m.id);
       lines.push(line);
     }
-    const block2 = lines.length ? "\n\n你既有的相关洞察（仅供对照，避免得出重复结论）：\n" + lines.join("\n") + '\n若本批结论推翻了某条旧洞察，在 JSON 顶层加 "supersede": 候选编号（如 2，最多 1 个）；没有则省略该字段。' : "";
-    return { block: block2, count: lines.length, indexMap };
+    const block = lines.length ? "\n\n你既有的相关洞察（仅供对照，避免得出重复结论）：\n" + lines.join("\n") + '\n若本批结论推翻了某条旧洞察，在 JSON 顶层加 "supersede": 候选编号（如 2，最多 1 个）；没有则省略该字段。' : "";
+    return { block, count: lines.length, indexMap };
   }
 
   // src/smartcat/routing.ts
@@ -74150,15 +69081,15 @@ GitHub 仓库：${ghInfo.title}
       s = (_a2 = tryGetSettings()) != null ? _a2 : {};
     } catch (e) {
     }
-    const num3 = (raw, fallback) => {
+    const num2 = (raw, fallback) => {
       const v = Number(raw);
       return Number.isFinite(v) && v >= 0 ? v : fallback;
     };
     return {
-      reflectMinNew: num3(s.smartcatReflectMinNew, 20),
-      refExcerptLimit: num3(s.smartcatRefExcerptLimit, 400),
+      reflectMinNew: num2(s.smartcatReflectMinNew, 20),
+      refExcerptLimit: num2(s.smartcatRefExcerptLimit, 400),
       // ticket 163：洞察条数上限（默认 3；下限 1——0 无意义，防设置误填）
-      maxInsights: Math.max(1, num3(s.smartcatReflectMaxInsights, 3))
+      maxInsights: Math.max(1, num2(s.smartcatReflectMaxInsights, 3))
     };
   }
   function getUserNickname() {
@@ -74296,7 +69227,7 @@ GitHub 仓库：${ghInfo.title}
     return pool.filter((m) => taken.has(m));
   }
   var _MemorySystem = class _MemorySystem {
-    constructor(app2, dataProvider, dataSaver) {
+    constructor(app, dataProvider, dataSaver) {
       /** 反思完成回调（心情重构：index 接 PersonalityGrowth 反思驱动）
        *  ticket 091：meta.origin 区分反思/日小结——特质归因来源约束（digest 只允许非 existential）依赖它 */
       this.onReflect = null;
@@ -74335,7 +69266,7 @@ GitHub 仓库：${ghInfo.title}
       this.refResolver = null;
       // ---------------- 向量文件（smartcat-memory-vectors.vec） ----------------
       this.vectorIndexMap = null;
-      this.app = app2;
+      this.app = app;
       this.dataProvider = dataProvider;
       this.dataSaver = dataSaver;
     }
@@ -74362,8 +69293,8 @@ GitHub 仓库：${ghInfo.title}
      * 脏 sidecar 合并落盘（30s tick 与关键路径调用；单边失败保留脏标记下轮重试，不抛错）。
      * 审查 P1：unload 时 dataProvider 已失效（data 置 null）——调用方可传入卸载前捕获的数据快照。
      */
-    async flushSidecars(snapshot3) {
-      const dp = () => snapshot3 != null ? snapshot3 : this.dataProvider();
+    async flushSidecars(snapshot2) {
+      const dp = () => snapshot2 != null ? snapshot2 : this.dataProvider();
       if (this.behaviorDirty) {
         this.behaviorDirty = false;
         try {
@@ -74784,14 +69715,14 @@ GitHub 仓库：${ghInfo.title}
     /** 检索相关记忆：三因子评分 → 降序 → top N；更新 lastAccessed（自增强）
     *  ADR-0025：opts.lexicalQuery 供词法降级模式使用（纯用户消息，不带「情绪/时段」索引词——
     *  语义模式仍用完整 query 受益于情绪/时段上下文；词法模式免去噪音 token 稀释命中率） */
-    async retrieve(query2, topN = MEMORY_CONFIG.retrievalTopN, opts = {}) {
+    async retrieve(query, topN = MEMORY_CONFIG.retrievalTopN, opts = {}) {
       const now = Date.now();
       const useSemantic = await this.useSemanticMode();
       let queryVec = null;
-      if (useSemantic && query2.trim()) {
-        queryVec = await this.queryEmbeddingSafe(query2);
+      if (useSemantic && query.trim()) {
+        queryVec = await this.queryEmbeddingSafe(query);
       }
-      const lexicalQ = (opts.lexicalQuery != null ? opts.lexicalQuery : query2).trim();
+      const lexicalQ = (opts.lexicalQuery != null ? opts.lexicalQuery : query).trim();
       const pool = this.stream.filter((m) => !isSupersededInsight(m) && !isInvalidatedMemory(m));
       const scored = pool.map((m) => {
         var _a2, _b2;
@@ -74815,13 +69746,13 @@ GitHub 仓库：${ghInfo.title}
       return top;
     }
     /** 词法相关度（无时间项——时间归 recency；关键词×0.7 + 主题命中×0.3 归一） */
-    lexicalRelevance(memory, query2) {
-      if (!query2.trim()) return 0;
+    lexicalRelevance(memory, query) {
+      if (!query.trim()) return 0;
       const content = memory.description.toLowerCase();
-      const queryKeywords = query2.toLowerCase().split(/\s+/).filter((k) => k.length > 0);
+      const queryKeywords = query.toLowerCase().split(/\s+/).filter((k) => k.length > 0);
       let hit = 0;
       for (const kw of queryKeywords) if (content.includes(kw)) hit++;
-      return Math.min(1, hit / queryKeywords.length * 0.7 + (content.includes(query2.toLowerCase()) ? 0.3 : 0));
+      return Math.min(1, hit / queryKeywords.length * 0.7 + (content.includes(query.toLowerCase()) ? 0.3 : 0));
     }
     // ---------------- 语义模式（bge-m3 via Ollama） ----------------
     async probeSemantic() {
@@ -74838,9 +69769,9 @@ GitHub 仓库：${ghInfo.title}
       const ok = await this.probeSemantic();
       return ok && this.dim > 0 && !!this.vectors;
     }
-    async queryEmbeddingSafe(query2) {
+    async queryEmbeddingSafe(query) {
       try {
-        const vec = await getEmbedding(query2, true);
+        const vec = await getEmbedding(query, true);
         if (!vec.length) return null;
         if (!this.dim) this.dim = vec.length;
         return vec;
@@ -75822,45 +70753,45 @@ GitHub 仓库：${ghInfo.title}
   function getSmartcatBehaviorSidecarPath() {
     return `${smartcatStorageDir()}/${SMARTCAT_BEHAVIOR_SIDECAR_FILE}`;
   }
-  async function readJsonSidecar(app2, path) {
+  async function readJsonSidecar(app, path) {
     try {
-      const f = app2.vault.getAbstractFileByPath(path);
+      const f = app.vault.getAbstractFileByPath(path);
       if (!f) return { value: null, corrupt: false };
-      return { value: JSON.parse(await app2.vault.read(f)), corrupt: false };
+      return { value: JSON.parse(await app.vault.read(f)), corrupt: false };
     } catch (e) {
       return { value: null, corrupt: true };
     }
   }
-  async function writeJsonSidecar(app2, path, content) {
+  async function writeJsonSidecar(app, path, content) {
     const c = JSON.stringify(content, null, 2);
-    const f = app2.vault.getAbstractFileByPath(path);
+    const f = app.vault.getAbstractFileByPath(path);
     if (f) {
       try {
-        if (await app2.vault.read(f) === c) return;
+        if (await app.vault.read(f) === c) return;
       } catch (e) {
       }
-      await app2.vault.modify(f, c);
+      await app.vault.modify(f, c);
     } else {
       const d = path.substring(0, path.lastIndexOf("/"));
-      if (d && !app2.vault.getAbstractFileByPath(d)) await app2.vault.createFolder(d);
-      await app2.vault.create(path, c);
+      if (d && !app.vault.getAbstractFileByPath(d)) await app.vault.createFolder(d);
+      await app.vault.create(path, c);
     }
   }
-  async function readMemorySidecarFile(app2) {
-    return (await readJsonSidecar(app2, getSmartcatMemorySidecarPath())).value;
+  async function readMemorySidecarFile(app) {
+    return (await readJsonSidecar(app, getSmartcatMemorySidecarPath())).value;
   }
-  async function writeMemorySidecarFile(app2, entries, extraVectorRows) {
+  async function writeMemorySidecarFile(app, entries, extraVectorRows) {
     const file = {
       version: 1,
       lastUpdated: (/* @__PURE__ */ new Date()).toISOString(),
       entries,
       ...extraVectorRows && Object.keys(extraVectorRows).length ? { extraVectorRows } : {}
     };
-    await writeJsonSidecar(app2, getSmartcatMemorySidecarPath(), file);
+    await writeJsonSidecar(app, getSmartcatMemorySidecarPath(), file);
   }
-  async function writeBehaviorSidecarFile(app2, items) {
+  async function writeBehaviorSidecarFile(app, items) {
     const file = { version: 1, lastUpdated: (/* @__PURE__ */ new Date()).toISOString(), items };
-    await writeJsonSidecar(app2, getSmartcatBehaviorSidecarPath(), file);
+    await writeJsonSidecar(app, getSmartcatBehaviorSidecarPath(), file);
   }
   var NOTE_CHUNK_LIMIT_CHARS = 6e3;
   function contentHashOf(text2) {
@@ -75995,12 +70926,12 @@ ${piece}` : piece;
         return null;
     }
   }
-  async function readBehaviorItems(app2) {
+  async function readBehaviorItems(app) {
     try {
       const filePath = storageFile(SMARTCAT_BEHAVIOR_SIDECAR_FILE);
-      if (!app2.vault.getAbstractFileByPath(filePath)) return [];
-      const f = app2.vault.getAbstractFileByPath(filePath);
-      const parsed = JSON.parse(await app2.vault.read(f));
+      if (!app.vault.getAbstractFileByPath(filePath)) return [];
+      const f = app.vault.getAbstractFileByPath(filePath);
+      const parsed = JSON.parse(await app.vault.read(f));
       const items = parsed == null ? void 0 : parsed.items;
       if (!Array.isArray(items)) return [];
       return items.map(normalizeBehaviorItem).filter((x) => x !== null);
@@ -76060,7 +70991,7 @@ ${piece}` : piece;
   function readVal(fm2, cn, legacy) {
     return fm2[cn] !== void 0 ? fm2[cn] : fm2[legacy];
   }
-  function intOf2(v) {
+  function intOf(v) {
     return Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : 0;
   }
   function strOf(v) {
@@ -76075,17 +71006,17 @@ ${piece}` : piece;
     var _a2, _b2, _c, _d;
     return ((_b2 = (_a2 = a.file) == null ? void 0 : _a2.path) != null ? _b2 : null) === ((_d = (_c = b.file) == null ? void 0 : _c.path) != null ? _d : null) && a.appid === b.appid && a.name === b.name && a.zhName === b.zhName && a.playtimeMin === b.playtimeMin && a.lastPlayed === b.lastPlayed && a.cover === b.cover && a.coverSrc === b.coverSrc && a.icon === b.icon && a.iconSrc === b.iconSrc && a.windowsMin === b.windowsMin && a.deckMin === b.deckMin && a.macMin === b.macMin && a.linuxMin === b.linuxMin && a.hasAch === b.hasAch && a.offShelf === b.offShelf && a.syncedAt === b.syncedAt;
   }
-  function rebuildItems2(app2) {
+  function rebuildItems2(app) {
     var _a2;
     const folder = resolveGameshelfFolderPath();
-    const files = app2.vault.getMarkdownFiles().filter((f) => f.path.startsWith(folder + "/"));
+    const files = app.vault.getMarkdownFiles().filter((f) => f.path.startsWith(folder + "/"));
     const prevByPath = /* @__PURE__ */ new Map();
     for (const it of M6.items) {
       if (it.file) prevByPath.set(it.file.path, it);
     }
     const items = [];
     for (const file of files) {
-      const fm2 = (_a2 = app2.metadataCache.getFileCache(file)) == null ? void 0 : _a2.frontmatter;
+      const fm2 = (_a2 = app.metadataCache.getFileCache(file)) == null ? void 0 : _a2.frontmatter;
       if (!fm2) {
         const kept = prevByPath.get(file.path);
         if (kept) items.push(kept);
@@ -76103,17 +71034,17 @@ ${piece}` : piece;
         appid,
         name: displayBaseName(file.basename).trim() || `App ${appid}`,
         zhName: typeof zh === "string" && zh.trim() ? zh.trim() : null,
-        playtimeMin: intOf2(readVal(fm2, GS_FM.playtimeMin, GS_LEGACY_FM.playtimeMin)),
+        playtimeMin: intOf(readVal(fm2, GS_FM.playtimeMin, GS_LEGACY_FM.playtimeMin)),
         lastPlayed: typeof readVal(fm2, GS_FM.lastPlayed, GS_LEGACY_FM.lastPlayed) === "string" ? String(readVal(fm2, GS_FM.lastPlayed, GS_LEGACY_FM.lastPlayed)) : "",
         // 封面/图标：既可能是本地 vault 路径（媒体队列写过），也可能是远端地址（没本地化过）
         cover: strOf(coverRaw) || steamCoverUrl(appid),
         coverSrc: strOf(coverSrc) || steamCoverUrl(appid),
         icon: strOf(icon),
         iconSrc: strOf(iconSrc),
-        windowsMin: intOf2(fm2[GS_FM.windowsMin]),
-        deckMin: intOf2(fm2[GS_FM.deckMin]),
-        macMin: intOf2(fm2[GS_FM.macMin]),
-        linuxMin: intOf2(fm2[GS_FM.linuxMin]),
+        windowsMin: intOf(fm2[GS_FM.windowsMin]),
+        deckMin: intOf(fm2[GS_FM.deckMin]),
+        macMin: intOf(fm2[GS_FM.macMin]),
+        linuxMin: intOf(fm2[GS_FM.linuxMin]),
         hasAch: fm2[GS_FM.hasAch] === true,
         offShelf: readVal(fm2, GS_FM.offShelf, GS_LEGACY_FM.offShelf) === true,
         syncedAt: typeof readVal(fm2, GS_FM.syncedAt, GS_LEGACY_FM.syncedAt) === "string" ? String(readVal(fm2, GS_FM.syncedAt, GS_LEGACY_FM.syncedAt)) : null
@@ -76136,10 +71067,10 @@ ${piece}` : piece;
     const full = { ...summary, memoCreated: sorted.filter((e) => e.text.startsWith("新增备忘录")).length };
     return { dateStr, events: sorted, summary: full, firstTs: sorted.length ? sorted[0].ts : null };
   }
-  async function collectReviewCounts(app2, now, c) {
+  async function collectReviewCounts(app, now, c) {
     const filePath = storageFile("review.json");
-    if (!fileIfExists(app2, filePath)) return;
-    reviewApp.ensure(app2);
+    if (!fileIfExists(app, filePath)) return;
+    reviewApp.ensure(app);
     const items = await reviewApp.dataManager.loadItems();
     c.reviewTotal = items.filter((i) => !i.isMissing).length;
     c.reviewOverdue = items.filter((i) => i.isOverdue && !i.completed && !i.isMissing).length;
@@ -76151,55 +71082,55 @@ ${piece}` : piece;
       return Number.isFinite(t) && t >= start + DAY_MS4 && t < start + 2 * DAY_MS4;
     }).length;
   }
-  function collectCinemaCounts(app2, c) {
+  function collectCinemaCounts(app, c) {
     const folder = settingDir(["cinemaFolderPath"], "我的/影视");
-    for (const f of app2.vault.getMarkdownFiles()) {
+    for (const f of app.vault.getMarkdownFiles()) {
       if (!f.path.startsWith(folder + "/")) continue;
-      const item = parseMovieFile(f, app2);
+      const item = parseMovieFile(f, app);
       if (!item) continue;
       if (item.status === STATUS_WANT) c.cinemaWant++;
       else if (item.status === STATUS_WATCHING) c.cinemaWatching++;
     }
   }
-  async function collectBookshelfCounts(app2, c) {
-    for (const b of scanMarkdownBooks(app2)) {
+  async function collectBookshelfCounts(app, c) {
+    for (const b of scanMarkdownBooks(app)) {
       if (b.status === "在读") c.bookshelfReading++;
       else if (b.status === "已读") c.bookshelfFinished++;
     }
-    for (const b of await loadEpubItems(app2)) {
+    for (const b of await loadEpubItems(app)) {
       if (b.status === "在读") c.bookshelfReading++;
       else if (b.status === "已读") c.bookshelfFinished++;
     }
   }
-  async function collectClippingCounts(app2, c) {
-    const raw = await readJsonIfExists(app2, storageFile("news.json"));
+  async function collectClippingCounts(app, c) {
+    const raw = await readJsonIfExists(app, storageFile("news.json"));
     const articles = Array.isArray(raw == null ? void 0 : raw.articles) ? raw.articles : [];
     c.clippingUnread = articles.filter((a) => !a.read).length;
   }
-  async function collectFavoritesCounts(app2, c) {
+  async function collectFavoritesCounts(app, c) {
     const dir = settingDir(["storagePath"], "CONFIG/STORAGE");
     const filePath = getStoragePath(dir);
-    if (!fileIfExists(app2, filePath)) return;
+    if (!fileIfExists(app, filePath)) return;
     const dm = new DataManager(filePath);
     const all = await dm.getAll();
     c.favoritesTotal = (Array.isArray(all) ? all : []).filter((i) => !i.archived).length;
   }
-  async function collectBelongingsCounts(app2, c) {
+  async function collectBelongingsCounts(app, c) {
     var _a2;
     const filePath = storageFile("belongings.json");
-    if (!fileIfExists(app2, filePath)) return;
+    if (!fileIfExists(app, filePath)) return;
     const db = await loadDatabase();
     c.belongingsTotal = Object.keys((_a2 = db.items) != null ? _a2 : {}).length;
   }
-  async function collectMemoCounts(app2, c) {
-    const raw = await readJsonIfExists(app2, storageFile("memo.json"));
+  async function collectMemoCounts(app, c) {
+    const raw = await readJsonIfExists(app, storageFile("memo.json"));
     const all = Array.isArray(raw) ? raw : [];
     const open = all.filter((m) => !(m == null ? void 0 : m.completed));
     c.memoOpen = open.length;
     c.memoUrgentOpen = open.filter((m) => (m == null ? void 0 : m.priority) === "important").length;
   }
-  function collectGameshelfCounts(app2, c) {
-    const items = rebuildItems2(app2);
+  function collectGameshelfCounts(app, c) {
+    const items = rebuildItems2(app);
     c.gameshelfTotal = items.length;
     c.gameshelfMinutes = items.reduce((s, it) => s + (it.playtimeMin || 0), 0);
   }
@@ -76217,17 +71148,17 @@ ${piece}` : piece;
       }
     }
   }
-  function collectSecondbrainBytes(app2, c) {
+  function collectSecondbrainBytes(app, c) {
     for (const p of [storageFile("secondbrain.json"), storageFile("secondbrain.vec")]) {
       try {
-        const f = app2.vault.getAbstractFileByPath(p);
+        const f = app.vault.getAbstractFileByPath(p);
         if (f && f.stat && typeof f.stat.size === "number") c.secondbrainBytes += f.stat.size;
       } catch (e) {
       }
     }
   }
-  async function collectPomodoroTotal(app2, c) {
-    const raw = await readJsonIfExists(app2, getPomodoroFilePath());
+  async function collectPomodoroTotal(app, c) {
+    const raw = await readJsonIfExists(app, getPomodoroFilePath());
     if (!raw || typeof raw !== "object") return;
     const d = raw;
     c.pomodoroTotal = (Array.isArray(d.history) ? d.history.length : 0) + (Array.isArray(d.archived) ? d.archived.reduce((s, r) => s + (r && typeof r.count === "number" && r.count > 0 ? r.count : 0), 0) : 0);
@@ -76269,38 +71200,38 @@ ${piece}` : piece;
     }
     return Math.min(DAYS_MAX, Math.max(DAYS_MIN, timelineRangeDays(range)));
   }
-  async function collectRiver(app2, now = Date.now()) {
+  async function collectRiver(app, now = Date.now()) {
     const DAYS_N = collectDaysN();
     const [dayRecaps, behaviorItems] = await Promise.all([
       Promise.all(
-        Array.from({ length: DAYS_N }, (_, i) => collectRecap(app2, now - i * DAY_MS4).catch(() => null))
+        Array.from({ length: DAYS_N }, (_, i) => collectRecap(app, now - i * DAY_MS4).catch(() => null))
       ),
       // 时间线痕迹源 = 小橘行为流（issue 305 / ADR-0132）：文件推导口径退役，外部改动免疫
-      readBehaviorItems(app2).catch(() => [])
+      readBehaviorItems(app).catch(() => [])
     ]);
     const behaviorDays = behaviorToDays(behaviorItems, now, DAYS_N);
     const counts = { ...EMPTY_COUNTS };
     const safe = (fn) => Promise.resolve().then(fn).catch(() => void 0);
     let mdFiles2 = [];
     try {
-      mdFiles2 = app2.vault.getMarkdownFiles();
+      mdFiles2 = app.vault.getMarkdownFiles();
     } catch (e) {
       mdFiles2 = [];
     }
     const [, focusing] = await Promise.all([
       Promise.all(
         [
-          () => collectReviewCounts(app2, now, counts),
-          () => collectCinemaCounts(app2, counts),
-          () => collectBookshelfCounts(app2, counts),
-          () => collectClippingCounts(app2, counts),
-          () => collectFavoritesCounts(app2, counts),
-          () => collectBelongingsCounts(app2, counts),
-          () => collectMemoCounts(app2, counts),
-          () => collectGameshelfCounts(app2, counts),
+          () => collectReviewCounts(app, now, counts),
+          () => collectCinemaCounts(app, counts),
+          () => collectBookshelfCounts(app, counts),
+          () => collectClippingCounts(app, counts),
+          () => collectFavoritesCounts(app, counts),
+          () => collectBelongingsCounts(app, counts),
+          () => collectMemoCounts(app, counts),
+          () => collectGameshelfCounts(app, counts),
           () => collectKnowledgeCounts(mdFiles2, counts),
-          () => collectSecondbrainBytes(app2, counts),
-          () => collectPomodoroTotal(app2, counts)
+          () => collectSecondbrainBytes(app, counts),
+          () => collectPomodoroTotal(app, counts)
         ].map(safe)
       ),
       collectFocusing()
@@ -76356,32 +71287,32 @@ ${piece}` : piece;
       return false;
     }
   }
-  function waapi10(el3, frames, opts) {
-    if (!el3 || reduced11() || typeof el3.animate !== "function") {
+  function waapi10(el2, frames, opts) {
+    if (!el2 || reduced11() || typeof el2.animate !== "function") {
       const last = frames[frames.length - 1];
-      if (el3 && last) for (const k of Object.keys(last)) {
+      if (el2 && last) for (const k of Object.keys(last)) {
         if (k === "offset") continue;
         try {
-          el3.style[k] = String(last[k]);
+          el2.style[k] = String(last[k]);
         } catch (e) {
         }
       }
       return null;
     }
     try {
-      return el3.animate(frames, opts);
+      return el2.animate(frames, opts);
     } catch (e) {
       return null;
     }
   }
   function tween4(dur, step, ease = (t) => 1 - Math.pow(1 - t, 3)) {
     const t0 = performance.now();
-    const tick2 = (now) => {
+    const tick = (now) => {
       const p = Math.min(1, (now - t0) / dur);
       step(ease(p));
-      if (p < 1) requestAnimationFrame(tick2);
+      if (p < 1) requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick2);
+    requestAnimationFrame(tick);
   }
   var easeOutQuart2 = (t) => 1 - Math.pow(1 - t, 4);
   var timers11 = /* @__PURE__ */ new Set();
@@ -76398,9 +71329,9 @@ ${piece}` : piece;
   }
   var EXIT_ANIM_ID3 = "bz-home-panel-exit";
   var EXIT_MASK_ANIM_ID3 = "bz-home-mask-exit";
-  function cancelAnimsBy3(el3, ids) {
-    if (typeof el3.getAnimations !== "function") return;
-    for (const a of el3.getAnimations()) {
+  function cancelAnimsBy3(el2, ids) {
+    if (typeof el2.getAnimations !== "function") return;
+    for (const a of el2.getAnimations()) {
       if (ids.includes(a.id)) {
         try {
           a.cancel();
@@ -76409,14 +71340,14 @@ ${piece}` : piece;
       }
     }
   }
-  function motionPanelIn8(overlay5, reopen) {
-    const panel2 = overlay5.querySelector(".bz-home-panel");
+  function motionPanelIn8(overlay4, reopen) {
+    const panel2 = overlay4.querySelector(".bz-home-panel");
     if (!panel2) return;
     panel2.style.opacity = "";
     panel2.style.transform = "";
     panel2.style.filter = "";
     cancelAnimsBy3(panel2, [EXIT_ANIM_ID3]);
-    cancelAnimsBy3(overlay5, [EXIT_MASK_ANIM_ID3]);
+    cancelAnimsBy3(overlay4, [EXIT_MASK_ANIM_ID3]);
     waapi10(
       panel2,
       [
@@ -76425,11 +71356,11 @@ ${piece}` : piece;
       ],
       { duration: reopen ? 300 : 480, easing: E11.out }
     );
-    bindParallax(overlay5);
+    bindParallax(overlay4);
   }
-  function motionPanelOut6(overlay5, done) {
-    const panel2 = overlay5.querySelector(".bz-home-panel");
-    stopParallax(overlay5);
+  function motionPanelOut6(overlay4, done) {
+    const panel2 = overlay4.querySelector(".bz-home-panel");
+    stopParallax(overlay4);
     if (!panel2) {
       done();
       return;
@@ -76458,7 +71389,7 @@ ${piece}` : piece;
       { duration: M18.move + 40, easing: E11.out, fill: "forwards", id: EXIT_ANIM_ID3 }
     );
     maskAnim = waapi10(
-      overlay5,
+      overlay4,
       [{ opacity: 1 }, { opacity: 0 }],
       { duration: M18.move + 40, easing: E11.out, id: EXIT_MASK_ANIM_ID3 }
     );
@@ -76469,15 +71400,15 @@ ${piece}` : piece;
     a.finished.then(finish).catch(finish);
     after10(M18.move + 200, finish);
   }
-  function motionRendered5(overlay5, boot) {
+  function motionRendered5(overlay4, boot) {
     cancelPending8();
-    const panel2 = overlay5.querySelector(".bz-home-panel");
+    const panel2 = overlay4.querySelector(".bz-home-panel");
     if (!panel2) return;
     const narrow = panel2.clientWidth > 0 && panel2.clientWidth <= 768;
-    const week = overlay5.querySelector("[data-home-week]");
-    const entries = overlay5.querySelector("[data-home-entries]");
-    const flow = overlay5.querySelector("[data-home-flow]");
-    const next = overlay5.querySelector("[data-home-next]");
+    const week = overlay4.querySelector("[data-home-week]");
+    const entries = overlay4.querySelector("[data-home-entries]");
+    const flow = overlay4.querySelector("[data-home-flow]");
+    const next = overlay4.querySelector("[data-home-next]");
     bindNextTilt(next, narrow);
     if (!boot) {
       if (flow) {
@@ -76489,10 +71420,10 @@ ${piece}` : piece;
     if (reduced11()) return;
     if (week) {
       const cells = [...week.querySelectorAll(".bz-home-wk")];
-      cells.forEach((el3, i) => {
+      cells.forEach((el2, i) => {
         after10(140 + i * 46, () => {
           waapi10(
-            el3,
+            el2,
             [
               { opacity: 0, transform: "rotateX(-64deg) translateY(6px)" },
               { opacity: 1, transform: "none" }
@@ -76506,11 +71437,11 @@ ${piece}` : piece;
     }
     if (entries) {
       const rows = [...entries.querySelectorAll(".bz-home-erow")];
-      rows.forEach((el3, i) => {
+      rows.forEach((el2, i) => {
         if (i >= 14) return;
         after10(260 + i * STAG11, () => {
           waapi10(
-            el3,
+            el2,
             [
               { opacity: 0, transform: "translateY(8px)", filter: "blur(4px)" },
               { opacity: 1, transform: "none", filter: "blur(0px)" }
@@ -76536,10 +71467,10 @@ ${piece}` : piece;
         [{ opacity: 0, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }],
         { duration: M18.base, easing: E11.out, fill: "backwards" }
       );
-      next.querySelectorAll(".bz-home-pr").forEach((el3, i) => {
+      next.querySelectorAll(".bz-home-pr").forEach((el2, i) => {
         after10(640 + i * 90, () => {
           waapi10(
-            el3,
+            el2,
             [
               { opacity: 0, clipPath: "inset(0 0 100% 0)", transform: "translateY(7px)" },
               { opacity: 1, clipPath: "inset(0 0 -8% 0)", transform: "none" }
@@ -76765,9 +71696,9 @@ ${piece}` : piece;
     if (sparkPools.size) fxRaf = requestAnimationFrame(fxTick);
   }
   var parallax = /* @__PURE__ */ new Map();
-  function bindParallax(overlay5) {
-    const panel2 = overlay5.querySelector(".bz-home-panel");
-    if (!panel2 || parallax.has(overlay5)) return;
+  function bindParallax(overlay4) {
+    const panel2 = overlay4.querySelector(".bz-home-panel");
+    if (!panel2 || parallax.has(overlay4)) return;
     if (reduced11() || !canHover3() || panel2.clientWidth <= 768) return;
     const layers = [
       { el: panel2.querySelector(".bz-home-head"), d: 2 },
@@ -76776,7 +71707,7 @@ ${piece}` : piece;
       { el: panel2.querySelector("[data-home-next]"), d: 3 }
     ].filter((l) => !!l.el);
     const st = {
-      overlay: overlay5,
+      overlay: overlay4,
       layers,
       tx: 0,
       ty: 0,
@@ -76797,7 +71728,7 @@ ${piece}` : piece;
     };
     panel2.addEventListener("pointermove", st.onMove);
     panel2.addEventListener("pointerleave", st.onLeave);
-    parallax.set(overlay5, st);
+    parallax.set(overlay4, st);
   }
   function parallaxTick() {
     let active2 = false;
@@ -76816,14 +71747,14 @@ ${piece}` : piece;
       for (const st of parallax.values()) if (!st.raf) st.raf = requestAnimationFrame(parallaxTick);
     }
   }
-  function stopParallax(overlay5) {
-    const st = parallax.get(overlay5);
+  function stopParallax(overlay4) {
+    const st = parallax.get(overlay4);
     if (!st) return;
     st.overlay.removeEventListener("pointermove", st.onMove);
     st.overlay.removeEventListener("pointerleave", st.onLeave);
     if (st.raf) cancelAnimationFrame(st.raf);
     for (const l of st.layers) l.el.style.transform = "";
-    parallax.delete(overlay5);
+    parallax.delete(overlay4);
   }
   function bindTilt(card) {
     if (card.dataset.hmTilt) return;
@@ -76922,12 +71853,12 @@ ${piece}` : piece;
       return '<div role="button" tabindex="0" class="bz-home-erow" data-home-go="' + d.id + '"><span class="bz-home-dot bz-home-dot--' + dot + '"></span><span class="bz-home-eic" style="color:' + domainColor(d.id) + '">' + iconSpan(d.icon) + '</span><span class="bz-home-enm">' + esc(d.name) + '</span><span class="bz-home-ect">' + esc(ct) + "</span></div>";
     }).join("");
   }
-  function flowHtml(data, view2, opts = {}) {
+  function flowHtml(data, view, opts = {}) {
     var _a2, _b2, _c;
     const filter = (_a2 = opts.filter) != null ? _a2 : DEFAULT_TIMELINE_FILTER;
     const showTime = opts.showTime !== false;
     const size = (_b2 = opts.size) != null ? _b2 : "normal";
-    const day = (_c = data.days.find((d) => d.dateStr === view2)) != null ? _c : data.today;
+    const day = (_c = data.days.find((d) => d.dateStr === view)) != null ? _c : data.today;
     const isToday = day.dateStr === data.today.dateStr;
     const wrap2 = (inner) => '<div class="bz-home-timeline" data-tl-size="' + size + '" data-tl-time="' + (showTime ? "1" : "0") + '">' + inner + "</div>";
     const notes = isToday && filter.notes ? buildNotes(data) : [];
@@ -76969,16 +71900,16 @@ ${piece}` : piece;
     var _a2, _b2, _c;
     const s = tryGetSettings();
     const bool3 = (v, def) => typeof v === "boolean" ? v : def;
-    const str4 = (v) => typeof v === "string" && v ? v : void 0;
+    const str3 = (v) => typeof v === "string" && v ? v : void 0;
     const filter = {
       produce: bool3(s.homeTimelineProduce, DEFAULT_TIMELINE_FILTER.produce),
       progress: bool3(s.homeTimelineProgress, DEFAULT_TIMELINE_FILTER.progress),
       notes: bool3(s.homeTimelineNotes, DEFAULT_TIMELINE_FILTER.notes),
       skipped: bool3(s.homeTimelineSkipped, DEFAULT_TIMELINE_FILTER.skipped)
     };
-    const range = (_a2 = str4(s.homeTimelineRange)) != null ? _a2 : "week";
+    const range = (_a2 = str3(s.homeTimelineRange)) != null ? _a2 : "week";
     const TL_SIZES = ["compact", "normal", "loose"];
-    const sizeRaw = (_b2 = str4(s.homeTimelineSize)) != null ? _b2 : "normal";
+    const sizeRaw = (_b2 = str3(s.homeTimelineSize)) != null ? _b2 : "normal";
     return {
       filter,
       flow: {
@@ -76987,7 +71918,7 @@ ${piece}` : piece;
         size: TL_SIZES.includes(sizeRaw) ? sizeRaw : "normal"
       },
       rangeDays: timelineRangeDays(range),
-      defaultDay: (_c = str4(s.homeDefaultDay)) != null ? _c : "today",
+      defaultDay: (_c = str3(s.homeDefaultDay)) != null ? _c : "today",
       next: bool3(s.homeNextCards, true)
     };
   }
@@ -76998,24 +71929,24 @@ ${piece}` : piece;
     const hit = window2.find((d) => d.events.length > 0);
     return hit && hit.dateStr !== today ? hit.dateStr : null;
   }
-  function saveScroll(overlay5) {
-    const body = overlay5.querySelector(".bz-home-body");
-    const flow = overlay5.querySelector(".bz-home-flow");
+  function saveScroll(overlay4) {
+    const body = overlay4.querySelector(".bz-home-body");
+    const flow = overlay4.querySelector(".bz-home-flow");
     H.scroll.body = body ? body.scrollTop : 0;
     H.scroll.flow = flow ? flow.scrollTop : 0;
   }
-  function restoreScroll(overlay5) {
+  function restoreScroll(overlay4) {
     if (!H.overlayVisible) return;
-    const body = overlay5.querySelector(".bz-home-body");
-    const flow = overlay5.querySelector(".bz-home-flow");
+    const body = overlay4.querySelector(".bz-home-body");
+    const flow = overlay4.querySelector(".bz-home-flow");
     if (body) body.scrollTop = H.scroll.body;
     if (flow) flow.scrollTop = H.scroll.flow;
   }
   var PANEL8 = { MIN_W: 640, MIN_H: 420, MAX_W: 1200, MAX_H: 820 };
   var panelResizeDetach5 = null;
-  function mountPanelResize(overlay5) {
+  function mountPanelResize(overlay4) {
     if (isMobileEnv() || panelResizeDetach5) return;
-    const panel2 = overlay5.querySelector(".bz-home-panel");
+    const panel2 = overlay4.querySelector(".bz-home-panel");
     if (!panel2) return;
     panelResizeDetach5 = uiResizable(panel2, {
       minW: PANEL8.MIN_W,
@@ -77030,30 +71961,30 @@ ${piece}` : piece;
     panelResizeDetach5.detach();
     panelResizeDetach5 = null;
   }
-  function createOverlay2(app2) {
-    const overlay5 = document.createElement("div");
-    overlay5.className = "bz-panel-overlay bz-home-overlay";
-    overlay5.innerHTML = panelFrameHtml();
-    document.body.appendChild(overlay5);
-    topifyZ(overlay5);
-    H.currentOverlay = overlay5;
+  function createOverlay2(app) {
+    const overlay4 = document.createElement("div");
+    overlay4.className = "bz-panel-overlay bz-home-overlay";
+    overlay4.innerHTML = panelFrameHtml();
+    document.body.appendChild(overlay4);
+    topifyZ(overlay4);
+    H.currentOverlay = overlay4;
     H.overlayVisible = true;
-    mountIcons(overlay5);
-    bindEvents2(overlay5, app2);
+    mountIcons(overlay4);
+    bindEvents2(overlay4, app);
     renderAll5();
-    motionPanelIn8(overlay5, false);
+    motionPanelIn8(overlay4, false);
     window.__bzHomeReplay = () => {
-      motionPanelIn8(overlay5, false);
-      motionRendered5(overlay5, true);
+      motionPanelIn8(overlay4, false);
+      motionRendered5(overlay4, true);
     };
-    trapPanelFocus(overlay5);
-    mountPanelResize(overlay5);
+    trapPanelFocus(overlay4);
+    mountPanelResize(overlay4);
     void refreshRiverAndRender();
   }
-  async function readPomodoroPhase(app2) {
+  async function readPomodoroPhase(app) {
     try {
       const m = await Promise.resolve().then(() => (init_pomodoro(), pomodoro_exports));
-      await m.ensurePomodoro(app2);
+      await m.ensurePomodoro(app);
       return m.menuPhase();
     } catch (e) {
       return "idle";
@@ -77062,14 +71993,14 @@ ${piece}` : piece;
   var refreshSeq = 0;
   async function refreshRiverAndRender() {
     if (!H.currentOverlay || !H.appRef) return;
-    const overlay5 = H.currentOverlay;
+    const overlay4 = H.currentOverlay;
     const seq = ++refreshSeq;
     const [river, order, phase] = await Promise.all([
       collectRiver(H.appRef).catch(() => null),
       loadHomeOrder(H.appRef),
       readPomodoroPhase(H.appRef)
     ]);
-    if (H.currentOverlay !== overlay5) return;
+    if (H.currentOverlay !== overlay4) return;
     if (seq !== refreshSeq) return;
     const focusing = isFocusingPhase(phase);
     if (river) river.pomodoroFocusing = focusing;
@@ -77086,38 +72017,38 @@ ${piece}` : piece;
   }
   function closeOverlay() {
     if (!H.currentOverlay || !H.overlayVisible) return;
-    const overlay5 = H.currentOverlay;
-    saveScroll(overlay5);
+    const overlay4 = H.currentOverlay;
+    saveScroll(overlay4);
     unmountPanelResize();
     H.overlayVisible = false;
-    motionPanelOut6(overlay5, () => {
-      if (!H.overlayVisible && H.currentOverlay === overlay5) overlay5.style.display = "none";
+    motionPanelOut6(overlay4, () => {
+      if (!H.overlayVisible && H.currentOverlay === overlay4) overlay4.style.display = "none";
     });
   }
   function showOverlay() {
-    const overlay5 = H.currentOverlay;
-    if (!overlay5 || H.overlayVisible) return;
-    overlay5.style.display = "";
-    topifyZ(overlay5);
+    const overlay4 = H.currentOverlay;
+    if (!overlay4 || H.overlayVisible) return;
+    overlay4.style.display = "";
+    topifyZ(overlay4);
     H.overlayVisible = true;
-    restoreScroll(overlay5);
-    motionPanelIn8(overlay5, true);
-    mountPanelResize(overlay5);
+    restoreScroll(overlay4);
+    motionPanelIn8(overlay4, true);
+    mountPanelResize(overlay4);
     void refreshRiverAndRender();
   }
-  function bindEvents2(overlay5, app2) {
-    overlay5.addEventListener("keydown", (e) => {
+  function bindEvents2(overlay4, app) {
+    overlay4.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       const t = e.target;
-      const el3 = t.closest('[role="button"]');
-      if (el3) {
+      const el2 = t.closest('[role="button"]');
+      if (el2) {
         e.preventDefault();
-        el3.click();
+        el2.click();
       }
     });
-    overlay5.addEventListener("click", (e) => {
+    overlay4.addEventListener("click", (e) => {
       const t = e.target;
-      if (e.target === overlay5) {
+      if (e.target === overlay4) {
         closeOverlay();
         return;
       }
@@ -77128,7 +72059,7 @@ ${piece}` : piece;
       const go = t.closest("[data-home-go]");
       if (go) {
         const id = go.dataset.homeGo || "";
-        if (id && DOMAIN_MAP.has(id)) openDomain(id, app2);
+        if (id && DOMAIN_MAP.has(id)) openDomain(id, app);
         return;
       }
       const wk = t.closest("[data-home-weekday]");
@@ -77156,15 +72087,15 @@ ${piece}` : piece;
       }
     });
   }
-  function openDomain(id, app2) {
+  function openDomain(id, app) {
     const d = DOMAIN_MAP.get(id);
     if (!d) return;
     closeOverlay();
-    runCommand(d.commandId, app2, `「${d.name}」暂时不可用`);
+    runCommand(d.commandId, app, `「${d.name}」暂时不可用`);
   }
-  function runCommand(commandId, app2, failText = "该功能暂时不可用") {
+  function runCommand(commandId, app, failText = "该功能暂时不可用") {
     try {
-      const ret = app2.commands.executeCommandById(commandId);
+      const ret = app.commands.executeCommandById(commandId);
       if (ret && typeof ret.catch === "function") {
         void ret.catch(() => notice(failText, "warning"));
       }
@@ -77173,11 +72104,11 @@ ${piece}` : piece;
     }
   }
   var activeCommands = /* @__PURE__ */ new Set();
-  function runCommandAndRefresh(commandId, app2, busyText) {
+  function runCommandAndRefresh(commandId, app, busyText) {
     if (activeCommands.has(commandId)) return;
     let ret;
     try {
-      ret = app2.commands.executeCommandById(commandId);
+      ret = app.commands.executeCommandById(commandId);
     } catch (e) {
       notice("该功能暂时不可用", "warning");
       return;
@@ -77203,8 +72134,8 @@ ${piece}` : piece;
   function rowEls(container) {
     return Array.from(container.querySelectorAll(".bz-home-erow, .bz-home-m-tile"));
   }
-  function attachRowMenu(el3, app2, river) {
-    const d = DOMAIN_MAP.get(el3.dataset.homeGo || "");
+  function attachRowMenu(el2, app, river) {
+    const d = DOMAIN_MAP.get(el2.dataset.homeGo || "");
     if (!d) return;
     const menu = DOMAIN_MENU[d.id];
     if (!menu || !menu.length) return;
@@ -77218,22 +72149,22 @@ ${piece}` : piece;
         onClick: () => {
           if (deep) {
             closeOverlay();
-            void Promise.resolve().then(() => (init_settings_panel(), settings_panel_exports)).then((m) => m.openSettingsPanel(app2, deep));
+            void Promise.resolve().then(() => (init_settings_panel(), settings_panel_exports)).then((m) => m.openSettingsPanel(app, deep));
             return;
           }
           if (spec.keepHome) {
-            runCommandAndRefresh(spec.commandId, app2, spec.busyText);
+            runCommandAndRefresh(spec.commandId, app, spec.busyText);
             return;
           }
           closeOverlay();
-          runCommand(spec.commandId, app2);
+          runCommand(spec.commandId, app);
         }
       };
     });
     const head = document.createElement("div");
     head.innerHTML = sheetHeadHtml(d, river);
     mountIcons(head);
-    attachItemActions(el3, actions, {
+    attachItemActions(el2, actions, {
       sheetHead: head,
       // 桌面菜单另给一行版盒头（B 方案 2026-09-11）：跨 21 个域，右键后要知道自己点的是哪个域
       menuHeadHtml: menuHeadHtml(d, river),
@@ -77241,43 +72172,43 @@ ${piece}` : piece;
       sheetClass: "bz-home-menu"
     });
   }
-  function mountRowInteractions(overlay5, app2, river) {
+  function mountRowInteractions(overlay4, app, river) {
     var _a2;
-    const panel2 = overlay5.querySelector(".bz-home-panel");
+    const panel2 = overlay4.querySelector(".bz-home-panel");
     const w = (_a2 = panel2 == null ? void 0 : panel2.clientWidth) != null ? _a2 : 0;
     const narrow = w > 0 && w <= 768;
     if (w === 0 || !narrow) {
-      const entries = overlay5.querySelector("[data-home-entries]");
-      if (entries) for (const el3 of rowEls(entries)) attachRowMenu(el3, app2, river);
+      const entries = overlay4.querySelector("[data-home-entries]");
+      if (entries) for (const el2 of rowEls(entries)) attachRowMenu(el2, app, river);
     }
     if (w === 0 || narrow) {
-      const tiles = overlay5.querySelector("[data-home-tiles]");
-      if (tiles) for (const el3 of rowEls(tiles)) attachRowMenu(el3, app2, river);
+      const tiles = overlay4.querySelector("[data-home-tiles]");
+      if (tiles) for (const el2 of rowEls(tiles)) attachRowMenu(el2, app, river);
     }
   }
-  function focusKeyOf(el3) {
-    if (!el3) return null;
-    const go = el3.closest("[data-home-go]");
+  function focusKeyOf(el2) {
+    if (!el2) return null;
+    const go = el2.closest("[data-home-go]");
     if (go) return { attr: "data-home-go", value: go.dataset.homeGo || "" };
-    const wk = el3.closest("[data-home-weekday]");
+    const wk = el2.closest("[data-home-weekday]");
     if (wk) return { attr: "data-home-weekday", value: wk.dataset.homeWeekday || "" };
     return null;
   }
   function renderAll5() {
-    const overlay5 = H.currentOverlay;
-    if (!overlay5) return;
-    const date = overlay5.querySelector("[data-home-date]");
+    const overlay4 = H.currentOverlay;
+    if (!overlay4) return;
+    const date = overlay4.querySelector("[data-home-date]");
     if (date) date.textContent = headDateText();
-    const preGrid = overlay5.querySelector(".bz-home-grid");
-    saveScroll(overlay5);
+    const preGrid = overlay4.querySelector(".bz-home-grid");
+    saveScroll(overlay4);
     const active2 = document.activeElement;
-    const fk = active2 && overlay5.contains(active2) ? focusKeyOf(active2) : null;
+    const fk = active2 && overlay4.contains(active2) ? focusKeyOf(active2) : null;
     if (!H.river) {
       const { next: nextOn } = readHomeSettings();
       preGrid == null ? void 0 : preGrid.classList.toggle("bz-home-grid--no-next", !nextOn);
-      const entries2 = overlay5.querySelector("[data-home-entries]");
-      const flow2 = overlay5.querySelector("[data-home-flow]");
-      const next2 = overlay5.querySelector("[data-home-next]");
+      const entries2 = overlay4.querySelector("[data-home-entries]");
+      const flow2 = overlay4.querySelector("[data-home-flow]");
+      const next2 = overlay4.querySelector("[data-home-next]");
       if (H.riverFailed) {
         const empty = uiEmpty({
           icon: "alert-circle",
@@ -77302,40 +72233,40 @@ ${piece}` : piece;
         flow2.innerHTML = loadingFlowHtml();
       }
       next2.innerHTML = "";
-      overlay5.querySelector("[data-home-tiles]").innerHTML = "";
-      overlay5.querySelector("[data-home-week]").innerHTML = "";
+      overlay4.querySelector("[data-home-tiles]").innerHTML = "";
+      overlay4.querySelector("[data-home-week]").innerHTML = "";
       return;
     }
     const river = H.river;
     const cfg = readHomeSettings();
     const windowDays = river.days.slice(0, cfg.rangeDays);
-    const view2 = H.riverView && windowDays.some((d) => d.dateStr === H.riverView) ? H.riverView : null;
-    H.riverView = view2;
+    const view = H.riverView && windowDays.some((d) => d.dateStr === H.riverView) ? H.riverView : null;
+    H.riverView = view;
     const today = river.today.dateStr;
-    const week = overlay5.querySelector("[data-home-week]");
-    const entries = overlay5.querySelector("[data-home-entries]");
-    const flow = overlay5.querySelector("[data-home-flow]");
+    const week = overlay4.querySelector("[data-home-week]");
+    const entries = overlay4.querySelector("[data-home-entries]");
+    const flow = overlay4.querySelector("[data-home-flow]");
     const flowBoot = !!flow.querySelector(".bz-home-sk-line, .bz-home-flow-empty");
-    if (week) week.innerHTML = weekHtml(river.week.slice(0, cfg.rangeDays), today, view2 != null ? view2 : today);
-    const next = overlay5.querySelector("[data-home-next]");
+    if (week) week.innerHTML = weekHtml(river.week.slice(0, cfg.rangeDays), today, view != null ? view : today);
+    const next = overlay4.querySelector("[data-home-next]");
     entries.innerHTML = entriesHtml(river, H.order.desk, H.order.hiddenDesk);
-    flow.innerHTML = flowHtml(river, view2 != null ? view2 : today, cfg.flow);
+    flow.innerHTML = flowHtml(river, view != null ? view : today, cfg.flow);
     next.innerHTML = nextHtml(river, cfg.next);
     const nextOff = !cfg.next;
     next.style.display = nextOff ? "none" : "";
     preGrid == null ? void 0 : preGrid.classList.toggle("bz-home-grid--no-next", nextOff);
-    const tiles = overlay5.querySelector("[data-home-tiles]");
+    const tiles = overlay4.querySelector("[data-home-tiles]");
     tiles.innerHTML = tilesHtml(river, H.order.mob, H.order.hiddenMob);
     mountIcons(week);
     mountIcons(entries);
     mountIcons(flow);
     mountIcons(next);
     mountIcons(tiles);
-    mountRowInteractions(overlay5, H.appRef, river);
-    restoreScroll(overlay5);
-    motionRendered5(overlay5, flowBoot);
+    mountRowInteractions(overlay4, H.appRef, river);
+    restoreScroll(overlay4);
+    motionRendered5(overlay4, flowBoot);
     if (fk && fk.value && H.overlayVisible) {
-      const target = overlay5.querySelector(`[${fk.attr}="${fk.value}"]`);
+      const target = overlay4.querySelector(`[${fk.attr}="${fk.value}"]`);
       target == null ? void 0 : target.focus();
     }
   }
@@ -77345,13 +72276,13 @@ ${piece}` : piece;
 
   // src/home/index.ts
   var initialized8 = false;
-  function ensureHome(app2) {
+  function ensureHome(app) {
     if (initialized8) return;
     initialized8 = true;
-    H.appRef = app2;
+    H.appRef = app;
   }
-  function openHome(app2) {
-    ensureHome(app2);
+  function openHome(app) {
+    ensureHome(app);
     if (H.currentOverlay) {
       if (H.overlayVisible) {
         closeOverlay();
@@ -77361,7 +72292,7 @@ ${piece}` : piece;
       return;
     }
     registerEscapeHandler();
-    createOverlay2(app2);
+    createOverlay2(app);
   }
 
   // prototypes/home/fake-sim.ts

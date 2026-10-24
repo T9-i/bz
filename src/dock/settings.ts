@@ -1,226 +1,75 @@
 /**
- * 工具坞（dock）域设置 schema（接入设置面板）。
+ * 工具坞设置页 —— 只放**全域开关**与一句诊断。
  *
- * 有意为之的「少」——dock 的配置**绝大多数是每个工具自己的**：标题、描述、参数、节奏、
- * 怎么跑，全随工具目录里的声明文件（`manifest.json`）走，住在工具侧，不在这里。登记表本身
- * （「导入哪份声明」）也只走面板内「导入声明」，不做设置页行编辑 —— 一旦能从别处直接改命令，
- * 「打开别人的 vault」就等于「在他机器上执行任意命令」（ADR-0235 决策）。
- *
- * 于是本页只有这几件**全域**的事，前三件是开关/入口，最后一件是**信任**：
- *  1. 去哪儿管工具（打开面板）；
- *  2. 自动跑不跑（`dock.json` 的 `autoRun`，ADR-0236）；
- *  3. 漏跑提不提醒（`dock.json` 的 `notifyMissed`）；
- *  3b. 离场跑不跑（`dock.json` 的 `watchdog`，ADR-0242）—— 装没装值守进程决定这一条
- *     是**开关**还是**一句说明**（「一个控件按状态只出一条」，不并列）。
- *  4. 哪些命令已被授权在本机执行（**插件设置**的 `dockTrust`，ADR-0239）。
- *     这一组只做两件事：**撤销**（就地撤，立刻生效）与**授权**（按声明当前那条命令授）。
- *     两边的列表都只显示命令文本，不给「手写一条命令」的入口 —— 授权对象永远是声明文件里
- *     现读出来的那条命令，用户没法在这里凭空造一条信任。
+ * 单个工具的规矩（规则表、停用、参数）都在面板里改，不放设置页：设置页是全插件的总目录，
+ * 把「某个工具几点跑」塞进来，等于让两块界面各说一半话。
  */
-import type { SettingsListItem, SettingsRow, SettingsSchema } from '../core/settings-schema';
-import { getApp } from '../core/app';
-import { notice } from '../core/notice';
-import { openDock } from './ui';
-import {
-  readDockSwitch,
-  readToolEntries,
-  readTrustRecords,
-  runSignature,
-  setDockSwitch,
-  untrustTool,
-  updateToolEntry,
-  type DockToolEntry,
-} from './data';
-import { readDeclaration, resolveRun, type ResolvedRun } from './declaration';
-import { loadDockStore, persistDockStore, type DockSwitchKey } from './store';
-import { isWatchdogInstalled } from './watchdog';
 
-/**
- * 两个全域开关的绑定 —— 值住面板数据 `dock.json`（ADR-0239），不在插件设置里，
- * 所以走绑定的三函数逃生口（`get` / `set` / `save`，设置行按这个序调用）：
- * `get` 读内存快照、`set` 改内存、`save` 落盘。没有草稿态 —— 开关是「改完立刻可见」的控件。
- */
-function switchBinding(key: DockSwitchKey) {
+import { Setting } from 'obsidian';
+import type { SettingsSchema } from '../core/settings-schema';
+import { dockLockState } from './host';
+import { readRegistry, setSwitch } from './registry';
+
+function switchRow(
+  name: string,
+  desc: string,
+  key: 'autoRun' | 'watchdog' | 'notifyMissed',
+): { type: 'custom'; name: string; desc: string; render: (body: HTMLElement) => void } {
   return {
-    get: () => readDockSwitch(key),
-    set: (v: boolean) => setDockSwitch(key, v),
-    // 落盘前先对齐盘上现值：外部（同步盘）改过 dock.json 的窗口内，不拿过期快照整文件覆盖
-    // （persist 是整文件写）。顺序关键 —— 先取用户本次拨的值（还在内存快照里），重载
-    // （会用盘上现值覆盖快照），再把本次拨动补回去，最后整文件落盘
-    save: async () => {
-      const v = readDockSwitch(key);
-      await loadDockStore();
-      setDockSwitch(key, v);
-      await persistDockStore();
+    type: 'custom',
+    name,
+    desc,
+    render: (body) => {
+      const { registry } = readRegistry();
+      new Setting(body)
+        .setName(name)
+        .setDesc(desc)
+        .addToggle((t) =>
+          t.setValue(registry[key]).onChange((v) => {
+            setSwitch(key, v);
+          }),
+        );
     },
   };
-}
-
-// ==================== 离线值守（ADR-0242） ====================
-
-/**
- * 「离线值守」那一行 —— **装没装决定它是开关还是一句话**（一个控件按状态只出一条）：
- * 没装值守进程时给个开关是骗人（拨了没反应），所以换成一句说明 + 安装位置。
- *
- * 装没装的判据是值守目录里有没有 `config.json`（安装脚本写的），不是插件设置里的标记：
- * 后者会在「装了又手工删掉」之后说谎。
- */
-function watchdogRows(): SettingsRow[] {
-  if (!isWatchdogInstalled()) {
-    return [
-      {
-        type: 'info',
-        name: '离线值守',
-        desc: '还没装值守进程 —— Obsidian 关着时不会自动跑（装法：tools/dock-watch/install.ps1）',
-      },
-    ];
-  }
-  return [
-    {
-      type: 'toggle',
-      name: '离线值守',
-      desc: 'Obsidian 关着时由值守进程按同一份规则表跑（要求工具已信任、自动运行总闸开着）',
-      binding: switchBinding('watchdog'),
-    },
-  ];
-}
-
-// ==================== 信任组（ADR-0239） ====================
-
-/** 某工具**当前声明**解析出的启动命令（声明读不到 / 没写 run → null） */
-function resolvedRunOf(entry: DockToolEntry): ResolvedRun | null {
-  const decl = readDeclaration(entry.path);
-  return resolveRun(decl.manifest ?? null, decl.path ?? entry.path, decl.conventionalRun);
-}
-
-/** 命令的人话形式（`node main.mjs`）；解析不出来时给一句原因，不当成「没有命令」静默略过 */
-function commandTextOf(entry: DockToolEntry, run: ResolvedRun | null): string {
-  if (run) return [run.cmd, ...run.args].join(' ');
-  return readDeclaration(entry.path).ok ? '声明里没写怎么跑' : '声明文件读不到';
-}
-
-/** 一个工具 → 一条列表项（主文案 = 声明里的名字，副文案 = 那条命令） */
-function trustItemOf(entry: DockToolEntry): SettingsListItem {
-  const run = resolvedRunOf(entry);
-  return {
-    key: entry.id,
-    label: readDeclaration(entry.path).manifest?.name || entry.id,
-    sub: commandTextOf(entry, run),
-  };
-}
-
-/** 已登记工具里「已信任 / 未信任」的那一半（每次现读：列表行会在每次改动后重读重建） */
-function trustItems(wantTrusted: boolean): SettingsListItem[] {
-  const trust = readTrustRecords();
-  return readToolEntries()
-    .filter((e) => e.id in trust === wantTrusted)
-    .map(trustItemOf);
-}
-
-/**
- * 信任组的两行（都是列表行：逐条带动作钮，改完自动重读重建）：
- *  - 「已信任的命令」：撤销 = 从设置里删掉那条授权，不动 `dock.json`；
- *  - 「还没确认的命令」：授权 = 按**声明当前那条命令**算签名写进 `dockTrust`
- *    （签名绑命令，作者后来改了 `run` 就自动作废 —— 与面板内「重新导入声明」同一把尺子）。
- */
-function trustRows(): SettingsRow[] {
-  if (readToolEntries().length === 0) {
-    return [{ type: 'info', name: '还没有登记工具', desc: '在工具坞面板里「导入声明」登记一个外部脚本' }];
-  }
-  return [
-    {
-      type: 'list',
-      name: '已信任的命令',
-      desc: '信任绑的是这条启动命令；声明里的命令一改，信任自动作废',
-      variant: 'dense',
-      removeLabel: '撤销信任',
-      emptyText: '还没有授权过任何命令',
-      items: () => trustItems(true),
-      onChange: async (rest) => {
-        const revoked = Object.keys(readTrustRecords()).filter((id) => !rest.includes(id));
-        for (const id of revoked) await untrustTool(id);
-        if (revoked.length) notice(`已撤销 ${revoked.length} 个工具的信任`, 'success');
-      },
-    },
-    {
-      type: 'list',
-      name: '还没确认的命令',
-      desc: '确认后才自动运行；点「信任这条命令」即按上面这条命令授权',
-      variant: 'dense',
-      removeLabel: '信任这条命令',
-      emptyText: '没有待确认的工具',
-      items: () => trustItems(false),
-      onChange: async (rest) => {
-        const trust = readTrustRecords();
-        const granted = readToolEntries().filter((e) => !(e.id in trust) && !rest.includes(e.id));
-        const skipped: string[] = [];
-        let ok = 0;
-        for (const e of granted) {
-          const run = resolvedRunOf(e);
-          if (!run) {
-            skipped.push(readDeclaration(e.path).manifest?.name || e.id);
-            continue;
-          }
-          await updateToolEntry(e.id, { trustedAt: new Date().toISOString(), trustedRun: runSignature(run) });
-          ok += 1;
-        }
-        if (ok) notice(`已信任 ${ok} 个工具的命令`, 'success');
-        if (skipped.length) notice(`${skipped.join('、')} 的声明读不到命令，去工具坞面板里确认`, 'warning');
-      },
-    },
-  ];
 }
 
 export function dockSettingsSchema(): SettingsSchema {
   return {
     groups: [
       {
-        icon: 'container',
-        name: '工具',
+        icon: 'layout-grid',
+        name: '工具坞',
         rows: [
+          switchRow('自动运行', '按各工具的规则到点自动跑。关掉之后只能手动点', 'autoRun'),
+          switchRow('关掉 Obsidian 也让自动任务跑', '交给后台值守进程接手。关掉它，Obsidian 一关就全停', 'watchdog'),
+          switchRow('漏跑提醒', '该跑的时候没跑（比如电脑在睡觉），下次打开时告诉你一声', 'notifyMissed'),
           {
-            type: 'info',
-            name: '外部工具登记',
-            desc: '添加、编辑、信任与运行都在工具坞面板里',
-            actions: [
-              {
-                text: '打开工具坞',
-                cta: true,
-                onClick: () => openDock(getApp()),
-              },
-            ],
+            type: 'custom',
+            name: '已登记工具',
+            desc: '在面板里导入与移除；这里只看个数',
+            render: (body) => {
+              const { registry } = readRegistry();
+              body.createDiv({
+                cls: 'bz-dock-lock-line',
+                text: registry.tools.length ? `${registry.tools.length} 个工具在册` : '还没有登记任何工具',
+              });
+            },
+          },
+          {
+            type: 'custom',
+            name: '当前调度锁',
+            desc: '谁在负责调度。正常情况下插件开着就是插件，关掉就是后台值守',
+            render: (body) => {
+              const lock = dockLockState();
+              body.createDiv({
+                cls: 'bz-dock-lock-line',
+                text: lock
+                  ? `${lock.owner === 'plugin' ? '插件' : '后台值守'} 持有（${new Date(lock.at).toLocaleTimeString()}）`
+                  : '当前没有人在调度',
+              });
+            },
           },
         ],
-      },
-      {
-        icon: 'rocket',
-        name: '自动运行',
-        rows: [
-          {
-            type: 'toggle',
-            name: '启动后自动运行',
-            desc: 'Obsidian 就绪后，bz 按各工具声明的规则触发它：到点跑、该跑没跑就补跑。关掉则全部只手点',
-            binding: switchBinding('autoRun'),
-          },
-          ...watchdogRows(),
-        ],
-      },
-      {
-        icon: 'bell',
-        name: '提醒',
-        rows: [
-          {
-            type: 'toggle',
-            name: '漏跑提醒',
-            desc: '工具声明了节奏、当天却没有记录时发一条通知',
-            binding: switchBinding('notifyMissed'),
-          },
-        ],
-      },
-      {
-        icon: 'shield-check',
-        name: '信任',
-        rows: trustRows(),
       },
     ],
   };

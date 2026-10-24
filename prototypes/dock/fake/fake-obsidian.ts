@@ -50,6 +50,26 @@ export function setIcon(container: HTMLElement, iconId: string): void {
   container.replaceChildren(svg);
 }
 
+/** ---------- 通知 ---------- */
+
+/** 最小 Notice：控制台留痕 + 一个 3 秒后消失的角落提示。评审壳不需要完整通知栈 */
+export class Notice {
+  constructor(message: string) {
+    if (typeof document === 'undefined') return;
+    const el = document.createElement('div');
+    el.textContent = message;
+    el.style.cssText =
+      'position:fixed;right:16px;bottom:16px;z-index:9999;max-width:320px;padding:8px 12px;' +
+      'border-radius:8px;background:var(--background-secondary,#222);color:var(--text-normal,#eee);' +
+      'font-size:12px;border:1px solid var(--background-modifier-border,#444)';
+    document.body.appendChild(el);
+    window.setTimeout(() => el.remove(), 3000);
+  }
+  hide(): void {
+    /* 无队列，无需处理 */
+  }
+}
+
 /** ---------- 网络（原型无网） ---------- */
 
 export async function requestUrl(): Promise<never> {
