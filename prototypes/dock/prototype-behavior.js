@@ -1,4 +1,4 @@
-/* 源指纹 a69f7b0233d6001c · 仓内输入 21 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 7ef6aac541fdf9ad · 仓内输入 21 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/view.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -987,7 +987,7 @@ var BZW_dock = (() => {
     return { id: raw.id, path };
   }
   function emptyRegistry() {
-    return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
+    return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: false, notifyMissed: true };
   }
   function parseRegistry(raw) {
     const errors = [];
@@ -1022,7 +1022,7 @@ var BZW_dock = (() => {
         v: REGISTRY_VERSION,
         tools,
         autoRun: autoRun != null ? autoRun : true,
-        watchdog: watchdog != null ? watchdog : true,
+        watchdog: watchdog != null ? watchdog : false,
         notifyMissed: notifyMissed != null ? notifyMissed : true
       },
       errors

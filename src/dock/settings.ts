@@ -41,7 +41,14 @@ export function dockSettingsSchema(): SettingsSchema {
         name: '工具坞',
         rows: [
           switchRow('自动运行', '按各工具的规则到点自动跑。关掉之后只能手动点', 'autoRun'),
-          switchRow('关掉 Obsidian 也让自动任务跑', '交给后台值守进程接手。关掉它，Obsidian 一关就全停', 'watchdog'),
+          {
+            // 契约 v2 起值守进程还没迁到新账本。这一行留着是**为了说清楚**，不是为了给开关 ——
+            // 给一个开着却不起作用的开关，比没有这个开关更糟。
+            type: 'custom',
+            name: '关掉 Obsidian 也让自动任务跑',
+            desc: '本版暂不支持：值守进程正在迁到新账本，Obsidian 关着时不会跑',
+            render: (body) => body.createDiv({ cls: 'bz-dock-lock-line', text: '暂不可用' }),
+          },
           switchRow('漏跑提醒', '该跑的时候没跑（比如电脑在睡觉），下次打开时告诉你一声', 'notifyMissed'),
           {
             type: 'custom',

@@ -368,7 +368,8 @@ function parseRegistryEntry(raw: unknown): DockRegistryEntry | null {
 }
 
 export function emptyRegistry(): DockRegistry {
-  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
+  // watchdog 缺省 false：本版不提供离场调度，默认别谎称「开着」
+  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: false, notifyMissed: true };
 }
 
 export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: string[] } {
@@ -404,7 +405,7 @@ export function parseRegistry(raw: unknown): { registry: DockRegistry; errors: s
       v: REGISTRY_VERSION,
       tools,
       autoRun: autoRun ?? true,
-      watchdog: watchdog ?? true,
+      watchdog: watchdog ?? false,
       notifyMissed: notifyMissed ?? true,
     },
     errors,
