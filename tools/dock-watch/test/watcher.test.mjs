@@ -31,6 +31,10 @@ const { createWatcher } = require('../watch.js');
  */
 function makeVault(o = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bz-dock-watch-'));
+  // 值守的本机状态（status / 日志 / 实时步骤）默认写 `%LOCALAPPDATA%`。
+  // 测试把它指到临时目录：既断言得到，也不会往真机上堆垃圾。
+  const prevLocal = process.env.LOCALAPPDATA;
+  process.env.LOCALAPPDATA = path.join(root, '.local');
   const toolDir = path.join(root, 'tools', 'demo');
   const storageDir = path.join(root, 'CONFIG', 'STORAGE');
   fs.mkdirSync(toolDir, { recursive: true });
@@ -115,7 +119,24 @@ console.log('[bz-step] 干完了');
         return null;
       }
     },
+    /** 实时步骤文件（与插件侧 `watchdog-status.ts` 同一口径） */
+    livePath(toolId = 'demo') {
+      return path.join(root, '.local', 'bz-dock-watch', 'live', `${toolId}.jsonl`);
+    },
+    readLive(toolId = 'demo') {
+      try {
+        return fs
+          .readFileSync(this.livePath(toolId), 'utf8')
+          .split('\n')
+          .filter(Boolean)
+          .map((l) => JSON.parse(l));
+      } catch {
+        return [];
+      }
+    },
     cleanup() {
+      if (prevLocal === undefined) delete process.env.LOCALAPPDATA;
+      else process.env.LOCALAPPDATA = prevLocal;
       try {
         fs.rmSync(root, { recursive: true, force: true });
       } catch {
@@ -243,6 +264,49 @@ test('不误判：工具没写记录、退出码 0 —— 判成功，但账本�
     const rt = v.readRuntime();
     assert.equal(rt.rules['r-daily'].lastStatus, 'ok', '退出码 0 且无记录 → 按退出码推断成功');
     assert.equal(rt.run.lastAttemptOk, true);
+  } finally {
+    v.cleanup();
+  }
+});
+
+test('回传：工具吐的每一步都落进本机实时文件，工单号与记录一致', async () => {
+  const v = makeVault({
+    script: `import fs from 'node:fs';
+console.log('[bz-step] 打开登录页');
+console.log('[bz-step] 提交签到');
+fs.appendFileSync(process.env.BZ_DOCK_RUNS_FILE, JSON.stringify({
+  runId: process.env.BZ_DOCK_RUN_ID, tool: 'demo', trigger: 'auto', status: 'ok',
+  startedAt: new Date().toISOString(), finishedAt: new Date().toISOString(),
+}) + '\\n');
+`,
+  });
+  try {
+    const w = createWatcher(v.config, { netProbe: netOk });
+    await w.tick();
+
+    const runs = v.readRuns();
+    const live = v.readLive('demo');
+    // 面板靠这两处对上：文件里的 runId 必须就是账本认的那一个，
+    // 否则详情页会把「后台正在跑」和「跑的是哪一轮」对错人
+    assert.ok(live.length >= 2, `实时步骤应该有两条，实际 ${live.length}`);
+    assert.deepEqual(live.map((s) => s.text), ['打开登录页', '提交签到']);
+    for (const s of live) assert.equal(s.runId, runs[0].runId);
+  } finally {
+    v.cleanup();
+  }
+});
+
+test('回传：拿不到锁、没网时不会留下实时步骤（没跑就没有「正在跑」的假象）', async () => {
+  const v = makeVault({ script: `console.log('[bz-step] 不该出现');process.exit(0);
+` });
+  try {
+    const nodeFs = makeNodeFs(v.root);
+    const held = core.acquireLock('CONFIG/STORAGE', 'somebody-else', { fs: nodeFs, keepAliveMs: 0 });
+    assert.ok(held);
+    const w = createWatcher(v.config, { netProbe: netOk });
+    await w.tick();
+    assert.deepEqual(v.readLive('demo'), []);
+    held.release();
   } finally {
     v.cleanup();
   }

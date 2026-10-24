@@ -10,6 +10,7 @@
  * | `status.json` | 本进程 | 体检快照（面板读它说「值守在不在、上次拍是什么时候」） |
  * | `watch.lock` | 本进程 | 单实例锁（计划任务可能重复拉起） |
  * | `logs/watch.log` | 本进程 | 日志（只在有事件时写，不复述每一拍） |
+ * | `live/<工具id>.jsonl` | 本进程 | **实时步骤**：工具吐的 `[bz-step]`。插件面板轮询它 —— 这是「回看后台跑到第几步」的唯一通道 |
  *
  * 全部住 `%LOCALAPPDATA%\bz-dock-watch\` —— **本机会话态**：不进 vault、不进 git、不跟同步盘走。
  *
@@ -44,6 +45,14 @@ function fileOf(name, env = process.env) {
 function logsDir(env = process.env) {
   return path.join(watchdogDir(env), 'logs');
 }
+
+/** 实时步骤目录（插件侧 `watchdog-status.ts` 必须用同一口径） */
+function liveDir(env = process.env) {
+  return path.join(watchdogDir(env), 'live');
+}
+
+/** 单个工具保留的步骤行数。面板只看最近几十条，留 200 够翻一轮了 */
+const LIVE_KEEP = 200;
 
 // ==================== 原子读写 ====================
 
@@ -214,9 +223,52 @@ function writeStatus(patch, env = process.env) {
   return next;
 }
 
+/** 工具 id → 实时步骤文件名（id 里可能有 `/` 或 `:`，一律拍平成安全的字符） */
+function liveFileOf(toolId, env = process.env) {
+  const safe = String(toolId || 'unknown').replace(/[^A-Za-z0-9._-]/g, '_');
+  return path.join(liveDir(env), `${safe}.jsonl`);
+}
+
+/**
+ * 追加一步。
+ *
+ * 三条约定：
+ *  - **换了一轮就重写整个文件**（第一行的 runId 不是这次的，说明上一次的残留）；
+ *  - 只追加，不读改写 —— 崩在写一半最多坏最后一行；
+ *  - 超过 `LIVE_KEEP` 行就裁尾。裁剪放在追加之后做，裁剪失败不影响这次记录。
+ */
+function appendLive(toolId, runId, text, env = process.env) {
+  const file = liveFileOf(toolId, env);
+  const line = JSON.stringify({ runId, at: new Date().toISOString(), text: String(text ?? '') });
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    let same = false;
+    try {
+      const head = fs.readFileSync(file, 'utf8').split('\n')[0];
+      same = !!head && JSON.parse(head).runId === runId;
+    } catch {
+      same = false;
+    }
+    if (!same) {
+      fs.writeFileSync(file, line + '\n');
+      return;
+    }
+    fs.appendFileSync(file, line + '\n');
+    const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean);
+    if (lines.length > LIVE_KEEP) {
+      fs.writeFileSync(file, lines.slice(-LIVE_KEEP).join('\n') + '\n');
+    }
+  } catch {
+    /* 实时步骤写不进去不该影响跑工具 —— 它只是「让人看得见」 */
+  }
+}
+
 module.exports = {
   CONTRACT_VERSION,
   watchdogDir,
+  liveDir,
+  liveFileOf,
+  appendLive,
   fileOf,
   logsDir,
   readJson,

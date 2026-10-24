@@ -102,9 +102,12 @@ function main() {
     return 3;
   }
 
-  // 装配：这两行是值守与插件唯一的差别 —— 文件往哪找、child_process 从哪来
+  // 装配：这几行是值守与插件唯一的差别 —— 文件往哪找、child_process 从哪来、vault 根在哪
   core.setDockFs(makeNodeFs(config.vault));
   core.setExecDeps({ cp: require('child_process') });
+  // 登记表里工具路径可能是 `vault:CONFIG/...` 形态（跟着库走、能同步到别的机器）。
+  // 还原它需要知道「这个库在哪」—— 插件那边是从 adapter 问的，值守这里就是 config.vault。
+  core.setDockVaultRoot(config.vault);
 
   const once = argv.includes('--once');
   const watcher = createWatcher(config, { coreVersion: readCoreVersion() });

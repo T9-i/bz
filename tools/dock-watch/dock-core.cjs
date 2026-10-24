@@ -48,6 +48,7 @@ __export(watch_core_exports, {
   TOOL_ID_RE: () => TOOL_ID_RE,
   TRIGGER_KINDS: () => TRIGGER_KINDS,
   TRIGGER_LABEL: () => TRIGGER_LABEL,
+  VAULT_PATH_PREFIX: () => VAULT_PATH_PREFIX,
   acquireLock: () => acquireLock,
   actionText: () => actionText,
   buildArgs: () => buildArgs,
@@ -55,10 +56,12 @@ __export(watch_core_exports, {
   currentFs: () => currentFs,
   dirOf: () => dirOf,
   displayNameOf: () => displayNameOf,
+  dockVaultRootNow: () => dockVaultRootNow,
   findByRunId: () => findByRunId,
   hintOf: () => hintOf,
   inspectLock: () => inspectLock,
   isEventTrigger: () => isEventTrigger,
+  isPortablePath: () => isPortablePath,
   joinPath: () => joinPath,
   judgeRun: () => judgeRun,
   latestRun: () => latestRun,
@@ -78,10 +81,12 @@ __export(watch_core_exports, {
   parseSettingsText: () => parseSettingsText,
   pathOf: () => pathOf,
   planTick: () => planTick,
+  portableToolPath: () => portableToolPath,
   readRegistryAt: () => readRegistryAt,
   readTextOf: () => readTextOf,
   reclaimStale: () => reclaimStale,
   removeToolAt: () => removeToolAt,
+  resolveToolPath: () => resolveToolPath,
   ruleDue: () => ruleDue,
   ruleName: () => ruleName,
   runSignature: () => runSignature,
@@ -89,6 +94,7 @@ __export(watch_core_exports, {
   runToolNow: () => runToolNow,
   secretEnvOf: () => secretEnvOf,
   setDockFs: () => setDockFs,
+  setDockVaultRoot: () => setDockVaultRoot,
   setExecDeps: () => setExecDeps,
   setSwitchAt: () => setSwitchAt,
   settle: () => settle,
@@ -115,6 +121,7 @@ var RUNTIME_FILENAME = "dock.runtime.json";
 var LOCK_FILENAME = "dock.lock";
 var REGISTRY_FILENAME = "dock.json";
 var REGISTRY_VERSION = 3;
+var VAULT_PATH_PREFIX = "vault:";
 var SETTINGS_VERSION = 2;
 var INTENT_VERSION = 1;
 var RUNTIME_VERSION = 1;
@@ -833,6 +840,29 @@ function joinPath(dir, name) {
   const d = dir.replace(/\\/g, "/").replace(/\/+$/, "");
   return d === "" ? name : `${d}/${name}`;
 }
+var dockVaultRoot = "";
+function setDockVaultRoot(root) {
+  dockVaultRoot = String(root ?? "").replace(/\\/g, "/").replace(/\/+$/, "");
+}
+function dockVaultRootNow() {
+  return dockVaultRoot;
+}
+function isPortablePath(p) {
+  return p.startsWith(VAULT_PATH_PREFIX);
+}
+function resolveToolPath(p) {
+  if (!isPortablePath(p)) return p;
+  const rel = p.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, "");
+  return dockVaultRoot ? `${dockVaultRoot}/${rel}` : rel;
+}
+function portableToolPath(abs, root = dockVaultRoot) {
+  const p = String(abs ?? "").replace(/\\/g, "/");
+  const base = String(root ?? "").replace(/\\/g, "/").replace(/\/+$/, "");
+  if (!base) return p;
+  if (p === base) return `${VAULT_PATH_PREFIX}.`;
+  if (!p.startsWith(`${base}/`)) return p;
+  return `${VAULT_PATH_PREFIX}${p.slice(base.length + 1)}`;
+}
 var pathOf = {
   manifest: (declPath) => declPath,
   settings: (declPath) => joinPath(dirOf(declPath), SETTINGS_FILENAME),
@@ -903,24 +933,26 @@ function readManifestFile(path, fs) {
 }
 function loadToolView(entry, opts = {}) {
   const fs = opts.fs === void 0 ? currentFs() : opts.fs;
-  const { manifest, error } = readManifestFile(entry.path, fs ?? null);
-  const intentRaw = fs ? readTextOf(pathOf.intent(entry.path), fs) : null;
+  const declPath = resolveToolPath(entry.path);
+  const { manifest, error } = readManifestFile(declPath, fs ?? null);
+  const intentRaw = fs ? readTextOf(pathOf.intent(declPath), fs) : null;
   const intent = parseIntent(safeJson(intentRaw), entry.id);
-  const runtimeRaw = fs ? readTextOf(pathOf.runtime(entry.path), fs) : null;
+  const runtimeRaw = fs ? readTextOf(pathOf.runtime(declPath), fs) : null;
   const runtime = parseRuntime(safeJson(runtimeRaw), entry.id);
-  const settingsRaw = fs ? readTextOf(pathOf.settings(entry.path), fs) : null;
+  const settingsRaw = fs ? readTextOf(pathOf.settings(declPath), fs) : null;
   const parsedValues = parseSettingsText(settingsRaw, entry.id);
   const values = parsedValues ?? {};
-  const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
-  const heartbeat = heartbeatOf(entry.path, fs);
+  const records = fs ? parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), entry.id) : [];
+  const heartbeat = heartbeatOf(declPath, fs);
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
   const trusted = !!trust && !!signature && trust.run === signature;
   const rules = intent.rules?.length ? intent.rules : manifest?.defaultRules ?? [];
   return {
     id: entry.id,
-    path: entry.path,
-    dir: dirOf(entry.path),
+    path: declPath,
+    declaredPath: entry.path,
+    dir: dirOf(declPath),
     manifest,
     error: error ?? (manifest && manifest.id !== entry.id ? `声明的 id 是 ${manifest.id}，登记的是 ${entry.id}` : void 0),
     entry: manifest?.entry ?? null,
@@ -941,7 +973,7 @@ function loadToolViews(entries, opts = {}) {
 }
 function heartbeatOf(declPath, fs = currentFs()) {
   if (!fs) return null;
-  return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(declPath), fs)));
+  return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(resolveToolPath(declPath)), fs)));
 }
 function safeJson(text) {
   if (text === null) return null;
@@ -1975,7 +2007,11 @@ async function executeOne(view, rule, runId, opts, fs) {
     trigger: "auto",
     // 工单号由内核定（pending 里已经记下），这里必须原样传
     runId,
-    records: () => parseRunLines(readRunsText(pathOf.runs(view.path), fs, RUNS_TAIL_BYTES), view.id)
+    records: () => parseRunLines(readRunsText(pathOf.runs(view.path), fs, RUNS_TAIL_BYTES), view.id),
+    cb: {
+      onStep: (text) => opts.onStep?.(view, text, runId)
+      // 没人可问 = 立即按取消回（`exec` 的既有约定），这里不需要额外处理
+    }
   });
   const outcome = await live2.done;
   opts.onOutcome?.(view, outcome);
@@ -2025,6 +2061,7 @@ function storageFileIn(dir, name) {
   TOOL_ID_RE,
   TRIGGER_KINDS,
   TRIGGER_LABEL,
+  VAULT_PATH_PREFIX,
   acquireLock,
   actionText,
   buildArgs,
@@ -2032,10 +2069,12 @@ function storageFileIn(dir, name) {
   currentFs,
   dirOf,
   displayNameOf,
+  dockVaultRootNow,
   findByRunId,
   hintOf,
   inspectLock,
   isEventTrigger,
+  isPortablePath,
   joinPath,
   judgeRun,
   latestRun,
@@ -2055,10 +2094,12 @@ function storageFileIn(dir, name) {
   parseSettingsText,
   pathOf,
   planTick,
+  portableToolPath,
   readRegistryAt,
   readTextOf,
   reclaimStale,
   removeToolAt,
+  resolveToolPath,
   ruleDue,
   ruleName,
   runSignature,
@@ -2066,6 +2107,7 @@ function storageFileIn(dir, name) {
   runToolNow,
   secretEnvOf,
   setDockFs,
+  setDockVaultRoot,
   setExecDeps,
   setSwitchAt,
   settle,

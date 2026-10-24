@@ -120,6 +120,9 @@ async function tick(config, state, watcher) {
             (outcome.ok ? '' : `（${state.lastRun.message}）`),
         );
       },
+      // 工具吐的每一步 → 本机实时日志（插件面板轮询它）。插件在场时这一步走的是面板直连，
+      // 但值守跑的时候面板在另一个进程，只能靠这条文件回传。
+      onStep: (view, text, runId) => rt.appendLive(view.id, runId, text),
       onRemind: (view, rule) => {
         // 离场没有人在场，提醒投递不出去。内核仍会记账（否则每拍都命中），
         // 这里只留一句日志 —— 让「为什么面板上没弹」有据可查。
