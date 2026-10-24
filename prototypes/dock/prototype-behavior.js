@@ -1,5 +1,5 @@
-/* 源指纹 727455e7793ee89a · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
+/* 源指纹 089519df512e56d7 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -192,6 +192,7 @@ var BZW_dock = (() => {
         "interval",
         "on-launch",
         "panel-open",
+        "obsidian-exit",
         "tool-ok",
         "tool-fail",
         "domain-event",
@@ -203,6 +204,7 @@ var BZW_dock = (() => {
         interval: "每隔一段时间",
         "on-launch": "启动 Obsidian 后",
         "panel-open": "打开工具坞时",
+        "obsidian-exit": "关闭 Obsidian 时",
         "tool-ok": "某个工具成功后",
         "tool-fail": "某个工具失败后",
         "domain-event": "某个事件发生时",
@@ -829,6 +831,8 @@ var BZW_dock = (() => {
       }
       case "panel-open":
         return { kind: "panel-open" };
+      case "obsidian-exit":
+        return { kind: "obsidian-exit" };
       case "tool-ok": {
         const id = str(raw.toolId);
         return id ? { kind: "tool-ok", toolId: id } : null;
@@ -2048,7 +2052,7 @@ var BZW_dock = (() => {
     return startOfDay(now) + (h * 3600 + mi * 60) * 1e3;
   }
   function ruleDue(rule, ctx) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
     const t = rule.trigger;
     switch (t.kind) {
       case "daily": {
@@ -2069,15 +2073,17 @@ var BZW_dock = (() => {
       }
       case "panel-open":
         return ((_c = ctx.event) == null ? void 0 : _c.kind) === "panel-open";
+      case "obsidian-exit":
+        return ((_d = ctx.event) == null ? void 0 : _d.kind) === "obsidian-exit";
       case "tool-ok":
-        return ((_d = ctx.event) == null ? void 0 : _d.kind) === "tool-ok" && ctx.event.toolId === t.toolId;
+        return ((_e = ctx.event) == null ? void 0 : _e.kind) === "tool-ok" && ctx.event.toolId === t.toolId;
       case "tool-fail":
-        return ((_e = ctx.event) == null ? void 0 : _e.kind) === "tool-fail" && ctx.event.toolId === t.toolId;
+        return ((_f = ctx.event) == null ? void 0 : _f.kind) === "tool-fail" && ctx.event.toolId === t.toolId;
       case "domain-event":
-        return ((_f = ctx.event) == null ? void 0 : _f.kind) === "domain-event" && ctx.event.channel === t.channel;
+        return ((_g = ctx.event) == null ? void 0 : _g.kind) === "domain-event" && ctx.event.channel === t.channel;
       case "file-change": {
-        if (((_g = ctx.event) == null ? void 0 : _g.kind) !== "file-change") return false;
-        const p = (_h = ctx.event.path) != null ? _h : "";
+        if (((_h = ctx.event) == null ? void 0 : _h.kind) !== "file-change") return false;
+        const p = (_i = ctx.event.path) != null ? _i : "";
         if (!p) return false;
         return p === t.target || p.startsWith(`${t.target}/`);
       }
@@ -2136,6 +2142,8 @@ var BZW_dock = (() => {
         return `启动后 ${durationText(t.delayMin)}`;
       case "panel-open":
         return "打开工具坞时";
+      case "obsidian-exit":
+        return "关闭 Obsidian 后";
       case "tool-ok":
         return `${name(t.toolId)} 成功后`;
       case "tool-fail":
@@ -2587,6 +2595,66 @@ var BZW_dock = (() => {
     }
   });
 
+  // src/dock/exit-pulse.ts
+  function exitPulsePath(dataDir2) {
+    return joinPath(dataDir2, EXIT_PULSE_FILENAME);
+  }
+  function selfPid() {
+    try {
+      const p = globalThis.process;
+      const n = p == null ? void 0 : p.pid;
+      return typeof n === "number" && Number.isFinite(n) && n > 0 ? n : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function pidAlive2(pid) {
+    if (!Number.isFinite(pid) || pid <= 0) return true;
+    const p = globalThis.process;
+    if (typeof (p == null ? void 0 : p.kill) !== "function") return true;
+    try {
+      p.kill(pid, 0);
+      return true;
+    } catch (e) {
+      return (e == null ? void 0 : e.code) === "EPERM";
+    }
+  }
+  function readExitPulse(dataDir2, fs = currentFs()) {
+    if (!fs || !dataDir2) return null;
+    const raw = fs.readText(exitPulsePath(dataDir2));
+    if (raw === null) return null;
+    try {
+      const o = JSON.parse(raw);
+      const at = typeof (o == null ? void 0 : o.at) === "string" ? o.at : "";
+      const pid = typeof (o == null ? void 0 : o.pid) === "number" ? o.pid : Number(o == null ? void 0 : o.pid);
+      if (!at || !Number.isFinite(Date.parse(at))) return null;
+      return { at, pid: Number.isFinite(pid) ? pid : 0 };
+    } catch (e) {
+      return null;
+    }
+  }
+  function clearExitPulse(dataDir2, fs = currentFs()) {
+    if (!fs || !dataDir2 || !fs.unlink) return;
+    try {
+      fs.unlink(exitPulsePath(dataDir2));
+    } catch (e) {
+    }
+  }
+  function exitPulseFires(pulse, self = selfPid()) {
+    if (!pulse) return false;
+    if (!Number.isFinite(Date.parse(pulse.at))) return false;
+    if (!Number.isFinite(pulse.pid) || pulse.pid <= 0) return false;
+    if (self > 0 && pulse.pid === self) return false;
+    return !pidAlive2(pulse.pid);
+  }
+  var EXIT_PULSE_FILENAME;
+  var init_exit_pulse = __esm({
+    "src/dock/exit-pulse.ts"() {
+      init_files();
+      EXIT_PULSE_FILENAME = "dock.exit.json";
+    }
+  });
+
   // src/dock/tick-once.ts
   async function tickOnce(opts) {
     var _a, _b, _c;
@@ -2599,7 +2667,7 @@ var BZW_dock = (() => {
         opts.dataDir,
         opts.owner,
         async (lock) => {
-          var _a2, _b2, _c2, _d;
+          var _a2, _b2, _c2, _d, _e;
           const { registry } = readRegistryAt(opts.registryPath, fs);
           if (!registry.autoRun) return { skip: "auto-run-off", registry, views: [] };
           if (opts.respectWatchdog && !registry.watchdog) return { skip: "watchdog-off", registry, views: [] };
@@ -2611,14 +2679,17 @@ var BZW_dock = (() => {
               (_a2 = opts.onError) == null ? void 0 : _a2.call(opts, e);
             }
           }
+          const pulse = readExitPulse(opts.dataDir, fs);
+          const exitFires = exitPulseFires(pulse);
+          const events = exitFires ? [...(_b2 = opts.events) != null ? _b2 : [], { kind: "obsidian-exit" }] : [...(_c2 = opts.events) != null ? _c2 : []];
           const result = await runTick({
             dataDir: opts.dataDir,
             registry,
             views: views2,
             now,
             sessionStart: opts.sessionStart,
-            events: (_b2 = opts.events) != null ? _b2 : [],
-            liveIds: (_c2 = opts.liveIds) != null ? _c2 : /* @__PURE__ */ new Set(),
+            events,
+            liveIds: (_d = opts.liveIds) != null ? _d : /* @__PURE__ */ new Set(),
             fs,
             execute: (view2, rule, runId) => executeOne(view2, rule, runId, opts, fs),
             remind: (view2, rule) => {
@@ -2627,7 +2698,8 @@ var BZW_dock = (() => {
             },
             shouldStop: () => lock.lost()
           });
-          (_d = opts.onPlan) == null ? void 0 : _d.call(opts, result.decisions, result);
+          if (exitFires) clearExitPulse(opts.dataDir, fs);
+          (_e = opts.onPlan) == null ? void 0 : _e.call(opts, result.decisions, result);
           return { registry, views: views2, result };
         },
         { fs, now, keepAliveMs: (_b = opts.keepAliveMs) != null ? _b : KEEP_ALIVE_MS }
@@ -2690,6 +2762,7 @@ var BZW_dock = (() => {
       init_files();
       init_parse();
       init_exec();
+      init_exit_pulse();
       init_types();
       KEEP_ALIVE_MS = 2e4;
     }
@@ -5451,6 +5524,8 @@ var BZW_dock = (() => {
         return { kind: "file-change", target: "" };
       case "value-threshold":
         return { kind: "value-threshold", path: "", key: "", op: ">", value: 0 };
+      case "obsidian-exit":
+        return { kind: "obsidian-exit" };
       default:
         return { kind: "panel-open" };
     }
