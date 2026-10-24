@@ -1,4 +1,4 @@
-/* 源指纹 00b85fbc1fcaf485 · 仓内输入 24 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 3d8043599218a7d1 · 仓内输入 24 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/view.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -997,7 +997,7 @@ var BZW_dock = (() => {
     return { id: raw.id, path };
   }
   function emptyRegistry() {
-    return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: false, notifyMissed: true };
+    return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
   }
   function parseRegistry(raw) {
     const errors = [];
@@ -1032,7 +1032,7 @@ var BZW_dock = (() => {
         v: REGISTRY_VERSION,
         tools,
         autoRun: autoRun != null ? autoRun : true,
-        watchdog: watchdog != null ? watchdog : false,
+        watchdog: watchdog != null ? watchdog : true,
         notifyMissed: notifyMissed != null ? notifyMissed : true
       },
       errors
@@ -1367,8 +1367,21 @@ var BZW_dock = (() => {
   });
 
   // src/dock/registry.ts
+  function vaultRoot() {
+    var _a;
+    try {
+      const a = getApp();
+      const adapter = a.vault.adapter;
+      const base = (_a = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _a.call(adapter);
+      return typeof base === "string" ? base.replace(/\\/g, "/").replace(/\/+$/, "") : "";
+    } catch (e) {
+      return "";
+    }
+  }
   function registryPath() {
-    return storageFile(REGISTRY_FILENAME);
+    const rel = storageFile(REGISTRY_FILENAME);
+    const root2 = vaultRoot();
+    return root2 ? `${root2}/${rel}` : rel;
   }
   function readRegistry(fs = currentFs()) {
     return readRegistryAt(registryPath(), fs);
@@ -1416,6 +1429,7 @@ var BZW_dock = (() => {
       init_registry_file();
       init_files();
       init_storage();
+      init_app();
       init_settings_provider();
       DOCK_TRUST_KEY = "dockTrust";
     }
@@ -2541,7 +2555,7 @@ var BZW_dock = (() => {
       );
     } catch (e) {
       (_c = opts.onError) == null ? void 0 : _c.call(opts, e);
-      return {};
+      return { skipped: "error" };
     }
     if (inner === null) return { skipped: "locked" };
     return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
@@ -2614,6 +2628,7 @@ var BZW_dock = (() => {
   function notifyDockEvent(ev) {
     if (app === null) return;
     pendingEvents.push(ev);
+    if (pendingEvents.length > 200) pendingEvents = pendingEvents.slice(-200);
     void kickDockScheduler();
   }
   async function tick() {
@@ -2634,9 +2649,9 @@ var BZW_dock = (() => {
         onOutcome: announce,
         onRemind: remindOf
       });
-      if (res.skipped === "locked") return;
+      if (!res.result) return;
       pendingEvents = [];
-      if (res.result && res.views) reportMissingParams(res.result.decisions, res.views);
+      if (res.views) reportMissingParams(res.result.decisions, res.views);
     } catch (e) {
     } finally {
       ticking = false;
@@ -2858,6 +2873,8 @@ var BZW_dock = (() => {
       (_d = (_c = v.runtime.run) == null ? void 0 : _c.pausedAt) != null ? _d : "",
       (_f = (_e = v.lastRun) == null ? void 0 : _e.runId) != null ? _f : "",
       (_h = (_g = v.lastRun) == null ? void 0 : _g.status) != null ? _h : "",
+      // 运行态也算「变了」：不然开始跑/跑完的那一刻，详情页不会重绘那块「正在跑」
+      liveOf(v.id) ? "live" : freshOf(v.heartbeat) ? "ext" : "",
       String(v.rules.length)
     ].join("|");
   }
@@ -3340,15 +3357,25 @@ var BZW_dock = (() => {
     void kickDockScheduler();
   }
   function renderLive(v) {
-    var _a;
+    var _a, _b;
     if (!bodyEl) return;
     const live3 = liveOf(v.id);
-    if (!live3) return;
+    const external = externalRunOf(v);
+    if (!live3 && !external) return;
     block("正在跑");
     const box = bodyEl.createDiv({ cls: "bz-dock-log" });
-    box.createDiv({ cls: "bz-dock-log-run", text: `工单 ${live3.runId} · ${(_a = live3.phase) != null ? _a : "进行中"}${live3.pct !== null ? ` ${live3.pct}%` : ""}` });
-    for (const s of live3.steps.slice(-40)) box.createDiv({ cls: "bz-dock-log-line", text: s.text });
-    if (!live3.steps.length) box.createDiv({ cls: "bz-dock-hint", text: "还没有输出" });
+    if (live3) {
+      box.createDiv({ cls: "bz-dock-log-run", text: `工单 ${live3.runId} · ${(_a = live3.phase) != null ? _a : "进行中"}${live3.pct !== null ? ` ${live3.pct}%` : ""}` });
+      for (const s of live3.steps.slice(-40)) box.createDiv({ cls: "bz-dock-log-line", text: s.text });
+      if (!live3.steps.length) box.createDiv({ cls: "bz-dock-hint", text: "还没有输出" });
+      return;
+    }
+    box.createDiv({ cls: "bz-dock-log-run", text: `后台进程在跑 · 工单 ${(_b = external == null ? void 0 : external.runId) != null ? _b : "（未标注）"}` });
+    if (external == null ? void 0 : external.step) box.createDiv({ cls: "bz-dock-log-line", text: external.step });
+    box.createDiv({
+      cls: "bz-dock-hint",
+      text: "这一轮不是 Obsidian 拉起的，看不到实时输出；跑完会出现在下面的记录里"
+    });
   }
   function renderHistory(v) {
     if (!bodyEl) return;

@@ -430,7 +430,7 @@ function parseRegistryEntry(raw) {
   return { id: raw.id, path };
 }
 function emptyRegistry() {
-  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: false, notifyMissed: true };
+  return { v: REGISTRY_VERSION, tools: [], autoRun: true, watchdog: true, notifyMissed: true };
 }
 function parseRegistry(raw) {
   const errors = [];
@@ -465,7 +465,7 @@ function parseRegistry(raw) {
       v: REGISTRY_VERSION,
       tools,
       autoRun: autoRun ?? true,
-      watchdog: watchdog ?? false,
+      watchdog: watchdog ?? true,
       notifyMissed: notifyMissed ?? true
     },
     errors
@@ -1943,7 +1943,7 @@ async function tickOnce(opts) {
     );
   } catch (e) {
     opts.onError?.(e);
-    return {};
+    return { skipped: "error" };
   }
   if (inner === null) return { skipped: "locked" };
   return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
