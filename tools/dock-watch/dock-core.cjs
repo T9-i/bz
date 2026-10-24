@@ -540,6 +540,17 @@ function parseRunLines(text, expectTool) {
   }
   return out;
 }
+function parseHeartbeat(raw) {
+  if (!isObj(raw)) return null;
+  const at = str(raw.at);
+  if (!at || !Number.isFinite(Date.parse(at))) return null;
+  const out = { at };
+  const runId = str(raw.runId);
+  if (runId) out.runId = runId;
+  const step = str(raw.step);
+  if (step) out.step = step;
+  return out;
+}
 function findByRunId(records, runId) {
   for (let i = records.length - 1; i >= 0; i--) {
     if (records[i].runId === runId) return records[i];
@@ -901,6 +912,7 @@ function loadToolView(entry, opts = {}) {
   const parsedValues = parseSettingsText(settingsRaw, entry.id);
   const values = parsedValues ?? {};
   const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
+  const heartbeat = fs ? parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(entry.path), fs))) : null;
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
   const trusted = !!trust && !!signature && trust.run === signature;
@@ -920,6 +932,7 @@ function loadToolView(entry, opts = {}) {
     trusted,
     trustStale: !!trust && !!signature && trust.run !== signature,
     lastRun: latestRun(records),
+    heartbeat: heartbeat ?? void 0,
     runnable: (opts.canRun ?? true) && !!manifest?.entry
   };
 }
