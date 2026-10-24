@@ -225,8 +225,10 @@
         const frame = dt('.bz-dock-board iframe.bz-dock-board-frame');
         t('展示板 iframe 挂出来', !!frame);
         t('展示板 srcdoc 里塞了框内滚动条样式', !!frame && (frame.getAttribute('srcdoc') || '').includes('scrollbar'));
-        t('展示板不给 allow-scripts', !!frame && !(frame.getAttribute('sandbox') || '').includes('allow-scripts'));
-        t('展示板高度由样式定（无内联 height）', !!frame && !frame.getAttribute('style'));
+        t('展示板灌了主题变量（框里跟面板同一个世界）',
+          !!frame && /--bz-text-1/.test(frame.getAttribute('srcdoc') || ''));
+        t('展示板不给 allow-scripts 之外的越权位', !!frame && !(frame.getAttribute('sandbox') || '').includes('allow-top-navigation'));
+        t('展示板高度封顶走内联 max-height', !!frame && /max-height:\s*\d+px/.test(frame.getAttribute('style') || ''));
 
         // ---- 详情：未授权 = 能看不能跑 ----
         dt('.bz-dock-back').click();

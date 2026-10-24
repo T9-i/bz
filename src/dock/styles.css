@@ -90,44 +90,29 @@
   .bz-dock-kpi-tile.is-click:hover { background-color: var(--bz-bg-hover, rgba(0, 0, 0, 0.04)); }
 }
 
-/* ---------- 面板顶层执行进度 ---------- */
-.bz-dock-runbar {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--bz-space-xs);
-  margin: var(--bz-space-sm) var(--bz-space-lg) 0;
-  padding: var(--bz-space-sm) var(--bz-space-md);
-  background: var(--bz-surface-2);
-  border: 1px solid var(--bz-border);
-  border-radius: var(--bz-radius-md);
-}
+/* ---------- 面板顶层执行进度 ----------
+   只画**在前台跑**的（bz 亲手启动、能收到实时进度）。后台值守拉起的没有实时流，
+   只画工具自己写下的那一步 —— 拿不到进度就不画百分比，这条是 UI 约束，不是样式偏好。 */
+.bz-dock-runbar { flex: none; display: flex; flex-direction: column; }
 .bz-dock-runbar.is-off { display: none; }
-.bz-dock-rb { display: flex; align-items: center; gap: var(--bz-space-sm); min-width: 0; }
+.bz-dock-rb {
+  display: flex;
+  align-items: center;
+  gap: var(--bz-space-sm);
+  padding: var(--bz-space-sm) var(--bz-space-lg);
+  border-bottom: 1px solid var(--bz-border);
+  background: var(--bz-brand-soft);
+}
 .bz-dock-rb-pulse {
   flex: none;
   width: 7px;
   height: 7px;
   border-radius: var(--bz-radius-full);
   background: var(--bz-brand);
-  animation: bz-dock-pulse 1.6s ease-in-out infinite;
 }
-@keyframes bz-dock-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-.bz-dock-rb-name { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); font-weight: var(--bz-weight-medium); }
-.bz-dock-rb-tag {
-  flex: none;
-  font-size: var(--bz-font-caption);
-  line-height: 1.6;
-  padding: 0 6px;
-  border-radius: var(--bz-radius-xs);
-  background: var(--bz-surface-3);
-  border: 1px solid var(--bz-border);
-  color: var(--bz-text-2);
-}
-.bz-dock-rb-text {
+.bz-dock-rb-name { flex: none; font-size: var(--bz-font-label); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); }
+.bz-dock-rb-phase { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); }
+.bz-dock-rb-step {
   flex: 1;
   min-width: 0;
   font-size: var(--bz-font-caption);
@@ -136,7 +121,24 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.bz-dock-rb .bz-progress { flex: none; width: 120px; }
+.bz-dock-rb-track { flex: none; width: 180px; }
+.bz-dock-rb-pct {
+  flex: none;
+  width: 40px;
+  text-align: right;
+  font-family: var(--bz-font-mono);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-brand);
+}
+/* 离线运行的标记：顶栏那一行与运行台那一块共用。刻意没有进度条 */
+.bz-dock-rb-tag {
+  flex: none;
+  padding: 0 6px;
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-full);
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+}
 
 /* ---------- 搜索行 ---------- */
 .bz-dock-bar {
@@ -555,16 +557,19 @@
   white-space: nowrap;
 }
 
-/* ---------- 展示板（工具自己画的那一块，ADR-0243） ---------- */
+/* ---------- 展示板（工具自己画的那一块，ADR-0243）----------
+   内容是工具写的 `panel.html`，装在一个沙箱 iframe 里 —— 它的样式只能影响框内，
+   所以这里只管框本身（描边 + 圆角 + 底色）。框里的观感由展示板自己带，
+   面板只往框里灌一组主题变量（见 ui.ts 的 frameBaseStyle）。 */
 .bz-dock-board { display: flex; flex-direction: column; gap: var(--bz-space-sm); }
 .bz-dock-board-frame {
   display: block;
   width: 100%;
-  max-height: 560px;
   border: 1px solid var(--bz-border);
   border-radius: var(--bz-radius-md);
   background: var(--bz-surface-1);
 }
+.bz-dock-board-warn { font-size: var(--bz-font-caption); color: var(--bz-warning); }
 
 /* ---------- 运行台里的实时区 ---------- */
 .bz-dock-live:empty { display: none; }
@@ -594,66 +599,64 @@
 }
 
 /* ---------- 运行记录 ---------- */
-.bz-dock-histlist { display: flex; flex-direction: column; gap: 2px; }
+/* 一行一次运行，一行一张小卡：底色比面板降一档 + 1px 边，是本域列表项的既有口径 */
+.bz-dock-histlist { display: flex; flex-direction: column; gap: 6px; }
 .bz-dock-histrow {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 5px 6px;
-  border-radius: var(--bz-radius-sm);
-  border: 1px solid transparent;
-}
-@media (hover: hover) {
-  .bz-dock-histrow:hover { background: var(--bz-surface-3); }
-}
-.bz-dock-histrow.is-open { background: var(--bz-surface-3); border-color: var(--bz-border); }
-.bz-dock-histhead { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.bz-dock-histtime { flex: none; font-size: var(--bz-font-meta); color: var(--bz-text-1); }
-.bz-dock-histstatus { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-2); }
-.bz-dock-histdur { flex: none; font-size: var(--bz-font-caption); color: var(--bz-text-3); font-family: var(--bz-font-mono); }
-.bz-dock-histtrig {
-  flex: none;
-  margin-left: auto;
-  font-size: var(--bz-font-caption);
-  color: var(--bz-text-3);
-}
-.bz-dock-histmsg {
-  font-size: var(--bz-font-caption);
-  color: var(--bz-text-2);
-  line-height: var(--bz-leading-normal);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.bz-dock-histerr { display: flex; flex-direction: column; gap: 1px; }
-.bz-dock-histerr-hint { font-size: var(--bz-font-caption); color: var(--bz-danger); }
-.bz-dock-histerr-detail { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
-.bz-dock-histtoggle { align-self: flex-start; margin-top: 2px; }
-.bz-dock-histmore { display: none; flex-direction: column; gap: var(--bz-space-xs); padding-top: 4px; }
-.bz-dock-histrow.is-open .bz-dock-histmore { display: flex; }
-.bz-dock-histexact {
-  font-family: var(--bz-font-mono);
-  font-size: var(--bz-font-caption);
-  color: var(--bz-text-3);
-  opacity: 0.8;
-}
-
-.bz-dock-block { display: flex; flex-direction: column; gap: 2px; }
-.bz-dock-block-label { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
-.bz-dock-json {
-  margin: 0;
-  padding: var(--bz-space-xs) var(--bz-space-sm);
-  max-height: 200px;
-  overflow: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--bz-space-sm);
   background: var(--bz-surface-1);
   border: 1px solid var(--bz-border);
   border-radius: var(--bz-radius-sm);
+}
+.bz-dock-histhead { display: flex; align-items: center; gap: var(--bz-space-sm); flex: 1; min-width: 0; }
+.bz-dock-histtime { font-size: var(--bz-font-meta); color: var(--bz-text-1); }
+.bz-dock-histstatus { font-size: var(--bz-font-caption); color: var(--bz-text-2); }
+.bz-dock-histdur { font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+.bz-dock-histtrig {
+  margin-left: auto;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-xs);
+  padding: 0 5px;
+}
+.bz-dock-histmsg {
+  flex-basis: 100%;
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-1);
+  line-height: var(--bz-leading-normal);
+}
+.bz-dock-histerr {
+  flex-basis: 100%;
+  padding: 6px var(--bz-space-sm);
+  border-radius: var(--bz-radius-sm);
+  background: color-mix(in srgb, var(--bz-danger) 12%, transparent);
+}
+.bz-dock-histerr-hint { font-size: var(--bz-font-meta); color: var(--bz-danger); }
+.bz-dock-histerr-detail { font-size: var(--bz-font-caption); color: var(--bz-text-2); margin-top: 2px; }
+.bz-dock-histmore { flex-basis: 100%; display: none; flex-direction: column; gap: 6px; padding-top: 6px; }
+.bz-dock-histrow.is-open .bz-dock-histmore { display: flex; }
+/* 「展开」贴行尾（行是 flex-wrap 的，不 pin 的话它会跟着弹到下一行最左） */
+.bz-dock-histtoggle { margin-left: auto; }
+.bz-dock-histexact { flex-basis: 100%; font-size: var(--bz-font-caption); color: var(--bz-text-3); }
+
+.bz-dock-block { display: flex; flex-direction: column; gap: 2px; }
+.bz-dock-block-label { font-size: var(--bz-font-caption); color: var(--bz-text-3); margin-bottom: 2px; }
+.bz-dock-json {
+  margin: 0;
+  padding: 6px var(--bz-space-sm);
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--bz-code-bg);
+  border-radius: var(--bz-radius-sm);
   font-family: var(--bz-font-mono);
   font-size: var(--bz-font-caption);
-  line-height: var(--bz-leading-normal);
-  color: var(--bz-text-2);
+  color: var(--bz-text-1);
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
 }
 .bz-dock-artrow { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
 .bz-dock-artrow-path {
@@ -670,28 +673,44 @@
 /* 授权弹窗里的命令预览 */
 .bz-dock-trust { display: flex; flex-direction: column; gap: var(--bz-space-md); }
 
-/* ---------- 关闭钮 ---------- */
-@media (hover: hover) {
-  .bz-dock-close:hover { color: var(--bz-text-1); }
-}
+/* ---------- 关闭钮：桌面走点遮罩 / ESC，移动端全屏面板遮不住，只在那里露出来 ---------- */
+.bz-dock-panel .bz-dock-close { display: none; }
 
-/* ---------- 移动端 ---------- */
-@media (max-width: 720px) {
+/* ---------- 移动端（≤768px：全屏 + 单列 + 只读） ---------- */
+@media (max-width: 768px) {
   .bz-dock-panel {
     width: 100vw;
     height: 100%;
     max-height: none;
     border-radius: 0;
+    border: 0;
   }
-  .bz-dock-panel .bz-panel-head { padding: 0 var(--bz-space-md); height: 56px; }
-  .bz-dock-kpi { margin: var(--bz-space-sm) var(--bz-space-sm) 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .bz-dock-kpi-tile:nth-child(2) { border-right: 0; }
-  .bz-dock-kpi-tile:nth-child(1),
-  .bz-dock-kpi-tile:nth-child(2) { border-bottom: 1px solid var(--bz-border); }
-  .bz-dock-kpi-v { font-size: 20px; }
-  .bz-dock-body { padding: var(--bz-space-sm); }
-  .bz-dock-grid { grid-template-columns: minmax(0, 1fr); }
-  .bz-dock-cols { grid-template-columns: minmax(0, 1fr); }
-  .bz-dock-toolhead { padding: var(--bz-space-sm) var(--bz-space-md) var(--bz-space-md); }
-  .bz-dock-meta { grid-template-columns: minmax(0, 1fr); }
+  .bz-dock-panel .bz-dock-close { display: inline-flex; }
+  .bz-dock-panel .bz-panel-head { height: 52px; padding: 0 var(--bz-space-md); }
+  /* KPI 挤成两列（四格在 390 宽里会各自被压到读不出数） */
+  .bz-dock-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: var(--bz-space-sm) var(--bz-space-md) 0; }
+  .bz-dock-kpi-tile { border-bottom: 1px solid var(--bz-border); }
+  .bz-dock-kpi-tile:nth-child(2n) { border-right: 0; }
+  .bz-dock-kpi-tile:nth-last-child(-n + 2) { border-bottom: 0; }
+  /* 顶栏进度让位给「谁在跑 + 跑到哪一步」 */
+  .bz-dock-rb { flex-wrap: wrap; }
+  .bz-dock-rb-text { flex-basis: 100%; }
+  .bz-dock-rb .bz-progress { width: auto; flex: 1; }
+  .bz-dock-bar { flex-wrap: wrap; }
+  .bz-dock-search { max-width: none; flex-basis: 100%; }
+  .bz-dock-body { padding: var(--bz-space-md); }
+  .bz-dock-grid { grid-template-columns: 1fr; }
+  .bz-dock-cols { grid-template-columns: 1fr; }
+  .bz-dock-meta { grid-template-columns: 1fr; }
+  .bz-dock-meta-label { width: 56px; }
+  /* 详情头（换装后的面板头行）窄一档，统计条三格保持一行 */
+  .bz-panel-head.bz-dock-toolhead { padding: var(--bz-space-sm) var(--bz-space-md) var(--bz-space-md); }
+  .bz-dock-back { width: 32px; height: 32px; }
+  .bz-dock-coveric { width: 40px; height: 40px; }
+  .bz-dock-coveric .bz-ic { width: 20px; height: 20px; }
+  .bz-dock-covertxt .bz-dock-detail-name { font-size: var(--bz-font-emphasis); }
+  .bz-dock-toolstats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bz-dock-toolstats .bz-dock-kpi-tile:nth-child(2n) { border-right: 1px solid var(--bz-border); }
+  .bz-dock-toolstats .bz-dock-kpi-tile:last-child { border-right: 0; }
+  .bz-dock-toolstats .bz-dock-kpi-tile { border-bottom: 0; }
 }

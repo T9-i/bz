@@ -1,4 +1,4 @@
-/* 源指纹 d9c0b2d206e37256 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 727455e7793ee89a · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -4569,8 +4569,8 @@ var BZW_dock = (() => {
     if (!host) return;
     host.innerHTML = "";
     const live3 = liveAll();
-    const exts = view.kind === "detail" ? [] : views.map((v) => ({ v, hb: externalRunOf(v) })).filter((x) => x.hb !== null);
-    if (!live3.length && !exts.length) {
+    const offs = view.kind === "detail" ? [] : views.map((v) => ({ v, hb: externalRunOf(v) })).filter((x) => x.hb !== null);
+    if (!live3.length && !offs.length) {
       host.classList.add("is-off");
       return;
     }
@@ -4580,22 +4580,24 @@ var BZW_dock = (() => {
       const row = el("div", "bz-dock-rb");
       row.appendChild(el("span", "bz-dock-rb-pulse"));
       row.appendChild(el("span", "bz-dock-rb-name", v ? displayNameOf(v) : run.toolId));
-      row.appendChild(el("span", "bz-dock-rb-tag", run.trigger === "auto" ? "自动" : "手动"));
-      const phase = run.phase ? `${run.phase}${run.pct !== null ? ` ${run.pct}%` : ""}` : "进行中";
-      row.appendChild(el("span", "bz-dock-rb-text", phase));
+      if (run.phase) row.appendChild(el("span", "bz-dock-rb-phase", run.phase));
+      const lastStep = run.steps.length ? run.steps[run.steps.length - 1].text : "正在跑…";
+      row.appendChild(el("span", "bz-dock-rb-step", lastStep));
       if (run.pct !== null) {
-        const bar = uiProgress({ thin: true, value: run.pct });
-        row.appendChild(bar.el);
+        const track = el("div", "bz-dock-rb-track");
+        track.appendChild(uiProgress({ thin: true, value: run.pct }).el);
+        row.appendChild(track);
+        row.appendChild(el("span", "bz-dock-rb-pct", `${run.pct}%`));
       }
       host.appendChild(row);
     }
-    for (const { v, hb } of exts) {
+    for (const { v, hb } of offs) {
       const row = el("div", "bz-dock-rb");
       row.dataset.tool = v.id;
       row.appendChild(el("span", "bz-dock-rb-pulse"));
       row.appendChild(el("span", "bz-dock-rb-name", displayNameOf(v)));
-      row.appendChild(el("span", "bz-dock-rb-tag", "后台"));
-      row.appendChild(el("span", "bz-dock-rb-text", hb.step || "值守进程正在跑"));
+      row.appendChild(el("span", "bz-dock-rb-tag", "离线"));
+      row.appendChild(el("span", "bz-dock-rb-step", hb.step || "值守进程正在跑"));
       host.appendChild(row);
     }
   }
@@ -4747,6 +4749,7 @@ var BZW_dock = (() => {
         const runBtn = uiBtn({
           label: "运行",
           icon: "play",
+          tone: "primary",
           size: "sm",
           disabled: !gate.ok || !!externalRunOf(v),
           onClick: () => void doRun(v)
@@ -4835,16 +4838,134 @@ var BZW_dock = (() => {
     body.appendChild(wrap);
   }
   var FRAME_SCROLLBAR_CSS = "<style>html{scrollbar-width:none;-ms-overflow-style:none}html::-webkit-scrollbar{display:none;width:0;height:0}</style>";
+  var BOARD_MAX_BYTES = 512 * 1024;
+  var BOARD_MAX_HEIGHT = 560;
+  var BOARD_THEME_VARS = [
+    "--bz-surface-0",
+    "--bz-surface-1",
+    "--bz-surface-2",
+    "--bz-surface-3",
+    "--bz-text-1",
+    "--bz-text-2",
+    "--bz-text-3",
+    "--bz-border",
+    "--bz-brand",
+    "--bz-brand-soft",
+    "--bz-success",
+    "--bz-warning",
+    "--bz-danger",
+    "--bz-radius-sm",
+    "--bz-radius-md",
+    "--bz-font-ui",
+    "--bz-font-mono",
+    "--bz-space-xs",
+    "--bz-space-sm",
+    "--bz-space-md",
+    "--bz-space-lg"
+  ];
+  function escapeStyleAttr(v) {
+    return v.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+  function frameBaseStyle() {
+    const cs = getComputedStyle(document.body);
+    const parts = BOARD_THEME_VARS.map((name) => {
+      const value = cs.getPropertyValue(name).trim();
+      return value ? `${name}:${escapeStyleAttr(value)}` : "";
+    }).filter(Boolean);
+    parts.push(
+      "margin:0",
+      "padding:var(--bz-space-md)",
+      "background:transparent",
+      "color:var(--bz-text-1)",
+      "font-family:var(--bz-font-ui)",
+      "font-size:var(--bz-font-label)",
+      "line-height:1.6"
+    );
+    return parts.join(";");
+  }
+  function frameRootStyle() {
+    return "scrollbar-width:none";
+  }
+  function fitFrameHeight(frame) {
+    const doc = frame.contentDocument;
+    if (!doc) return;
+    let last = -1;
+    const measure = () => {
+      var _a, _b, _c, _d;
+      const h = Math.max((_b = (_a = doc.documentElement) == null ? void 0 : _a.scrollHeight) != null ? _b : 0, (_d = (_c = doc.body) == null ? void 0 : _c.scrollHeight) != null ? _d : 0);
+      if (h > 0 && Math.abs(h - last) > 1) {
+        last = h;
+        frame.style.height = `${h}px`;
+      }
+    };
+    measure();
+    try {
+      const ro = new ResizeObserver(measure);
+      if (doc.body) ro.observe(doc.body);
+      ro.observe(doc.documentElement);
+    } catch (e) {
+    }
+  }
+  function sandboxFrame(html, className, title, opts = {}) {
+    const frame = document.createElement("iframe");
+    frame.className = className;
+    const sandbox = ["allow-same-origin"];
+    if (opts.allowPopups) sandbox.push("allow-popups", "allow-popups-to-escape-sandbox");
+    if (opts.allowScripts) sandbox.push("allow-scripts");
+    frame.setAttribute("sandbox", sandbox.join(" "));
+    frame.setAttribute("title", title);
+    frame.setAttribute("referrerpolicy", "no-referrer");
+    if (opts.maxHeight) frame.style.maxHeight = `${opts.maxHeight}px`;
+    frame.srcdoc = `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head><body style="${frameBaseStyle()}">${html}</body></html>`;
+    frame.addEventListener("load", () => {
+      fitFrameHeight(frame);
+      if (opts.allowPopups) wireExternalLinks(frame);
+    });
+    return frame;
+  }
+  function wireExternalLinks(frame) {
+    const doc = frame.contentDocument;
+    if (!doc) return;
+    doc.addEventListener(
+      "click",
+      (ev) => {
+        var _a, _b, _c;
+        const target = ev.target;
+        const a = target && typeof target.closest === "function" ? target.closest("a[href]") : null;
+        if (!a) return;
+        const href = (_a = a.getAttribute("href")) != null ? _a : "";
+        if (!/^https?:\/\//i.test(href)) return;
+        ev.preventDefault();
+        const shell = (_c = (_b = window.require) == null ? void 0 : _b.call(window, "electron")) == null ? void 0 : _c.shell;
+        if (shell) shell.openExternal(href);
+        else window.open(href, "_blank", "noopener");
+      },
+      true
+    );
+  }
   function boardSection(v) {
     const html = panelOf(v.path, currentFs());
-    if (!html) return null;
-    const box = el("div", "bz-dock-board");
-    const frame = el("iframe", "bz-dock-board-frame");
-    frame.setAttribute("sandbox", "allow-same-origin allow-popups allow-popups-to-escape-sandbox");
-    frame.setAttribute("referrerpolicy", "no-referrer");
-    frame.srcdoc = html.toLowerCase().includes("<head>") ? html.replace(/<head([^>]*)>/i, `<head$1>${FRAME_SCROLLBAR_CSS}`) : `<!DOCTYPE html><html><head>${FRAME_SCROLLBAR_CSS}</head><body>${html}</body></html>`;
-    box.appendChild(frame);
-    return box;
+    if (html === null) return null;
+    const host = el("div", "bz-dock-board");
+    const bytes = new TextEncoder().encode(html).length;
+    if (bytes > BOARD_MAX_BYTES) {
+      host.appendChild(
+        el(
+          "div",
+          "bz-dock-board-warn",
+          `panel.html 有 ${Math.round(bytes / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`
+        )
+      );
+      return host;
+    }
+    host.appendChild(
+      sandboxFrame(html, "bz-dock-board-frame", `${displayNameOf(v)} 的展示板`, {
+        maxHeight: BOARD_MAX_HEIGHT,
+        allowPopups: true,
+        allowScripts: true
+      })
+    );
+    return host;
   }
   function toolStats(v) {
     const box = el("div", "bz-dock-kpi bz-dock-toolstats");

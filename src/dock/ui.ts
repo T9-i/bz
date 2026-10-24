@@ -633,37 +633,44 @@ function renderRunbar(): void {
   if (!host) return;
   host.innerHTML = '';
   const live = liveAll();
-  const exts = view.kind === 'detail'
-    ? []
-    : views
-        .map((v) => ({ v, hb: externalRunOf(v) }))
-        .filter((x): x is { v: DockToolView; hb: DockHeartbeat } => x.hb !== null);
-  if (!live.length && !exts.length) {
+  // 详情页不画顶栏那条：运行台里已经有同一条运行的实时进度，头顶再来一条是同一件事说两遍
+  const offs =
+    view.kind === 'detail'
+      ? []
+      : views
+          .map((v) => ({ v, hb: externalRunOf(v) }))
+          .filter((x): x is { v: DockToolView; hb: DockHeartbeat } => x.hb !== null);
+  if (!live.length && !offs.length) {
     host.classList.add('is-off');
     return;
   }
   host.classList.remove('is-off');
+
   for (const run of live) {
     const v = viewById(run.toolId);
     const row = el('div', 'bz-dock-rb');
     row.appendChild(el('span', 'bz-dock-rb-pulse'));
     row.appendChild(el('span', 'bz-dock-rb-name', v ? displayNameOf(v) : run.toolId));
-    row.appendChild(el('span', 'bz-dock-rb-tag', run.trigger === 'auto' ? '自动' : '手动'));
-    const phase = run.phase ? `${run.phase}${run.pct !== null ? ` ${run.pct}%` : ''}` : '进行中';
-    row.appendChild(el('span', 'bz-dock-rb-text', phase));
+    if (run.phase) row.appendChild(el('span', 'bz-dock-rb-phase', run.phase));
+    const lastStep = run.steps.length ? run.steps[run.steps.length - 1].text : '正在跑…';
+    row.appendChild(el('span', 'bz-dock-rb-step', lastStep));
     if (run.pct !== null) {
-      const bar = uiProgress({ thin: true, value: run.pct });
-      row.appendChild(bar.el);
+      const track = el('div', 'bz-dock-rb-track');
+      track.appendChild(uiProgress({ thin: true, value: run.pct }).el);
+      row.appendChild(track);
+      row.appendChild(el('span', 'bz-dock-rb-pct', `${run.pct}%`));
     }
     host.appendChild(row);
   }
-  for (const { v, hb } of exts) {
+
+  // 离场（后台值守拉起的）：没有进度条 —— 拿不到实时流就不画百分比，只画工具自己写下的那一步
+  for (const { v, hb } of offs) {
     const row = el('div', 'bz-dock-rb');
     row.dataset.tool = v.id;
     row.appendChild(el('span', 'bz-dock-rb-pulse'));
     row.appendChild(el('span', 'bz-dock-rb-name', displayNameOf(v)));
-    row.appendChild(el('span', 'bz-dock-rb-tag', '后台'));
-    row.appendChild(el('span', 'bz-dock-rb-text', hb.step || '值守进程正在跑'));
+    row.appendChild(el('span', 'bz-dock-rb-tag', '离线'));
+    row.appendChild(el('span', 'bz-dock-rb-step', hb.step || '值守进程正在跑'));
     host.appendChild(row);
   }
 }
@@ -838,6 +845,7 @@ function makeCard(v: DockToolView): HTMLElement {
       const runBtn = uiBtn({
         label: '运行',
         icon: 'play',
+        tone: 'primary',
         size: 'sm',
         disabled: !gate.ok || !!externalRunOf(v),
         onClick: () => void doRun(v),
@@ -945,24 +953,214 @@ function renderDetail(body: HTMLElement, v: DockToolView): void {
 
 /**
  * 展示板 iframe **文档内部**的滚动条样式 —— 全仓唯一允许的 `<style>` 注入（ADR-0243 补记）。
- * 只放滚动条声明，作用域严格限定在沙箱框文档内部；想顺手改框里别的样式，守卫会红。
+ *
+ * 为什么改不了 CSS 文件：`style` 属性写不了伪元素，core 的界面级规则（ADR-0122）又跨不过
+ * 文档边界。所以只放滚动条声明 —— 想顺手改框里别的样式，守卫会红。
  */
 export const FRAME_SCROLLBAR_CSS =
   '<style>html{scrollbar-width:none;-ms-overflow-style:none}' +
   'html::-webkit-scrollbar{display:none;width:0;height:0}</style>';
 
+/** 展示板文件的上限：面板不是浏览器，几百 KB 的文档灌进 srcdoc 会把「打开详情」拖成秒级 */
+const BOARD_MAX_BYTES = 512 * 1024;
+/** 展示板的可视高度上限：内容再多也只占这么高，超了在框内滚（条已藏掉） */
+const BOARD_MAX_HEIGHT = 560;
+
+/**
+ * 灌给展示板的主题变量 —— 只挑「画一块内容」够用的那一小撮。
+ * 给全套等于把面板内部 token 变成公开 API（日后重构得先问过所有工具），
+ * 而这一小撮已经够脚本画出「像是面板的一部分」的东西。
+ */
+const BOARD_THEME_VARS = [
+  '--bz-surface-0',
+  '--bz-surface-1',
+  '--bz-surface-2',
+  '--bz-surface-3',
+  '--bz-text-1',
+  '--bz-text-2',
+  '--bz-text-3',
+  '--bz-border',
+  '--bz-brand',
+  '--bz-brand-soft',
+  '--bz-success',
+  '--bz-warning',
+  '--bz-danger',
+  '--bz-radius-sm',
+  '--bz-radius-md',
+  '--bz-font-ui',
+  '--bz-font-mono',
+  '--bz-space-xs',
+  '--bz-space-sm',
+  '--bz-space-md',
+  '--bz-space-lg',
+];
+
+/** 一个值要塞进双引号包的 HTML 属性时的转义：`&` 防二次解码，`"` 防属性提前收尾 */
+export function escapeStyleAttr(v: string): string {
+  return v.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+/**
+ * 框内 `<body>` 的基线：主题变量 + 撑满 + 跟主题走。
+ *
+ * `margin:0` 与 `background:transparent` 是**必需**的（body 默认 8px 外边距、iframe 内容默认白底），
+ * 另几条只是给个合理默认观感 —— 少了它们，展示板看起来就是「另一个世界」。
+ *
+ * **值必须转义**：主题变量里有 `--bz-font-ui: -apple-system, "Segoe UI", …` 这种带引号的值，
+ * 原样拼进 `style="…"` 会让属性在第一个 `"` 处提前收尾，后面所有声明一起被丢掉。
+ */
+export function frameBaseStyle(): string {
+  const cs = getComputedStyle(document.body);
+  const parts = BOARD_THEME_VARS.map((name) => {
+    const value = cs.getPropertyValue(name).trim();
+    return value ? `${name}:${escapeStyleAttr(value)}` : '';
+  }).filter(Boolean);
+  parts.push(
+    'margin:0',
+    'padding:var(--bz-space-md)',
+    'background:transparent',
+    'color:var(--bz-text-1)',
+    'font-family:var(--bz-font-ui)',
+    'font-size:var(--bz-font-label)',
+    'line-height:1.6',
+  );
+  return parts.join(';');
+}
+
+/**
+ * 框文档**根元素**那一条：隐藏框自己的滚动条（ADR-0122「只隐藏条、保留滚动」同款）。
+ *
+ * 必须挂根上：框里的滚动条是**视口滚动条**，归 `<html>` 管；`scrollbar-width` 不继承，
+ * 挂 body 上对它无效。所以别把它并进 `frameBaseStyle()`（那是 body 基线）。
+ */
+export function frameRootStyle(): string {
+  return 'scrollbar-width:none';
+}
+
+/**
+ * 把 iframe 撑到内容那么高。
+ *
+ * **为什么不能只量一次**：面板关着的时候也会渲染（刷新 / 运行结束后的重渲染），而 `display:none`
+ * 的框里文档没有布局 —— `scrollHeight` 量出来是 0；只量一次就再也不纠正，框停在默认 150px。
+ * 所以立刻量一次 + `ResizeObserver` 跟着框内文档走。
+ */
+export function fitFrameHeight(frame: HTMLIFrameElement): void {
+  const doc = frame.contentDocument;
+  if (!doc) return;
+  let last = -1;
+  const measure = (): void => {
+    const h = Math.max(doc.documentElement?.scrollHeight ?? 0, doc.body?.scrollHeight ?? 0);
+    // 差 1px 不动它：否则「量高 → 框变高 → 框内重排 → 再量」会互相追着改
+    if (h > 0 && Math.abs(h - last) > 1) {
+      last = h;
+      frame.style.height = `${h}px`;
+    }
+  };
+  measure();
+  try {
+    const ro = new ResizeObserver(measure);
+    if (doc.body) ro.observe(doc.body);
+    ro.observe(doc.documentElement);
+  } catch {
+    /* 没有 ResizeObserver 的老环境：只留上面那一次 */
+  }
+}
+
+/**
+ * 一段 HTML 装进沙箱 iframe。
+ *
+ * 为什么是 iframe 而不是净化后直插：直接插，一段 `<style>` 就会串到整个面板，一个没闭合的标签
+ * 就会把后面的 DOM 吃掉；iframe 天然把这两样关在框里。
+ * 带 `allow-same-origin` 是为了能读 `contentDocument` 量高度，也顺带让宿主的 click 监听够得着框里的链接。
+ */
+function sandboxFrame(
+  html: string,
+  className: string,
+  title: string,
+  opts: { maxHeight?: number; allowPopups?: boolean; allowScripts?: boolean } = {},
+): HTMLIFrameElement {
+  const frame = document.createElement('iframe');
+  frame.className = className;
+  const sandbox = ['allow-same-origin'];
+  if (opts.allowPopups) sandbox.push('allow-popups', 'allow-popups-to-escape-sandbox');
+  if (opts.allowScripts) sandbox.push('allow-scripts');
+  frame.setAttribute('sandbox', sandbox.join(' '));
+  frame.setAttribute('title', title);
+  frame.setAttribute('referrerpolicy', 'no-referrer');
+  if (opts.maxHeight) frame.style.maxHeight = `${opts.maxHeight}px`;
+  // 框里写片段就行：外层 `<html>` 挂隐藏滚动条那条，`<body>` 承载主题基线
+  frame.srcdoc =
+    `<html style="${frameRootStyle()}"><head>${FRAME_SCROLLBAR_CSS}</head>` +
+    `<body style="${frameBaseStyle()}">${html}</body></html>`;
+  frame.addEventListener('load', () => {
+    fitFrameHeight(frame);
+    if (opts.allowPopups) wireExternalLinks(frame);
+  });
+  return frame;
+}
+
+/**
+ * 框里的外链交给系统浏览器。
+ *
+ * 只靠沙箱的 `allow-popups` 不保险：Electron 里 `target=_blank` 走的是 Obsidian 自己的
+ * window.open 处理，开不开全看宿主版本，用户看到的就是「点了没反应」。框是同源的，
+ * 外面直接挂监听自己开，`shell.openExternal` 一定走默认浏览器。
+ */
+function wireExternalLinks(frame: HTMLIFrameElement): void {
+  const doc = frame.contentDocument;
+  if (!doc) return;
+  doc.addEventListener(
+    'click',
+    (ev) => {
+      const target = ev.target as HTMLElement | null;
+      const a = target && typeof target.closest === 'function' ? target.closest('a[href]') : null;
+      if (!a) return;
+      const href = a.getAttribute('href') ?? '';
+      if (!/^https?:\/\//i.test(href)) return;
+      ev.preventDefault();
+      const shell = (window as unknown as {
+        require?: (id: string) => { shell?: { openExternal(url: string): void } };
+      }).require?.('electron')?.shell;
+      if (shell) shell.openExternal(href);
+      else window.open(href, '_blank', 'noopener');
+    },
+    true,
+  );
+}
+
+/**
+ * 展示板（ADR-0243）：工具目录里的 `panel.html`，工具自己画，面板把它内嵌在详情页最前。
+ *
+ * **不给标题**：这块就是「工具自己画的东西」，再写个「展示板」是面板在自说自话
+ * （iframe 的 `title` 属性留给读屏，那里需要一个名字）。
+ */
 function boardSection(v: DockToolView): HTMLElement | null {
   const html = panelOf(v.path, currentFs());
-  if (!html) return null;
-  const box = el('div', 'bz-dock-board');
-  const frame = el('iframe', 'bz-dock-board-frame');
-  frame.setAttribute('sandbox', 'allow-same-origin allow-popups allow-popups-to-escape-sandbox');
-  frame.setAttribute('referrerpolicy', 'no-referrer');
-  frame.srcdoc = html.toLowerCase().includes('<head>')
-    ? html.replace(/<head([^>]*)>/i, `<head$1>${FRAME_SCROLLBAR_CSS}`)
-    : `<!DOCTYPE html><html><head>${FRAME_SCROLLBAR_CSS}</head><body>${html}</body></html>`;
-  box.appendChild(frame);
-  return box;
+  if (html === null) return null;
+
+  const host = el('div', 'bz-dock-board');
+  // 按**字节**算：字符串的 length 是 UTF-16 码元数，中文一个码元占三字节 ——
+  // 拿码元当上限等于对中文内容把门槛放成三倍
+  const bytes = new TextEncoder().encode(html).length;
+  if (bytes > BOARD_MAX_BYTES) {
+    host.appendChild(
+      el(
+        'div',
+        'bz-dock-board-warn',
+        `panel.html 有 ${Math.round(bytes / 1024)} KB，超过 ${BOARD_MAX_BYTES / 1024} KB 就不渲染了 —— 展示板是「一眼看完的几行数」`,
+      ),
+    );
+    return host;
+  }
+
+  host.appendChild(
+    sandboxFrame(html, 'bz-dock-board-frame', `${displayNameOf(v)} 的展示板`, {
+      maxHeight: BOARD_MAX_HEIGHT,
+      allowPopups: true,
+      allowScripts: true,
+    }),
+  );
+  return host;
 }
 
 // ---------- 统计三格 ----------
