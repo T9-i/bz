@@ -132,9 +132,21 @@ export function acquireLock(
   const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
   if (!expiredByTime && !expiredByPid) return null;
 
-  // 抢：先把旧锁改名搬走（rename 只有一个能成功），再排他创建
-  const saved = `${path}.stale.${token}`;
+  // 抢：先把旧锁改名搬走（rename 只有一个能成功），再排他创建。
+  //
+  // 搬走的目标用**固定名**而不是带 token 的名字：带 token 的话，只要有一次没删成功
+  // （Windows 上被同步客户端/杀毒短暂占住就会 EPERM），目录里就多一个垃圾文件，
+  // 而每 90 秒一次抢占意味着一天能攒出近千个。固定名让「没删掉」最多只留一个，
+  // 下次抢占先把它覆盖掉。
+  const saved = `${path}.stale`;
   if (fs.rename) {
+    if (fs.unlink) {
+      try {
+        fs.unlink(saved); // 上一轮没删掉的那个，先清掉，否则 rename 可能失败
+      } catch {
+        /* 本来就没有 */
+      }
+    }
     try {
       fs.rename(path, saved);
     } catch {
@@ -192,11 +204,15 @@ function handleOf(fs: DockFs, path: string, token: string): LockHandle {
     },
     release(): void {
       const held = readLock(fs, path);
-      if (held && held.token === token && fs.unlink) {
+      if (!held || held.token !== token || !fs.unlink) return;
+      // 删两次：Windows 上刚被别的进程打开过的那一瞬间会 EPERM，隔一拍的第二次通常就过了。
+      // 删不掉也不会把调度锁死（90 秒后照样能被抢），但会让下一拍白等一个周期。
+      for (let i = 0; i < 2; i += 1) {
         try {
           fs.unlink(path);
+          return;
         } catch {
-          /* 已经没了 */
+          /* 再试一次 */
         }
       }
     },

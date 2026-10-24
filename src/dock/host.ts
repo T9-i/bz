@@ -196,6 +196,10 @@ function reportMissingParams(decisions: readonly Decision[], views: readonly Doc
  *
  * 手动运行**不经过判据也不需要排队**，但同样要先过门槛：已授权、有 entry、不在跑。
  * 它也要拿锁 —— 不是为了排队，是为了不和自动那一拍同时起两个进程。
+ *
+ * **拿不到锁要说出来**：值守进程每 30 秒拍一次，正好撞上时锁在它手里，这一拍就起不来。
+ * 上一版这里直接返回 `null`，面板据此什么都不做 —— 用户看到的就是「点了没反应」。
+ * 现在先原地重试几次（值守那一拍通常几十毫秒），仍拿不到就明确说一句。
  */
 export async function runToolManually(
   view: DockToolView,
@@ -203,26 +207,45 @@ export async function runToolManually(
 ): Promise<DockOutcome | null> {
   const a = app;
   if (!a) return null;
-  if (liveOf(view.id)) return null;
-  const outcome = await withLock(dataDir(), 'plugin', async () => {
-    if (!view.entry) return null;
-    const live = runToolNow({
-      toolId: view.id,
-      declPath: view.path,
-      entry: view.entry,
-      manifest: view.manifest,
-      values: view.values,
-      vaultPath: vaultBasePath(a),
-      trigger: 'manual',
-      extraArgs: opts.extraArgs,
-      runId: makeRunId(),
-      records: () => parseRunLines(readRunsText(pathOf.runs(view.path), currentFs(), RUNS_TAIL_BYTES), view.id),
-      cb: { onStep: opts.onStep },
-    });
-    return live.done;
-  }, { keepAliveMs: KEEP_ALIVE_MS });
-  if (outcome) announce(view, outcome);
-  return outcome;
+  const name = view.manifest?.name ?? view.id;
+  if (liveOf(view.id)) {
+    notify(`${name} 正在跑，等它结束`, { type: 'info' });
+    return null;
+  }
+
+  /** 一次尝试；`null` = 这次没拿到锁 */
+  const attempt = (): Promise<DockOutcome | null> =>
+    withLock(dataDir(), 'plugin', async () => {
+      if (!view.entry) return null;
+      const live = runToolNow({
+        toolId: view.id,
+        declPath: view.path,
+        entry: view.entry,
+        manifest: view.manifest,
+        values: view.values,
+        vaultPath: vaultBasePath(a),
+        trigger: 'manual',
+        extraArgs: opts.extraArgs,
+        runId: makeRunId(),
+        records: () => parseRunLines(readRunsText(pathOf.runs(view.path), currentFs(), RUNS_TAIL_BYTES), view.id),
+        cb: { onStep: opts.onStep },
+      });
+      return live.done;
+    }, { keepAliveMs: KEEP_ALIVE_MS });
+
+  let outcome: DockOutcome | null = null;
+  for (let i = 0; i < 4; i += 1) {
+    outcome = await attempt();
+    if (outcome) break;
+    if (i < 3) await new Promise((r) => setTimeout(r, 350));
+  }
+
+  if (outcome) {
+    announce(view, outcome);
+    return outcome;
+  }
+  notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: 'warning' });
+  return null;
 }
 
 /** 诊断：这一拍的锁归谁、有没有人卡着 */

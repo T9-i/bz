@@ -1309,8 +1309,14 @@ function acquireLock(dataDir, owner, opts = {}) {
   const expiredByTime = !held || now - Date.parse(held.at) > staleMs || !Number.isFinite(Date.parse(held?.at ?? ""));
   const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
   if (!expiredByTime && !expiredByPid) return null;
-  const saved = `${path}.stale.${token}`;
+  const saved = `${path}.stale`;
   if (fs.rename) {
+    if (fs.unlink) {
+      try {
+        fs.unlink(saved);
+      } catch {
+      }
+    }
     try {
       fs.rename(path, saved);
     } catch {
@@ -1365,9 +1371,11 @@ function handleOf(fs, path, token) {
     },
     release() {
       const held = readLock(fs, path);
-      if (held && held.token === token && fs.unlink) {
+      if (!held || held.token !== token || !fs.unlink) return;
+      for (let i = 0; i < 2; i += 1) {
         try {
           fs.unlink(path);
+          return;
         } catch {
         }
       }

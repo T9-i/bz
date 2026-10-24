@@ -256,4 +256,22 @@ describe('执行权锁', () => {
     expect(b).not.toBeNull();
     expect(a?.renew()).toBe(false);
   });
+
+  it('反复抢占不会在目录里堆残留文件', () => {
+    const fs = fakeFs();
+    const realUnlink = fs.unlink!;
+    // 模拟 Windows 上「刚被打开过、删不掉」：搬走的旧锁删不掉，但活锁照常释放
+    fs.unlink = (p: string) => {
+      if (p.endsWith('.stale')) throw new Error('EBUSY');
+      realUnlink(p);
+    };
+    let now = 1000;
+    for (let i = 0; i < 6; i += 1) {
+      expect(acquireLock('/data', 'plugin', { fs, now, staleMs: 100 })).not.toBeNull();
+      now += 200; // 每次都已经过期
+    }
+    const leftovers = [...fs.files.keys()].filter((p) => p.includes('.stale'));
+    // 固定名 → 最多留一个（而不是每一轮都多一个）
+    expect(leftovers.length).toBeLessThanOrEqual(1);
+  });
 });
