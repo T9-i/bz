@@ -21,8 +21,10 @@ import { judgeRunGate, runToolDirect } from './command';
 import { liveAll, liveOf, onLiveChanged, stopLive } from './exec';
 import { clearBreakerSafely, kickDockScheduler, notifyDockEvent, runToolManually } from './host';
 import {
+  HEARTBEAT_STALE_MS,
   TRIGGER_KINDS,
   TRIGGER_LABEL,
+  type DockHeartbeat,
   type DockParam,
   type DockRule,
   type DockRunRecord,
@@ -208,16 +210,39 @@ function render(): void {
   if (manual.length) section('手动', manual);
 }
 
+/**
+ * 有没有**别的进程**正在跑它。
+ *
+ * 判据只有一条：工具自己盖的心跳还新鲜。用它而不是查锁，是因为锁只说明「有人在调度」，
+ * 不能说明「跑的是哪一个」；而心跳是工具亲手写的，runId 就是这次运行的工单号。
+ *
+ * 为什么需要它：后台值守在跑的时候，插件面板原来什么都看不见 —— 用户以为没在跑，
+ * 再点一次「运行」就会卡在锁上（拿不到锁，静默返回）。现在面板能说「后台正在跑」，
+ * 按下去之前就知道该等。
+ */
+function externalRunOf(v: DockToolView): DockHeartbeat | null {
+  if (liveOf(v.id)) return null; // 本进程在跑，那是 live 的事，不用心跳猜
+  const hb = v.heartbeat;
+  if (!hb) return null;
+  const at = Date.parse(hb.at);
+  if (!Number.isFinite(at)) return null;
+  return Date.now() - at <= HEARTBEAT_STALE_MS ? hb : null;
+}
+
 function renderListMeta(): void {
   // 只更新卡片上的状态点与「在跑」标记，避免整块重绘打断点击
   if (!bodyEl) return;
+  const byId = new Map(loadToolViews(readRegistry().registry.tools, { trust: readTrust() }).map((v) => [v.id, v]));
   for (const card of Array.from(bodyEl.querySelectorAll<HTMLElement>('.bz-dock-card'))) {
     const id = card.dataset.toolId ?? '';
+    const v = byId.get(id);
     const live = liveOf(id);
-    card.toggleClass('is-running', !!live);
+    const ext = v ? externalRunOf(v) : null;
+    const running = !!live || !!ext;
+    card.toggleClass('is-running', running);
     const dot = card.querySelector<HTMLElement>('.bz-dock-dot');
     if (dot) {
-      dot.dataset.state = live ? 'running' : lastStateOf(id);
+      dot.dataset.state = running ? 'running' : lastStateOf(id);
     }
   }
 }
@@ -334,13 +359,15 @@ function renderDetail(): void {
   const acts = bar.createDiv({ cls: 'bz-dock-actions' });
   const gate = judgeRunGate(v, !Platform.isMobile);
   const live = liveOf(v.id);
+  const external = externalRunOf(v);
   if (live) {
     const stop = btnOf(acts, '停止');
     stop.addEventListener('click', () => stopLive(v.id));
   } else {
     const run = btnOf(acts, '运行', 'mod-cta');
-    run.disabled = !gate.ok;
-    if (!gate.ok) run.setAttribute('title', gate.text ?? '');
+    run.disabled = !gate.ok || !!external;
+    if (external) run.setAttribute('title', '后台值守正在跑它，等它跑完');
+    else if (!gate.ok) run.setAttribute('title', gate.text ?? '');
     run.addEventListener('click', () => void doRun(v));
   }
 

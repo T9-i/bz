@@ -18,6 +18,7 @@ import {
   type DockFs,
 } from './files';
 import {
+  parseHeartbeat,
   parseIntent,
   parseManifest,
   parseRunLines,
@@ -69,6 +70,9 @@ export function loadToolView(entry: DockRegistryEntry, opts: LoadOpts = {}): Doc
 
   const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
 
+  // 心跳只读不判 —— 「有没有人在跑它」由调用方按时效判断（`HEARTBEAT_STALE_MS`）
+  const heartbeat = fs ? parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(entry.path), fs))) : null;
+
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
   const trusted = !!trust && !!signature && trust.run === signature;
@@ -90,6 +94,7 @@ export function loadToolView(entry: DockRegistryEntry, opts: LoadOpts = {}): Doc
     trusted,
     trustStale: !!trust && !!signature && trust.run !== signature,
     lastRun: latestRun(records) as DockRunRecord | undefined,
+    heartbeat: heartbeat ?? undefined,
     runnable: (opts.canRun ?? true) && !!manifest?.entry,
   };
 }

@@ -15,6 +15,7 @@ import {
   parseIntent,
   parseManifest,
   parseRegistry,
+  parseHeartbeat,
   parseRunLines,
   parseRunRecord,
   secretEnvOf,
@@ -106,6 +107,28 @@ describe('记录解析', () => {
   it('tool 对不上的行不算这个工具的', () => {
     const text = '{"runId":"r1","tool":"other","status":"ok","startedAt":"2026-01-01T00:00:00Z"}';
     expect(parseRunLines(text, 't')).toHaveLength(0);
+  });
+});
+
+describe('心跳', () => {
+  it('有合法 at 才算心跳', () => {
+    expect(parseHeartbeat({ at: '2026-10-24T08:00:00.000Z', runId: 'r1', step: '正在抓' })).toEqual({
+      at: '2026-10-24T08:00:00.000Z',
+      runId: 'r1',
+      step: '正在抓',
+    });
+  });
+
+  it('没有 at / at 不是时间 —— 一律当没有（说不清什么时候的心跳不能用来判断在不在跑）', () => {
+    expect(parseHeartbeat(null)).toBeNull();
+    expect(parseHeartbeat({})).toBeNull();
+    expect(parseHeartbeat({ at: '不是时间' })).toBeNull();
+    expect(parseHeartbeat({ runId: 'r1' })).toBeNull();
+  });
+
+  it('多出来的字段丢掉，不往视图里带', () => {
+    const hb = parseHeartbeat({ at: '2026-10-24T08:00:00.000Z', pct: 40, junk: {} });
+    expect(hb).toEqual({ at: '2026-10-24T08:00:00.000Z' });
   });
 });
 

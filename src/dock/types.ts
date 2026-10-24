@@ -295,8 +295,23 @@ export interface DockToolView {
   trustStale: boolean;
   /** 最近一次运行（从 runs.jsonl 尾部找） */
   lastRun?: DockRunRecord;
+  /** 工具自己盖的心跳（可能很旧；新鲜度由调用方判断） */
+  heartbeat?: DockHeartbeat;
   /** 在本机跑不跑得动（移动端 false；没有 entry 也 false） */
   runnable: boolean;
+}
+
+/**
+ * 心跳 —— 工具跑着的时候自己写的（工具目录的 `heartbeat.json`），bz 只读。
+ *
+ * 它**不参与判定成功失败**（那看进程退出 + `runs.jsonl` 的 `runId` 那一条），
+ * 只回答一个问题：**此刻有没有人在跑它**。后台值守跑的时候，插件面板靠它看见「正在跑」——
+ * 否则面板会显示「什么都没发生」，用户再点一次就会撞锁。
+ */
+export interface DockHeartbeat {
+  runId?: string;
+  at: string;
+  step?: string;
 }
 
 /** 一次运行的结果（bz 侧判定，已与工具记录对账） */

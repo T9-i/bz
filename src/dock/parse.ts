@@ -28,6 +28,7 @@ import {
   type DockRule,
   type DockRuleRuntime,
   type DockRunFacts,
+  type DockHeartbeat,
   type DockRunRecord,
   type DockRunStep,
   type DockRuntime,
@@ -502,6 +503,22 @@ export function parseRunLines(text: string | null | undefined, expectTool?: stri
 }
 
 /** 按 runId 精确找一条（**唯一权威的对账方式**） */
+/**
+ * 心跳。没有合法 `at` 的一律当没有 —— 一个说不清「什么时候」的心跳，
+ * 拿它判断「现在有没有人在跑」只会误报。
+ */
+export function parseHeartbeat(raw: unknown): DockHeartbeat | null {
+  if (!isObj(raw)) return null;
+  const at = str(raw.at);
+  if (!at || !Number.isFinite(Date.parse(at))) return null;
+  const out: DockHeartbeat = { at };
+  const runId = str(raw.runId);
+  if (runId) out.runId = runId;
+  const step = str(raw.step);
+  if (step) out.step = step;
+  return out;
+}
+
 export function findByRunId(records: readonly DockRunRecord[], runId: string): DockRunRecord | undefined {
   for (let i = records.length - 1; i >= 0; i--) {
     if (records[i].runId === runId) return records[i];

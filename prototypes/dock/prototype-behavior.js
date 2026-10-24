@@ -1,4 +1,4 @@
-/* 源指纹 73c0396b14637cdf · 仓内输入 24 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 32663e06fc83ab13 · 仓内输入 24 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/external-tool.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/view.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -151,7 +151,7 @@ var BZW_dock = (() => {
   });
 
   // src/dock/types.ts
-  var CONTRACT_VERSION, SETTINGS_FILENAME, RUNS_FILENAME, HEARTBEAT_FILENAME, PANEL_FILENAME, INTENT_FILENAME, RUNTIME_FILENAME, LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, SETTINGS_VERSION, INTENT_VERSION, RUNTIME_VERSION, RUNS_TAIL_BYTES, RUN_TIMEOUT_MS, LOCK_STALE_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, TOOL_ID_RE, TOOL_ID_MAX_LEN, TRIGGER_KINDS, TRIGGER_LABEL;
+  var CONTRACT_VERSION, SETTINGS_FILENAME, RUNS_FILENAME, HEARTBEAT_FILENAME, PANEL_FILENAME, INTENT_FILENAME, RUNTIME_FILENAME, LOCK_FILENAME, REGISTRY_FILENAME, REGISTRY_VERSION, SETTINGS_VERSION, INTENT_VERSION, RUNTIME_VERSION, RUNS_TAIL_BYTES, HEARTBEAT_STALE_MS, RUN_TIMEOUT_MS, LOCK_STALE_MS, FAIL_COOLDOWN_MS, BREAKER_THRESHOLD, TOOL_ID_RE, TOOL_ID_MAX_LEN, TRIGGER_KINDS, TRIGGER_LABEL;
   var init_types = __esm({
     "src/dock/types.ts"() {
       CONTRACT_VERSION = 2;
@@ -168,6 +168,7 @@ var BZW_dock = (() => {
       INTENT_VERSION = 1;
       RUNTIME_VERSION = 1;
       RUNS_TAIL_BYTES = 256 * 1024;
+      HEARTBEAT_STALE_MS = 6e4;
       RUN_TIMEOUT_MS = 10 * 6e4;
       LOCK_STALE_MS = 9e4;
       FAIL_COOLDOWN_MS = 15 * 6e4;
@@ -1108,6 +1109,17 @@ var BZW_dock = (() => {
     }
     return out;
   }
+  function parseHeartbeat(raw) {
+    if (!isObj(raw)) return null;
+    const at = str(raw.at);
+    if (!at || !Number.isFinite(Date.parse(at))) return null;
+    const out = { at };
+    const runId = str(raw.runId);
+    if (runId) out.runId = runId;
+    const step = str(raw.step);
+    if (step) out.step = step;
+    return out;
+  }
   function findByRunId(records, runId) {
     for (let i = records.length - 1; i >= 0; i--) {
       if (records[i].runId === runId) return records[i];
@@ -1221,6 +1233,7 @@ var BZW_dock = (() => {
     const parsedValues = parseSettingsText(settingsRaw, entry.id);
     const values = parsedValues != null ? parsedValues : {};
     const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
+    const heartbeat = fs ? parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(entry.path), fs))) : null;
     const trust = (_a = opts.trust) == null ? void 0 : _a[entry.id];
     const signature = runSignature((_b = manifest2 == null ? void 0 : manifest2.entry) != null ? _b : null);
     const trusted = !!trust && !!signature && trust.run === signature;
@@ -1240,6 +1253,7 @@ var BZW_dock = (() => {
       trusted,
       trustStale: !!trust && !!signature && trust.run !== signature,
       lastRun: latestRun(records),
+      heartbeat: heartbeat != null ? heartbeat : void 0,
       runnable: ((_g = opts.canRun) != null ? _g : true) && !!(manifest2 == null ? void 0 : manifest2.entry)
     };
   }
@@ -2892,16 +2906,28 @@ var BZW_dock = (() => {
     if (auto.length) section("自动运行", auto);
     if (manual.length) section("手动", manual);
   }
+  function externalRunOf(v) {
+    if (liveOf(v.id)) return null;
+    const hb = v.heartbeat;
+    if (!hb) return null;
+    const at = Date.parse(hb.at);
+    if (!Number.isFinite(at)) return null;
+    return Date.now() - at <= HEARTBEAT_STALE_MS ? hb : null;
+  }
   function renderListMeta() {
     var _a;
     if (!bodyEl) return;
+    const byId = new Map(loadToolViews(readRegistry().registry.tools, { trust: readTrust() }).map((v) => [v.id, v]));
     for (const card2 of Array.from(bodyEl.querySelectorAll(".bz-dock-card"))) {
       const id = (_a = card2.dataset.toolId) != null ? _a : "";
+      const v = byId.get(id);
       const live3 = liveOf(id);
-      card2.toggleClass("is-running", !!live3);
+      const ext = v ? externalRunOf(v) : null;
+      const running = !!live3 || !!ext;
+      card2.toggleClass("is-running", running);
       const dot = card2.querySelector(".bz-dock-dot");
       if (dot) {
-        dot.dataset.state = live3 ? "running" : lastStateOf(id);
+        dot.dataset.state = running ? "running" : lastStateOf(id);
       }
     }
   }
@@ -3006,13 +3032,15 @@ var BZW_dock = (() => {
     const acts = bar.createDiv({ cls: "bz-dock-actions" });
     const gate = judgeRunGate(v, !Platform.isMobile);
     const live3 = liveOf(v.id);
+    const external = externalRunOf(v);
     if (live3) {
       const stop = btnOf(acts, "停止");
       stop.addEventListener("click", () => stopLive(v.id));
     } else {
       const run = btnOf(acts, "运行", "mod-cta");
-      run.disabled = !gate.ok;
-      if (!gate.ok) run.setAttribute("title", (_a = gate.text) != null ? _a : "");
+      run.disabled = !gate.ok || !!external;
+      if (external) run.setAttribute("title", "后台值守正在跑它，等它跑完");
+      else if (!gate.ok) run.setAttribute("title", (_a = gate.text) != null ? _a : "");
       run.addEventListener("click", () => void doRun(v));
     }
     if (!v.trusted) {
