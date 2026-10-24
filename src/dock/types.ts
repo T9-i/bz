@@ -50,6 +50,15 @@ export const REGISTRY_FILENAME = 'dock.json';
 /** 登记表版本 */
 export const REGISTRY_VERSION = 3;
 
+/**
+ * vault 内工具路径的前缀：`vault:CONFIG/SCRIPTS/DockTools/x/manifest.json`。
+ *
+ * 登记表会同步、会进 git、会被整份带走。存绝对路径的话，换台电脑就全废，手机上更读不到。
+ * 在 vault 里的工具一律存相对形态，读的时候由 `resolveToolPath()` 还原成当前宿主的绝对路径；
+ * 在 vault 外的照旧存绝对路径（那种本来就只属于这台机器）。
+ */
+export const VAULT_PATH_PREFIX = 'vault:';
+
 /** 参数值文件版本 */
 export const SETTINGS_VERSION = 2;
 /** 意图文件版本 */
@@ -279,7 +288,10 @@ export interface DockRegistry {
 /** 一条登记 + 它读出来的东西（UI 与内核共用同一份视图） */
 export interface DockToolView {
   id: string;
+  /** 声明文件的**绝对路径**（当前宿主能直接打开的那个） */
   path: string;
+  /** 登记表里原样存的那个（可能是 `vault:` 相对形态，只用于展示「从哪来的」） */
+  declaredPath: string;
   dir: string;
   manifest: DockManifest | null;
   /** 声明读不出来时的人话 */

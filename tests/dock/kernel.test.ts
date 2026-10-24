@@ -19,6 +19,7 @@ function viewOf(over: Partial<DockToolView> = {}): DockToolView {
   const base: DockToolView = {
     id: 'demo',
     path: '/tools/demo/manifest.json',
+    declaredPath: '/tools/demo/manifest.json',
     dir: '/tools/demo',
     manifest: {
       v: 2,

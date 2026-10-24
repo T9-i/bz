@@ -87,6 +87,61 @@ export function watchdogStatus(fs = currentFs()): WatchdogStatus {
   return out;
 }
 
+// ==================== 后台运行的实时步骤 ====================
+//
+// 值守跑工具的时候，工具的 `[bz-step]` 落在本机的一个只追加文件里
+// （`live/<工具id>.jsonl`，由值守写）。这是**回传通道**的全部：
+// 不用端口、不用 IPC，一个能被两边同时看见的文件就够了。
+//
+// ⚠️ 文件名规则必须与 `tools/dock-watch/runtime.js` 的 `liveFileOf()` 一致 ——
+// 不一致的症状是「值守在跑，面板永远显示没有实时输出」。两边无法共享代码，
+// 所以靠 `tests/dock/watchdog-path.test.ts` 钉住。
+
+/** 工具 id → 实时步骤文件（与值守侧 `liveFileOf` 同一口径） */
+export function liveLogFileOf(toolId: string): string {
+  const safe = String(toolId || 'unknown').replace(/[^A-Za-z0-9._-]/g, '_');
+  return `${watchdogDirOf()}/live/${safe}.jsonl`;
+}
+
+export interface LiveStep {
+  runId?: string;
+  at?: string;
+  text: string;
+}
+
+/**
+ * 解析实时步骤文本（JSON Lines）。坏行跳过 —— 追加式文件在崩掉时最后一行可能是半截，
+ * 一行坏掉不该让整块日志消失。
+ */
+export function parseLiveLog(text: string | null, limit = 40): LiveStep[] {
+  if (!text) return [];
+  const out: LiveStep[] = [];
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const raw = JSON.parse(line) as Record<string, unknown>;
+      if (!raw || typeof raw !== 'object') continue;
+      const t = typeof raw.text === 'string' ? raw.text : '';
+      if (!t) continue;
+      const step: LiveStep = { text: t };
+      if (typeof raw.runId === 'string') step.runId = raw.runId;
+      if (typeof raw.at === 'string') step.at = raw.at;
+      out.push(step);
+    } catch {
+      /* 半截行 / 坏行 —— 跳过，不连累整块 */
+    }
+  }
+  return out.slice(-limit);
+}
+
+/** 读一个工具最近的后台步骤 */
+export function liveLogOf(toolId: string, limit = 40, fs = currentFs()): LiveStep[] {
+  if (!fs) return [];
+  const file = liveLogFileOf(toolId);
+  const text = fs.readTail ? fs.readTail(file, 64 * 1024) : fs.readText(file);
+  return parseLiveLog(text, limit);
+}
+
 /** 模式 → 人话（与 `tools/dock-watch/watch.js` 的 `describe()` 同一套词） */
 export function watchdogModeText(mode?: string): string {
   switch (mode) {

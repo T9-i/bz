@@ -58,6 +58,14 @@ export interface TickOnceOpts {
   keepAliveMs?: number;
   /** 一个工具跑完了（插件发通知，值守写日志） */
   onOutcome?(view: DockToolView, outcome: DockOutcome): void;
+  /**
+   * 工具吐了一步（`[bz-step]`）。
+   *
+   * 插件在场时面板直接看得到；**值守跑的时候面板看不到** —— 那是另一个进程的 stdout。
+   * 所以值守把这一步落到本机的一个小日志（`live/<工具>.jsonl`），面板轮询它。
+   * 这是「回传通道」唯一需要的东西：不用端口、不用 IPC，一个只追加的文件就够。
+   */
+  onStep?(view: DockToolView, text: string, runId: string): void;
   /** 到点该提醒 */
   onRemind?(view: DockToolView, rule: DockRule): void;
   /** 这一拍的判据结果（诊断用；值守据此写「今天为什么没跑」） */
@@ -169,6 +177,10 @@ async function executeOne(
     // 工单号由内核定（pending 里已经记下），这里必须原样传
     runId,
     records: () => parseRunLines(readRunsText(pathOf.runs(view.path), fs, RUNS_TAIL_BYTES), view.id),
+    cb: {
+      onStep: (text) => opts.onStep?.(view, text, runId),
+      // 没人可问 = 立即按取消回（`exec` 的既有约定），这里不需要额外处理
+    },
   });
   void rule;
   const outcome = await live.done;

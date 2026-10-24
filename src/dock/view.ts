@@ -11,6 +11,7 @@ import { latestRun } from './parse';
 import {
   dirOf,
   pathOf,
+  resolveToolPath,
   readPanelText,
   readRunsText,
   readTextOf,
@@ -66,22 +67,25 @@ function readManifestFile(path: string, fs: DockFs | null): { manifest: DockMani
 
 export function loadToolView(entry: DockRegistryEntry, opts: LoadOpts = {}): DockToolView {
   const fs = opts.fs === undefined ? currentFs() : opts.fs;
-  const { manifest, error } = readManifestFile(entry.path, fs ?? null);
+  // 登记表里可能存的是 `vault:` 相对形态（跟着 vault 走）。所有读写都用还原后的绝对路径；
+  // 原样留在 `declaredPath` 里，只给「从哪来的」这类展示用。
+  const declPath = resolveToolPath(entry.path);
+  const { manifest, error } = readManifestFile(declPath, fs ?? null);
 
-  const intentRaw = fs ? readTextOf(pathOf.intent(entry.path), fs) : null;
+  const intentRaw = fs ? readTextOf(pathOf.intent(declPath), fs) : null;
   const intent: DockIntent = parseIntent(safeJson(intentRaw), entry.id);
 
-  const runtimeRaw = fs ? readTextOf(pathOf.runtime(entry.path), fs) : null;
+  const runtimeRaw = fs ? readTextOf(pathOf.runtime(declPath), fs) : null;
   const runtime: DockRuntime = parseRuntime(safeJson(runtimeRaw), entry.id);
 
-  const settingsRaw = fs ? readTextOf(pathOf.settings(entry.path), fs) : null;
+  const settingsRaw = fs ? readTextOf(pathOf.settings(declPath), fs) : null;
   const parsedValues = parseSettingsText(settingsRaw, entry.id);
   const values = parsedValues ?? {};
 
-  const records = fs ? parseRunLines(readRunsText(pathOf.runs(entry.path), fs, RUNS_TAIL_BYTES), entry.id) : [];
+  const records = fs ? parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), entry.id) : [];
 
   // 心跳只读不判 —— 「有没有人在跑它」由调用方按时效判断（`HEARTBEAT_STALE_MS`）
-  const heartbeat = heartbeatOf(entry.path, fs);
+  const heartbeat = heartbeatOf(declPath, fs);
 
   const trust = opts.trust?.[entry.id];
   const signature = runSignature(manifest?.entry ?? null);
@@ -91,8 +95,9 @@ export function loadToolView(entry: DockRegistryEntry, opts: LoadOpts = {}): Doc
 
   return {
     id: entry.id,
-    path: entry.path,
-    dir: dirOf(entry.path),
+    path: declPath,
+    declaredPath: entry.path,
+    dir: dirOf(declPath),
     manifest,
     error: error ?? (manifest && manifest.id !== entry.id ? `声明的 id 是 ${manifest.id}，登记的是 ${entry.id}` : undefined),
     entry: manifest?.entry ?? null,
@@ -116,7 +121,7 @@ export function loadToolViews(entries: readonly DockRegistryEntry[], opts: LoadO
 
 /** 某工具最近若干条记录（详情页用；按时间倒序） */
 export function recentRunsOf(declPath: string, toolId: string, limit = 20, fs: DockFs | null = currentFs()): DockRunRecord[] {
-  const all = parseRunLines(readRunsText(pathOf.runs(declPath), fs, RUNS_TAIL_BYTES), toolId);
+  const all = parseRunLines(readRunsText(pathOf.runs(resolveToolPath(declPath)), fs, RUNS_TAIL_BYTES), toolId);
   return all
     .slice()
     .sort((a, b) => (Date.parse(b.startedAt) || 0) - (Date.parse(a.startedAt) || 0))
@@ -131,7 +136,7 @@ export function recentRunsOf(declPath: string, toolId: string, limit = 20, fs: D
  */
 export function heartbeatOf(declPath: string, fs: DockFs | null = currentFs()): DockHeartbeat | null {
   if (!fs) return null;
-  return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(declPath), fs)));
+  return parseHeartbeat(safeJson(readTextOf(pathOf.heartbeat(resolveToolPath(declPath)), fs)));
 }
 
 export function panelOf(declPath: string, fs: DockFs | null = currentFs()): string | null {

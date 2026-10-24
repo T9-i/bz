@@ -22,7 +22,7 @@ import {
   upsertToolAt,
   writeRegistryAt,
 } from './registry-file';
-import { currentFs, type DockFs } from './files';
+import { currentFs, portableToolPath, setDockVaultRoot, type DockFs } from './files';
 import { storageFile } from '../core/storage';
 import { getApp } from '../core/app';
 import { saveSettings, tryGetSettings } from '../core/settings-provider';
@@ -49,7 +49,7 @@ export { REGISTRY_FILENAME };
  * 插件与值守各锁一个文件，互斥当场失效（同一工具跑两遍）。这是「路径形态」引发的并发缺陷，
  * 不看代码根本想不到。
  */
-function vaultRoot(): string {
+export function dockVaultRoot(): string {
   try {
     const a = getApp();
     const adapter = (a.vault as unknown as { adapter?: { getBasePath?: () => string } }).adapter;
@@ -62,10 +62,14 @@ function vaultRoot(): string {
   }
 }
 
-/** 登记表路径（`storagePath` 变了它就跟着变）。**绝对路径**，见 `vaultRoot()` */
+/** 登记表路径（`storagePath` 变了它就跟着变）。**绝对路径**，见 `dockVaultRoot()` */
 export function registryPath(): string {
   const rel = storageFile(REGISTRY_FILENAME);
-  const root = vaultRoot();
+  const root = dockVaultRoot();
+  // 顺手把 vault 根喂给文件层：工具路径的 `vault:` 形态靠它还原，而这里是唯一算它的地方。
+  // 放在这里而不是某个 `init()` 里，是因为任何入口（命令面板、面板刷新、调度器）
+  // 第一步都会算路径 —— 不会出现「谁先跑谁得先初始化」这种时序坑。
+  setDockVaultRoot(root);
   return root ? `${root}/${rel}` : rel;
 }
 
@@ -77,9 +81,16 @@ export function writeRegistry(reg: Parameters<typeof writeRegistryAt>[1], fs: Do
   return writeRegistryAt(registryPath(), reg, fs);
 }
 
-/** 加一条登记（同 id 覆盖路径，否则追加） */
+/**
+ * 加一条登记（同 id 覆盖路径，否则追加）。
+ *
+ * 落盘前把路径**归一成可移植形态**：工具在 vault 里就存 `vault:CONFIG/...`，
+ * 这样这份登记表同步到手机、拷到另一台电脑都还能用。之前存绝对路径，
+ * 换台机器就是满屏「读不到声明」。
+ */
 export function upsertTool(entry: DockRegistryEntry, fs?: DockFs | null): ReturnType<typeof upsertToolAt> {
-  return upsertToolAt(registryPath(), entry, fs === undefined ? currentFs() : fs);
+  const portable: DockRegistryEntry = { ...entry, path: portableToolPath(entry.path) };
+  return upsertToolAt(registryPath(), portable, fs === undefined ? currentFs() : fs);
 }
 
 export function removeTool(id: string, fs?: DockFs | null): ReturnType<typeof removeToolAt> {
@@ -92,6 +103,28 @@ export function setSwitch(
   fs?: DockFs | null,
 ): ReturnType<typeof setSwitchAt> {
   return setSwitchAt(registryPath(), key, value, fs === undefined ? currentFs() : fs);
+}
+
+/**
+ * 启动时把「在 vault 内的绝对路径」改写成可移植形态（一次性）。
+ *
+ * 为什么要有这一步：登记表可能是上一版写的（绝对路径），而它会被同步到别的机器。
+ * 只改**确实在 vault 内**的那些 —— vault 外的工具没法相对化，原样留着。
+ *
+ * 返回改了几条（0 = 不用动，不写盘）。
+ */
+export function normalizeRegistryPaths(fs: DockFs | null = currentFs()): number {
+  const { registry } = readRegistry(fs);
+  let changed = 0;
+  const tools = registry.tools.map((e) => {
+    const next = portableToolPath(e.path);
+    if (next === e.path) return e;
+    changed += 1;
+    return { ...e, path: next };
+  });
+  if (!changed) return 0;
+  writeRegistry({ ...registry, tools }, fs);
+  return changed;
 }
 
 // ==================== 信任 ====================

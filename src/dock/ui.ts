@@ -20,6 +20,8 @@ import { missingParams } from './kernel';
 import { judgeRunGate, runToolDirect } from './command';
 import { liveAll, liveOf, onLiveChanged, stopLive } from './exec';
 import { clearBreakerSafely, kickDockScheduler, notifyDockEvent, runToolManually } from './host';
+import { primeVaultFs } from './vault-fs';
+import { liveLogOf } from './watchdog-status';
 import {
   HEARTBEAT_STALE_MS,
   TRIGGER_KINDS,
@@ -87,6 +89,10 @@ export function openDock(a: App): void {
   showList();
   notifyDockEvent({ kind: 'panel-open' });
   startPoll();
+  // 移动端：读桥是内存快照，每次打开重读一遍 —— 否则工具改了文件，面板还停在启动时那份。
+  if (Platform.isMobile) {
+    void primeVaultFs(a).then(() => render());
+  }
 }
 
 export function closeDock(): void {
@@ -716,14 +722,22 @@ function renderLive(v: DockToolView): void {
     return;
   }
 
-  // 不是本进程拉起的（多半是后台值守）。只有心跳，没有实时输出 —— 说清楚，
-  // 别让人以为「这里空着 = 它没在跑」。
-  box.createDiv({ cls: 'bz-dock-log-run', text: `后台进程在跑 · 工单 ${external?.runId ?? '（未标注）'}` });
-  if (external?.step) box.createDiv({ cls: 'bz-dock-log-line', text: external.step });
-  box.createDiv({
-    cls: 'bz-dock-hint',
-    text: '这一轮不是 Obsidian 拉起的，看不到实时输出；跑完会出现在下面的记录里',
-  });
+  // 不是本进程拉起的（多半是后台值守）。它的步骤由值守落到本机的 `live/<工具>.jsonl`，
+  // 面板轮询那一个文件 —— 这就是「回传通道」，不需要端口也不需要 IPC。
+  const runId = external?.runId ?? '';
+  box.createDiv({ cls: 'bz-dock-log-run', text: `后台进程在跑 · 工单 ${runId || '（未标注）'}` });
+
+  const steps = liveLogOf(v.id, 40).filter((s) => !runId || !s.runId || s.runId === runId);
+  if (steps.length) {
+    for (const s of steps) box.createDiv({ cls: 'bz-dock-log-line', text: s.text });
+  } else {
+    // 刚起跑（工具还没吐第一步）或者这一轮没有回传 —— 别让人以为「空着 = 没在跑」
+    if (external?.step) box.createDiv({ cls: 'bz-dock-log-line', text: external.step });
+    box.createDiv({
+      cls: 'bz-dock-hint',
+      text: '后台这一轮刚开始，还没输出；跑完会出现在下面的记录里',
+    });
+  }
 }
 
 function renderHistory(v: DockToolView): void {

@@ -26,6 +26,7 @@ import {
   SETTINGS_FILENAME,
   SETTINGS_VERSION,
   RUNS_FILENAME,
+  VAULT_PATH_PREFIX,
 } from './types';
 import type { DockIntent, DockRuntime } from './types';
 
@@ -171,6 +172,58 @@ export function dirOf(p: string): string {
 export function joinPath(dir: string, name: string): string {
   const d = dir.replace(/\\/g, '/').replace(/\/+$/, '');
   return d === '' ? name : `${d}/${name}`;
+}
+
+// ==================== 工具路径的两种形态 ====================
+//
+// 登记表会随 vault 同步、进 git、被整个带走。里面若存的是 `D:\Obsidian\某库\...`，
+// 换台电脑就是废的，手机上更读不到 —— 之前靠「取路径里叫仓库名的那一段」去猜，
+// 猜错就是满屏「读不到声明」。
+//
+// 现在的口径只有一条：**在 vault 里的工具存相对路径**（带 `vault:` 前缀），
+// 在 vault 外的才存绝对路径（那种本来就只属于这台机器）。
+// 读的时候一律还原成「当前宿主能直接打开的绝对路径」。
+
+let dockVaultRoot = '';
+
+/** 宿主动手前告诉文件层「当前 vault 根在哪」。插件在 `initDock()` 里调，值守在 cli.js 里调 */
+export function setDockVaultRoot(root: string): void {
+  dockVaultRoot = String(root ?? '').replace(/\\/g, '/').replace(/\/+$/, '');
+}
+
+export function dockVaultRootNow(): string {
+  return dockVaultRoot;
+}
+
+/** 这个路径是不是「相对 vault」的可移植形态 */
+export function isPortablePath(p: string): boolean {
+  return p.startsWith(VAULT_PATH_PREFIX);
+}
+
+/**
+ * 可移植路径 → 当前宿主的绝对路径。
+ *
+ * 不是可移植形态（本来就是个绝对路径）就原样返回 —— 那种工具在 vault 外，
+ * 只属于登记它的那台机器，没有别的解释方式。
+ */
+export function resolveToolPath(p: string): string {
+  if (!isPortablePath(p)) return p;
+  const rel = p.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, '');
+  return dockVaultRoot ? `${dockVaultRoot}/${rel}` : rel;
+}
+
+/**
+ * 绝对路径 → 可移植路径（在 vault 内才转，否则原样）。
+ *
+ * `root` 缺省用 `setDockVaultRoot` 注入的那个；显式传是为了测试与「刚落盘那一刻」。
+ */
+export function portableToolPath(abs: string, root: string = dockVaultRoot): string {
+  const p = String(abs ?? '').replace(/\\/g, '/');
+  const base = String(root ?? '').replace(/\\/g, '/').replace(/\/+$/, '');
+  if (!base) return p;
+  if (p === base) return `${VAULT_PATH_PREFIX}.`;
+  if (!p.startsWith(`${base}/`)) return p;
+  return `${VAULT_PATH_PREFIX}${p.slice(base.length + 1)}`;
 }
 
 export const pathOf = {

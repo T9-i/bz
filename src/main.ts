@@ -373,9 +373,11 @@ export default class BzPlugin extends Plugin {
     // 桌面端无害（媒体查询不命中）；卸载时 onunload 解绑。
     bindMobileViewport();
 
-    // 移动端：工具目录那几份文件先预取进内存 —— 面板与设置页的读链都是同步的，
-    // 没有这一遍它们只能看到「读不到」（面板打开时还会再刷一次，见 ui.refresh）
-    if (Platform.isMobile) await primeVaultFs(this.app, readToolEntries());
+    // 移动端：先把登记表与工具那几份文件预取进内存 —— 面板与设置页的读链都是同步的，
+    // 没有这一遍它们只能看到「读不到」。
+    // 注意它**自己**去读登记表：手机上那一刻内存里还什么都没有，指望调用方先 readToolEntries()
+    // 是个死循环（要读登记表才知道预取谁，而登记表本身还没预取）。
+    if (Platform.isMobile) await primeVaultFs(this.app);
 
     // 命令裸注册（ADR-0004：app.commands.addCommand 原样 id 注册——plugin.addCommand 会被 Obsidian 自动加插件前缀，主页.js 等外部裸 id 调用会失效）
     for (const c of COMMANDS) {

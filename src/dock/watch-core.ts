@@ -70,10 +70,15 @@ export {
 export {
   currentFs,
   dirOf,
+  dockVaultRootNow,
+  isPortablePath,
   joinPath,
   pathOf,
+  portableToolPath,
   readTextOf,
+  resolveToolPath,
   setDockFs,
+  setDockVaultRoot,
   writeAtomic,
   type DockFs,
 } from './files';

@@ -8,7 +8,7 @@
  * 命令注册在 `main.ts`：`bz-dock-open` 在命令表里，每个已登记的工具另有一条直达运行命令。
  */
 
-import { readRegistry, readTrust, setSwitch } from './registry';
+import { normalizeRegistryPaths, readRegistry, readTrust, setSwitch } from './registry';
 import { loadToolView } from './view';
 
 export { openDock, closeDock, unloadDock, ensureDock, openToolPanel } from './ui';
@@ -21,7 +21,7 @@ export { setExecDeps as setDockRuntimeDeps } from './exec';
 /** fs 注入缝（测试塞假 fs；移动端指向内存读桥） */
 export { setDockFs } from './files';
 /** 移动端只读读桥 */
-export { installVaultFs, uninstallVaultFs, hasVaultFs, primeVaultFs, primePathsOf } from './vault-fs';
+export { installVaultFs, uninstallVaultFs, hasVaultFs, primeVaultFs } from './vault-fs';
 
 /** 登记表读取（main.ts 启动时按它注册直达命令） */
 export function readToolEntries(): { id: string; path: string; enabled: boolean }[] {
@@ -44,10 +44,22 @@ export function saveDockSwitch(key: 'autoRun' | 'watchdog' | 'notifyMissed', val
 }
 
 /** 登记表路径与文件名（诊断 / 数据体检用） */
-export { registryPath as dockStorePath, DOCK_TRUST_KEY } from './registry';
+export { registryPath as dockStorePath, DOCK_TRUST_KEY, dockVaultRoot } from './registry';
 export const DOCK_STORE_FILENAME = 'dock.json';
 
-/** 启动时初始化（一切都是现读，没有需要预热的缓存；保留入口给宿主统一调用） */
+/**
+ * 启动时初始化。
+ *
+ * 只有一件事：把登记表里「在 vault 内的绝对路径」改写成可移植形态（`vault:...`）。
+ * 这是为了让同一份登记表在手机、另一台电脑上还能用 —— 路径不可移植，
+ * 手机上就永远只能靠「猜仓库名那一段」去读，猜错就是空列表。
+ *
+ * 读侧一切都是现读，没有需要预热的缓存。
+ */
 export async function initDock(): Promise<void> {
-  /* 空实现：上面所有读都是现读 */
+  try {
+    normalizeRegistryPaths();
+  } catch {
+    /* 归一失败不该拦启动：面板照常打开，只是手机上可能读不到 */
+  }
 }
