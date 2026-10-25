@@ -1,4 +1,4 @@
-/* 源指纹 64ed3f4192267ff9 · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 32709a572c8fdb8e · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["src/core/ui/str.ts","src/diary/render.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — src/diary/render.ts → window.BZR_diary（评审壳预览包，ADR-0104） */
 var BZR_diary = (() => {
@@ -99,6 +99,10 @@ var BZR_diary = (() => {
       const label = alias || target.split("/").pop().replace(/\.md$/, "");
       return '<span class="bz-diary-wikilink" data-target="' + esc(target) + '">' + esc(label) + "</span>";
     });
+    t = t.replace(
+      /\[([^\]\n]{1,300})\]\((https?:\/\/[^\s)]+)\)/g,
+      (_m, label, href) => '<a class="bz-diary-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + "</a>"
+    );
     t = t.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
     t = t.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<i>$2</i>");
     t = t.replace(/==([^=]+)==/g, '<mark class="bz-diary-hl">$1</mark>');
@@ -266,10 +270,11 @@ var BZR_diary = (() => {
     out.push('<div class="bz-diary-b-seal" data-eid="' + eid + '">' + sealHTML(e, hashes) + "</div>");
     if (e.kind === "movie") return out.concat(wrap("bz-diary-b-ticket", ticketHTML(e, ctx)));
     if (e.kind === "book") return out.concat(wrap("bz-diary-b-exlibris", exlibrisHTML(e, ctx)));
+    let pendingLetterTitle = null;
     if (e.kind === "letter") {
-      out.push(
-        '<div class="bz-diary-b-head" data-eid="' + eid + '">' + esc(basenameOf(e.filename)) + "</div>"
-      );
+      const title = basenameOf(e.filename);
+      out.push('<div class="bz-diary-b-head" data-eid="' + eid + '">' + esc(title) + "</div>");
+      pendingLetterTitle = title;
     }
     for (const seg of e.segments) {
       if (seg.kind === "media") {
@@ -284,6 +289,12 @@ var BZR_diary = (() => {
             );
             break;
           case "para": {
+            if (pendingLetterTitle !== null) {
+              const bare = b.text.replace(/^\s*\*\*([\s\S]*?)\*\*\s*$/, "$1").trim();
+              const synthesized = bare === pendingLetterTitle;
+              pendingLetterTitle = null;
+              if (synthesized) break;
+            }
             const t = stripHashInto(b.text, []);
             if (t.trim()) out.push(paraHTML({ text: t }, e));
             break;
