@@ -61,11 +61,16 @@ function newToken(): string {
 }
 
 /**
- * 本机这一次开机的标识（取整到分钟）。拿不到就返回空串 —— 空值的锁继续按老判据走。
+ * 本机这一次开机的标识：`机器名:开机时刻(取整到分钟)`。拿不到就返回空串 ——
+ * 空值的锁继续按老判据走。
  *
  * 为什么是开机时刻而不是 pid：Windows 重启后 pid 会被复用，`pidAlive` 对上一轮开机
  * 留下的那把锁会答「活着」，于是死锁要硬等 90 秒超时。开机时刻对不上就说明这锁是
  * 上一轮的，可以直接抢，不必等。
+ *
+ * 为什么带机器名：vault 可能被两台机器共享，`bootId` 只回答「是不是同一次开机」，
+ * 不回答「是不是同一台机器」。不带机器名的话，两台机器永远互判「你的锁过期了」，
+ * 比改之前更糟。机器名不同就**不参与**这条判据，退回 pid / 时间。
  *
  * 取整到分钟是必须的：`os.uptime()` 秒级抖动会让同一台机器两次算出来差 1，误判成换机。
  */
@@ -77,13 +82,22 @@ function currentBootId(): string {
       window?: { require?: (id: string) => unknown };
     };
     const req = g.window?.require ?? g.require;
-    const os = req?.('os') as { uptime?: () => number } | undefined;
+    const os = req?.('os') as { uptime?: () => number; hostname?: () => string } | undefined;
     const sec = os?.uptime?.();
     if (typeof sec !== 'number' || !Number.isFinite(sec)) return '';
-    return String(Math.round((Date.now() - sec * 1000) / 60_000));
+    const host = os?.hostname?.();
+    if (!host) return ''; // 没有机器名就不掺和这条判据
+    return `${host}:${Math.round((Date.now() - sec * 1000) / 60_000)}`;
   } catch {
     return '';
   }
+}
+
+/** 两个 bootId 是不是同一台机器写下的（格式 `机器名:开机分钟`） */
+function sameHostOf(a: string, b: string): boolean {
+  const cut = (v: string): string => v.slice(0, v.lastIndexOf(':'));
+  const ha = cut(a);
+  return ha !== '' && ha === cut(b);
 }
 
 function readLock(fs: DockFs, path: string): LockInfo | null {
@@ -158,8 +172,12 @@ export function acquireLock(
   const expiredByTime = !held || now - Date.parse(held.at) > staleMs || !Number.isFinite(Date.parse(held?.at ?? ''));
   const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
   // pid 还「活着」但开机标识不是这一次的：Windows 重启后 pid 被复用，那具尸体
-  // 只是碰巧撞上了别人的号。空 bootId（老锁 / 拿不到 os）不参与这条判断。
-  const expiredByBoot = !!held && held.bootId !== '' && info.bootId !== '' && held.bootId !== info.bootId;
+  // 只是碰巧撞上了别人的号。三个前提缺一不可：
+  //  - 两边的 bootId 都非空（老锁 / 拿不到 os 就退回 pid + 时间判据）；
+  //  - 机器名相同 —— 不同机器的锁本来就不该互相判过期；
+  //  - 开机时刻不同。
+  const expiredByBoot =
+    !!held && held.bootId !== '' && info.bootId !== '' && sameHostOf(held.bootId, info.bootId) && held.bootId !== info.bootId;
   if (!expiredByTime && !expiredByPid && !expiredByBoot) return null;
 
   // 抢：先把旧锁改名搬走（rename 只有一个能成功），再排他创建。
