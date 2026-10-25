@@ -1019,11 +1019,13 @@ function planTick(input) {
       const pending = ruleState.pending;
       if (pending) {
         const due = Date.parse(pending.dueAt);
-        if (Number.isFinite(due) && due <= input.now) {
+        const started = Date.parse(pending.startedAt ?? "");
+        const inFlight = Number.isFinite(started) && input.now - started < RUN_TIMEOUT_MS + 6e4;
+        if (Number.isFinite(due) && due <= input.now && !inFlight) {
           ready.push({ view, rule, runId: pending.runId });
           push("run");
         } else {
-          push("skip", "waiting", pending.dueAt);
+          push("skip", "waiting", pending.startedAt ?? pending.dueAt);
         }
         continue;
       }
@@ -1271,10 +1273,17 @@ function currentBootId() {
     const os = req?.("os");
     const sec = os?.uptime?.();
     if (typeof sec !== "number" || !Number.isFinite(sec)) return "";
-    return String(Math.round((Date.now() - sec * 1e3) / 6e4));
+    const host = os?.hostname?.();
+    if (!host) return "";
+    return `${host}:${Math.round((Date.now() - sec * 1e3) / 6e4)}`;
   } catch {
     return "";
   }
+}
+function sameHostOf(a, b) {
+  const cut = (v) => v.slice(0, v.lastIndexOf(":"));
+  const ha = cut(a);
+  return ha !== "" && ha === cut(b);
 }
 function readLock(fs, path) {
   const text = fs.readText(path);
@@ -1326,7 +1335,7 @@ function acquireLock(dataDir, owner, opts = {}) {
   const held = readLock(fs, path);
   const expiredByTime = !held || now - Date.parse(held.at) > staleMs || !Number.isFinite(Date.parse(held?.at ?? ""));
   const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
-  const expiredByBoot = !!held && held.bootId !== "" && info.bootId !== "" && held.bootId !== info.bootId;
+  const expiredByBoot = !!held && held.bootId !== "" && info.bootId !== "" && sameHostOf(held.bootId, info.bootId) && held.bootId !== info.bootId;
   if (!expiredByTime && !expiredByPid && !expiredByBoot) return null;
   const saved = `${path}.stale`;
   if (fs.rename) {
@@ -2072,6 +2081,7 @@ async function tickOnce(opts) {
   if (inner === null) return { skipped: "locked" };
   return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
 }
+var MAX_THRESHOLD_BYTES = 2 * 1024 * 1024;
 function readThresholds(views, vaultPath, fs) {
   const out = /* @__PURE__ */ new Map();
   const docs = /* @__PURE__ */ new Map();
@@ -2087,8 +2097,8 @@ function readThresholds(views, vaultPath, fs) {
       } else {
         doc = void 0;
         const size = fs.size?.(file);
-        const text = size !== void 0 && size > 2 * 1024 * 1024 ? null : fs.readText(file);
-        if (text !== null) {
+        const text = size !== void 0 && size > MAX_THRESHOLD_BYTES ? null : fs.readText(file);
+        if (text !== null && text.length <= MAX_THRESHOLD_BYTES) {
           try {
             doc = JSON.parse(text);
           } catch {

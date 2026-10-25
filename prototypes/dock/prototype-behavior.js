@@ -1,4 +1,4 @@
-/* 源指纹 6174514680c422c3 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 33a1681f71924f55 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -946,6 +946,10 @@ var BZW_dock = (() => {
     if (fails) out.consecutiveFailures = fails;
     const paused = str(raw.pausedAt);
     if (paused) out.pausedAt = paused;
+    const runningAt = str(raw.runningAt);
+    if (runningAt) out.runningAt = runningAt;
+    const runningRunId = str(raw.runningRunId);
+    if (runningRunId) out.runningRunId = runningRunId;
     return Object.keys(out).length ? out : null;
   }
   function emptyRuntime(tool) {
@@ -1318,6 +1322,7 @@ var BZW_dock = (() => {
     let pct = null;
     let timedOut = false;
     let handleRef = null;
+    let runRef = null;
     const handle = runExternalTool(
       spec,
       {
@@ -1330,6 +1335,10 @@ var BZW_dock = (() => {
           var _a2, _b2;
           phase = p;
           pct = v;
+          if (runRef) {
+            runRef.phase = p;
+            runRef.pct = v;
+          }
           (_b2 = (_a2 = args.cb) == null ? void 0 : _a2.onProgress) == null ? void 0 : _b2.call(_a2, p, v);
         },
         onInfo: (d) => {
@@ -1375,6 +1384,7 @@ var BZW_dock = (() => {
       handle,
       done: Promise.resolve(void 0)
     };
+    runRef = run;
     const timeoutMs = (_i = args.timeoutMs) != null ? _i : RUN_TIMEOUT_MS;
     const timer = timeoutMs > 0 ? setTimeout(() => {
       timedOut = true;
@@ -2103,7 +2113,7 @@ var BZW_dock = (() => {
       case "daily": {
         const today = todayAt(t, ctx.now);
         if (today === void 0) return null;
-        if (ctx.now < today && ((_a = ctx.lastFiredAt) != null ? _a : 0) < today) return today;
+        if (((_a = ctx.lastFiredAt) != null ? _a : 0) < today) return today;
         return today + 864e5;
       }
       case "interval": {
@@ -2172,6 +2182,9 @@ var BZW_dock = (() => {
   });
 
   // src/dock/kernel.ts
+  function thresholdKey(toolId, ruleId) {
+    return `${toolId}\0${ruleId}`;
+  }
   function missingParams(view2) {
     var _a;
     const out = [];
@@ -2183,8 +2196,14 @@ var BZW_dock = (() => {
     }
     return out;
   }
+  function runningElsewhere(view2, now) {
+    var _a, _b;
+    const at = Date.parse((_b = (_a = view2.runtime.run) == null ? void 0 : _a.runningAt) != null ? _b : "");
+    if (!Number.isFinite(at)) return false;
+    return now - at < RUN_TIMEOUT_MS + 6e4;
+  }
   function planTick(input) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
     const decisions = [];
     const ready = [];
     for (const view2 of input.views) {
@@ -2197,11 +2216,13 @@ var BZW_dock = (() => {
         const pending = ruleState.pending;
         if (pending) {
           const due = Date.parse(pending.dueAt);
-          if (Number.isFinite(due) && due <= input.now) {
+          const started = Date.parse((_c = pending.startedAt) != null ? _c : "");
+          const inFlight = Number.isFinite(started) && input.now - started < RUN_TIMEOUT_MS + 6e4;
+          if (Number.isFinite(due) && due <= input.now && !inFlight) {
             ready.push({ view: view2, rule, runId: pending.runId });
             push("run");
           } else {
-            push("skip", "waiting", pending.dueAt);
+            push("skip", "waiting", (_d = pending.startedAt) != null ? _d : pending.dueAt);
           }
           continue;
         }
@@ -2217,7 +2238,7 @@ var BZW_dock = (() => {
           push("skip", "tool-auto-off");
           continue;
         }
-        if ((_c = view2.runtime.run) == null ? void 0 : _c.pausedAt) {
+        if ((_e = view2.runtime.run) == null ? void 0 : _e.pausedAt) {
           push("skip", "paused");
           continue;
         }
@@ -2237,22 +2258,27 @@ var BZW_dock = (() => {
           push("skip", "running");
           continue;
         }
-        const lastAttempt = Date.parse((_e = (_d = view2.runtime.run) == null ? void 0 : _d.lastAttemptAt) != null ? _e : "");
-        if (action === "run" && ((_f = view2.runtime.run) == null ? void 0 : _f.lastAttemptOk) === false && Number.isFinite(lastAttempt) && input.now - lastAttempt < FAIL_COOLDOWN_MS) {
+        if (action === "run" && runningElsewhere(view2, input.now)) {
+          push("skip", "running");
+          continue;
+        }
+        const lastAttempt = Date.parse((_g = (_f = view2.runtime.run) == null ? void 0 : _f.lastAttemptAt) != null ? _g : "");
+        if (action === "run" && ((_h = view2.runtime.run) == null ? void 0 : _h.lastAttemptOk) === false && Number.isFinite(lastAttempt) && input.now - lastAttempt < FAIL_COOLDOWN_MS) {
           push("skip", "cooldown");
           continue;
         }
         const ctx = {
           now: input.now,
-          lastFiredAt: Number.isFinite(Date.parse((_g = ruleState.lastFiredAt) != null ? _g : "")) ? Date.parse(ruleState.lastFiredAt) : void 0,
-          sessionStart: input.sessionStart
+          lastFiredAt: Number.isFinite(Date.parse((_i = ruleState.lastFiredAt) != null ? _i : "")) ? Date.parse(ruleState.lastFiredAt) : void 0,
+          sessionStart: input.sessionStart,
+          value: (_j = input.values) == null ? void 0 : _j.get(thresholdKey(view2.id, rule.id))
         };
-        const hit = ruleDue(rule, ctx) || ((_h = input.events) != null ? _h : []).some((e) => {
+        const hit = ruleDue(rule, ctx) || ((_k = input.events) != null ? _k : []).some((e) => {
           if ((e.kind === "tool-ok" || e.kind === "tool-fail") && e.toolId === view2.id) return false;
           return ruleDue(rule, { ...ctx, event: e });
         });
         if (!hit) continue;
-        const jitterMin = (_i = rule.jitterMin) != null ? _i : 0;
+        const jitterMin = (_l = rule.jitterMin) != null ? _l : 0;
         const delayMs = jitterMin > 0 ? Math.floor(Math.random() * jitterMin * 6e4) : 0;
         const dueAt = new Date(input.now + delayMs).toISOString();
         push("queue", delayMs > 0 ? "jitter" : void 0, dueAt);
@@ -2261,13 +2287,14 @@ var BZW_dock = (() => {
     return { decisions, ready };
   }
   async function runTick(deps2) {
-    var _a, _b;
+    var _a, _b, _c;
     const plan = planTick({
       views: deps2.views,
       now: deps2.now,
       sessionStart: deps2.sessionStart,
       events: deps2.events,
-      liveIds: deps2.liveIds
+      liveIds: deps2.liveIds,
+      values: deps2.values
     });
     const ran = [];
     let executed = 0;
@@ -2324,6 +2351,7 @@ var BZW_dock = (() => {
           recordMissing: "bz 自己出错，没跑起来"
         };
       }
+      if ((_c = deps2.shouldStop) == null ? void 0 : _c.call(deps2)) break;
       settle(view2, job.ruleId, job.runId, outcome, deps2.fs);
       ran.push({ toolId: view2.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
     }
@@ -2346,6 +2374,8 @@ var BZW_dock = (() => {
     const facts = { ...(_b = runtime.run) != null ? _b : {} };
     facts.lastAttemptAt = now;
     facts.lastAttemptOk = outcome.ok;
+    delete facts.runningAt;
+    delete facts.runningRunId;
     if (outcome.ok) {
       delete facts.consecutiveFailures;
       delete facts.pausedAt;
@@ -2357,6 +2387,23 @@ var BZW_dock = (() => {
     runtime.run = facts;
     view2.runtime = runtime;
     writeRuntime(view2.path, runtime, fs != null ? fs : null);
+  }
+  function markRunning(view2, runId, now, fs) {
+    var _a;
+    const facts = { ...(_a = view2.runtime.run) != null ? _a : {} };
+    facts.runningAt = new Date(now).toISOString();
+    facts.runningRunId = runId;
+    view2.runtime = { ...view2.runtime, run: facts };
+    writeRuntime(view2.path, view2.runtime, fs != null ? fs : null);
+  }
+  function clearRunning(view2, fs) {
+    var _a;
+    const facts = { ...(_a = view2.runtime.run) != null ? _a : {} };
+    if (facts.runningAt === void 0 && facts.runningRunId === void 0) return;
+    delete facts.runningAt;
+    delete facts.runningRunId;
+    view2.runtime = { ...view2.runtime, run: facts };
+    writeRuntime(view2.path, view2.runtime, fs != null ? fs : null);
   }
   function clearBreaker(view2, fs) {
     const runtime = { ...view2.runtime };
@@ -2453,6 +2500,26 @@ var BZW_dock = (() => {
   function newToken() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   }
+  function currentBootId() {
+    var _a, _b, _c, _d;
+    try {
+      const g = globalThis;
+      const req = (_b = (_a = g.window) == null ? void 0 : _a.require) != null ? _b : g.require;
+      const os = req == null ? void 0 : req("os");
+      const sec = (_c = os == null ? void 0 : os.uptime) == null ? void 0 : _c.call(os);
+      if (typeof sec !== "number" || !Number.isFinite(sec)) return "";
+      const host = (_d = os == null ? void 0 : os.hostname) == null ? void 0 : _d.call(os);
+      if (!host) return "";
+      return `${host}:${Math.round((Date.now() - sec * 1e3) / 6e4)}`;
+    } catch (e) {
+      return "";
+    }
+  }
+  function sameHostOf(a, b) {
+    const cut = (v) => v.slice(0, v.lastIndexOf(":"));
+    const ha = cut(a);
+    return ha !== "" && ha === cut(b);
+  }
   function readLock(fs, path) {
     const text = fs.readText(path);
     if (!text) return null;
@@ -2484,7 +2551,7 @@ var BZW_dock = (() => {
     const info = {
       owner,
       pid: (_e = (_d = globalThis.process) == null ? void 0 : _d.pid) != null ? _e : 0,
-      bootId: (_f = opts.bootId) != null ? _f : "",
+      bootId: (_f = opts.bootId) != null ? _f : currentBootId(),
       at: new Date(now).toISOString(),
       token
     };
@@ -2504,7 +2571,8 @@ var BZW_dock = (() => {
     const held = readLock(fs, path);
     const expiredByTime = !held || now - Date.parse(held.at) > staleMs || !Number.isFinite(Date.parse((_g = held == null ? void 0 : held.at) != null ? _g : ""));
     const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
-    if (!expiredByTime && !expiredByPid) return null;
+    const expiredByBoot = !!held && held.bootId !== "" && info.bootId !== "" && sameHostOf(held.bootId, info.bootId) && held.bootId !== info.bootId;
+    if (!expiredByTime && !expiredByPid && !expiredByBoot) return null;
     const saved = `${path}.stale`;
     if (fs.rename) {
       if (fs.unlink) {
@@ -2691,6 +2759,7 @@ var BZW_dock = (() => {
             sessionStart: opts.sessionStart,
             events,
             liveIds: (_d = opts.liveIds) != null ? _d : /* @__PURE__ */ new Set(),
+            values: readThresholds(views2, opts.vaultPath, fs),
             fs,
             execute: (view2, rule, runId) => executeOne(view2, rule, runId, opts, fs),
             remind: (view2, rule) => {
@@ -2711,6 +2780,56 @@ var BZW_dock = (() => {
     }
     if (inner === null) return { skipped: "locked" };
     return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
+  }
+  function readThresholds(views2, vaultPath, fs) {
+    var _a;
+    const out = /* @__PURE__ */ new Map();
+    const docs = /* @__PURE__ */ new Map();
+    for (const view2 of views2) {
+      for (const rule of view2.rules) {
+        const t = rule.trigger;
+        if (t.kind !== "value-threshold") continue;
+        const file = vaultFileOf(t.path, vaultPath);
+        if (!file) continue;
+        let doc;
+        if (docs.has(file)) {
+          doc = docs.get(file);
+        } else {
+          doc = void 0;
+          const size = (_a = fs.size) == null ? void 0 : _a.call(fs, file);
+          const text = size !== void 0 && size > MAX_THRESHOLD_BYTES ? null : fs.readText(file);
+          if (text !== null && text.length <= MAX_THRESHOLD_BYTES) {
+            try {
+              doc = JSON.parse(text);
+            } catch (e) {
+              doc = void 0;
+            }
+          }
+          docs.set(file, doc);
+        }
+        const n = pickNumber(doc, t.key);
+        if (n !== void 0) out.set(thresholdKey(view2.id, rule.id), n);
+      }
+    }
+    return out;
+  }
+  function vaultFileOf(p, vaultPath) {
+    const raw = String(p != null ? p : "").trim();
+    if (!raw) return null;
+    if (/^[A-Za-z]:[\\/]/.test(raw) || raw.startsWith("//")) return raw;
+    const root = vaultPath == null ? void 0 : vaultPath.replace(/\\/g, "/").replace(/\/+$/, "");
+    if (raw.startsWith("/")) return root ? `${root}${raw}` : null;
+    return root ? joinPath(root, raw) : null;
+  }
+  function pickNumber(doc, key) {
+    const parts = String(key != null ? key : "").split(".").map((s) => s.trim()).filter(Boolean);
+    if (!parts.length) return void 0;
+    let cur = doc;
+    for (const part of parts) {
+      if (cur === null || typeof cur !== "object") return void 0;
+      cur = cur[part];
+    }
+    return typeof cur === "number" && Number.isFinite(cur) ? cur : void 0;
   }
   async function executeOne(view2, rule, runId, opts, fs) {
     var _a;
@@ -2753,7 +2872,7 @@ var BZW_dock = (() => {
     (_a = opts.onOutcome) == null ? void 0 : _a.call(opts, view2, outcome);
     return outcome;
   }
-  var KEEP_ALIVE_MS;
+  var KEEP_ALIVE_MS, MAX_THRESHOLD_BYTES;
   var init_tick_once = __esm({
     "src/dock/tick-once.ts"() {
       init_kernel();
@@ -2766,6 +2885,7 @@ var BZW_dock = (() => {
       init_exit_pulse();
       init_types();
       KEEP_ALIVE_MS = 2e4;
+      MAX_THRESHOLD_BYTES = 2 * 1024 * 1024;
     }
   });
 
@@ -2855,33 +2975,45 @@ var BZW_dock = (() => {
     }
     const attempt = () => withLock(dataDir(), "plugin", async () => {
       if (!view2.entry) return null;
-      const live3 = runToolNow({
-        toolId: view2.id,
-        declPath: view2.path,
-        entry: view2.entry,
-        manifest: view2.manifest,
-        values: view2.values,
-        vaultPath: vaultBasePath(a),
-        trigger: "manual",
-        extraArgs: opts.extraArgs,
-        runId: makeRunId(),
-        records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), currentFs(), RUNS_TAIL_BYTES), view2.id),
-        cb: { onStep: opts.onStep }
-      });
-      return live3.done;
+      const runId = makeRunId();
+      markRunning(view2, runId, Date.now());
+      try {
+        return runToolNow({
+          toolId: view2.id,
+          declPath: view2.path,
+          entry: view2.entry,
+          manifest: view2.manifest,
+          values: view2.values,
+          vaultPath: vaultBasePath(a),
+          trigger: "manual",
+          extraArgs: opts.extraArgs,
+          runId,
+          records: () => parseRunLines(readRunsText(pathOf.runs(view2.path), currentFs(), RUNS_TAIL_BYTES), view2.id),
+          cb: { onStep: opts.onStep }
+        });
+      } catch (e) {
+        clearRunning(view2);
+        throw e;
+      }
     }, { keepAliveMs: KEEP_ALIVE_MS });
-    let outcome = null;
+    let live3 = null;
     for (let i = 0; i < 4; i += 1) {
-      outcome = await attempt();
-      if (outcome) break;
+      live3 = await attempt();
+      if (live3) break;
       if (i < 3) await new Promise((r) => setTimeout(r, 350));
     }
-    if (outcome) {
-      announce(view2, outcome);
-      return outcome;
+    if (!live3) {
+      notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: "warning" });
+      return null;
     }
-    notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: "warning" });
-    return null;
+    let outcome;
+    try {
+      outcome = await live3.done;
+    } finally {
+      clearRunning(view2);
+    }
+    announce(view2, outcome);
+    return outcome;
   }
   async function clearBreakerSafely(view2) {
     const ok = await withLock(dataDir(), "plugin", () => {
@@ -4209,6 +4341,18 @@ var BZW_dock = (() => {
   var tickTimer = null;
   var liveOff = null;
   var lastTails = /* @__PURE__ */ new Map();
+  var recPrints = /* @__PURE__ */ new Map();
+  var hbPrints = /* @__PURE__ */ new Map();
+  var boardPrints = /* @__PURE__ */ new Map();
+  var openRuns = /* @__PURE__ */ new Map();
+  function openRunsOf(toolId) {
+    let set = openRuns.get(toolId);
+    if (!set) {
+      set = /* @__PURE__ */ new Set();
+      openRuns.set(toolId, set);
+    }
+    return set;
+  }
   var LAST_SEEN_KEY = "bz-dock:lastSeen";
   var OVERLAY_ID = "bz-dock-mask";
   var FRAME_ID = "bz-dock-panel";
@@ -4379,6 +4523,10 @@ var BZW_dock = (() => {
     searchOpen = false;
     query = "";
     lastTails.clear();
+    recPrints.clear();
+    hbPrints.clear();
+    boardPrints.clear();
+    openRuns.clear();
   }
   function isPanelVisible() {
     return !!overlay && !overlay.classList.contains("is-off");
@@ -4438,7 +4586,149 @@ var BZW_dock = (() => {
       canRun: canRun(),
       fs: currentFs()
     });
+    syncPrints(registry.tools);
     render();
+  }
+  function recPrintOf(declPath, fs) {
+    if (!fs) return "";
+    return [
+      // runs.jsonl 可能很大（几百 KB），只看大小：它是**只在终态追加**的，追加必变
+      filePrint(pathOf.runs(declPath), fs, true),
+      // 其余都是小文件，看内容 —— 大小靠不住：`updatedAt`、`at` 这类 ISO 时间戳是定长的，
+      // 内容换了大小却一模一样，只比大小就等于没比
+      filePrint(declPath, fs, false),
+      filePrint(pathOf.runtime(declPath), fs, false),
+      filePrint(pathOf.intent(declPath), fs, false),
+      filePrint(pathOf.settings(declPath), fs, false)
+    ].join("|");
+  }
+  function boardPrintOf(declPath, fs) {
+    if (!fs) return "";
+    return filePrint(pathOf.panel(declPath), fs, true);
+  }
+  function hbPrintOf(declPath, fs) {
+    if (!fs) return "";
+    return filePrint(pathOf.heartbeat(declPath), fs, false);
+  }
+  function filePrint(path, fs, bySize) {
+    var _a;
+    if (bySize) {
+      const size = (_a = fs.size) == null ? void 0 : _a.call(fs, path);
+      if (size !== void 0) return `s${size}`;
+    }
+    const text = fs.readText(path);
+    if (text === null) return "-";
+    return `h${text.length}:${hashOf(text)}`;
+  }
+  function hashOf(text) {
+    let h = 5381;
+    for (let i = 0; i < text.length; i += 1) h = (h << 5) + h + text.charCodeAt(i) | 0;
+    return (h >>> 0).toString(36);
+  }
+  function syncPrints(entries) {
+    const fs = currentFs();
+    recPrints.clear();
+    hbPrints.clear();
+    boardPrints.clear();
+    for (const e of entries) {
+      const decl = resolveToolPath(e.path);
+      recPrints.set(e.id, recPrintOf(decl, fs));
+      hbPrints.set(e.id, hbPrintOf(decl, fs));
+      boardPrints.set(e.id, boardPrintOf(decl, fs));
+    }
+  }
+  function reloadChanged() {
+    const changed = { rec: /* @__PURE__ */ new Set(), hb: /* @__PURE__ */ new Set(), board: /* @__PURE__ */ new Set() };
+    const fs = currentFs();
+    if (!fs) return changed;
+    const { registry } = readRegistry();
+    if (registry.tools.length !== views.length) {
+      refresh();
+      return changed;
+    }
+    const trust = readTrust();
+    for (const e of registry.tools) {
+      const decl = resolveToolPath(e.path);
+      const rec = recPrintOf(decl, fs);
+      const hb = hbPrintOf(decl, fs);
+      const board = boardPrintOf(decl, fs);
+      const recDirty = recPrints.get(e.id) !== rec;
+      const hbDirty = hbPrints.get(e.id) !== hb;
+      const boardDirty = boardPrints.get(e.id) !== board;
+      if (!recDirty && !hbDirty && !boardDirty) continue;
+      recPrints.set(e.id, rec);
+      hbPrints.set(e.id, hb);
+      boardPrints.set(e.id, board);
+      const i = views.findIndex((v) => v.id === e.id);
+      if (i < 0) continue;
+      views[i] = loadToolView(e, { trust, canRun: canRun(), fs });
+      if (boardDirty) changed.board.add(e.id);
+      if (recDirty) changed.rec.add(e.id);
+      else if (hbDirty) changed.hb.add(e.id);
+    }
+    return changed;
+  }
+  function repaintChanged(changed) {
+    if (!changed.rec.size && !changed.hb.size && !changed.board.size) return;
+    if (view.kind === "detail") {
+      const board = changed.board.has(view.id);
+      if (changed.rec.has(view.id) || board) repaintDetail(view.id, { board });
+      else if (changed.hb.has(view.id)) {
+        renderLiveInto(view.id);
+        repaintRunBtns(view.id);
+      }
+      return;
+    }
+    const body = bodyEl();
+    if (!body) return;
+    for (const id of /* @__PURE__ */ new Set([...changed.rec, ...changed.hb, ...changed.board])) {
+      const v = viewById(id);
+      if (!v) continue;
+      const old = body.querySelector(`.bz-dock-card[data-tool="${id}"]`);
+      if (old) old.replaceWith(makeCard(v));
+    }
+    if (changed.rec.size) {
+      renderKpi();
+      renderHeadSub();
+    }
+    renderRunbar();
+    updateCards();
+  }
+  function renderHeadSub() {
+    const sub = overlay == null ? void 0 : overlay.querySelector("#bz-dock-headsub");
+    if (!sub) return;
+    const alarms = views.filter(isAlarmView).length;
+    sub.textContent = views.length ? `${views.length} 个工具${alarms ? ` · ${alarms} 个待关注` : ""}` : "还没有登记任何外部工具";
+  }
+  function repaintDetail(id, opts = {}) {
+    var _a, _b, _c;
+    const v = viewById(id);
+    const wrap = (_a = bodyEl()) == null ? void 0 : _a.querySelector(".bz-dock-detail");
+    if (!v || !wrap) return;
+    if (opts.board) repaintBoard(v, wrap);
+    (_b = wrap.querySelector(".bz-dock-toolstats")) == null ? void 0 : _b.replaceWith(toolStats(v));
+    (_c = wrap.querySelector(".bz-dock-histpane")) == null ? void 0 : _c.replaceWith(histPane(v));
+    repaintRunBtns(id);
+    renderLiveInto(id);
+    renderRunbar();
+  }
+  function repaintBoard(v, wrap) {
+    const old = wrap.querySelector(".bz-dock-board");
+    const next = boardSection(v);
+    if (old && next) old.replaceWith(next);
+    else if (old) old.remove();
+    else if (next) {
+      const warn = wrap.querySelector(".bz-dock-meta-warn");
+      wrap.insertBefore(next, warn ? warn.nextSibling : wrap.firstChild);
+    }
+  }
+  function repaintRunBtns(id) {
+    var _a;
+    const v = viewById(id);
+    if (!v) return;
+    const old = (_a = bodyEl()) == null ? void 0 : _a.querySelector(".bz-dock-runpane .bz-dock-runbtns");
+    if (!old) return;
+    old.replaceWith(runBtns(v));
   }
   function updateCards() {
     var _a;
@@ -4454,7 +4744,12 @@ var BZW_dock = (() => {
       const running = !!live3 || !!ext;
       card.classList.toggle("is-running", running);
       const dot = card.querySelector(".bz-dock-dot");
-      if (dot && running) dot.className = "bz-dock-dot bz-dock-dot--warn";
+      if (dot) {
+        const v = viewById(id);
+        const last = v ? lastOf(v) : void 0;
+        const want = running ? "bz-dock-dot bz-dock-dot--warn" : dotClass(last ? last.status : v && dueOf(v).due ? "due" : "none");
+        if (dot.className !== want) dot.className = want;
+      }
     }
   }
   function startTick() {
@@ -4462,6 +4757,7 @@ var BZW_dock = (() => {
     tickTimer = setInterval(() => {
       if (!isPanelVisible()) return;
       rememberTails();
+      repaintChanged(reloadChanged());
       updateCards();
       if (view.kind === "detail") renderLiveInto(view.id);
     }, 3e3);
@@ -4496,8 +4792,7 @@ var BZW_dock = (() => {
     const btns = el("div", "bz-panel-head-btns");
     btns.id = "bz-dock-headbtns";
     head.append(brand, el("div", "bz-panel-title", "工具坞"), el("div", "bz-panel-head-pipe"), sub, el("div", "bz-panel-head-sp"), btns);
-    const alarms = views.filter(isAlarmView).length;
-    sub.textContent = views.length ? `${views.length} 个工具${alarms ? ` · ${alarms} 个待关注` : ""}` : "还没有登记任何外部工具";
+    renderHeadSub();
     btns.appendChild(
       uiIconBtn({
         icon: "search",
@@ -4735,7 +5030,7 @@ var BZW_dock = (() => {
         renderDetail(body, v);
         return;
       }
-      view = { kind: "list" };
+      if (views.length) view = { kind: "list" };
     }
     renderList(body);
   }
@@ -5102,7 +5397,7 @@ var BZW_dock = (() => {
     return meta;
   }
   function runPane(v) {
-    var _a, _b, _c;
+    var _a;
     const pane = el("section", "bz-dock-pane bz-dock-runpane");
     pane.appendChild(el("h3", "bz-dock-pane-title", "运行台"));
     if (!v.manifest) {
@@ -5122,56 +5417,7 @@ var BZW_dock = (() => {
     if (!v.entry) {
       pane.appendChild(el("div", "bz-dock-meta-warn", "这份声明没写 entry —— 能看它的记录，但不知道该怎么跑。"));
     }
-    const btns = el("div", "bz-dock-runbtns");
-    if (canRun()) {
-      const live3 = liveOf(v.id);
-      const external = externalRunOf(v);
-      if (live3) {
-        btns.appendChild(uiBtn({ label: "停止", icon: "square", tone: "danger", onClick: () => stopLive(v.id) }));
-      } else {
-        const gate = judgeRunGate(v, true);
-        const run = uiBtn({
-          label: external ? "后台正在跑" : "运行",
-          icon: "play",
-          tone: "primary",
-          disabled: !gate.ok || !!external,
-          onClick: () => void doRun(v)
-        });
-        run.title = external ? "后台值守正在跑它，等它跑完" : gate.ok ? "" : (_b = gate.text) != null ? _b : "";
-        btns.appendChild(run);
-      }
-      if (!v.trusted) {
-        btns.appendChild(
-          uiBtn({
-            label: v.trustStale ? "重新授权" : "授权这条命令",
-            icon: "shield-check",
-            onClick: () => void doTrust(v)
-          })
-        );
-      } else {
-        btns.appendChild(uiBtn({ label: "撤销授权", size: "sm", onClick: () => void doUntrust(v) }));
-      }
-      if ((_c = v.runtime.run) == null ? void 0 : _c.pausedAt) {
-        btns.appendChild(
-          uiBtn({
-            label: "恢复自动运行",
-            size: "sm",
-            onClick: () => {
-              void clearBreakerSafely(v).then((ok) => {
-                if (!ok) {
-                  notice("有工具正在跑，等它跑完再恢复", "warning");
-                  return;
-                }
-                refresh();
-              });
-            }
-          })
-        );
-      }
-    } else {
-      btns.appendChild(el("span", "bz-dock-mobilehint", "移动端不能启动进程，只能看"));
-    }
-    pane.appendChild(btns);
+    pane.appendChild(runBtns(v));
     const tail = lastTails.get(v.id);
     if (!liveOf(v.id) && (tail == null ? void 0 : tail.length)) {
       const box = el("div", "bz-dock-lastraw");
@@ -5186,6 +5432,59 @@ var BZW_dock = (() => {
     pane.appendChild(liveHost);
     renderLiveIntoEl(liveHost, v);
     return pane;
+  }
+  function runBtns(v) {
+    var _a, _b;
+    const btns = el("div", "bz-dock-runbtns");
+    if (!canRun()) {
+      btns.appendChild(el("span", "bz-dock-mobilehint", "移动端不能启动进程，只能看"));
+      return btns;
+    }
+    const live3 = liveOf(v.id);
+    const external = externalRunOf(v);
+    if (live3) {
+      btns.appendChild(uiBtn({ label: "停止", icon: "square", tone: "danger", onClick: () => stopLive(v.id) }));
+    } else {
+      const gate = judgeRunGate(v, true);
+      const run = uiBtn({
+        label: external ? "后台正在跑" : "运行",
+        icon: "play",
+        tone: "primary",
+        disabled: !gate.ok || !!external,
+        onClick: () => void doRun(v)
+      });
+      run.title = external ? "后台值守正在跑它，等它跑完" : gate.ok ? "" : (_a = gate.text) != null ? _a : "";
+      btns.appendChild(run);
+    }
+    if (!v.trusted) {
+      btns.appendChild(
+        uiBtn({
+          label: v.trustStale ? "重新授权" : "授权这条命令",
+          icon: "shield-check",
+          onClick: () => void doTrust(v)
+        })
+      );
+    } else {
+      btns.appendChild(uiBtn({ label: "撤销授权", size: "sm", onClick: () => void doUntrust(v) }));
+    }
+    if ((_b = v.runtime.run) == null ? void 0 : _b.pausedAt) {
+      btns.appendChild(
+        uiBtn({
+          label: "恢复自动运行",
+          size: "sm",
+          onClick: () => {
+            void clearBreakerSafely(v).then((ok) => {
+              if (!ok) {
+                notice("有工具正在跑，等它跑完再恢复", "warning");
+                return;
+              }
+              refresh();
+            });
+          }
+        })
+      );
+    }
+    return btns;
   }
   function renderLiveInto(id) {
     var _a;
@@ -5569,14 +5868,22 @@ var BZW_dock = (() => {
       return pane;
     }
     const list = el("div", "bz-dock-histlist");
-    for (const r of runs) list.appendChild(histRow(r));
+    for (const r of runs) list.appendChild(histRow(r, v.id));
     pane.appendChild(list);
+    const open = openRuns.get(v.id);
+    if (open == null ? void 0 : open.size) {
+      const alive = new Set(runs.map((r) => r.runId));
+      for (const id of open) if (!alive.has(id)) open.delete(id);
+    }
     if (runs.length >= 60) pane.appendChild(el("div", "bz-dock-note", "只显示最近 60 条"));
     return pane;
   }
-  function histRow(r) {
+  function histRow(r, toolId) {
     var _a, _b, _c, _d, _e;
     const row = el("article", "bz-dock-histrow");
+    row.dataset.run = r.runId;
+    const openSet = openRunsOf(toolId);
+    const wasOpen = openSet.has(r.runId);
     const head = el("div", "bz-dock-histhead");
     head.appendChild(el("span", dotClass(r.status)));
     head.appendChild(el("span", "bz-dock-histtime", relTime(r.startedAt.replace("T", " "))));
@@ -5593,8 +5900,13 @@ var BZW_dock = (() => {
     }
     const hasMore = r.steps && r.steps.length > 0 || r.info && r.info.length > 0 || r.result !== void 0 || r.metrics !== void 0 || r.artifacts && r.artifacts.length > 0 || !!((_a = r.error) == null ? void 0 : _a.stderr);
     if (hasMore) {
-      const btn = uiBtn({ label: "展开", size: "sm", className: "bz-dock-histtoggle" });
+      const btn = uiBtn({
+        label: wasOpen ? "收起" : "展开",
+        size: "sm",
+        className: "bz-dock-histtoggle"
+      });
       row.appendChild(btn);
+      if (wasOpen) row.classList.add("is-open");
       const more = el("div", "bz-dock-histmore");
       if ((_b = r.steps) == null ? void 0 : _b.length) more.appendChild(block("步骤", r.steps.map((s) => s.text).join("\n")));
       if (r.metrics) more.appendChild(block("指标", JSON.stringify(r.metrics, null, 2)));
@@ -5615,6 +5927,8 @@ var BZW_dock = (() => {
       row.appendChild(more);
       btn.addEventListener("click", () => {
         const open = row.classList.toggle("is-open");
+        if (open) openSet.add(r.runId);
+        else openSet.delete(r.runId);
         const span = btn.querySelector("span");
         if (span) span.textContent = open ? "收起" : "展开";
       });
