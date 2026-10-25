@@ -52,13 +52,13 @@ _Avoid_: 清单（那是 npm）、配置（值是另一份文件）
 **参数值文件 (Tool Settings File)**: 工具目录下的 `data.json`，用户填的参数**值**（凭据这类）：`{ v: 2, tool, values }`。**bz 写、工具不碰** —— 工具不必读它，运行前 bz 已经把值下发成参数或环境变量；这个文件是 bz 的账本，只是住得离工具近。`tool` 与声明 `id` 不符 / 版本不认识 → 一律当「没有值」，回落声明里的 `default`。写入走 tmp + rename 原子替换。**不住 vault 的公共区**：它跟数据目录那份登记表 `dock.json` 同名不同处，别混。
 _Avoid_: 配置、设置（那是插件的）
 
-**意图文件 / 运行账 (Intent / Runtime)**: 工具目录里 bz 自己的两本账，**各一个写者**。`dock.intent.json`（面板写）：`enabled` / `autoRun` / `rules[]` —— 人定的规矩；`dock.runtime.json`（调度内核写）：每条规则的 `lastFiredAt` / `pending`（已排队未跑）/ `lastStatus`，以及 `run`（上次尝试 / 连续失败 / 熔断）。**拆开的理由**：v1 把它们挤在同一份 `dock-state.json` 里，面板与调度器都读-改-写整份，后写的把先写的盖掉；拆开之后「意图归人、事实归机器」，谁都不碰对方那份。
+**意图文件 / 运行账 (Intent / Runtime)**: 工具目录里 bz 自己的两本账，**各一个写者**。`dock.intent.json`（面板写）：`enabled` / `autoRun` / `rules[]` —— 人定的规矩；`dock.runtime.json`（调度内核写）：每条规则的 `lastFiredAt` / `pending`（已排队未跑）/ `lastStatus`，以及 `run`（上次尝试 / 连续失败 / 熔断 / 手动在跑标记 `runningAt`）。**拆开的理由**：v1 把它们挤在同一份 `dock-state.json` 里，面板与调度器都读-改-写整份，后写的把先写的盖掉；拆开之后「意图归人、事实归机器」，谁都不碰对方那份。
 _Avoid_: 状态文件（太笼统）、排期状态（v1 叫法）
 
 **运行记录 (Run Record)**: `<工具目录>/runs.jsonl` —— **追加式**，一行一次运行（JSON Lines），**由工具自己写、bz 只读**。bz 一旦写回去就变第二个写者，「bz 不关心脚本」立刻失守。每行必须带 `runId`，值就是 bz 注入的 `BZ_DOCK_RUN_ID`：**对账靠主键，不靠时间**（v1 找「起跑后 2 秒内最晚那条」，那是误报的根，ADR-0252）。字段：`runId` / `tool` / `trigger` / `status`（`ok|failed|timeout|stopped|abandoned`）/ `startedAt` / `finishedAt` / `durationMs` / `exitCode` / `message` / `error.kind`（`auth|network|config|timeout|aborted|unknown`）/ `steps` / `info` / `result` / `metrics` / `artifacts`。**只写终态**，跑着的时候用 `heartbeat.json` 表达 —— 不往记录里塞 `running` 行。每工具最近 **200 行**，**裁剪权归工具**；bz 读侧只读尾部 256 KB，坏行跳过，不连累整个面板。
 _Avoid_: 日志（bz 不存 stdout 原文）、运行历史（UI 概念）、running 行（v1 形态）
 
-**运行闸 (Run Gate)**: 「同一个工具同时只跑一轮」+「全局同时只跑一个」，**在工具坞这一层管，脚本自己不加锁**（ADR-0252）。两道：① **执行权锁**（数据目录 `dock.lock`，排他创建、90 秒过期可抢、持锁者每 20 秒续期）—— 两个宿主（插件 / 值守）谁拿到锁谁调度，拿不到就这一拍什么都不做；② **待办在账本里**（`runtime.rules[id].pending` 带 `dueAt` 与 `runId`）—— 到点才跑，没到就等，进程崩了下一拍接着办。
+**运行闸 (Run Gate)**: 「同一个工具同时只跑一轮」+「全局同时只跑一个」，**在工具坞这一层管，脚本自己不加锁**（ADR-0252）。两道：① **执行权锁**（数据目录 `dock.lock`，排他创建、90 秒过期可抢、持锁者每 20 秒续期；带上机器名 + 开机时刻的 `bootId`，重启后 pid 被复用时的死锁可直接抢）—— 两个宿主（插件 / 值守）谁拿到锁谁调度，拿不到就这一拍什么都不做。**锁只圈「调度与起进程」，不圈「跑完」**：手动运行起进程即放锁，否则一个十分钟的手动长任务会让整台调度停摆十分钟；同一工具的重入靠进程内的 `liveIds` 与账本上的 `run.runningAt`（跨进程可见、运行超时后自动失效）。代价是手动跑 A 时自动那一拍仍可能跑 B —— 有意的：互斥要防「同时起同一件事」，不是「机器同时只能干一件事」；② **待办在账本里**（`runtime.rules[id].pending` 带 `dueAt` 与 `runId`）—— 到点才跑，没到就等，进程崩了下一拍接着办。
 _Avoid_: 互斥锁（那是工具侧的事）、队列（v1 的内存队列已废）
 
 **工具信任 (Dock Trust)**: 「这条命令已被授权在**这台机器**上执行」的记录，住**插件设置** `dockTrust`（`{ <id>: { at, run } }`，`run` = `runSignature(entry)` = cmd + shell + cwd + args），**刻意不住 vault**：登记表会随 vault 同步 / 进 git / 被整体分享，授权若也在里面，别人给一份 vault 就等于带走了「已授权执行这条命令」。声明改了 `entry`，签名对不上 → `trustStale`，必须重新授权；**授权对象永远是声明里现读出来的那条命令**，不给「手写一条信任」的口子。
