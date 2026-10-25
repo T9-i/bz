@@ -1257,11 +1257,11 @@
 
    ADR-0230 换代时这两条链路没动（写日记走 openAddDialog、开锁走 .bz-lockscreen--diary）。
    **ADR-0233 起写日记改走书内写作页**（见上文 `.bz-diary-wsp` 一段），本段只剩
-   「换张贴纸」用的标签选择器（.bz-diary-tag-popup）与解锁屏骨架；旧写日记弹窗的样式
-   （bz-diary-add-popup / add-diary-popup）已无 UI 入口，随代码清理一并退役。
+   命令 `bz-diary-write` 的写日记弹窗（.bz-diary-add-popup）与解锁屏骨架；
+   「换张贴纸」的标签选择器（.bz-diary-tag-popup）随书内贴纸册接管而退役。
    ============================================================ */
 
-/* ==================== 写链路弹窗（bz-diary-add-popup / bz-diary-tag-popup，一致#2 收编 core uiModal 壳） ====================
+/* ==================== 写链路弹窗（bz-diary-add-popup，一致#2 收编 core uiModal 壳） ====================
    遮罩底色/blur/圆角/阴影/82vh 限高/焦点圈闭由 .bz-overlay-* 壳单源承载
    （遮罩毛玻璃回归 core 组守卫，overlay-glass.test.ts 的 diary 手绘 mask 条目随壳收编摘除）；
    旧 #add-diary-mask / .add-diary-popup / .diary-tag-selector-popup 手绘壳与
@@ -1272,8 +1272,7 @@
    此前只补了布局，观感仍是 core 通用面板；此处把纸/墨/铜三色补回来。
    弹窗挂在 document.body 上（不在 .bz-diary-scene 内），场景根上的 --bz-diary-* 变量取不到，
    故本块自带一份材料色（与 ADR-0230「不改调色板」同一条例外：材料 ≠ 主题表面）。 */
-.bz-overlay-popup.bz-diary-add-popup,
-.bz-overlay-popup.bz-diary-tag-popup {
+.bz-overlay-popup.bz-diary-add-popup {
   background: linear-gradient(178deg, #f6efdd, #ece2c8);
   color: #43392b;
   border: 1px solid rgba(120, 92, 56, .42);
@@ -1281,35 +1280,29 @@
   box-shadow: 0 18px 44px rgba(20, 12, 5, .55), inset 0 1px 0 rgba(255, 252, 240, .55);
 }
 /* 标题栏：墨字 + 一道金线（书页天头那条界线的同款收窄） */
-.bz-diary-add-popup .bz-dialog-head,
-.bz-diary-tag-popup .bz-dialog-head {
+.bz-diary-add-popup .bz-dialog-head {
   border-bottom: 1px solid rgba(201, 162, 83, .45);
   padding-bottom: 9px;
 }
-.bz-diary-add-popup .bz-dialog-title,
-.bz-diary-tag-popup .bz-dialog-title {
+.bz-diary-add-popup .bz-dialog-title {
   color: #43392b;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: .06em;
 }
 /* 正文里的说明/标签名跟着墨色走（壳默认用宿主题变量，深色主题下会变成浅字压浅纸） */
-.bz-diary-add-popup .bz-dialog-body,
-.bz-diary-tag-popup .bz-dialog-body { color: #43392b; }
+.bz-diary-add-popup .bz-dialog-body { color: #43392b; }
 /* 输入框 = 纸上一道压痕 */
 .bz-diary-add-popup input,
-.bz-diary-add-popup textarea,
-.bz-diary-tag-popup input {
+.bz-diary-add-popup textarea {
   background: rgba(255, 253, 245, .72);
   border: 1px solid rgba(120, 92, 56, .34);
   border-radius: 2px;
   color: #43392b;
 }
-.bz-diary-add-popup input::placeholder,
-.bz-diary-tag-popup input::placeholder { color: #9a8d74; }
+.bz-diary-add-popup input::placeholder { color: #9a8d74; }
 /* 按钮：纸签（次级）与火漆（主行动）两档 */
-.bz-diary-add-popup .bz-btn:not(.bz-btn--primary):not(.bz-btn--danger),
-.bz-diary-tag-popup .bz-btn:not(.bz-btn--primary):not(.bz-btn--danger) {
+.bz-diary-add-popup .bz-btn:not(.bz-btn--primary):not(.bz-btn--danger) {
   background: linear-gradient(180deg, #fbf6e8, #efe6cf);
   border: 1px solid rgba(120, 92, 56, .4);
   color: #43392b;
@@ -1354,7 +1347,7 @@
   color: #b23a2a;
 }
 
-/* 表单纵向骨架：日期行 + 类型标签 + 过滤框 + chip 滚动区 + 底栏；
+/* 表单纵向骨架：日期行 + 类型标签 + chip 滚动区 + 底栏；
    壳限高 82vh 内 chip 区自滚、底栏常驻，保存钮不再随 chips 滚走 */
 .bz-diary-form {
   display: flex;
@@ -1368,15 +1361,6 @@
   color: var(--text-muted);
   font-weight: 500;
 }
-/* 过滤框壳 = core .bz-search，自带 flex:1（basis 0 + grow 1）——那是给横向工具行写的。
-   本框挂在 .bz-diary-form（纵向 flex 容器）下，不覆盖就在纵轴上参与分剩余空间：
-   容器高度由内容决定时它被压到 min-content 高（≈ 输入框自然高，看着正常），
-   一旦表单壳将来拿到确定高度就会和 chip 滚动区平分、被撑高（同 issue 548）。按内容定高。 */
-.bz-diary-tag-filter {
-  flex: none;
-  margin-bottom: var(--bz-space-sm);
-}
-
 /* D-UI16：手输日期聚焦软键盘顶起——写日记弹窗上移一档。
  * 壳收编 uiModal 后为 flex 居中（无 top 内联可覆盖），用 translateY 抬升等效原 top:30% 档；
  * blur 移除类回落居中档 */
@@ -1390,7 +1374,7 @@
   overflow-y: auto;
   margin-bottom: var(--bz-space-md);
 }
-/* sticky 底栏（效率#1）：写弹窗「取消/添加」右对齐；选择器「--split」删除居左、保存居右 */
+/* sticky 底栏（效率#1）：写弹窗「取消/添加」右对齐 */
 .bz-diary-dialog-foot {
   display: flex;
   gap: var(--bz-space-md);
@@ -1398,9 +1382,6 @@
   flex-shrink: 0;
   padding-top: var(--bz-space-md);
   border-top: 1px solid var(--background-modifier-border);
-}
-.bz-diary-dialog-foot--split {
-  justify-content: space-between;
 }
 /* 类型 chip 附加类：父标签角标定位锚点（基础观感仍走 .diary-tag-selector-btn） */
 .bz-diary-tag-chip {

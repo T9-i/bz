@@ -1,5 +1,5 @@
-/* 源指纹 4606a528396b73a9 · 仓内输入 83 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/motion.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/datetime-picker.ts","src/diary/ui/dialogs.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/diary/volume.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
+/* 源指纹 e96a76006f488504 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/diary/volume.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/diary/fake-sim.ts → window.BZW_diary（行为单源预览包，issue 245/ADR-0106） */
 var BZW_diary = (() => {
   var __create = Object.create;
@@ -1016,15 +1016,15 @@ var BZW_diary = (() => {
             "i"
           );
         }
-        function createDate(y, m, d, h, M4, s, ms) {
+        function createDate(y, m, d, h, M3, s, ms) {
           var date;
           if (y < 100 && y >= 0) {
-            date = new Date(y + 400, m, d, h, M4, s, ms);
+            date = new Date(y + 400, m, d, h, M3, s, ms);
             if (isFinite(date.getFullYear())) {
               date.setFullYear(y);
             }
           } else {
-            date = new Date(y, m, d, h, M4, s, ms);
+            date = new Date(y, m, d, h, M3, s, ms);
           }
           return date;
         }
@@ -6463,7 +6463,7 @@ var BZW_diary = (() => {
     if (!dur) dur = 500;
     let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
     let suppressClick = false;
-    const M4 = 10;
+    const M3 = 10;
     function start(e) {
       if (filter && !filter(e)) return;
       if (e.button !== void 0 && e.button !== 0) return;
@@ -6490,7 +6490,7 @@ var BZW_diary = (() => {
     function move(e) {
       if (!timer || !touching || !e.touches || !e.touches.length) return;
       const t = e.touches[0];
-      if (Math.abs(t.clientX - sx) > M4 || Math.abs(t.clientY - sy) > M4) {
+      if (Math.abs(t.clientX - sx) > M3 || Math.abs(t.clientY - sy) > M3) {
         moved = true;
         cancel();
       }
@@ -6651,17 +6651,6 @@ var BZW_diary = (() => {
     }
     return false;
   }
-  function firstFocusable(container) {
-    const list = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el) => {
-      if (isHidden(el)) return false;
-      if (isMobileEnv()) {
-        const tag = el.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return false;
-      }
-      return true;
-    });
-    return list[0] || null;
-  }
   function trapFocus(container) {
     const onKeydown = (e) => {
       if (e.key !== "Tab") return;
@@ -6790,19 +6779,6 @@ var BZW_diary = (() => {
   }
   function cancelActiveFlowDialog() {
     if (activeSettle) activeSettle(void 0);
-  }
-  function confirmDiscard(proceed, message, className) {
-    void openFlowDialog({
-      title: "放弃未保存的内容？",
-      message: message || "弹窗内有未保存的输入，关闭后将丢失",
-      className,
-      actions: [
-        { label: "放弃", value: "ok" },
-        { label: "继续编辑", value: "cancel" }
-      ]
-    }).then((v) => {
-      if (v === "ok") proceed();
-    });
   }
   var FLOW_DIALOG_CANCEL_ID, FLOW_DIALOG_OK_ID, activeSettle;
   var init_flow_dialog = __esm({
@@ -7624,36 +7600,6 @@ var BZW_diary = (() => {
   });
 
   // src/core/ui/button.ts
-  function uiBtn(opts) {
-    const b = document.createElement("button");
-    b.type = "button";
-    const cls = ["bz-btn"];
-    if (opts.tone && opts.tone !== "default") cls.push(`bz-btn--${opts.tone}`);
-    if (opts.size && opts.size !== "md") cls.push(`bz-btn--${opts.size}`);
-    if (opts.chip) cls.push("bz-btn--chip");
-    if (opts.on) cls.push("is-on");
-    if (opts.className) cls.push(opts.className);
-    b.className = cls.join(" ");
-    if (opts.title) b.title = opts.title;
-    if (opts.disabled) b.disabled = true;
-    if (opts.icon) {
-      if (opts.chip) {
-        const chip = document.createElement("span");
-        chip.className = "bz-btn-chip";
-        chip.appendChild(uiIcon(opts.icon));
-        b.appendChild(chip);
-      } else {
-        b.appendChild(uiIcon(opts.icon));
-      }
-    }
-    if (opts.label) {
-      const span = document.createElement("span");
-      span.textContent = opts.label;
-      b.appendChild(span);
-    }
-    if (opts.onClick) b.addEventListener("click", opts.onClick);
-    return b;
-  }
   var init_button = __esm({
     "src/core/ui/button.ts"() {
       init_icon();
@@ -7731,19 +7677,6 @@ var BZW_diary = (() => {
   });
 
   // src/core/ui/field.ts
-  function uiInput(opts) {
-    const inp = document.createElement("input");
-    inp.className = "bz-input" + (opts.error ? " bz-input--error" : "");
-    inp.type = opts.type || "text";
-    if (opts.placeholder) inp.placeholder = opts.placeholder;
-    if (opts.value !== void 0) inp.value = opts.value;
-    if (opts.disabled) inp.disabled = true;
-    if (opts.onInput) inp.addEventListener("input", () => {
-      var _a;
-      return (_a = opts.onInput) == null ? void 0 : _a.call(opts, inp.value);
-    });
-    return inp;
-  }
   var init_field = __esm({
     "src/core/ui/field.ts"() {
     }
@@ -7865,44 +7798,6 @@ var BZW_diary = (() => {
   });
 
   // src/core/ui/search.ts
-  function uiSearch(opts) {
-    const el = document.createElement("div");
-    el.className = "bz-search";
-    el.appendChild(uiIcon("search"));
-    const input = uiInput({
-      placeholder: opts.placeholder,
-      value: opts.value,
-      onInput: opts.onInput
-    });
-    el.appendChild(input);
-    let clearBtn = null;
-    if (opts.clearable !== false) {
-      clearBtn = document.createElement("button");
-      clearBtn.type = "button";
-      clearBtn.className = "bz-search-clear";
-      clearBtn.title = "清除搜索";
-      clearBtn.setAttribute("aria-label", "清除搜索");
-      clearBtn.hidden = !input.value.trim();
-      clearBtn.appendChild(uiIcon("x"));
-      clearBtn.addEventListener("click", () => {
-        input.value = "";
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.focus();
-      });
-      input.addEventListener("input", () => {
-        if (clearBtn) clearBtn.hidden = !input.value.trim();
-      });
-      el.appendChild(clearBtn);
-    }
-    const syncClear = () => {
-      if (clearBtn) clearBtn.hidden = !input.value.trim();
-    };
-    const setValue = (v) => {
-      input.value = v;
-      syncClear();
-    };
-    return { el, input, setValue, syncClear };
-  }
   var init_search = __esm({
     "src/core/ui/search.ts"() {
       init_icon();
@@ -8129,91 +8024,11 @@ var BZW_diary = (() => {
   });
 
   // src/core/ui/modal.ts
-  function bindFormSubmit(popup, onSubmit) {
-    popup.addEventListener("keydown", (e) => {
-      if (e.defaultPrevented || e.isComposing) return;
-      if (e.key !== "Enter") return;
-      if (!(e.ctrlKey || e.metaKey)) return;
-      e.preventDefault();
-      onSubmit();
-    });
-    popup.addEventListener("keypress", (e) => {
-      if (e.defaultPrevented) return;
-      if (e.key !== "Enter" || e.ctrlKey || e.metaKey) return;
-      const t = e.target;
-      if (!(t instanceof HTMLInputElement)) return;
-      if (t.dataset.bzNoFormSubmit !== void 0) return;
-      e.preventDefault();
-      onSubmit();
-    });
-  }
-  function uiModal(opts) {
-    var _a;
-    const prevActive = document.activeElement;
-    const focusEnabled = opts.autofocus !== false;
-    const mask = document.createElement("div");
-    mask.className = "bz-overlay-mask";
-    mask.style.zIndex = String(allocZ());
-    const popup = document.createElement("div");
-    popup.className = "bz-overlay-popup" + (opts.className ? " " + opts.className : "");
-    if (opts.maxWidth) popup.style.maxWidth = `min(${opts.maxWidth}px, calc(100vw - 32px))`;
-    popup.setAttribute("role", "dialog");
-    popup.setAttribute("aria-modal", "true");
-    if (opts.title) popup.setAttribute("aria-label", opts.title);
-    if (opts.head) {
-      const head = document.createElement("div");
-      head.className = "bz-dialog-head";
-      const title = document.createElement("span");
-      title.className = "bz-dialog-title";
-      title.textContent = opts.title || "";
-      head.appendChild(title);
-      popup.appendChild(head);
-    }
-    const body = document.createElement("div");
-    body.className = "bz-dialog-body";
-    if (typeof opts.content === "string") body.innerHTML = opts.content;
-    else body.appendChild(opts.content);
-    popup.appendChild(body);
-    mask.appendChild(popup);
-    let closed = false;
-    let escHandle = null;
-    const releaseTrap = focusEnabled ? trapFocus(popup) : null;
-    function close() {
-      var _a2;
-      if (closed) return;
-      closed = true;
-      liveModals.delete(close);
-      releaseTrap == null ? void 0 : releaseTrap();
-      mask.remove();
-      escHandle == null ? void 0 : escHandle.unregister();
-      if (focusEnabled && prevActive instanceof HTMLElement && prevActive.isConnected) {
-        prevActive.focus();
-      }
-      (_a2 = opts.onClose) == null ? void 0 : _a2.call(opts);
-    }
-    const attemptClose = () => {
-      if (opts.requestClose) opts.requestClose();
-      else close();
-    };
-    mask.addEventListener("click", (e) => {
-      if (e.target === mask) attemptClose();
-    });
-    escHandle = escManager.register("bz-modal", {
-      isVisible: () => mask.isConnected,
-      close: attemptClose
-    });
-    document.body.appendChild(mask);
-    if (focusEnabled) (_a = firstFocusable(popup)) == null ? void 0 : _a.focus();
-    liveModals.add(close);
-    return { mask, popup, close };
-  }
-  var liveModals;
   var init_modal = __esm({
     "src/core/ui/modal.ts"() {
       init_esc_manager();
       init_z_order();
       init_focus_trap();
-      liveModals = /* @__PURE__ */ new Set();
     }
   });
 
@@ -15173,175 +14988,6 @@ var BZW_diary = (() => {
     }
   });
 
-  // src/diary/encrypt.ts
-  var encrypt_exports2 = {};
-  __export(encrypt_exports2, {
-    ENCRYPT_TAG: () => ENCRYPT_TAG,
-    deleteEncryptedEntry: () => deleteEncryptedEntry,
-    encryptEntry: () => encryptEntry,
-    isUnlocked: () => isUnlocked,
-    loadEncryptedEntries: () => loadEncryptedEntries,
-    reclassifyEntry: () => reclassifyEntry
-  });
-  function isUnlocked() {
-    try {
-      return getSafeManager().unlocked;
-    } catch (e) {
-      return false;
-    }
-  }
-  async function collectAttachmentsForContent(content, datePath) {
-    const app = getApp();
-    const paths = collectNoteAttachmentPaths(app, datePath, content);
-    const list = [];
-    const oversized = [];
-    for (const p of paths) {
-      try {
-        const f = app.vault.getAbstractFileByPath(p);
-        if (!f) continue;
-        const stat = f.stat;
-        if (stat && typeof stat.size === "number" && stat.size > ATTACHMENT_MAX_BYTES) {
-          oversized.push(p);
-          continue;
-        }
-        const buf = await app.vault.readBinary(f);
-        list.push({ path: p, kind: kindOf(p), data: bytesToBase64(new Uint8Array(buf)) });
-      } catch (e) {
-      }
-    }
-    return { list, oversized };
-  }
-  async function encryptEntry(entry) {
-    const safe = getSafeManager();
-    if (!safe.unlocked) throw new Error("未解锁，无法加密日记");
-    const tags = [.../* @__PURE__ */ new Set([...entry.tags, ENCRYPT_TAG])];
-    const block = `${serializeDiaryBlockHeader(tags, entry.time)}
-${entry.content.trim()}`;
-    const datePath = entry.filePath || diaryEntryPath(DIARY_DIRECTORY, entry.date, entry.time);
-    const { list: attachments, oversized } = await collectAttachmentsForContent(entry.content || "", datePath);
-    if (attachments.length === 0 && oversized.length > 0) {
-      notify(
-        `加密取消：条目引用的 ${oversized.length} 个附件都超过 64MB，未加密（原文件仍留在盘上）。请先移出大媒体再加密。`,
-        { type: "error" }
-      );
-      return null;
-    }
-    if (oversized.length > 0) {
-      notify(`有 ${oversized.length} 个附件过大（超过 64MB）未加密（原文件仍留在盘上）。`, { type: "warning" });
-    }
-    const note = await safe.lockNote(
-      {
-        path: datePath,
-        title: `${entry.date} · ${entry.time} 日记`,
-        kind: "diary-entry",
-        content: block,
-        attachments
-      }
-    );
-    return {
-      ...entry,
-      tags,
-      emoji: tags.map((t) => getTagEmoji(t)).join(""),
-      encrypted: true,
-      noteId: note.id
-    };
-  }
-  async function loadEncryptedEntries() {
-    var _a;
-    const safe = getSafeManager();
-    if (!safe.unlocked || !safe.manifest) return [];
-    const out = [];
-    for (const note of safe.manifest.notes) {
-      if (note.kind !== "diary-entry") continue;
-      try {
-        const plain = await safe.getDiaryEntryPlain(note.id);
-        if (plain === null || plain === void 0) continue;
-        const meta = diaryMetaFromEntryPath(note.path);
-        const date = (_a = meta == null ? void 0 : meta.date) != null ? _a : diaryDateFromLegacyPath(note.path);
-        if (!date) continue;
-        const entry = parseDiaryBlock(plain, date, note.id, note.path);
-        if (entry) out.push(entry);
-      } catch (e) {
-      }
-    }
-    return out;
-  }
-  function parseDiaryBlock(block, date, noteId, notePath) {
-    var _a;
-    const lines = block.replace(/\r\n/g, "\n").split("\n");
-    const head = parseDiaryBlockHeader((_a = lines[0]) != null ? _a : "");
-    if (!head) return null;
-    const time = head.time;
-    const [h, min] = time.split(":").map(Number);
-    if (Number.isNaN(h) || Number.isNaN(min)) return null;
-    const tags = head.tags.length ? [...head.tags] : ["日记"];
-    const content = lines.slice(1).join("\n").trim();
-    return {
-      date,
-      time,
-      timeValue: h * 100 + min,
-      tags,
-      emoji: tags.map((t) => getTagEmoji(t)).join(""),
-      content,
-      filename: notePath || date,
-      filePath: notePath,
-      lineNumber: 0,
-      encrypted: true,
-      noteId,
-      id: `enc-diary-${noteId}`
-    };
-  }
-  async function deleteEncryptedEntry(noteId) {
-    const safe = getSafeManager();
-    if (!safe.unlocked) throw new Error("未解锁");
-    await safe.removeNote(noteId);
-  }
-  async function realignRestorePath(noteId) {
-    var _a, _b;
-    const safe = getSafeManager();
-    const note = (_b = (_a = safe.manifest) == null ? void 0 : _a.notes) == null ? void 0 : _b.find((n) => n.id === noteId);
-    if (!note || note.kind !== "diary-entry") return;
-    const base = note.path.split("/").pop() || "";
-    if (!diaryMetaFromEntryPath(base)) return;
-    const target = `${DIARY_DIRECTORY}/${base}`;
-    if (target === note.path) return;
-    note.path = target;
-    try {
-      await safe.saveManifest();
-    } catch (e) {
-    }
-  }
-  async function buildRestoreBlock(noteId, newTags) {
-    var _a;
-    const plain = await getSafeManager().getDiaryEntryPlain(noteId);
-    if (plain === null || plain === void 0) return null;
-    const lines = plain.replace(/\r\n/g, "\n").split("\n");
-    const head = parseDiaryBlockHeader((_a = lines[0]) != null ? _a : "");
-    if (!head) return null;
-    const kept = (newTags != null ? newTags : []).filter((t) => t !== ENCRYPT_TAG);
-    const seqTags = kept.length > 0 ? kept : ["日记"];
-    return `${serializeDiaryBlockHeader(seqTags, head.time)}${lines.length > 1 ? "\n" + lines.slice(1).join("\n") : ""}`;
-  }
-  async function reclassifyEntry(noteId, newTags) {
-    await realignRestorePath(noteId);
-    const block = await buildRestoreBlock(noteId, newTags);
-    if (block === null) return false;
-    return getSafeManager().restoreDiaryEntry(noteId, block, DIARY_DIRECTORY);
-  }
-  var ATTACHMENT_MAX_BYTES;
-  var init_encrypt2 = __esm({
-    "src/diary/encrypt.ts"() {
-      init_app();
-      init_notice();
-      init_encrypt();
-      init_ui2();
-      init_data2();
-      init_diary_format();
-      init_config();
-      ATTACHMENT_MAX_BYTES = 64 * 1024 * 1024;
-    }
-  });
-
   // prototypes/diary/fake-sim.ts
   var fake_sim_exports = {};
   __export(fake_sim_exports, {
@@ -16479,6 +16125,7 @@ ${String(review).trim()}`;
 
   <!-- 便签菜单（条目操作） -->
   <div class="bz-diary-menu" hidden>
+    <div class="bz-diary-mn-item" data-act="open">打开笔记</div>
     <div class="bz-diary-mn-item" data-act="retype">换张贴纸</div>
     <div class="bz-diary-mn-item" data-act="envelope">收进信封</div>
     <div class="bz-diary-mn-item" data-act="unseal">拆信看</div>
@@ -16846,32 +16493,160 @@ ${String(review).trim()}`;
     return diaryDataMap.delete(path);
   }
 
-  // src/diary/ui.ts
-  init_encrypt2();
-
-  // src/diary/ui/dialogs.ts
-  init_fake_obsidian();
-  init_notice();
-  init_flow_dialog();
+  // src/diary/encrypt.ts
   init_app();
-  init_settings_provider();
-  init_diary_format();
-  init_utils();
-  init_domain_bus();
-  init_modal();
-  init_search();
-  init_button();
-  init_config();
-  init_encrypt2();
-
-  // src/diary/ui/datetime-picker.ts
-  init_fake_obsidian();
   init_notice();
-  init_esc_manager();
-  init_z_order();
-  init_app();
+  init_encrypt();
+  init_ui2();
+  init_data2();
   init_diary_format();
   init_config();
+  function isUnlocked() {
+    try {
+      return getSafeManager().unlocked;
+    } catch (e) {
+      return false;
+    }
+  }
+  var ATTACHMENT_MAX_BYTES = 64 * 1024 * 1024;
+  async function collectAttachmentsForContent(content, datePath) {
+    const app = getApp();
+    const paths = collectNoteAttachmentPaths(app, datePath, content);
+    const list = [];
+    const oversized = [];
+    for (const p of paths) {
+      try {
+        const f = app.vault.getAbstractFileByPath(p);
+        if (!f) continue;
+        const stat = f.stat;
+        if (stat && typeof stat.size === "number" && stat.size > ATTACHMENT_MAX_BYTES) {
+          oversized.push(p);
+          continue;
+        }
+        const buf = await app.vault.readBinary(f);
+        list.push({ path: p, kind: kindOf(p), data: bytesToBase64(new Uint8Array(buf)) });
+      } catch (e) {
+      }
+    }
+    return { list, oversized };
+  }
+  async function encryptEntry(entry) {
+    const safe = getSafeManager();
+    if (!safe.unlocked) throw new Error("未解锁，无法加密日记");
+    const tags = [.../* @__PURE__ */ new Set([...entry.tags, ENCRYPT_TAG])];
+    const block = `${serializeDiaryBlockHeader(tags, entry.time)}
+${entry.content.trim()}`;
+    const datePath = entry.filePath || diaryEntryPath(DIARY_DIRECTORY, entry.date, entry.time);
+    const { list: attachments, oversized } = await collectAttachmentsForContent(entry.content || "", datePath);
+    if (attachments.length === 0 && oversized.length > 0) {
+      notify(
+        `加密取消：条目引用的 ${oversized.length} 个附件都超过 64MB，未加密（原文件仍留在盘上）。请先移出大媒体再加密。`,
+        { type: "error" }
+      );
+      return null;
+    }
+    if (oversized.length > 0) {
+      notify(`有 ${oversized.length} 个附件过大（超过 64MB）未加密（原文件仍留在盘上）。`, { type: "warning" });
+    }
+    const note = await safe.lockNote(
+      {
+        path: datePath,
+        title: `${entry.date} · ${entry.time} 日记`,
+        kind: "diary-entry",
+        content: block,
+        attachments
+      }
+    );
+    return {
+      ...entry,
+      tags,
+      emoji: tags.map((t) => getTagEmoji(t)).join(""),
+      encrypted: true,
+      noteId: note.id
+    };
+  }
+  async function loadEncryptedEntries() {
+    var _a;
+    const safe = getSafeManager();
+    if (!safe.unlocked || !safe.manifest) return [];
+    const out = [];
+    for (const note of safe.manifest.notes) {
+      if (note.kind !== "diary-entry") continue;
+      try {
+        const plain = await safe.getDiaryEntryPlain(note.id);
+        if (plain === null || plain === void 0) continue;
+        const meta = diaryMetaFromEntryPath(note.path);
+        const date = (_a = meta == null ? void 0 : meta.date) != null ? _a : diaryDateFromLegacyPath(note.path);
+        if (!date) continue;
+        const entry = parseDiaryBlock(plain, date, note.id, note.path);
+        if (entry) out.push(entry);
+      } catch (e) {
+      }
+    }
+    return out;
+  }
+  function parseDiaryBlock(block, date, noteId, notePath) {
+    var _a;
+    const lines = block.replace(/\r\n/g, "\n").split("\n");
+    const head = parseDiaryBlockHeader((_a = lines[0]) != null ? _a : "");
+    if (!head) return null;
+    const time = head.time;
+    const [h, min] = time.split(":").map(Number);
+    if (Number.isNaN(h) || Number.isNaN(min)) return null;
+    const tags = head.tags.length ? [...head.tags] : ["日记"];
+    const content = lines.slice(1).join("\n").trim();
+    return {
+      date,
+      time,
+      timeValue: h * 100 + min,
+      tags,
+      emoji: tags.map((t) => getTagEmoji(t)).join(""),
+      content,
+      filename: notePath || date,
+      filePath: notePath,
+      lineNumber: 0,
+      encrypted: true,
+      noteId,
+      id: `enc-diary-${noteId}`
+    };
+  }
+  async function deleteEncryptedEntry(noteId) {
+    const safe = getSafeManager();
+    if (!safe.unlocked) throw new Error("未解锁");
+    await safe.removeNote(noteId);
+  }
+  async function realignRestorePath(noteId) {
+    var _a, _b;
+    const safe = getSafeManager();
+    const note = (_b = (_a = safe.manifest) == null ? void 0 : _a.notes) == null ? void 0 : _b.find((n) => n.id === noteId);
+    if (!note || note.kind !== "diary-entry") return;
+    const base = note.path.split("/").pop() || "";
+    if (!diaryMetaFromEntryPath(base)) return;
+    const target = `${DIARY_DIRECTORY}/${base}`;
+    if (target === note.path) return;
+    note.path = target;
+    try {
+      await safe.saveManifest();
+    } catch (e) {
+    }
+  }
+  async function buildRestoreBlock(noteId, newTags) {
+    var _a;
+    const plain = await getSafeManager().getDiaryEntryPlain(noteId);
+    if (plain === null || plain === void 0) return null;
+    const lines = plain.replace(/\r\n/g, "\n").split("\n");
+    const head = parseDiaryBlockHeader((_a = lines[0]) != null ? _a : "");
+    if (!head) return null;
+    const kept = (newTags != null ? newTags : []).filter((t) => t !== ENCRYPT_TAG);
+    const seqTags = kept.length > 0 ? kept : ["日记"];
+    return `${serializeDiaryBlockHeader(seqTags, head.time)}${lines.length > 1 ? "\n" + lines.slice(1).join("\n") : ""}`;
+  }
+  async function reclassifyEntry(noteId, newTags) {
+    await realignRestorePath(noteId);
+    const block = await buildRestoreBlock(noteId, newTags);
+    if (block === null) return false;
+    return getSafeManager().restoreDiaryEntry(noteId, block, DIARY_DIRECTORY);
+  }
 
   // src/diary/ui/entry-actions.ts
   init_notice();
@@ -16879,7 +16654,6 @@ ${String(review).trim()}`;
   init_app();
   init_domain_bus();
   init_utils();
-  init_encrypt2();
 
   // src/diary/ui/locator.ts
   function buildLocatorPredicateFor(_dateStr, loc) {
@@ -16889,6 +16663,19 @@ ${String(review).trim()}`;
   // src/diary/ui/entry-actions.ts
   function diaryEntryFilePath(entry) {
     return entry.filePath || entry.filename || null;
+  }
+  async function jumpToDiaryEntry(entry) {
+    const filePath = diaryEntryFilePath(entry);
+    if (!filePath) {
+      notice("找不到原文", "error");
+      return;
+    }
+    const file = getApp().vault.getAbstractFileByPath(filePath);
+    if (!file) {
+      notice("找不到日记文件");
+      return;
+    }
+    await getApp().workspace.openLinkText(stripMdExt(filePath), "", false, { active: true });
   }
   async function copyDiaryLink(entry) {
     const filePath = diaryEntryFilePath(entry);
@@ -16934,285 +16721,6 @@ ${String(review).trim()}`;
       if (err && (isUnparsedRefusal(err) || isDiaryReadFailure(err))) return;
       notice("删除日记失败：" + ((err == null ? void 0 : err.message) || err), "error");
     });
-  }
-
-  // src/diary/motion.ts
-  var M3 = { fast: 160, move: 200, base: 280 };
-  var E2 = { out: "cubic-bezier(.22,.82,.3,1)" };
-  function reduced() {
-    try {
-      return typeof location !== "undefined" && location.search.includes("rm=1");
-    } catch (e) {
-      return false;
-    }
-  }
-  function waapi(el, frames, opts) {
-    if (!el || reduced() || typeof el.animate !== "function") {
-      const last = frames[frames.length - 1];
-      if (el && last) {
-        for (const k of Object.keys(last)) {
-          if (k === "offset") continue;
-          try {
-            el.style[k] = String(last[k]);
-          } catch (e) {
-          }
-        }
-      }
-      return null;
-    }
-    try {
-      return el.animate(frames, opts);
-    } catch (e) {
-      return null;
-    }
-  }
-  function motionSheetDialog(popup) {
-    if (reduced()) return;
-    const form = popup.querySelector(".bz-diary-form");
-    if (!form) return;
-    [...form.children].forEach((el, i) => {
-      if (i >= 6) return;
-      waapi(
-        el,
-        [
-          { opacity: 0, transform: "translateY(7px)", filter: "blur(3px)" },
-          { opacity: 1, transform: "none", filter: "blur(0px)" }
-        ],
-        { duration: M3.base, delay: 40 + i * 50, easing: E2.out, fill: "backwards" }
-      );
-    });
-    popup.querySelectorAll(".diary-tag-selector-btn").forEach((el, i) => {
-      if (i >= 14) return;
-      waapi(
-        el,
-        [
-          { opacity: 0, transform: "translateY(4px) scale(.94)" },
-          { opacity: 1, transform: "none" }
-        ],
-        { duration: M3.base, delay: 150 + i * 18, easing: E2.out, fill: "backwards" }
-      );
-    });
-  }
-
-  // src/diary/ui/dialogs.ts
-  var DIARY_FLOW_SKIN = "bz-diary-flow-dialog";
-  var tagUsageCount = /* @__PURE__ */ new Map();
-  onDomainEvent("diary:entry-added", (evt) => {
-    var _a, _b;
-    for (const t of (_a = evt == null ? void 0 : evt.tags) != null ? _a : []) tagUsageCount.set(t, ((_b = tagUsageCount.get(t)) != null ? _b : 0) + 1);
-  });
-  function sortTagsByUsage(tags) {
-    return tags.map((tag, idx) => {
-      var _a;
-      return { tag, idx, count: (_a = tagUsageCount.get(tag)) != null ? _a : 0 };
-    }).sort((a, b) => b.count - a.count || a.idx - b.idx).map((x) => x.tag);
-  }
-  function createTagOptionButton(tag) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "diary-tag-selector-btn bz-diary-tag-chip bz-touch-target--xl";
-    btn.dataset.tag = tag;
-    btn.appendChild(document.createTextNode(`${getTagEmoji(tag)} ${tag}`));
-    if (isSubTag(tag)) {
-      const parentTag = getParentPrimaryTag(tag);
-      if (parentTag) {
-        const badge = document.createElement("span");
-        badge.className = "bz-diary-tag-badge";
-        badge.textContent = getTagEmoji(parentTag);
-        btn.appendChild(badge);
-      }
-    }
-    return btn;
-  }
-  function renderTagOptions(container, tags, selected) {
-    container.innerHTML = "";
-    for (const tag of tags) {
-      const btn = createTagOptionButton(tag);
-      if (selected.has(tag)) btn.classList.add("diary-active");
-      btn.onclick = (e) => {
-        e.preventDefault();
-        btn.classList.toggle("diary-active");
-      };
-      container.appendChild(btn);
-    }
-  }
-  function createTagFilter(chipsContainer) {
-    const { el, input } = uiSearch({ placeholder: "筛选类型" });
-    input.dataset.bzNoFormSubmit = "";
-    el.classList.add("bz-diary-tag-filter");
-    input.addEventListener("input", () => {
-      const q = input.value.trim().toLowerCase();
-      chipsContainer.querySelectorAll(".diary-tag-selector-btn").forEach((btn) => {
-        var _a;
-        const tag = (_a = btn.dataset.tag) != null ? _a : "";
-        btn.style.display = !q || tag.toLowerCase().includes(q) ? "" : "none";
-      });
-    });
-    return el;
-  }
-  function collectSelectedTags(container) {
-    const names = [];
-    container.querySelectorAll(".diary-tag-selector-btn.diary-active").forEach((btn) => {
-      names.push(btn.dataset.tag);
-    });
-    return names;
-  }
-  var activeTagPickerLoc = null;
-  var tagPickerUi = null;
-  var tagPickerSaveBtn = null;
-  var savingTagPicker = false;
-  function createTagPicker() {
-  }
-  function tagPickerOriginalTags(loc) {
-    return new Set(loc.encrypted ? loc.tags.filter((t) => t !== ENCRYPT_TAG) : loc.tags);
-  }
-  function tagPickerDirty() {
-    const popup = document.getElementById("diary-tag-selector-popup");
-    const loc = activeTagPickerLoc;
-    if (!popup || !loc) return false;
-    const sel = new Set(collectSelectedTags(popup));
-    const orig = tagPickerOriginalTags(loc);
-    if (sel.size !== orig.size) return true;
-    for (const t of sel) if (!orig.has(t)) return true;
-    return false;
-  }
-  function closeTagPicker() {
-    tagPickerUi == null ? void 0 : tagPickerUi.close();
-    tagPickerUi = null;
-    tagPickerSaveBtn = null;
-  }
-  function hideTagPicker() {
-    closeTagPicker();
-  }
-  function requestCloseTagPicker() {
-    if (tagPickerDirty()) confirmDiscard(closeTagPicker, void 0, DIARY_FLOW_SKIN);
-    else closeTagPicker();
-  }
-  function setTagPickerSavingUi(saving) {
-    var _a;
-    const btn = tagPickerSaveBtn;
-    if (!btn) return;
-    btn.disabled = saving;
-    const label = (_a = btn.querySelector("span")) != null ? _a : btn;
-    label.textContent = saving ? "保存中…" : "保存";
-  }
-  async function commitTagPickerSave() {
-    const loc = activeTagPickerLoc;
-    if (!loc) {
-      closeTagPicker();
-      return;
-    }
-    if (savingTagPicker) return;
-    const popup = document.getElementById("diary-tag-selector-popup");
-    if (!popup) return;
-    const selTagNames = collectSelectedTags(popup);
-    if (selTagNames.length === 0) {
-      notice("请至少选择一个标签");
-      return;
-    }
-    savingTagPicker = true;
-    setTagPickerSavingUi(true);
-    try {
-      const ok = await handleTagPickerSave(loc, selTagNames, !!loc.encrypted);
-      if (ok) closeTagPicker();
-    } finally {
-      savingTagPicker = false;
-      setTagPickerSavingUi(false);
-    }
-  }
-  function showTagPicker(loc) {
-    activeTagPickerLoc = loc;
-    if (tagPickerUi) closeTagPicker();
-    const isEncrypted = !!loc.encrypted;
-    const currentTagsSet = tagPickerOriginalTags(loc);
-    const sortedTags = sortTagsByUsage(getSortedTagsForAddDialog());
-    const content = document.createElement("div");
-    content.className = "bz-diary-form";
-    const chips = document.createElement("div");
-    chips.className = "diary-tag-selector-buttons bz-diary-chip-scroll";
-    renderTagOptions(chips, sortedTags, currentTagsSet);
-    content.appendChild(createTagFilter(chips));
-    content.appendChild(chips);
-    const foot = document.createElement("div");
-    foot.className = "bz-diary-dialog-foot bz-diary-dialog-foot--split";
-    const deleteBtn = uiBtn({
-      label: "删除",
-      tone: "danger",
-      // 一致#2：删除钮换 .bz-btn--danger 族（原手绘 error 实底退役）
-      className: "bz-touch-target--xl",
-      onClick: () => {
-        const target = activeTagPickerLoc;
-        closeTagPicker();
-        if (target) showConfirm(target);
-      }
-    });
-    const saveBtn = uiBtn({
-      label: "保存",
-      // 一致#1：编辑既有条目 = 保存口径
-      tone: "primary",
-      className: "bz-touch-target--xl",
-      onClick: () => void commitTagPickerSave()
-    });
-    tagPickerSaveBtn = saveBtn;
-    foot.appendChild(deleteBtn);
-    foot.appendChild(saveBtn);
-    content.appendChild(foot);
-    const { mask, popup, close } = uiModal({
-      content,
-      maxWidth: 320,
-      head: true,
-      title: "选择类型",
-      className: "bz-diary-tag-popup",
-      requestClose: requestCloseTagPicker
-    });
-    mask.id = "diary-tag-selector-mask";
-    popup.id = "diary-tag-selector-popup";
-    tagPickerUi = { mask, popup, close };
-    motionSheetDialog(popup);
-    bindFormSubmit(popup, () => void commitTagPickerSave());
-  }
-  async function handleTagPickerSave(loc, selTagNames, isEncryptedEntry) {
-    try {
-      if (isEncryptedEntry) {
-        const { isUnlocked: isUnlocked2 } = await Promise.resolve().then(() => (init_encrypt2(), encrypt_exports2));
-        if (!isUnlocked2()) {
-          notice("保险箱已上锁，请先解锁再改分类", "error");
-          return false;
-        }
-        const proceed = await openFlowDialog({
-          title: "改分类",
-          message: "将解密此日记并恢复为普通条目，是否继续？",
-          actions: [
-            { label: "取消", value: "cancel" },
-            { label: "确定", value: "ok", cta: true }
-          ]
-        }) === "ok";
-        if (!proceed) return false;
-        if (!loc.noteId) return false;
-        const newTags = selTagNames.filter((t) => t !== ENCRYPT_TAG);
-        const success = await reclassifyEntry(loc.noteId, selTagNames);
-        if (!success) {
-          notice("解密改分类失败", "error");
-          return false;
-        }
-        notice("已解密还原", "success");
-        emitDomainEvent("diary:entry-decrypted", { noteId: loc.noteId, date: loc.date, newTags });
-        return true;
-      }
-      const dateStr = loc.date;
-      const predicate = await buildLocatorPredicateFor(dateStr, loc);
-      const updated = await updateDiaryTags(dateStr, predicate, selTagNames, { filePath: loc.filePath });
-      if (!updated) {
-        notice("未能在日记数据中定位该条目，标签没有修改", "error");
-        return false;
-      }
-      return true;
-    } catch (e) {
-      if (isUnparsedRefusal(e) || isDiaryReadFailure(e)) return false;
-      console.error("改标签失败:", e);
-      notice("改标签失败：" + ((e == null ? void 0 : e.message) || e), "error");
-      return false;
-    }
   }
 
   // src/diary/media-import.ts
@@ -17368,6 +16876,10 @@ ${x.review || ""}`;
     constructor() {
       // ---------- DOM ----------
       this.root = null;
+      /** 贴纸册当前在给谁换贴纸（null = 按类翻模式） */
+      this.albumTarget = null;
+      /** 「盖上去」在写盘（防连点；写层队列幂等，这里只是别让人以为没反应） */
+      this.albumBusy = false;
       /** 密码框在途的结算器（同一时刻至多一个） */
       this.passSettle = null;
       // ---------- 状态 ----------
@@ -18697,6 +18209,7 @@ ${x.review || ""}`;
       };
       const isDiary = e.kind === "diary";
       const enc = !!e.encrypted;
+      show("open", !enc && !!(e.filePath || e.filename));
       show("retype", isDiary && !enc);
       show("envelope", isDiary && !enc);
       show("unseal", enc);
@@ -18725,6 +18238,9 @@ ${x.review || ""}`;
         this.closeMenu();
         if (!e) return;
         switch (it.dataset.act) {
+          case "open":
+            void this.openEntryNote(e);
+            break;
           case "retype":
             this.editTags(e);
             break;
@@ -18821,22 +18337,39 @@ ${x.review || ""}`;
         notice("复制双链失败", "error");
       }
     }
-    /** 换贴纸：接本域 showTagPicker（写层守卫落盘，结果经 `diary:tags-changed` 回刷整册） */
-    editTags(e) {
+    /**
+     * 打开笔记：日记条目与自己那份 md 一一对应（ADR-0130），影视/信/书各有自己的笔记。
+     * 书要先收起来——md 在书背后，不收等于「打开了但看不见」。
+     */
+    async openEntryNote(e) {
+      if (e.encrypted) return;
+      this.hide();
       try {
-        showTagPicker({
-          filename: e.filename || e.date,
-          filePath: e.filePath,
-          date: e.date,
-          time: e.time,
-          lineNumber: e.lineNumber || 0,
-          tags: e.tags,
-          encrypted: e.encrypted,
-          noteId: e.noteId
-        });
+        if (e.kind === "diary") {
+          await jumpToDiaryEntry({
+            filename: e.filename || e.date,
+            filePath: e.filePath,
+            emoji: e.emoji,
+            time: e.time
+          });
+          return;
+        }
+        if (!e.filename) {
+          notice("找不到原文", "error");
+          return;
+        }
+        await this.app().workspace.openLinkText(stripMdExt(e.filename), "", false, { active: true });
       } catch (err) {
-        notice(`改标签暂不可用：${err instanceof Error ? err.message : String(err)}`, "error");
+        notice(`打开笔记失败：${err instanceof Error ? err.message : String(err)}`, "error");
       }
+    }
+    /**
+     * 换贴纸：摊开书里的贴纸册，点几张盖到这一条上（写层守卫落盘，结果经 `diary:tags-changed` 回刷整册）。
+     * 原先走写链路那个「选择类型」弹窗（书的浮层之外再加一层宿主弹窗，观感与这本册子不搭），已删。
+     */
+    editTags(e) {
+      if (this.writeGuard()) return;
+      this.openAlbum(e);
     }
     /**
      * 收进信封（加密）：本域 `encryptEntry`（需保险箱解锁）+ 写层摘除原块；
@@ -19046,9 +18579,31 @@ ${x.review || ""}`;
       }
       return m;
     }
-    /** 贴纸册：按类重装订一本分类册（原型的「换贴纸」模式改走真 showTagPicker，不在这里） */
-    openAlbum() {
+    /**
+     * 贴纸册两种摊法（同一本册子）：
+     * - 不传 target（点文具「贴纸册」）：按类重装订——只列用过的贴纸，点一张就筛那一类；
+     * - 传 target（便签菜单「换张贴纸」）：换贴纸——列全部能贴的，点几张盖到这一条上。
+     * 换贴纸原先走写链路那个宿主弹窗（「选择类型」，盖在书上面又是一层），已删。
+     */
+    openAlbum(target) {
+      this.albumTarget = target || null;
       this.albumGridEl.innerHTML = "";
+      const ok = this.albumEl.querySelector(".bz-diary-ap-confirm");
+      if (target) {
+        this.albumSubEl.textContent = `点几张，盖到 ${target.date} 这一页上`;
+        for (const t of getSortedTagsForAddDialog()) {
+          const b = document.createElement("span");
+          b.className = "bz-diary-ap-sticker";
+          b.dataset.tag = t;
+          if (target.tags.includes(t)) b.classList.add("bz-diary-on");
+          b.innerHTML = `<span class="bz-diary-as-emoji">${getTagEmoji(t)}</span>${escapeHtml2(t)}`;
+          b.addEventListener("click", () => b.classList.toggle("bz-diary-on"));
+          this.albumGridEl.appendChild(b);
+        }
+        if (ok) ok.hidden = false;
+        this.albumEl.hidden = false;
+        return;
+      }
       const counts = this.tagCounts();
       this.albumSubEl.textContent = "点一张，就按它重装订一本分类册";
       const tags = Array.from(counts.keys()).filter((t) => t !== "加密").sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0));
@@ -19057,6 +18612,7 @@ ${x.review || ""}`;
         const isEncrypt = t === "加密";
         const b = document.createElement("span");
         b.className = `bz-diary-ap-sticker${isEncrypt ? " bz-diary-as-encrypt" : ""}`;
+        b.dataset.tag = t;
         if (this.filterTag === t) b.classList.add("bz-diary-on");
         b.innerHTML = `<span class="bz-diary-as-emoji">${getTagEmoji(t)}</span>${escapeHtml2(t)}` + (isEncrypt ? "" : `<i class="bz-diary-as-count"> ${counts.get(t) || 0}</i>`);
         b.addEventListener("click", () => {
@@ -19066,13 +18622,52 @@ ${x.review || ""}`;
         });
         this.albumGridEl.appendChild(b);
       }
-      const ok = this.albumEl.querySelector(".bz-diary-ap-confirm");
       if (ok) ok.hidden = true;
       this.albumEl.hidden = false;
+    }
+    /** 盖上去：把册上选中的贴纸写回那一条（写层守卫落盘，结果经 `diary:tags-changed` 回刷整册） */
+    async commitAlbumTags() {
+      const e = this.albumTarget;
+      if (!e || this.albumBusy) return;
+      const tags = Array.from(this.albumGridEl.querySelectorAll(".bz-diary-ap-sticker.bz-diary-on")).map((el) => el.dataset.tag || "").filter(Boolean);
+      if (!tags.length) {
+        this.toast("至少留一张贴纸");
+        return;
+      }
+      const btn = this.albumEl.querySelector(".bz-diary-ap-confirm");
+      this.albumBusy = true;
+      if (btn) btn.textContent = "盖着…";
+      try {
+        const loc = {
+          filename: e.filename || e.date,
+          filePath: e.filePath,
+          date: e.date,
+          time: e.time,
+          lineNumber: e.lineNumber || 0,
+          tags: e.tags
+        };
+        const updated = await updateDiaryTags(e.date, buildLocatorPredicateFor(e.date, loc), tags, {
+          filePath: e.filePath
+        });
+        if (!updated) {
+          notice("未能在日记数据中定位该条目，贴纸没有换", "error");
+          return;
+        }
+        this.closeAlbum();
+        this.toast("贴纸换好了");
+      } catch (err) {
+        if (isUnparsedRefusal(err) || isDiaryReadFailure(err)) return;
+        console.error("换贴纸失败:", err);
+        notice(`换贴纸失败：${err instanceof Error ? err.message : String(err)}`, "error");
+      } finally {
+        this.albumBusy = false;
+        if (btn) btn.textContent = "盖上去";
+      }
     }
     closeAlbum() {
       if (!this.albumEl) return;
       this.albumEl.hidden = true;
+      this.albumTarget = null;
     }
     applyFilter() {
       this.relayout({ volume: 1, page: 0 });
@@ -19088,9 +18683,13 @@ ${x.review || ""}`;
       }
     }
     bindAlbum() {
+      var _a;
       this.albumEl.addEventListener("click", (ev) => {
         const t = ev.target;
         if (t.closest(".bz-diary-ap-cancel") || !t.closest(".bz-diary-ap-book")) this.closeAlbum();
+      });
+      (_a = this.albumEl.querySelector(".bz-diary-ap-confirm")) == null ? void 0 : _a.addEventListener("click", () => {
+        void this.commitAlbumTags();
       });
       this.filterTabEl.addEventListener("click", () => {
         this.filterTag = null;
@@ -20261,7 +19860,6 @@ ${x.review || ""}`;
       this.closePass(false);
       if (!this.draftHasText()) this.dropWrite();
       this.hideLoading();
-      hideTagPicker();
       this.pauseAllAudio();
       this.unsubscribeEvents();
       this.unsubscribeVault();
@@ -20360,7 +19958,6 @@ ${x.review || ""}`;
     if (initialized2) return;
     initialized2 = true;
     getController2();
-    createTagPicker();
   }
   function openDiary(app) {
     void ensureDiary(app).then(() => getController2().show());
@@ -20371,13 +19968,11 @@ ${x.review || ""}`;
     });
   }
   function unloadDiary() {
-    var _a;
     if (controller2) controller2.cleanup();
     controller2 = null;
     initialized2 = false;
     prewarmed = false;
     invalidateWallCache();
-    (_a = document.getElementById("diary-tag-selector-mask")) == null ? void 0 : _a.remove();
   }
 
   // prototypes/diary/fake-sim.ts

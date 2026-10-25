@@ -571,12 +571,10 @@ export default class BzPlugin extends Plugin {
     // C14：在途确认框（flow-dialog）先按取消语义结算再清 DOM——原先硬删遮罩不走 settle，
     // 未决 Promise 永久悬挂，等确认结果的后续操作静默终止
     cancelActiveFlowDialog();
-    // 日记本写链路弹窗 DOM 清理（写日记/标签选择器/滚轮时间选择器挂 body 的浮层）
+    // 日记本写链路弹窗 DOM 清理（写日记弹窗 / 滚轮时间选择器挂 body 的浮层）
     const diaryIds = [
       'add-diary-mask',
       'add-diary-popup',
-      'diary-tag-selector-mask',
-      'diary-tag-selector-popup',
       'unified-datetime-picker-mask',
       '__shared_confirm_mask__',
     ];

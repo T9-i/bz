@@ -1,10 +1,10 @@
 /**
  * diary 修复批 A（写链路弹窗族 dialogs.ts + core bindFormSubmit）回归：
- * - D-UI2/旧 D1'：两浮层 ESC 层（壳自带）+ 脏表单 confirmDiscard 分流 + 遮罩丢输入
+ * - D-UI2/旧 D1'：写日记弹窗 ESC 层（壳自带）+ 脏表单 confirmDiscard 分流 + 遮罩丢输入
  *   路径并入分流 + 「取消」按钮显式退出 + close 自摘 mask/成对注销 ESC 层；
- * - 效率#1：标签过滤输入即筛 + 频次前置排序 + sticky 底栏（结构 + CSS 守卫）；
- * - D-UI12/效率#3：保存进行中禁用 + 「保存中…」文案；选择器防连点；
- * - func N1：改标签整链兜底 catch（非守卫错误人话）+ 加密分支 isUnlocked 短路；
+ * - 效率#1：频次前置排序 + sticky 底栏（结构 + CSS 守卫）；
+ * - D-UI12/效率#3：写盘期间禁用 + 「保存中…」文案；
+ *   （标签选择器那一层浮层已退役：换贴纸改在书里的贴纸册完成，见 ui-book.test.ts）
  * - D-UI5：开壳焦点由 uiModal 焦点管理接管（不再聚焦 display:none 隐藏 input）；
  * - 一致#1：新建 = 「添加」、编辑 = 「保存」；一致#2：bz- 域皮 + 删除钮 danger 族；
  * - 一致#7：默认日期键走 core localDayKey。
@@ -18,15 +18,7 @@ import { localDayKey } from '../../src/core/utils';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 import { DEFAULT_SETTINGS } from '../../src/settings';
 import { applyDirectories, resetTagsConfig, getTagEmoji, getParentPrimaryTag, isSubTag } from '../../src/diary/config';
-import {
-  openAddDialog,
-  saveNewEntry,
-  showTagPicker,
-  createAddDialog,
-  createTagPicker,
-  resetTagUsageStats,
-  hideTagPicker,
-} from '../../src/diary/ui/dialogs';
+import { openAddDialog, saveNewEntry, createAddDialog, resetTagUsageStats } from '../../src/diary/ui/dialogs';
 import { clearNotices, getNoticeMessages } from '../mock-obsidian-entry';
 import { MockVault, mockAppWithVault } from '../mock-vault';
 
@@ -47,8 +39,6 @@ const esc = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Es
 const flush = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 const addMask = () => document.getElementById('add-diary-mask');
 const addPopup = () => document.getElementById('add-diary-popup');
-const tagMask = () => document.getElementById('diary-tag-selector-mask');
-const tagPopup = () => document.getElementById('diary-tag-selector-popup');
 /** 放弃确认框按钮（confirmDiscard 契约：首动作「放弃」落取消位，次动作「继续编辑」确认位） */
 const discardBtn = () => document.getElementById('__shared_confirm_cancel__');
 const keepBtn = () => document.getElementById('__shared_confirm_ok__');
@@ -70,20 +60,6 @@ function openWriteDialog(datetime?: string): void {
   if (datetime !== undefined) {
     (document.getElementById('add-diary-datetime') as HTMLInputElement).value = datetime;
   }
-}
-
-function openPicker(tags: string[], extra: Partial<Parameters<typeof showTagPicker>[0]> = {}): HTMLElement {
-  createTagPicker(); // 兼容入口保持可调（空操作）
-  showTagPicker({
-    filename: '我的/日记/2401010800.md',
-    filePath: '我的/日记/2401010800.md',
-    date: '2024-01-01',
-    time: '08:00',
-    lineNumber: 0,
-    tags,
-    ...extra,
-  });
-  return tagPopup()!;
 }
 
 describe('D-UI2/旧 D1\'：写日记弹窗 ESC 层 + 脏表单分流', () => {
@@ -169,48 +145,10 @@ describe('D-UI2/旧 D1\'：写日记弹窗 ESC 层 + 脏表单分流', () => {
   });
 });
 
-describe('D-UI2：标签选择器 ESC 层 + 脏表单分流', () => {
-  it('选中集 = 原标签集（无改动）按 ESC：直接收', () => {
-    openPicker(['日记']);
-    expect(tagMask()).not.toBeNull();
-    esc();
-    expect(tagMask()).toBeNull();
-  });
-
-  it('改动未保存按 ESC：走 confirmDiscard，「放弃」才收', async () => {
-    const popup = openPicker(['日记']);
-    popup.querySelector<HTMLButtonElement>('.diary-tag-selector-btn[data-tag="日记"]')!.click(); // 取消原标签
-    esc();
-    expect(confirmPopup()).not.toBeNull();
-    keepBtn()!.click();
-    await flush();
-    expect(tagMask()).not.toBeNull();
-    esc();
-    discardBtn()!.click();
-    await flush();
-    expect(tagMask()).toBeNull();
-  });
-
-  it('hideTagPicker 导出可收壳（宿主 relock 兜底消费面）', () => {
-    openPicker(['日记']);
-    hideTagPicker();
-    expect(tagMask()).toBeNull();
-  });
-});
-
 describe('效率#1：标签过滤 + 频次前置 + sticky 底栏', () => {
-  it('写弹窗不再有过滤框（2026-09-19 移除）；标签选择器浮层过滤仍工作', () => {
+  it('写弹窗不做类型过滤（2026-09-19 用户拍板移除，chips 直选）', () => {
     openWriteDialog();
-    // 写弹窗侧「筛选类型」过滤框已按用户要求移除：chips 直选即可
     expect(addPopup()!.querySelector('.bz-diary-tag-filter')).toBeNull();
-    // 选择器浮层的过滤框不受影响（回归钉）
-    const popup = openPicker(['日记']);
-    const filter = popup.querySelector('.bz-diary-tag-filter input') as HTMLInputElement;
-    filter.value = '日';
-    filter.dispatchEvent(new Event('input', { bubbles: true }));
-    const chips = [...popup.querySelectorAll<HTMLElement>('.diary-tag-selector-btn')];
-    expect(chips.find((b) => b.dataset.tag === '日记')!.style.display).toBe('');
-    expect(chips.find((b) => b.dataset.tag === '骑行')!.style.display).toBe('none');
   });
 
   it('chip 按使用频次前置（diary:entry-added 域事件历史）；无历史保持原序', () => {
@@ -236,20 +174,13 @@ describe('效率#1：标签过滤 + 频次前置 + sticky 底栏', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/diary/styles.css'), 'utf8');
     expect(css.match(/\.bz-diary-chip-scroll\s*\{([^}]*)\}/)![1]).toContain('overflow-y: auto');
     expect(css.match(/\.bz-diary-dialog-foot\s*\{([^}]*)\}/)![1]).toContain('flex-shrink: 0');
-    // 过滤框壳 = core .bz-search 带 flex:1（给横向工具行的），本表单是纵向 flex 容器，必须覆盖回
-    // 按内容定高，否则纵轴上参与分剩余空间（issue 548 同型，encrypt 移动壳是那次的实症）
-    expect(css.match(/\.bz-diary-tag-filter\s*\{([^}]*)\}/)![1]).toContain('flex: none');
   });
 });
 
 describe('一致#1/#2/#7 + D-UI15：口径与域皮', () => {
-  it('新建弹窗动作钮 = 「取消/添加」（新建 = 添加口径）；选择器 = 「删除/保存」（编辑 = 保存口径）', () => {
+  it('新建弹窗动作钮 = 「取消/添加」（新建 = 添加口径）', () => {
     openWriteDialog();
     expect(footButtons(addPopup())).toEqual(['取消', '添加']);
-    addMask()!.dispatchEvent(new MouseEvent('click', { bubbles: true })); // 无输入直接收
-    openPicker(['日记']);
-    expect(footButtons(tagPopup())).toEqual(['删除', '保存']);
-    expect(tagPopup()!.querySelector('.bz-diary-dialog-foot .bz-btn--danger')).not.toBeNull(); // 删除钮 danger 族
   });
 
   it('弹窗壳迁 bz- 域皮类（遮罩/圆角/阴影 token 随壳），遗留 id 保留供卸载兜底', () => {
@@ -258,9 +189,6 @@ describe('一致#1/#2/#7 + D-UI15：口径与域皮', () => {
     expect(addPopup()!.classList.contains('bz-diary-add-popup')).toBe(true);
     expect(addMask()!.classList.contains('bz-overlay-mask')).toBe(true);
     expect(addPopup()!.getAttribute('role')).toBe('dialog');
-    hideTagPicker();
-    openPicker(['日记']);
-    expect(tagPopup()!.classList.contains('bz-diary-tag-popup')).toBe(true);
   });
 
   it('默认日期键走 core localDayKey（一致#7）', () => {
@@ -306,60 +234,9 @@ describe('D-UI12/效率#3：保存进行中视觉反馈与防连点', () => {
     expect(add2.disabled).toBe(false);
     expect(add2.textContent).toBe('添加');
   });
-
-  it('标签选择器：保存写盘期间禁用 + 防连点（第二次点击被忽略），成功才收壳', async () => {
-    vault.files.set('我的/日记/2401010800.md', '---\ndate: 2024-01-01 08:00\ntype:\n  - 日记\n---\n\nA\n');
-    const popup = openPicker(['日记']);
-    let release!: () => void;
-    const gate = new Promise<void>((r) => (release = r));
-    const realModify = vault.modify.bind(vault);
-    const modify = vi.spyOn(vault, 'modify').mockImplementation(async (file: any, content: string) => {
-      await gate; // 拖慢写盘窗口
-      await realModify(file, content); // 放行后写透盘面，供落盘断言
-    });
-    const save = [...popup.querySelectorAll('.bz-diary-dialog-foot button')].find((b) => b.textContent === '保存') as HTMLButtonElement;
-    popup.querySelector<HTMLButtonElement>('.diary-tag-selector-btn[data-tag="骑行"]')!.click();
-    save.click();
-    await flush();
-    expect(save.disabled).toBe(true); // 写盘进行中禁用
-    expect(save.textContent).toBe('保存中…');
-    save.click(); // 防连点：进行中再点被忽略
-    expect(modify).toHaveBeenCalledTimes(1);
-    release();
-    await flush(10);
-    expect(tagMask()).toBeNull(); // 成功才收壳
-    expect(vault.files.get('我的/日记/2401010800.md')).toContain('  - 骑行');
-  });
 });
 
-describe('func N1：改标签整链兜底与加密短路', () => {
-  it('写盘失败（非守卫错误）：人话通知「改标签失败」，弹窗保留可重试', async () => {
-    vault.files.set('我的/日记/2401010800.md', '---\ndate: 2024-01-01 08:00\ntype:\n  - 日记\n---\n\nA\n');
-    const popup = openPicker(['日记']);
-    vi.spyOn(vault, 'modify').mockRejectedValue(new Error('磁盘只读'));
-    const save = [...popup.querySelectorAll('.bz-diary-dialog-foot button')].find((b) => b.textContent === '保存') as HTMLButtonElement;
-    popup.querySelector<HTMLButtonElement>('.diary-tag-selector-btn[data-tag="骑行"]')!.click();
-    save.click();
-    await flush(10);
-    expect(getNoticeMessages().join('\n')).toContain('改标签失败：磁盘只读');
-    expect(tagPopup()).not.toBeNull(); // 失败留弹窗
-    expect(save.disabled).toBe(false); // 按钮复位可重试
-    expect(save.textContent).toBe('保存');
-    expect(vault.files.get('我的/日记/2401010800.md')).toContain('  - 日记'); // 未盲写
-  });
-
-  it('加密条目保存前 isUnlocked() 短路：保险箱已锁直接人话，不进确认框（不再 unhandled 假成功）', async () => {
-    const popup = openPicker(['加密', '日记'], { encrypted: true, noteId: 'note-1' });
-    const save = [...popup.querySelectorAll('.bz-diary-dialog-foot button')].find((b) => b.textContent === '保存') as HTMLButtonElement;
-    save.click();
-    await flush(10);
-    expect(getNoticeMessages().join('\n')).toContain('保险箱已上锁');
-    expect(confirmPopup()).toBeNull(); // 未进「改分类」确认框
-    expect(tagPopup()).not.toBeNull();
-  });
-});
-
-describe('效率#2：bindFormSubmit 接入（写弹窗 → saveNewEntry / 选择器 → 保存回调）', () => {
+describe('效率#2：bindFormSubmit 接入（写弹窗 → saveNewEntry）', () => {
   it('Ctrl+Enter 恒提交：未选类型被写层校验拦截（证明绑达 saveNewEntry）', async () => {
     openWriteDialog();
     addPopup()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true, cancelable: true }));

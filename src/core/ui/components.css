@@ -855,7 +855,7 @@ textarea.bz-input { height: auto; min-height: 80px; padding: 8px 10px; line-heig
 .bz-panel-frame, .bz-panel-frame *,
 [class^="bz-"], [class*=" bz-"],
 [id^="bz-"], [id^="knowledge-"],
-#add-diary-popup, .diary-tag-selector-popup, .diary-datetime-scroll-container,
+#add-diary-popup, .diary-datetime-scroll-container,
 #review-entries-container, #__shared_confirm_popup__,
 #review-stats-popup, #review-history-popup, #quiz-popup {
   scrollbar-width: none;
@@ -868,7 +868,6 @@ textarea.bz-input { height: auto; min-height: 80px; padding: 8px 10px; line-heig
 [id^="bz-"]::-webkit-scrollbar, [id^="bz-"] *::-webkit-scrollbar,
 [id^="knowledge-"]::-webkit-scrollbar, [id^="knowledge-"] *::-webkit-scrollbar,
 #add-diary-popup::-webkit-scrollbar, #add-diary-popup *::-webkit-scrollbar,
-.diary-tag-selector-popup::-webkit-scrollbar, .diary-tag-selector-popup *::-webkit-scrollbar,
 .diary-datetime-scroll-container::-webkit-scrollbar, .diary-datetime-scroll-container *::-webkit-scrollbar,
 #review-entries-container::-webkit-scrollbar, #review-entries-container *::-webkit-scrollbar,
 #__shared_confirm_popup__::-webkit-scrollbar, #__shared_confirm_popup__ *::-webkit-scrollbar,

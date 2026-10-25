@@ -1,4 +1,4 @@
-/* 源指纹 2a56267c9f53dc63 · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 64ed3f4192267ff9 · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["src/core/ui/str.ts","src/diary/render.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — src/diary/render.ts → window.BZR_diary（评审壳预览包，ADR-0104） */
 var BZR_diary = (() => {
@@ -394,6 +394,7 @@ var BZR_diary = (() => {
 
   <!-- 便签菜单（条目操作） -->
   <div class="bz-diary-menu" hidden>
+    <div class="bz-diary-mn-item" data-act="open">打开笔记</div>
     <div class="bz-diary-mn-item" data-act="retype">换张贴纸</div>
     <div class="bz-diary-mn-item" data-act="envelope">收进信封</div>
     <div class="bz-diary-mn-item" data-act="unseal">拆信看</div>

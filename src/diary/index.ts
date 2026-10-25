@@ -16,7 +16,6 @@
 import type { App } from 'obsidian';
 import { DiaryAppController } from './ui';
 import { loadWallEntries, invalidateWallCache } from './data';
-import { createTagPicker } from './ui/dialogs';
 
 let initialized = false;
 let prewarmed = false;
@@ -29,12 +28,11 @@ function getController(): DiaryAppController {
   return controller;
 }
 
-/** 懒加载幂等初始化（ADR-0003）：控制器 + 写链路浮层 DOM（标签选择器，幂等重建） */
+/** 懒加载幂等初始化（ADR-0003）：控制器（面板 DOM 由 show() 惰性创建；条目动作全在书内，无 body 级浮层） */
 export async function ensureDiary(_app: App): Promise<void> {
   if (initialized) return;
   initialized = true;
   getController();
-  createTagPicker();
 }
 
 /** 打开日记本主窗口（命令回调；ensure 后 show——controller.show 内部惰性创建 DOM） */
@@ -68,13 +66,11 @@ export function prewarmDiary(app: App, isUnloaded: () => boolean = () => false):
 }
 
 /** 卸载清理（main.ts onunload 调用；未初始化调用为幂等空清理）。
- *  D15：标签选择器的 body 级 mask 随懒加载常驻 body——不摘会成为不可见不可点的纯残留，
- *  卸载时按 id 移除。 */
+ *  D15：本域面板与浮层都是书自己 DOM 的一部分（controller.cleanup 一并摘），body 上不再常驻任何壳。 */
 export function unloadDiary(): void {
   if (controller) controller.cleanup();
   controller = null;
   initialized = false;
   prewarmed = false;
   invalidateWallCache(); // ②：复位墙数据缓存 + 摘域事件失效订阅，重新启用插件时重新预热
-  document.getElementById('diary-tag-selector-mask')?.remove();
 }

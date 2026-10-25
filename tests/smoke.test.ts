@@ -300,22 +300,12 @@ describe('bz 骨架冒烟', () => {
     expect(writeCmd.name).toBe('写日记');
     // 幂等 ensureDiary：mock app 下可调用且不抛（UI 层数据读取失败安全降级为空）
     const { ensureDiary, unloadDiary } = await import('../src/diary');
-    const { showTagPicker } = await import('../src/diary/ui/dialogs');
     await expect(ensureDiary(app as any)).resolves.toBeUndefined();
     await expect(ensureDiary(app as any)).resolves.toBeUndefined();
     // D15 回归（一致#2 迁 uiModal 壳后语义更新）：浮层改「按需构建、关即拆」——
-    // ensure 后 body 不再有常驻 mask；开着时卸载必须按 id 摘干净（showTagPicker 即开）。
-    // 写日记那枚 mask 已随旧弹窗退役（ADR-0233：写日记改书内写作页，不再有 body 级壳）
+    // ensure 后 body 不该有常驻 mask。写日记已于 ADR-0233 改书内写作页、改标签随书内
+    // 贴纸册接管，两个 body 级壳都已退役，这里只剩「什么都不该挂」这一条不变量。
     expect(document.getElementById('diary-tag-selector-mask')).toBeNull();
-    showTagPicker({
-      filename: '我的/日记/2601010800.md',
-      filePath: '我的/日记/2601010800.md',
-      date: '2026-01-01',
-      time: '08:00',
-      lineNumber: 0,
-      tags: ['日记'],
-    });
-    expect(document.getElementById('diary-tag-selector-mask')).not.toBeNull();
     unloadDiary();
     expect(document.getElementById('diary-tag-selector-mask')).toBeNull();
   });

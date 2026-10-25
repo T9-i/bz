@@ -8,7 +8,7 @@ import { getApp, setApp } from '../../src/core/app';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 import { DEFAULT_SETTINGS } from '../../src/settings';
 import { applyDirectories, resetTagsConfig } from '../../src/diary/config';
-import { createAddDialog, createTagPicker, openAddDialog, saveNewEntry, showTagPicker } from '../../src/diary/ui/dialogs';
+import { createAddDialog, openAddDialog, saveNewEntry } from '../../src/diary/ui/dialogs';
 import { clearNotices, getNoticeMessages } from '../mock-obsidian-entry';
 import { MockVault, mockAppWithVault } from '../mock-vault';
 
@@ -157,74 +157,5 @@ describe('saveNewEntry（写日记弹窗，ADR-0130 建条目文件）', () => {
     expect(linkSpy).not.toHaveBeenCalled();
     expect(onSaved).not.toHaveBeenCalled();
     expect(document.querySelector('#add-diary-popup')).not.toBeNull();
-  });
-});
-
-describe('showTagPicker（标签选择器，locator 定位）', () => {
-  it('写层未命中：告警「未能在日记数据中定位」且不改盘', async () => {
-    vault.files.set(
-      '我的/日记/2401010800.md',
-      '---\ndate: 2024-01-01 08:00\ntype:\n  - 日记\n---\n\nA\n'
-    );
-    createTagPicker();
-    // 定位谓词 = filePath + time（ADR-0131 行号退场）：时刻错位即写层未命中
-    showTagPicker({ filename: '我的/日记/2401010800.md', filePath: '我的/日记/2401010800.md', date: '2024-01-01', time: '23:59', lineNumber: 0, tags: ['日记'] });
-    const popup = document.querySelector('#diary-tag-selector-popup') as HTMLElement;
-    const save = [...popup.querySelectorAll<HTMLButtonElement>('.bz-diary-dialog-foot button')].find((b) => b.textContent === '保存')!;
-    const diaryBtn = popup.querySelector<HTMLButtonElement>('.diary-tag-selector-btn[data-tag="日记"]')!;
-    const rideBtn = popup.querySelector<HTMLButtonElement>('.diary-tag-selector-btn[data-tag="骑行"]')!;
-    expect(diaryBtn.classList.contains('diary-active')).toBe(true); // 当前标签已选中
-    diaryBtn.classList.remove('diary-active');
-    rideBtn.click();
-    save.click();
-    await new Promise((r) => setTimeout(r, 50));
-    expect(getNoticeMessages().join('\n')).toContain('未能在日记数据中定位该条目');
-    expect(vault.files.get('我的/日记/2401010800.md')).toContain('  - 日记');
-  });
-
-  it('命中条目文件：改盘（frontmatter 类型追加）并发 tags-changed', async () => {
-    vault.files.set(
-      '我的/日记/2401010800.md',
-      '---\ndate: 2024-01-01 08:00\ntype:\n  - 日记\n---\n\nA\n'
-    );
-    createTagPicker();
-    showTagPicker({ filename: '我的/日记/2401010800.md', date: '2024-01-01', time: '08:00', lineNumber: 0, tags: ['日记'] });
-    const popup = document.querySelector('#diary-tag-selector-popup') as HTMLElement;
-    const save = [...popup.querySelectorAll<HTMLButtonElement>('.bz-diary-dialog-foot button')].find((b) => b.textContent === '保存')!;
-    // 选择器语义：保存时提交全部选中标签——原「日记」保持选中，追加「骑行」
-    popup.querySelector<HTMLButtonElement>('.diary-tag-selector-btn[data-tag="骑行"]')!.click();
-    save.click();
-    await new Promise((r) => setTimeout(r, 50));
-    const disk = vault.files.get('我的/日记/2401010800.md')!;
-    expect(disk).toContain('  - 日记');
-    expect(disk).toContain('  - 骑行');
-    expect(getNoticeMessages().join('\n')).not.toContain('未能在日记数据中定位');
-  });
-
-  it('删除按钮：locator 传给 showConfirm 并收起选择器', async () => {
-    const { showConfirm } = await import('../../src/diary/ui/entry-actions');
-    vault.files.set(
-      '我的/日记/2401010800.md',
-      '---\ndate: 2024-01-01 08:00\ntype:\n  - 日记\n---\n\nA\n'
-    );
-    createTagPicker();
-    showTagPicker({
-      filename: '我的/日记/2401010800.md',
-      filePath: '我的/日记/2401010800.md',
-      date: '2024-01-01',
-      time: '08:00',
-      lineNumber: 0,
-      tags: ['日记'],
-    });
-    const popup = document.querySelector('#diary-tag-selector-popup') as HTMLElement;
-    const del = [...popup.querySelectorAll<HTMLButtonElement>('.bz-diary-dialog-foot button')].find((b) => b.textContent === '删除')!;
-    del.click();
-    // 迁 uiModal 壳后：收选择器 = 关即拆（popup 随 mask 从 body 摘除）
-    expect(document.querySelector('#diary-tag-selector-popup')).toBeNull();
-    expect(showConfirm).toHaveBeenCalledTimes(1);
-    expect((showConfirm as any).mock.calls[0][0]).toMatchObject({
-      filePath: '我的/日记/2401010800.md',
-      time: '08:00',
-    });
   });
 });
