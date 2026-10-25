@@ -500,6 +500,39 @@ describe('render 纯层：命名空间与零内联视觉样式', () => {
     expect(joined).toContain('data-media-err="bz-diary-ex-nothing"');
   });
 
+  it('正文里的 markdown 外链渲染成一行可点的字，不是那串语法', () => {
+    const e = mk({
+      date: '2026-08-19',
+      kind: 'diary',
+      segments: [
+        {
+          kind: 'text',
+          text: '[在政治上持人性约束观](https://www.bilibili.com/video/BV1Ka411w7qd?t=2429.1&p=4)从政治角度来看',
+        },
+      ],
+    });
+    const html = entryBlockHTMLs(e, CTX).join('\n');
+    expect(html).toContain('class="bz-diary-link"');
+    /* `esc` 先跑，所以属性里是 `&amp;` 形态——正是 HTML 属性该有的样子 */
+    expect(html).toContain('href="https://www.bilibili.com/video/BV1Ka411w7qd?t=2429.1&amp;p=4"');
+    expect(html).toContain('>在政治上持人性约束观</a>');
+    expect(html).not.toContain('](https'); // 语法碎片一个都不许留在纸面上
+  });
+
+  it('信只印一遍题目：解析期拼的那行 `**题目**` 不再重复成第二行', () => {
+    const title = '第11封信：幸福是内在意义的外化';
+    const letter = mk({
+      date: '2026-08-19',
+      kind: 'letter',
+      filename: `我的/信/${title}.md`,
+      segments: [{ kind: 'text', text: `**${title}**\n\n人在与他人的关系中成就自我。` }],
+    });
+    const htmls = entryBlockHTMLs(letter, CTX);
+    expect(htmls.filter((h) => h.includes('bz-diary-b-head'))).toHaveLength(1);
+    expect(htmls.join('\n')).not.toContain(`<b>${title}</b>`);
+    expect(htmls.join('\n')).toContain('人在与他人的关系中成就自我');
+  });
+
   it('tiltClassOf 恒落在 0..5 六档（确定性倾角，同一序号每次一样）', () => {
     const seen = new Set<string>();
     for (let i = 0; i < 60; i++) {
@@ -826,10 +859,10 @@ describe('DiaryAppController · 文具四项接线', () => {
     expect(qa('.bz-diary-idx-year').length).toBe(2); // 2026 / 2025
     const rows = qa('.bz-diary-idx-row');
     expect(rows.length).toBe(2); // 2026-08 / 2025-01
-    /* 一册只装一卷之后，行上记的是「哪一卷 + 哪个月」，页码由控制器按当前卷现算 */
+    /* 一册只装一卷之后，行上记的是「哪一卷 + 哪个月」，右侧一律报卷号（不混页码） */
     expect(rows[0].dataset.jumpVol).toBe('1');
     expect(rows[0].dataset.jumpMonth).toBe('2026-08');
-    expect(rows[0].textContent).toContain('第 1 页'); // 都在卷一时给真实页码
+    expect(rows[0].textContent).toContain('卷 1');
   });
 
   it('放大镜命中用荧光笔标出，且只拆检索打的那一笔（手写 ==高亮== 不动）', async () => {
@@ -1099,6 +1132,30 @@ describe('DiaryAppController · 便签菜单（右键 / 长按）', () => {
     await new Promise((r) => setTimeout(r, 560));
     expect(q('.bz-diary-menu').hidden).toBe(true);
     Platform.isMobile = false;
+  });
+});
+
+describe('DiaryAppController · 正文里的外链', () => {
+  it('点纸面上的外链 → 走 window.open 交给系统浏览器，且不冒泡给别的点击逻辑', async () => {
+    vault.files.set(
+      '我的/日记/2608200900.md',
+      serializeDiaryEntryFile(
+        { date: '2026-08-20', time: '09:00' },
+        ['日记'],
+        '[原话](https://example.com/a?b=1&c=2) 后面还有话'
+      )
+    );
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    try {
+      await openBook();
+      const a = q('a.bz-diary-link');
+      a.click();
+      expect(openSpy).toHaveBeenCalledTimes(1);
+      expect(openSpy.mock.calls[0][0]).toBe('https://example.com/a?b=1&c=2');
+      expect(q('.bz-diary-menu').hidden).toBe(true); // 没顺带开出便签菜单
+    } finally {
+      openSpy.mockRestore();
+    }
   });
 });
 
@@ -1770,7 +1827,7 @@ describe('DiaryAppController · 分卷（ADR-0259：一册只摊开一卷）', (
     }
   });
 
-  it('册页索引是全书的目录：窗外月份写「卷 N」，点了换卷落到那个月', async () => {
+  it('册页索引是全书的目录：右侧一律报卷（不混页码），点了换卷落到那个月', async () => {
     threeMonths();
     withCap(3);
     try {
@@ -1783,7 +1840,9 @@ describe('DiaryAppController · 分卷（ADR-0259：一册只摊开一卷）', (
 
       const rows = qa('.bz-diary-idx-row');
       expect(rows).toHaveLength(3);
-      expect(rows[0].textContent).toContain('第 1 页'); // 八月在本卷：给真实页码
+      /* 用户 2026-10-26：「不显示页，只显示卷」——本卷那一行也不许给页码 */
+      expect(rows[0].textContent).toContain('卷 1');
+      expect(rows[0].textContent).not.toContain('页');
       expect(rows[2].textContent).toContain('卷 2'); // 六月在卷二：给卷号
 
       rows[2].click();
@@ -1792,6 +1851,38 @@ describe('DiaryAppController · 分卷（ADR-0259：一册只摊开一卷）', (
         '2026-06-30',
         '2026-06-05',
       ]);
+    } finally {
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+
+  it('卷尾判据按跨页左页号取：偶数页数（末跨页止于 n-2）也翻得过去', async () => {
+    threeMonths();
+    withCap(3);
+    try {
+      const c = await openBook();
+      const box = c as unknown as { pages: unknown[]; cursor: number; lastSpreadStart: () => number };
+      if (box.pages.length % 2 !== 0) box.pages.push([]); // 凑成偶数页数
+      /* 库的 flip 事件给的是「当前跨页的左页号」：偶数页数时最后一跨页是 (n-2, n-1)，
+         左页号止于 n-2 —— 原先按 n-1 判卷尾，这里就再也翻不动了 */
+      expect(box.lastSpreadStart()).toBe(box.pages.length - 2);
+      box.cursor = box.lastSpreadStart();
+      inner(c).turnPage(1);
+      expect(flipRecords).toHaveLength(2); // 换卷 = 重排
+      expect(lastFlip().page).toBe(0); // 落在新卷第一页
+    } finally {
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+
+  it('奇数页数的卷：末跨页只有一张，左页号才到 n-1', async () => {
+    threeMonths();
+    withCap(3);
+    try {
+      const c = await openBook();
+      const box = c as unknown as { pages: unknown[]; lastSpreadStart: () => number };
+      if (box.pages.length % 2 === 0) box.pages.pop(); // 凑成奇数页数
+      expect(box.lastSpreadStart()).toBe(box.pages.length - 1);
     } finally {
       setSettingsProvider(() => ({}) as never);
     }

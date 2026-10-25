@@ -94,6 +94,14 @@ export function inlineMd(s: string): string {
     const label = alias || target.split('/').pop()!.replace(/\.md$/, '');
     return '<span class="bz-diary-wikilink" data-target="' + esc(target) + '">' + esc(label) + '</span>';
   });
+  /* markdown 外链 `[文字](https://…)`：纸面上该是**一行可点的字**，不是那串语法。
+     真机上原本原样印出来，长 URL 还会把整段挤成一条竖排。href 整段塞进属性（`esc` 已把 `&`
+     转成 `&amp;`，属性里正是这个形态），可见文字只留标号；点它开系统浏览器（`ui.bindBlockEvents`）。 */
+  t = t.replace(
+    /\[([^\]\n]{1,300})\]\((https?:\/\/[^\s)]+)\)/g,
+    (_m, label: string, href: string) =>
+      '<a class="bz-diary-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + '</a>'
+  );
   t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
   t = t.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<i>$2</i>');
   t = t.replace(/==([^=]+)==/g, '<mark class="bz-diary-hl">$1</mark>');
@@ -450,10 +458,15 @@ export function entryBlockHTMLs(
 
   if (e.kind === 'movie') return out.concat(wrap('bz-diary-b-ticket', ticketHTML(e, ctx)));
   if (e.kind === 'book') return out.concat(wrap('bz-diary-b-exlibris', exlibrisHTML(e, ctx)));
+  /* 信：题目印一次就够。`parseLetterFile` 把 `**题目**` 拼在正文头（誊录/检索要用它），
+     这里的标题行又是同一行字 —— 真机于是「第11封信：…」上下各一遍。正文那行合成的粗体题目
+     在这一层吃掉，只留标题行（用户 2026-10-26：「信，有两个标题，去掉第一个大标题」）。
+     只吃**第一段且与题目一字不差**的那一段，作者自己写在正文里的同名段落不受影响。 */
+  let pendingLetterTitle: string | null = null;
   if (e.kind === 'letter') {
-    out.push(
-      '<div class="bz-diary-b-head" data-eid="' + eid + '">' + esc(basenameOf(e.filename)) + '</div>',
-    );
+    const title = basenameOf(e.filename);
+    out.push('<div class="bz-diary-b-head" data-eid="' + eid + '">' + esc(title) + '</div>');
+    pendingLetterTitle = title;
   }
 
   for (const seg of e.segments) {
@@ -469,6 +482,13 @@ export function entryBlockHTMLs(
           );
           break;
         case 'para': {
+          /* 信的第一段若是解析期拼上去的 `**题目**`，不再印第二遍（标题行已经印过） */
+          if (pendingLetterTitle !== null) {
+            const bare = b.text.replace(/^\s*\*\*([\s\S]*?)\*\*\s*$/, '$1').trim();
+            const synthesized = bare === pendingLetterTitle;
+            pendingLetterTitle = null;
+            if (synthesized) break;
+          }
           const t = stripHashInto(b.text, []);
           if (t.trim()) out.push(paraHTML({ text: t }, e));
           break;

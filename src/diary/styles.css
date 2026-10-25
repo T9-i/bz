@@ -571,6 +571,16 @@
 
 .bz-diary-wikilink:hover { background: rgba(46, 90, 114, .1); }
 }
+/* 正文里的 markdown 外链：与 wikilink 同一套纸面观感（墨色 + 虚线下划），但点了开系统浏览器 */
+.bz-diary-link {
+  color: #2e5a72; text-decoration: none; cursor: pointer;
+  border-bottom: 1px dashed rgba(46, 90, 114, .6);
+  word-break: break-word;
+}
+@media (hover: hover) {
+
+.bz-diary-link:hover { background: rgba(46, 90, 114, .1); }
+}
 .bz-diary-scene mark.bz-diary-hl { background: linear-gradient(180deg, transparent 18%, #ffe566 18%, #ffd93e 88%, transparent 88%); color: inherit; padding: 0 1px; }
 .bz-diary-scene mark.bz-diary-hl.bz-diary-hl-on { animation: bz-diary-hlSweep .7s ease both; background-size: 0% 100%; background-repeat: no-repeat; }
 @keyframes bz-diary-hlSweep { from { background-size: 0% 100%; } to { background-size: 100% 100%; } }

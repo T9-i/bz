@@ -1160,7 +1160,7 @@ export class DiaryAppController {
     if (this.writeGuard()) return; // 草稿在纸上：这一页还没写完，不该翻过去
     /* 卷边界（ADR-0259）：这一卷翻到头了，往后接下一卷、往前回上一卷。
        拖拽在边界上不出事件（库分不清「翻不过去」和「手势取消」），故只认滚轮/键盘/竖向滑。 */
-    if (dir > 0 && this.cursor >= this.pages.length - 1) {
+    if (dir > 0 && this.cursor >= this.lastSpreadStart()) {
       this.stepVolume(1);
       return;
     }
@@ -1170,6 +1170,21 @@ export class DiaryAppController {
     }
     if (dir > 0) this.flip.flipNext();
     else this.flip.flipPrev();
+  }
+
+  /**
+   * 本卷**最后一跨页**的左页号。
+   *
+   * 库的 `flip` 事件给的是「当前跨页的左页号」（`showSpread()` 里 `currentPageIndex = spread[0]`），
+   * 而 `createSpread()` 从 0 开始两两成对：偶数页数时最后一跨页是 `(n-2, n-1)`，**左页号止于 n-2**；
+   * 只有奇数页数时最后一跨页才是单张 `(n-1)`。原先按 `n-1` 判卷尾，碰到偶数页数就永远够不着：
+   * 翻到最后一跨页后 `flipNext()` 是空操作，书就「翻不动了」——用户 2026-10-26 真机
+   * 卡在第 89/90 页（正是本卷末跨页），后面明明还有二十九卷。
+   */
+  private lastSpreadStart(): number {
+    const n = this.pages.length;
+    if (n <= 0) return 0;
+    return n % 2 === 0 ? n - 2 : n - 1;
   }
 
   /**
@@ -1242,8 +1257,9 @@ export class DiaryAppController {
   /**
    * 点书口 → 抽出「册页索引」那张纸：一年一段、一月一行（ADR-0259：**全书目录**）。
    *
-   * 一册只摊开一卷，所以只有当前卷的月份给得出真实页码；别的卷写「卷 N」，
-   * 点了换到那一卷并落到那个月。顶部两行报的是全册口径——目录报的必须是全书。
+   * 每行右侧一律报**卷号**（单卷写「卷 N」，单月自己就跨卷才写「卷 a–b」）：一册只摊开一卷，
+   * 页码只在当前卷里成立，混着报就成了两套坐标（用户 2026-10-26：「不显示页，只显示卷」）。
+   * 点一行仍是「换到那一卷并落到那个月」。顶部两行报的是全册口径——目录报的必须是全书。
    */
   private openIndexSheet(): void {
     const list = this.visibleEntries();
@@ -1284,15 +1300,13 @@ export class DiaryAppController {
         curY = parts[0];
         open = true;
       }
-      /* 当前卷的月份给页码；跨卷的月份（单月自己超容量才有的情况）写「卷 a–b」 */
-      const single = m.vols.length === 1;
-      const pi = single && m.vols[0] === this.volIndex + 1 ? this.pageOfMonth(m.key) : -1;
+      /* 一律报卷、不报页（用户 2026-10-26：「不显示页，只显示卷」）。
+         一册只摊开一卷：同一个月份落在本卷时给得出页码、落在别卷时只能给卷号，一列里混着两种
+         口径，读起来就是两套坐标。卷号是全书都成立的那一套，点哪一行都跳到「那一卷的那个月」。 */
       const right =
-        pi >= 0
-          ? `第 ${pi + 1} 页`
-          : single
-            ? `卷 ${m.vols[0] || 1}`
-            : `卷 ${m.vols[0]}–${m.vols[m.vols.length - 1]}`;
+        m.vols.length === 1
+          ? `卷 ${m.vols[0] || 1}`
+          : `卷 ${m.vols[0]}–${m.vols[m.vols.length - 1]}`;
       html +=
         `<div class="bz-diary-idx-row" data-jump-vol="${m.vols[0] || 1}" data-jump-month="${m.key}">` +
         `<span class="bz-diary-ir-m">${parseInt(parts[1], 10)} 月</span><span class="bz-diary-ir-dots"></span>` +
@@ -1738,6 +1752,16 @@ export class DiaryAppController {
       const wl = t.closest<HTMLElement>('.bz-diary-wikilink');
       if (wl) {
         this.openWikilink(wl);
+        return;
+      }
+      /* 正文里的外链：纸面上就点它开系统浏览器（宿主对 window.open 会转交给 OS）。
+         拦掉冒泡——这层是整块书的委托，别让下面那些「点空白收册」之类的顺手接走。 */
+      const al = t.closest<HTMLAnchorElement>('a.bz-diary-link');
+      if (al) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const href = al.getAttribute('href') || '';
+        if (/^https?:\/\//i.test(href)) window.open(href, '_blank', 'noopener,noreferrer');
         return;
       }
       const reseal = t.closest<HTMLElement>('.bz-diary-env-reseal');
