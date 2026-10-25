@@ -1,5 +1,5 @@
-/* 源指纹 33a1681f71924f55 · 仓内输入 60 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
+/* 源指纹 271db4148aaae4ec · 仓内输入 61 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -3066,6 +3066,75 @@ var BZW_dock = (() => {
   init_fake_obsidian();
   init_z_order();
 
+  // src/core/path-picker.ts
+  init_fake_obsidian();
+  init_app();
+
+  // src/core/dom.ts
+  init_notice();
+  init_z_order();
+  function longPress(el2, cb, dur, filter) {
+    if (!dur) dur = 500;
+    let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
+    let suppressClick = false;
+    const M = 10;
+    function start(e) {
+      if (filter && !filter(e)) return;
+      if (e.button !== void 0 && e.button !== 0) return;
+      fired = false;
+      moved = false;
+      if (e.touches && e.touches.length) {
+        const t = e.touches[0];
+        sx = t.clientX;
+        sy = t.clientY;
+        touching = true;
+      }
+      timer = setTimeout(function() {
+        timer = null;
+        fired = true;
+        cb(e);
+      }, dur);
+    }
+    function cancel() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+    function move(e) {
+      if (!timer || !touching || !e.touches || !e.touches.length) return;
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - sx) > M || Math.abs(t.clientY - sy) > M) {
+        moved = true;
+        cancel();
+      }
+    }
+    function endFromTouch() {
+      if (fired) suppressClick = true;
+      touching = false;
+      cancel();
+    }
+    function endFromMouse() {
+      touching = false;
+      cancel();
+    }
+    function onClick(e) {
+      if (suppressClick) {
+        suppressClick = false;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }
+    el2.addEventListener("mousedown", start);
+    el2.addEventListener("mouseup", endFromMouse);
+    el2.addEventListener("mouseleave", endFromMouse);
+    el2.addEventListener("touchstart", start, { passive: true });
+    el2.addEventListener("touchend", endFromTouch);
+    el2.addEventListener("touchmove", move, { passive: true });
+    el2.addEventListener("touchcancel", endFromTouch);
+    el2.addEventListener("click", onClick, true);
+  }
+
   // src/core/esc-manager.ts
   var escManager = (() => {
     const layers = [];
@@ -3116,6 +3185,31 @@ var BZW_dock = (() => {
       }
     };
   })();
+
+  // src/core/path-picker.ts
+  init_notice();
+  function requireNode(moduleName) {
+    var _a;
+    try {
+      const w = window;
+      return w.require ? (_a = w.require(moduleName)) != null ? _a : null : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function fileDiskPath(f) {
+    var _a, _b;
+    const legacy = f.path;
+    if (typeof legacy === "string" && legacy) return legacy;
+    const webUtils = (_a = requireNode("electron")) == null ? void 0 : _a.webUtils;
+    if (webUtils == null ? void 0 : webUtils.getPathForFile) {
+      try {
+        return String((_b = webUtils.getPathForFile(f)) != null ? _b : "");
+      } catch (e) {
+      }
+    }
+    return "";
+  }
 
   // src/core/mobile.ts
   init_fake_obsidian();
@@ -3737,71 +3831,6 @@ var BZW_dock = (() => {
     if (focusEnabled) (_a = firstFocusable(popup)) == null ? void 0 : _a.focus();
     liveModals.add(close);
     return { mask, popup, close };
-  }
-
-  // src/core/dom.ts
-  init_notice();
-  init_z_order();
-  function longPress(el2, cb, dur, filter) {
-    if (!dur) dur = 500;
-    let timer = null, touching = false, fired = false, moved = false, sx = 0, sy = 0;
-    let suppressClick = false;
-    const M = 10;
-    function start(e) {
-      if (filter && !filter(e)) return;
-      if (e.button !== void 0 && e.button !== 0) return;
-      fired = false;
-      moved = false;
-      if (e.touches && e.touches.length) {
-        const t = e.touches[0];
-        sx = t.clientX;
-        sy = t.clientY;
-        touching = true;
-      }
-      timer = setTimeout(function() {
-        timer = null;
-        fired = true;
-        cb(e);
-      }, dur);
-    }
-    function cancel() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-    }
-    function move(e) {
-      if (!timer || !touching || !e.touches || !e.touches.length) return;
-      const t = e.touches[0];
-      if (Math.abs(t.clientX - sx) > M || Math.abs(t.clientY - sy) > M) {
-        moved = true;
-        cancel();
-      }
-    }
-    function endFromTouch() {
-      if (fired) suppressClick = true;
-      touching = false;
-      cancel();
-    }
-    function endFromMouse() {
-      touching = false;
-      cancel();
-    }
-    function onClick(e) {
-      if (suppressClick) {
-        suppressClick = false;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-      }
-    }
-    el2.addEventListener("mousedown", start);
-    el2.addEventListener("mouseup", endFromMouse);
-    el2.addEventListener("mouseleave", endFromMouse);
-    el2.addEventListener("touchstart", start, { passive: true });
-    el2.addEventListener("touchend", endFromTouch);
-    el2.addEventListener("touchmove", move, { passive: true });
-    el2.addEventListener("touchcancel", endFromTouch);
-    el2.addEventListener("click", onClick, true);
   }
 
   // src/core/ui/str.ts
@@ -5994,17 +6023,22 @@ var BZW_dock = (() => {
     input.addEventListener("change", () => {
       var _a;
       const files = Array.from((_a = input.files) != null ? _a : []);
-      const manifest = files.find((f) => f.name === "manifest.json");
-      if (!manifest) {
+      const cands = files.filter((f) => f.name === "manifest.json").map((f) => ({ f, depth: (f.webkitRelativePath || f.name).split("/").length })).sort((a, b) => a.depth - b.depth);
+      if (!cands.length) {
         notice("这个文件夹里没有 manifest.json", "warning");
         return;
       }
-      const abs = manifest.path;
+      const shallow = cands.filter((c) => c.depth === cands[0].depth);
+      if (shallow.length > 1) {
+        notice(`这个文件夹里有 ${shallow.length} 个工具，请选中具体的那一个工具目录`, "warning");
+        return;
+      }
+      const abs = fileDiskPath(shallow[0].f);
       if (!abs) {
         notice("读不到文件夹路径（这个平台不支持）", "warning");
         return;
       }
-      void importFrom(abs);
+      void importFrom(abs.replace(/\\/g, "/"));
     });
     input.click();
   }

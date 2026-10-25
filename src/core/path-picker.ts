@@ -659,8 +659,14 @@ function parentDirOf(filePath: string): string {
   return i <= 0 ? s : s.slice(0, i);
 }
 
-/** File 对象的磁盘绝对路径：旧 Electron 的 File.path → 新 Electron 的 webUtils.getPathForFile */
-function fileDiskPath(f: File): string {
+/**
+ * File 对象的磁盘绝对路径：旧 Electron 的 `File.path` → 新 Electron 的 `webUtils.getPathForFile`。
+ *
+ * 导出是因为凡是从 `<input type="file">` 反推磁盘位置的地方都得走这两条 ——
+ * Electron ≥32 删了 `File.path`，只读它的写法在新宿主上一律拿到空串（工具坞
+ * 「导入脚本」就栽在这里）。别在外面对 `file.path` 再写一遍。
+ */
+export function fileDiskPath(f: File): string {
   const legacy = (f as File & { path?: string }).path;
   if (typeof legacy === 'string' && legacy) return legacy;
   const webUtils = requireNode('electron')?.webUtils;

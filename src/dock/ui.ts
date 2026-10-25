@@ -17,6 +17,7 @@
 
 import { Platform, type App } from 'obsidian';
 import { topifyZ } from '../core/z-order';
+import { fileDiskPath } from '../core/path-picker';
 import { escManager } from '../core/esc-manager';
 import { trapPanelFocus } from '../core/ui/focus-trap';
 import { notice } from '../core/notice';
@@ -2169,17 +2170,29 @@ function pickFolder(): void {
   (input as HTMLInputElement & { webkitdirectory: boolean }).webkitdirectory = true;
   input.addEventListener('change', () => {
     const files = Array.from(input.files ?? []);
-    const manifest = files.find((f) => f.name === 'manifest.json');
-    if (!manifest) {
+    // 只看 manifest.json；`webkitRelativePath` 的段数就是深度 —— 用户选的是父目录时
+    // 子目录里的工具会一起进来，取最浅的一层，别把别人的工具当成这次要导的那个
+    const cands = files
+      .filter((f) => f.name === 'manifest.json')
+      .map((f) => ({ f, depth: (f.webkitRelativePath || f.name).split('/').length }))
+      .sort((a, b) => a.depth - b.depth);
+    if (!cands.length) {
       notice('这个文件夹里没有 manifest.json', 'warning');
       return;
     }
-    const abs = (manifest as File & { path?: string }).path;
+    const shallow = cands.filter((c) => c.depth === cands[0].depth);
+    if (shallow.length > 1) {
+      notice(`这个文件夹里有 ${shallow.length} 个工具，请选中具体的那一个工具目录`, 'warning');
+      return;
+    }
+    // 只能用 `fileDiskPath` 这条：Electron ≥32 删了 `File.path`，上一版只读它，
+    // 于是新版宿主上每次导入都报「读不到文件夹路径」，还把锅推给「平台不支持」
+    const abs = fileDiskPath(shallow[0].f);
     if (!abs) {
       notice('读不到文件夹路径（这个平台不支持）', 'warning');
       return;
     }
-    void importFrom(abs);
+    void importFrom(abs.replace(/\\/g, '/'));
   });
   input.click();
 }
