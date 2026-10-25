@@ -1,5 +1,5 @@
-/* 源指纹 53f5f71332d8f6ff · 仓内输入 82 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/motion.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/datetime-picker.ts","src/diary/ui/dialogs.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
+/* 源指纹 9acd4f879c1c0f22 · 仓内输入 83 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/motion.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/datetime-picker.ts","src/diary/ui/dialogs.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/diary/volume.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/diary/fake-sim.ts → window.BZW_diary（行为单源预览包，issue 245/ADR-0106） */
 var BZW_diary = (() => {
   var __create = Object.create;
@@ -15654,6 +15654,7 @@ ${String(review).trim()}`;
   init_diary_format();
   init_config();
   init_domain_bus();
+  init_settings_provider();
   var MEDIA_EXT_KIND = {
     jpg: "img",
     jpeg: "img",
@@ -15814,29 +15815,34 @@ ${String(review).trim()}`;
       extra: e.extra
     };
   }
-  async function loadDiaryEntries(app, diaryDir) {
-    const vault = app.vault;
+  function wallEntryOfDiary(e) {
+    return toWallEntry(e, "diary", DIARY_DIRECTORY);
+  }
+  function cmpDesc(aDate, aTime, bDate, bTime) {
+    const byDate = bDate.localeCompare(aDate);
+    return byDate !== 0 ? byDate : bTime.localeCompare(aTime);
+  }
+  async function diarySlots(app, diaryDir) {
     const mdFiles = await mdFilesUnder(app, diaryDir);
-    const entries = [];
-    const failed = [];
-    for (let i = 0; i < mdFiles.length; i += READ_BATCH_SIZE) {
-      const batch = mdFiles.slice(i, i + READ_BATCH_SIZE);
-      entries.push(
-        ...await readBatch(
-          batch,
-          async (file) => {
-            if (!diaryMetaFromEntryPath(file.name)) return [];
-            const content = await vault.read(file);
-            const e = parseEntryFile(content, file.path);
-            return e ? [toWallEntry(e, "diary", diaryDir)] : [];
-          },
-          failed
-        )
-      );
-      if (progressSinks.size) emitWallProgress(Math.min(i + READ_BATCH_SIZE, mdFiles.length), mdFiles.length);
+    const slots = [];
+    for (const f of mdFiles) {
+      const meta = diaryMetaFromEntryPath(f.name);
+      if (meta) slots.push({ path: f.path, date: meta.date, time: meta.time });
     }
-    warnFailedBatch("日记", failed);
-    return entries;
+    slots.sort((a, b) => cmpDesc(a.date, a.time, b.date, b.time) || b.path.localeCompare(a.path));
+    return slots;
+  }
+  async function readDiarySlot(app, slot, diaryDir, failed) {
+    const file = app.vault.getAbstractFileByPath(slot.path);
+    if (!file || "children" in file) return null;
+    try {
+      const content = await app.vault.read(file);
+      const e = parseEntryFile(content, slot.path);
+      return e ? toWallEntry(e, "diary", diaryDir) : null;
+    } catch (e) {
+      failed.push(slot.path);
+      return null;
+    }
   }
   async function loadSpecialEntries(app, dir, kind, parse) {
     const mdFiles = await mdFilesUnder(app, dir);
@@ -15858,30 +15864,34 @@ ${String(review).trim()}`;
     warnFailedBatch(kind, failed);
     return entries;
   }
-  async function readWallEntriesFresh(app) {
-    const [diaryE, movieE, letterE, bookE] = await Promise.all([
-      loadDiaryEntries(app, DIARY_DIRECTORY),
+  async function loadOtherEntries(app) {
+    const [movieE, letterE, bookE] = await Promise.all([
       loadSpecialEntries(app, movieDirectory(), "movie", parseMovieFile),
       loadSpecialEntries(app, LETTER_DIRECTORY, "letter", parseLetterFile),
       loadSpecialEntries(app, bookDirectory(), "book", parseBookFile)
     ]);
-    const entries = [...diaryE, ...movieE, ...letterE, ...bookE];
-    entries.sort((a, b) => {
-      const dateCmp = b.date.localeCompare(a.date);
-      return dateCmp !== 0 ? dateCmp : b.time.localeCompare(a.time);
-    });
+    const entries = [...movieE, ...letterE, ...bookE];
+    entries.sort((a, b) => cmpDesc(a.date, a.time, b.date, b.time));
     return entries;
   }
+  var WALL_WINDOW_FALLBACK = 50;
+  function wallWindowSize() {
+    var _a;
+    const raw = Number((_a = tryGetSettings()) == null ? void 0 : _a.diaryPageSize);
+    if (!Number.isFinite(raw) || raw <= 0) return WALL_WINDOW_FALLBACK;
+    return Math.max(1, Math.min(1e3, Math.floor(raw)));
+  }
   var wallCacheApp = null;
-  var currentCtrl = null;
+  var stream = null;
+  var wallAsked = 0;
   var offFns = [];
   function detachWallInvalidators() {
     for (const off of offFns) off();
     offFns = [];
   }
-  function attachWallInvalidators(ctrl) {
+  function attachWallInvalidators(s) {
     const onPath = (p) => {
-      if (p && currentCtrl === ctrl && inWallDirs(p)) ctrl.invalidated = true;
+      if (p && stream === s && inWallDirs(p)) s.invalidated = true;
     };
     const off = (ch, handler) => {
       offFns.push(onDomainEvent(ch, handler));
@@ -15894,33 +15904,159 @@ ${String(review).trim()}`;
       onPath(e == null ? void 0 : e.oldPath);
     });
   }
+  function streamHasMore(s) {
+    return s.diaryAt < s.diary.length || s.otherAt < s.other.length;
+  }
+  function pickWindow(s, n) {
+    const picks = [];
+    while (picks.length < n) {
+      const d = s.diary[s.diaryAt];
+      const o = s.other[s.otherAt];
+      if (!d && !o) break;
+      const takeDiary = !!d && (!o || cmpDesc(d.date, d.time, o.date, o.time) <= 0);
+      if (takeDiary) {
+        s.diaryAt++;
+        picks.push({ from: "diary", slot: d });
+      } else {
+        s.otherAt++;
+        picks.push({ from: "other", entry: o });
+      }
+    }
+    return picks;
+  }
+  async function pullWindow(s, n) {
+    const picks = pickWindow(s, n);
+    if (!picks.length) return [];
+    const out = new Array(picks.length).fill(null);
+    for (let i = 0; i < picks.length; i += READ_BATCH_SIZE) {
+      const slice = picks.slice(i, i + READ_BATCH_SIZE);
+      await Promise.all(
+        slice.map(async (p, k) => {
+          out[i + k] = p.from === "other" ? p.entry : await readDiarySlot(s.app, p.slot, DIARY_DIRECTORY, s.failed);
+        })
+      );
+      if (progressSinks.size) emitWallProgress(Math.min(i + READ_BATCH_SIZE, picks.length), picks.length);
+    }
+    warnFailedBatch("日记", s.failed.splice(0));
+    return out.filter((e) => !!e);
+  }
+  async function buildStream(s) {
+    const [diary, other] = await Promise.all([diarySlots(s.app, DIARY_DIRECTORY), loadOtherEntries(s.app)]);
+    s.diary = diary;
+    s.other = other;
+    s.entries.push(...await pullWindow(s, wallWindowSize()));
+  }
+  function fillStream(s) {
+    if (s.filling) return s.filling;
+    const run = (async () => {
+      if (s.more) await s.more.catch(() => void 0);
+      while (s.entries.length < wallAsked && streamHasMore(s)) {
+        s.entries.push(...await pullWindow(s, wallWindowSize()));
+      }
+    })().finally(() => {
+      if (s.filling === run) s.filling = null;
+    });
+    s.filling = run;
+    return run;
+  }
   async function loadWallEntries(app) {
     if (wallCacheApp !== app) {
       detachWallInvalidators();
-      currentCtrl = null;
+      stream = null;
       wallCacheApp = app;
+      wallAsked = 0;
     }
-    if (currentCtrl && !currentCtrl.invalidated) return currentCtrl.promise;
-    detachWallInvalidators();
-    const ctrl = { promise: readWallEntriesFresh(app), invalidated: false };
-    currentCtrl = ctrl;
-    attachWallInvalidators(ctrl);
+    if (stream && stream.invalidated) {
+      detachWallInvalidators();
+      stream = null;
+    }
+    if (!stream) {
+      const created = {
+        app,
+        ready: Promise.resolve(),
+        invalidated: false,
+        other: [],
+        otherAt: 0,
+        diary: [],
+        diaryAt: 0,
+        entries: [],
+        more: null,
+        filling: null,
+        failed: []
+      };
+      stream = created;
+      attachWallInvalidators(created);
+      created.ready = buildStream(created);
+    }
+    const s = stream;
     try {
-      const entries = await ctrl.promise;
-      if (currentCtrl === ctrl && ctrl.invalidated) currentCtrl = null;
-      return entries;
+      await s.ready;
+      if (s.entries.length < wallAsked) await fillStream(s);
     } catch (e) {
-      if (currentCtrl === ctrl) currentCtrl = null;
+      if (stream === s) {
+        detachWallInvalidators();
+        stream = null;
+      }
       throw e;
     }
+    if (stream === s) {
+      if (s.invalidated) {
+        detachWallInvalidators();
+        stream = null;
+      } else {
+        wallAsked = Math.max(wallAsked, s.entries.length);
+      }
+    }
+    return s.entries;
+  }
+  async function loadMoreWallEntries(app) {
+    const s = stream;
+    if (!s || wallCacheApp !== app || s.invalidated) return [];
+    try {
+      await s.ready;
+      if (s.filling) await s.filling;
+    } catch (e) {
+      return [];
+    }
+    if (s.invalidated || !streamHasMore(s)) return [];
+    if (s.more) return s.more;
+    const run = (async () => {
+      const added = await pullWindow(s, wallWindowSize());
+      s.entries.push(...added);
+      wallAsked = Math.max(wallAsked, s.entries.length);
+      return added;
+    })();
+    s.more = run;
+    try {
+      return await run;
+    } finally {
+      if (s.more === run) s.more = null;
+    }
+  }
+  function wallHasMore(app) {
+    return !!stream && wallCacheApp === app && !stream.invalidated && streamHasMore(stream);
+  }
+  async function fillWallEntries(app, onChunk) {
+    const s = stream;
+    if (!s || wallCacheApp !== app) return 0;
+    try {
+      await s.ready;
+    } catch (e) {
+      return 0;
+    }
+    while (streamHasMore(s) && !s.invalidated && stream === s) {
+      const added = await loadMoreWallEntries(app);
+      if (!added.length) break;
+      onChunk == null ? void 0 : onChunk(s.entries.length);
+    }
+    return s.entries.length;
   }
   function invalidateWallCache() {
     detachWallInvalidators();
-    currentCtrl = null;
-    wallCacheApp = null;
+    stream = null;
   }
   function wallCacheFresh(app) {
-    return wallCacheApp === app && !!currentCtrl && !currentCtrl.invalidated;
+    return wallCacheApp === app && !!stream && !stream.invalidated;
   }
   function mediaSrc(app, mediaName, sourcePath) {
     var _a, _b, _c;
@@ -15933,6 +16069,73 @@ ${String(review).trim()}`;
     } catch (e) {
       return "";
     }
+  }
+
+  // src/diary/volume.ts
+  function splitVolumes(dates, capacity) {
+    const n = dates.length;
+    if (!n) return [];
+    const cap = Math.max(1, Math.floor(capacity) || 1);
+    const out = [];
+    let start = 0;
+    let i = 0;
+    while (i < n) {
+      const month = dates[i].slice(0, 7);
+      let j = i;
+      while (j < n && dates[j].slice(0, 7) === month) j++;
+      if (j - i >= cap) {
+        if (i > start) {
+          out.push({ start, end: i });
+          start = i;
+        }
+        while (j - start >= cap) {
+          out.push({ start, end: start + cap });
+          start += cap;
+        }
+      } else if (j - start >= cap) {
+        out.push({ start, end: j });
+        start = j;
+      }
+      i = j;
+    }
+    if (start < n) out.push({ start, end: n });
+    return out;
+  }
+  function volumeOf(volumes, index) {
+    for (let v = 0; v < volumes.length; v++) {
+      const { start, end } = volumes[v];
+      if (index >= start && index < end) return v + 1;
+    }
+    return -1;
+  }
+  function monthSpans(dates, volumes) {
+    const out = [];
+    let cur = null;
+    for (let i = 0; i < dates.length; i++) {
+      const key = dates[i].slice(0, 7);
+      if (!cur || cur.key !== key) {
+        cur = { key, n: 0, vols: [], first: i };
+        out.push(cur);
+      }
+      cur.n++;
+      const v = volumeOf(volumes, i);
+      if (v > 0 && cur.vols[cur.vols.length - 1] !== v) cur.vols.push(v);
+    }
+    return out;
+  }
+  function yearBands(dates) {
+    const out = [];
+    for (const d of dates) {
+      const year = d.slice(0, 4);
+      const last = out[out.length - 1];
+      if (last && last.year === year) last.n++;
+      else out.push({ year, n: 1 });
+    }
+    return out;
+  }
+  function firstVolumeClosedAt(dates, capacity) {
+    const vols = splitVolumes(dates, capacity);
+    return vols.length >= 2 ? vols[0].end : -1;
   }
 
   // src/diary/render.ts
@@ -17070,6 +17273,10 @@ ${String(review).trim()}`;
     }
     return out;
   }
+  function cmpEntryDesc(a, b) {
+    const byDate = b.date.localeCompare(a.date);
+    return byDate !== 0 ? byDate : b.time.localeCompare(a.time);
+  }
   function paginateFlow(items, availH, split, heightOf, shrink) {
     const metas = items.map((it) => ({ el: it.el, h: it.h, keep: !!it.keep, fit: !!it.fit }));
     const pages = [];
@@ -17120,26 +17327,6 @@ ${String(review).trim()}`;
     }
     return pages;
   }
-  function monthMarks(pages, entries) {
-    const out = [];
-    const seen = /* @__PURE__ */ new Set();
-    for (let pi = 0; pi < pages.length; pi++) {
-      const dayEl = pages[pi].find((el) => el.classList.contains("bz-diary-b-daystamp"));
-      const date = dayEl == null ? void 0 : dayEl.getAttribute("data-date");
-      if (!date) continue;
-      const key = date.slice(0, 7);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ key, page1: pi + 1, n: 0 });
-    }
-    const byMonth = /* @__PURE__ */ new Map();
-    for (const e of entries) {
-      const k = e.date.slice(0, 7);
-      byMonth.set(k, (byMonth.get(k) || 0) + 1);
-    }
-    for (const m of out) m.n = byMonth.get(m.key) || 0;
-    return out;
-  }
   function pageDateOf(page) {
     const el = page.find((n) => n.classList.contains("bz-diary-b-daystamp"));
     return (el == null ? void 0 : el.getAttribute("data-date")) || null;
@@ -17186,6 +17373,18 @@ ${x.review || ""}`;
       // ---------- 状态 ----------
       /** 当前册子里的条目（只读聚合结果；加密条目在解锁时才并入） */
       this.entries = [];
+      /**
+       * 后面还有没读进来的旧条目（ADR-0259：开册只读到第 1 卷收卷，其余后台续读）。
+       * 它只影响索引 / 检索 / 台历的覆盖面，不再有「翻到册尾就变厚」这回事。
+       */
+      this.hasMore = false;
+      /** 后台读盘在途（同一轮只跑一条） */
+      this.filling = false;
+      /** 分卷结果与当前卷第几卷（ADR-0259）：`pages` 只装当前这一卷的页 */
+      this.volumes = [];
+      this.volIndex = 0;
+      /** 分卷指纹（条目数 + 首末日期 + 容量）：条目只在尾部增长时前面的卷界不变，可复用上次结果 */
+      this._volKey = "";
       this.byEid = /* @__PURE__ */ new Map();
       this.pages = [];
       this.cursor = 0;
@@ -17196,6 +17395,10 @@ ${x.review || ""}`;
       this.daySections = [];
       this.dayIdx = 0;
       this.filterTag = null;
+      /**
+       * 检索命中：在**全量数据**上找（ADR-0259），记的是「哪一则」——
+       * 跳过去时先按则序换卷，再在卷内按 `data-eid` 定位到页。
+       */
       this.search = {
         kw: null,
         hits: [],
@@ -17302,7 +17505,7 @@ ${x.review || ""}`;
           const geomChanged = Math.abs(bookW - this.lastBookW) > 1 || Math.abs(bookH - this.lastBookH) > 1;
           if (s !== this.lastSingle || geomChanged) {
             this.lastSingle = s;
-            this.relayout(true);
+            this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
           } else this.refreshBookRect();
         }, 380);
       };
@@ -17484,11 +17687,34 @@ ${x.review || ""}`;
       return this.entries.filter((e) => e.tags.includes(tag));
     }
     /**
-     * 重排整册。`keepRatio`：视口变化/回刷时按上次页数比例保住阅读位置（跟手不跳回最新）；
-     * 换筛选、写完一篇等场景传 false（落回第 0 页 = 最新那篇）。
+     * 分卷（ADR-0259）：卷界落在月界，从最新往前整月累加，凑够容量收卷。
+     * 指纹没变就复用上次结果——条目只在**尾部**增长时原有的卷界不变，
+     * 后台读盘落地后调索引/检索不必重算，也不会顺手把书重排一遍。
      */
-    relayout(keepRatio) {
+    planVolumes() {
       var _a, _b;
+      const list = this.visibleEntries();
+      const key = `${list.length}|${((_a = list[0]) == null ? void 0 : _a.date) || ""}|${((_b = list[list.length - 1]) == null ? void 0 : _b.date) || ""}|${wallWindowSize()}`;
+      if (key !== this._volKey) {
+        this.volumes = splitVolumes(
+          list.map((e) => e.date),
+          wallWindowSize()
+        );
+        this._volKey = key;
+        if (this.volIndex > this.volumes.length - 1) this.volIndex = Math.max(0, this.volumes.length - 1);
+      }
+      return this.volumes;
+    }
+    /**
+     * 重排**当前这一卷**（ADR-0259）。落点由 `land` 给：
+     * - `volume`：换到第几卷（1 起）；不给就留在当前卷；
+     * - `page` 卷内页号 / `toEnd` 本卷最后一页 / `date`·`month`·`eid` 落到含它的那一页；
+     * - `keepRatio`（视口变化、回刷）：按上次页数比例保住阅读位置，跟手不跳回最新。
+     *
+     * 一条都不给 = 落本卷第 0 页（最新那一篇）。
+     */
+    relayout(land = {}) {
+      var _a, _b, _c;
       const root = this.root;
       if (!root) return 0;
       const t0 = typeof performance !== "undefined" ? performance.now() : 0;
@@ -17507,6 +17733,14 @@ ${x.review || ""}`;
       this.byEid = new Map(list.map((e) => [e.id || "", e]));
       this.photoRefs = collectPhotoRefs(list);
       this.photoIndex = new Map(this.photoRefs.map((p, i) => [p.media.name, i]));
+      if (this.pendingHome) {
+        this.pendingHome = false;
+        land = { volume: 1, page: 0 };
+      }
+      this.planVolumes();
+      const vol = Math.max(0, Math.min(this.volumes.length - 1, ((_a = land.volume) != null ? _a : this.volIndex + 1) - 1));
+      const range = this.volumes[vol] || { start: 0, end: list.length };
+      const slice = list.slice(range.start, range.end);
       const probe = document.createElement("div");
       probe.className = "bz-diary-probe";
       root.appendChild(probe);
@@ -17518,8 +17752,8 @@ ${x.review || ""}`;
       const flow = [];
       let lastDate = null;
       const dayCount = /* @__PURE__ */ new Map();
-      for (const e of list) dayCount.set(e.date, (dayCount.get(e.date) || 0) + 1);
-      for (const e of list) {
+      for (const e of slice) dayCount.set(e.date, (dayCount.get(e.date) || 0) + 1);
+      for (const e of slice) {
         if (e.date !== lastDate) {
           lastDate = e.date;
           flow.push({ el: elOf(daystampHTML(e.date, dayCount.get(e.date) || 1)), h: 0, keep: true });
@@ -17543,24 +17777,71 @@ ${x.review || ""}`;
       probe.innerHTML = "";
       probe.remove();
       this.renderEdgeMarks();
-      if (this.pendingHome) {
-        this.pendingHome = false;
-        keepRatio = false;
-        this.cursor = 0;
-      }
       const last = Math.max(0, this.pages.length - 1);
       let target = 0;
-      if (keepRatio && this.lastSpreadCount > 1) {
+      const named = this.pageOfNamed(land);
+      if (named >= 0) target = named;
+      else if (land.page !== void 0) target = land.page;
+      else if (land.toEnd) target = last;
+      else if (land.keepRatio && this.lastSpreadCount > 1) {
         target = Math.round(this.cursor / (this.lastSpreadCount - 1) * last);
       }
+      this.volIndex = vol;
       this.lastSpreadCount = this.pages.length;
       this.buildBook(Math.max(0, Math.min(last, target)));
       this.refreshBookRect();
-      this.lastBookW = ((_a = this.bookEl) == null ? void 0 : _a.clientWidth) || 0;
-      this.lastBookH = ((_b = this.bookEl) == null ? void 0 : _b.clientHeight) || 0;
+      this.lastBookW = ((_b = this.bookEl) == null ? void 0 : _b.clientWidth) || 0;
+      this.lastBookH = ((_c = this.bookEl) == null ? void 0 : _c.clientHeight) || 0;
       this.bookFresh = true;
       this.layoutUnlocked = isUnlocked();
       return (typeof performance !== "undefined" ? performance.now() : 0) - t0;
+    }
+    /**
+     * 命名落点 → 当前卷里的页号（没有落点或找不到返回 -1）。
+     * 优先级：条目 > 日期 > 月份——越具体的落点越优先。
+     */
+    pageOfNamed(land) {
+      if (land.eid) {
+        const pi = this.pageOfEid(land.eid);
+        if (pi >= 0) return pi;
+      }
+      if (land.date) {
+        const pi = this.pageOfDate(land.date);
+        if (pi >= 0) return pi;
+      }
+      if (land.month) return this.pageOfMonth(land.month);
+      return -1;
+    }
+    /**
+     * 含这一天的页。日戳只出现在**一天开头的那一页**，后面的续页没有日戳——
+     * 落一个只有续页的日期时，回到它前一个日戳所在的那一页。
+     */
+    pageOfDate(date) {
+      let prev = -1;
+      for (let pi = 0; pi < this.pages.length; pi++) {
+        const d = pageDateOf(this.pages[pi]);
+        if (!d) continue;
+        if (d === date) return pi;
+        if (d < date) return prev >= 0 ? prev : pi;
+        prev = pi;
+      }
+      return prev;
+    }
+    /** 含这个月（`YYYY-MM`）第一页的页号 */
+    pageOfMonth(month) {
+      for (let pi = 0; pi < this.pages.length; pi++) {
+        const d = pageDateOf(this.pages[pi]);
+        if (d && d.slice(0, 7) === month) return pi;
+      }
+      return -1;
+    }
+    /** 含这一条的页（块上带 `data-eid`；跨页续排的两半在相邻页，取前一页） */
+    pageOfEid(eid) {
+      if (!eid) return -1;
+      for (let pi = 0; pi < this.pages.length; pi++) {
+        for (const el of this.pages[pi]) if (el.dataset.eid === eid) return pi;
+      }
+      return -1;
     }
     /**
      * 条目 → 块元素。`bz-diary-b-photo`（照片 / 视频）标成**可缩块**：放不下时先等比缩到塞进
@@ -17787,14 +18068,50 @@ ${x.review || ""}`;
         if (!this.daySections.length) return;
         if (this.writeGuard()) return;
         const at = this.dayIdx + dir;
-        if (at < 0 || at > this.daySections.length - 1) return;
+        if (at < 0) {
+          this.stepVolume(-1);
+          return;
+        }
+        if (at > this.daySections.length - 1) {
+          this.stepVolume(1);
+          return;
+        }
         this.setDay(at, dir > 0 ? "top" : "bottom");
         return;
       }
       if (!this.flip) return;
       if (this.writeGuard()) return;
+      if (dir > 0 && this.cursor >= this.pages.length - 1) {
+        this.stepVolume(1);
+        return;
+      }
+      if (dir < 0 && this.cursor <= 0) {
+        this.stepVolume(-1);
+        return;
+      }
       if (dir > 0) this.flip.flipNext();
       else this.flip.flipPrev();
+    }
+    /**
+     * 换卷（ADR-0259）：往后 = 落新卷第一页；往前 = 落新卷最后一页（一直往前读不断线）。
+     * 到头了就只说一声，不把书推到别处去。
+     */
+    stepVolume(dir) {
+      var _a;
+      const next = this.volIndex + dir;
+      if (next < 0) {
+        this.toast("这是最新的一卷了");
+        return false;
+      }
+      if (next > this.volumes.length - 1) {
+        this.toast(this.hasMore ? "再往前的日子还在读，稍等" : "这是最旧的一卷了");
+        return false;
+      }
+      this.relayout(dir > 0 ? { volume: next + 1, page: 0 } : { volume: next + 1, toEnd: true });
+      const first = this.volumes[next];
+      const date = first ? (_a = this.visibleEntries()[first.start]) == null ? void 0 : _a.date : "";
+      this.toast(`第 ${next + 1} 卷${date ? ` · ${date.slice(0, 7)} 起` : ""}`);
+      return true;
     }
     jumpToPage(pi) {
       if (!this.pages.length) return;
@@ -17810,51 +18127,55 @@ ${x.review || ""}`;
     // ============================================================
     //  书口：年份染色 + 册页索引
     // ============================================================
-    monthMarksOf() {
-      return monthMarks(this.pages, this.visibleEntries());
-    }
     /**
-     * 书口年份染色带：只作「这几年各占多厚」的缩影（整条边缘才是那个大按钮——点开抽索引）。
+     * 书口年份染色带：**全册**每年几则的缩影（ADR-0259 决策 5；整条边缘才是那个大按钮——点开抽索引）。
+     * 按则数占比而不是页数占比：册子里只有一卷的页，按页算只能画出最近几个月，
+     * 那等于把十年的色带裁成一条四个月的。
      * 只有一年时不画：一条通高的色带等于没有信息，只是把整条书口刷成一块颜色。
      * `top`/`height` 是量出来的几何（行为性内联值）；颜色按年序轮转走 `.bz-diary-ey-N` 类。
      */
     renderEdgeMarks() {
       const edge = this.edgeEl;
       edge.querySelectorAll(".bz-diary-edge-year").forEach((b) => b.remove());
-      const months = this.monthMarksOf();
-      if (!months.length) return;
-      const total = Math.max(1, this.pages.length);
-      const years = [];
-      for (const m of months) {
-        const y = m.key.slice(0, 4);
-        if (!years.length || years[years.length - 1].y !== y) years.push({ y, from: m.page1 });
-      }
-      if (years.length < 2) return;
-      years.forEach((sg, i) => {
-        const top = (sg.from - 1) / total * 100;
-        const endFrom = i + 1 < years.length ? years[i + 1].from : total + 1;
-        let h = Math.max(1.2, (endFrom - 1) / total * 100 - top);
+      const bands = yearBands(this.visibleEntries().map((e) => e.date));
+      if (bands.length < 2) return;
+      const total = bands.reduce((s, b) => s + b.n, 0) || 1;
+      let acc = 0;
+      bands.forEach((b, i) => {
+        const top = acc / total * 100;
+        acc += b.n;
+        let h = Math.max(1.2, b.n / total * 100);
         h = Math.min(h, 100 - top);
-        const b = document.createElement("div");
-        b.className = `bz-diary-edge-year bz-diary-ey-${i % 8}`;
-        b.style.top = `${top}%`;
-        b.style.height = `${h}%`;
-        edge.appendChild(b);
+        const box = document.createElement("div");
+        box.className = `bz-diary-edge-year bz-diary-ey-${i % 8}`;
+        box.style.top = `${top}%`;
+        box.style.height = `${h}%`;
+        edge.appendChild(box);
       });
     }
-    /** 点书口 → 抽出「册页索引」那张纸：一年一段、一月一行 */
+    /**
+     * 点书口 → 抽出「册页索引」那张纸：一年一段、一月一行（ADR-0259：**全书目录**）。
+     *
+     * 一册只摊开一卷，所以只有当前卷的月份给得出真实页码；别的卷写「卷 N」，
+     * 点了换到那一卷并落到那个月。顶部两行报的是全册口径——目录报的必须是全书。
+     */
     openIndexSheet() {
-      const months = this.monthMarksOf();
       const list = this.visibleEntries();
-      if (!months.length || !list.length) {
+      const vols = this.planVolumes();
+      const spans = monthSpans(
+        list.map((e) => e.date),
+        vols
+      );
+      if (!list.length || !spans.length) {
         this.toast("册页还空着");
         return;
       }
       const total = list.length;
-      let html = '<div class="bz-diary-sheet-meta">自 ' + list[total - 1].date + " 至 " + list[0].date + " · 凡 " + cnNum(total) + " 则 · " + cnNum(months.length) + " 个月</div>";
+      let html = '<div class="bz-diary-sheet-meta">自 ' + list[total - 1].date + " 至 " + list[0].date + " · 凡 " + cnNum(total) + " 则 · " + cnNum(spans.length) + " 个月</div>";
+      html += '<div class="bz-diary-sheet-meta">共 ' + cnNum(vols.length) + " 卷 · 现在第 " + cnNum(this.volIndex + 1) + " 卷</div>";
       let curY = null;
       let open = false;
-      for (const m of months) {
+      for (const m of spans) {
         const parts = m.key.split("-");
         if (parts[0] !== curY) {
           if (open) html += "</div></div>";
@@ -17862,9 +18183,13 @@ ${x.review || ""}`;
           curY = parts[0];
           open = true;
         }
-        html += `<div class="bz-diary-idx-row" data-jump-page="${m.page1 - 1}"><span class="bz-diary-ir-m">${parseInt(parts[1], 10)} 月</span><span class="bz-diary-ir-dots"></span><span class="bz-diary-ir-n">${cnNum(m.n)} 则</span><span class="bz-diary-ir-p">第 ${m.page1} 页</span></div>`;
+        const single = m.vols.length === 1;
+        const pi = single && m.vols[0] === this.volIndex + 1 ? this.pageOfMonth(m.key) : -1;
+        const right = pi >= 0 ? `第 ${pi + 1} 页` : single ? `卷 ${m.vols[0] || 1}` : `卷 ${m.vols[0]}–${m.vols[m.vols.length - 1]}`;
+        html += `<div class="bz-diary-idx-row" data-jump-vol="${m.vols[0] || 1}" data-jump-month="${m.key}"><span class="bz-diary-ir-m">${parseInt(parts[1], 10)} 月</span><span class="bz-diary-ir-dots"></span><span class="bz-diary-ir-n">${cnNum(m.n)} 则</span><span class="bz-diary-ir-p">${right}</span></div>`;
       }
       if (open) html += "</div></div>";
+      if (this.hasMore) html += '<div class="bz-diary-sheet-meta">目录还在读更旧的日子 · 读齐即全</div>';
       this.openSheet("册 页 索 引", html);
     }
     // ============================================================
@@ -18162,8 +18487,9 @@ ${x.review || ""}`;
         void this.requestClose();
         return;
       }
-      if ((this.flip || this.daySections.length) && this.cursor > 0) {
-        this.jumpToPage(0);
+      if ((this.flip || this.daySections.length) && (this.cursor > 0 || this.volIndex > 0)) {
+        if (this.volIndex > 0) this.relayout({ volume: 1, page: 0 });
+        else this.jumpToPage(0);
         this.toast("翻到最新");
         return;
       }
@@ -18256,7 +18582,13 @@ ${x.review || ""}`;
         const row = t.closest(".bz-diary-idx-row");
         if (row) {
           this.closeSheet();
-          this.jumpToPage(Number(row.dataset.jumpPage || 0));
+          const vol = Number(row.dataset.jumpVol || 0);
+          const month = row.dataset.jumpMonth || "";
+          if (vol && vol !== this.volIndex + 1) this.relayout({ volume: vol, month });
+          else {
+            const pi = this.pageOfMonth(month);
+            if (pi >= 0) this.jumpToPage(pi);
+          }
           return;
         }
         if (t.closest(".bz-diary-sheet-paper") && !t.closest(".bz-diary-sh-close")) return;
@@ -18743,7 +19075,7 @@ ${x.review || ""}`;
       this.albumEl.hidden = true;
     }
     applyFilter() {
-      this.relayout(false);
+      this.relayout({ volume: 1, page: 0 });
       if (this.filterTag) {
         this.filterTabEl.classList.add("bz-diary-on");
         const name = this.filterTabEl.querySelector(".bz-diary-ft-name");
@@ -18834,14 +19166,22 @@ ${x.review || ""}`;
       if (!this.calEl) return;
       this.calEl.hidden = true;
     }
+    /** 台历跳日：在全量数据里找那天，不在当前卷就先换卷（ADR-0259） */
     jumpToDay(date) {
-      for (let pi = 0; pi < this.pages.length; pi++) {
-        if (pageDateOf(this.pages[pi]) === date) {
-          this.jumpToPage(pi);
-          return;
-        }
+      const list = this.visibleEntries();
+      const at = list.findIndex((e) => e.date === date);
+      if (at < 0) {
+        this.toast("这本册子里，那天没落笔");
+        return;
       }
-      this.toast("这一册里，那天没落笔");
+      this.planVolumes();
+      const vol = volumeOf(this.volumes, at);
+      if (vol > 0 && vol !== this.volIndex + 1) {
+        this.relayout({ volume: vol, date });
+        return;
+      }
+      const pi = this.pageOfDate(date);
+      if (pi >= 0) this.jumpToPage(pi);
     }
     /**
      * 「就这天」：写作模式才有的提交。
@@ -18914,16 +19254,18 @@ ${x.review || ""}`;
     // ============================================================
     //  放大镜（检索：荧光笔）
     // ============================================================
+    /**
+     * 检索在**全量数据**上跑（ADR-0259）：一册只装一卷，扫页只能扫到这一卷；
+     * 目录报全书、检索也得翻全书。比的是「渲染出来的那段文字」（`plainTextOf`），
+     * 与旧口径（扫块元素的 textContent）同源。
+     */
     runSearch(kw) {
       this.clearMarks();
       this.search = { kw, hits: [], i: 0 };
-      for (let pi = 0; pi < this.pages.length; pi++) {
-        for (const el of this.pages[pi]) {
-          if (el.classList.contains("bz-diary-b-photo") || el.classList.contains("bz-diary-b-audio") || el.classList.contains("bz-diary-b-envelope") || el.classList.contains("bz-diary-b-daystamp")) {
-            continue;
-          }
-          if ((el.textContent || "").indexOf(kw) >= 0) this.search.hits.push({ pi, el });
-        }
+      const list = this.visibleEntries();
+      for (let i = 0; i < list.length; i++) {
+        if (plainTextOf(list[i]).indexOf(kw) < 0) continue;
+        this.search.hits.push({ entry: list[i], index: i });
       }
       if (!this.search.hits.length) {
         this.openSlip({ title: "没 找 到", body: `整本册子都翻了，没有「${escapeHtml2(kw)}」这个词。`, ok: "知道了" });
@@ -18932,13 +19274,33 @@ ${x.review || ""}`;
       this.toast(`寻得 ${this.search.hits.length} 处，荧光笔伺候`);
       this.nextHit();
     }
+    /** 下一处命中：跨卷的先换卷并落到那一页（50 则的重排是几十毫秒），同卷的直接翻 */
     nextHit() {
       const s = this.search;
       if (!s.hits.length) return;
       const hit = s.hits[s.i % s.hits.length];
       s.i++;
-      this.jumpToPage(hit.pi);
-      setTimeout(() => this.markHit(hit.el, s.kw || ""), 80);
+      const kw = s.kw || "";
+      const eid = hit.entry.id || "";
+      this.planVolumes();
+      const vol = volumeOf(this.volumes, hit.index);
+      if (vol > 0 && vol !== this.volIndex + 1) {
+        this.relayout({ volume: vol, eid });
+      } else {
+        const pi = this.pageOfEid(eid);
+        if (pi >= 0) this.jumpToPage(pi);
+      }
+      setTimeout(() => this.markHitEid(eid, kw), 80);
+    }
+    /** 在刚翻到的那一页上把这一条里含词的那些块划上荧光笔 */
+    markHitEid(eid, kw) {
+      if (!eid || !kw || !this.root) return;
+      for (const page of this.pages) {
+        for (const el of page) {
+          if (el.dataset.eid !== eid) continue;
+          if ((el.textContent || "").indexOf(kw) >= 0) this.markHit(el, kw);
+        }
+      }
     }
     markHit(el, kw) {
       var _a;
@@ -19211,11 +19573,14 @@ ${x.review || ""}`;
       this.saving = true;
       this.wspAreaEl.readOnly = true;
       try {
-        await addEntry(d.date, d.time, d.tags.length ? d.tags : ["日记"], text);
+        const created = await addEntry(d.date, d.time, d.tags.length ? d.tags : ["日记"], text);
         this.dropWrite();
+        const entry = wallEntryOfDiary(created);
+        const at = this.entries.findIndex((e) => cmpEntryDesc(entry, e) < 0);
+        if (at < 0) this.entries.push(entry);
+        else this.entries.splice(at, 0, entry);
         this.pendingHome = true;
-        this.jumpToPage(0);
-        this.cursor = 0;
+        this.relayout({ volume: 1, page: 0 });
         this.toast("记下了，盖个章");
         return true;
       } catch (e) {
@@ -19437,14 +19802,18 @@ ${x.review || ""}`;
         requestAnimationFrame(() => setTimeout(resolve, 0));
       });
     }
-    /** 重新读盘 + 整册重排（事件回刷路径；保阅读位置） */
+    /** 重新读盘 + 重排当前这一卷（事件回刷路径；保阅读位置） */
     async loadAndRelayout() {
       await this.loadEntries(false);
-      this.relayout(true);
+      this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
+      this.startBackgroundFill();
     }
     /**
      * 读盘。`allowCache`：开册路径命中预热/上次刷新后的缓存秒开；
      * 刷新/写后回刷/重试一律先作废回源（保持「每次刷新即读盘」语义，不赌缓存失效是否触发）。
+     *
+     * ADR-0259：开册读到**第 1 卷收卷**为止（比容量略多的有界读，多读一两窗），
+     * 这本书才算「整」——否则第一册会缺它自己那几个月后面的条目。剩下的一律后台续读。
      */
     async loadEntries(allowCache) {
       try {
@@ -19453,16 +19822,74 @@ ${x.review || ""}`;
         } else {
           invalidateWallCache();
         }
-        this.entries = await loadWallEntries(this.app());
+        this.entries = [...await loadWallEntries(this.app())];
+        this.hasMore = wallHasMore(this.app());
+        const cap = wallWindowSize();
+        for (let guard = 0; this.hasMore && guard < 64; guard++) {
+          if (firstVolumeClosedAt(this.visibleEntries().map((e) => e.date), cap) >= 0) break;
+          const added = await loadMoreWallEntries(this.app());
+          if (!added.length) break;
+          this.entries.push(...added);
+          this.hasMore = wallHasMore(this.app());
+        }
+        if (this.entries.length) this.entries.sort((a, b) => cmpEntryDesc(a, b));
         this._loadError = null;
       } catch (e) {
         this.entries = [];
+        this.hasMore = false;
         this._loadError = e instanceof Error ? e.message : String(e);
         notice(`加载日记失败：${this._loadError}`, "error");
       }
       await this.mergeEncryptedEntries();
       if (this._loadError) this.fallbackEl.hidden = false;
       else this.fallbackEl.hidden = true;
+    }
+    /**
+     * 后台把剩下的日子读完（ADR-0259 决策 3）。读完只让索引 / 检索 / 台历的覆盖面变大，
+     * **不重排书页**——用户当年否掉的就是「书自己变厚」。唯一的例外见 `syncEntriesFromStream`。
+     */
+    startBackgroundFill() {
+      if (!this.hasMore || this.filling) return;
+      const app = this.app();
+      const token = this.loadToken;
+      this.filling = true;
+      void fillWallEntries(app).then(() => {
+        if (this.loadToken !== token) return;
+        this.filling = false;
+        void this.syncEntriesFromStream();
+      }).catch(() => {
+        this.filling = false;
+      });
+    }
+    /**
+     * 后台读完 → 把 `entries` 换成数据层的全量，重算分卷（此时只有最旧那一卷可能变），
+     * 索引 / 检索 / 台历当场变完整。
+     *
+     * 例外：人正停在第 1 卷、且这一卷的**卷尾**因为读到了更旧的同月条目而变长时，
+     * 这一卷本身先前是不完整的——它得把自己那几个月补齐。只在「还停在开头、纸上没草稿」时补排，
+     * 人已经翻到别处就留到下次开册重排（不当着人的面把册子换掉）。
+     */
+    async syncEntriesFromStream() {
+      var _a;
+      if (((_a = this.root) == null ? void 0 : _a.style.display) !== "flex" || this._loadError) return;
+      try {
+        const fresh = await loadWallEntries(this.app());
+        this.entries = [...fresh];
+      } catch (e) {
+        return;
+      }
+      this.hasMore = wallHasMore(this.app());
+      await this.mergeEncryptedEntries();
+      const before = this.volumes[this.volIndex];
+      this.planVolumes();
+      const after = this.volumes[this.volIndex];
+      if (this.volIndex !== 0 || !before || !after || before.end === after.end) return;
+      if (this.hasDraft()) {
+        this.bookFresh = false;
+        return;
+      }
+      if (this.cursor === 0) this.relayout({ volume: 1, page: 0 });
+      else this.bookFresh = false;
     }
     /**
      * 并入加密日记（保险箱已解锁时）。内容随密文一起在内存里，媒体段照常切出来——
@@ -19557,7 +19984,7 @@ ${x.review || ""}`;
             if (e.filename === oldPath) e.filename = newPath;
           }
           if (movedOut) this.entries = this.entries.filter((e) => e.filePath !== oldPath);
-          if (movedOut || touched) this.relayout(true);
+          if (movedOut || touched) this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
         })
       );
       this._subs.push(
@@ -19569,7 +19996,7 @@ ${x.review || ""}`;
           const hadMap = dropDiaryMapPath(path);
           const before = this.entries.length;
           this.entries = this.entries.filter((e) => e.filePath !== path);
-          if (hadMap || this.entries.length !== before) this.relayout(true);
+          if (hadMap || this.entries.length !== before) this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
         })
       );
     }
@@ -19629,8 +20056,9 @@ ${x.review || ""}`;
      *   （DOM 与 StPageFlip 实例都还在，`hide()` 只是 `display:none`），直接翻开——不重读、不重排、
      *   纸上没落笔的草稿原样还在。用户点名：「再次打开日记本的时候，写的内容也不会消失，
      *   也不会再重新渲染页面」。
-     * - **慢路**：读全量 → 进度条 → 读完一次成册。上千篇正文走磁盘读 + 每批 10，读完要好几秒；
-     *   这段时间书还是空的，桌上摆一张报进度的纸条（`showLoading`），读完换「正在装订」，成册即收。
+     * - **慢路**：读到第 1 卷收卷 → 进度条 → 成册（其余后台续读）。上千篇正文走磁盘读 + 每批 10，
+     *   但开册只需要读到第一册收卷为止（通常一两窗），不必等全册读完；这段时间书还是空的，
+     *   桌上摆一张报进度的纸条（`showLoading`），读完换「正在装订」，成册即收。
      */
     show() {
       if (!this._initialized) this.ensureElements();
@@ -19671,10 +20099,11 @@ ${x.review || ""}`;
         this.setLoadingBinding();
         await this.afterPaint();
         try {
-          this.relayout(false);
+          this.relayout({ volume: 1, page: 0 });
         } finally {
           this.hideLoading();
         }
+        this.startBackgroundFill();
         this.toast(reopen ? "又翻开了" : "翻开的是最新那篇");
       })();
       this.loadTask = task;
@@ -19709,7 +20138,7 @@ ${x.review || ""}`;
       });
     }
     // ============================================================
-    //  开册进度（读全量 → 一次成册）
+    //  开册进度（读到第 1 卷收卷 → 成册；其余后台续读）
     // ============================================================
     /** 摆出进度纸条。读得快（预热缓存命中）时不摆：先压一个 120ms 的延时，读完即撤。 */
     showLoading() {
@@ -19883,6 +20312,11 @@ ${x.review || ""}`;
       this.daySections = [];
       this.dayIdx = 0;
       this.entries = [];
+      this.hasMore = false;
+      this.filling = false;
+      this.volumes = [];
+      this.volIndex = 0;
+      this._volKey = "";
       this.bookFresh = false;
       this.draft = null;
       if (this.root) {

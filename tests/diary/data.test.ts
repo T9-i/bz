@@ -8,6 +8,8 @@ import {
   groupByMonth,
   loadWallEntries,
   loadMoreWallEntries,
+  fillWallEntries,
+  wallEntryOfDiary,
   wallHasMore,
   wallWindowSize,
   invalidateWallCache,
@@ -809,6 +811,42 @@ describe('② 窗口读：一册只读一窗，翻到册尾再续读（diaryPage
     const again = await loadWallEntries(app);
     expect(again).toHaveLength(4); // 补齐到刚才读到的条数，不是 2
     expect(again.map((e) => e.content)).toEqual(['四', '三', '二', '一']);
+  });
+
+  it('后台读完（fillWallEntries）：一次把剩下的全续上，之后没有更多', async () => {
+    const app = makeApp({
+      '我的/日记/2401010800.md': entry('2024-01-01', '08:00', ['日记'], '一'),
+      '我的/日记/2401020800.md': entry('2024-01-02', '08:00', ['日记'], '二'),
+      '我的/日记/2401030800.md': entry('2024-01-03', '08:00', ['日记'], '三'),
+      '我的/日记/2401040800.md': entry('2024-01-04', '08:00', ['日记'], '四'),
+    });
+    const first = await loadWallEntries(app);
+    expect(first).toHaveLength(2); // 首窗只读两则
+    expect(await fillWallEntries(app)).toBe(4); // 后台一次补齐
+    expect(wallHasMore(app)).toBe(false);
+    /* 同一个数组在长：UI 手里的引用不必换（它随后自己再取一次副本） */
+    expect(first.map((e) => e.content)).toEqual(['四', '三', '二', '一']);
+  });
+
+  it('刚落笔的一篇（wallEntryOfDiary）：当场就是一条墙条目，段落与媒体照常切出来', () => {
+    const e = wallEntryOfDiary({
+      date: '2026-10-25',
+      time: '21:40',
+      timeValue: 2140,
+      tags: ['日记'],
+      emoji: '📔',
+      content: `正文一句话
+
+![[photo.jpg]]`,
+      filename: '我的/日记/2610252140.md',
+      filePath: '我的/日记/2610252140.md',
+      lineNumber: 0,
+      id: '2026-10-25-21-40-x',
+    });
+    expect(e.kind).toBe('diary');
+    expect(e.text).not.toContain('![[');
+    expect(e.media.map((m) => m.name)).toEqual(['photo.jpg']);
+    expect(e.segments.length).toBeGreaterThan(1);
   });
 
   it('设置未注入/非法时回落缺省 50（wallWindowSize）', () => {
