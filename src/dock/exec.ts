@@ -293,6 +293,12 @@ export function runToolNow(args: {
   let timedOut = false;
   /** 回调里要回程，但 handle 是调用返回之后才有的 —— 用一个可空引用兜住这个先后 */
   let handleRef: ExternalToolHandle | null = null;
+  /**
+   * 同理：`LiveRun` 也要等 handle 才建得出来，而进度回调可能在那之前就到。
+   * **必须写回这个对象**，不能只更新上面两个局部变量 —— 面板读的是 `run.phase` / `run.pct`，
+   * 按值拷进去的是创建那一刻的 `null`，从此再也不会变（进度条因此从来没出现过）。
+   */
+  let runRef: LiveRun | null = null;
 
   const handle = runExternalTool(
     spec,
@@ -304,6 +310,10 @@ export function runToolNow(args: {
       onProgress: (p, v) => {
         phase = p;
         pct = v;
+        if (runRef) {
+          runRef.phase = p;
+          runRef.pct = v;
+        }
         args.cb?.onProgress?.(p, v);
       },
       onInfo: (d) => args.cb?.onInfo?.(d),
@@ -340,6 +350,7 @@ export function runToolNow(args: {
     handle,
     done: Promise.resolve(undefined as unknown as DockOutcome),
   };
+  runRef = run;
 
   const timeoutMs = args.timeoutMs ?? RUN_TIMEOUT_MS;
   const timer = timeoutMs > 0 ? setTimeout(() => {

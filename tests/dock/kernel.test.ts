@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { planTick, runTick, settle, missingParams, reclaimStale, MAX_ATTEMPTS, type TickDeps } from '../../src/dock/kernel';
+import { planTick, runTick, settle, missingParams, reclaimStale, thresholdKey, MAX_ATTEMPTS, type TickDeps } from '../../src/dock/kernel';
 import { fakeFs } from './_fake-fs';
 import { emptyIntent, emptyRuntime } from '../../src/dock/parse';
 import { pathOf } from '../../src/dock/files';
@@ -314,5 +314,120 @@ describe('收尸：起跑了但没收尾的那一次', () => {
     const v = started({ startedAt: new Date(now - 60_000).toISOString(), attempts: 1 }, now);
     const fs = fakeFs();
     expect(reclaimStale(v, now, fs)).toBeNull();
+  });
+});
+
+// ==================== 2026-10-25 修的四条 ====================
+
+describe('阈值触发 / 手动在跑 / 锁丢失', () => {
+  const threshold: DockRule = {
+    id: 'th',
+    trigger: { kind: 'value-threshold', path: 'CONFIG/STORAGE/n.json', key: 'n', op: '>', value: 3 },
+    action: { kind: 'run' },
+  };
+
+  function tickDeps(over: Partial<TickDeps> = {}): TickDeps {
+    return {
+      dataDir: '/data',
+      registry: emptyRegistry(),
+      views: [viewOf({ rules: [daily] })],
+      now: at(10),
+      liveIds: new Set<string>(),
+      execute: async (_v, _r, runId): Promise<DockOutcome> => ({
+        ok: true,
+        status: 'ok',
+        runId,
+        code: 0,
+        stderr: '',
+        error: null,
+        kind: 'unknown',
+        startedAt: new Date(at(10)).toISOString(),
+        finishedAt: new Date(at(10, 1)).toISOString(),
+        durationMs: 60_000,
+      }),
+      ...over,
+    };
+  }
+
+  it('value-threshold：拿到值才判据，拿不到一律不跑', () => {
+    const v = viewOf({ rules: [threshold] });
+    const yes = planTick({
+      views: [v],
+      now: at(10),
+      liveIds: new Set<string>(),
+      values: new Map([[thresholdKey('demo', 'th'), 5]]),
+    });
+    expect(yes.decisions[0]?.kind).toBe('queue');
+
+    const no = planTick({ views: [v], now: at(10), liveIds: new Set<string>() });
+    expect(no.decisions).toHaveLength(0);
+
+    // 值是 1、条件要 > 3 —— 判出来是「不够」，也不能跑
+    const low = planTick({
+      views: [v],
+      now: at(10),
+      liveIds: new Set<string>(),
+      values: new Map([[thresholdKey('demo', 'th'), 1]]),
+    });
+    expect(low.decisions).toHaveLength(0);
+  });
+
+  it('账本上有新鲜的手动起跑标记 → 这一拍跳过同一个工具（别的宿主看不见它的进程）', () => {
+    const v = viewOf({
+      rules: [daily],
+      runtime: { ...emptyRuntime('demo'), run: { runningAt: new Date(at(10, 1)).toISOString() } },
+    });
+    const out = planTick({ views: [v], now: at(10, 2), liveIds: new Set<string>() });
+    expect(out.decisions[0]?.reason).toBe('running');
+  });
+
+  it('标记过期（超过运行超时 + 1 分钟）→ 不再挡，跑崩溃留下的残影自己失效', () => {
+    const v = viewOf({
+      rules: [daily],
+      runtime: { ...emptyRuntime('demo'), run: { runningAt: new Date(at(9)).toISOString() } },
+    });
+    const out = planTick({ views: [v], now: at(11), liveIds: new Set<string>() });
+    expect(out.decisions[0]?.kind).toBe('queue');
+  });
+
+  it('锁在跑的过程中被抢走 → 这一次结果不落账（宁可丢，不两个写者）', async () => {
+    const fs = fakeFs();
+    const out = await runTick(
+      tickDeps({
+        fs,
+        shouldStop: () => true,
+        execute: async (_v, _r, runId): Promise<DockOutcome> => ({
+          ok: true,
+          status: 'ok',
+          runId,
+          code: 0,
+          stderr: '',
+          error: null,
+          kind: 'unknown',
+          startedAt: new Date(at(10)).toISOString(),
+          finishedAt: new Date(at(10, 1)).toISOString(),
+          durationMs: 60_000,
+        }),
+      }),
+    );
+    expect(out.ran).toHaveLength(0);
+    const saved = fs.files.get(pathOf.runtime('/tools/demo/manifest.json')) ?? '';
+    expect(saved).not.toContain('lastStatus');
+    // pending 还留着：下一拍的 reclaimStale 会收
+    expect(saved).toContain('pending');
+  });
+
+  it('跑崩溃留下的过期标记，会在这一拍结算时一起摘掉', async () => {
+    const fs = fakeFs();
+    const v = viewOf({
+      rules: [daily],
+      runtime: { ...emptyRuntime('demo'), run: { runningAt: new Date(at(9)).toISOString(), runningRunId: 'r-old' } },
+    });
+    const out = await runTick(tickDeps({ fs, views: [v], now: at(11), shouldStop: () => false }));
+    expect(out.executed).toBe(1); // 标记已过期 → 照常跑
+    const saved = JSON.parse(fs.files.get(pathOf.runtime(v.path)) ?? '{}');
+    expect(saved.run.runningAt).toBeUndefined();
+    expect(saved.run.runningRunId).toBeUndefined();
+    expect(saved.run.lastAttemptOk).toBe(true);
   });
 });

@@ -61,6 +61,18 @@ export interface PlanInput {
   events?: readonly RuleEvent[];
   /** 正在跑的工具 id（在场） */
   liveIds: ReadonlySet<string>;
+  /**
+   * `value-threshold` 规则这一拍读到的数值（键见 `thresholdKey`）。
+   *
+   * 读盘在调用方（`tickOnce`）做：这里必须保持纯函数，面板要拿它回答
+   * 「今天为什么没跑」，不能顺手把文件读了。
+   */
+  values?: ReadonlyMap<string, number>;
+}
+
+/** 阈值规则的取值键 —— 一条规则一个值，同一个工具的两条规则不能互相串 */
+export function thresholdKey(toolId: string, ruleId: string): string {
+  return `${toolId}\u0000${ruleId}`;
 }
 
 export interface PlanOutput {
@@ -83,6 +95,19 @@ export function missingParams(view: DockToolView): string[] {
     if (empty) out.push(p.label ?? p.key);
   }
   return out;
+}
+
+/**
+ * 手动运行的「在跑」标记还算数吗。
+ *
+ * 标记是跨进程唯一能看见的东西（`liveIds` 只在同一个进程里有意义）。它没有续期者，
+ * 所以只能按「起跑时刻 + 运行超时 + 一分钟余量」判活 —— 跑崩了留下的那枚最多挡这么久，
+ * 不会把工具按到明天。
+ */
+function runningElsewhere(view: DockToolView, now: number): boolean {
+  const at = Date.parse(view.runtime.run?.runningAt ?? '');
+  if (!Number.isFinite(at)) return false;
+  return now - at < RUN_TIMEOUT_MS + 60_000;
 }
 
 /**
@@ -148,6 +173,12 @@ export function planTick(input: PlanInput): PlanOutput {
         push('skip', 'running');
         continue;
       }
+      // 手动运行在**别的宿主**里跑着：那把锁只罩「起进程」一瞬，已经放了，
+      // 这里只能看账本上有没有一枚新鲜的手动起跑标记。
+      if (action === 'run' && runningElsewhere(view, input.now)) {
+        push('skip', 'running');
+        continue;
+      }
       // 冷却按「上次尝试时刻」算，不靠内存里的 Map —— 重启之后依然成立
       const lastAttempt = Date.parse(view.runtime.run?.lastAttemptAt ?? '');
       if (
@@ -167,6 +198,7 @@ export function planTick(input: PlanInput): PlanOutput {
           ? Date.parse(ruleState.lastFiredAt as string)
           : undefined,
         sessionStart: input.sessionStart,
+        value: input.values?.get(thresholdKey(view.id, rule.id)),
       };
       const hit =
         ruleDue(rule, ctx) ||
@@ -200,6 +232,8 @@ export interface TickDeps {
   events?: readonly RuleEvent[];
   liveIds: ReadonlySet<string>;
   fs?: DockFs | null;
+  /** `value-threshold` 这一拍读到的值（键见 `thresholdKey`）；读不到就不放进来 */
+  values?: ReadonlyMap<string, number>;
   /** 真跑一次；由宿主实现（插件起子进程 / 值守起子进程） */
   execute(view: DockToolView, rule: DockRule, runId: string): Promise<DockOutcome>;
   /** 只提醒：发一条通知（不拉进程） */
@@ -234,6 +268,7 @@ export async function runTick(deps: TickDeps): Promise<TickResult> {
     sessionStart: deps.sessionStart,
     events: deps.events,
     liveIds: deps.liveIds,
+    values: deps.values,
   });
 
   const ran: TickResult['ran'] = [];
@@ -306,6 +341,11 @@ export async function runTick(deps: TickDeps): Promise<TickResult> {
       };
     }
 
+    // 锁是在这一跑的过程里被抢走的（续期失败会被 `shouldStop` 看见）：
+    // 结果**不落账**。另一个宿主此刻随时会写同一份 runtime，两个写者比丢一次记录危险得多。
+    // 留着的那条 pending 由下一拍的 `reclaimStale` 收（attempts 到顶就记 abandoned）。
+    if (deps.shouldStop?.()) break;
+
     settle(view, job.ruleId, job.runId, outcome, deps.fs);
     ran.push({ toolId: view.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
   }
@@ -346,6 +386,10 @@ export function settle(
   const facts = { ...(runtime.run ?? {}) };
   facts.lastAttemptAt = now;
   facts.lastAttemptOk = outcome.ok;
+  // 结算即摘掉「在跑」标记：自动跑本来也不写它，手动跑收尾会自己摘，
+  // 这里再兜一次 —— 撞上「手动跑到一半又被判据排了一次」的极端时序时不会留残影。
+  delete facts.runningAt;
+  delete facts.runningRunId;
   if (outcome.ok) {
     delete facts.consecutiveFailures;
     delete facts.pausedAt;
@@ -358,6 +402,30 @@ export function settle(
 
   view.runtime = runtime;
   writeRuntime(view.path, runtime, fs ?? null);
+}
+
+/**
+ * 手动运行起跑 —— 在账本上占一枚「在跑」标记，然后才放锁。
+ *
+ * 为什么必须落盘：锁只罩「起进程」一瞬，放掉之后别的宿主（值守进程）完全看不见
+ * 这个工具正在跑；它照自己的钟判据，就会同时起第二个。这枚标记是跨进程唯一的事实。
+ */
+export function markRunning(view: DockToolView, runId: string, now: number, fs?: DockFs | null): void {
+  const facts = { ...(view.runtime.run ?? {}) };
+  facts.runningAt = new Date(now).toISOString();
+  facts.runningRunId = runId;
+  view.runtime = { ...view.runtime, run: facts };
+  writeRuntime(view.path, view.runtime, fs ?? null);
+}
+
+/** 手动运行收尾 —— 成败都要摘掉；摘不掉的话这个工具会被挡到运行超时 */
+export function clearRunning(view: DockToolView, fs?: DockFs | null): void {
+  const facts = { ...(view.runtime.run ?? {}) };
+  if (facts.runningAt === undefined && facts.runningRunId === undefined) return;
+  delete facts.runningAt;
+  delete facts.runningRunId;
+  view.runtime = { ...view.runtime, run: facts };
+  writeRuntime(view.path, view.runtime, fs ?? null);
 }
 
 /** 有人手动恢复了熔断 */

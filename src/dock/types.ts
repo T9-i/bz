@@ -269,6 +269,15 @@ export interface DockRunFacts {
   consecutiveFailures?: number;
   /** 非空 = 熔断，等人在面板里恢复 */
   pausedAt?: string;
+  /**
+   * 手动运行正在进行（起跑时写、收尾时删）。
+   *
+   * 手动运行不再把执行权锁霸占到跑完（那样整坞最长停摆十分钟），锁只罩「起进程」那一瞬。
+   * 于是**别的宿主隔着进程看不见它还活着** —— 这个字段就是给它们看的：下一拍
+   * `planTick` 见它新鲜就跳过同一个工具，免得值守照着自己的钟再起一个。
+   */
+  runningAt?: string;
+  runningRunId?: string;
 }
 
 /** 调度事实（内核写） */

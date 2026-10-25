@@ -342,6 +342,10 @@ function parseRunFacts(raw: unknown): DockRunFacts | null {
   if (fails) out.consecutiveFailures = fails;
   const paused = str(raw.pausedAt);
   if (paused) out.pausedAt = paused;
+  const runningAt = str(raw.runningAt);
+  if (runningAt) out.runningAt = runningAt;
+  const runningRunId = str(raw.runningRunId);
+  if (runningRunId) out.runningRunId = runningRunId;
   return Object.keys(out).length ? out : null;
 }
 

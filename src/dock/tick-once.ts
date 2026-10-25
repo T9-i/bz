@@ -14,11 +14,11 @@
  *  5) 放锁。
  */
 
-import { runTick, reclaimStale, type Decision, type TickResult } from './kernel';
+import { runTick, reclaimStale, thresholdKey, type Decision, type TickResult } from './kernel';
 import { withLock } from './lock';
 import { loadToolViews, type TrustMap } from './view';
 import { readRegistryAt } from './registry-file';
-import { pathOf, readRunsText, currentFs, type DockFs } from './files';
+import { pathOf, readRunsText, currentFs, joinPath, type DockFs } from './files';
 import { parseRunLines } from './parse';
 import { runToolNow } from './exec';
 import { clearExitPulse, exitPulseFires, readExitPulse } from './exit-pulse';
@@ -122,6 +122,7 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
           sessionStart: opts.sessionStart,
           events,
           liveIds: opts.liveIds ?? new Set<string>(),
+          values: readThresholds(views, opts.vaultPath, fs),
           fs,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
@@ -144,6 +145,79 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
 
   if (inner === null) return { skipped: 'locked' };
   return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
+}
+
+/**
+ * `value-threshold` 的取值 —— 每拍读一次，读不到就不放进来。
+ *
+ * 判据本身住在 `rules.ts`（纯函数，只认 `ctx.value`）；读文件这件事必须留在这一层，
+ * 否则面板调 `planTick` 回答「今天为什么没跑」时也会去读盘。
+ *
+ * **读不到 ≠ 0**：没这个键、不是数字、JSON 坏了、文件不在 —— 一律不进 map，
+ * `ruleDue` 会答「判不出就不跑」。把读失败当成 0 会让 `< 5` 这类规则整夜乱跑。
+ */
+function readThresholds(
+  views: readonly DockToolView[],
+  vaultPath: string | undefined,
+  fs: DockFs,
+): Map<string, number> {
+  const out = new Map<string, number>();
+  const docs = new Map<string, unknown>();
+  for (const view of views) {
+    for (const rule of view.rules) {
+      const t = rule.trigger;
+      if (t.kind !== 'value-threshold') continue;
+      const file = vaultFileOf(t.path, vaultPath);
+      if (!file) continue;
+
+      let doc: unknown;
+      if (docs.has(file)) {
+        doc = docs.get(file);
+      } else {
+        doc = undefined;
+        // 阈值文件不该很大；真指到一个几百 MB 的库时不读 —— 每拍读一次会拖慢整拍
+        const size = fs.size?.(file);
+        const text = size !== undefined && size > 2 * 1024 * 1024 ? null : fs.readText(file);
+        if (text !== null) {
+          try {
+            doc = JSON.parse(text);
+          } catch {
+            doc = undefined;
+          }
+        }
+        docs.set(file, doc);
+      }
+
+      const n = pickNumber(doc, t.key);
+      if (n !== undefined) out.set(thresholdKey(view.id, rule.id), n);
+    }
+  }
+  return out;
+}
+
+/** 声明里的 `path`：绝对路径原样用，其余按 vault 相对路径拼 */
+function vaultFileOf(p: string, vaultPath: string | undefined): string | null {
+  const raw = String(p ?? '').trim();
+  if (!raw) return null;
+  if (/^[A-Za-z]:[\\/]/.test(raw) || raw.startsWith('//')) return raw;
+  const root = vaultPath?.replace(/\\/g, '/').replace(/\/+$/, '');
+  if (raw.startsWith('/')) return root ? `${root}${raw}` : null;
+  return root ? joinPath(root, raw) : null;
+}
+
+/** 按点路径取一个有限数：`a.b.c`；中间断在任何一段就答 undefined */
+function pickNumber(doc: unknown, key: string): number | undefined {
+  const parts = String(key ?? '')
+    .split('.')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (!parts.length) return undefined;
+  let cur: unknown = doc;
+  for (const part of parts) {
+    if (cur === null || typeof cur !== 'object') return undefined;
+    cur = (cur as Record<string, unknown>)[part];
+  }
+  return typeof cur === 'number' && Number.isFinite(cur) ? cur : undefined;
 }
 
 /** 真去起一次进程。失败也返回 outcome，不抛 */

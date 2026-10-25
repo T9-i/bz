@@ -14,8 +14,8 @@ import { Platform, type App } from 'obsidian';
 import { notify } from '../core/notice';
 import { onDomainEvent } from '../core/domain-bus';
 import { dirOf } from './files';
-import { clearBreaker, missingParams, type Decision } from './kernel';
-import { makeRunId, onLiveChanged, liveAll, liveOf, runToolNow } from './exec';
+import { clearBreaker, clearRunning, markRunning, missingParams, type Decision } from './kernel';
+import { makeRunId, onLiveChanged, liveAll, liveOf, runToolNow, type LiveRun } from './exec';
 import { inspectLock, withLock } from './lock';
 import { tickOnce, KEEP_ALIVE_MS } from './tick-once';
 import { loadToolViews } from './view';
@@ -217,39 +217,62 @@ export async function runToolManually(
     return null;
   }
 
-  /** 一次尝试；`null` = 这次没拿到锁 */
-  const attempt = (): Promise<DockOutcome | null> =>
+  /**
+   * 一次尝试；`null` = 这次没拿到锁。
+   *
+   * **锁只罩「起进程」这一瞬**，不罩「跑完」。上一版把 `live.done` 也 await 在锁里，
+   * 于是一个手动的十分钟长任务会让整台调度停摆十分钟：插件每一拍都 `skipped: 'locked'`，
+   * 值守也拿不到锁。互斥要防的只是「同时起两个」，进程已经起来了就没必要再攥着。
+   *
+   * 放锁之后靠 `markRunning` 那枚跨进程标记挡住别的宿主 —— 它看不见这个进程的内存。
+   */
+  const attempt = (): Promise<LiveRun | null> =>
     withLock(dataDir(), 'plugin', async () => {
       if (!view.entry) return null;
-      const live = runToolNow({
-        toolId: view.id,
-        declPath: view.path,
-        entry: view.entry,
-        manifest: view.manifest,
-        values: view.values,
-        vaultPath: vaultBasePath(a),
-        trigger: 'manual',
-        extraArgs: opts.extraArgs,
-        runId: makeRunId(),
-        records: () => parseRunLines(readRunsText(pathOf.runs(view.path), currentFs(), RUNS_TAIL_BYTES), view.id),
-        cb: { onStep: opts.onStep },
-      });
-      return live.done;
+      const runId = makeRunId();
+      // 先落标记，再起进程：顺序反了会给值守留一个「进程已起、标记还没写」的缝
+      markRunning(view, runId, Date.now());
+      try {
+        return runToolNow({
+          toolId: view.id,
+          declPath: view.path,
+          entry: view.entry,
+          manifest: view.manifest,
+          values: view.values,
+          vaultPath: vaultBasePath(a),
+          trigger: 'manual',
+          extraArgs: opts.extraArgs,
+          runId,
+          records: () => parseRunLines(readRunsText(pathOf.runs(view.path), currentFs(), RUNS_TAIL_BYTES), view.id),
+          cb: { onStep: opts.onStep },
+        });
+      } catch (e) {
+        // 起不来就把标记摘掉，否则这个工具会被挡到运行超时
+        clearRunning(view);
+        throw e;
+      }
     }, { keepAliveMs: KEEP_ALIVE_MS });
 
-  let outcome: DockOutcome | null = null;
+  let live: LiveRun | null = null;
   for (let i = 0; i < 4; i += 1) {
-    outcome = await attempt();
-    if (outcome) break;
+    live = await attempt();
+    if (live) break;
     if (i < 3) await new Promise((r) => setTimeout(r, 350));
   }
 
-  if (outcome) {
-    announce(view, outcome);
-    return outcome;
+  if (!live) {
+    notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: 'warning' });
+    return null;
   }
-  notify(`${name} 没能开始：调度权正被占用（值守在跑别的工具），过一会儿再点`, { type: 'warning' });
-  return null;
+
+  let outcome: DockOutcome;
+  try {
+    outcome = await live.done;
+  } finally {
+    clearRunning(view);
+  }
+  announce(view, outcome);
+  return outcome;
 }
 
 /** 诊断：这一拍的锁归谁、有没有人卡着 */

@@ -99,7 +99,8 @@ New-Item -ItemType Directory -Force -Path $dir | Out-Null
 
 $configPath = Join-Path $dir 'config.json'
 $config = [ordered]@{
-  v             = 1
+  # 契约版本，与 runtime.js 的 CONTRACT_VERSION 对齐（2 = 判据核心独立成 dock-core.cjs）
+  v             = 2
   vault         = $Vault
   intervalMs    = [int]($IntervalSeconds * 1000)
   conditionMs   = [int]$ConditionMs
@@ -153,6 +154,14 @@ if ($NoTask) {
       -Force -ErrorAction Stop | Out-Null
     Write-Host "✓ 计划任务：$TaskName（登录时启动，隐藏窗口，失败重试 3 次）"
     $script:taskOk = $true
+
+    # 上一次安装若回退过「启动」文件夹，那条现在必须清掉：否则登录时
+    # 计划任务和启动文件夹各拉起一个值守，两个 node 常驻、日志互相盖。
+    $staleVbs = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\$TaskName.vbs"
+    if (Test-Path -LiteralPath $staleVbs) {
+      Remove-Item -LiteralPath $staleVbs -Force
+      Write-Host "✓ 已清掉上一次回退留下的启动文件夹条目：$staleVbs"
+    }
   } catch {
     Write-Host "! 注册计划任务失败：$($_.Exception.Message)" -ForegroundColor Yellow
     Write-Host '  常见原因：当前不是管理员（Register-ScheduledTask 要提升的权限）。改用「启动」文件夹。' -ForegroundColor DarkGray

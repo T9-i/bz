@@ -112,7 +112,10 @@ export function nextDueOf(rule: DockRule, ctx: RuleCtx): number | null {
     case 'daily': {
       const today = todayAt(t, ctx.now);
       if (today === undefined) return null;
-      if (ctx.now < today && (ctx.lastFiredAt ?? 0) < today) return today;
+      // 今天这次还没跑 → 就是今天这个时刻，**哪怕它已经过去了**。
+      // 过点未跑是「欠着一次」，返回一个过去的时刻，调用方据此补跑；上一版在这里
+      // 直接跳到明天，面板会显示「明天 09:00」，看着像今天不跑了。
+      if ((ctx.lastFiredAt ?? 0) < today) return today;
       return today + 86_400_000;
     }
     case 'interval': {

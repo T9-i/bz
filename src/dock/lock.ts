@@ -60,6 +60,32 @@ function newToken(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/**
+ * 本机这一次开机的标识（取整到分钟）。拿不到就返回空串 —— 空值的锁继续按老判据走。
+ *
+ * 为什么是开机时刻而不是 pid：Windows 重启后 pid 会被复用，`pidAlive` 对上一轮开机
+ * 留下的那把锁会答「活着」，于是死锁要硬等 90 秒超时。开机时刻对不上就说明这锁是
+ * 上一轮的，可以直接抢，不必等。
+ *
+ * 取整到分钟是必须的：`os.uptime()` 秒级抖动会让同一台机器两次算出来差 1，误判成换机。
+ */
+function currentBootId(): string {
+  try {
+    // Obsidian 的 renderer 里 require 挂在 window 上；值守进程（CJS）里挂在 globalThis 上
+    const g = globalThis as {
+      require?: (id: string) => unknown;
+      window?: { require?: (id: string) => unknown };
+    };
+    const req = g.window?.require ?? g.require;
+    const os = req?.('os') as { uptime?: () => number } | undefined;
+    const sec = os?.uptime?.();
+    if (typeof sec !== 'number' || !Number.isFinite(sec)) return '';
+    return String(Math.round((Date.now() - sec * 1000) / 60_000));
+  } catch {
+    return '';
+  }
+}
+
 function readLock(fs: DockFs, path: string): LockInfo | null {
   const text = fs.readText(path);
   if (!text) return null;
@@ -88,6 +114,7 @@ export function lockPathOf(dataDir: string): string {
  * 过期判据（任一）：
  *  - `at` 超过 `LOCK_STALE_MS`；
  *  - 持有者是本机进程且 pid 已经没了；
+ *  - pid 还活着，但开机标识不是这一次的（重启后 pid 被复用）；
  *  - 锁文件读不出来（写坏了）。
  */
 export function acquireLock(
@@ -104,7 +131,7 @@ export function acquireLock(
   const info: LockInfo = {
     owner,
     pid: (globalThis as { process?: { pid?: number } }).process?.pid ?? 0,
-    bootId: opts.bootId ?? '',
+    bootId: opts.bootId ?? currentBootId(),
     at: new Date(now).toISOString(),
     token,
   };
@@ -130,7 +157,10 @@ export function acquireLock(
   const held = readLock(fs, path);
   const expiredByTime = !held || now - Date.parse(held.at) > staleMs || !Number.isFinite(Date.parse(held?.at ?? ''));
   const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
-  if (!expiredByTime && !expiredByPid) return null;
+  // pid 还「活着」但开机标识不是这一次的：Windows 重启后 pid 被复用，那具尸体
+  // 只是碰巧撞上了别人的号。空 bootId（老锁 / 拿不到 os）不参与这条判断。
+  const expiredByBoot = !!held && held.bootId !== '' && info.bootId !== '' && held.bootId !== info.bootId;
+  if (!expiredByTime && !expiredByPid && !expiredByBoot) return null;
 
   // 抢：先把旧锁改名搬走（rename 只有一个能成功），再排他创建。
   //

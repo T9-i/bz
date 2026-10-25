@@ -133,8 +133,16 @@ function main() {
   process.on('unhandledRejection', (e) => rt.log(`未处理的 rejection：${e && e.stack ? e.stack : e}`));
 
   if (once) {
-    // 等这一拍真的走完（tick 内部若在跑工具，会等它结束）—— 排障时要看到完整结果
-    void watcher.tick().then(() => shutdown('--once'));
+    // 等这一拍真的走完（tick 内部若在跑工具，会等它结束）—— 排障时要看到完整结果。
+    // `.catch` 不能省：tick 抛错时只有 unhandledRejection 记一行日志、**不会调 shutdown**，
+    // `--once` 就挂在那里不退，排障的人以为它卡住了。
+    void watcher
+      .tick()
+      .then(() => shutdown('--once'))
+      .catch((e) => {
+        rt.log(`这一拍出错：${e && e.stack ? e.stack : e}`);
+        shutdown('--once（出错）');
+      });
     return 0;
   }
 

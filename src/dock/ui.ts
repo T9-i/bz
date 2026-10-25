@@ -97,6 +97,21 @@ const lastTails = new Map<string, string[]>();
  */
 const recPrints = new Map<string, string>();
 const hbPrints = new Map<string, string>();
+/**
+ * 展示板单独一本。
+ *
+ * `panel.html` 一动，那块 iframe 只能整块换（换内容等于换文档）：白闪、高度重测、
+ * 工具自己画的状态全丢。而「跑完一条记录」比「重画一次展示板」频繁得多 ——
+ * 合在一本里就是「每跑一次，用户正在看的板子闪一下」。分开之后只有板子真变了才换。
+ */
+const boardPrints = new Map<string, string>();
+/**
+ * 详情页里展开了哪几条运行记录（按 runId）。
+ *
+ * 重画运行记录栏时按它恢复 —— 否则后台每写一条新记录，用户展开看的那条就被收回去。
+ * 记录只在最近 60 条里，超出范围的会在渲染后从集合里剔掉，不会越长越大。
+ */
+const openRuns = new Set<string>();
 
 /** 打开面板时用来算「上次打开之后自动跑了什么」 */
 const LAST_SEEN_KEY = 'bz-dock:lastSeen';
@@ -324,6 +339,8 @@ export function unloadDock(): void {
   lastTails.clear();
   recPrints.clear();
   hbPrints.clear();
+  boardPrints.clear();
+  openRuns.clear();
 }
 
 function isPanelVisible(): boolean {
@@ -408,8 +425,6 @@ function recPrintOf(declPath: string, fs: DockFs | null): string {
   return [
     // runs.jsonl 可能很大（几百 KB），只看大小：它是**只在终态追加**的，追加必变
     filePrint(pathOf.runs(declPath), fs, true),
-    // 展示板同理，最大 512 KB；内容再变也是重写整份，长度变
-    filePrint(pathOf.panel(declPath), fs, true),
     // 其余都是小文件，看内容 —— 大小靠不住：`updatedAt`、`at` 这类 ISO 时间戳是定长的，
     // 内容换了大小却一模一样，只比大小就等于没比
     filePrint(declPath, fs, false),
@@ -417,6 +432,13 @@ function recPrintOf(declPath: string, fs: DockFs | null): string {
     filePrint(pathOf.intent(declPath), fs, false),
     filePrint(pathOf.settings(declPath), fs, false),
   ].join('|');
+}
+
+/** 展示板单独一本：它变了要换 iframe，代价和「重画一栏记录」不是一个量级 */
+function boardPrintOf(declPath: string, fs: DockFs | null): string {
+  if (!fs) return '';
+  // 最大 512 KB；内容再变也是重写整份，长度会变
+  return filePrint(pathOf.panel(declPath), fs, true);
 }
 
 /** 心跳单独一本：它每 5 秒重写一次，跟「跑完了」不是一回事 */
@@ -450,10 +472,12 @@ function syncPrints(entries: readonly DockRegistryEntry[]): void {
   const fs = currentFs();
   recPrints.clear();
   hbPrints.clear();
+  boardPrints.clear();
   for (const e of entries) {
     const decl = resolveToolPath(e.path);
     recPrints.set(e.id, recPrintOf(decl, fs));
     hbPrints.set(e.id, hbPrintOf(decl, fs));
+    boardPrints.set(e.id, boardPrintOf(decl, fs));
   }
 }
 
@@ -462,6 +486,8 @@ interface ChangedIds {
   rec: Set<string>;
   /** 只有心跳变了：重画卡片与实时区就够，别动运行记录栏 */
   hb: Set<string>;
+  /** 展示板变了：只有它该换 iframe（换一次就是白闪一次） */
+  board: Set<string>;
 }
 
 /**
@@ -472,7 +498,7 @@ interface ChangedIds {
  * 那一处只有整份重读才对得上，局部拼装必然又走回「60 秒里一直显示在跑」。
  */
 function reloadChanged(): ChangedIds {
-  const changed: ChangedIds = { rec: new Set(), hb: new Set() };
+  const changed: ChangedIds = { rec: new Set(), hb: new Set(), board: new Set() };
   const fs = currentFs();
   if (!fs) return changed;
   const { registry } = readRegistry();
@@ -486,24 +512,31 @@ function reloadChanged(): ChangedIds {
     const decl = resolveToolPath(e.path);
     const rec = recPrintOf(decl, fs);
     const hb = hbPrintOf(decl, fs);
+    const board = boardPrintOf(decl, fs);
     const recDirty = recPrints.get(e.id) !== rec;
     const hbDirty = hbPrints.get(e.id) !== hb;
-    if (!recDirty && !hbDirty) continue;
+    const boardDirty = boardPrints.get(e.id) !== board;
+    if (!recDirty && !hbDirty && !boardDirty) continue;
     recPrints.set(e.id, rec);
     hbPrints.set(e.id, hb);
+    boardPrints.set(e.id, board);
     const i = views.findIndex((v) => v.id === e.id);
     if (i < 0) continue;
     views[i] = loadToolView(e, { trust, canRun: canRun(), fs });
-    (recDirty ? changed.rec : changed.hb).add(e.id);
+    if (boardDirty) changed.board.add(e.id);
+    // 展示板变了也要重读视图，但别顺手把「记录类」那一整套重画一遍
+    if (recDirty) changed.rec.add(e.id);
+    else if (hbDirty) changed.hb.add(e.id);
   }
   return changed;
 }
 
 /** 把变了的工具画到当前界面上 —— 只重画受影响的那几块，不重建整个面板 */
 function repaintChanged(changed: ChangedIds): void {
-  if (!changed.rec.size && !changed.hb.size) return;
+  if (!changed.rec.size && !changed.hb.size && !changed.board.size) return;
   if (view.kind === 'detail') {
-    if (changed.rec.has(view.id)) repaintDetail(view.id);
+    const board = changed.board.has(view.id);
+    if (changed.rec.has(view.id) || board) repaintDetail(view.id, { board });
     else if (changed.hb.has(view.id)) {
       renderLiveInto(view.id);
       repaintRunBtns(view.id);
@@ -513,7 +546,7 @@ function repaintChanged(changed: ChangedIds): void {
 
   const body = bodyEl();
   if (!body) return;
-  for (const id of [...changed.rec, ...changed.hb]) {
+  for (const id of new Set([...changed.rec, ...changed.hb, ...changed.board])) {
     const v = viewById(id);
     if (!v) continue;
     const old = body.querySelector<HTMLElement>(`.bz-dock-card[data-tool="${id}"]`);
@@ -539,12 +572,17 @@ function renderHeadSub(): void {
     : '还没有登记任何外部工具';
 }
 
-/** 详情页里只重画「结果类」的几块：展示板、统计、运行按钮、运行记录、实时区 */
-function repaintDetail(id: string): void {
+/**
+ * 详情页里只重画「结果类」的几块：统计、运行按钮、运行记录、实时区。
+ *
+ * `board` 只在 `panel.html` 真变了时才传 true —— iframe 换一次就是白闪一次，
+ * 而「多了一条记录」比「换一次板子」频繁得多，不该顺带把它换掉。
+ */
+function repaintDetail(id: string, opts: { board?: boolean } = {}): void {
   const v = viewById(id);
   const wrap = bodyEl()?.querySelector<HTMLElement>('.bz-dock-detail');
   if (!v || !wrap) return;
-  repaintBoard(v, wrap);
+  if (opts.board) repaintBoard(v, wrap);
   wrap.querySelector<HTMLElement>('.bz-dock-toolstats')?.replaceWith(toolStats(v));
   wrap.querySelector<HTMLElement>('.bz-dock-histpane')?.replaceWith(histPane(v));
   repaintRunBtns(id);
@@ -937,7 +975,14 @@ function renderBody(): void {
       renderDetail(body, v);
       return;
     }
-    view = { kind: 'list' };
+    /*
+     * 找不到这个工具。两种可能，别混为一谈：
+     *  - `views` 还是空的（面板刚开、`refresh()` 还没跑完）→ **保留** detail 目标，
+     *    下一次 render 就能进去；
+     *  - `views` 有东西但没有它 → 工具真被删了，退回列表。
+     * 上一版无条件改成 list，于是「从通知点直达」在面板首次渲染时必落到列表页。
+     */
+    if (views.length) view = { kind: 'list' };
   }
   renderList(body);
 }
@@ -1968,12 +2013,18 @@ function histPane(v: DockToolView): HTMLElement {
   const list = el('div', 'bz-dock-histlist');
   for (const r of runs) list.appendChild(histRow(r));
   pane.appendChild(list);
+  // 被 60 条窗口挤掉的 runId 不再记着 —— 这个集合只该跟着「当前看得见的记录」走
+  if (openRuns.size) {
+    const alive = new Set(runs.map((r) => r.runId));
+    for (const id of openRuns) if (!alive.has(id)) openRuns.delete(id);
+  }
   if (runs.length >= 60) pane.appendChild(el('div', 'bz-dock-note', '只显示最近 60 条'));
   return pane;
 }
 
 function histRow(r: DockRunRecord): HTMLElement {
   const row = el('article', 'bz-dock-histrow');
+  row.dataset.run = r.runId;
   const head = el('div', 'bz-dock-histhead');
   head.appendChild(el('span', dotClass(r.status)));
   head.appendChild(el('span', 'bz-dock-histtime', relTime(r.startedAt.replace('T', ' '))));
@@ -1998,8 +2049,14 @@ function histRow(r: DockRunRecord): HTMLElement {
     (r.artifacts && r.artifacts.length > 0) ||
     !!r.error?.stderr;
   if (hasMore) {
-    const btn = uiBtn({ label: '展开', size: 'sm', className: 'bz-dock-histtoggle' });
+    const btn = uiBtn({
+      label: openRuns.has(r.runId) ? '收起' : '展开',
+      size: 'sm',
+      className: 'bz-dock-histtoggle',
+    });
     row.appendChild(btn);
+    // 重建时按记录恢复：用户展开看的那条不会因为后台又写了一条就被收回去
+    if (openRuns.has(r.runId)) row.classList.add('is-open');
 
     const more = el('div', 'bz-dock-histmore');
     if (r.steps?.length) more.appendChild(block('步骤', r.steps.map((s) => s.text).join('\n')));
@@ -2022,6 +2079,8 @@ function histRow(r: DockRunRecord): HTMLElement {
 
     btn.addEventListener('click', () => {
       const open = row.classList.toggle('is-open');
+      if (open) openRuns.add(r.runId);
+      else openRuns.delete(r.runId);
       const span = btn.querySelector('span');
       if (span) span.textContent = open ? '收起' : '展开';
     });

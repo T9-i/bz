@@ -18,7 +18,29 @@ param(
 $ErrorActionPreference = 'Continue'
 $dir = Join-Path $env:LOCALAPPDATA 'bz-dock-watch'
 
-# ---------- 1. 停掉在跑的进程（先停，再注销任务：反过来的话它可能正好在跑） ----------
+# ---------- 1. 先注销自启动（计划任务，或回退时用的「启动」文件夹） ----------
+#
+# 顺序是硬要求：**先让自启动失效，再杀进程**。
+# 计划任务注册时带了 -RestartCount 3 -RestartInterval 1 分钟 —— 先杀进程的话，
+# 调度器会在一分钟内把它重新拉起来；随后任务虽被注销，那个新进程已经成了没人管的孤儿，
+# 常驻不退。反过来做，杀完就没有下一个人来拉它。
+
+$task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+if ($task) {
+  Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+  Write-Host "✓ 已注销计划任务：$TaskName"
+} else {
+  Write-Host "· 没有名为 $TaskName 的计划任务"
+}
+
+# install.ps1 注册计划任务被拒时会回退到「启动」文件夹 —— 两条路都要清，否则卸完还会自启
+$startupVbs = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\$TaskName.vbs"
+if (Test-Path -LiteralPath $startupVbs) {
+  Remove-Item -LiteralPath $startupVbs -Force
+  Write-Host "✓ 已删除启动文件夹里的启动器：$startupVbs"
+}
+
+# ---------- 2. 停掉在跑的进程 ----------
 
 $lockFile = Join-Path $dir 'watch.lock'
 if (Test-Path -LiteralPath $lockFile) {
@@ -36,23 +58,6 @@ if (Test-Path -LiteralPath $lockFile) {
   }
 } else {
   Write-Host '· 没有锁文件，说明它当前没在跑'
-}
-
-# ---------- 2. 注销自启动（计划任务，或回退时用的「启动」文件夹） ----------
-
-$task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-if ($task) {
-  Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
-  Write-Host "✓ 已注销计划任务：$TaskName"
-} else {
-  Write-Host "· 没有名为 $TaskName 的计划任务"
-}
-
-# install.ps1 注册计划任务被拒时会回退到「启动」文件夹 —— 两条路都要清，否则卸完还会自启
-$startupVbs = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\$TaskName.vbs"
-if (Test-Path -LiteralPath $startupVbs) {
-  Remove-Item -LiteralPath $startupVbs -Force
-  Write-Host "✓ 已删除启动文件夹里的启动器：$startupVbs"
 }
 
 # ---------- 3. 收拾目录 ----------

@@ -48,6 +48,13 @@ const NET_RETRY_MS = 60 * 1000;
 const MIN_DELAY_MS = 200;
 /** 探测 Obsidian 进程的最短间隔（起一次 tasklist 约 50–100ms，别按秒来） */
 const PROBE_MIN_MS = 30 * 1000;
+/**
+ * 「全都还活着」时也强制重探的上限。
+ *
+ * pid 会被复用：Obsidian 退出后它的号若被别的进程占上，`isProcessAlive` 会一直答活着，
+ * obsidian-exit 就永远不触发。一分钟一次 tasklist 的代价换「误会不过分钟」。
+ */
+const PROBE_FULL_MS = 60 * 1000;
 /** status.json 的心跳上限。插件判「值守死了」的线是 90 秒，30 秒盖一次足够稳 */
 const STATUS_GAP_MS = 30 * 1000;
 
@@ -64,6 +71,8 @@ function createWatcher(config, opts = {}) {
     coreVersion: opts.coreVersion || '',
     /** 上一拍的结果（只在变化时记日志） */
     lastOutcome: undefined,
+    /** 当前模式（心跳按它写 status；等网期间不能被刷回 watch） */
+    mode: 'watch',
     /** 网刚通过的时点（跨拍保留：开机那一串任务只探一次） */
     netOkAt: 0,
     /** 等网失败后的静默期截止（ms） */
@@ -223,14 +232,22 @@ function exitTransition(pids, alive) {
   return { next: left, changed, fire: changed && left.length === 0 };
 }
 
-/** 取一次 Obsidian 进程号快照。节流到 `PROBE_MIN_MS`；探不到就保留旧判断（不知道 ≠ 没开） */
+/**
+ * 取一次 Obsidian 进程号快照。节流到 `PROBE_MIN_MS`；探不到就保留旧判断（不知道 ≠ 没开）
+ */
 function probeObsidian(state) {
-  // 手上那批全都还活着 → 不必再问系统。**这一条让值守在白天零进程创建**：
-  // 只有「刚启动」「刚发现关闭」「Obsidian 还没开」这三种情况才起 tasklist。
-  if (state.obsPids.length && state.obsPids.every((pid) => rt.isProcessAlive(pid))) return;
-
   const now = Date.now();
-  if (now - state.obsProbedAt < PROBE_MIN_MS) return;
+  /*
+   * 手上那批全都还活着时**也不能永远不问系统**。
+   *
+   * Windows 会复用 pid：Obsidian 关掉之后，那个号可能很快被别的进程占上，
+   * `isProcessAlive` 于是永远答「活着」，`obsidian-exit` 就再也不触发（要等那个
+   * 不相干的进程自己退出）。隔 `PROBE_FULL_MS` 无条件重探一次，把这种误会在一分钟内
+   * 解开；其余时间仍然零进程创建 —— 白天省下的每一次 tasklist 都还在。
+   */
+  const allAlive = state.obsPids.length > 0 && state.obsPids.every((pid) => rt.isProcessAlive(pid));
+  if (allAlive && now - state.obsProbedAt < PROBE_FULL_MS) return;
+  if (!allAlive && now - state.obsProbedAt < PROBE_MIN_MS) return;
   state.obsProbedAt = now;
   const pids = listObsidianPids();
   if (pids === null) return;
@@ -299,7 +316,7 @@ async function tick(config, state, watcher, events = []) {
    * 为什么：一拍可能被「等网」占 5 分钟、被一个工具占 10 分钟，而插件超过 90 秒没见心跳
    * 就会在设置页说「没在跑」。只在 tick 收尾刷一次，等于在最长的那段时间里自己装死。
    */
-  const beat = setInterval(() => writeStatus(config, state, state.lastOutcome || 'watch'), STATUS_BEAT_MS);
+  const beat = setInterval(() => writeStatus(config, state, state.mode || 'watch'), STATUS_BEAT_MS);
   try {
     // 本机侧：插件设置里的 storagePath 与 dockTrust —— 唯一真理源在插件那份 data.json 里，
     // 不抄副本（抄了就有一份会过期的）
@@ -436,6 +453,12 @@ async function netGate(config, state) {
 /** 刷体检快照（`status.json`）—— 插件设置页读它说「值守在不在」 */
 function writeStatus(config, state, mode) {
   state.lastStatusAt = Date.now();
+  /*
+   * 记住这一拍的模式。心跳（beat）每 25 秒也调这个函数，它必须把**当前**模式原样写回去：
+   * 上一版心跳写的是「上一拍的判据结果，没有就 watch」，于是等网的 5 分钟里每一拍都被刷成
+   * 「watch」，面板显示「正在值守」，排障的人看不到它其实卡在网络上。
+   */
+  state.mode = mode;
   const patch = {
     pid: process.pid,
     startedAt: state.startedAt,
@@ -462,7 +485,7 @@ function writeStatus(config, state, mode) {
  */
 function heartbeat(config, state) {
   if (Date.now() - state.lastStatusAt < STATUS_GAP_MS) return;
-  writeStatus(config, state, state.lastOutcome || 'watch');
+  writeStatus(config, state, state.mode || 'watch');
 }
 
 module.exports = { createWatcher, exitTransition, nextDelay, parseObsidianPids };
