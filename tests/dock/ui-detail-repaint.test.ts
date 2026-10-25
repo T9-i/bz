@@ -19,6 +19,7 @@ import { fakeFs } from './_fake-fs';
 const ROOT = 'E:/vault';
 const STORE = `${ROOT}/CONFIG/STORAGE`;
 const TOOL = `${ROOT}/CONFIG/SCRIPTS/DockTools/demo`;
+const OTHER = `${ROOT}/CONFIG/SCRIPTS/DockTools/other`;
 
 function manifest(): string {
   return JSON.stringify({
@@ -67,7 +68,10 @@ beforeEach(() => {
   fs = fakeFs({
     [`${STORE}/dock.json`]: JSON.stringify({
       v: 3,
-      tools: [{ id: 'demo', path: 'vault:CONFIG/SCRIPTS/DockTools/demo/manifest.json' }],
+      tools: [
+        { id: 'demo', path: 'vault:CONFIG/SCRIPTS/DockTools/demo/manifest.json' },
+        { id: 'other', path: 'vault:CONFIG/SCRIPTS/DockTools/other/manifest.json' },
+      ],
       autoRun: true,
       watchdog: true,
       notifySuccess: true,
@@ -78,6 +82,9 @@ beforeEach(() => {
     [`${TOOL}/data.json`]: JSON.stringify({ v: 2, tool: 'demo', values: {} }),
     [`${TOOL}/runs.jsonl`]: record('r1', true),
     [`${TOOL}/panel.html`]: '<p>板子</p>',
+    [`${OTHER}/manifest.json`]: manifest().replace(/"demo"/g, '"other"').replace('演示工具', '另一个工具'),
+    [`${OTHER}/data.json`]: JSON.stringify({ v: 2, tool: 'other', values: {} }),
+    [`${OTHER}/runs.jsonl`]: record('o1', true),
   });
   setDockFs(fs);
   setApp(appOf());
@@ -87,6 +94,7 @@ beforeEach(() => {
         storagePath: 'CONFIG/STORAGE',
         dockTrust: {
           demo: { at: new Date().toISOString(), run: runSignature({ cmd: 'node', args: ['main.mjs'] }) },
+          other: { at: new Date().toISOString(), run: runSignature({ cmd: 'node', args: ['main.mjs'] }) },
         },
       }) as never,
   );
@@ -134,6 +142,19 @@ describe('工具坞 · 详情页重画不打扰正在看的东西', () => {
     await vi.advanceTimersByTimeAsync(3000);
 
     expect(document.querySelector('.bz-dock-board iframe')).toBe(before);
+  });
+
+  it('切到别的工具再切回来，原来展开的那条还在（展开态按工具分开记）', () => {
+    openToolPanel(appOf(), 'demo');
+    click(document.querySelector<HTMLElement>('.bz-dock-histtoggle')!);
+    expect(document.querySelector<HTMLElement>('.bz-dock-histrow.is-open')?.dataset.run).toBe('r1');
+
+    // 去另一个工具的详情（它的记录栏会渲染一遍 —— 不该动 demo 的展开态）
+    openToolPanel(appOf(), 'other');
+    expect(document.querySelector<HTMLElement>('.bz-dock-histrow.is-open')).toBeNull();
+
+    openToolPanel(appOf(), 'demo');
+    expect(document.querySelector<HTMLElement>('.bz-dock-histrow.is-open')?.dataset.run).toBe('r1');
   });
 
   it('展示板真变了 → 才换掉 iframe', async () => {

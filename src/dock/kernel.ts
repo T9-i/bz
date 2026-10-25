@@ -131,12 +131,18 @@ export function planTick(input: PlanInput): PlanOutput {
       const pending = ruleState.pending;
       if (pending) {
         const due = Date.parse(pending.dueAt);
-        if (Number.isFinite(due) && due <= input.now) {
-          // 领了号却一直没心跳：进程根本没起来（或上次死在半路）→ 这一拍接着办
+        // 已经起过跑（`startedAt`）且还没到超时线 → 那一单在跑，或者跑完了没来得及记账。
+        // **这一拍不能再排它**：上一版只看 `dueAt`，于是「锁在跑完那一刻丢了、结果没落账」
+        // 会变成下一拍立刻再跑一遍 —— 副作用不幂等的工具就是真双跑。
+        // 真要收尸由 `reclaimStale` 负责：超时后它清掉 `startedAt`（或到次数上限判废），
+        // 下一拍这里才重新排得上。
+        const started = Date.parse(pending.startedAt ?? '');
+        const inFlight = Number.isFinite(started) && input.now - started < RUN_TIMEOUT_MS + 60_000;
+        if (Number.isFinite(due) && due <= input.now && !inFlight) {
           ready.push({ view, rule, runId: pending.runId });
           push('run');
         } else {
-          push('skip', 'waiting', pending.dueAt);
+          push('skip', 'waiting', pending.startedAt ?? pending.dueAt);
         }
         continue;
       }

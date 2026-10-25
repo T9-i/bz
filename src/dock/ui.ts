@@ -106,12 +106,23 @@ const hbPrints = new Map<string, string>();
  */
 const boardPrints = new Map<string, string>();
 /**
- * 详情页里展开了哪几条运行记录（按 runId）。
+ * 详情页里展开了哪几条运行记录：`工具 id → runId 集合`。
  *
  * 重画运行记录栏时按它恢复 —— 否则后台每写一条新记录，用户展开看的那条就被收回去。
- * 记录只在最近 60 条里，超出范围的会在渲染后从集合里剔掉，不会越长越大。
+ * **必须按工具分开**：共用一个集合的话，切到工具 B 渲染时会把 A 的 runId 当成
+ * 「已经不在记录里」清掉，切回 A 就全收起了。
+ * 每个集合只留最近的记录，超出 60 条窗口的会在渲染后剔掉。
  */
-const openRuns = new Set<string>();
+const openRuns = new Map<string, Set<string>>();
+
+function openRunsOf(toolId: string): Set<string> {
+  let set = openRuns.get(toolId);
+  if (!set) {
+    set = new Set<string>();
+    openRuns.set(toolId, set);
+  }
+  return set;
+}
 
 /** 打开面板时用来算「上次打开之后自动跑了什么」 */
 const LAST_SEEN_KEY = 'bz-dock:lastSeen';
@@ -2011,20 +2022,24 @@ function histPane(v: DockToolView): HTMLElement {
     return pane;
   }
   const list = el('div', 'bz-dock-histlist');
-  for (const r of runs) list.appendChild(histRow(r));
+  for (const r of runs) list.appendChild(histRow(r, v.id));
   pane.appendChild(list);
-  // 被 60 条窗口挤掉的 runId 不再记着 —— 这个集合只该跟着「当前看得见的记录」走
-  if (openRuns.size) {
+  // 被 60 条窗口挤掉的 runId 不再记着 —— **只动这个工具自己的那份**，
+  // 别的工具正在展开的那条不归这里管
+  const open = openRuns.get(v.id);
+  if (open?.size) {
     const alive = new Set(runs.map((r) => r.runId));
-    for (const id of openRuns) if (!alive.has(id)) openRuns.delete(id);
+    for (const id of open) if (!alive.has(id)) open.delete(id);
   }
   if (runs.length >= 60) pane.appendChild(el('div', 'bz-dock-note', '只显示最近 60 条'));
   return pane;
 }
 
-function histRow(r: DockRunRecord): HTMLElement {
+function histRow(r: DockRunRecord, toolId: string): HTMLElement {
   const row = el('article', 'bz-dock-histrow');
   row.dataset.run = r.runId;
+  const openSet = openRunsOf(toolId);
+  const wasOpen = openSet.has(r.runId);
   const head = el('div', 'bz-dock-histhead');
   head.appendChild(el('span', dotClass(r.status)));
   head.appendChild(el('span', 'bz-dock-histtime', relTime(r.startedAt.replace('T', ' '))));
@@ -2050,13 +2065,13 @@ function histRow(r: DockRunRecord): HTMLElement {
     !!r.error?.stderr;
   if (hasMore) {
     const btn = uiBtn({
-      label: openRuns.has(r.runId) ? '收起' : '展开',
+      label: wasOpen ? '收起' : '展开',
       size: 'sm',
       className: 'bz-dock-histtoggle',
     });
     row.appendChild(btn);
     // 重建时按记录恢复：用户展开看的那条不会因为后台又写了一条就被收回去
-    if (openRuns.has(r.runId)) row.classList.add('is-open');
+    if (wasOpen) row.classList.add('is-open');
 
     const more = el('div', 'bz-dock-histmore');
     if (r.steps?.length) more.appendChild(block('步骤', r.steps.map((s) => s.text).join('\n')));
@@ -2079,8 +2094,8 @@ function histRow(r: DockRunRecord): HTMLElement {
 
     btn.addEventListener('click', () => {
       const open = row.classList.toggle('is-open');
-      if (open) openRuns.add(r.runId);
-      else openRuns.delete(r.runId);
+      if (open) openSet.add(r.runId);
+      else openSet.delete(r.runId);
       const span = btn.querySelector('span');
       if (span) span.textContent = open ? '收起' : '展开';
     });

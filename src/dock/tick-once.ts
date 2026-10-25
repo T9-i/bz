@@ -147,6 +147,9 @@ export async function tickOnce(opts: TickOnceOpts): Promise<TickOnceResult> {
   return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
 }
 
+/** 阈值文件的大小上限：超过就不读（它不是数据仓库，是个小 JSON） */
+const MAX_THRESHOLD_BYTES = 2 * 1024 * 1024;
+
 /**
  * `value-threshold` 的取值 —— 每拍读一次，读不到就不放进来。
  *
@@ -177,8 +180,9 @@ function readThresholds(
         doc = undefined;
         // 阈值文件不该很大；真指到一个几百 MB 的库时不读 —— 每拍读一次会拖慢整拍
         const size = fs.size?.(file);
-        const text = size !== undefined && size > 2 * 1024 * 1024 ? null : fs.readText(file);
-        if (text !== null) {
+        const text = size !== undefined && size > MAX_THRESHOLD_BYTES ? null : fs.readText(file);
+        // 没有 size 能力的 fs（移动端内存快照）：读到之后再按长度拒一次
+        if (text !== null && text.length <= MAX_THRESHOLD_BYTES) {
           try {
             doc = JSON.parse(text);
           } catch {

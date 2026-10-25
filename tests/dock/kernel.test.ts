@@ -390,13 +390,16 @@ describe('阈值触发 / 手动在跑 / 锁丢失', () => {
     expect(out.decisions[0]?.kind).toBe('queue');
   });
 
-  it('锁在跑的过程中被抢走 → 这一次结果不落账（宁可丢，不两个写者）', async () => {
+  it('锁在跑的过程中被抢走 → 这一次结果不落账，且下一拍不会再排一遍', async () => {
     const fs = fakeFs();
-    const out = await runTick(
-      tickDeps({
-        fs,
-        shouldStop: () => true,
-        execute: async (_v, _r, runId): Promise<DockOutcome> => ({
+    let calls = 0;
+    const d = tickDeps({
+      fs,
+      // 循环顶那次检查时锁还在（calls=0），执行完之后才「丢」
+      shouldStop: () => calls > 0,
+      execute: async (_v, _r, runId): Promise<DockOutcome> => {
+        calls += 1;
+        return {
           ok: true,
           status: 'ok',
           runId,
@@ -407,14 +410,56 @@ describe('阈值触发 / 手动在跑 / 锁丢失', () => {
           startedAt: new Date(at(10)).toISOString(),
           finishedAt: new Date(at(10, 1)).toISOString(),
           durationMs: 60_000,
-        }),
-      }),
-    );
-    expect(out.ran).toHaveLength(0);
-    const saved = fs.files.get(pathOf.runtime('/tools/demo/manifest.json')) ?? '';
-    expect(saved).not.toContain('lastStatus');
-    // pending 还留着：下一拍的 reclaimStale 会收
-    expect(saved).toContain('pending');
+        };
+      },
+    });
+    const out = await runTick(d);
+    expect(calls).toBe(1);
+    expect(out.ran).toHaveLength(0); // 没记账
+    const saved = JSON.parse(fs.files.get(pathOf.runtime('/tools/demo/manifest.json')) ?? '{}');
+    expect(saved.rules.r1.lastStatus).toBeUndefined();
+    // pending 还留着，**并且带着 startedAt**
+    expect(saved.rules.r1.pending.startedAt).toBeTruthy();
+    expect(saved.run?.lastAttemptOk).toBeUndefined();
+
+    // 下一拍：这一单还在「跑过但没结算」的状态里，不能再排一遍
+    const next = planTick({ views: [d.views[0]], now: at(10, 2), liveIds: new Set<string>() });
+    expect(next.decisions[0]?.kind).toBe('skip');
+    expect(next.decisions[0]?.reason).toBe('waiting');
+    expect(next.ready).toHaveLength(0);
+  });
+
+  it('起跑超过超时线 → 这一单视为已死，可以重来；reclaimStale 顺手清掉 startedAt', () => {
+    const fs = fakeFs();
+    const now = at(12);
+    const withPending = (startedAt: string): DockToolView =>
+      viewOf({
+        rules: [daily],
+        runtime: {
+          ...emptyRuntime('demo'),
+          rules: {
+            r1: {
+              pending: {
+                runId: 'run-1',
+                dueAt: new Date(at(10)).toISOString(),
+                claimedAt: new Date(at(10)).toISOString(),
+                startedAt,
+                attempts: 1,
+              },
+            },
+          },
+        },
+      });
+
+    // 刚起跑一分钟：还在跑，这一拍不许再排
+    const young = withPending(new Date(now - 60_000).toISOString());
+    expect(planTick({ views: [young], now, liveIds: new Set<string>() }).ready).toHaveLength(0);
+
+    // 已经挂了 20 分钟：超过「运行超时 + 1 分钟」，按尸体处理，允许重来
+    const dead = withPending(new Date(now - 20 * 60_000).toISOString());
+    expect(planTick({ views: [dead], now, liveIds: new Set<string>() }).ready).toHaveLength(1);
+    expect(reclaimStale(dead, now, fs)).toBe('requeue');
+    expect(planTick({ views: [dead], now, liveIds: new Set<string>() }).ready).toHaveLength(1);
   });
 
   it('跑崩溃留下的过期标记，会在这一拍结算时一起摘掉', async () => {
