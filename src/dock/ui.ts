@@ -39,7 +39,7 @@ import { relTime } from '../core/ui/str';
 import { attachItemActions, type ItemAction } from '../core/item-actions';
 import { displayNameOf, loadToolView, loadToolViews, panelOf, recentRunsOf, runningHeartbeatOf } from './view';
 import { readRegistry, readTrust, removeTool, trustTool, untrustTool, upsertTool } from './registry';
-import { currentFs, writeIntent, writeSettings } from './files';
+import { currentFs, pathOf, resolveToolPath, writeIntent, writeSettings, type DockFs } from './files';
 import { parseManifest } from './parse';
 import { actionText, defaultRule, isEventTrigger, nextDueOf, ruleName, triggerText } from './rules';
 import { missingParams } from './kernel';
@@ -54,6 +54,7 @@ import {
   TRIGGER_LABEL,
   type DockHeartbeat,
   type DockParam,
+  type DockRegistryEntry,
   type DockRule,
   type DockRunRecord,
   type DockToolView,
@@ -86,6 +87,16 @@ let liveOff: (() => void) | null = null;
  * 最直接的证据。面板每拍顺手抄一份，跑完还能给人看 —— 只在内存，不落盘。
  */
 const lastTails = new Map<string, string[]>();
+/**
+ * 「这一格文件上次读进来时长什么样」—— 后台（值守进程、工具自己）写盘后，
+ * 面板要在几秒内跟着变，而不是等人关掉重开。
+ *
+ * 分两本：`recPrints` 管记录与配置（runs / runtime / intent / data / panel / 声明），
+ * `hbPrints` 只关心跳。分开的理由是**重绘范围不同** —— 心跳每 5 秒刷一次，
+ * 只为它重画整个运行记录栏，用户展开的那条会被收起来。
+ */
+const recPrints = new Map<string, string>();
+const hbPrints = new Map<string, string>();
 
 /** 打开面板时用来算「上次打开之后自动跑了什么」 */
 const LAST_SEEN_KEY = 'bz-dock:lastSeen';
@@ -311,6 +322,8 @@ export function unloadDock(): void {
   searchOpen = false;
   query = '';
   lastTails.clear();
+  recPrints.clear();
+  hbPrints.clear();
 }
 
 function isPanelVisible(): boolean {
@@ -376,7 +389,195 @@ function refresh(): void {
     canRun: canRun(),
     fs: currentFs(),
   });
+  syncPrints(registry.tools);
   render();
+}
+
+// ==================== 外部改动跟踪 ====================
+//
+// 工具跑在 bz 之外（值守进程拉起的、脚本自己定时跑的），bz 收不到它们的任何回调 ——
+// 唯一的事实来源是那几份文件。上一版只在「打开面板 / 点刷新」时重读一遍，
+// 于是后台跑完之后卡片上的时间、结果、按钮的「后台正在跑」全停在跑之前的样子，
+// 用户得关掉面板再打开才看得见新记录（2026-10-25 报的正是这个）。
+//
+// 现在每拍（3 秒）对一遍「这几份文件还是不是上次那样」，变了才重读那一格。
+
+/** 一个工具「记录类文件」的指纹：任何一份变了都算内容变了 */
+function recPrintOf(declPath: string, fs: DockFs | null): string {
+  if (!fs) return '';
+  return [
+    // runs.jsonl 可能很大（几百 KB），只看大小：它是**只在终态追加**的，追加必变
+    filePrint(pathOf.runs(declPath), fs, true),
+    // 展示板同理，最大 512 KB；内容再变也是重写整份，长度变
+    filePrint(pathOf.panel(declPath), fs, true),
+    // 其余都是小文件，看内容 —— 大小靠不住：`updatedAt`、`at` 这类 ISO 时间戳是定长的，
+    // 内容换了大小却一模一样，只比大小就等于没比
+    filePrint(declPath, fs, false),
+    filePrint(pathOf.runtime(declPath), fs, false),
+    filePrint(pathOf.intent(declPath), fs, false),
+    filePrint(pathOf.settings(declPath), fs, false),
+  ].join('|');
+}
+
+/** 心跳单独一本：它每 5 秒重写一次，跟「跑完了」不是一回事 */
+function hbPrintOf(declPath: string, fs: DockFs | null): string {
+  if (!fs) return '';
+  return filePrint(pathOf.heartbeat(declPath), fs, false);
+}
+
+/**
+ * 一份文件的指纹。`bySize` 只给可能很大的 `runs.jsonl` 用；
+ * 没有 `size` 能力的 fs（移动端内存快照）退回读内容 —— 那种快照本来就不会变，等于关掉跟踪。
+ */
+function filePrint(path: string, fs: DockFs, bySize: boolean): string {
+  if (bySize) {
+    const size = fs.size?.(path);
+    if (size !== undefined) return `s${size}`;
+  }
+  const text = fs.readText(path);
+  if (text === null) return '-';
+  return `h${text.length}:${hashOf(text)}`;
+}
+
+/** 内容指纹（只为「变没变」，不做安全用途） */
+function hashOf(text: string): string {
+  let h = 5381;
+  for (let i = 0; i < text.length; i += 1) h = ((h << 5) + h + text.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+
+function syncPrints(entries: readonly DockRegistryEntry[]): void {
+  const fs = currentFs();
+  recPrints.clear();
+  hbPrints.clear();
+  for (const e of entries) {
+    const decl = resolveToolPath(e.path);
+    recPrints.set(e.id, recPrintOf(decl, fs));
+    hbPrints.set(e.id, hbPrintOf(decl, fs));
+  }
+}
+
+interface ChangedIds {
+  /** 记录 / 配置变了：卡片、统计、运行记录都要重画 */
+  rec: Set<string>;
+  /** 只有心跳变了：重画卡片与实时区就够，别动运行记录栏 */
+  hb: Set<string>;
+}
+
+/**
+ * 对一遍指纹，把变了的工具重读到 `views` 里。
+ *
+ * 重读而不是只改某一个字段：`loadToolView` 里有一处**跨文件**的判断
+ * ——「心跳还新鲜，但账本里已经有这个 runId 的终态」= 早就跑完了。
+ * 那一处只有整份重读才对得上，局部拼装必然又走回「60 秒里一直显示在跑」。
+ */
+function reloadChanged(): ChangedIds {
+  const changed: ChangedIds = { rec: new Set(), hb: new Set() };
+  const fs = currentFs();
+  if (!fs) return changed;
+  const { registry } = readRegistry();
+  if (registry.tools.length !== views.length) {
+    // 有人在外面加了 / 删了工具（登记表被改）。这是人的动作，走整份重载
+    refresh();
+    return changed;
+  }
+  const trust = readTrust();
+  for (const e of registry.tools) {
+    const decl = resolveToolPath(e.path);
+    const rec = recPrintOf(decl, fs);
+    const hb = hbPrintOf(decl, fs);
+    const recDirty = recPrints.get(e.id) !== rec;
+    const hbDirty = hbPrints.get(e.id) !== hb;
+    if (!recDirty && !hbDirty) continue;
+    recPrints.set(e.id, rec);
+    hbPrints.set(e.id, hb);
+    const i = views.findIndex((v) => v.id === e.id);
+    if (i < 0) continue;
+    views[i] = loadToolView(e, { trust, canRun: canRun(), fs });
+    (recDirty ? changed.rec : changed.hb).add(e.id);
+  }
+  return changed;
+}
+
+/** 把变了的工具画到当前界面上 —— 只重画受影响的那几块，不重建整个面板 */
+function repaintChanged(changed: ChangedIds): void {
+  if (!changed.rec.size && !changed.hb.size) return;
+  if (view.kind === 'detail') {
+    if (changed.rec.has(view.id)) repaintDetail(view.id);
+    else if (changed.hb.has(view.id)) {
+      renderLiveInto(view.id);
+      repaintRunBtns(view.id);
+    }
+    return;
+  }
+
+  const body = bodyEl();
+  if (!body) return;
+  for (const id of [...changed.rec, ...changed.hb]) {
+    const v = viewById(id);
+    if (!v) continue;
+    const old = body.querySelector<HTMLElement>(`.bz-dock-card[data-tool="${id}"]`);
+    // 卡片不在（搜索过滤掉了 / 空态）就不用管 —— 下次重绘自然会带上新数据
+    if (old) old.replaceWith(makeCard(v));
+  }
+  // 顶栏四格与「谁在后台跑」跟着记录变，与心跳无关
+  if (changed.rec.size) {
+    renderKpi();
+    renderHeadSub();
+  }
+  renderRunbar();
+  updateCards();
+}
+
+/** 列表页副标题（工具数 / 待关注数）：只有工具增删或告警数变化时才需要动它 */
+function renderHeadSub(): void {
+  const sub = overlay?.querySelector<HTMLElement>('#bz-dock-headsub');
+  if (!sub) return;
+  const alarms = views.filter(isAlarmView).length;
+  sub.textContent = views.length
+    ? `${views.length} 个工具${alarms ? ` · ${alarms} 个待关注` : ''}`
+    : '还没有登记任何外部工具';
+}
+
+/** 详情页里只重画「结果类」的几块：展示板、统计、运行按钮、运行记录、实时区 */
+function repaintDetail(id: string): void {
+  const v = viewById(id);
+  const wrap = bodyEl()?.querySelector<HTMLElement>('.bz-dock-detail');
+  if (!v || !wrap) return;
+  repaintBoard(v, wrap);
+  wrap.querySelector<HTMLElement>('.bz-dock-toolstats')?.replaceWith(toolStats(v));
+  wrap.querySelector<HTMLElement>('.bz-dock-histpane')?.replaceWith(histPane(v));
+  repaintRunBtns(id);
+  renderLiveInto(id);
+  renderRunbar();
+}
+
+/**
+ * 展示板重画。工具跑完顺手重写了 `panel.html`，那块就该是新数 ——
+ * 但它是 iframe，只能整块换（换内容等于换文档）。
+ */
+function repaintBoard(v: DockToolView, wrap: HTMLElement): void {
+  const old = wrap.querySelector<HTMLElement>('.bz-dock-board');
+  const next = boardSection(v);
+  if (old && next) old.replaceWith(next);
+  else if (old) old.remove();
+  else if (next) {
+    // 原本没有、这次有了：仍要排在展示板该在的位置（错误提示之后、统计之前）
+    const warn = wrap.querySelector<HTMLElement>('.bz-dock-meta-warn');
+    wrap.insertBefore(next, warn ? warn.nextSibling : wrap.firstChild);
+  }
+}
+
+/**
+ * 运行台那一排按钮：它会因为「后台正在跑 / 刚跑完」在「后台正在跑」与「运行」之间切换。
+ * 只换这一块，**不重画整台** —— 左边那几张参数表是用户正在填的东西。
+ */
+function repaintRunBtns(id: string): void {
+  const v = viewById(id);
+  if (!v) return;
+  const old = bodyEl()?.querySelector<HTMLElement>('.bz-dock-runpane .bz-dock-runbtns');
+  if (!old) return;
+  old.replaceWith(runBtns(v));
 }
 
 /**
@@ -398,7 +599,16 @@ function updateCards(): void {
     const running = !!live || !!ext;
     card.classList.toggle('is-running', running);
     const dot = card.querySelector<HTMLElement>('.bz-dock-dot');
-    if (dot && running) dot.className = 'bz-dock-dot bz-dock-dot--warn';
+    // 跑完要**退回它本来该有的颜色**：只在「在跑」时设成 warn、跑完不管，
+    // 卡片会一直挂着那个黄点，看着像还在跑
+    if (dot) {
+      const v = viewById(id);
+      const last = v ? lastOf(v) : undefined;
+      const want = running
+        ? 'bz-dock-dot bz-dock-dot--warn'
+        : dotClass(last ? last.status : v && dueOf(v).due ? 'due' : 'none');
+      if (dot.className !== want) dot.className = want;
+    }
   }
 }
 
@@ -407,6 +617,8 @@ function startTick(): void {
   tickTimer = setInterval(() => {
     if (!isPanelVisible()) return;
     rememberTails();
+    // 后台写盘 → 重读 → 局部重画。放在 updateCards 之前：重画时用的是刚读到的视图
+    repaintChanged(reloadChanged());
     updateCards();
     if (view.kind === 'detail') renderLiveInto(view.id);
   }, 3000);
@@ -446,11 +658,7 @@ function renderHead(): void {
   const btns = el('div', 'bz-panel-head-btns');
   btns.id = 'bz-dock-headbtns';
   head.append(brand, el('div', 'bz-panel-title', '工具坞'), el('div', 'bz-panel-head-pipe'), sub, el('div', 'bz-panel-head-sp'), btns);
-
-  const alarms = views.filter(isAlarmView).length;
-  sub.textContent = views.length
-    ? `${views.length} 个工具${alarms ? ` · ${alarms} 个待关注` : ''}`
-    : '还没有登记任何外部工具';
+  renderHeadSub();
 
   btns.appendChild(
     uiIconBtn({
@@ -1245,56 +1453,7 @@ function runPane(v: DockToolView): HTMLElement {
     pane.appendChild(el('div', 'bz-dock-meta-warn', '这份声明没写 entry —— 能看它的记录，但不知道该怎么跑。'));
   }
 
-  const btns = el('div', 'bz-dock-runbtns');
-  if (canRun()) {
-    const live = liveOf(v.id);
-    const external = externalRunOf(v);
-    if (live) {
-      btns.appendChild(uiBtn({ label: '停止', icon: 'square', tone: 'danger', onClick: () => stopLive(v.id) }));
-    } else {
-      const gate = judgeRunGate(v, true);
-      const run = uiBtn({
-        label: external ? '后台正在跑' : '运行',
-        icon: 'play',
-        tone: 'primary',
-        disabled: !gate.ok || !!external,
-        onClick: () => void doRun(v),
-      });
-      run.title = external ? '后台值守正在跑它，等它跑完' : gate.ok ? '' : gate.text ?? '';
-      btns.appendChild(run);
-    }
-    if (!v.trusted) {
-      btns.appendChild(
-        uiBtn({
-          label: v.trustStale ? '重新授权' : '授权这条命令',
-          icon: 'shield-check',
-          onClick: () => void doTrust(v),
-        }),
-      );
-    } else {
-      btns.appendChild(uiBtn({ label: '撤销授权', size: 'sm', onClick: () => void doUntrust(v) }));
-    }
-    if (v.runtime.run?.pausedAt) {
-      btns.appendChild(
-        uiBtn({
-          label: '恢复自动运行',
-          size: 'sm',
-          onClick: () => {
-            void clearBreakerSafely(v).then((ok) => {
-              if (!ok) {
-                notice('有工具正在跑，等它跑完再恢复', 'warning');
-                return;
-              }
-              refresh();
-            });
-          },
-        }),
-      );
-    }
-  } else {
-    btns.appendChild(el('span', 'bz-dock-mobilehint', '移动端不能启动进程，只能看'));
-  }
-  pane.appendChild(btns);
+  pane.appendChild(runBtns(v));
 
   // 上一次现场运行的原始输出尾部：跑完不清，下次运行覆盖；只在内存
   const tail = lastTails.get(v.id);
@@ -1312,6 +1471,65 @@ function runPane(v: DockToolView): HTMLElement {
   pane.appendChild(liveHost);
   renderLiveIntoEl(liveHost, v);
   return pane;
+}
+
+/**
+ * 运行台底下那排按钮。
+ *
+ * 单独一个函数只为一件事：后台跑完时这一排要从「后台正在跑」变回「运行」，
+ * 而它上面那张参数表可能是用户正在填的 —— 重画整台会把填了一半的输入抹掉。
+ */
+function runBtns(v: DockToolView): HTMLElement {
+  const btns = el('div', 'bz-dock-runbtns');
+  if (!canRun()) {
+    btns.appendChild(el('span', 'bz-dock-mobilehint', '移动端不能启动进程，只能看'));
+    return btns;
+  }
+  const live = liveOf(v.id);
+  const external = externalRunOf(v);
+  if (live) {
+    btns.appendChild(uiBtn({ label: '停止', icon: 'square', tone: 'danger', onClick: () => stopLive(v.id) }));
+  } else {
+    const gate = judgeRunGate(v, true);
+    const run = uiBtn({
+      label: external ? '后台正在跑' : '运行',
+      icon: 'play',
+      tone: 'primary',
+      disabled: !gate.ok || !!external,
+      onClick: () => void doRun(v),
+    });
+    run.title = external ? '后台值守正在跑它，等它跑完' : gate.ok ? '' : gate.text ?? '';
+    btns.appendChild(run);
+  }
+  if (!v.trusted) {
+    btns.appendChild(
+      uiBtn({
+        label: v.trustStale ? '重新授权' : '授权这条命令',
+        icon: 'shield-check',
+        onClick: () => void doTrust(v),
+      }),
+    );
+  } else {
+    btns.appendChild(uiBtn({ label: '撤销授权', size: 'sm', onClick: () => void doUntrust(v) }));
+  }
+  if (v.runtime.run?.pausedAt) {
+    btns.appendChild(
+      uiBtn({
+        label: '恢复自动运行',
+        size: 'sm',
+        onClick: () => {
+          void clearBreakerSafely(v).then((ok) => {
+            if (!ok) {
+              notice('有工具正在跑，等它跑完再恢复', 'warning');
+              return;
+            }
+            refresh();
+          });
+        },
+      }),
+    );
+  }
+  return btns;
 }
 
 /** 详情页的那块实时区（tick / live 事件都只重画这一块） */
