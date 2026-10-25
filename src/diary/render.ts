@@ -642,6 +642,7 @@ export function bookPanelHTML(): string {
 
   <!-- 便签菜单（条目操作） -->
   <div class="bz-diary-menu" hidden>
+    <div class="bz-diary-mn-item" data-act="open">打开笔记</div>
     <div class="bz-diary-mn-item" data-act="retype">换张贴纸</div>
     <div class="bz-diary-mn-item" data-act="envelope">收进信封</div>
     <div class="bz-diary-mn-item" data-act="unseal">拆信看</div>

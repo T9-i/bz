@@ -25,9 +25,7 @@ vi.mock('../../src/diary/vendor/page-flip.browser.js', async () => {
 
 const mocks = vi.hoisted(() => ({
   openAddDialog: vi.fn(),
-  showTagPicker: vi.fn(),
   hideAddDialog: vi.fn(),
-  hideTagPicker: vi.fn(),
   copyDiaryLink: vi.fn(async () => {}),
   showConfirm: vi.fn(),
   openFlowDialog: vi.fn(async (): Promise<string | undefined> => 'ok'),
@@ -45,9 +43,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('../../src/diary/ui/dialogs', () => ({
   openAddDialog: mocks.openAddDialog,
-  showTagPicker: mocks.showTagPicker,
   hideAddDialog: mocks.hideAddDialog,
-  hideTagPicker: mocks.hideTagPicker,
 }));
 vi.mock('../../src/diary/ui/entry-actions', () => ({
   copyDiaryLink: mocks.copyDiaryLink,

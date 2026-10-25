@@ -1,31 +1,29 @@
 /**
  * 写链路弹窗族（issue 256 随写链路迁入新 diary 域；一致#2 收编 core uiModal 壳）：
- * - 写日记弹窗（openAddDialog/saveNewEntry + 滚轮日期时间控件）；
- * - 标签选择器（showTagPicker：改标签/加密条目改分类降级分流 + 删除入口）。
- * 两浮层统一走 core uiModal 壳（ADR-0125 浮层唯一壳）：遮罩/圆角/阴影 token、
- * ESC 层（壳自带 'bz-modal'）、焦点圈闭与还原、requestClose 关闭意图钩子均由壳承载。
- * D-UI2 三件套：ESC/遮罩关闭走脏表单分流（已选标签非空或日期偏离默认 → core
- * confirmDiscard，无输入直接收），写日记弹窗补「取消」按钮承接显式退出；
- * close 时壳自摘 mask 并成对注销 ESC 层（hide 兜底不再依赖 ui.ts）。
- * 表单回车提交走 core bindFormSubmit（效率#2）；标签过滤 + 频次前置 + sticky 底栏
- * 见效率#1（写弹窗与选择器一处数据源两处受益）。
- * 旧 createAddDialog/createTagPicker 预构建入口保留为兼容空操作（index.ts
- * ensureDiary 契约），弹窗改「按需构建、开即建关即拆」；遗留 mask/popup id 保留在
- * 壳上——main.ts/index.ts 卸载兜底按 id 摘除（D15）不受影响。
+ * 只剩「写日记弹窗」一个（openAddDialog / saveNewEntry + 滚轮日期时间控件）。
+ * **标签选择器（showTagPicker）已退役**（用户 2026-10-25：它是旧墙时代的宿主弹窗，
+ * 盖在书上面又是一层）：换贴纸改在书里的贴纸册盖（ui.ts 的 openAlbum / commitAlbumTags），
+ * 删除走便签菜单「撕掉」，加密条目改分类走「拆信看 → 从信封取出」——本模块不再往
+ * document.body 上挂任何浮层。
+ * 弹窗走 core uiModal 壳（ADR-0125 浮层唯一壳）：遮罩/圆角/阴影 token、ESC 层（壳自带
+ * 'bz-modal'）、焦点圈闭与还原、requestClose 关闭意图钩子均由壳承载。D-UI2 三件套：
+ * ESC/遮罩关闭走脏表单分流（已选标签非空或日期偏离默认 → core confirmDiscard，无输入
+ * 直接收），并补「取消」按钮承接显式退出；close 时壳自摘 mask 并成对注销 ESC 层。
+ * 表单回车提交走 core bindFormSubmit（效率#2）；频次前置 + sticky 底栏见效率#1。
+ * createAddDialog 预构建入口保留为兼容空操作（index.ts ensureDiary 契约），弹窗改
+ * 「按需构建、开即建关即拆」；遗留 id 保留在壳上——卸载兜底按 id 摘除（D15）不受影响。
  * 数据落盘全走 ./store 写层（守卫 + 串行队列），条目定位 = filePath + time；
- * 动作结果经域事件（diary:entry-added / tags-changed / entry-decrypted）
- * 通知宿主（墙）与其他消费者，本模块不刷新任何列表 UI。
+ * 动作结果经域事件（diary:entry-added / tags-changed）通知宿主（书）与其他消费者。
  */
 import { MarkdownView as MarkdownViewFromObsidian, moment } from 'obsidian';
 import { notice, notifySaveError } from '../../core/notice';
-import { openFlowDialog, confirmDiscard } from '../../core/flow-dialog';
+import { confirmDiscard } from '../../core/flow-dialog';
 import { getApp } from '../../core/app';
 import { tryGetSettings } from '../../core/settings-provider';
 import { diaryDateFromEntryPath } from '../../core/diary-format';
 import { localDayKey } from '../../core/utils';
-import { emitDomainEvent, onDomainEvent } from '../../core/domain-bus';
+import { onDomainEvent } from '../../core/domain-bus';
 import { uiModal, bindFormSubmit } from '../../core/ui/modal';
-import { uiSearch } from '../../core/ui/search';
 import { uiBtn } from '../../core/ui/button';
 import {
   DIARY_DIRECTORY,
@@ -35,11 +33,9 @@ import {
   isSubTag,
 } from '../config';
 import { parseFlexibleDateTime } from '../parser';
-import { addEntry, updateDiaryTags, isUnparsedRefusal, isDiaryReadFailure } from '../store';
-import { ENCRYPT_TAG, reclassifyEntry } from '../encrypt';
+import { addEntry, isUnparsedRefusal, isDiaryReadFailure } from '../store';
 import { createDateTimeControl, resetDateTimeControl, setDateTimeYearRangeProvider } from './datetime-picker';
-import { jumpToDiaryEntry, showConfirm } from './entry-actions';
-import { buildLocatorPredicateFor } from './locator';
+import { jumpToDiaryEntry } from './entry-actions';
 import { motionSheetDialog } from '../motion';
 
 /** 放弃确认框的域皮（与两浮层同皮，issue 291 先例） */
@@ -103,23 +99,7 @@ function renderTagOptions(container: HTMLElement, tags: string[], selected: Set<
   }
 }
 
-/** 标签过滤输入框（效率#1：复用 core uiSearch 形制，输入即筛 chip）。
- * 过滤框标 data-bz-no-form-submit：回车只筛不提交（bindFormSubmit 豁免）。 */
-function createTagFilter(chipsContainer: HTMLElement): HTMLDivElement {
-  const { el, input } = uiSearch({ placeholder: '筛选类型' });
-  input.dataset.bzNoFormSubmit = '';
-  el.classList.add('bz-diary-tag-filter');
-  input.addEventListener('input', () => {
-    const q = input.value.trim().toLowerCase();
-    chipsContainer.querySelectorAll<HTMLElement>('.diary-tag-selector-btn').forEach((btn) => {
-      const tag = btn.dataset.tag ?? '';
-      btn.style.display = !q || tag.toLowerCase().includes(q) ? '' : 'none';
-    });
-  });
-  return el;
-}
-
-/** 收集当前选中的标签名（保存与脏检测共用；顺序随 chip DOM 序） */
+/** 收集当前选中的标签名（写日记弹窗表单提交用；顺序随 chip DOM 序） */
 function collectSelectedTags(container: HTMLElement): string[] {
   const names: string[] = [];
   container.querySelectorAll('.diary-tag-selector-btn.diary-active').forEach((btn) => {
@@ -128,7 +108,7 @@ function collectSelectedTags(container: HTMLElement): string[] {
   return names;
 }
 
-// ===== 标签选择器（原 2243-2430；定位 id → filePath+time） =====
+// ===== 条目定位面（写层按 filePath+time 定位，见 ./locator） =====
 
 /** 标签选择器的定位面：宿主（墙）条目透传字段 */
 export interface DiaryEntryLocator {
@@ -148,206 +128,6 @@ export interface DiaryEntryLocator {
   encrypted?: boolean;
   /** 加密条目的保险箱 SafeNote id */
   noteId?: string;
-}
-
-/** 当前标签选择器绑定的条目（showTagPicker 设置，保存/删除时消费） */
-let activeTagPickerLoc: DiaryEntryLocator | null = null;
-/** 当前选择器壳（uiModal 产物；close = 摘 mask + 注销 ESC 层 + 还原焦点） */
-let tagPickerUi: { mask: HTMLElement; popup: HTMLElement; close: () => void } | null = null;
-/** 选择器「保存」钮（效率#3：保存进行中禁用 + 文案） */
-let tagPickerSaveBtn: HTMLButtonElement | null = null;
-/** 保存进行中标志（防连点；updateDiaryTags 幂等，但禁用态给慢盘窗口以反馈） */
-let savingTagPicker = false;
-
-/** 兼容入口（index.ts ensureDiary 预构建契约）：迁 uiModal 壳后弹窗按需构建，此处为空操作 */
-export function createTagPicker(): void {}
-
-/** 当前条目的原始标签集（加密条目剔除「加密」；脏检测基准） */
-function tagPickerOriginalTags(loc: DiaryEntryLocator): Set<string> {
-  return new Set(loc.encrypted ? loc.tags.filter((t) => t !== ENCRYPT_TAG) : loc.tags);
-}
-
-/** 脏检测（D-UI2）：选中集 ≠ 条目原标签集 = 有未保存改动 */
-function tagPickerDirty(): boolean {
-  const popup = document.getElementById('diary-tag-selector-popup');
-  const loc = activeTagPickerLoc;
-  if (!popup || !loc) return false;
-  const sel = new Set(collectSelectedTags(popup));
-  const orig = tagPickerOriginalTags(loc);
-  if (sel.size !== orig.size) return true;
-  for (const t of sel) if (!orig.has(t)) return true;
-  return false;
-}
-
-/** 收壳：uiModal close 自会摘 mask、注销 ESC 层、还原焦点 */
-function closeTagPicker(): void {
-  tagPickerUi?.close();
-  tagPickerUi = null;
-  tagPickerSaveBtn = null;
-}
-
-/** 隐藏标签选择器（导出：宿主上锁归位 relock 等兜底可调用，收掉 body 级选择器） */
-export function hideTagPicker(): void {
-  closeTagPicker();
-}
-
-/** 关闭意图分流（D-UI2）：有未保存改动走 confirmDiscard，无改动直接收 */
-function requestCloseTagPicker(): void {
-  if (tagPickerDirty()) confirmDiscard(closeTagPicker, undefined, DIARY_FLOW_SKIN);
-  else closeTagPicker();
-}
-
-function setTagPickerSavingUi(saving: boolean): void {
-  const btn = tagPickerSaveBtn;
-  if (!btn) return;
-  btn.disabled = saving;
-  const label = btn.querySelector('span') ?? btn;
-  label.textContent = saving ? '保存中…' : '保存';
-}
-
-/** 选择器「保存」（效率#3）：收集选中 → 校验 → 写盘期间禁用防连点 → 成功才收壳
- * （失败留弹窗可重试/取消；守卫静默口径同原行为）。 */
-async function commitTagPickerSave(): Promise<void> {
-  const loc = activeTagPickerLoc;
-  if (!loc) {
-    closeTagPicker();
-    return;
-  }
-  if (savingTagPicker) return; // 上一笔仍在写盘
-  const popup = document.getElementById('diary-tag-selector-popup');
-  if (!popup) return;
-  const selTagNames = collectSelectedTags(popup);
-  if (selTagNames.length === 0) {
-    notice('请至少选择一个标签');
-    return;
-  }
-  savingTagPicker = true;
-  setTagPickerSavingUi(true);
-  try {
-    const ok = await handleTagPickerSave(loc, selTagNames, !!loc.encrypted);
-    if (ok) closeTagPicker();
-  } finally {
-    savingTagPicker = false;
-    setTagPickerSavingUi(false);
-  }
-}
-
-export function showTagPicker(loc: DiaryEntryLocator) {
-  activeTagPickerLoc = loc;
-  if (tagPickerUi) closeTagPicker(); // 重开先收旧壳，避免叠加
-
-  // 加密分类不在类型选择器提供（加密唯一入口 = 抽屉「加密」动作，ADR-0017）；
-  // 加密条目的改分类（降级）同样不含「加密」选项
-  const isEncrypted = !!loc.encrypted;
-  const currentTagsSet = tagPickerOriginalTags(loc);
-  const sortedTags = sortTagsByUsage(getSortedTagsForAddDialog());
-
-  const content = document.createElement('div');
-  content.className = 'bz-diary-form';
-
-  const chips = document.createElement('div');
-  chips.className = 'diary-tag-selector-buttons bz-diary-chip-scroll';
-  renderTagOptions(chips, sortedTags, currentTagsSet);
-  content.appendChild(createTagFilter(chips));
-  content.appendChild(chips);
-
-  const foot = document.createElement('div');
-  foot.className = 'bz-diary-dialog-foot bz-diary-dialog-foot--split';
-  const deleteBtn = uiBtn({
-    label: '删除',
-    tone: 'danger', // 一致#2：删除钮换 .bz-btn--danger 族（原手绘 error 实底退役）
-    className: 'bz-touch-target--xl',
-    onClick: () => {
-      const target = activeTagPickerLoc;
-      closeTagPicker();
-      if (target) showConfirm(target);
-    },
-  });
-  const saveBtn = uiBtn({
-    label: '保存', // 一致#1：编辑既有条目 = 保存口径
-    tone: 'primary',
-    className: 'bz-touch-target--xl',
-    onClick: () => void commitTagPickerSave(),
-  });
-  tagPickerSaveBtn = saveBtn;
-  foot.appendChild(deleteBtn);
-  foot.appendChild(saveBtn);
-  content.appendChild(foot);
-
-  const { mask, popup, close } = uiModal({
-    content,
-    maxWidth: 320,
-    head: true,
-    title: '选择类型',
-    className: 'bz-diary-tag-popup',
-    requestClose: requestCloseTagPicker,
-  });
-  // 遗留 id 保留在壳上：main.ts/index.ts 卸载兜底按 id 摘除（D15）与 core 滚动条
-  // 通杀枚举同源；类名已迁 bz- 前缀域皮（遮罩/圆角/阴影 token 随壳对齐）
-  mask.id = 'diary-tag-selector-mask';
-  popup.id = 'diary-tag-selector-popup';
-  tagPickerUi = { mask, popup, close };
-  motionSheetDialog(popup); // 动效层：纸页展开 + 章签摆上（壳归 core 不动，只编排骨内内容）
-  bindFormSubmit(popup, () => void commitTagPickerSave()); // 效率#2
-}
-
-/**
- * 标签选择器「保存」分流（ADR-0017），返回是否已保存（成功才收壳）：
- * - 加密条目的保存 = 改分类降级（reclassifyEntry），成功后 merge 回 md 并从保险箱取出，
- *   发 diary:entry-decrypted 通知宿主刷新；保存前 isUnlocked() 短路（N1：保险箱中途
- *   上锁时 getDiaryEntryPlain 会抛「未解锁」，此前成为 unhandled rejection 静默假成功）；
- * - 非加密条目走写层 updateDiaryTags（加密入口在抽屉「加密」动作，标签选择器不提供加密分类），
- *   写盘成功由写层发 diary:tags-changed；
- * - 整链 try/catch 兜底（N1）：守卫错误（拒写/读失败）静默——人话通知已由写层发过；
- *   其余非守卫错误补发「改标签失败」人话，不再 unhandled rejection 假成功。
- */
-async function handleTagPickerSave(loc: DiaryEntryLocator, selTagNames: string[], isEncryptedEntry: boolean): Promise<boolean> {
-  try {
-    if (isEncryptedEntry) {
-      // 加密条目：改分类 = 解密降级 + 应用新标签（Q20-a）；保险箱中途上锁先短路
-      const { isUnlocked } = await import('../encrypt');
-      if (!isUnlocked()) {
-        notice('保险箱已上锁，请先解锁再改分类', 'error');
-        return false;
-      }
-      const proceed =
-        (await openFlowDialog({
-          title: '改分类',
-          message: '将解密此日记并恢复为普通条目，是否继续？',
-          actions: [
-            { label: '取消', value: 'cancel' },
-            { label: '确定', value: 'ok', cta: true },
-          ],
-        })) === 'ok';
-      if (!proceed) return false;
-      if (!loc.noteId) return false;
-      const newTags = selTagNames.filter((t) => t !== ENCRYPT_TAG);
-      const success = await reclassifyEntry(loc.noteId, selTagNames);
-      if (!success) {
-        notice('解密改分类失败', 'error');
-        return false;
-      }
-      // UX-8：加密条目改分类成功提示，语义同「已解密还原」
-      notice('已解密还原', 'success');
-      emitDomainEvent('diary:entry-decrypted', { noteId: loc.noteId, date: loc.date, newTags });
-      return true;
-    }
-
-    // 普通改分类（行号优先、同刻唯一兜底；定位失败告警中止，不盲写旧数据）
-    const dateStr = loc.date;
-    const predicate = await buildLocatorPredicateFor(dateStr, loc);
-    const updated = await updateDiaryTags(dateStr, predicate, selTagNames, { filePath: loc.filePath });
-    if (!updated) {
-      notice('未能在日记数据中定位该条目，标签没有修改', 'error');
-      return false;
-    }
-    return true;
-  } catch (e: any) {
-    if (isUnparsedRefusal(e) || isDiaryReadFailure(e)) return false; // 守卫拒写/读失败：人话通知已由写层发出
-    console.error('改标签失败:', e);
-    notice('改标签失败：' + (e?.message || e), 'error');
-    return false;
-  }
 }
 
 // ===== 添加日记弹窗（原 3238-3478） =====

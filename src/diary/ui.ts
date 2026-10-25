@@ -35,7 +35,7 @@ import { topifyZ } from '../core/dom';
 import { notice } from '../core/notice';
 import { getApp } from '../core/app';
 import { onDomainEvent } from '../core/domain-bus';
-import { escapeHtml } from '../core/utils';
+import { escapeHtml, stripMdExt } from '../core/utils';
 import { openFlowDialog } from '../core/flow-dialog';
 import { DIARY_DIRECTORY, inWallDirs, getTagEmoji, getSortedTagsForAddDialog } from './config';
 import {
@@ -83,6 +83,7 @@ import {
   addEntry,
   findDiaryEntry,
   removeDiaryEntries,
+  updateDiaryTags,
   isUnparsedRefusal,
   isDiaryReadFailure,
   rekeyDiaryMapPath,
@@ -95,8 +96,8 @@ import {
   reclassifyEntry,
   deleteEncryptedEntry,
 } from './encrypt';
-import { showTagPicker, hideTagPicker } from './ui/dialogs';
-import { copyDiaryLink, showConfirm } from './ui/entry-actions';
+import { copyDiaryLink, showConfirm, jumpToDiaryEntry } from './ui/entry-actions';
+import { buildLocatorPredicateFor } from './ui/locator';
 import { parseFlexibleDateTime } from './parser';
 import { MEDIA_PICK_MAX_MB, PICK_MEDIA_ACCEPT, writePickedMedia } from './media-import';
 /* 纯层只吐 data-lucide 占位（iconSpan），兑现统一在这里做一次：
@@ -397,6 +398,10 @@ export class DiaryAppController {
   private albumEl!: HTMLElement;
   private albumSubEl!: HTMLElement;
   private albumGridEl!: HTMLElement;
+  /** 贴纸册当前在给谁换贴纸（null = 按类翻模式） */
+  private albumTarget: WallEntry | null = null;
+  /** 「盖上去」在写盘（防连点；写层队列幂等，这里只是别让人以为没反应） */
+  private albumBusy = false;
   private calEl!: HTMLElement;
   private calYmEl!: HTMLElement;
   private calGridEl!: HTMLElement;
@@ -1929,6 +1934,8 @@ export class DiaryAppController {
     };
     const isDiary = e.kind === 'diary';
     const enc = !!e.encrypted;
+    /* 打开笔记：日记有条目 md、影视/信/书有自己那份 md；加密条目没有明文文件，不给 */
+    show('open', !enc && !!(e.filePath || e.filename));
     show('retype', isDiary && !enc);
     show('envelope', isDiary && !enc);
     show('unseal', enc);
@@ -1963,6 +1970,9 @@ export class DiaryAppController {
       this.closeMenu();
       if (!e) return;
       switch (it.dataset.act) {
+        case 'open':
+          void this.openEntryNote(e);
+          break;
         case 'retype':
           this.editTags(e);
           break;
@@ -2071,22 +2081,40 @@ export class DiaryAppController {
     }
   }
 
-  /** 换贴纸：接本域 showTagPicker（写层守卫落盘，结果经 `diary:tags-changed` 回刷整册） */
-  private editTags(e: WallEntry): void {
+  /**
+   * 打开笔记：日记条目与自己那份 md 一一对应（ADR-0130），影视/信/书各有自己的笔记。
+   * 书要先收起来——md 在书背后，不收等于「打开了但看不见」。
+   */
+  private async openEntryNote(e: WallEntry): Promise<void> {
+    if (e.encrypted) return; // 加密条目没有明文文件（菜单里也不给这一项）
+    this.hide();
     try {
-      showTagPicker({
-        filename: e.filename || e.date,
-        filePath: e.filePath,
-        date: e.date,
-        time: e.time,
-        lineNumber: e.lineNumber || 0,
-        tags: e.tags,
-        encrypted: e.encrypted,
-        noteId: e.noteId,
-      });
+      if (e.kind === 'diary') {
+        await jumpToDiaryEntry({
+          filename: e.filename || e.date,
+          filePath: e.filePath,
+          emoji: e.emoji,
+          time: e.time,
+        });
+        return;
+      }
+      if (!e.filename) {
+        notice('找不到原文', 'error');
+        return;
+      }
+      await this.app().workspace.openLinkText(stripMdExt(e.filename), '', false, { active: true });
     } catch (err) {
-      notice(`改标签暂不可用：${err instanceof Error ? err.message : String(err)}`, 'error');
+      notice(`打开笔记失败：${err instanceof Error ? err.message : String(err)}`, 'error');
     }
+  }
+
+  /**
+   * 换贴纸：摊开书里的贴纸册，点几张盖到这一条上（写层守卫落盘，结果经 `diary:tags-changed` 回刷整册）。
+   * 原先走写链路那个「选择类型」弹窗（书的浮层之外再加一层宿主弹窗，观感与这本册子不搭），已删。
+   */
+  private editTags(e: WallEntry): void {
+    if (this.writeGuard()) return;
+    this.openAlbum(e);
   }
 
   /**
@@ -2311,9 +2339,32 @@ export class DiaryAppController {
     return m;
   }
 
-  /** 贴纸册：按类重装订一本分类册（原型的「换贴纸」模式改走真 showTagPicker，不在这里） */
-  private openAlbum(): void {
+  /**
+   * 贴纸册两种摊法（同一本册子）：
+   * - 不传 target（点文具「贴纸册」）：按类重装订——只列用过的贴纸，点一张就筛那一类；
+   * - 传 target（便签菜单「换张贴纸」）：换贴纸——列全部能贴的，点几张盖到这一条上。
+   * 换贴纸原先走写链路那个宿主弹窗（「选择类型」，盖在书上面又是一层），已删。
+   */
+  private openAlbum(target?: WallEntry): void {
+    this.albumTarget = target || null;
     this.albumGridEl.innerHTML = '';
+    const ok = this.albumEl.querySelector<HTMLElement>('.bz-diary-ap-confirm');
+    if (target) {
+      this.albumSubEl.textContent = `点几张，盖到 ${target.date} 这一页上`;
+      for (const t of getSortedTagsForAddDialog()) {
+        const b = document.createElement('span');
+        b.className = 'bz-diary-ap-sticker';
+        b.dataset.tag = t;
+        if (target.tags.includes(t)) b.classList.add('bz-diary-on');
+        b.innerHTML = `<span class="bz-diary-as-emoji">${getTagEmoji(t)}</span>${escapeHtml(t)}`;
+        b.addEventListener('click', () => b.classList.toggle('bz-diary-on'));
+        this.albumGridEl.appendChild(b);
+      }
+      if (ok) ok.hidden = false;
+      this.albumEl.hidden = false;
+      return;
+    }
+
     const counts = this.tagCounts();
     this.albumSubEl.textContent = '点一张，就按它重装订一本分类册';
     const tags = Array.from(counts.keys()).filter((t) => t !== '加密').sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0));
@@ -2322,6 +2373,7 @@ export class DiaryAppController {
       const isEncrypt = t === '加密';
       const b = document.createElement('span');
       b.className = `bz-diary-ap-sticker${isEncrypt ? ' bz-diary-as-encrypt' : ''}`;
+      b.dataset.tag = t;
       if (this.filterTag === t) b.classList.add('bz-diary-on');
       b.innerHTML =
         `<span class="bz-diary-as-emoji">${getTagEmoji(t)}</span>${escapeHtml(t)}` +
@@ -2333,14 +2385,56 @@ export class DiaryAppController {
       });
       this.albumGridEl.appendChild(b);
     }
-    const ok = this.albumEl.querySelector<HTMLElement>('.bz-diary-ap-confirm');
-    if (ok) ok.hidden = true; // 只留「按类翻」一种模式（换贴纸在便签菜单里走真标签选择器）
+    if (ok) ok.hidden = true; // 按类翻没有「盖上去」这一步
     this.albumEl.hidden = false;
+  }
+
+  /** 盖上去：把册上选中的贴纸写回那一条（写层守卫落盘，结果经 `diary:tags-changed` 回刷整册） */
+  private async commitAlbumTags(): Promise<void> {
+    const e = this.albumTarget;
+    if (!e || this.albumBusy) return;
+    const tags = Array.from(this.albumGridEl.querySelectorAll<HTMLElement>('.bz-diary-ap-sticker.bz-diary-on'))
+      .map((el) => el.dataset.tag || '')
+      .filter(Boolean);
+    if (!tags.length) {
+      this.toast('至少留一张贴纸');
+      return;
+    }
+    const btn = this.albumEl.querySelector<HTMLElement>('.bz-diary-ap-confirm');
+    this.albumBusy = true;
+    if (btn) btn.textContent = '盖着…';
+    try {
+      const loc = {
+        filename: e.filename || e.date,
+        filePath: e.filePath,
+        date: e.date,
+        time: e.time,
+        lineNumber: e.lineNumber || 0,
+        tags: e.tags,
+      };
+      const updated = await updateDiaryTags(e.date, buildLocatorPredicateFor(e.date, loc), tags, {
+        filePath: e.filePath,
+      });
+      if (!updated) {
+        notice('未能在日记数据中定位该条目，贴纸没有换', 'error');
+        return;
+      }
+      this.closeAlbum();
+      this.toast('贴纸换好了');
+    } catch (err) {
+      if (isUnparsedRefusal(err) || isDiaryReadFailure(err)) return; // 人话通知已由写层发出
+      console.error('换贴纸失败:', err);
+      notice(`换贴纸失败：${err instanceof Error ? err.message : String(err)}`, 'error');
+    } finally {
+      this.albumBusy = false;
+      if (btn) btn.textContent = '盖上去';
+    }
   }
 
   private closeAlbum(): void {
     if (!this.albumEl) return;
     this.albumEl.hidden = true;
+    this.albumTarget = null;
   }
 
   private applyFilter(): void {
@@ -2361,6 +2455,9 @@ export class DiaryAppController {
     this.albumEl.addEventListener('click', (ev) => {
       const t = ev.target as HTMLElement;
       if (t.closest('.bz-diary-ap-cancel') || !t.closest('.bz-diary-ap-book')) this.closeAlbum();
+    });
+    this.albumEl.querySelector<HTMLElement>('.bz-diary-ap-confirm')?.addEventListener('click', () => {
+      void this.commitAlbumTags();
     });
     this.filterTabEl.addEventListener('click', () => {
       this.filterTag = null;
@@ -3676,7 +3773,6 @@ export class DiaryAppController {
        下次翻开（`show()` 的快路不重排）还是这一张、字都在。 */
     if (!this.draftHasText()) this.dropWrite();
     this.hideLoading();
-    hideTagPicker();
     this.pauseAllAudio();
     this.unsubscribeEvents();
     this.unsubscribeVault();

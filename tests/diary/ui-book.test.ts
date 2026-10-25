@@ -53,11 +53,8 @@ vi.mock('../../src/diary/vendor/page-flip.browser.js', async () => {
 // ===== 外部依赖替身（本文件只测「控制器接线」，不重测各依赖自身） =====
 
 const mocks = vi.hoisted(() => ({
-  openAddDialog: vi.fn(),
-  showTagPicker: vi.fn(),
-  hideAddDialog: vi.fn(),
-  hideTagPicker: vi.fn(),
   copyDiaryLink: vi.fn(async () => {}),
+  jumpToDiaryEntry: vi.fn(async (_ref: unknown): Promise<void> => {}),
   showConfirm: vi.fn(),
   openFlowDialog: vi.fn(async (): Promise<string | undefined> => 'ok'),
   isUnlocked: vi.fn(() => false),
@@ -80,16 +77,10 @@ const mocks = vi.hoisted(() => ({
   safeUnlock: vi.fn(async () => true),
 }));
 
-vi.mock('../../src/diary/ui/dialogs', () => ({
-  openAddDialog: mocks.openAddDialog,
-  showTagPicker: mocks.showTagPicker,
-  hideAddDialog: mocks.hideAddDialog,
-  hideTagPicker: mocks.hideTagPicker,
-}));
 vi.mock('../../src/diary/ui/entry-actions', () => ({
   copyDiaryLink: mocks.copyDiaryLink,
   showConfirm: mocks.showConfirm,
-  jumpToDiaryEntry: vi.fn(),
+  jumpToDiaryEntry: mocks.jumpToDiaryEntry,
 }));
 vi.mock('../../src/core/flow-dialog', () => ({ openFlowDialog: mocks.openFlowDialog }));
 // 数据层只截 `loadWallEntries`（默认转真实现）：读盘失败态是 `loadEntries` 的兜底分支，
@@ -734,8 +725,7 @@ describe('DiaryAppController · 文具四项接线', () => {
     expect(qa('.bz-diary-tools [data-tact]').length).toBe(4);
 
     tact('pencil').click();
-    expect(q('.bz-diary-wsp').hidden).toBe(false); // ADR-0233：不再开旧弹窗
-    expect(mocks.openAddDialog).not.toHaveBeenCalled();
+    expect(q('.bz-diary-wsp').hidden).toBe(false); // ADR-0233：写作在书里的纸上，不开宿主弹窗
     q('[data-wact="discard"]').click(); // 空纸：直接揉掉，不留草稿
     expect(q('.bz-diary-wsp').hidden).toBe(true);
 
@@ -885,13 +875,14 @@ describe('DiaryAppController · 便签菜单（右键 / 长按）', () => {
   it('普通日记条目：换贴纸 / 收进信封 / 誊录正文 / 誊录位置 / 撕掉；无「拆信/取出」', async () => {
     await openBook();
     const acts = openMenuOn(blockOf('diary')).map((i) => i.dataset.act);
-    expect(acts).toEqual(['retype', 'envelope', 'copytext', 'copylink', 'tear']);
+    expect(acts).toEqual(['open', 'retype', 'envelope', 'copytext', 'copylink', 'tear']);
   });
 
   it('影视/书条目：只能誊录（无加密/删除入口，写层语义错位）', async () => {
     await openBook();
     const acts = openMenuOn(blockOf('movie')).map((i) => i.dataset.act);
-    expect(acts).toEqual(['copytext', 'copylink']); // 影视没有 filePath 时连誊录位置都没有
+    // 影视有自己的 md（filename 是完整 vault 路径）→ 打开笔记可用；誊录位置同样可用
+    expect(acts).toEqual(['open', 'copytext', 'copylink']);
   });
 
   it('加密条目：拆信看 / 从信封取出 / 撕掉（文案改成销毁密文），无「收进信封」', async () => {
@@ -910,17 +901,48 @@ describe('DiaryAppController · 便签菜单（右键 / 长按）', () => {
     expect(acts.find((i) => i.dataset.act === 'tear')!.textContent).toContain('销毁密文');
   });
 
-  it('「换张贴纸」接本域标签选择器（带定位与保险箱信息）', async () => {
+  it('「打开笔记」：收起这本册子再打开条目原文（日记走本域跳原文）', async () => {
+    await openBook();
+    openMenuOn(blockOf('diary'));
+    q('.bz-diary-menu .bz-diary-mn-item[data-act="open"]').click();
+    await vi.waitFor(() => expect(mocks.jumpToDiaryEntry).toHaveBeenCalledTimes(1));
+    expect(mocks.jumpToDiaryEntry.mock.calls[0][0]).toMatchObject({
+      filePath: DIARY_PATH,
+      time: '23:02',
+    });
+    // 书不收起来 = 笔记被盖在书背后（「打开了但看不见」）
+    expect(q('.bz-diary-scene').style.display).toBe('none');
+  });
+
+  it('「打开笔记」：影视/书打开自己那份 md（没有 filePath，走 filename）', async () => {
+    await openBook();
+    const linkSpy = vi.spyOn((getApp() as any).workspace, 'openLinkText');
+    openMenuOn(blockOf('movie'));
+    q('.bz-diary-menu .bz-diary-mn-item[data-act="open"]').click();
+    await vi.waitFor(() => expect(linkSpy).toHaveBeenCalled());
+    expect(linkSpy.mock.calls[0][0]).toBe('我的/影视/film');
+  });
+
+  it('「换张贴纸」：在书里摊开贴纸册盖（不再开宿主弹窗），盖上去即落盘', async () => {
     await openBook();
     openMenuOn(blockOf('diary'));
     q('.bz-diary-menu .bz-diary-mn-item[data-act="retype"]').click();
-    expect(mocks.showTagPicker).toHaveBeenCalledTimes(1);
-    expect(mocks.showTagPicker.mock.calls[0][0]).toMatchObject({
-      filePath: DIARY_PATH,
-      date: '2026-08-19',
-      time: '23:02',
-      tags: ['日记'],
-    });
+
+    expect(q('.bz-diary-album-pop').hidden).toBe(false); // 书里的贴纸册
+    expect(document.getElementById('diary-tag-selector-mask')).toBeNull(); // 旧「选择类型」弹窗已退役
+
+    /* 换贴纸模式：列全部能贴的（不只列用过的），当前这一条的贴纸先盖上 */
+    const on = () => qa('.bz-diary-ap-sticker').filter((el) => el.classList.contains('bz-diary-on')).map((el) => el.dataset.tag);
+    expect(on()).toEqual(['日记']);
+    expect(qa('.bz-diary-ap-sticker').length).toBeGreaterThan(5);
+    expect(q('.bz-diary-ap-confirm').hidden).toBe(false);
+
+    const ride = qa('.bz-diary-ap-sticker').find((el) => el.dataset.tag === '骑行')!;
+    ride.click();
+    expect(on()).toEqual(['日记', '骑行']);
+    q('.bz-diary-ap-confirm').click();
+    await vi.waitFor(() => expect(vault.files.get(DIARY_PATH)).toContain('骑行'));
+    expect(q('.bz-diary-album-pop').hidden).toBe(true);
   });
 
   it('「誊录正文」把纯文本写进剪贴板', async () => {
