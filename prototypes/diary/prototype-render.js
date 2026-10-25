@@ -1,4 +1,4 @@
-/* 源指纹 32709a572c8fdb8e · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 98098bad377af50c · 仓内输入 2 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["src/core/ui/str.ts","src/diary/render.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — src/diary/render.ts → window.BZR_diary（评审壳预览包，ADR-0104） */
 var BZR_diary = (() => {
@@ -100,7 +100,7 @@ var BZR_diary = (() => {
       return '<span class="bz-diary-wikilink" data-target="' + esc(target) + '">' + esc(label) + "</span>";
     });
     t = t.replace(
-      /\[([^\]\n]{1,300})\]\((https?:\/\/[^\s)]+)\)/g,
+      /\[([^\]\n]{1,300})][（(](https?:\/\/[^\s)）]+)[)）]/g,
       (_m, label, href) => '<a class="bz-diary-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + "</a>"
     );
     t = t.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
