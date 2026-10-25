@@ -7,12 +7,16 @@ import {
   extractSegments,
   groupByMonth,
   loadWallEntries,
+  loadMoreWallEntries,
+  wallHasMore,
+  wallWindowSize,
   invalidateWallCache,
   mediaSrc,
   pickOnThisDay,
   stripMediaLinks,
   type WallEntry,
 } from '../../src/diary/data';
+import { setSettingsProvider } from '../../src/core/settings-provider';
 import { emitDomainEvent } from '../../src/core/domain-bus';
 import { parseBookFile, parseLetterFile, parseMovieFile } from '../../src/diary/parser';
 import { serializeDiaryEntryFile } from '../../src/core/diary-format';
@@ -727,8 +731,99 @@ describe('② 墙数据缓存（预热用，按 app 键控 + domain-bus 事件�
   });
 });
 
-describe('自包含：data.ts 不依赖 ../diary', () => {
-  it('data.ts 源码无 from ../diary 引用（grep 断言）', () => {
+describe('② 窗口读：一册只读一窗，翻到册尾再续读（diaryPageSize）', () => {
+  /** 读盘计数（同「墙数据缓存」组里的同款探针） */
+  const spyRead = (app: any) => {
+    let n = 0;
+    const real = app.vault.read.bind(app.vault);
+    vi.spyOn(app.vault, 'read').mockImplementation(async (f: any) => {
+      n++;
+      return real(f);
+    });
+    return () => n;
+  };
+
+  beforeEach(() => {
+    // 窗口缩到 2 条：四篇日记就能验出「首窗只读一半、续读补另一半」
+    setSettingsProvider(() => ({ diaryPageSize: 2 }) as never);
+  });
+  afterEach(() => {
+    // 复位成「未注入」：其余用例按缺省 50 走，不被这个窗口污染
+    setSettingsProvider(() => ({}) as never);
+  });
+
+  it('首窗只读 diaryPageSize 条正文，续读接在同一个数组后面', async () => {
+    const app = makeApp({
+      '我的/日记/2401010800.md': entry('2024-01-01', '08:00', ['日记'], '一'),
+      '我的/日记/2401020800.md': entry('2024-01-02', '08:00', ['日记'], '二'),
+      '我的/日记/2401030800.md': entry('2024-01-03', '08:00', ['日记'], '三'),
+      '我的/日记/2401040800.md': entry('2024-01-04', '08:00', ['日记'], '四'),
+    });
+    const reads = spyRead(app);
+    const first = await loadWallEntries(app);
+    expect(first.map((e) => e.content)).toEqual(['四', '三']); // 最新两则
+    expect(reads()).toBe(2); // 只读了一窗，旧的两篇一个字没读
+    expect(wallHasMore(app)).toBe(true);
+
+    const more = await loadMoreWallEntries(app);
+    expect(more.map((e) => e.content)).toEqual(['二', '一']);
+    expect(reads()).toBe(4);
+    expect(wallHasMore(app)).toBe(false);
+    // 同一个数组在长（UI 手里的 `entries` 不必整册重读重取）
+    expect(first).toHaveLength(4);
+    expect(first.map((e) => e.content)).toEqual(['四', '三', '二', '一']);
+
+    // 走到底之后再要：空数组、不再读盘
+    expect(await loadMoreWallEntries(app)).toEqual([]);
+    expect(reads()).toBe(4);
+  });
+
+  it('分窗不破坏四类混排：日记与影视/信/书按日期接续（跨窗不错位）', async () => {
+    const app = makeApp({
+      '我的/日记/2403100800.md': entry('2024-03-10', '08:00', ['日记'], '日记一'),
+      '我的/日记/2403080800.md': entry('2024-03-08', '08:00', ['日记'], '日记二'),
+      '我的/影视/片子.md': '---\ntags: [电影]\n影评: 好\n观影日期: 2024-03-11\n---\n',
+      '我的/信/信一.md': '---\ndate: 2024-03-09 20:00\n---\n见字如面\n',
+      '书库/书一.md': '---\ntitle: 书一\ncompletionDate: 2024-03-12\nbookReview: 神作\n---\n',
+    });
+    const first = await loadWallEntries(app);
+    // 首窗两条：书(03-12) > 影视(03-11)
+    expect(first.map((e) => `${e.date} ${e.kind}`)).toEqual(['2024-03-12 book', '2024-03-11 movie']);
+    const rest = await loadMoreWallEntries(app);
+    // 第二窗接着往下：日记(03-10) > 信(03-09) — 两条游标各走各的，接起来仍是一条降序
+    expect(rest.map((e) => `${e.date} ${e.kind}`)).toEqual(['2024-03-10 diary', '2024-03-09 letter']);
+    expect((await loadMoreWallEntries(app)).map((e) => e.content)).toEqual(['日记二']);
+    expect(wallHasMore(app)).toBe(false);
+  });
+
+  it('回源补齐：深翻过的册子刷新后不会缩回一窗', async () => {
+    const app = makeApp({
+      '我的/日记/2401010800.md': entry('2024-01-01', '08:00', ['日记'], '一'),
+      '我的/日记/2401020800.md': entry('2024-01-02', '08:00', ['日记'], '二'),
+      '我的/日记/2401030800.md': entry('2024-01-03', '08:00', ['日记'], '三'),
+      '我的/日记/2401040800.md': entry('2024-01-04', '08:00', ['日记'], '四'),
+    });
+    await loadWallEntries(app); // 2
+    await loadMoreWallEntries(app); // 4（人已经翻到第 4 则）
+    invalidateWallCache(); // 刷新路径（写后回刷 / 手动刷新）
+    const again = await loadWallEntries(app);
+    expect(again).toHaveLength(4); // 补齐到刚才读到的条数，不是 2
+    expect(again.map((e) => e.content)).toEqual(['四', '三', '二', '一']);
+  });
+
+  it('设置未注入/非法时回落缺省 50（wallWindowSize）', () => {
+    setSettingsProvider(() => ({}) as never);
+    expect(wallWindowSize()).toBe(50);
+    setSettingsProvider(() => ({ diaryPageSize: 0 }) as never);
+    expect(wallWindowSize()).toBe(50);
+    setSettingsProvider(() => ({ diaryPageSize: 'abc' as never }) as never);
+    expect(wallWindowSize()).toBe(50);
+    setSettingsProvider(() => ({ diaryPageSize: 12 }) as never);
+    expect(wallWindowSize()).toBe(12);
+  });
+});
+
+describe('自包含：data.ts 不依赖 ../diary', () => {  it('data.ts 源码无 from ../diary 引用（grep 断言）', () => {
     const fs = require('node:fs');
     const path = require('node:path');
     const src = fs.readFileSync(path.resolve(process.cwd(), 'src/diary/data.ts'), 'utf8');

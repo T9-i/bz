@@ -40,6 +40,8 @@ import { openFlowDialog } from '../core/flow-dialog';
 import { DIARY_DIRECTORY, inWallDirs, getTagEmoji, getSortedTagsForAddDialog } from './config';
 import {
   loadWallEntries,
+  loadMoreWallEntries,
+  wallHasMore,
   invalidateWallCache,
   wallCacheFresh,
   onWallProgress,
@@ -109,6 +111,11 @@ const WHEEL_LOCK_MS = 320;
 /** 进度纸条的显示延时：读得快（预热缓存命中）就不摆这一下，免得闪一闪 */
 const LOADING_SHOW_DELAY_MS = 120;
 /**
+ * 离册尾还有几页就预取下一窗（用户要的是「快翻完了接着读」，不是「翻到底再等」）。
+ * 一册一窗（日记本设置「每次翻开多少则」，缺省 50 则）——预取一窗够翻好一会儿，不必贴边才读。
+ */
+const LOAD_MORE_AHEAD_PAGES = 2;
+/**
  * 可缩媒体块（照片 / 视频）最多缩到多窄（占自然块宽的比例）。
  * 再窄就不缩了，宁可整块换到下一页——一枚邮票大小的照片还不如让它下页好好摊开。
  */
@@ -142,6 +149,12 @@ export function collectPhotoRefs(entries: WallEntry[]): PhotoRef[] {
     }
   }
   return out;
+}
+
+/** 条目降序（日期、同日时）——续读往册尾追加旧条目后统一重排用，与数据层排序同口径 */
+function cmpEntryDesc(a: WallEntry, b: WallEntry): number {
+  const byDate = b.date.localeCompare(a.date);
+  return byDate !== 0 ? byDate : b.time.localeCompare(a.time);
 }
 
 /** 分页结果：一页 = 一串块元素 */
@@ -420,6 +433,19 @@ export class DiaryAppController {
   // ---------- 状态 ----------
   /** 当前册子里的条目（只读聚合结果；加密条目在解锁时才并入） */
   entries: WallEntry[] = [];
+  /**
+   * 后面还有没读进来的旧条目（一册只读一窗，见 `data.wallWindowSize`）。
+   * 翻到册尾附近就续读下一窗（`maybeLoadMore`），整册不必一次读完。
+   */
+  private hasMore = false;
+  /** 续读在途（连翻几页只多读一窗，不叠着读） */
+  private loadingMore = false;
+  /**
+   * 正在建书/落页（`flip.turnToPage` 期间）。库的 `turnToPage` 也会发 `flip`，
+   * 那是「把书翻到某页」而不是「人往前翻了一页」——不掐掉的话，册尾续读排完页
+   * 立刻又被自己的落页事件触发一次续读，一路把整墙读完。
+   */
+  private buildingBook = false;
   private byEid = new Map<string, WallEntry>();
   private pages: Page[] = [];
   private cursor = 0;
@@ -671,8 +697,10 @@ export class DiaryAppController {
   /**
    * 重排整册。`keepRatio`：视口变化/回刷时按上次页数比例保住阅读位置（跟手不跳回最新）；
    * 换筛选、写完一篇等场景传 false（落回第 0 页 = 最新那篇）。
+   * `keepPage`：**绝对页号**落页——册尾续读（往后追加旧条目）用，追加后页数变了，
+   * 按比例算会把人推到新册尾，按绝对页号才能停在原来那一页。
    */
-  private relayout(keepRatio: boolean): number {
+  private relayout(keepRatio: boolean, keepPage?: number): number {
     const root = this.root;
     if (!root) return 0;
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
@@ -753,11 +781,14 @@ export class DiaryAppController {
     if (this.pendingHome) {
       this.pendingHome = false;
       keepRatio = false;
+      keepPage = undefined;
       this.cursor = 0;
     }
     const last = Math.max(0, this.pages.length - 1);
     let target = 0;
-    if (keepRatio && this.lastSpreadCount > 1) {
+    if (keepPage !== undefined) {
+      target = Math.max(0, Math.min(last, keepPage));
+    } else if (keepRatio && this.lastSpreadCount > 1) {
       target = Math.round((this.cursor / (this.lastSpreadCount - 1)) * last);
     }
     this.lastSpreadCount = this.pages.length;
@@ -919,9 +950,16 @@ export class DiaryAppController {
        `style.cssText = "display:none"` —— 215 页实测 36720 次 style 变更/秒。
        守卫只省「写同一个值」，观感逐像素不变；装不上（换库版本/替身）就原样不拦。 */
     guardIdleWrites(this.flip);
-    this.flip.turnToPage(Math.max(0, targetPage));
+    this.buildingBook = true;
+    try {
+      this.flip.turnToPage(Math.max(0, targetPage));
+    } finally {
+      this.buildingBook = false;
+    }
     this.flip.on('flip', (e) => {
       this.cursor = e.data;
+      /* 快翻到册尾了：把这窗后面那批旧日子续上（用户点名「五十页快翻完了，继续加载五十页」） */
+      this.maybeLoadMore(e.data);
     });
     this.cursor = Math.max(0, targetPage);
     this.afterPagesBuilt(host);
@@ -1020,8 +1058,14 @@ export class DiaryAppController {
       if (!this.daySections.length) return;
       if (this.writeGuard()) return; // 草稿摊在纸上：这一天还没写完，不该换走
       const at = this.dayIdx + dir;
-      if (at < 0 || at > this.daySections.length - 1) return;
+      if (at < 0) return;
+      if (at > this.daySections.length - 1) {
+        // 最后一天还往下滚：续读下一窗（用户点名：五十页快翻完了，继续加载五十页）
+        this.maybeLoadMore(this.dayIdx);
+        return;
+      }
       this.setDay(at, dir > 0 ? 'top' : 'bottom');
+      this.maybeLoadMore(at);
       return;
     }
     if (!this.flip) return;
@@ -1119,6 +1163,9 @@ export class DiaryAppController {
         `<span class="bz-diary-ir-n">${cnNum(m.n)} 则</span><span class="bz-diary-ir-p">第 ${m.page1} 页</span></div>`;
     }
     if (open) html += '</div></div>';
+    /* 一册只装一窗（ADR-0258）：索引只列**已读这一段**，得说清楚后面还有更旧的日子，
+       否则「自 2026-01 至 2026-10 · 凡 50 则」会像把十年日记记成了五十则 */
+    if (this.hasMore) html += '<div class="bz-diary-sheet-meta">往后翻还有更旧的日子 · 一册只装一窗</div>';
     this.openSheet('册 页 索 引', html);
   }
 
@@ -2978,6 +3025,7 @@ export class DiaryAppController {
   /**
    * 读盘。`allowCache`：开册路径命中预热/上次刷新后的缓存秒开；
    * 刷新/写后回刷/重试一律先作废回源（保持「每次刷新即读盘」语义，不赌缓存失效是否触发）。
+   * 一册只读一窗（`diaryPageSize`，缺省 50 则），剩下的旧日子翻到册尾再续读。
    */
   private async loadEntries(allowCache: boolean): Promise<void> {
     try {
@@ -2986,10 +3034,13 @@ export class DiaryAppController {
       } else {
         invalidateWallCache();
       }
-      this.entries = await loadWallEntries(this.app());
+      // 取副本：数据层那个数组是「这一轮已读的墙」，UI 会往里并加密条目/过滤，别写回缓存
+      this.entries = [...(await loadWallEntries(this.app()))];
+      this.hasMore = wallHasMore(this.app());
       this._loadError = null;
     } catch (e) {
       this.entries = [];
+      this.hasMore = false;
       this._loadError = e instanceof Error ? e.message : String(e);
       notice(`加载日记失败：${this._loadError}`, 'error');
     }
@@ -2997,6 +3048,42 @@ export class DiaryAppController {
     await this.mergeEncryptedEntries();
     if (this._loadError) this.fallbackEl.hidden = false;
     else this.fallbackEl.hidden = true;
+  }
+
+  /** 离册尾还有几页就续读下一窗（翻页/换天都会路过；已在读或没有更多就空转） */
+  private maybeLoadMore(page: number): void {
+    // 建书期的程序化落页不算「人翻到册尾」；纸上有草稿时也不续读（续读要整册重排，那张纸不能被换走）
+    if (this.buildingBook || !this.hasMore || this.loadingMore || this.hasDraft()) return;
+    const total = this.pages.length;
+    if (total <= 0) return;
+    if (page < total - LOAD_MORE_AHEAD_PAGES) return;
+    void this.loadMoreEntries();
+  }
+
+  /**
+   * 续读下一窗并接在册尾（用户点名：五十页快翻完了，继续加载五十页）。
+   * 读的是**缓存那个流的下半截**，不是重读整墙；接完按绝对页号落回原来那一页，
+   * 于是「翻到册尾」只是多出更旧的日子，人不会被推到新册尾去。
+   */
+  private async loadMoreEntries(): Promise<void> {
+    if (!this.hasMore || this.loadingMore) return;
+    this.loadingMore = true;
+    const page = this.cursor;
+    try {
+      const added = await loadMoreWallEntries(this.app());
+      this.hasMore = wallHasMore(this.app());
+      if (!added.length) return;
+      /* 读盘期间被收起/换了册子：这一窗不接（下次开册会按已读条数补齐） */
+      if (this.root?.style.display !== 'flex' || this._loadError) return;
+      this.entries.push(...added);
+      // 加密条目是 UI 层并进来的，可能比新补的这一窗还旧 ⇒ 并完统一重排次序
+      this.entries.sort((a, b) => cmpEntryDesc(a, b));
+      this.relayout(false, page);
+    } catch {
+      /* 续读失败：这一册就停在已读处（人手里这几页照常翻），下次开册重来 */
+    } finally {
+      this.loadingMore = false;
+    }
   }
 
   /**
@@ -3448,6 +3535,8 @@ export class DiaryAppController {
     this.daySections = [];
     this.dayIdx = 0;
     this.entries = [];
+    this.hasMore = false;
+    this.loadingMore = false;
     this.bookFresh = false; // DOM 都要拆了，快路的凭据跟着作废
     this.draft = null;
     if (this.root) {
