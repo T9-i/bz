@@ -410,6 +410,10 @@ function parseRunFacts(raw) {
   if (fails) out.consecutiveFailures = fails;
   const paused = str(raw.pausedAt);
   if (paused) out.pausedAt = paused;
+  const runningAt = str(raw.runningAt);
+  if (runningAt) out.runningAt = runningAt;
+  const runningRunId = str(raw.runningRunId);
+  if (runningRunId) out.runningRunId = runningRunId;
   return Object.keys(out).length ? out : null;
 }
 function emptyRuntime(tool) {
@@ -681,7 +685,7 @@ function nextDueOf(rule, ctx) {
     case "daily": {
       const today = todayAt(t, ctx.now);
       if (today === void 0) return null;
-      if (ctx.now < today && (ctx.lastFiredAt ?? 0) < today) return today;
+      if ((ctx.lastFiredAt ?? 0) < today) return today;
       return today + 864e5;
     }
     case "interval": {
@@ -984,6 +988,9 @@ function displayNameOf(view) {
 }
 
 // src/dock/kernel.ts
+function thresholdKey(toolId, ruleId) {
+  return `${toolId}\0${ruleId}`;
+}
 function missingParams(view) {
   const out = [];
   for (const p of view.params) {
@@ -993,6 +1000,11 @@ function missingParams(view) {
     if (empty) out.push(p.label ?? p.key);
   }
   return out;
+}
+function runningElsewhere(view, now) {
+  const at = Date.parse(view.runtime.run?.runningAt ?? "");
+  if (!Number.isFinite(at)) return false;
+  return now - at < RUN_TIMEOUT_MS + 6e4;
 }
 function planTick(input) {
   const decisions = [];
@@ -1047,6 +1059,10 @@ function planTick(input) {
         push("skip", "running");
         continue;
       }
+      if (action === "run" && runningElsewhere(view, input.now)) {
+        push("skip", "running");
+        continue;
+      }
       const lastAttempt = Date.parse(view.runtime.run?.lastAttemptAt ?? "");
       if (action === "run" && view.runtime.run?.lastAttemptOk === false && Number.isFinite(lastAttempt) && input.now - lastAttempt < FAIL_COOLDOWN_MS) {
         push("skip", "cooldown");
@@ -1055,7 +1071,8 @@ function planTick(input) {
       const ctx = {
         now: input.now,
         lastFiredAt: Number.isFinite(Date.parse(ruleState.lastFiredAt ?? "")) ? Date.parse(ruleState.lastFiredAt) : void 0,
-        sessionStart: input.sessionStart
+        sessionStart: input.sessionStart,
+        value: input.values?.get(thresholdKey(view.id, rule.id))
       };
       const hit = ruleDue(rule, ctx) || (input.events ?? []).some((e) => {
         if ((e.kind === "tool-ok" || e.kind === "tool-fail") && e.toolId === view.id) return false;
@@ -1077,7 +1094,8 @@ async function runTick(deps2) {
     now: deps2.now,
     sessionStart: deps2.sessionStart,
     events: deps2.events,
-    liveIds: deps2.liveIds
+    liveIds: deps2.liveIds,
+    values: deps2.values
   });
   const ran = [];
   let executed = 0;
@@ -1134,6 +1152,7 @@ async function runTick(deps2) {
         recordMissing: "bz 自己出错，没跑起来"
       };
     }
+    if (deps2.shouldStop?.()) break;
     settle(view, job.ruleId, job.runId, outcome, deps2.fs);
     ran.push({ toolId: view.id, ruleId: job.ruleId, runId: job.runId, status: outcome.status });
   }
@@ -1154,6 +1173,8 @@ function settle(view, ruleId, runId, outcome, fs) {
   const facts = { ...runtime.run ?? {} };
   facts.lastAttemptAt = now;
   facts.lastAttemptOk = outcome.ok;
+  delete facts.runningAt;
+  delete facts.runningRunId;
   if (outcome.ok) {
     delete facts.consecutiveFailures;
     delete facts.pausedAt;
@@ -1243,6 +1264,18 @@ function pidAlive(pid) {
 function newToken() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
+function currentBootId() {
+  try {
+    const g = globalThis;
+    const req = g.window?.require ?? g.require;
+    const os = req?.("os");
+    const sec = os?.uptime?.();
+    if (typeof sec !== "number" || !Number.isFinite(sec)) return "";
+    return String(Math.round((Date.now() - sec * 1e3) / 6e4));
+  } catch {
+    return "";
+  }
+}
 function readLock(fs, path) {
   const text = fs.readText(path);
   if (!text) return null;
@@ -1273,7 +1306,7 @@ function acquireLock(dataDir, owner, opts = {}) {
   const info = {
     owner,
     pid: globalThis.process?.pid ?? 0,
-    bootId: opts.bootId ?? "",
+    bootId: opts.bootId ?? currentBootId(),
     at: new Date(now).toISOString(),
     token
   };
@@ -1293,7 +1326,8 @@ function acquireLock(dataDir, owner, opts = {}) {
   const held = readLock(fs, path);
   const expiredByTime = !held || now - Date.parse(held.at) > staleMs || !Number.isFinite(Date.parse(held?.at ?? ""));
   const expiredByPid = !!held && held.pid > 0 && !pidAlive(held.pid);
-  if (!expiredByTime && !expiredByPid) return null;
+  const expiredByBoot = !!held && held.bootId !== "" && info.bootId !== "" && held.bootId !== info.bootId;
+  if (!expiredByTime && !expiredByPid && !expiredByBoot) return null;
   const saved = `${path}.stale`;
   if (fs.rename) {
     if (fs.unlink) {
@@ -1852,6 +1886,7 @@ function runToolNow(args) {
   let pct = null;
   let timedOut = false;
   let handleRef = null;
+  let runRef = null;
   const handle = runExternalTool(
     spec,
     {
@@ -1862,6 +1897,10 @@ function runToolNow(args) {
       onProgress: (p, v) => {
         phase = p;
         pct = v;
+        if (runRef) {
+          runRef.phase = p;
+          runRef.pct = v;
+        }
         args.cb?.onProgress?.(p, v);
       },
       onInfo: (d) => args.cb?.onInfo?.(d),
@@ -1894,6 +1933,7 @@ function runToolNow(args) {
     handle,
     done: Promise.resolve(void 0)
   };
+  runRef = run;
   const timeoutMs = args.timeoutMs ?? RUN_TIMEOUT_MS;
   const timer = timeoutMs > 0 ? setTimeout(() => {
     timedOut = true;
@@ -2013,6 +2053,7 @@ async function tickOnce(opts) {
           sessionStart: opts.sessionStart,
           events,
           liveIds: opts.liveIds ?? /* @__PURE__ */ new Set(),
+          values: readThresholds(views, opts.vaultPath, fs),
           fs,
           execute: (view, rule, runId) => executeOne(view, rule, runId, opts, fs),
           remind: (view, rule) => opts.onRemind?.(view, rule),
@@ -2030,6 +2071,55 @@ async function tickOnce(opts) {
   }
   if (inner === null) return { skipped: "locked" };
   return { skipped: inner.skip, registry: inner.registry, views: inner.views, result: inner.result };
+}
+function readThresholds(views, vaultPath, fs) {
+  const out = /* @__PURE__ */ new Map();
+  const docs = /* @__PURE__ */ new Map();
+  for (const view of views) {
+    for (const rule of view.rules) {
+      const t = rule.trigger;
+      if (t.kind !== "value-threshold") continue;
+      const file = vaultFileOf(t.path, vaultPath);
+      if (!file) continue;
+      let doc;
+      if (docs.has(file)) {
+        doc = docs.get(file);
+      } else {
+        doc = void 0;
+        const size = fs.size?.(file);
+        const text = size !== void 0 && size > 2 * 1024 * 1024 ? null : fs.readText(file);
+        if (text !== null) {
+          try {
+            doc = JSON.parse(text);
+          } catch {
+            doc = void 0;
+          }
+        }
+        docs.set(file, doc);
+      }
+      const n = pickNumber(doc, t.key);
+      if (n !== void 0) out.set(thresholdKey(view.id, rule.id), n);
+    }
+  }
+  return out;
+}
+function vaultFileOf(p, vaultPath) {
+  const raw = String(p ?? "").trim();
+  if (!raw) return null;
+  if (/^[A-Za-z]:[\\/]/.test(raw) || raw.startsWith("//")) return raw;
+  const root = vaultPath?.replace(/\\/g, "/").replace(/\/+$/, "");
+  if (raw.startsWith("/")) return root ? `${root}${raw}` : null;
+  return root ? joinPath(root, raw) : null;
+}
+function pickNumber(doc, key) {
+  const parts = String(key ?? "").split(".").map((s) => s.trim()).filter(Boolean);
+  if (!parts.length) return void 0;
+  let cur = doc;
+  for (const part of parts) {
+    if (cur === null || typeof cur !== "object") return void 0;
+    cur = cur[part];
+  }
+  return typeof cur === "number" && Number.isFinite(cur) ? cur : void 0;
 }
 async function executeOne(view, rule, runId, opts, fs) {
   const at = (/* @__PURE__ */ new Date()).toISOString();
