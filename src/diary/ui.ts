@@ -21,8 +21,8 @@
  *    同为原型的「拆信/取出」在单源里走真保险箱，也不再需要那个演示用假密码框。
  *
  * **写日记走书内写作页**（ADR-0233，推翻 ADR-0230 决策 8）：点「写」在这本书上摊开一张素纸
- * （`.bz-diary-wsp`，见 `startWrite` 一族），落笔即进写层。旧写日记弹窗
- * （`./ui/dialogs` 的 `openAddDialog`）已无 UI 入口，只剩「换张贴纸」用的标签选择器还在那条链上。
+ * （`.bz-diary-wsp`，见 `startWrite` 一族），落笔即进写层。旧写日记弹窗（`./ui/dialogs` 的
+ * `openAddDialog`）与它那条链上的「选择类型」标签选择器都已无 UI 入口（ADR-0260：换贴纸改在书里的贴纸册盖）。
  *
  * 隔离口径：根元素即 `.bz-diary-scene`（全部样式挂它，见 `./styles.css` 头注）；根上只写
  * `position/inset/display/z-index` 这类**行为性内联值**，z-index 经 core 的 `allocZ()`（ADR-0067）。
@@ -2850,9 +2850,9 @@ export class DiaryAppController {
   /**
    * 摊开写作内页（原型 `.scratch/diary-quill` 的「铅笔写」）。
    *
-   * 与旧弹窗（`openAddDialog`）的分工：那边只剩「按类改标签」的标签选择器在用；
-   * 新建一篇现在全在这一页上——日子/时辰、正文、贴纸、落笔，四件都在纸面上，
-   * 落笔直接进写层（`store.addEntry` 的守卫 / 串行队列 / 同刻唯一一条都不绕）。
+   * 新建一篇全在这一页上——日子/时辰、正文、贴纸、落笔，四件都在纸面上，落笔直接进写层
+   * （`store.addEntry` 的守卫 / 串行队列 / 同刻唯一一条都不绕）。旧弹窗那条链（`openAddDialog`
+   * 与「选择类型」标签选择器）已无 UI 入口，只剩 `./ui/dialogs` 里的实现与它的单元测试。
    */
   private startWrite(): void {
     if (this.draft) {

@@ -945,6 +945,42 @@ describe('DiaryAppController · 便签菜单（右键 / 长按）', () => {
     expect(q('.bz-diary-album-pop').hidden).toBe(true);
   });
 
+  it('「换张贴纸」定位不到那一条：不写盘、册子不关、报一条错误', async () => {
+    const c = await openBook();
+    openMenuOn(blockOf('diary'));
+    q('.bz-diary-menu .bz-diary-mn-item[data-act="retype"]').click();
+    const before = vault.files.get(DIARY_PATH);
+    const ride = qa('.bz-diary-ap-sticker').find((el) => el.dataset.tag === '骑行')!;
+    ride.click();
+
+    // 落点对不上：换成文件里没有的时辰（写层按 filePath + time 定位，就匹配不到条目）
+    const box = c as unknown as { albumTarget: Record<string, unknown> | null };
+    box.albumTarget = { ...box.albumTarget!, time: '01:23' };
+
+    q('.bz-diary-ap-confirm').click();
+    await vi.waitFor(() => expect(getNoticeMessages().join('\n')).toContain('贴纸没有换'));
+    expect(vault.files.get(DIARY_PATH)).toBe(before); // 一个字都没改
+    expect(q('.bz-diary-album-pop').hidden).toBe(false); // 册子留着，能再试
+  });
+
+  it('「盖上去」防连点：上一笔还没落完，再点一下不排队', async () => {
+    const c = await openBook();
+    openMenuOn(blockOf('diary'));
+    q('.bz-diary-menu .bz-diary-mn-item[data-act="retype"]').click();
+    qa('.bz-diary-ap-sticker').find((el) => el.dataset.tag === '骑行')!.click();
+
+    // 真连点时第一下在 await 之前就把 busy 立住了；这里直接把位立起来验「第二下被丢掉」
+    const box = c as unknown as { albumBusy: boolean };
+    box.albumBusy = true;
+    q('.bz-diary-ap-confirm').click();
+    await new Promise((r) => setTimeout(r, 50)); // 足够一笔真写得完：没写就是真没写
+    expect(vault.files.get(DIARY_PATH)).not.toContain('骑行'); // 这一下没排进写层
+
+    box.albumBusy = false;
+    q('.bz-diary-ap-confirm').click();
+    await vi.waitFor(() => expect(vault.files.get(DIARY_PATH)).toContain('骑行'));
+  });
+
   it('「誊录正文」把纯文本写进剪贴板', async () => {
     await openBook();
     openMenuOn(blockOf('diary'));

@@ -195,7 +195,7 @@ export function getParentPrimaryTag(subTag: string): string | null {
 }
 
 /**
- * 获取写日记弹窗/标签选择器中标签的排序列表：
+ * 获取写日记弹窗里标签的排序列表：
  * 有二级标签的主标签隐藏，只显示其二级标签（按配置顺序）
  */
 export function getSortedTagsForAddDialog(): string[] {
