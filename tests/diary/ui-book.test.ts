@@ -42,6 +42,7 @@ import {
 import type { WallEntry, WallMedia, WallSegment } from '../../src/diary/types';
 import { lastFlip, flipRecords, resetFlips } from './page-flip-fake';
 import { invalidateWallCache } from '../../src/diary/data';
+import { setSettingsProvider } from '../../src/core/settings-provider';
 
 // ===== 翻页库替身 =====
 
@@ -1564,6 +1565,59 @@ describe('两个真机 bug 的守卫（书页层的 hidden / 宿主表单皮）'
   });
 });
 
+describe('DiaryAppController · 册尾续读（一册只读一窗，翻到册尾再要下一窗）', () => {
+  /** 窗口缩到 3 则：加两篇日记就能验出「首窗没读完、翻到册尾才补上」 */
+  const withWindow = (n: number) => setSettingsProvider(() => ({ diaryPageSize: n }) as never);
+
+  it('翻到册尾自动续读：页数变多，人停在原来那一页（不推到新册尾，也不弹回册首）', async () => {
+    vault.files.set(
+      '我的/日记/2607020800.md',
+      serializeDiaryEntryFile({ date: '2026-07-02', time: '08:00' }, ['日记'], '七月二日')
+    );
+    vault.files.set(
+      '我的/日记/2607010800.md',
+      serializeDiaryEntryFile({ date: '2026-07-01', time: '08:00' }, ['日记'], '七月一日')
+    );
+    withWindow(3);
+    try {
+      const c = await openBook();
+      expect(c.entries).toHaveLength(3); // 一窗 = 3 则（远处那两篇与 2025 那篇还没读）
+      const beforePages = qa('.bz-diary-page-item').length;
+      expect(flipRecords).toHaveLength(1);
+
+      // 人翻到册尾（走控制器同一条落页路：`flip.turnToPage` → `flip` 事件 → 续读）
+      (c as unknown as { jumpToPage(pi: number): void }).jumpToPage(beforePages - 1);
+      await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(1), { timeout: 4000 });
+
+      expect(c.entries.length).toBeGreaterThan(3); // 下一窗接上了
+      expect(qa('.bz-diary-page-item').length).toBeGreaterThan(beforePages); // 册子真的变厚
+      expect(lastFlip().page).toBe(beforePages - 1); // 停在刚才那一页，不跳
+    } finally {
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+
+  it('没有更多旧条目了就不再续读（册尾翻到底只空转一次）', async () => {
+    vault.files.clear();
+    vault.files.set(
+      '我的/日记/2608190800.md',
+      serializeDiaryEntryFile({ date: '2026-08-19', time: '08:00' }, ['日记'], '只有这一篇')
+    );
+    withWindow(3);
+    try {
+      const c = await openBook();
+      expect(c.entries).toHaveLength(1);
+      const beforePages = qa('.bz-diary-page-item').length;
+      (c as unknown as { jumpToPage(pi: number): void }).jumpToPage(beforePages - 1);
+      await new Promise((r) => setTimeout(r, 60)); // 给续读一拍机会：它不该建第二本书
+      expect(flipRecords).toHaveLength(1);
+      expect(c.entries).toHaveLength(1);
+    } finally {
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+});
+
 describe('DiaryAppController · 开册进度（读全量 → 一次成册）', () => {
   it('读盘进度一路报到 UI：读数与填充跟着 (已读, 总数) 走，装订那一段是 100%', async () => {
     const c = await openBook();
@@ -1621,8 +1675,11 @@ describe('DiaryAppController · 开册进度（读全量 → 一次成册）', (
 
     const readings = seen.filter((t) => /^\d+ \/ \d+ 篇$/.test(t));
     expect(readings.length, `读数没被喂过：${seen.join(' | ')}`).toBeGreaterThanOrEqual(3); // 一批一发
-    const total = [...vault.files.keys()].filter((p) => p.startsWith('我的/日记/')).length;
-    expect(readings[readings.length - 1]).toBe(`${total} / ${total} 篇`); // 末次 = 全量到位
+    // 一窗之内四类（日记 + 影视/信/书）一起读：末次读数 = 这一册装进来的条数，
+    // 与紧接着「正在装订… 共 N 则」的 N 同一口径（旧断言按「日记篇数」算，分窗后不再成立）
+    const loaded = c.entries.length;
+    expect(loaded).toBeGreaterThan(0);
+    expect(readings[readings.length - 1]).toBe(`${loaded} / ${loaded} 篇`); // 末次 = 这一窗读完
     expect(countEl.textContent).toContain('则'); // 末尾停在「装订」那一段
     expect(q('.bz-diary-loading').hidden).toBe(true); // 成册即收
   });

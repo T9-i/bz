@@ -22,7 +22,7 @@ import type { SettingsSchema } from '../src/core/settings-schema';
 const COUNT_BASELINE: Record<string, number> = {
   global: 8, // 2026-10-24 ADR-0254：「功能域」组「小橘陪伴猫」toggle（+1）；2026-09-27 issue 492：在线资源组回归通用声明行（button 行不计，-1；issue 480 自绘 custom 行曾 +1）
   ai: 16, // 2026-09-29 issue 518 / ADR-0222：「LLM 校对」toggle（+1）；issue 444 基线 15（「转写引擎」下拉 +1；「Whisper 档位」visibleWhen 门控不计）；issue 431 基线 14
-  diary: 5,
+  diary: 6, // 2026-10-25 ADR-0258：「显示」组「每次翻开多少则」number 行（+1；一册只读一窗，翻到册尾续读）
   memo: 11,
   belongings: 6,
   people: 11, // 2026-09-29 复评：聊天仓组新增「我的头像」text 行（+1，逐轮时间轴「我」那一侧的头像路径）。基线 10 的沿革：2026-09-27 回退 496 重复行（转写引擎统一在 AI 设置面板，issue 444）；2026-09-26 issue 470 聊天仓组「每批图片数」+1；issue 467+462 媒体组两行随 peopleMediaDir 退役（头像改走保库记录附件）。现口径：数据源 3 + 聊天仓 6 + 隐私 2（清空按钮不计）

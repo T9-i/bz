@@ -10,12 +10,17 @@
  * 自包含：不依赖 ../diary/（用户决策「回忆墙自包含，日后删除日记本域」）——config/parser/types 均在本域内。
  * 媒体 URL 走 vault API（getResourcePath / getFirstLinkpathDest）：原型里硬编码 file:// 路径在 vault 内不可播放，
  * 必须经 Obsidian 资源路径才能被 img/video/audio 加载。
+ *
+ * **按窗读盘（ADR-0258）**：四类混排的全序不必读正文就能定——日记的日/时在题目里（`YYMMDDHHmm`），
+ * 影视/书只读 frontmatter、信读正文但量小，一次解析齐。于是开册只读 `diaryPageSize`（缺省 50）则正文，
+ * 剩下的旧日子由 UI 翻到册尾时经 `loadMoreWallEntries` 续读（一窗一窗补，不重读整墙）。
  */
 import type { App, TFile } from 'obsidian';
 import { parseEntryFile, parseMovieFile, parseLetterFile, parseBookFile } from './parser';
 import { diaryMetaFromEntryPath } from '../core/diary-format';
 import { DIARY_DIRECTORY, LETTER_DIRECTORY, movieDirectory, bookDirectory, inWallDirs } from './config';
 import { onDomainEvent } from '../core/domain-bus';
+import { tryGetSettings } from '../core/settings-provider';
 import type { DiaryEntry } from './types';
 
 // WallEntry 家族类型已上移 ./types（render 纯层经 types 引用，不触本文件 obsidian 依赖）
@@ -251,32 +256,47 @@ function toWallEntry(e: DiaryEntry, kind: WallEntry['kind'], dir: string): WallE
   };
 }
 
-/** 加载日记：diaryDir 下所有条目文件（ADR-0130/0131：一目一文件，题目 `YYMMDDHHmm(-N)`；含子目录递归）。
- *  每文件一条，filename=file.path（UI 跳转/写层定位依据）。
- *  每批读完报一次进度（`onWallProgress`）：开册进度条的唯一数据源。 */
-async function loadDiaryEntries(app: App, diaryDir: string): Promise<WallEntry[]> {
-  const vault = app.vault;
+/**
+ * 日记候补：只按**文件名**排出日/时（题目 `YYMMDDHHmm`），正文一个字都不读。
+ * 「先有全序、再按窗读正文」就是开册只读一窗的全部秘密（见 `pickWindow`）。
+ */
+interface DiarySlot {
+  path: string;
+  date: string;
+  time: string;
+}
+
+/** 降序比较器（日期降序、同日时降序）：`<0` 表示 a 更新、排在前面（`HH:mm` 字典序与数值序一致） */
+function cmpDesc(aDate: string, aTime: string, bDate: string, bTime: string): number {
+  const byDate = bDate.localeCompare(aDate);
+  return byDate !== 0 ? byDate : bTime.localeCompare(aTime);
+}
+
+/** 枚举目录下全体日记条目文件，按题目日期时间降序（含子目录递归；非条目命名的一律不进候补） */
+async function diarySlots(app: App, diaryDir: string): Promise<DiarySlot[]> {
   const mdFiles = await mdFilesUnder(app, diaryDir);
-  const entries: WallEntry[] = [];
-  const failed: string[] = [];
-  for (let i = 0; i < mdFiles.length; i += READ_BATCH_SIZE) {
-    const batch = mdFiles.slice(i, i + READ_BATCH_SIZE);
-    entries.push(
-      ...(await readBatch(
-        batch,
-        async (file) => {
-          if (!diaryMetaFromEntryPath(file.name)) return [];
-          const content = await vault.read(file);
-          const e = parseEntryFile(content, file.path);
-          return e ? [toWallEntry(e, 'diary', diaryDir)] : [];
-        },
-        failed
-      ))
-    );
-    if (progressSinks.size) emitWallProgress(Math.min(i + READ_BATCH_SIZE, mdFiles.length), mdFiles.length);
+  const slots: DiarySlot[] = [];
+  for (const f of mdFiles) {
+    const meta = diaryMetaFromEntryPath(f.name);
+    if (meta) slots.push({ path: f.path, date: meta.date, time: meta.time });
   }
-  warnFailedBatch('日记', failed);
-  return entries;
+  /* 同日同刻落了两篇时按文件名字典序定序（`-2` 后缀即题目的次序），保证全序稳定 */
+  slots.sort((a, b) => cmpDesc(a.date, a.time, b.date, b.time) || b.path.localeCompare(a.path));
+  return slots;
+}
+
+/** 读一篇日记条目（D5' 单文件容错：读/解析失败只跳过它，记进 failed 由窗末统一告警） */
+async function readDiarySlot(app: App, slot: DiarySlot, diaryDir: string, failed: string[]): Promise<WallEntry | null> {
+  const file = app.vault.getAbstractFileByPath(slot.path);
+  if (!file || 'children' in file) return null;
+  try {
+    const content = await app.vault.read(file as TFile);
+    const e = parseEntryFile(content, slot.path);
+    return e ? toWallEntry(e, 'diary', diaryDir) : null;
+  } catch {
+    failed.push(slot.path);
+    return null;
+  }
 }
 
 /** 加载单文件单条目的特殊内容（影视/信/书）：parse 返回 null 的跳过；kind 由调用方标记 */
@@ -306,35 +326,74 @@ async function loadSpecialEntries(
   return entries;
 }
 
-/** 无缓存聚合读（① 四目录并行）：四类内容各自读盘解析后合并，统一 date 降序、time 降序混排。 */
-async function readWallEntriesFresh(app: App): Promise<WallEntry[]> {
-  // ① 并行：旧实现四段 await 串行，wall-clock ≈ 四目录耗时之和；改 Promise.all 后 ≈ 最慢目录。
-  //   目录常量同步取值（await 前），与事件失效判定同源。
-  const [diaryE, movieE, letterE, bookE] = await Promise.all([
-    loadDiaryEntries(app, DIARY_DIRECTORY),
+/**
+ * 影视/信/书三类（① 三目录并行）：一个文件一条，量小且日期取自 frontmatter
+ * （影视/书连正文都不用读，只走 metadataCache），故**一次解析齐**，作为窗口流里那一侧的游标源。
+ * 排序与全墙同口径：date 降序、time 降序。
+ */
+async function loadOtherEntries(app: App): Promise<WallEntry[]> {
+  const [movieE, letterE, bookE] = await Promise.all([
     loadSpecialEntries(app, movieDirectory(), 'movie', parseMovieFile),
     loadSpecialEntries(app, LETTER_DIRECTORY, 'letter', parseLetterFile),
     loadSpecialEntries(app, bookDirectory(), 'book', parseBookFile),
   ]);
-  const entries: WallEntry[] = [...diaryE, ...movieE, ...letterE, ...bookE];
-
-  // 排序：日期降序、时间降序（HH:mm 字典序与数值序一致）
-  entries.sort((a, b) => {
-    const dateCmp = b.date.localeCompare(a.date);
-    return dateCmp !== 0 ? dateCmp : b.time.localeCompare(a.time);
-  });
+  const entries = [...movieE, ...letterE, ...bookE];
+  entries.sort((a, b) => cmpDesc(a.date, a.time, b.date, b.time));
   return entries;
 }
 
-// ---------- ② 墙数据缓存（后台预热用，按 app 键控；加密条目不在此层，恒经 UI mergeEncryptedEntries 现取） ----------
+// ---------- ② 墙数据窗口流（按窗读盘；后台预热与开册共用同一个流） ----------
 
-/** 一次在途/已完成的加载：invalidated 由事件订阅按「本轮 ctrl」置位 */
-interface WallLoadCtrl {
-  promise: Promise<WallEntry[]>;
-  invalidated: boolean;
+/** 一窗的默认条数（设置项未注入/非法时的回落值） */
+export const WALL_WINDOW_FALLBACK = 50;
+
+/**
+ * 一册一次读多少则（设置项 `diaryPageSize`，缺省 50）。
+ * 读盘与排版都按这个窗口走：开册只读最新一窗，翻到册尾再要下一窗（`loadMoreWallEntries`）。
+ * 非法/缺省值回落 50；夹在 1~1000 之间（1000 以上这本册子就等于回到「一次读全量」了）。
+ */
+export function wallWindowSize(): number {
+  const raw = Number(tryGetSettings()?.diaryPageSize);
+  if (!Number.isFinite(raw) || raw <= 0) return WALL_WINDOW_FALLBACK;
+  return Math.max(1, Math.min(1000, Math.floor(raw)));
 }
+
+/** 一次窗口取条：日记只带候补（正文没读），影视/信/书已解析好 */
+type WallPick = { from: 'diary'; slot: DiarySlot } | { from: 'other'; entry: WallEntry };
+
+/**
+ * 一段可续读的墙。四类混排的**全序**在首窗就定下来（日记靠题目、三类靠 frontmatter），
+ * 正文则按窗读：`entries` 是已读出来的那一段（降序），`diaryAt`/`otherAt` 是两条游标。
+ */
+interface WallStream {
+  app: App;
+  /** 首窗（枚举 + 三类解析 + 第一窗读盘）的 promise；失败即整轮作废 */
+  ready: Promise<void>;
+  /** 读盘期间被域事件作废（并发编辑）：本轮结果不落缓存 */
+  invalidated: boolean;
+  /** 影视/信/书（已解析，降序）与游标 */
+  other: WallEntry[];
+  otherAt: number;
+  /** 日记候补（只带题目时间，降序）与游标 */
+  diary: DiarySlot[];
+  diaryAt: number;
+  /** 已读出来的条目（降序）——`loadWallEntries` 交给 UI 的就是这一个数组 */
+  entries: WallEntry[];
+  /** 续读在途（并发去重：连翻几页只多读一窗） */
+  more: Promise<WallEntry[]> | null;
+  /** 回源补齐在途（并发去重：两条游标不能被两路同时推进） */
+  filling: Promise<void> | null;
+  /** 本窗读失败的文件（窗末统一 warn 一次，不刷屏） */
+  failed: string[];
+}
+
 let wallCacheApp: App | null = null;
-let currentCtrl: WallLoadCtrl | null = null;
+let stream: WallStream | null = null;
+/**
+ * 这个 app 会话里「UI 至少要看多少则」。深翻到第 200 则后被外部改动逼着回源，
+ * 重读要照这个数补齐——否则整册会突然缩回一窗，人正读的那一页直接没了。
+ */
+let wallAsked = 0;
 let offFns: Array<() => void> = [];
 
 /** 摘除当前域事件订阅（幂等：退订函数本身幂等，clear 后置空数组） */
@@ -344,11 +403,11 @@ function detachWallInvalidators(): void {
 }
 
 /** 挂墙数据失效订阅：经 core/domain-bus 订 vault:md-*（全插件唯一 vault 订阅点转译，ADR-0047；
- *  不自挂 app.vault.on）。通用路对四目录 md「恒发」（adapter 契约），语义通道不重复订阅。 */
-function attachWallInvalidators(ctrl: WallLoadCtrl): void {
+ *  不自挂 app.vault.on）。通用路对四目录 md「恒发」（adapter 契约），语义通道不重复订阅。
+ *  只作废**当前这一轮**（换 app/新一轮后 stream 已指向新对象，旧订阅回调自然空转）。 */
+function attachWallInvalidators(s: WallStream): void {
   const onPath = (p?: string): void => {
-    // 仅当前轮次的加载在位才作废（换 app/新一轮后 currentCtrl 已指向新对象，旧订阅回调自然空转）
-    if (p && currentCtrl === ctrl && inWallDirs(p)) ctrl.invalidated = true;
+    if (p && stream === s && inWallDirs(p)) s.invalidated = true;
   };
   const off = (ch: string, handler: (evt: any) => void): void => {
     offFns.push(onDomainEvent(ch, handler));
@@ -362,43 +421,182 @@ function attachWallInvalidators(ctrl: WallLoadCtrl): void {
   });
 }
 
+/** 还有没读进来的旧条目（两条游标任一没走到底） */
+function streamHasMore(s: WallStream): boolean {
+  return s.diaryAt < s.diary.length || s.otherAt < s.other.length;
+}
+
 /**
- * 聚合加载回忆墙全部内容（日记 + 影视 + 信 + 书），统一 date 降序、time 降序混排。
- * ②：按 app 键控缓存——同一 app 的重复/并发调用命中在途或新鲜结果，不再整盘重读；
+ * 从两条降序游标里取 n 条（**只定序、不读正文**）：谁新先取谁。
+ * 日记的日/时来自题目，故未读正文也能与三类条目比出先后。
+ */
+function pickWindow(s: WallStream, n: number): WallPick[] {
+  const picks: WallPick[] = [];
+  while (picks.length < n) {
+    const d = s.diary[s.diaryAt];
+    const o = s.other[s.otherAt];
+    if (!d && !o) break;
+    const takeDiary = !!d && (!o || cmpDesc(d.date, d.time, o.date, o.time) <= 0);
+    if (takeDiary) {
+      s.diaryAt++;
+      picks.push({ from: 'diary', slot: d });
+    } else {
+      s.otherAt++;
+      picks.push({ from: 'other', entry: o });
+    }
+  }
+  return picks;
+}
+
+/** 读一窗（每 READ_BATCH_SIZE 并发；单文件失败只跳过该文件）。返回这一窗解析出来的条目，降序。 */
+async function pullWindow(s: WallStream, n: number): Promise<WallEntry[]> {
+  const picks = pickWindow(s, n);
+  if (!picks.length) return [];
+  const out: (WallEntry | null)[] = new Array(picks.length).fill(null);
+  for (let i = 0; i < picks.length; i += READ_BATCH_SIZE) {
+    const slice = picks.slice(i, i + READ_BATCH_SIZE);
+    await Promise.all(
+      slice.map(async (p, k) => {
+        out[i + k] = p.from === 'other' ? p.entry : await readDiarySlot(s.app, p.slot, DIARY_DIRECTORY, s.failed);
+      })
+    );
+    if (progressSinks.size) emitWallProgress(Math.min(i + READ_BATCH_SIZE, picks.length), picks.length);
+  }
+  warnFailedBatch('日记', s.failed.splice(0));
+  return out.filter((e): e is WallEntry => !!e);
+}
+
+/** 首窗：定全序 + 读第一窗。目录枚举与三类解析并行（wall-clock ≈ 较慢的那一侧）。 */
+async function buildStream(s: WallStream): Promise<void> {
+  const [diary, other] = await Promise.all([diarySlots(s.app, DIARY_DIRECTORY), loadOtherEntries(s.app)]);
+  s.diary = diary;
+  s.other = other;
+  s.entries.push(...(await pullWindow(s, wallWindowSize())));
+}
+
+/**
+ * 回源补齐：把已读段补到 `wallAsked`（上次翻到第几则）。
+ * 串行化——UI 刷新与启动预热可能同时调进来，两条游标不能被两路并发推进（那会把次序打乱）。
+ */
+function fillStream(s: WallStream): Promise<void> {
+  if (s.filling) return s.filling;
+  const run = (async () => {
+    if (s.more) await s.more.catch(() => undefined); // 续读在路上：等它落地再补，别两路一起推游标
+    while (s.entries.length < wallAsked && streamHasMore(s)) {
+      s.entries.push(...(await pullWindow(s, wallWindowSize())));
+    }
+  })().finally(() => {
+    if (s.filling === run) s.filling = null;
+  });
+  s.filling = run;
+  return run;
+}
+
+/**
+ * 聚合加载回忆墙（日记 + 影视 + 信 + 书）的**第一窗**，统一 date 降序、time 降序混排。
+ *
+ * ②：按 app 键控缓存——同一 app 的重复/并发调用命中在途或新鲜结果，已读的那一段直接复用；
  *    域事件（四目录 md 变更/增删/改名）置 invalidated 后自动回源。app 切换（含测试逐例新建）即失效。
  *    UI 开墙路径命中预热缓存秒开；刷新路径经 invalidateWallCache 强制回源（见 ui.loadAndRender）。
+ *    回源会按 `wallAsked` 把「上次已经读到第几则」补齐，深翻过的册子不会缩回一窗。
  */
 export async function loadWallEntries(app: App): Promise<WallEntry[]> {
-  // 换 app：作废旧订阅 + 缓存，按新 app 重新预热
+  // 换 app：整轮作废（订阅、游标、已读条数全部重来）
   if (wallCacheApp !== app) {
     detachWallInvalidators();
-    currentCtrl = null;
+    stream = null;
     wallCacheApp = app;
+    wallAsked = 0;
   }
-  // 命中：在途去重 + 新鲜缓存直接复用（订阅已由起新加载时挂好）
-  if (currentCtrl && !currentCtrl.invalidated) return currentCtrl.promise;
-  // 回源：先摘上一轮遗留订阅（防 offFns 累积泄漏），再起新加载
-  detachWallInvalidators();
-  const ctrl: WallLoadCtrl = { promise: readWallEntriesFresh(app), invalidated: false };
-  currentCtrl = ctrl;
-  attachWallInvalidators(ctrl);
+  // 上一轮已被外部改动作废：先摘订阅再重建
+  if (stream && stream.invalidated) {
+    detachWallInvalidators();
+    stream = null;
+  }
+  if (!stream) {
+    const created: WallStream = {
+      app,
+      ready: Promise.resolve(),
+      invalidated: false,
+      other: [],
+      otherAt: 0,
+      diary: [],
+      diaryAt: 0,
+      entries: [],
+      more: null,
+      filling: null,
+      failed: [],
+    };
+    stream = created;
+    attachWallInvalidators(created);
+    created.ready = buildStream(created);
+  }
+  const s = stream;
   try {
-    const entries = await ctrl.promise;
-    // 读盘/合并期间被事件作废（并发编辑）→ 本轮结果不写缓存，下次调用回源重取
-    if (currentCtrl === ctrl && ctrl.invalidated) currentCtrl = null;
-    return entries;
+    await s.ready;
+    // 回源补齐：上次翻到第 N 则，重读后还得有第 N 则，否则人正读的那一页凭空消失
+    if (s.entries.length < wallAsked) await fillStream(s);
   } catch (e) {
     // 加载失败不缓存：复位，下次调用重新读盘（保持旧「异常即重抛、无残留态」语义）
-    if (currentCtrl === ctrl) currentCtrl = null;
+    if (stream === s) {
+      detachWallInvalidators();
+      stream = null;
+    }
     throw e;
+  }
+  if (stream === s) {
+    // 读盘/合并期间被事件作废（并发编辑）→ 本轮结果不写缓存，下次调用回源重取
+    if (s.invalidated) {
+      detachWallInvalidators();
+      stream = null;
+    } else {
+      wallAsked = Math.max(wallAsked, s.entries.length);
+    }
+  }
+  return s.entries;
+}
+
+/**
+ * 续读下一窗（翻到册尾时由 UI 要）：返回**新增**的那一段（降序，接在已读段之后）；没有更多则空数组。
+ * 与 `loadWallEntries` 共用同一个流，故 UI 手里的 `entries` 是同一个数组的增长，不必整册重读。
+ */
+export async function loadMoreWallEntries(app: App): Promise<WallEntry[]> {
+  const s = stream;
+  if (!s || wallCacheApp !== app || s.invalidated) return [];
+  try {
+    await s.ready;
+    // 补齐全过程里先让位（同一段已读区只允许一条游标在动）
+    if (s.filling) await s.filling;
+  } catch {
+    return []; // 首窗就没读出来：这一册等下次开册重来
+  }
+  if (s.invalidated || !streamHasMore(s)) return [];
+  if (s.more) return s.more;
+  const run = (async () => {
+    const added = await pullWindow(s, wallWindowSize());
+    s.entries.push(...added);
+    wallAsked = Math.max(wallAsked, s.entries.length);
+    return added;
+  })();
+  s.more = run;
+  try {
+    return await run;
+  } finally {
+    if (s.more === run) s.more = null;
   }
 }
 
-/** 作废旧订阅 + 缓存：下次 loadWallEntries 强制回源重读（UI 刷新路径 / unloadDiary 复位共用） */
+/** 这一册后面还有没有没读进来的旧条目（UI 判「要不要在册尾续读」） */
+export function wallHasMore(app: App): boolean {
+  return !!stream && wallCacheApp === app && !stream.invalidated && streamHasMore(stream);
+}
+
+/** 作废旧订阅 + 缓存：下次 loadWallEntries 强制回源重读（UI 刷新路径 / unloadDiary 复位共用）。
+ *  已读条数（`wallAsked`）不随之清零——刷新是「同一本册子重读一遍」，不是「缩回一窗」；
+ *  `wallCacheApp` 也留着，它记的是「这是哪个 app 的会话」，只有换 app 才该整轮重来。 */
 export function invalidateWallCache(): void {
   detachWallInvalidators();
-  currentCtrl = null;
-  wallCacheApp = null;
+  stream = null;
 }
 
 /**
@@ -406,7 +604,7 @@ export function invalidateWallCache(): void {
  * 为真 ⇒ 再调 `loadWallEntries` 会拿到**同一份结果**，书页不必重排；为假 ⇒ 得回源重读。
  */
 export function wallCacheFresh(app: App): boolean {
-  return wallCacheApp === app && !!currentCtrl && !currentCtrl.invalidated;
+  return wallCacheApp === app && !!stream && !stream.invalidated;
 }
 
 /** 按月份分组（key 为 'YYYY-MM'），组内保持传入顺序 */
