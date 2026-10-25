@@ -3,7 +3,7 @@
  *
  * 回忆墙 UI 已整域退役（ADR-0230 决策 7），本文件是换代后的第一条主线测试，覆盖三层：
  *
- * 1. **纯函数**（`collectPhotoRefs` / `paginateFlow` / `monthMarks` / `pageDateOf` / `plainTextOf`）——
+ * 1. **纯函数**（`collectPhotoRefs` / `paginateFlow` / `pageDateOf` / `plainTextOf`）——
  *    分页与索引是这次换代里唯一「算法」所在，抽成纯函数就是为了能脱开 DOM 量尺直接测；
  * 2. **markup 守卫**（render 纯层）——类名一律 `bz-diary-` 前缀（21 域共用一个 document）、
  *    零内联视觉样式（倾角走 `bz-diary-tilt-N` 类）、失败态走 `data-media-err` 换类；
@@ -25,7 +25,6 @@ import { DiaryAppController } from '../../src/diary/ui';
 import {
   collectPhotoRefs,
   paginateFlow,
-  monthMarks,
   pageDateOf,
   plainTextOf,
   type FlowItem,
@@ -360,31 +359,15 @@ describe('可缩媒体块（图一：照片放不下 → 页尾大片留白）·
   });
 });
 
-describe('monthMarks / pageDateOf（册页索引口径）', () => {
+describe('pageDateOf（跳日/定位口径）', () => {
   const stamp = (date: string) => {
     const t = document.createElement('template');
     t.innerHTML = daystampHTML(date, 1);
     return t.content.firstElementChild as HTMLElement;
   };
 
-  it('每个月第一次出现的页（1 起），条目数按月份汇总', () => {
-    const pages: Page[] = [[stamp('2026-08-19')], [], [stamp('2026-07-02')], [], [stamp('2025-12-31')]];
-    const entries = [
-      mk({ date: '2026-08-19', kind: 'diary' }),
-      mk({ date: '2026-08-01', kind: 'diary' }),
-      mk({ date: '2026-07-02', kind: 'diary' }),
-      mk({ date: '2025-12-31', kind: 'movie', time: '00:00' }),
-    ];
-    expect(monthMarks(pages, entries)).toEqual([
-      { key: '2026-08', page1: 1, n: 2 },
-      { key: '2026-07', page1: 3, n: 1 },
-      { key: '2025-12', page1: 5, n: 1 },
-    ]);
-  });
-
-  it('没有日戳的页面不进索引，pageDateOf 返回 null', () => {
+  it('读出日戳上的日期；没有日戳的页面返回 null', () => {
     const pages: Page[] = [[stamp('2026-08-19')], []];
-    expect(monthMarks(pages, [])).toEqual([{ key: '2026-08', page1: 1, n: 0 }]);
     expect(pageDateOf(pages[0])).toBe('2026-08-19');
     expect(pageDateOf(pages[1])).toBeNull();
   });
@@ -680,7 +663,7 @@ describe('DiaryAppController · 首屏与建书', () => {
     const c = await openBook();
     const first = lastFlip();
     const host = first.host;
-    (c as unknown as { relayout: (keep: boolean) => void }).relayout(false);
+    (c as unknown as { relayout: (land: Record<string, unknown>) => void }).relayout({});
     expect(first.destroyed).toBe(true);
     expect(flipRecords.length).toBe(2);
     const second = lastFlip();
@@ -784,7 +767,7 @@ describe('DiaryAppController · 文具四项接线', () => {
     expect(q('.bz-diary-filter-tab').classList.contains('bz-diary-on')).toBe(false);
   });
 
-  it('书口点一下抽出「册页索引」：一年一段、一月一行，行上带跳页号', async () => {
+  it('书口点一下抽出「册页索引」：一年一段、一月一行，行上带卷号与月份（ADR-0259）', async () => {
     await openBook();
     q('.bz-diary-bk-edge').click();
     expect(q('.bz-diary-sheet').hidden).toBe(false);
@@ -792,7 +775,10 @@ describe('DiaryAppController · 文具四项接线', () => {
     expect(qa('.bz-diary-idx-year').length).toBe(2); // 2026 / 2025
     const rows = qa('.bz-diary-idx-row');
     expect(rows.length).toBe(2); // 2026-08 / 2025-01
-    expect(rows[0].dataset.jumpPage).toBe('0');
+    /* 一册只装一卷之后，行上记的是「哪一卷 + 哪个月」，页码由控制器按当前卷现算 */
+    expect(rows[0].dataset.jumpVol).toBe('1');
+    expect(rows[0].dataset.jumpMonth).toBe('2026-08');
+    expect(rows[0].textContent).toContain('第 1 页'); // 都在卷一时给真实页码
   });
 
   it('放大镜命中用荧光笔标出，且只拆检索打的那一笔（手写 ==高亮== 不动）', async () => {
@@ -1203,6 +1189,11 @@ type WriteInternals = {
   setLoadingBinding(): void;
   hideLoading(): void;
   importMedia(files: File[]): Promise<void>;
+  /** ADR-0259：分卷之后这几条私有路要能直接点到（翻到卷界 / 抽索引 / 全量检索） */
+  jumpToPage(pi: number): void;
+  turnPage(dir: 1 | -1): void;
+  openIndexSheet(): void;
+  runSearch(kw: string): void;
 };
 
 const inner = (c: DiaryAppController): WriteInternals => c as unknown as WriteInternals;
@@ -1273,7 +1264,9 @@ describe('DiaryAppController · 写作内页（ADR-0233）', () => {
     expect(created.length).toBe(1);
     expect(created[0][1]).toContain('今天猫又把杯子推下去了');
     expect(created[0][1]).toContain('日记');
-    expect(lastFlip().page).toBe(0); // 新条目是最新那篇：落回第 0 页等回刷把它排进来
+    expect(lastFlip().page).toBe(0); // 新条目是最新那篇：落回第 0 页
+    /* ADR-0259 决策 8：当场重排，新写的那篇已经在第 0 页上（不等 400ms 防抖回刷） */
+    expect(q('.bz-diary-page-inner').textContent).toContain('今天猫又把杯子推下去了');
   });
 
   it('空纸落笔 → 「一个字都没写呢」，不落盘、内页不关（字还在纸上等着）', async () => {
@@ -1565,60 +1558,128 @@ describe('两个真机 bug 的守卫（书页层的 hidden / 宿主表单皮）'
   });
 });
 
-describe('DiaryAppController · 册尾续读（一册只读一窗，翻到册尾再要下一窗）', () => {
-  /** 窗口缩到 3 则：加两篇日记就能验出「首窗没读完、翻到册尾才补上」 */
-  const withWindow = (n: number) => setSettingsProvider(() => ({ diaryPageSize: n }) as never);
+describe('DiaryAppController · 分卷（ADR-0259：一册只摊开一卷）', () => {
+  const withCap = (n: number) => setSettingsProvider(() => ({ diaryPageSize: n }) as never);
 
-  it('翻到册尾自动续读：页数变多，人停在原来那一页（不推到新册尾，也不弹回册首）', async () => {
-    vault.files.set(
-      '我的/日记/2607020800.md',
-      serializeDiaryEntryFile({ date: '2026-07-02', time: '08:00' }, ['日记'], '七月二日')
-    );
-    vault.files.set(
-      '我的/日记/2607010800.md',
-      serializeDiaryEntryFile({ date: '2026-07-01', time: '08:00' }, ['日记'], '七月一日')
-    );
-    withWindow(3);
+  /** 三个月各两则、容量 3 ⇒ 卷一 = 8 月 + 7 月（4 则），卷二 = 6 月（2 则） */
+  const threeMonths = (): void => {
+    vault.files.clear();
+    const seed = (date: string, text: string): void => {
+      const stamp = `${date.slice(2, 4)}${date.slice(5, 7)}${date.slice(8, 10)}0800`;
+      vault.files.set(`我的/日记/${stamp}.md`, serializeDiaryEntryFile({ date, time: '08:00' }, ['日记'], text));
+    };
+    seed('2026-08-19', '八月十九');
+    seed('2026-08-01', '八月一日');
+    seed('2026-07-02', '七月二日');
+    seed('2026-07-01', '七月一日');
+    seed('2026-06-30', '六月三十');
+    seed('2026-06-05', '六月五日');
+  };
+
+  it('卷一翻到册尾再往后：换到卷二第一页，DOM 里只剩这一卷（数据仍是全量）', async () => {
+    threeMonths();
+    withCap(3);
     try {
       const c = await openBook();
-      expect(c.entries).toHaveLength(3); // 一窗 = 3 则（远处那两篇与 2025 那篇还没读）
-      const beforePages = qa('.bz-diary-page-item').length;
-      expect(flipRecords).toHaveLength(1);
+      const vol1Pages = qa('.bz-diary-page-item').length;
+      /* 八月两天 + 七月两天都在纸上，六月不在——这就是「DOM 只装一卷」 */
+      expect(qa('.bz-diary-b-daystamp').map((el) => el.getAttribute('data-date'))).toEqual([
+        '2026-08-19',
+        '2026-08-01',
+        '2026-07-02',
+        '2026-07-01',
+      ]);
+      inner(c).jumpToPage(vol1Pages - 1);
+      inner(c).turnPage(1);
 
-      // 人翻到册尾（走控制器同一条落页路：`flip.turnToPage` → `flip` 事件 → 续读）
-      (c as unknown as { jumpToPage(pi: number): void }).jumpToPage(beforePages - 1);
-      await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(1), { timeout: 4000 });
-
-      expect(c.entries.length).toBeGreaterThan(3); // 下一窗接上了
-      expect(qa('.bz-diary-page-item').length).toBeGreaterThan(beforePages); // 册子真的变厚
-      expect(lastFlip().page).toBe(beforePages - 1); // 停在刚才那一页，不跳
+      expect(flipRecords).toHaveLength(2); // 换卷 = 重排出一本新书
+      expect(lastFlip().page).toBe(0); // 落在新卷第一页
+      expect(lastFlip().items.length).toBeLessThan(vol1Pages);
+      expect(qa('.bz-diary-b-daystamp').map((el) => el.getAttribute('data-date'))).toEqual([
+        '2026-06-30',
+        '2026-06-05',
+      ]);
+      expect(c.entries).toHaveLength(6); // 六则都在内存里：索引与检索要用，只是没全排进书
     } finally {
       setSettingsProvider(() => ({}) as never);
     }
   });
 
-  it('没有更多旧条目了就不再续读（册尾翻到底只空转一次）', async () => {
-    vault.files.clear();
-    vault.files.set(
-      '我的/日记/2608190800.md',
-      serializeDiaryEntryFile({ date: '2026-08-19', time: '08:00' }, ['日记'], '只有这一篇')
-    );
-    withWindow(3);
+  it('卷一第 0 页再往前翻：只说一句，不换卷也不重排', async () => {
+    threeMonths();
+    withCap(3);
     try {
       const c = await openBook();
-      expect(c.entries).toHaveLength(1);
-      const beforePages = qa('.bz-diary-page-item').length;
-      (c as unknown as { jumpToPage(pi: number): void }).jumpToPage(beforePages - 1);
-      await new Promise((r) => setTimeout(r, 60)); // 给续读一拍机会：它不该建第二本书
+      inner(c).turnPage(-1);
       expect(flipRecords).toHaveLength(1);
-      expect(c.entries).toHaveLength(1);
+      expect(lastFlip().page).toBe(0);
+      expect(q('.bz-diary-toast').textContent).toContain('最新的一卷');
+    } finally {
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+
+  it('窄屏也在卷界换卷：本卷最后一天再往下滚 = 下一卷第一天', async () => {
+    threeMonths();
+    withCap(3);
+    try {
+      const c = await openBook();
+      window.innerWidth = 600;
+      window.dispatchEvent(new Event('resize'));
+      await vi.waitFor(() => expect(qa('.bz-diary-day').length).toBe(4), { timeout: 3000 }); // 卷一四天
+
+      for (let i = 0; i < 4; i++) inner(c).turnPage(1); // 依次走过那四天，最后一下换卷
+      expect(qa('.bz-diary-day').length).toBe(2); // 换成卷二那两天
+      expect(document.querySelector('.bz-diary-day-on')?.textContent).toContain('六月三十');
+    } finally {
+      window.innerWidth = 1024;
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+
+  it('册页索引是全书的目录：窗外月份写「卷 N」，点了换卷落到那个月', async () => {
+    threeMonths();
+    withCap(3);
+    try {
+      const c = await openBook();
+      inner(c).openIndexSheet();
+      const text = q('.bz-diary-sheet-paper').textContent || '';
+      expect(text).toContain('凡 六 则'); // 全册口径，不是「凡四则」（那一卷的条数）
+      expect(text).toContain('共 二 卷');
+      expect(text).toContain('6 月'); // 窗外的月份照样列出来
+
+      const rows = qa('.bz-diary-idx-row');
+      expect(rows).toHaveLength(3);
+      expect(rows[0].textContent).toContain('第 1 页'); // 八月在本卷：给真实页码
+      expect(rows[2].textContent).toContain('卷 2'); // 六月在卷二：给卷号
+
+      rows[2].click();
+      expect(flipRecords).toHaveLength(2);
+      expect(qa('.bz-diary-b-daystamp').map((el) => el.getAttribute('data-date'))).toEqual([
+        '2026-06-30',
+        '2026-06-05',
+      ]);
+    } finally {
+      setSettingsProvider(() => ({}) as never);
+    }
+  });
+
+  it('检索翻全书：命中在窗外也能换卷落到那一页并划上荧光笔', async () => {
+    threeMonths();
+    withCap(3);
+    try {
+      const c = await openBook();
+      inner(c).runSearch('六月五日');
+      await vi.waitFor(() => expect(flipRecords.length).toBe(2), { timeout: 2000 });
+      await vi.waitFor(() => expect(qa('.bz-diary-page-item mark').length).toBeGreaterThan(0), { timeout: 2000 });
+      expect(q('.bz-diary-page-item mark').textContent).toContain('六月五日');
     } finally {
       setSettingsProvider(() => ({}) as never);
     }
   });
 });
 
-describe('DiaryAppController · 开册进度（读全量 → 一次成册）', () => {
+describe('DiaryAppController · 开册进度（读盘 → 成册）', () => {
   it('读盘进度一路报到 UI：读数与填充跟着 (已读, 总数) 走，装订那一段是 100%', async () => {
     const c = await openBook();
     const priv = inner(c);

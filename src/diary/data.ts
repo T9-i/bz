@@ -257,6 +257,15 @@ function toWallEntry(e: DiaryEntry, kind: WallEntry['kind'], dir: string): WallE
 }
 
 /**
+ * 刚落盘的一篇日记 → 墙条目（ADR-0259 决策 8）。
+ * 写完当场插进内存首位并重排落第 0 页，不等那次 400ms 防抖回刷；
+ * 回刷落地时 `loadEntries` 会整体替换 `entries`，这一份影子不会留下第二份。
+ */
+export function wallEntryOfDiary(e: DiaryEntry): WallEntry {
+  return toWallEntry(e, 'diary', DIARY_DIRECTORY);
+}
+
+/**
  * 日记候补：只按**文件名**排出日/时（题目 `YYMMDDHHmm`），正文一个字都不读。
  * 「先有全序、再按窗读正文」就是开册只读一窗的全部秘密（见 `pickWindow`）。
  */
@@ -348,8 +357,8 @@ async function loadOtherEntries(app: App): Promise<WallEntry[]> {
 export const WALL_WINDOW_FALLBACK = 50;
 
 /**
- * 一册一次读多少则（设置项 `diaryPageSize`，缺省 50）。
- * 读盘与排版都按这个窗口走：开册只读最新一窗，翻到册尾再要下一窗（`loadMoreWallEntries`）。
+ * 卷容量（设置项 `diaryPageSize`，缺省 50；ADR-0259）。
+ * 既是**一卷装多少则**，也是读盘一窗的条数：开册先读到第 1 卷收卷，后台再续读剩下的。
  * 非法/缺省值回落 50；夹在 1~1000 之间（1000 以上这本册子就等于回到「一次读全量」了）。
  */
 export function wallWindowSize(): number {
@@ -589,6 +598,28 @@ export async function loadMoreWallEntries(app: App): Promise<WallEntry[]> {
 /** 这一册后面还有没有没读进来的旧条目（UI 判「要不要在册尾续读」） */
 export function wallHasMore(app: App): boolean {
   return !!stream && wallCacheApp === app && !stream.invalidated && streamHasMore(stream);
+}
+
+/**
+ * 后台把剩下的读完（ADR-0259 决策 3）：开册只读够第 1 卷，其余在这里续。
+ *
+ * 读完只让索引 / 搜索 / 台历的覆盖面变大，**不重排书页**——用户当年否掉的就是「书自己变厚」。
+ * 返回读到的总条数；中途被域事件作废则停在作废处（下一轮开册重来）。
+ */
+export async function fillWallEntries(app: App, onChunk?: (read: number) => void): Promise<number> {
+  const s = stream;
+  if (!s || wallCacheApp !== app) return 0;
+  try {
+    await s.ready;
+  } catch {
+    return 0; // 首窗就没读出来：这一轮没有可续的东西
+  }
+  while (streamHasMore(s) && !s.invalidated && stream === s) {
+    const added = await loadMoreWallEntries(app);
+    if (!added.length) break; // 全是读失败的文件：别在原地打转
+    onChunk?.(s.entries.length);
+  }
+  return s.entries.length;
 }
 
 /** 作废旧订阅 + 缓存：下次 loadWallEntries 强制回源重读（UI 刷新路径 / unloadDiary 复位共用）。

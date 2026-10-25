@@ -135,7 +135,7 @@ export default interface BzSettings {
   letterDirectory: string;
   /** 🕒 写日记默认日期取自文件（否则当前时间） */
   useFileDateTime: boolean;
-  /** 📄 每次翻开多少则：开册只读这一窗，翻到册尾再续读下一窗（缺省 50；0/缺失按缺省） */
+  /** 📄 每卷装多少则（历史键名仍叫 pageSize）：一册只摊开一卷，凑够就另装一卷（缺省 50；0/缺失按缺省） */
   diaryPageSize: number;
   // 跨域读：影视目录走影院域 cinemaFolderPath、书库目录走书架墙域 resolveFolderPath（ADR-0115，
   // 用户拍板「影视部分走影院的」）；退役：movieDirectory/showTagCount/diaryBatchSize/diaryTagShowEmoji/

@@ -39,8 +39,8 @@ export function diarySettingsSchema(): SettingsSchema {
           { type: 'toggle', name: '默认日期取自文件', desc: '默认日期取自当前打开的日记文件', binding: { key: 'useFileDateTime' } },
           {
             type: 'number',
-            name: '每次翻开多少则',
-            desc: '开册只读这么多，翻到册尾再接着读下一批',
+            name: '每卷装多少则',
+            desc: '一册只摊开一卷，凑够这么多则就另装一卷',
             binding: { key: 'diaryPageSize' },
             min: 10,
             max: 500,

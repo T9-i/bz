@@ -41,7 +41,10 @@ import { DIARY_DIRECTORY, inWallDirs, getTagEmoji, getSortedTagsForAddDialog } f
 import {
   loadWallEntries,
   loadMoreWallEntries,
+  fillWallEntries,
   wallHasMore,
+  wallWindowSize,
+  wallEntryOfDiary,
   invalidateWallCache,
   wallCacheFresh,
   onWallProgress,
@@ -52,6 +55,14 @@ import {
   type WallEntry,
   type WallMedia,
 } from './data';
+import {
+  splitVolumes,
+  volumeOf,
+  monthSpans,
+  yearBands,
+  firstVolumeClosedAt,
+  type Volume,
+} from './volume';
 import {
   bookPanelHTML,
   daystampHTML,
@@ -111,11 +122,6 @@ const WHEEL_LOCK_MS = 320;
 /** 进度纸条的显示延时：读得快（预热缓存命中）就不摆这一下，免得闪一闪 */
 const LOADING_SHOW_DELAY_MS = 120;
 /**
- * 离册尾还有几页就预取下一窗（用户要的是「快翻完了接着读」，不是「翻到底再等」）。
- * 一册一窗（日记本设置「每次翻开多少则」，缺省 50 则）——预取一窗够翻好一会儿，不必贴边才读。
- */
-const LOAD_MORE_AHEAD_PAGES = 2;
-/**
  * 可缩媒体块（照片 / 视频）最多缩到多窄（占自然块宽的比例）。
  * 再窄就不缩了，宁可整块换到下一页——一枚邮票大小的照片还不如让它下页好好摊开。
  */
@@ -159,6 +165,26 @@ function cmpEntryDesc(a: WallEntry, b: WallEntry): number {
 
 /** 分页结果：一页 = 一串块元素 */
 export type Page = HTMLElement[];
+/**
+ * 重排的落点（ADR-0259）。`volume` 换卷，其余是**卷内**定位：
+ * 页号 / 卷末 / 含某日·某月·某条的那一页；`keepRatio` 按上次页数比例保住阅读位置。
+ */
+export interface Land {
+  /** 第几卷（1 起）；不给就留在当前卷 */
+  volume?: number;
+  /** 卷内页号（0 起） */
+  page?: number;
+  /** 落本卷最后一页（往前翻到上一卷时用，读起来是连续的） */
+  toEnd?: boolean;
+  /** 落含这一天的页（台历跳日） */
+  date?: string;
+  /** 落含这个月第一页的页（册页索引点月） */
+  month?: string;
+  /** 落含这一条的页（检索命中 / 刚落笔的那一篇） */
+  eid?: string;
+  /** 视口变化、回刷：按上次页数比例保住阅读位置 */
+  keepRatio?: boolean;
+}
 /** 切页输入：块元素 + 已量好的占位高（`offsetHeight + 上下 margin`）+ 是否「不孤行」 */
 export interface FlowItem {
   el: HTMLElement;
@@ -253,39 +279,11 @@ export function paginateFlow(
   return pages;
 }
 
-/** 月索引项：某月的首页号（书页序号，0 起）与该月条目数 */
-export interface MonthMark {
-  key: string;
-  page1: number;
-  n: number;
-}
-
 /**
- * 册页索引（纯函数，可单测）：每个月**第一次出现**的页（读日戳的 `data-date`）。
- * 目录纸 / 书口年份染色 / 台历跳日共用这一份口径。
+ * 某页的日戳日期（跳日 / 搜索定位用；无日戳返回 null）。
+ * 册页索引不再走「扫页算月份」（ADR-0259：页只剩一卷的了）——
+ * 那份口径搬到 `volume.monthSpans`，按全量数据算。
  */
-export function monthMarks(pages: Page[], entries: WallEntry[]): MonthMark[] {
-  const out: MonthMark[] = [];
-  const seen = new Set<string>();
-  for (let pi = 0; pi < pages.length; pi++) {
-    const dayEl = pages[pi].find((el) => el.classList.contains('bz-diary-b-daystamp'));
-    const date = dayEl?.getAttribute('data-date');
-    if (!date) continue;
-    const key = date.slice(0, 7);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({ key, page1: pi + 1, n: 0 });
-  }
-  const byMonth = new Map<string, number>();
-  for (const e of entries) {
-    const k = e.date.slice(0, 7);
-    byMonth.set(k, (byMonth.get(k) || 0) + 1);
-  }
-  for (const m of out) m.n = byMonth.get(m.key) || 0;
-  return out;
-}
-
-/** 某页的日戳日期（跳日/搜索定位用；无日戳返回 null） */
 export function pageDateOf(page: Page): string | null {
   const el = page.find((n) => n.classList.contains('bz-diary-b-daystamp'));
   return el?.getAttribute('data-date') || null;
@@ -434,18 +432,17 @@ export class DiaryAppController {
   /** 当前册子里的条目（只读聚合结果；加密条目在解锁时才并入） */
   entries: WallEntry[] = [];
   /**
-   * 后面还有没读进来的旧条目（一册只读一窗，见 `data.wallWindowSize`）。
-   * 翻到册尾附近就续读下一窗（`maybeLoadMore`），整册不必一次读完。
+   * 后面还有没读进来的旧条目（ADR-0259：开册只读到第 1 卷收卷，其余后台续读）。
+   * 它只影响索引 / 检索 / 台历的覆盖面，不再有「翻到册尾就变厚」这回事。
    */
   private hasMore = false;
-  /** 续读在途（连翻几页只多读一窗，不叠着读） */
-  private loadingMore = false;
-  /**
-   * 正在建书/落页（`flip.turnToPage` 期间）。库的 `turnToPage` 也会发 `flip`，
-   * 那是「把书翻到某页」而不是「人往前翻了一页」——不掐掉的话，册尾续读排完页
-   * 立刻又被自己的落页事件触发一次续读，一路把整墙读完。
-   */
-  private buildingBook = false;
+  /** 后台读盘在途（同一轮只跑一条） */
+  private filling = false;
+  /** 分卷结果与当前卷第几卷（ADR-0259）：`pages` 只装当前这一卷的页 */
+  private volumes: Volume[] = [];
+  private volIndex = 0;
+  /** 分卷指纹（条目数 + 首末日期 + 容量）：条目只在尾部增长时前面的卷界不变，可复用上次结果 */
+  private _volKey = '';
   private byEid = new Map<string, WallEntry>();
   private pages: Page[] = [];
   private cursor = 0;
@@ -456,7 +453,11 @@ export class DiaryAppController {
   private daySections: HTMLElement[] = [];
   private dayIdx = 0;
   private filterTag: string | null = null;
-  private search: { kw: string | null; hits: { pi: number; el: HTMLElement }[]; i: number } = {
+  /**
+   * 检索命中：在**全量数据**上找（ADR-0259），记的是「哪一则」——
+   * 跳过去时先按则序换卷，再在卷内按 `data-eid` 定位到页。
+   */
+  private search: { kw: string | null; hits: { entry: WallEntry; index: number }[]; i: number } = {
     kw: null,
     hits: [],
     i: 0,
@@ -695,12 +696,33 @@ export class DiaryAppController {
   }
 
   /**
-   * 重排整册。`keepRatio`：视口变化/回刷时按上次页数比例保住阅读位置（跟手不跳回最新）；
-   * 换筛选、写完一篇等场景传 false（落回第 0 页 = 最新那篇）。
-   * `keepPage`：**绝对页号**落页——册尾续读（往后追加旧条目）用，追加后页数变了，
-   * 按比例算会把人推到新册尾，按绝对页号才能停在原来那一页。
+   * 分卷（ADR-0259）：卷界落在月界，从最新往前整月累加，凑够容量收卷。
+   * 指纹没变就复用上次结果——条目只在**尾部**增长时原有的卷界不变，
+   * 后台读盘落地后调索引/检索不必重算，也不会顺手把书重排一遍。
    */
-  private relayout(keepRatio: boolean, keepPage?: number): number {
+  private planVolumes(): Volume[] {
+    const list = this.visibleEntries();
+    const key = `${list.length}|${list[0]?.date || ''}|${list[list.length - 1]?.date || ''}|${wallWindowSize()}`;
+    if (key !== this._volKey) {
+      this.volumes = splitVolumes(
+        list.map((e) => e.date),
+        wallWindowSize()
+      );
+      this._volKey = key;
+      if (this.volIndex > this.volumes.length - 1) this.volIndex = Math.max(0, this.volumes.length - 1);
+    }
+    return this.volumes;
+  }
+
+  /**
+   * 重排**当前这一卷**（ADR-0259）。落点由 `land` 给：
+   * - `volume`：换到第几卷（1 起）；不给就留在当前卷；
+   * - `page` 卷内页号 / `toEnd` 本卷最后一页 / `date`·`month`·`eid` 落到含它的那一页；
+   * - `keepRatio`（视口变化、回刷）：按上次页数比例保住阅读位置，跟手不跳回最新。
+   *
+   * 一条都不给 = 落本卷第 0 页（最新那一篇）。
+   */
+  private relayout(land: Land = {}): number {
     const root = this.root;
     if (!root) return 0;
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
@@ -726,6 +748,18 @@ export class DiaryAppController {
     this.photoRefs = collectPhotoRefs(list);
     this.photoIndex = new Map(this.photoRefs.map((p, i) => [p.media.name, i]));
 
+    /* 写完一篇的回刷：无论落点参数给了什么、`cursor` 现在是多少，都落第 1 卷第 0 页 */
+    if (this.pendingHome) {
+      this.pendingHome = false;
+      land = { volume: 1, page: 0 };
+    }
+
+    /* 这一册只装一卷：块流、测量、切页全只跑这一段（ADR-0259 的全部收益来源于此） */
+    this.planVolumes();
+    const vol = Math.max(0, Math.min(this.volumes.length - 1, (land.volume ?? this.volIndex + 1) - 1));
+    const range = this.volumes[vol] || { start: 0, end: list.length };
+    const slice = list.slice(range.start, range.end);
+
     // 离屏测量盒：宽度/内边距全读 CSS（.bz-diary-probe），不在 JS 里重复一份
     const probe = document.createElement('div');
     probe.className = 'bz-diary-probe';
@@ -740,8 +774,8 @@ export class DiaryAppController {
     const flow: FlowItem[] = [];
     let lastDate: string | null = null;
     const dayCount = new Map<string, number>();
-    for (const e of list) dayCount.set(e.date, (dayCount.get(e.date) || 0) + 1);
-    for (const e of list) {
+    for (const e of slice) dayCount.set(e.date, (dayCount.get(e.date) || 0) + 1);
+    for (const e of slice) {
       if (e.date !== lastDate) {
         lastDate = e.date;
         flow.push({ el: elOf(daystampHTML(e.date, dayCount.get(e.date) || 1)), h: 0, keep: true });
@@ -753,7 +787,7 @@ export class DiaryAppController {
       /* 窄屏不切页（用户拍板 2026-10-16「一次展示一天的日记」）：一天一卷，块原样留着 ——
          不量高度、不切段、不拆页。反正窄屏不走 StPageFlip，一天的内容整体放进那一卷，
          放得下就放着、放不下就由卷自己滚（样式里 `.bz-diary-page-inner` 是可滚的）。
-         顺带省掉整整一轮逐块 reflow：成册 200+ 页时这一步是最大的单笔开销，
+         顺带省掉整整一轮逐块 reflow：这一步是分页里最大的单笔开销，
          而且它读出来的高度在窄屏根本没人用。 */
       this.pages = this.groupByDay(flow);
     } else {
@@ -776,21 +810,17 @@ export class DiaryAppController {
 
     this.renderEdgeMarks();
 
-    // 4) 目标页：保比例，否则落第一页（最新排在最前，第一页就是最新）
-    /* 写完一篇的回刷：无论 `keepRatio` 传了什么、`cursor` 现在是多少，都落册首 */
-    if (this.pendingHome) {
-      this.pendingHome = false;
-      keepRatio = false;
-      keepPage = undefined;
-      this.cursor = 0;
-    }
+    // 4) 落点：命名落点 > 页号 > 卷末 > 按比例 > 第 0 页
     const last = Math.max(0, this.pages.length - 1);
     let target = 0;
-    if (keepPage !== undefined) {
-      target = Math.max(0, Math.min(last, keepPage));
-    } else if (keepRatio && this.lastSpreadCount > 1) {
+    const named = this.pageOfNamed(land);
+    if (named >= 0) target = named;
+    else if (land.page !== undefined) target = land.page;
+    else if (land.toEnd) target = last;
+    else if (land.keepRatio && this.lastSpreadCount > 1) {
       target = Math.round((this.cursor / (this.lastSpreadCount - 1)) * last);
     }
+    this.volIndex = vol;
     this.lastSpreadCount = this.pages.length;
     this.buildBook(Math.max(0, Math.min(last, target)));
     this.refreshBookRect();
@@ -802,6 +832,57 @@ export class DiaryAppController {
     this.bookFresh = true;
     this.layoutUnlocked = isUnlocked();
     return (typeof performance !== 'undefined' ? performance.now() : 0) - t0;
+  }
+
+  /**
+   * 命名落点 → 当前卷里的页号（没有落点或找不到返回 -1）。
+   * 优先级：条目 > 日期 > 月份——越具体的落点越优先。
+   */
+  private pageOfNamed(land: Land): number {
+    if (land.eid) {
+      const pi = this.pageOfEid(land.eid);
+      if (pi >= 0) return pi;
+    }
+    if (land.date) {
+      const pi = this.pageOfDate(land.date);
+      if (pi >= 0) return pi;
+    }
+    if (land.month) return this.pageOfMonth(land.month);
+    return -1;
+  }
+
+  /**
+   * 含这一天的页。日戳只出现在**一天开头的那一页**，后面的续页没有日戳——
+   * 落一个只有续页的日期时，回到它前一个日戳所在的那一页。
+   */
+  private pageOfDate(date: string): number {
+    let prev = -1;
+    for (let pi = 0; pi < this.pages.length; pi++) {
+      const d = pageDateOf(this.pages[pi]);
+      if (!d) continue;
+      if (d === date) return pi;
+      if (d < date) return prev >= 0 ? prev : pi; // 日期降序：第一个比它旧的页 ⇒ 它在上一页
+      prev = pi;
+    }
+    return prev;
+  }
+
+  /** 含这个月（`YYYY-MM`）第一页的页号 */
+  private pageOfMonth(month: string): number {
+    for (let pi = 0; pi < this.pages.length; pi++) {
+      const d = pageDateOf(this.pages[pi]);
+      if (d && d.slice(0, 7) === month) return pi;
+    }
+    return -1;
+  }
+
+  /** 含这一条的页（块上带 `data-eid`；跨页续排的两半在相邻页，取前一页） */
+  private pageOfEid(eid: string): number {
+    if (!eid) return -1;
+    for (let pi = 0; pi < this.pages.length; pi++) {
+      for (const el of this.pages[pi]) if (el.dataset.eid === eid) return pi;
+    }
+    return -1;
   }
 
   /**
@@ -950,16 +1031,9 @@ export class DiaryAppController {
        `style.cssText = "display:none"` —— 215 页实测 36720 次 style 变更/秒。
        守卫只省「写同一个值」，观感逐像素不变；装不上（换库版本/替身）就原样不拦。 */
     guardIdleWrites(this.flip);
-    this.buildingBook = true;
-    try {
-      this.flip.turnToPage(Math.max(0, targetPage));
-    } finally {
-      this.buildingBook = false;
-    }
+    this.flip.turnToPage(Math.max(0, targetPage));
     this.flip.on('flip', (e) => {
       this.cursor = e.data;
-      /* 快翻到册尾了：把这窗后面那批旧日子续上（用户点名「五十页快翻完了，继续加载五十页」） */
-      this.maybeLoadMore(e.data);
     });
     this.cursor = Math.max(0, targetPage);
     this.afterPagesBuilt(host);
@@ -1058,20 +1132,52 @@ export class DiaryAppController {
       if (!this.daySections.length) return;
       if (this.writeGuard()) return; // 草稿摊在纸上：这一天还没写完，不该换走
       const at = this.dayIdx + dir;
-      if (at < 0) return;
+      if (at < 0) {
+        this.stepVolume(-1); // 本卷第一天还往上滚：接上一卷（落在它的最后一天）
+        return;
+      }
       if (at > this.daySections.length - 1) {
-        // 最后一天还往下滚：续读下一窗（用户点名：五十页快翻完了，继续加载五十页）
-        this.maybeLoadMore(this.dayIdx);
+        this.stepVolume(1); // 本卷最后一天还往下滚：接下一卷（落在它的第一天）
         return;
       }
       this.setDay(at, dir > 0 ? 'top' : 'bottom');
-      this.maybeLoadMore(at);
       return;
     }
     if (!this.flip) return;
     if (this.writeGuard()) return; // 草稿在纸上：这一页还没写完，不该翻过去
+    /* 卷边界（ADR-0259）：这一卷翻到头了，往后接下一卷、往前回上一卷。
+       拖拽在边界上不出事件（库分不清「翻不过去」和「手势取消」），故只认滚轮/键盘/竖向滑。 */
+    if (dir > 0 && this.cursor >= this.pages.length - 1) {
+      this.stepVolume(1);
+      return;
+    }
+    if (dir < 0 && this.cursor <= 0) {
+      this.stepVolume(-1);
+      return;
+    }
     if (dir > 0) this.flip.flipNext();
     else this.flip.flipPrev();
+  }
+
+  /**
+   * 换卷（ADR-0259）：往后 = 落新卷第一页；往前 = 落新卷最后一页（一直往前读不断线）。
+   * 到头了就只说一声，不把书推到别处去。
+   */
+  private stepVolume(dir: 1 | -1): boolean {
+    const next = this.volIndex + dir;
+    if (next < 0) {
+      this.toast('这是最新的一卷了');
+      return false;
+    }
+    if (next > this.volumes.length - 1) {
+      this.toast(this.hasMore ? '再往前的日子还在读，稍等' : '这是最旧的一卷了');
+      return false;
+    }
+    this.relayout(dir > 0 ? { volume: next + 1, page: 0 } : { volume: next + 1, toEnd: true });
+    const first = this.volumes[next];
+    const date = first ? this.visibleEntries()[first.start]?.date : '';
+    this.toast(`第 ${next + 1} 卷${date ? ` · ${date.slice(0, 7)} 起` : ''}`);
+    return true;
   }
 
   private jumpToPage(pi: number): void {
@@ -1091,47 +1197,49 @@ export class DiaryAppController {
   //  书口：年份染色 + 册页索引
   // ============================================================
 
-  private monthMarksOf(): MonthMark[] {
-    return monthMarks(this.pages, this.visibleEntries());
-  }
-
   /**
-   * 书口年份染色带：只作「这几年各占多厚」的缩影（整条边缘才是那个大按钮——点开抽索引）。
+   * 书口年份染色带：**全册**每年几则的缩影（ADR-0259 决策 5；整条边缘才是那个大按钮——点开抽索引）。
+   * 按则数占比而不是页数占比：册子里只有一卷的页，按页算只能画出最近几个月，
+   * 那等于把十年的色带裁成一条四个月的。
    * 只有一年时不画：一条通高的色带等于没有信息，只是把整条书口刷成一块颜色。
    * `top`/`height` 是量出来的几何（行为性内联值）；颜色按年序轮转走 `.bz-diary-ey-N` 类。
    */
   private renderEdgeMarks(): void {
     const edge = this.edgeEl;
     edge.querySelectorAll('.bz-diary-edge-year').forEach((b) => b.remove());
-    const months = this.monthMarksOf();
-    if (!months.length) return;
-    const total = Math.max(1, this.pages.length);
-    const years: { y: string; from: number }[] = [];
-    for (const m of months) {
-      const y = m.key.slice(0, 4);
-      if (!years.length || years[years.length - 1].y !== y) years.push({ y, from: m.page1 });
-    }
-    if (years.length < 2) return;
-    years.forEach((sg, i) => {
-      const top = ((sg.from - 1) / total) * 100;
-      const endFrom = i + 1 < years.length ? years[i + 1].from : total + 1;
-      /* 先按页数占比算高，再夹住 —— 不夹的话最旧那年只占 2% 时会被撑到 5%，
+    const bands = yearBands(this.visibleEntries().map((e) => e.date));
+    if (bands.length < 2) return;
+    const total = bands.reduce((s, b) => s + b.n, 0) || 1;
+    let acc = 0;
+    bands.forEach((b, i) => {
+      const top = (acc / total) * 100;
+      acc += b.n;
+      /* 先按占比算高，再夹住 —— 不夹的话最旧那年只占 2% 时会被撑到 5%，
          色带就拖出书口、露出书底一截 */
-      let h = Math.max(1.2, ((endFrom - 1) / total) * 100 - top);
+      let h = Math.max(1.2, (b.n / total) * 100);
       h = Math.min(h, 100 - top);
-      const b = document.createElement('div');
-      b.className = `bz-diary-edge-year bz-diary-ey-${i % 8}`;
-      b.style.top = `${top}%`;
-      b.style.height = `${h}%`;
-      edge.appendChild(b);
+      const box = document.createElement('div');
+      box.className = `bz-diary-edge-year bz-diary-ey-${i % 8}`;
+      box.style.top = `${top}%`;
+      box.style.height = `${h}%`;
+      edge.appendChild(box);
     });
   }
 
-  /** 点书口 → 抽出「册页索引」那张纸：一年一段、一月一行 */
+  /**
+   * 点书口 → 抽出「册页索引」那张纸：一年一段、一月一行（ADR-0259：**全书目录**）。
+   *
+   * 一册只摊开一卷，所以只有当前卷的月份给得出真实页码；别的卷写「卷 N」，
+   * 点了换到那一卷并落到那个月。顶部两行报的是全册口径——目录报的必须是全书。
+   */
   private openIndexSheet(): void {
-    const months = this.monthMarksOf();
     const list = this.visibleEntries();
-    if (!months.length || !list.length) {
+    const vols = this.planVolumes();
+    const spans = monthSpans(
+      list.map((e) => e.date),
+      vols
+    );
+    if (!list.length || !spans.length) {
       this.toast('册页还空着');
       return;
     }
@@ -1145,11 +1253,17 @@ export class DiaryAppController {
       ' · 凡 ' +
       cnNum(total) +
       ' 则 · ' +
-      cnNum(months.length) +
+      cnNum(spans.length) +
       ' 个月</div>';
+    html +=
+      '<div class="bz-diary-sheet-meta">共 ' +
+      cnNum(vols.length) +
+      ' 卷 · 现在第 ' +
+      cnNum(this.volIndex + 1) +
+      ' 卷</div>';
     let curY: string | null = null;
     let open = false;
-    for (const m of months) {
+    for (const m of spans) {
       const parts = m.key.split('-');
       if (parts[0] !== curY) {
         if (open) html += '</div></div>';
@@ -1157,15 +1271,24 @@ export class DiaryAppController {
         curY = parts[0];
         open = true;
       }
+      /* 当前卷的月份给页码；跨卷的月份（单月自己超容量才有的情况）写「卷 a–b」 */
+      const single = m.vols.length === 1;
+      const pi = single && m.vols[0] === this.volIndex + 1 ? this.pageOfMonth(m.key) : -1;
+      const right =
+        pi >= 0
+          ? `第 ${pi + 1} 页`
+          : single
+            ? `卷 ${m.vols[0] || 1}`
+            : `卷 ${m.vols[0]}–${m.vols[m.vols.length - 1]}`;
       html +=
-        `<div class="bz-diary-idx-row" data-jump-page="${m.page1 - 1}">` +
+        `<div class="bz-diary-idx-row" data-jump-vol="${m.vols[0] || 1}" data-jump-month="${m.key}">` +
         `<span class="bz-diary-ir-m">${parseInt(parts[1], 10)} 月</span><span class="bz-diary-ir-dots"></span>` +
-        `<span class="bz-diary-ir-n">${cnNum(m.n)} 则</span><span class="bz-diary-ir-p">第 ${m.page1} 页</span></div>`;
+        `<span class="bz-diary-ir-n">${cnNum(m.n)} 则</span><span class="bz-diary-ir-p">${right}</span></div>`;
     }
     if (open) html += '</div></div>';
-    /* 一册只装一窗（ADR-0258）：索引只列**已读这一段**，得说清楚后面还有更旧的日子，
-       否则「自 2026-01 至 2026-10 · 凡 50 则」会像把十年日记记成了五十则 */
-    if (this.hasMore) html += '<div class="bz-diary-sheet-meta">往后翻还有更旧的日子 · 一册只装一窗</div>';
+    /* 后台还在读更旧的日子（ADR-0259 决策 3）：目录此刻报的是「已读齐的那一段」，
+       得说清楚，否则「凡五十则 · 四个月」会像把十年日记记成了五十则 */
+    if (this.hasMore) html += '<div class="bz-diary-sheet-meta">目录还在读更旧的日子 · 读齐即全</div>';
     this.openSheet('册 页 索 引', html);
   }
 
@@ -1487,9 +1610,9 @@ export class DiaryAppController {
       this.resizeTimer = null;
       this.applyBookZoom();
       const s = window.innerWidth <= SINGLE_MAX_W;
-      /* 写作内页摊着（移动端软键盘开着）时，这一屏的几何抖动不该拿整册重排去接：
-         纸是盖在书页上的一层浮层，底下那本册子这几十毫秒里没人看，而一次全量成册
-         在真机上是几百毫秒的冻结。记一笔，纸收走时补排（见 dropWrite）。 */
+      /* 写作内页摊着（移动端软键盘开着）时，这一屏的几何抖动不该拿重排去接：
+         纸是盖在书页上的一层浮层，底下那本册子这几十毫秒里没人看，而一卷重排（块重建 +
+         离屏量高 + 切页）在真机上仍是几十毫秒的冻结。记一笔，纸收走时补排（见 dropWrite）。 */
       if (this.hasDraft()) {
         this.resizePending = true;
         return;
@@ -1506,7 +1629,7 @@ export class DiaryAppController {
       const geomChanged = Math.abs(bookW - this.lastBookW) > 1 || Math.abs(bookH - this.lastBookH) > 1;
       if (s !== this.lastSingle || geomChanged) {
         this.lastSingle = s;
-        this.relayout(true);
+        this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
       } else this.refreshBookRect();
     }, 380);
   };
@@ -1563,9 +1686,11 @@ export class DiaryAppController {
       return;
     }
     /* 没有扉页可「合上」：ESC 分两步收尾——先翻回最新那一页，再关掉整本
-       （此前只翻回第 0 页就停住，等于面板永远关不掉：整屏场景里再没有别的出口） */
-    if ((this.flip || this.daySections.length) && this.cursor > 0) {
-      this.jumpToPage(0);
+       （此前只翻回第 0 页就停住，等于面板永远关不掉：整屏场景里再没有别的出口）。
+       ADR-0259 起「最新」= 第 1 卷第 0 页，人在旧卷里按一下也得回得来。 */
+    if ((this.flip || this.daySections.length) && (this.cursor > 0 || this.volIndex > 0)) {
+      if (this.volIndex > 0) this.relayout({ volume: 1, page: 0 });
+      else this.jumpToPage(0);
       this.toast('翻到最新');
       return;
     }
@@ -1662,11 +1787,17 @@ export class DiaryAppController {
         this.toggleAudio(aud);
         return;
       }
-      /* 册页索引：点一行跳到那个月，纸就收回去 */
+      /* 册页索引：点一行跳到那个月，纸就收回去（ADR-0259：跨卷的行先换卷） */
       const row = t.closest<HTMLElement>('.bz-diary-idx-row');
       if (row) {
         this.closeSheet();
-        this.jumpToPage(Number(row.dataset.jumpPage || 0));
+        const vol = Number(row.dataset.jumpVol || 0);
+        const month = row.dataset.jumpMonth || '';
+        if (vol && vol !== this.volIndex + 1) this.relayout({ volume: vol, month });
+        else {
+          const pi = this.pageOfMonth(month);
+          if (pi >= 0) this.jumpToPage(pi);
+        }
         return;
       }
       if (t.closest('.bz-diary-sheet-paper') && !t.closest('.bz-diary-sh-close')) return;
@@ -2213,7 +2344,7 @@ export class DiaryAppController {
   }
 
   private applyFilter(): void {
-    this.relayout(false);
+    this.relayout({ volume: 1, page: 0 });
     if (this.filterTag) {
       this.filterTabEl.classList.add('bz-diary-on');
       const name = this.filterTabEl.querySelector<HTMLElement>('.bz-diary-ft-name');
@@ -2321,14 +2452,22 @@ export class DiaryAppController {
     this.calEl.hidden = true;
   }
 
+  /** 台历跳日：在全量数据里找那天，不在当前卷就先换卷（ADR-0259） */
   private jumpToDay(date: string): void {
-    for (let pi = 0; pi < this.pages.length; pi++) {
-      if (pageDateOf(this.pages[pi]) === date) {
-        this.jumpToPage(pi);
-        return;
-      }
+    const list = this.visibleEntries();
+    const at = list.findIndex((e) => e.date === date);
+    if (at < 0) {
+      this.toast('这本册子里，那天没落笔');
+      return;
     }
-    this.toast('这一册里，那天没落笔');
+    this.planVolumes();
+    const vol = volumeOf(this.volumes, at);
+    if (vol > 0 && vol !== this.volIndex + 1) {
+      this.relayout({ volume: vol, date });
+      return;
+    }
+    const pi = this.pageOfDate(date);
+    if (pi >= 0) this.jumpToPage(pi);
   }
 
   /**
@@ -2406,21 +2545,18 @@ export class DiaryAppController {
   //  放大镜（检索：荧光笔）
   // ============================================================
 
+  /**
+   * 检索在**全量数据**上跑（ADR-0259）：一册只装一卷，扫页只能扫到这一卷；
+   * 目录报全书、检索也得翻全书。比的是「渲染出来的那段文字」（`plainTextOf`），
+   * 与旧口径（扫块元素的 textContent）同源。
+   */
   private runSearch(kw: string): void {
     this.clearMarks();
     this.search = { kw, hits: [], i: 0 };
-    for (let pi = 0; pi < this.pages.length; pi++) {
-      for (const el of this.pages[pi]) {
-        if (
-          el.classList.contains('bz-diary-b-photo') ||
-          el.classList.contains('bz-diary-b-audio') ||
-          el.classList.contains('bz-diary-b-envelope') ||
-          el.classList.contains('bz-diary-b-daystamp')
-        ) {
-          continue;
-        }
-        if ((el.textContent || '').indexOf(kw) >= 0) this.search.hits.push({ pi, el });
-      }
+    const list = this.visibleEntries();
+    for (let i = 0; i < list.length; i++) {
+      if (plainTextOf(list[i]).indexOf(kw) < 0) continue;
+      this.search.hits.push({ entry: list[i], index: i });
     }
     if (!this.search.hits.length) {
       this.openSlip({ title: '没 找 到', body: `整本册子都翻了，没有「${escapeHtml(kw)}」这个词。`, ok: '知道了' });
@@ -2430,13 +2566,34 @@ export class DiaryAppController {
     this.nextHit();
   }
 
+  /** 下一处命中：跨卷的先换卷并落到那一页（50 则的重排是几十毫秒），同卷的直接翻 */
   private nextHit(): void {
     const s = this.search;
     if (!s.hits.length) return;
     const hit = s.hits[s.i % s.hits.length];
     s.i++;
-    this.jumpToPage(hit.pi);
-    setTimeout(() => this.markHit(hit.el, s.kw || ''), 80);
+    const kw = s.kw || '';
+    const eid = hit.entry.id || '';
+    this.planVolumes();
+    const vol = volumeOf(this.volumes, hit.index);
+    if (vol > 0 && vol !== this.volIndex + 1) {
+      this.relayout({ volume: vol, eid });
+    } else {
+      const pi = this.pageOfEid(eid);
+      if (pi >= 0) this.jumpToPage(pi);
+    }
+    setTimeout(() => this.markHitEid(eid, kw), 80);
+  }
+
+  /** 在刚翻到的那一页上把这一条里含词的那些块划上荧光笔 */
+  private markHitEid(eid: string, kw: string): void {
+    if (!eid || !kw || !this.root) return;
+    for (const page of this.pages) {
+      for (const el of page) {
+        if (el.dataset.eid !== eid) continue;
+        if ((el.textContent || '').indexOf(kw) >= 0) this.markHit(el, kw);
+      }
+    }
   }
 
   private markHit(el: HTMLElement, kw: string): void {
@@ -2744,13 +2901,18 @@ export class DiaryAppController {
     this.saving = true;
     this.wspAreaEl.readOnly = true;
     try {
-      await addEntry(d.date, d.time, d.tags.length ? d.tags : ['日记'], text);
+      const created = await addEntry(d.date, d.time, d.tags.length ? d.tags : ['日记'], text);
       this.dropWrite();
-      /* 回册首：这一跳是眼下的反馈，`pendingHome` 是紧随其后那次防抖回刷的落点——
-         两者都钉在「最新那篇 = 第 0 页」上，免得刚写完却停在半路（见 pendingHome 注释）。 */
+      /* 立刻回册首、且新内容就在眼前（ADR-0259 决策 8）：这一篇已经落盘，
+         就地转成墙条目插到内存首位、当场重排落第 0 页——不等那次 400ms 防抖回刷
+         （等它跑起来时，人正对着一张旧页面发愣，「刚写的在哪儿」这一问就出来了）。
+         回刷落地时 `loadEntries` 整体替换 `entries`，这一份影子不会留下第二份。 */
+      const entry = wallEntryOfDiary(created);
+      const at = this.entries.findIndex((e) => cmpEntryDesc(entry, e) < 0);
+      if (at < 0) this.entries.push(entry);
+      else this.entries.splice(at, 0, entry);
       this.pendingHome = true;
-      this.jumpToPage(0);
-      this.cursor = 0;
+      this.relayout({ volume: 1, page: 0 });
       this.toast('记下了，盖个章');
       return true;
     } catch (e) {
@@ -3016,16 +3178,19 @@ export class DiaryAppController {
     });
   }
 
-  /** 重新读盘 + 整册重排（事件回刷路径；保阅读位置） */
+  /** 重新读盘 + 重排当前这一卷（事件回刷路径；保阅读位置） */
   private async loadAndRelayout(): Promise<void> {
     await this.loadEntries(false);
-    this.relayout(true);
+    this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
+    this.startBackgroundFill();
   }
 
   /**
    * 读盘。`allowCache`：开册路径命中预热/上次刷新后的缓存秒开；
    * 刷新/写后回刷/重试一律先作废回源（保持「每次刷新即读盘」语义，不赌缓存失效是否触发）。
-   * 一册只读一窗（`diaryPageSize`，缺省 50 则），剩下的旧日子翻到册尾再续读。
+   *
+   * ADR-0259：开册读到**第 1 卷收卷**为止（比容量略多的有界读，多读一两窗），
+   * 这本书才算「整」——否则第一册会缺它自己那几个月后面的条目。剩下的一律后台续读。
    */
   private async loadEntries(allowCache: boolean): Promise<void> {
     try {
@@ -3037,6 +3202,16 @@ export class DiaryAppController {
       // 取副本：数据层那个数组是「这一轮已读的墙」，UI 会往里并加密条目/过滤，别写回缓存
       this.entries = [...(await loadWallEntries(this.app()))];
       this.hasMore = wallHasMore(this.app());
+      /* 读到第 1 卷收卷（看到第 2 卷为止）：页面上这一卷必须是完整的一卷 */
+      const cap = wallWindowSize();
+      for (let guard = 0; this.hasMore && guard < 64; guard++) {
+        if (firstVolumeClosedAt(this.visibleEntries().map((e) => e.date), cap) >= 0) break;
+        const added = await loadMoreWallEntries(this.app());
+        if (!added.length) break;
+        this.entries.push(...added);
+        this.hasMore = wallHasMore(this.app());
+      }
+      if (this.entries.length) this.entries.sort((a, b) => cmpEntryDesc(a, b));
       this._loadError = null;
     } catch (e) {
       this.entries = [];
@@ -3050,40 +3225,54 @@ export class DiaryAppController {
     else this.fallbackEl.hidden = true;
   }
 
-  /** 离册尾还有几页就续读下一窗（翻页/换天都会路过；已在读或没有更多就空转） */
-  private maybeLoadMore(page: number): void {
-    // 建书期的程序化落页不算「人翻到册尾」；纸上有草稿时也不续读（续读要整册重排，那张纸不能被换走）
-    if (this.buildingBook || !this.hasMore || this.loadingMore || this.hasDraft()) return;
-    const total = this.pages.length;
-    if (total <= 0) return;
-    if (page < total - LOAD_MORE_AHEAD_PAGES) return;
-    void this.loadMoreEntries();
+  /**
+   * 后台把剩下的日子读完（ADR-0259 决策 3）。读完只让索引 / 检索 / 台历的覆盖面变大，
+   * **不重排书页**——用户当年否掉的就是「书自己变厚」。唯一的例外见 `syncEntriesFromStream`。
+   */
+  private startBackgroundFill(): void {
+    if (!this.hasMore || this.filling) return;
+    const app = this.app();
+    const token = this.loadToken;
+    this.filling = true;
+    void fillWallEntries(app)
+      .then(() => {
+        if (this.loadToken !== token) return; // 换了一轮开册：这一轮的结果已经没人要
+        this.filling = false;
+        void this.syncEntriesFromStream();
+      })
+      .catch(() => {
+        this.filling = false;
+      });
   }
 
   /**
-   * 续读下一窗并接在册尾（用户点名：五十页快翻完了，继续加载五十页）。
-   * 读的是**缓存那个流的下半截**，不是重读整墙；接完按绝对页号落回原来那一页，
-   * 于是「翻到册尾」只是多出更旧的日子，人不会被推到新册尾去。
+   * 后台读完 → 把 `entries` 换成数据层的全量，重算分卷（此时只有最旧那一卷可能变），
+   * 索引 / 检索 / 台历当场变完整。
+   *
+   * 例外：人正停在第 1 卷、且这一卷的**卷尾**因为读到了更旧的同月条目而变长时，
+   * 这一卷本身先前是不完整的——它得把自己那几个月补齐。只在「还停在开头、纸上没草稿」时补排，
+   * 人已经翻到别处就留到下次开册重排（不当着人的面把册子换掉）。
    */
-  private async loadMoreEntries(): Promise<void> {
-    if (!this.hasMore || this.loadingMore) return;
-    this.loadingMore = true;
-    const page = this.cursor;
+  private async syncEntriesFromStream(): Promise<void> {
+    if (this.root?.style.display !== 'flex' || this._loadError) return;
     try {
-      const added = await loadMoreWallEntries(this.app());
-      this.hasMore = wallHasMore(this.app());
-      if (!added.length) return;
-      /* 读盘期间被收起/换了册子：这一窗不接（下次开册会按已读条数补齐） */
-      if (this.root?.style.display !== 'flex' || this._loadError) return;
-      this.entries.push(...added);
-      // 加密条目是 UI 层并进来的，可能比新补的这一窗还旧 ⇒ 并完统一重排次序
-      this.entries.sort((a, b) => cmpEntryDesc(a, b));
-      this.relayout(false, page);
+      const fresh = await loadWallEntries(this.app()); // 命中缓存，不再读盘
+      this.entries = [...fresh];
     } catch {
-      /* 续读失败：这一册就停在已读处（人手里这几页照常翻），下次开册重来 */
-    } finally {
-      this.loadingMore = false;
+      return;
     }
+    this.hasMore = wallHasMore(this.app());
+    await this.mergeEncryptedEntries();
+    const before = this.volumes[this.volIndex];
+    this.planVolumes();
+    const after = this.volumes[this.volIndex];
+    if (this.volIndex !== 0 || !before || !after || before.end === after.end) return;
+    if (this.hasDraft()) {
+      this.bookFresh = false; // 纸上有草稿：不动书，下次开册重排
+      return;
+    }
+    if (this.cursor === 0) this.relayout({ volume: 1, page: 0 });
+    else this.bookFresh = false;
   }
 
   /**
@@ -3181,7 +3370,7 @@ export class DiaryAppController {
           if (e.filename === oldPath) e.filename = newPath;
         }
         if (movedOut) this.entries = this.entries.filter((e) => e.filePath !== oldPath);
-        if (movedOut || touched) this.relayout(true);
+        if (movedOut || touched) this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
       })
     );
     this._subs.push(
@@ -3192,7 +3381,7 @@ export class DiaryAppController {
         const hadMap = dropDiaryMapPath(path);
         const before = this.entries.length;
         this.entries = this.entries.filter((e) => e.filePath !== path);
-        if (hadMap || this.entries.length !== before) this.relayout(true);
+        if (hadMap || this.entries.length !== before) this.relayout({ keepRatio: true, volume: this.volIndex + 1 });
       })
     );
   }
@@ -3257,8 +3446,9 @@ export class DiaryAppController {
    *   （DOM 与 StPageFlip 实例都还在，`hide()` 只是 `display:none`），直接翻开——不重读、不重排、
    *   纸上没落笔的草稿原样还在。用户点名：「再次打开日记本的时候，写的内容也不会消失，
    *   也不会再重新渲染页面」。
-   * - **慢路**：读全量 → 进度条 → 读完一次成册。上千篇正文走磁盘读 + 每批 10，读完要好几秒；
-   *   这段时间书还是空的，桌上摆一张报进度的纸条（`showLoading`），读完换「正在装订」，成册即收。
+   * - **慢路**：读到第 1 卷收卷 → 进度条 → 成册（其余后台续读）。上千篇正文走磁盘读 + 每批 10，
+   *   但开册只需要读到第一册收卷为止（通常一两窗），不必等全册读完；这段时间书还是空的，
+   *   桌上摆一张报进度的纸条（`showLoading`），读完换「正在装订」，成册即收。
    */
   show(): void {
     if (!this._initialized) this.ensureElements();
@@ -3294,7 +3484,7 @@ export class DiaryAppController {
         return;
       }
       /* 期间又 show 过一次（命令连点）：这一轮已经过期，让位给新的那一轮——
-         否则两个任务会各排一遍整册，还把新一轮正在用的进度纸条收掉 */
+         否则两个任务会各排一遍这一卷，还把新一轮正在用的进度纸条收掉 */
       if (this.loadToken !== token) return;
       if (this._loadError) {
         // 兜底纸已经摆出来了：别再写「正在装订… 共 0 则」自相矛盾
@@ -3306,10 +3496,11 @@ export class DiaryAppController {
       /* 让「正在装订」先画出来：量高 + 切页 + 建书是原子的 O(篇数)，会把这台机器占住一会儿 */
       await this.afterPaint();
       try {
-        this.relayout(false);
+        this.relayout({ volume: 1, page: 0 });
       } finally {
         this.hideLoading();
       }
+      this.startBackgroundFill();
       this.toast(reopen ? '又翻开了' : '翻开的是最新那篇');
     })();
     this.loadTask = task;
@@ -3350,7 +3541,7 @@ export class DiaryAppController {
   }
 
   // ============================================================
-  //  开册进度（读全量 → 一次成册）
+  //  开册进度（读到第 1 卷收卷 → 成册；其余后台续读）
   // ============================================================
 
   /** 摆出进度纸条。读得快（预热缓存命中）时不摆：先压一个 120ms 的延时，读完即撤。 */
@@ -3536,7 +3727,10 @@ export class DiaryAppController {
     this.dayIdx = 0;
     this.entries = [];
     this.hasMore = false;
-    this.loadingMore = false;
+    this.filling = false;
+    this.volumes = [];
+    this.volIndex = 0;
+    this._volKey = '';
     this.bookFresh = false; // DOM 都要拆了，快路的凭据跟着作废
     this.draft = null;
     if (this.root) {
