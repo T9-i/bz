@@ -149,6 +149,14 @@ describe('parseMovieFile', () => {
     expect(entry!.date).toBe('2026-08-15');
   });
 
+  it('观影日期被宿主 YAML 解析成时间戳对象（Date）时照样收', async () => {
+    // 裸日期在真机 YAML 里可能是时间戳对象；老写法 `moment(Date, 格式, true)` 忽略格式能吃下，
+    // 换成纯正则后必须先摊平，否则「改宽了」反而丢一条。
+    mockApp({}, { 'a.md': { 影评: 'x', 观影日期: new Date(2026, 9, 25, 14, 34, 43), tags: ['电影'] } });
+    const entry = await parseMovieFile(makeFile('a.md', 0), app);
+    expect(entry!.date).toBe('2026-10-25'); // 本地年月日，不吃时区退一天
+  });
+
   it('tags 字符串形式解析主标签', async () => {
     mockApp({}, { 'a.md': { 影评: 'x', 观影日期: '2024-02-03', tags: '纪录片' } });
     const entry = await parseMovieFile(makeFile('a.md', 0), app);
