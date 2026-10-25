@@ -275,6 +275,23 @@ describe('paginateFlow（块流 → 页）', () => {
     expect(pages.map((p) => p.length)).toEqual([1, 1]);
   });
 
+  it('换页之后还要再切一刀：比一整页高的块不许整段压在页上（底部溢出被裁）', () => {
+    const up = el();
+    const down = el();
+    const asks: number[] = [];
+    const items_ = items([90], [250]); // 第一块占满页尾，第二块自己就比一页高
+    items_[1].el = up;
+    const split = (target: HTMLElement, avail: number): [HTMLElement, HTMLElement, number] | null => {
+      expect(target).toBe(up);
+      asks.push(avail);
+      return [up, down, 30];
+    };
+    const pages = paginateFlow(items_, 100, split, () => 30);
+    expect(asks).toEqual([96]); // 只剩 10px 那次连试都不试；这一刀是换到空页后按整页切的
+    expect(pages[1][0]).toBe(up);
+    expect(pages[1][1]).toBe(down); // 下半真的跟着进了流，不是被裁掉
+  });
+
   it('没有日戳时全部落在一页（块高为 0 的退化场景，jsdom 量尺即如此）', () => {
     const pages = paginateFlow(items([0], [0], [0]), 100, noSplit, () => 0);
     expect(pages.length).toBe(1);
@@ -691,6 +708,42 @@ describe('DiaryAppController · 首屏与建书', () => {
     await vi.waitFor(() => expect(flipRecords.length).toBeGreaterThan(before));
     expect(lastFlip().opts.usePortrait).toBe(false);
     expect(qa('.bz-diary-day').length).toBe(0);
+  });
+
+  it('跨页档页内滚不动（overflow:hidden）：滚轮一律归翻页，不扣在一个滚不动的页上', async () => {
+    await openBook();
+    const rec = lastFlip();
+    const inner = q('.bz-diary-page-inner');
+    // jsdom 没有排版：手造「内容比页高」，可滚性则取样式（跨页档就是 hidden）
+    Object.defineProperty(inner, 'scrollHeight', { value: 900, configurable: true });
+    Object.defineProperty(inner, 'clientHeight', { value: 400, configurable: true });
+    inner.style.overflowY = 'hidden';
+
+    const before = rec.page;
+    inner.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+    expect(rec.page).toBe(before + 1); // 溢出也照样翻得动
+  });
+
+  it('窄屏一天一卷真能滚时，滚轮先归卷（滚到头才换天）', async () => {
+    const c = await openBook();
+    window.innerWidth = 412;
+    window.dispatchEvent(new Event('resize'));
+    await vi.waitFor(() => expect(qa('.bz-diary-day').length).toBeGreaterThan(0));
+
+    const day = q('.bz-diary-day.bz-diary-day-on');
+    const inner = day.querySelector<HTMLElement>('.bz-diary-page-inner') || day;
+    Object.defineProperty(inner, 'scrollHeight', { value: 900, configurable: true });
+    Object.defineProperty(inner, 'clientHeight', { value: 400, configurable: true });
+    inner.style.overflowY = 'auto';
+
+    const dayBefore = q('.bz-diary-day.bz-diary-day-on').dataset.date;
+    inner.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+    // 这一卷还没滚到底 → 滚轮归它，不换天
+    expect(q('.bz-diary-day.bz-diary-day-on').dataset.date).toBe(dayBefore);
+    expect((c as unknown as { single: boolean }).single).toBe(true);
+
+    window.innerWidth = 1024; // 复位：别把后面的跨页用例带进窄屏档
+    window.dispatchEvent(new Event('resize'));
   });
 
   it('滚轮翻页节流；键盘 ← → 翻页；Esc 无浮层时翻回最新', async () => {

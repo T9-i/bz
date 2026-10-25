@@ -204,7 +204,9 @@ export type ShrinkFn = (el: HTMLElement, maxH: number) => number | null;
  * 1. `keep` 块（日戳）= 新的一天 = 新的一张纸，且**对齐到跨页左位**（前一天纸的背面自然留白）；
  * 2. 空页上遇到「自己就超过一整页」的块：先按整页高度切一刀；
  * 3. 装不下时：3a 可缩块（`fit`，照片 / 视频）先等比缩到塞进剩余高度；3b 还装不下且页尾够高
- *    （≥ PAGE_CUT_MIN_PX）就在剩余空间里逐行切一刀，上半留页尾、下半顶格续下页；否则换页；
+ *    （≥ PAGE_CUT_MIN_PX）就在剩余空间里逐行切一刀，上半留页尾、下半顶格续下页；否则换页
+ *    ——**换到空页后要重跑一次规则 2**，否则「一整段比一页还高、页尾又切不动」时整段压在页上，
+ *    底部溢出被裁掉（真机症状：右页正文一直写到纸边、下面那截看不见，滚轮还翻不动）；
  * 4. `keep` 块还要求剩余高度容得下「它 + 一点内容」，否则提前换页（日戳不孤行）。
  *
  * 抽成纯函数是为了让这段最难的逻辑能脱开 DOM 单测（真实现里 `split` 走 Range 二分，
@@ -232,6 +234,15 @@ export function paginateFlow(
   };
   newPage();
 
+  /** 规则 2 的本体：空页上的超长块按整页高切一刀，下半插回流里（`it.h` 改成上半的真高）。 */
+  const fitOnEmptyPage = (it: (typeof metas)[number], at: number): void => {
+    if (it.h <= availH) return;
+    const c2 = split(it.el, availH - 4);
+    if (!c2) return;
+    it.h = heightOf(c2[0]);
+    metas.splice(at + 1, 0, { el: c2[1], h: c2[2], keep: false, fit: false });
+  };
+
   for (let i = 0; i < metas.length; i++) {
     const it = metas[i];
     /* 1) 新的一天 = 新的一张纸 */
@@ -241,13 +252,7 @@ export function paginateFlow(
       used = 0;
     }
     /* 2) 空页上遇到超长块：先按整页高度切一刀 */
-    if (!cur!.length && it.h > availH) {
-      const c2 = split(it.el, availH - 4);
-      if (c2) {
-        it.h = heightOf(c2[0]);
-        metas.splice(i + 1, 0, { el: c2[1], h: c2[2], keep: false, fit: false });
-      }
-    }
+    if (!cur!.length) fitOnEmptyPage(it, i);
     /* 3) 装不下 */
     if (used + it.h > availH && cur!.length) {
       const remain = availH - used;
@@ -270,6 +275,9 @@ export function paginateFlow(
           }
         }
         newPage();
+        /* 换到空页之后补跑规则 2：一整段比一页还高、页尾又够不着切点时，上面那条 3b 只换了页，
+           整段就那么压在新页上、底部被裁掉。空页上该按整页高再切一刀。 */
+        fitOnEmptyPage(it, i);
       }
     }
     /* 4) 日戳不孤行 */
@@ -1482,6 +1490,19 @@ export class DiaryAppController {
   //  交互：滚轮 / 键盘 / 缩放
   // ============================================================
 
+  /**
+   * 这一页真的能滚吗。
+   *
+   * 跨页档的 `.bz-diary-page-inner` 是 `overflow: hidden`（样式见 `./styles.css`，只有窄屏一天一卷
+   * 才换成 `overflow-y: auto`）——内容真溢出了也滚不动，`scrollTop` 永远是 0，于是「到没到底」恒判
+   * 「没到底」。溢出的页若照旧把滚轮扣下，就成了**既看不到溢出那段、也翻不了页**的死角
+   * （用户 2026-10-26 真机：右页正文写到纸边被裁，鼠标放着滚轮翻不动）。
+   */
+  private innerScrollable(el: Element): boolean {
+    const oy = getComputedStyle(el).overflowY;
+    return oy === 'auto' || oy === 'scroll';
+  }
+
   private bindChrome(): void {
     /* 四角点击翻页已按用户要求取消；窄屏更没有「翻页」这回事——那边滚到顶/底换一天 */
     this.bookEl.addEventListener(
@@ -1495,10 +1516,10 @@ export class DiaryAppController {
         /* 「滚到当天日记的顶 / 底，再滚才换上下一天」（用户拍板 2026-10-16）：
            窄屏一天一卷、卷自己可滚；先把滚轮让给卷，滚到头这一滚才转成换天。
            一天本来就装得下（常见）时 scrollHeight === clientHeight，两侧都判成「到头」，
-           于是「一滚就换天」，不会出现滚不动又换不了的死角。跨页档同理（内容不可滚，
-           恒判成到头，回到过去的「一滚就翻」）。 */
+           于是「一滚就换天」。跨页档的页内是 `overflow: hidden`，判据里那道
+           `innerScrollable` 会直接否掉——它滚不动，滚轮一律归翻页（见 innerScrollable 的注）。 */
         const sc = (ev.target as HTMLElement | null)?.closest?.('.bz-diary-page-inner');
-        if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+        if (sc && this.innerScrollable(sc) && sc.scrollHeight > sc.clientHeight + 1) {
           const atTop = sc.scrollTop <= 0;
           const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
           if (ev.deltaY > 0 && !atBottom) return; // 这一天还有下文：这一滚先归它
@@ -1539,7 +1560,7 @@ export class DiaryAppController {
         const dx = t.clientX - tx;
         if (Math.abs(dy) < 40 || Math.abs(dy) < Math.abs(dx) * 1.6) return;
         const sc = (ev.target as HTMLElement | null)?.closest?.('.bz-diary-page-inner');
-        if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+        if (sc && this.innerScrollable(sc) && sc.scrollHeight > sc.clientHeight + 1) {
           const atTop = sc.scrollTop <= 0;
           const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
           if (dy > 0 && !atBottom) return; // 还有下文：这一滑先归这一天
