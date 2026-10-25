@@ -136,6 +136,19 @@ describe('parseMovieFile', () => {
     expect(await parseMovieFile(makeFile('a.md', 0), app)).toBeNull();
   });
 
+  it('观影日期带时分（影院落盘的排序戳）不再整条被吞', async () => {
+    // 真库原样：影院域写的是 `观影日期: 2026-10-25 14:34:43`，日记这边原先按纯日期严格解析 → 返回 null
+    mockApp({}, { '我的/影视/《我的团长我的团》.md': { 影评: '该多伟大', 观影日期: '2026-10-25 14:34:43', tags: ['国产剧'] } });
+    const entry = await parseMovieFile(makeFile('我的/影视/《我的团长我的团》.md', 0), app);
+    expect(entry).toMatchObject({ date: '2026-10-25', tags: ['电视剧'] }); // 类型不设限：国产剧照样进册子
+  });
+
+  it('观影日期的 ISO 形态（T 分隔）同样只取日期段', async () => {
+    mockApp({}, { 'a.md': { 影评: 'x', 观影日期: '2026-08-15T19:00:00', tags: ['电影'] } });
+    const entry = await parseMovieFile(makeFile('a.md', 0), app);
+    expect(entry!.date).toBe('2026-08-15');
+  });
+
   it('tags 字符串形式解析主标签', async () => {
     mockApp({}, { 'a.md': { 影评: 'x', 观影日期: '2024-02-03', tags: '纪录片' } });
     const entry = await parseMovieFile(makeFile('a.md', 0), app);
