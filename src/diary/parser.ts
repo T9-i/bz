@@ -83,6 +83,25 @@ function pickFmStrings(fm: any, keys: string[]): Record<string, string> {
 }
 
 /**
+ * 影视条目「观影日期」→ `YYYY-MM-DD`（非法返回 null）。
+ *
+ * 影院域落盘的是**带时分的排序戳** `2026-10-25 14:34:43`（个别旧档是 ISO 的 `T` 形态），
+ * 少数更旧的档才是纯日期 `2026-10-25`。日记这边原先按 `'YYYY-MM-DD'` **严格**解析，
+ * 于是只要带时分就判非法 → 整条被跳过（真库 828 篇里被吞掉 9 篇，最新一篇正是
+ * 《我的团长我的团》：`观影日期: 2026-10-25 14:34:43`）。
+ *
+ * 只取**日期段**再交 `moment` 严格校验：时分在日记里不显示（`render.sealHTML` 的时辰只给
+ * 日记/信），取进来也只是给一个会在条头上被藏掉的占位值。
+ * 类型不设限——电影/纪录片/电视剧/动漫/国产剧…只要有影评就进册子。
+ */
+function movieDateOf(raw: unknown): string | null {
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(raw ?? '').trim());
+  if (!m) return null;
+  const d = moment(m[1], 'YYYY-MM-DD', true);
+  return d.isValid() ? d.format('YYYY-MM-DD') : null;
+}
+
+/**
  * 解析影视文件，生成一个日记条目（每个文件对应一个条目）
  * - 必须有影评且非空、观影日期合法，否则返回 null（跳过）；
  * - 标签按 frontmatter tags 归类（电影/纪录片/电视剧/动漫），content = 影评 + `![[海报]]` + #文件名；
@@ -97,10 +116,9 @@ export async function parseMovieFile(file: any, app: any): Promise<DiaryEntry | 
     let review = fm['影评'];
     if (!review || review.trim() === '') return null;
 
-    // 观影日期
-    let dateStr = fm['观影日期'];
-    if (!dateStr || !moment(dateStr, 'YYYY-MM-DD', true).isValid()) return null;
-    dateStr = moment(dateStr).format('YYYY-MM-DD');
+    // 观影日期（纯日期与带时分都收，见 movieDateOf）
+    const dateStr = movieDateOf(fm['观影日期']);
+    if (!dateStr) return null;
 
     let poster = fm['海报'];
 
