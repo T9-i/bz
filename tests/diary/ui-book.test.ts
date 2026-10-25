@@ -519,6 +519,21 @@ describe('render 纯层：命名空间与零内联视觉样式', () => {
     expect(html).not.toContain('](https'); // 语法碎片一个都不许留在纸面上
   });
 
+  it('中文全角括号包的外链照样认；标号里的尖括号被转义，不会长出真标签', () => {
+    const e = mk({
+      date: '2026-08-19',
+      kind: 'diary',
+      segments: [{ kind: 'text', text: '[甲<乙>丙]（https://example.com/x?a=1&b=2）后面的字' }],
+      /* 中文输入法下 `]（…）` 是常态：括号半/全角都得认，否则又是一行原样语法 */
+    });
+    const html = entryBlockHTMLs(e, CTX).join('\n');
+    expect(html).toContain('class="bz-diary-link"');
+    expect(html).toContain('href="https://example.com/x?a=1&amp;b=2"');
+    expect(html).toContain('>甲&lt;乙&gt;丙</a>'); // 标号按文本走，不按 HTML
+    expect(html).toContain('后面的字');
+    expect(html).not.toContain('（https');
+  });
+
   it('信只印一遍题目：解析期拼的那行 `**题目**` 不再重复成第二行', () => {
     const title = '第11封信：幸福是内在意义的外化';
     const letter = mk({

@@ -96,9 +96,10 @@ export function inlineMd(s: string): string {
   });
   /* markdown 外链 `[文字](https://…)`：纸面上该是**一行可点的字**，不是那串语法。
      真机上原本原样印出来，长 URL 还会把整段挤成一条竖排。href 整段塞进属性（`esc` 已把 `&`
-     转成 `&amp;`，属性里正是这个形态），可见文字只留标号；点它开系统浏览器（`ui.bindBlockEvents`）。 */
+     转成 `&amp;`，属性里正是这个形态），可见文字只留标号；点它开系统浏览器（`ui.bindBlockEvents`）。
+     括号半/全角都认：中文输入法下 `[文字]（https://…）` 是常态，只认 ASCII 那对就又原样印出来了。 */
   t = t.replace(
-    /\[([^\]\n]{1,300})\]\((https?:\/\/[^\s)]+)\)/g,
+    /\[([^\]\n]{1,300})][（(](https?:\/\/[^\s)）]+)[)）]/g,
     (_m, label: string, href: string) =>
       '<a class="bz-diary-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + '</a>'
   );
