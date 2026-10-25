@@ -50,7 +50,8 @@ if (!dateStr || !moment(dateStr, 'YYYY-MM-DD', true).isValid()) return null;  //
 ## 验收
 
 - `node scripts/test-domain.mjs diary` → 22 文件 / 408 用例全绿；`tsc --noEmit` 干净。
-- 真库复核（同口径脚本重跑）：有影评 160 篇，新口径通过 **160**，仍跳过 0。
+- 真库复核（同口径脚本重跑）：828 篇影视里，**160 篇写了影评**（其余 668 篇只打分/只收藏），
+  新口径 **160 篇全进册子**，仍跳过 0。
 
 ## 顺手记下、这次没动的
 

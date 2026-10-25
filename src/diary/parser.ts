@@ -83,6 +83,23 @@ function pickFmStrings(fm: any, keys: string[]): Record<string, string> {
 }
 
 /**
+ * frontmatter 的日期值先摊成文本再判。宿主的 YAML 可能把裸日期直接解析成时间戳对象
+ * （影院域为此专门给日期加引号，见 `src/cinema/recommend.ts` 的注），`moment(Date, 格式, true)`
+ * 对这类输入是**忽略格式、按原生日期**解析的——所以老写法能吃下对象，纯正则吃不下。
+ * 这里先摊平，别让「改宽了」反而丢掉一条以前能进的条目。
+ */
+function dateTextOf(raw: unknown): string {
+  if (raw instanceof Date) {
+    const d = new Date(raw.getTime()); // 用本地年月日：`toISOString()` 会把东八区的日子退前一天
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  if (raw && typeof raw === 'object' && typeof (raw as { format?: unknown }).format === 'function') {
+    return String((raw as { format: (f: string) => string }).format('YYYY-MM-DD'));
+  }
+  return String(raw ?? '').trim();
+}
+
+/**
  * 影视条目「观影日期」→ `YYYY-MM-DD`（非法返回 null）。
  *
  * 影院域落盘的是**带时分的排序戳** `2026-10-25 14:34:43`（个别旧档是 ISO 的 `T` 形态），
@@ -95,7 +112,7 @@ function pickFmStrings(fm: any, keys: string[]): Record<string, string> {
  * 类型不设限——电影/纪录片/电视剧/动漫/国产剧…只要有影评就进册子。
  */
 function movieDateOf(raw: unknown): string | null {
-  const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(raw ?? '').trim());
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(dateTextOf(raw));
   if (!m) return null;
   const d = moment(m[1], 'YYYY-MM-DD', true);
   return d.isValid() ? d.format('YYYY-MM-DD') : null;
