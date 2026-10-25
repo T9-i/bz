@@ -66,6 +66,9 @@ const mocks = vi.hoisted(() => ({
   reclassifyEntry: vi.fn(async (): Promise<boolean> => true),
   deleteEncryptedEntry: vi.fn(async () => {}),
   loadWallEntries: vi.fn(async (app: any, real: (a: any) => Promise<any[]>) => real(app)),
+  /* 后台续读（ADR-0259）：默认转真实现；换轮竞态那条用例要能把它拖慢再放开 */
+  fillWallEntries: vi.fn(async (_app: any, _onChunk?: (n: number) => void) => 0),
+  realFillWallEntries: vi.fn(),
   getSafeManager: vi.fn(
     () =>
       ({
@@ -93,9 +96,11 @@ vi.mock('../../src/core/flow-dialog', () => ({ openFlowDialog: mocks.openFlowDia
 // 只靠假 vault 触不到（逐文件读错在 readBatch 里已被吞成 warn）。
 vi.mock('../../src/diary/data', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../src/diary/data')>();
+  mocks.realFillWallEntries = vi.fn((app: any, onChunk?: (n: number) => void) => actual.fillWallEntries(app, onChunk));
   return {
     ...actual,
     loadWallEntries: (app: any) => mocks.loadWallEntries(app, actual.loadWallEntries),
+    fillWallEntries: (app: any, onChunk?: (n: number) => void) => mocks.fillWallEntries(app, onChunk),
   };
 });
 vi.mock('../../src/encrypt', () => ({
@@ -179,6 +184,9 @@ beforeEach(() => {
   mocks.getSafeManager.mockReturnValue({ unlocked: true, manifest: null, unlock: mocks.safeUnlock });
   mocks.loadEncryptedEntries.mockResolvedValue([]);
   mocks.loadWallEntries.mockImplementation(async (app: any, real: (a: any) => Promise<any[]>) => real(app));
+  mocks.fillWallEntries.mockImplementation((app: any, onChunk?: (n: number) => void) =>
+    mocks.realFillWallEntries(app, onChunk)
+  );
   Object.defineProperty(navigator, 'clipboard', {
     value: { writeText: vi.fn(async () => {}) },
     configurable: true,
@@ -1269,6 +1277,20 @@ describe('DiaryAppController · 写作内页（ADR-0233）', () => {
     expect(q('.bz-diary-page-inner').textContent).toContain('今天猫又把杯子推下去了');
   });
 
+  it('倒写旧日子落笔：落在自己那一页，不回册首（写完得看见自己刚写的那篇）', async () => {
+    const c = await openBook();
+    const area = await openWritePage(c);
+    area.value = '补记去年冬天那场雨';
+    /* 纸上的日子改到夹具最旧那篇（2025-01-01）之前：这一篇一定不是最新那篇 */
+    inner(c).draft = { ...inner(c).draft!, date: '2024-12-31', time: '09:00' };
+    q('[data-wact="save"]').click();
+    await vi.waitFor(() => expect(q('.bz-diary-wsp').hidden).toBe(true));
+
+    /* 回册首 = 写完眼前是最新一篇，自己刚写的在另一卷另一页——等于没看见 */
+    expect(lastFlip().page).toBeGreaterThan(0);
+    expect(q('.bz-diary-book').textContent).toContain('补记去年冬天那场雨');
+  });
+
   it('空纸落笔 → 「一个字都没写呢」，不落盘、内页不关（字还在纸上等着）', async () => {
     const c = await openBook();
     await openWritePage(c);
@@ -1676,6 +1698,29 @@ describe('DiaryAppController · 分卷（ADR-0259：一册只摊开一卷）', (
     } finally {
       setSettingsProvider(() => ({}) as never);
     }
+  });
+
+  it('后台续读换轮不卡死：收起又重开时上一轮还在跑，剩下的日子照样读齐', async () => {
+    vault.files.clear();
+    seedManyEntries(200);
+    const total = 200; // 夹具清空过，只剩这 200 篇日记
+    /* 第一轮续读故意拖慢：让「收起又重开」落在它还没落地的时候——那一轮的 token 随即作废 */
+    mocks.fillWallEntries.mockImplementationOnce(async (app: unknown, onChunk?: (n: number) => void) => {
+      await new Promise((r) => setTimeout(r, 120));
+      return mocks.realFillWallEntries(app, onChunk);
+    });
+    const c = await openBook();
+    expect(c.entries.length).toBeLessThan(total); // 开册只读到第 1 卷收卷
+    expect(c.entries.length).toBeGreaterThan(0);
+    /* 等这一轮续读**真的跑起来**再收起：它还在飞，下一个 token 才谈得上「换轮」 */
+    await vi.waitFor(() => expect(mocks.fillWallEntries).toHaveBeenCalled(), { timeout: 2000 });
+
+    /* 保险箱锁态变了 ⇒ 重开必然走慢路（快路会直接复用上一册、连 token 都不换） */
+    mocks.isUnlocked.mockReturnValue(true);
+    c.hide();
+    c.show(); // 新一轮开册：它要的续读会被上一轮的 `filling` 闸挡掉
+    /* 旧一轮落地后必须替新一轮补上，否则本会话的索引永远停在「第 1 卷收卷」 */
+    await vi.waitFor(() => expect(c.entries.length).toBe(total), { timeout: 5000 });
   });
 });
 

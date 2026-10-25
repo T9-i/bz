@@ -2911,8 +2911,18 @@ export class DiaryAppController {
       const at = this.entries.findIndex((e) => cmpEntryDesc(entry, e) < 0);
       if (at < 0) this.entries.push(entry);
       else this.entries.splice(at, 0, entry);
-      this.pendingHome = true;
-      this.relayout({ volume: 1, page: 0 });
+      if (this.entries[0] === entry) {
+        this.pendingHome = true;
+        this.relayout({ volume: 1, page: 0 });
+      } else {
+        /* 倒写旧日子：这一篇不在册首，回册首等于写完看不见自己刚写的。
+           落它所在的那一卷那一页，并把事件回刷的「回首页」撤掉（那会把刚落的人带走）。 */
+        this.pendingHome = false;
+        const vols = this.planVolumes();
+        const idx = this.visibleEntries().findIndex((e) => e.id === entry.id);
+        const vol = volumeOf(vols, idx);
+        this.relayout(vol > 0 ? { volume: vol, eid: entry.id } : { volume: 1, page: 0 });
+      }
       this.toast('记下了，盖个章');
       return true;
     } catch (e) {
@@ -3236,8 +3246,14 @@ export class DiaryAppController {
     this.filling = true;
     void fillWallEntries(app)
       .then(() => {
-        if (this.loadToken !== token) return; // 换了一轮开册：这一轮的结果已经没人要
+        /* 先复位再让位：token 换了（收起又重开）时这一轮的结果没人要，但重入闸必须松掉 */
         this.filling = false;
+        if (this.loadToken !== token) {
+          /* 那一轮新的开册来要续读时被这道闸挡掉了（它还开着门），这里替它补一次：
+             否则本会话的索引永远停在卷一，人还以为目录就这么多 */
+          if (this.root?.style.display === 'flex' && this.hasMore) this.startBackgroundFill();
+          return;
+        }
         void this.syncEntriesFromStream();
       })
       .catch(() => {

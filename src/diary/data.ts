@@ -11,9 +11,10 @@
  * 媒体 URL 走 vault API（getResourcePath / getFirstLinkpathDest）：原型里硬编码 file:// 路径在 vault 内不可播放，
  * 必须经 Obsidian 资源路径才能被 img/video/audio 加载。
  *
- * **按窗读盘（ADR-0258）**：四类混排的全序不必读正文就能定——日记的日/时在题目里（`YYMMDDHHmm`），
- * 影视/书只读 frontmatter、信读正文但量小，一次解析齐。于是开册只读 `diaryPageSize`（缺省 50）则正文，
- * 剩下的旧日子由 UI 翻到册尾时经 `loadMoreWallEntries` 续读（一窗一窗补，不重读整墙）。
+ * **分批读盘（ADR-0259）**：四类混排的全序不必读正文就能定——日记的日/时在题目里（`YYMMDDHHmm`），
+ * 影视/书只读 frontmatter、信读正文但量小，一次解析齐。于是读盘按窗推进（一窗 = `diaryPageSize` 则，
+ * 缺省 50）：开册由 UI 读到「第 1 卷收卷」为止即停（`loadMoreWallEntries`），其余交给 `fillWallEntries`
+ * 在后台读完——数据层最终是全量，只摊开哪一卷由 UI 的分卷（`./volume`）决定。
  */
 import type { App, TFile } from 'obsidian';
 import { parseEntryFile, parseMovieFile, parseLetterFile, parseBookFile } from './parser';
@@ -566,8 +567,9 @@ export async function loadWallEntries(app: App): Promise<WallEntry[]> {
 }
 
 /**
- * 续读下一窗（翻到册尾时由 UI 要）：返回**新增**的那一段（降序，接在已读段之后）；没有更多则空数组。
- * 与 `loadWallEntries` 共用同一个流，故 UI 手里的 `entries` 是同一个数组的增长，不必整册重读。
+ * 续读下一窗：返回**新增**的那一段（降序，接在已读段之后）；没有更多则空数组。
+ * UI 开册靠自己循环它读到「第 1 卷收卷」，剩下的由 `fillWallEntries` 接着读。
+ * 与 `loadWallEntries` 共用同一个流，故已读段是同一数组的增长，不必整册重读。
  */
 export async function loadMoreWallEntries(app: App): Promise<WallEntry[]> {
   const s = stream;
@@ -595,7 +597,7 @@ export async function loadMoreWallEntries(app: App): Promise<WallEntry[]> {
   }
 }
 
-/** 这一册后面还有没有没读进来的旧条目（UI 判「要不要在册尾续读」） */
+/** 后面还有没有没读进来的旧条目（UI 判：后台要不要接着读 / 索引里要不要注明「还在读」） */
 export function wallHasMore(app: App): boolean {
   return !!stream && wallCacheApp === app && !stream.invalidated && streamHasMore(stream);
 }
