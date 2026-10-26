@@ -59,6 +59,12 @@ const WHITELIST: Array<{ file: RegExp; reason: string; /** 防回归哨兵：预
     reason: '文献/笔记类用户文档写：视频转文献笔记生成与 frontmatter 回填（md 用户笔记，非插件私有数据）',
   },
   {
+    file: /^src\/knowledge\/note-edit\.ts$/,
+    reason:
+      '知识盒笔记 md 用户文档写（2026-10-26 列表右键菜单：添加/删除来源、改领域）——一次性读改写 frontmatter ' +
+      '行级手术，无插件私有数据竞态面；口径同 note-gen 的 upgradeNoteSourceInFile 与 source-retire',
+  },
+  {
     file: /^src\/knowledge\/source-retire\.ts$/,
     reason: '知识盒卡片 md 用户文档写（issue 336/ADR-0149 source 退役：删除降级/摘除行级手术，同 note-gen upgradeNoteSourceInFile 口径——一次性读改写用户笔记，无插件私有数据竞态面）',
   },

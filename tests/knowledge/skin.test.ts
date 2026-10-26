@@ -35,11 +35,11 @@ function block(sel: string): string | null {
 }
 
 describe('issue 291：knowledge 确认框随纸墨皮', () => {
-  it('三处确认框都传 className: kb bz-kb-flow-dialog', () => {
+  it('五处确认框都传 className: kb bz-kb-flow-dialog（2026-10-26 起含列表右键的删除来源 / 删除笔记）', () => {
     const hits = ui().match(/className: 'kb bz-kb-flow-dialog'/g) || [];
-    expect(hits.length, '三处确认框（中止批量 / 删除任务 / 清空历史）各一处').toBe(3);
-    // 三处流程框的标题守卫（防将来改文案/挪位置后本断言失去意义）
-    for (const t of ['中止批量处理？', '删除转文献任务', '清空历史']) {
+    expect(hits.length, '五处确认框（中止批量 / 删除任务 / 清空历史 / 删除来源 / 删除笔记）各一处').toBe(5);
+    // 五处流程框的标题守卫（防将来改文案/挪位置后本断言失去意义）
+    for (const t of ['中止批量处理？', '删除转文献任务', '清空历史', '删除来源', '删除${kindLabel}']) {
       expect(ui(), `缺确认框「${t}」`).toContain(t);
     }
   });

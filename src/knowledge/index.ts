@@ -17,6 +17,7 @@ import { KnowledgeData } from './data';
 import { UIManager, type EntryPrefill } from './ui';
 import { type TermSource } from './source';
 import { upgradeNoteSourceInFile } from './note-gen';
+import { relinkNoteByPath } from './relink';
 
 let initialized = false;
 let uiManager: UIManager | null = null;
@@ -174,7 +175,8 @@ export async function upgradeNoteSourceInternal(app: App, notePath: string, inte
 }
 
 /**
- * 取自动关联通道（三处命令共用）：总开关关掉 / 通道未接线 → 提示并返回 null。
+ * 取自动关联通道（批量补链用）：总开关关掉 / 通道未接线 → 提示并返回 null。
+ * 单篇重跑（命令与列表右键菜单）已收进 relink.ts，这里只管 bz-knowledge-link-all。
  * 未接线的原因通常是第二大脑域尚未初始化——命令回调由 main.ts 先 ensureSecondBrain（幂等）再进来。
  */
 function takeLinkBridge(): ReturnType<typeof getLinkBridge> {
@@ -195,6 +197,7 @@ function takeLinkBridge(): ReturnType<typeof getLinkBridge> {
  * 重跑一次关联（正文大改后的手动兜底入口）。
  * 范围口径已反转（ADR-0141 §2）：**手动不再豁免**——盒外笔记直接拒绝并提示；
  * v1.7/ticket 167 的「手动重跑始终强制」保留（force 跳过「已有 related 不建链」尊重门）。
+ * 2026-10-26 起管线与文案收进 relink.ts（列表右键菜单「重跑关联」共用同一份）。
  */
 export async function relinkActiveNote(app: App): Promise<void> {
   const file = app.workspace.getActiveFile?.() as { path: string } | null;
@@ -202,25 +205,7 @@ export async function relinkActiveNote(app: App): Promise<void> {
     notice('请先打开一个笔记', 'info');
     return;
   }
-  const bridge = takeLinkBridge();
-  if (!bridge) return;
-  try {
-    const outcome = await bridge.now(file.path, { force: true });
-    if (outcome.status === 'done') {
-      notice(outcome.created > 0 ? `已新建关联 ${outcome.created} 条` : '未发现实质关联，未新建', 'success');
-    } else if (outcome.status === 'queued') {
-      notice('embedding 服务不可达，已加入待处理队列，服务可达后自动处理', 'info');
-    } else if (outcome.status === 'out-of-scope') {
-      notice('该笔记不在三个盒子内：自动关联只在文献盒、卡片盒、主题盒里生效', 'info');
-    } else if (outcome.status === 'failed') {
-      notice(`关联处理失败：${outcome.error}`, 'error');
-    } else {
-      notice('该笔记暂无法处理（文件缺失、非 Markdown 或位于加密目录）', 'info');
-    }
-  } catch (e) {
-    console.warn('[knowledge] 重跑关联失败', e);
-    notice(`关联处理失败：${e instanceof Error ? e.message : String(e)}`, 'error');
-  }
+  await relinkNoteByPath(file.path);
 }
 
 /**
