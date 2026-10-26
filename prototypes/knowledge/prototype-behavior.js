@@ -1,5 +1,5 @@
-/* 源指纹 26e5c9b2cdb70b3a · 仓内输入 47 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
+/* 源指纹 07f68dcda02380dd · 仓内输入 48 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/knowledge/fake-sim.ts → window.BZW_knowledge（行为单源预览包，issue 245/ADR-0106） */
 var BZW_knowledge = (() => {
   var __create = Object.create;
@@ -13057,6 +13057,90 @@ ${String(blockText != null ? blockText : "").trim()}`);
     return true;
   }
 
+  // src/knowledge/tack.ts
+  function stripFrontmatter3(content) {
+    var _a;
+    const src = String(content != null ? content : "");
+    const eol = src.includes("\r\n") ? "\r\n" : "\n";
+    const lines = src.split(/\r?\n/);
+    if (((_a = lines[0]) == null ? void 0 : _a.trim()) !== "---") return src;
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i].trim() === "---") return lines.slice(i + 1).join(eol);
+    }
+    return src;
+  }
+  function mediaEmbedsOf(content) {
+    const body = stripFrontmatter3(content);
+    const re = /!\[\[([^\]\n|]+)(\|[^\]\n]*)?\]\]/g;
+    const out = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const m of body.matchAll(re)) {
+      const hit = m[0];
+      const key2 = m[1].trim();
+      if (!key2 || seen.has(key2)) continue;
+      seen.add(key2);
+      out.push(hit);
+    }
+    return out;
+  }
+  function tackLinkOf(notePath) {
+    const base = String(notePath != null ? notePath : "").replace(/\\/g, "/").split("/").pop() || "";
+    const name = base.replace(/\.md$/i, "").trim();
+    return name ? `[[${name}]]` : "";
+  }
+  function tackBlock(link, embeds) {
+    const head = `> [!quote] ${link}`;
+    return [head, ...embeds.map((e) => `> ${e}`)].join("\n");
+  }
+  function upsertTackBlock(content, link, embeds) {
+    const src = String(content != null ? content : "");
+    const eol = src.includes("\r\n") ? "\r\n" : "\n";
+    const block = tackBlock(link, embeds);
+    const lines = src.split(/\r?\n/);
+    const headAt = lines.findIndex((l) => l.trim() === `> [!quote] ${link}`);
+    if (headAt >= 0) {
+      let end = headAt;
+      while (end + 1 < lines.length && lines[end + 1].trim().startsWith(">")) end++;
+      const next = [...lines.slice(0, headAt), ...block.split("\n"), ...lines.slice(end + 1)];
+      return { text: next.join(eol), action: "updated" };
+    }
+    const body = src.replace(/\s+$/, "");
+    const tail = block.split("\n").join(eol);
+    const text = body ? body + eol + eol + tail + eol : tail + eol;
+    return { text, action: "added" };
+  }
+  async function tackMediaToNote(app, sourcePath, targetPath) {
+    const srcPath = String(sourcePath != null ? sourcePath : "").trim();
+    const dstPath = String(targetPath != null ? targetPath : "").trim();
+    if (!srcPath || !dstPath || srcPath === dstPath) return "failed";
+    const srcFile = app.vault.getAbstractFileByPath(srcPath);
+    const dstFile = app.vault.getAbstractFileByPath(dstPath);
+    if (!srcFile || !dstFile || dstFile.isFolder) return "no-target";
+    let srcRaw = "";
+    try {
+      srcRaw = await app.vault.read(srcFile);
+    } catch (e) {
+      return "failed";
+    }
+    const embeds = mediaEmbedsOf(srcRaw);
+    const link = tackLinkOf(srcPath);
+    if (!embeds.length || !link) return "no-media";
+    let dstRaw = "";
+    try {
+      dstRaw = await app.vault.read(dstFile);
+    } catch (e) {
+      return "failed";
+    }
+    const { text, action } = upsertTackBlock(dstRaw, link, embeds);
+    if (text === dstRaw) return action;
+    try {
+      await app.vault.modify(dstFile, text);
+    } catch (e) {
+      return "failed";
+    }
+    return action;
+  }
+
   // src/knowledge/relink.ts
   async function relinkNoteByPath(notePath) {
     const path = String(notePath != null ? notePath : "").trim();
@@ -13562,7 +13646,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const d2 = new Date(s);
     return d2.valueOf();
   }
-  function stripFrontmatter3(text) {
+  function stripFrontmatter4(text) {
     const m = text.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
     return text.slice(m ? m[0].length : 0).replace(/^\r?\n+/, "");
   }
@@ -13871,6 +13955,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
         path,
         row,
         title: hit.title,
+        type: kind === "lit" ? String(hit.type || "") : "",
         domain: kind === "topic" ? "" : String(hit.domain || ""),
         source: String(hit.source || ""),
         sourceTitle: String(hit.sourceTitle || "")
@@ -13880,12 +13965,17 @@ ${String(blockText != null ? blockText : "").trim()}`);
      * 一行能出哪些动作（顺序即显示顺序，危险项恒在最后）。互斥口径：
      * - 来源只有一个槽位：**没有来源时只出「添加」、有来源时只出「删除」**，两者绝不并列；
      * - 「改领域」只给文献与卡片——主题笔记的领域来自它所在的文件夹，写 domain 键没人读；
+     * - 「挂到笔记…」只给**素材型文献**（图版 / 影像）：这两类的正文是媒体，挂到别人笔记末尾
+     *   才有意义；名词 / 段落自己就是一段文字，没有可搬的嵌入（见 tack.ts 头注释）；
      * - 「打开笔记」与单击预览并存（一个跳出去看，一个留在面板里读）。
      */
     rowActions(r) {
       const out = [
         { icon: "book-open", label: "打开笔记", onClick: () => this.openNote(r.path) }
       ];
+      if (r.kind === "lit" && (r.type === "video" || r.type === "image")) {
+        out.push({ icon: "paperclip", label: "挂到笔记…", onClick: () => void this.tackRowNote(r) });
+      }
       if (r.source) out.push({ icon: "unlink", label: "删除来源", onClick: () => void this.removeRowSource(r) });
       else out.push({ icon: "link", label: "添加来源", onClick: () => void this.addRowSource(r) });
       if (r.kind !== "topic") {
@@ -13895,6 +13985,46 @@ ${String(blockText != null ? blockText : "").trim()}`);
       out.push({ icon: "trash-2", label: "删除", kind: "danger", onClick: () => void this.deleteRowNote(r) });
       return out;
     }
+    /**
+     * 挂到笔记：把这条文献里的视频 / 图片追加到另一篇已存在笔记的末尾（quote callout 包裹）。
+     * 目标候选取三盒内最近建的几篇（排除自身与其它素材型文献——素材笔记正文就是媒体，
+     * 挂进去会变成两条材料挤一篇）；手写路径能出盒，不拦。
+     */
+    async tackRowNote(r) {
+      var _a, _b;
+      const isMediaNote = (t) => t === "video" || t === "image";
+      const chips = [...this.allNotes, ...this.allCards, ...this.allTopics].filter((n) => n.path !== r.path && !isMediaNote(String(n.type || ""))).slice(0, 6).map((n) => String(n.title || ""));
+      const input = await this.askRowValue({
+        title: "挂到笔记",
+        placeholder: "写笔记名，或从上面选一篇",
+        chips
+      });
+      if (input === null) return;
+      const text = input.trim();
+      if (!text) return;
+      const target = this.resolveNotePath(text) || ((_a = [...this.allNotes, ...this.allCards, ...this.allTopics].find((n) => String(n.title || "").trim() === text)) == null ? void 0 : _a.path) || null;
+      if (!target) {
+        notice(`找不到这篇笔记：${text}`, "error");
+        return;
+      }
+      if (target === r.path) {
+        notice("不能挂到自己身上", "error");
+        return;
+      }
+      const fm = (_b = getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target))) == null ? void 0 : _b.frontmatter;
+      if (isMediaNote(String((fm == null ? void 0 : fm.type) || ""))) {
+        notice("那篇也是图版/影像笔记，换个地方挂", "error");
+        return;
+      }
+      const res = await tackMediaToNote(getApp(), r.path, target);
+      const name = stripMdExt(target.split("/").pop() || target);
+      if (res === "added") notice(`已挂到「${name}」`, "success");
+      else if (res === "updated") notice(`「${name}」里的挂载已更新`, "success");
+      else if (res === "no-media") notice("这条笔记里没有视频或图片可挂", "warning");
+      else if (res === "no-target") notice(`目标笔记不见了：${text}`, "error");
+      else notice("挂载失败，原文件没动", "error");
+    }
+    /** 添加来源：外链（净化 URL + 抓页面标题）或库内笔记（写成内部双链），两态同一输入框 */
     /** 添加来源：外链（净化 URL + 抓页面标题 → 就地显示成标题签）或库内笔记（写成内部双链） */
     async addRowSource(r) {
       const picked = await this.askRowSource();
@@ -14454,7 +14584,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
       } catch (e) {
         raw = "";
       }
-      const body = stripFrontmatter3(raw);
+      const body = stripFrontmatter4(raw);
       const parasHtml = body.split(/\r?\n\r?\n+/).map((b) => b.trim()).filter(Boolean).map((b) => `<p>${esc(b)}</p>`).join("") || "<p>（无正文）</p>";
       const rels = await this.noteRels(n);
       const srcHtml = n.source && !n.source.startsWith("[[") ? `<div class="bz-kb-sec">来 源</div><div class="bz-kb-cliplink"><a class="bz-lit-srcopen" data-lit-src-url="${esc(n.source)}" href="#">${esc(n.sourceTitle || n.source)}</a></div>` : "";
