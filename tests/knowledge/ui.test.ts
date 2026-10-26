@@ -2403,6 +2403,82 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
   });
 
+  it('挂到笔记：影像行多出一项，术语行没有——只有素材型文献才有可搬的嵌入', async () => {
+    vault.files.set('文献盒/视频C.md', noteMd({
+      title: '视频C', type: 'video', domain: '数学',
+      body: `一根针转出的面积。![[CONFIG/APPENDIX/c.mp4]]`,
+    }));
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
+    const rowOf = (p: string): HTMLElement =>
+      Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow')).find((r) => r.getAttribute('data-path') === p)!;
+    rightClick(rowOf('文献盒/视频C.md'));
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    expect(menuLabels()).toEqual(['打开笔记', '挂到笔记…', '添加来源', '改领域', '重跑关联', '删除']);
+    document.body.click(); // 点外部关掉菜单
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeNull());
+    rightClick(rowOf('文献盒/术语B.md'));
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    expect(menuLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
+  });
+
+  it('挂到笔记：选一篇已存在的笔记 → 目标末尾追加 quote callout，原有正文一字不动', async () => {
+    vault.files.set('文献盒/视频C.md', noteMd({
+      title: '视频C', type: 'video', domain: '数学',
+      body: '一根针转出的面积。![[CONFIG/APPENDIX/c.mp4]]',
+    }));
+    const target = noteMd({ title: '术语B', type: 'term', domain: '数学', body: '挂谷集是包含每个方向单位线段的集合。' });
+    vault.files.set('文献盒/术语B.md', target);
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
+    const row = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
+      .find((r) => r.getAttribute('data-path') === '文献盒/视频C.md')!;
+    rightClick(row);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('挂到笔记');
+    await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
+    // 候选胶囊只出非素材型笔记（影像 / 图版不能当目标），点选即填入
+    const chips = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-edit-chip')).map((x) => x.textContent);
+    expect(chips).toEqual(['术语B']);
+    (document.querySelector('.bz-kb-edit-chip[data-chip="术语B"]') as HTMLElement).click();
+    (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    await vi.waitFor(() => {
+      const text = vault.files.get('文献盒/术语B.md')!;
+      expect(text).toContain('> [!quote] [[视频C]]');
+      expect(text).toContain('> ![[CONFIG/APPENDIX/c.mp4]]');
+    });
+    const after = vault.files.get('文献盒/术语B.md')!;
+    expect(after.startsWith(target)).toBe(true); // 原有 frontmatter + 正文逐字不动
+    expect(after).toContain('\n\n> [!quote]');
+    expect(getNoticeMessages().join()).toContain('已挂到「术语B」');
+  });
+
+  it('挂到笔记：再挂一次不叠加（幂等），提示改成「已更新」', async () => {
+    vault.files.set('文献盒/视频C.md', noteMd({
+      title: '视频C', type: 'video', domain: '数学',
+      body: '![[CONFIG/APPENDIX/c.mp4]]',
+    }));
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
+    const tack = async (): Promise<void> => {
+      const row = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
+        .find((r) => r.getAttribute('data-path') === '文献盒/视频C.md')!;
+      rightClick(row);
+      await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+      clickMenuItem('挂到笔记');
+      await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
+      (document.getElementById('kb-row-input') as HTMLInputElement).value = '文献盒/术语B';
+      (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    };
+    await tack();
+    await vi.waitFor(() => expect(vault.files.get('文献盒/术语B.md')).toContain('> [!quote]'));
+    await tack();
+    await vi.waitFor(() => expect(getNoticeMessages().join()).toContain('已更新'));
+    expect((vault.files.get('文献盒/术语B.md')!.match(/\[!quote\]/g) || [])).toHaveLength(1);
+  });
+
   it('移动端长按：弹**底部抽屉**（不是跟手菜单），动作与桌面同源；抽屉顶部不带自造信息条', async () => {
     (Platform as any).isMobile = true;
     vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));

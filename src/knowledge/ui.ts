@@ -48,6 +48,7 @@ import { openMountTree } from './mount-canvas';
 import { backfillNotes, findDuplicateTermNote, generateImageDraft, generateImageNote, generatePassageDraft, generatePassageNote, generateTermDraft, generateTermNote, parseDomainList, resolveImageDir, type DraftFields, type DraftHooks } from './note-gen';
 import { canonicalVideoUrl, cleanSourceTitle, isUrlLikeSourceText, normalizeSourceUrl, noteSourceName, serializeTermSource, type TermSource } from './source';
 import { writeNoteFm, type FmEdit } from './note-edit';
+import { tackMediaToNote } from './tack';
 import { relinkNoteByPath } from './relink';
 import { fetchCheckedQualities, fetchVideoMeta, needsBvidRepair, parseBvid, resolveVideo, type ResolvedVideo, type VideoMeta } from './video-meta';
 import { RangeBar } from './range-bar';
@@ -338,6 +339,8 @@ interface RowRef {
   path: string;
   row: HTMLElement;
   title: string;
+  /** 文献类型（video / image / term / passage / ''）；「挂到笔记」只给素材型出 */
+  type: string;
   domain: string;
   source: string;
   sourceTitle: string;
@@ -754,6 +757,7 @@ export class UIManager {
     return {
       kind, path, row,
       title: hit.title,
+      type: kind === 'lit' ? String((hit as any).type || '') : '',
       domain: kind === 'topic' ? '' : String((hit as any).domain || ''),
       source: String((hit as any).source || ''),
       sourceTitle: String((hit as any).sourceTitle || ''),
@@ -764,12 +768,17 @@ export class UIManager {
    * 一行能出哪些动作（顺序即显示顺序，危险项恒在最后）。互斥口径：
    * - 来源只有一个槽位：**没有来源时只出「添加」、有来源时只出「删除」**，两者绝不并列；
    * - 「改领域」只给文献与卡片——主题笔记的领域来自它所在的文件夹，写 domain 键没人读；
+   * - 「挂到笔记…」只给**素材型文献**（图版 / 影像）：这两类的正文是媒体，挂到别人笔记末尾
+   *   才有意义；名词 / 段落自己就是一段文字，没有可搬的嵌入（见 tack.ts 头注释）；
    * - 「打开笔记」与单击预览并存（一个跳出去看，一个留在面板里读）。
    */
   private rowActions(r: RowRef): ItemAction[] {
     const out: ItemAction[] = [
       { icon: 'book-open', label: '打开笔记', onClick: () => this.openNote(r.path) },
     ];
+    if (r.kind === 'lit' && (r.type === 'video' || r.type === 'image')) {
+      out.push({ icon: 'paperclip', label: '挂到笔记…', onClick: () => void this.tackRowNote(r) });
+    }
     if (r.source) out.push({ icon: 'unlink', label: '删除来源', onClick: () => void this.removeRowSource(r) });
     else out.push({ icon: 'link', label: '添加来源', onClick: () => void this.addRowSource(r) });
     if (r.kind !== 'topic') {
@@ -778,6 +787,48 @@ export class UIManager {
     out.push({ icon: 'link-2', label: '重跑关联', onClick: () => void this.relinkRow(r) });
     out.push({ icon: 'trash-2', label: '删除', kind: 'danger', onClick: () => void this.deleteRowNote(r) });
     return out;
+  }
+
+  /**
+   * 挂到笔记：把这条文献里的视频 / 图片追加到另一篇已存在笔记的末尾（quote callout 包裹）。
+   * 目标候选取三盒内最近建的几篇（排除自身与其它素材型文献——素材笔记正文就是媒体，
+   * 挂进去会变成两条材料挤一篇）；手写路径能出盒，不拦。
+   */
+  private async tackRowNote(r: RowRef): Promise<void> {
+    const isMediaNote = (t: string): boolean => t === 'video' || t === 'image';
+    const chips = [...this.allNotes, ...this.allCards, ...this.allTopics]
+      .filter((n: any) => n.path !== r.path && !isMediaNote(String(n.type || '')))
+      .slice(0, 6)
+      .map((n: any) => String(n.title || ''));
+    const input = await this.askRowValue({
+      title: '挂到笔记',
+      placeholder: '写笔记名，或从上面选一篇',
+      chips,
+      hint: '视频 / 图片会挂在这篇笔记的末尾，原有内容一个字不动',
+    });
+    if (input === null) return; // 取消
+    const text = input.trim();
+    if (!text) return;
+    // 候选胶囊填的是 title，而 title 由 AI 生成、未必等于文件名：先按路径/链接解析，
+    // 落空再到三盒缓存里按 title 精确找（比指望 metadataCache 猜简链接更稳）
+    const target = this.resolveNotePath(text)
+      || [...this.allNotes, ...this.allCards, ...this.allTopics]
+        .find((n: any) => String(n.title || '').trim() === text)?.path
+      || null;
+    if (!target) { notice(`找不到这篇笔记：${text}`, 'error'); return; }
+    if (target === r.path) { notice('不能挂到自己身上', 'error'); return; }
+    const fm = (getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target) as any) as any)?.frontmatter;
+    if (isMediaNote(String(fm?.type || ''))) {
+      notice('那篇也是图版/影像笔记，换个地方挂', 'error');
+      return;
+    }
+    const res = await tackMediaToNote(getApp(), r.path, target);
+    const name = stripMdExt(target.split('/').pop() || target);
+    if (res === 'added') notice(`已挂到「${name}」`, 'success');
+    else if (res === 'updated') notice(`「${name}」里的挂载已更新`, 'success');
+    else if (res === 'no-media') notice('这条笔记里没有视频或图片可挂', 'warning');
+    else if (res === 'no-target') notice(`目标笔记不见了：${text}`, 'error');
+    else notice('挂载失败，原文件没动', 'error');
   }
 
   /** 添加来源：外链（净化 URL + 抓页面标题）或库内笔记（写成内部双链），两态同一输入框 */
