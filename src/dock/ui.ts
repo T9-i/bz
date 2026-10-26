@@ -1489,7 +1489,11 @@ function metaSection(v: DockToolView): HTMLElement {
 
 function runPane(v: DockToolView): HTMLElement {
   const pane = el('section', 'bz-dock-pane bz-dock-runpane');
-  pane.appendChild(el('h3', 'bz-dock-pane-title', '运行台'));
+  const head = el('div', 'bz-dock-pane-head');
+  head.appendChild(el('h3', 'bz-dock-pane-title', '运行台'));
+  // 与规则表同口径：手机上只能看。标出来比让人点了没反应好
+  if (!canRun()) head.appendChild(el('span', 'bz-dock-pane-count', '只读'));
+  pane.appendChild(head);
 
   if (!v.manifest) {
     const box = el('div', 'bz-dock-noManifest');
@@ -1640,6 +1644,13 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
   const label = (p.label ?? p.key) + (p.required ? ' *' : '');
   const desc = p.hint;
 
+  // 移动端**只读**：参数只给看，不给改。
+  // 手机上的 fs 是打开面板时预取的内存快照，写函数是空的 —— 控件照样能点、界面照样变，
+  // 但盘上的 `data.json` 一点没动。那种「看起来已保存」比不给入口糟得多，所以这里连控件都不建。
+  if (!canRun()) {
+    return uiField({ label, control: readonlyValueOf(p, current), desc });
+  }
+
   if (p.type === 'bool') {
     const sw = uiSwitch({ checked: current === true, onChange: (on) => commit(on) });
     return uiField({ label, control: sw.el, desc });
@@ -1672,6 +1683,38 @@ function paramRow(p: DockParam, values: Record<string, unknown>, v: DockToolView
     control: inp,
     desc: p.type === 'secret' ? '凭据只存本机工具目录，不进命令行、不写运行记录' : desc,
   });
+}
+
+/**
+ * 参数值的**只读形态**（移动端）。
+ *
+ * 不用「禁用的输入框」：禁用态在触屏上看着像坏了，而且一行里既有能点的又有点不上的，
+ * 反而分不清哪个能改。这里直接给文本，与上面的标签/说明是同一套排版。
+ *
+ * `secret` 只报「已设置」—— 手机是最容易被旁边人看到的那块屏幕，这类值本来就是
+ * 「填过就好，不需要再读一遍」。
+ */
+function readonlyValueOf(p: DockParam, current: unknown): HTMLElement {
+  const box = el('span', 'bz-dock-roval');
+  if (p.type === 'secret') {
+    const set = current !== undefined && current !== null && String(current) !== '';
+    if (!set) box.classList.add('is-empty');
+    box.textContent = set ? '已设置（手机上不显示）' : '未填';
+    return box;
+  }
+  if (p.type === 'bool') {
+    box.textContent = current === true ? '开' : '关';
+    return box;
+  }
+  const text = current === undefined || current === null ? '' : String(current).trim();
+  if (!text) {
+    box.classList.add('is-empty');
+    box.textContent = '未填';
+    return box;
+  }
+  if (p.type === 'multiline') box.classList.add('bz-dock-roval--code');
+  box.textContent = text;
+  return box;
 }
 
 // ---------- 规则表 ----------
