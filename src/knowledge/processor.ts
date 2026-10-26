@@ -209,6 +209,7 @@ export const BatchRunner = {
           ffmpegPath: nonEmpty(s && s.ffmpegPath),
           ffprobePath: nonEmpty(s && s.ffprobePath),
           pythonPath: nonEmpty(s && s.pythonPath),
+          modelsDir: nonEmpty(s && s.modelsDir),
           engine: asrEngine,
           whisperModel: asrEngine === 'faster-whisper' ? nonEmpty(s && s.asrWhisperModel) : undefined,
           cacheDir: nonEmpty(s && s.knowledgeCacheDir),

@@ -178,7 +178,9 @@ const schemaLoaders: Record<string, () => Promise<SettingsSchema>> = {
 export const DOMAINS: DomainDef[] = [
   // 通用含通知组（2026-09-27 issue 479：通知页退役并回，撤销 2026-09-12 拆分）
   { id: 'global', name: '通用', icon: DOMAIN_ICONS.global, desc: '面板外观、通知与存储路径等跨域偏好', schemaLoader: schemaLoaders.general },
-  { id: 'ai', name: 'AI', icon: DOMAIN_ICONS.ai, desc: 'AI 模型与凭据配置', schemaLoader: schemaLoaders.ai },
+  // 2026-10-26：外部工具组（Python/ffmpeg/ffprobe）收进本页，描述补上「与外部工具」——
+  // 页名仍是 AI（用户拍板不改名），但内容已是「模型 + 凭据 + 本地运行时」。
+  { id: 'ai', name: 'AI', icon: DOMAIN_ICONS.ai, desc: 'AI 模型、凭据与外部工具', schemaLoader: schemaLoaders.ai },
   // diary = ADR-0115 回忆墙升格正名（唯一日记 UI），diary-wall 域退役
   { id: 'diary', name: '日记本', icon: DOMAIN_ICONS.diary, desc: '日记目录与写日记口径', schemaLoader: schemaLoaders.diary },
   { id: 'memo', name: '备忘录', icon: DOMAIN_ICONS.memo, desc: '备忘录工作台与提醒设置', schemaLoader: schemaLoaders.memo },

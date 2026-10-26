@@ -193,11 +193,13 @@ describe('设置面板（settings-panel）', () => {
     ) as HTMLElement;
     expect(aiItem).toBeTruthy();
     aiItem.click();
-    await waitGroups(popup, 5);
+    await waitGroups(popup, 6);
     groups = popup.querySelectorAll('.bz-sp-group');
-    expect(groups.length).toBe(5); // issue 422：AI 页四组（服务商/模型配置并入「LLM」）；issue 444 增「语音转写」
+    // issue 422：AI 页四组（服务商/模型配置并入「LLM」）；issue 444 增「语音转写」；
+    // 2026-10-26「外部工具」组收进 AI 页（排语音转写之后）
+    expect(groups.length).toBe(6);
     expect([...groups].map((g) => g.querySelector('.bz-sp-group-name')!.textContent)).toEqual([
-      'LLM', 'Embedding', 'JEV', '语音转写', '数据源凭据',
+      'LLM', 'Embedding', 'JEV', '语音转写', '外部工具', '数据源凭据',
     ]);
     expect(popup.querySelectorAll('.bz-sp-set-row').length).toBeGreaterThan(0);
     ui.cleanup();
@@ -374,16 +376,18 @@ describe('设置面板（settings-panel）', () => {
     // 通用域分组：外观（palette，原「设置」域并入）+ 功能域（layout-grid，ADR-0254 域级开关）
     // + 通知（bell，issue 479 并回）+ 数据存储路径（folder-open）
     // （issue 473：「使用手册」组撤出 → 入口搬侧栏 footer，不再占分组卡）
+    // （2026-10-26：「外部工具」组收进 AI 页 → 通用页不再有 terminal 卡）
     let icons = [...popup.querySelectorAll('.bz-sp-group-icon')].map((i) => i.getAttribute('data-icon'));
     expect(icons).toEqual(['palette', 'layout-grid', 'bell', 'folder-open', 'cloud-download']); // issue 480：+ 在线资源组
-    // AI 域分组：LLM/Embedding/JEV/语音转写/数据源凭据（issue 422 四组重排；issue 444 增语音转写）
+    // AI 域分组：LLM/Embedding/JEV/语音转写/外部工具/数据源凭据
+    // （issue 422 四组重排；issue 444 增语音转写；2026-10-26 外部工具组迁入，排语音转写之后）
     const aiItem = Array.from(popup.querySelectorAll('.bz-sp-nav-item')).find(
       (el) => el.textContent?.includes('AI')
     ) as HTMLElement;
     aiItem.click();
-    await waitGroups(popup, 5);
+    await waitGroups(popup, 6);
     icons = [...popup.querySelectorAll('.bz-sp-group-icon')].map((i) => i.getAttribute('data-icon'));
-    expect(icons).toEqual(['cpu', 'binary', 'route', 'mic', 'key-round']);
+    expect(icons).toEqual(['cpu', 'binary', 'route', 'mic', 'terminal', 'key-round']);
     ui.cleanup();
   });
 
