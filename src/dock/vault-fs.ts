@@ -80,13 +80,25 @@ function put(abs: string, text: string): void {
   else if (basePath) mem.set(`${basePath}/${p.replace(/^\/+/, '')}`, text);
 }
 
+/** 带盘符（`E:/…`）或以 `/` 开头的才算绝对路径 */
+function isAbsolutePath(p: string): boolean {
+  return /^[a-zA-Z]:\//.test(p) || p.startsWith('/');
+}
+
 /**
- * 绝对路径 / 可移植路径 → vault 相对路径。
- * 两者都还原不出来 = 这个文件不在当前 vault 里（工具目录在库外），跳过。
+ * 绝对路径 / 可移植路径 / 相对路径 → vault 相对路径（适配器口径）。
+ *
+ * **相对形态必须原样收下**：`storageFile()` 给的就是 `CONFIG/STORAGE/dock.json`，
+ * 而移动端 `adapter.getBasePath()` 多半拿不到 → `resolveToolPath()` 也会退回相对形态。
+ * 上一版只认「可移植前缀」与「basePath 前缀的绝对路径」，这两种在手机上**一个都命中不了**，
+ * 于是 `primeOne` 每次都在第一行返回，登记表与工具文件一份都没进内存 —— 面板永远空列表。
+ *
+ * 只有「绝对路径且不在当前 vault 里」才算库外（那种工具本来只属于那台机器），跳过。
  */
 function toVaultRelative(p: string): string | null {
   const s = norm(p);
   if (isPortablePath(s)) return s.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, '');
+  if (!isAbsolutePath(s)) return s.replace(/^\.\/+/, '');
   if (basePath && s.startsWith(`${basePath}/`)) return s.slice(basePath.length + 1);
   return null;
 }

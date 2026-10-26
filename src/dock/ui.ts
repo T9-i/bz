@@ -319,8 +319,9 @@ export function openDock(app: App): void {
   void refresh();
   // 「打开工具坞」本身也是一个触发条件（规则里的 panel-open）
   notifyDockEvent({ kind: 'panel-open' });
-  // 移动端：读桥是内存快照，每次打开重读一遍
-  if (Platform.isMobile) void primeVaultFs(app).then(() => render());
+  // 移动端：读桥是内存快照，每次打开重读一遍。
+  // 预取完成后必须**重新读一遍登记表**（refresh），只 render 等于把预取前那份空视图再画一遍。
+  if (Platform.isMobile) void primeVaultFs(app).then(() => refresh());
   else maybeOfflineReport();
 }
 
