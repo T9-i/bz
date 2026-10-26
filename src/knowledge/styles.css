@@ -369,23 +369,40 @@
    比预览弹层窄——只装一行输入 + 可选候选胶囊，太宽会让输入框显得空荡。 */
 .bz-kb-sheet--edit { width: min(430px, calc(100% - 36px)); }
 
-.bz-kb-editrow { display: flex; }
+/* 标题与下方候选 / 输入框之间留口气（原先贴在一起，读作一整块） */
+.bz-kb-sheet--edit .bz-kb-hw { margin-bottom: 14px; }
 
+.bz-kb-editrow { display: flex; align-items: center; gap: var(--bz-space-sm); min-width: 0; }
+
+/* 输入框底走 --chip（比纸面深一档）而不是 --card（近白）：--card 是「另铺一张纸」的色，
+   在这张米色纸上就是白框，鼠标一划还被主题 hover 顶成更白（2026-10-26 用户报）。 */
 .bz-kb-editrow input {
   width: 100%;
+  min-width: 0;
   border: 1px solid var(--line);
-  background: var(--card);
+  background: var(--chip);
   border-radius: var(--bz-radius-sm);
   padding: var(--bz-space-sm) 11px;
   font-size: var(--bz-font-label);
   color: var(--ink);
   font-family: inherit;
   outline: none;
+  box-shadow: none;
 }
-.bz-kb-editrow input:focus { border-color: var(--accent); }
+/* 聚焦 / 划过都只换边线、不动底色——纸面上靠线立形，不靠色块跳出来 */
+.bz-kb-editrow input:focus {
+  background: var(--chip);
+  border-color: var(--accent);
+}@media (hover: hover) {
+
+.bz-kb-editrow input:hover {
+  background: var(--chip);
+  border-color: var(--accent);
+}
+}
 
 /* 候选胶囊：点一下填进输入框（不直接保存——用户还能改） */
-.bz-kb-editchips { display: flex; flex-wrap: wrap; gap: var(--bz-space-sm); margin: 0 0 10px; }
+.bz-kb-editchips { display: flex; flex-wrap: wrap; gap: var(--bz-space-sm); margin: 0 0 12px; }
 .bz-kb-edit-chip {
   border: 1px solid var(--line);
   border-radius: 3px;
@@ -401,9 +418,40 @@
 .bz-kb-edit-chip:hover { border-color: var(--accent); color: var(--ink); }
 }
 
-.bz-kb-edithint { margin-top: var(--bz-space-sm); font-size: var(--bz-font-meta); color: var(--ink3); line-height: 1.7; }
-
 .bz-kb-editacts { display: flex; justify-content: flex-end; gap: var(--bz-space-sm); margin-top: var(--bz-space-lg); }
+
+/* ===== 列表行浮层（右键菜单 / 长按抽屉）随纸墨皮 =====
+   core 基线吃 Obsidian 主题变量（--background-secondary 白底 / --text-normal 灰黑字 /
+   --bz-radius-sm 12px 圆角），落在纸面上像外挂控件。这里只改 `.bz-kb-menu` 作用域内的
+   材质与文字色，core 基线一个字不动（别的域不受影响）。
+   圆角给 4px：菜单是「小纸条」，不该跟 14px 的大面板同圆。 */
+.bz-item-menu.bz-kb-menu {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+}
+.bz-item-menu.bz-kb-menu button.bz-item-menu-item {
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+.bz-item-menu.bz-kb-menu .bz-item-menu-icon { color: var(--ink3); }
+.bz-item-menu.bz-kb-menu button.bz-item-menu-item--danger { color: var(--red) !important; }
+.bz-item-menu.bz-kb-menu button.bz-item-menu-item--danger .bz-item-menu-icon { color: var(--red); }@media (hover: hover) {
+
+.bz-item-menu.bz-kb-menu button.bz-item-menu-item:hover { background: var(--chip) !important; }
+}
+
+/* 抽屉同一付皮（移动端长按出来的那张，与桌面菜单是同一功能的两个形态） */
+.bz-item-sheet.bz-kb-menu { background: var(--panel); }
+.bz-item-sheet.bz-kb-menu .bz-item-sheet-item { color: var(--ink); }
+.bz-item-sheet.bz-kb-menu .bz-item-sheet-icon { color: var(--ink3); }
+.bz-item-sheet.bz-kb-menu .bz-item-sheet-item--danger { color: var(--red) !important; }
+.bz-item-sheet.bz-kb-menu .bz-item-sheet-item--danger .bz-item-sheet-icon { color: var(--red); }@media (hover: hover) {
+
+.bz-item-sheet.bz-kb-menu .bz-item-sheet-item:hover { background: var(--chip) !important; }
+}
 
 .bz-kb-paras p {
   font-size: 12.5px;
@@ -1256,6 +1304,22 @@
   border-color: var(--accent);
   background: var(--chip);
   color: var(--ink);
+}
+}
+
+/* 危险钮（删除 / 清空）与取消钮同一档：透底 + 细边，红只由字色承担。
+   原先吃共享壳的 --bz-surface-2（映射到纸墨皮的 --card，近白），两个按钮并排一白一透，
+   读作「贴上去的」（2026-10-26 用户截图）。只在危险流程框内生效（bz-flow-dialog--danger）。 */
+#__shared_confirm_popup__.bz-kb-flow-dialog.bz-flow-dialog--danger #__shared_confirm_ok__ {
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--red);
+  letter-spacing: 0.08em;
+}@media (hover: hover) {
+
+#__shared_confirm_popup__.bz-kb-flow-dialog.bz-flow-dialog--danger #__shared_confirm_ok__:hover {
+  border-color: var(--red);
+  background: var(--chip);
 }
 }
 
