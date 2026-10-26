@@ -626,6 +626,8 @@ export class UIManager {
   private tackKw = '';
   private tackSel = 0;
   private tackDone = new Set<string>();
+  /** 源笔记里的媒体数（副标与底部共用；0 = 没读到 / 没有） */
+  private tackMedia = 0;
   /** 主窗拖拽缩放句柄（ADR-0084 桌面限定；showMain 挂 / hideMain·destroy 摘，域内三窗只挂主窗） */
   private panelResizeDetach: { flush: () => void; detach: () => void } | null = null;
 
@@ -825,6 +827,7 @@ export class UIManager {
     this.tackSource = r;
     this.tackKw = '';
     this.tackSel = 0;
+    this.tackMedia = 0;
     this.tackPicks = this.tackCandidates(r);
     this.renderTackPicker();
     // 副标里的「N 个视频」：读一次源笔记数嵌入，读不到就不显示（不挡主路径）
@@ -832,6 +835,7 @@ export class UIManager {
       const f = this.app.vault.getAbstractFileByPath(r.path);
       if (f) {
         const n = mediaEmbedsOf(await this.app.vault.read(f as any)).length;
+        this.tackMedia = n;
         if (this.tackSource === r && n) {
           const el = this.contentEl?.querySelector('.bz-kb-tack-media');
           if (el) el.textContent = `${n} 个${r.type === 'video' ? '视频' : '图片'}`;
@@ -949,7 +953,7 @@ export class UIManager {
         <div class="bz-kb-tack-info"></div>
         <div class="bz-kb-tack-acts">
           <button class="bz-lit-ghost-btn" data-kb-act="tack-back">取消</button>
-          <button class="bz-lit-accent-btn" data-kb-act="tack-ok">挂 到 笔 记</button>
+          <button class="bz-lit-accent-btn bz-kb-tack-ok" data-kb-act="tack-ok">挂 到 这 篇</button>
         </div>
       </div>
     </div>`;
@@ -970,6 +974,12 @@ export class UIManager {
     this.syncTackFoot();
   }
 
+  /** 「1 个视频 / 3 张图片」——副标与底部共用同一份口径，没有就返回空串 */
+  private tackMediaLabel(): string {
+    if (!this.tackMedia) return '';
+    return this.tackMedia + ' 个' + (this.tackSource?.type === 'video' ? '视频' : '图片');
+  }
+
   /** 底部「会写到哪儿」+ 主按钮文案（选中变化只走这里，不重绘列表） */
   private syncTackFoot(): void {
     const host = this.contentEl;
@@ -982,16 +992,16 @@ export class UIManager {
     if (!cur) {
       info.innerHTML = '<div class="bz-kb-tack-l1">先选一篇笔记</div>';
       ok.disabled = true;
-      ok.textContent = '挂 到 笔 记';
+      ok.textContent = '挂 到 这 篇';
       return;
     }
     ok.disabled = false;
-    ok.textContent = `挂 到 「${cur.title}」`;
-    info.innerHTML = this.tackDone.has(cur.path)
-      ? `<div class="bz-kb-tack-l1">已挂过 <b>${esc(cur.title)}</b>，再挂一次会就地更新那一块</div>`
-        + `<div class="bz-kb-tack-l2">&gt; [!quote] [[${esc(cur.title)}]]</div>`
-      : `<div class="bz-kb-tack-l1">将追加到 <b>${esc(cur.title)}</b> 的末尾 · 原有内容不动</div>`
-        + `<div class="bz-kb-tack-l2">&gt; [!quote] [[${esc(cur.title)}]]　+　![[…]]</div>`;
+    ok.textContent = '挂 到 这 篇';
+    // 标题另起一行给两行位（AI 生成的陈述句标题动辄三十字），第二行只留人话，
+    // 不放 `> [!quote] …` 那种技术预演——用户要确认的是「写到哪」，不是 markdown 长什么样
+    const meta = [this.tackMediaLabel(), this.tackDone.has(cur.path) ? '再挂一次会就地更新那一块' : '原有内容不动'].filter(Boolean).join(' · ');
+    info.innerHTML = `<div class="bz-kb-tack-l1">${this.tackDone.has(cur.path) ? '已挂过' : '将追加到'} <b>${esc(cur.title)}</b></div>`
+      + `<div class="bz-kb-tack-l2">${esc(meta)}</div>`;
   }
 
   /** 选中第 i 行（只换类 + 滚动到可见 + 刷底部；列表上千行也不重绘） */
