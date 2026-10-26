@@ -52,6 +52,23 @@ describe('issue 291：knowledge 确认框随纸墨皮', () => {
     expect(ui()).toContain('bz-kb-window kb');
   });
 
+  it('列表行浮层与编辑弹层随纸墨皮（2026-10-26）：菜单换底、输入框 hover 不跳白、危险钮与取消钮同档', () => {
+    const cssText = css();
+    // 右键菜单 / 长按抽屉：core 基线吃 Obsidian 主题变量（--background-secondary 白底），
+    // 域内必须有一层覆盖，否则白底灰字浮在纸面上像外挂控件
+    expect(cssText).toContain('.bz-item-menu.bz-kb-menu');
+    expect(cssText).toContain('.bz-item-sheet.bz-kb-menu');
+    expect(cssText).toContain('background: var(--panel)');
+    // 编辑弹层的输入框：底走 --chip（比纸面深一档），不是 --card（近白 = 白框跳出来）
+    const input = block('.bz-kb-editrow input') ?? '';
+    expect(input).toContain('background: var(--chip)');
+    expect(input).not.toContain('var(--card)');
+    // 危险钮与取消钮同一档（原先吃共享壳 --bz-surface-2 → 纸墨皮的近白 card，并排一白一透）
+    const danger = block('#__shared_confirm_popup__.bz-kb-flow-dialog.bz-flow-dialog--danger #__shared_confirm_ok__') ?? '';
+    expect(danger, '缺危险钮同档规则').toContain('background: none');
+    expect(danger).toContain('color: var(--red)');
+  });
+
   it('壳材质映射：底/描边/圆角/投影逐值取自 .bz-lit-dialog（术语/添加任务弹窗）', () => {
     const b = block('#__shared_confirm_popup__.bz-kb-flow-dialog');
     expect(b, '缺 #__shared_confirm_popup__.bz-kb-flow-dialog 规则').not.toBeNull();

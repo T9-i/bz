@@ -19,15 +19,16 @@ function snapOf(partial: Partial<SettingsSnapshot>): SettingsSnapshot {
 describe('mainSettingsSchema：主设置页区块（issue 422 起 AI 页按模型族分组；issue 444 增语音转写）', () => {
   const schema = mainSettingsSchema();
 
-  it('issue 444 + ADR-0254：八个分组卡片（带 icon）——LLM/Embedding/JEV/语音转写/数据源凭据 + 功能域 + 通知 + 数据存储路径', () => {
+  it('issue 444 + ADR-0254：九个分组卡片（带 icon）——LLM/Embedding/JEV/语音转写/外部工具/数据源凭据 + 功能域 + 通知 + 数据存储路径', () => {
     // issue 473：「使用手册」组撤出（入口搬设置面板侧栏 footer），恢复真·七个分组；
-    // issue 479：通知组并回通用（core generalSettingsSchema 内排存储路径前）→ 聚合序 = AI 五组 + 通知 + 存储；
+    // issue 479：通知组并回通用（core generalSettingsSchema 内排存储路径前）→ 聚合序 = AI 六组 + 通知 + 存储；
     // ADR-0254：通用页新增「功能域」组（域级开关，眼下只有小橘一行），排在通知之前
+    // 2026-10-26：外部工具组自知识盒页迁出，直接落 AI 页（用户拍板：引擎 → 模型 → 运行时同页），排语音转写之后
     expect(schema.groups.map((g) => g.name)).toEqual([
-      'LLM', 'Embedding', 'JEV', '语音转写', '数据源凭据', '功能域', '通知', '数据存储路径',
+      'LLM', 'Embedding', 'JEV', '语音转写', '外部工具', '数据源凭据', '功能域', '通知', '数据存储路径',
     ]);
     expect(schema.groups.map((g) => g.icon)).toEqual([
-      'cpu', 'binary', 'route', 'mic', 'key-round', 'layout-grid', 'bell', 'folder-open',
+      'cpu', 'binary', 'route', 'mic', 'terminal', 'key-round', 'layout-grid', 'bell', 'folder-open',
     ]);
   });
 
@@ -192,8 +193,8 @@ describe('mainSettingsSchema：主设置页区块（issue 422 起 AI 页按模�
       options?: Array<{ value: string; label: string }> | ((s: SettingsSnapshot) => Array<{ value: string; label: string }>);
       visibleWhen?: (s: SettingsSnapshot) => boolean;
     }>;
-    expect(rows.map((r) => r.name)).toEqual(['转写引擎', 'Whisper 档位', 'LLM 校对']);
-    expect(rows.map((r) => r.type)).toEqual(['select', 'select', 'toggle']);
+    expect(rows.map((r) => r.name)).toEqual(['转写引擎', 'Whisper 档位', '模型目录', 'LLM 校对']);
+    expect(rows.map((r) => r.type)).toEqual(['select', 'select', 'text', 'toggle']);
     // 引擎行：键直绑 asrEngine，两档（SenseVoice 缺省在前）
     expect(rows[0].binding).toEqual({ key: 'asrEngine' });
     expect(rows[0].options).toEqual([
@@ -210,15 +211,19 @@ describe('mainSettingsSchema：主设置页区块（issue 422 起 AI 页按模�
     expect(visible({ asrEngine: 'faster-whisper' })).toBe(true);
     expect(visible({ asrEngine: 'sensevoice' })).toBe(false);
     expect(visible({})).toBe(false); // 键缺省 = sensevoice，档位行隐藏
-    // 校对行（ADR-0222/issue 518）：toggle 恒显，绑 asrLlmProofread；出域提示必须落在设置项文案
-    expect(rows[2].binding).toEqual({ key: 'asrLlmProofread' });
+    // 模型目录行（2026-10-26）：text 恒显，绑 modelsDir（两种引擎共用一份模型缓存）
+    expect(rows[2].binding).toEqual({ key: 'modelsDir' });
     expect(rows[2].visibleWhen).toBeUndefined();
-    expect(String(rows[2].desc)).toContain('出域');
-    expect(String(rows[2].desc)).toContain('只修错');
+    // 校对行（ADR-0222/issue 518）：toggle 恒显，绑 asrLlmProofread；出域提示必须落在设置项文案
+    expect(rows[3].binding).toEqual({ key: 'asrLlmProofread' });
+    expect(rows[3].visibleWhen).toBeUndefined();
+    expect(String(rows[3].desc)).toContain('出域');
+    expect(String(rows[3].desc)).toContain('只修错');
   });
 
   it('数据源凭据组（issue 331 拆组）：三行统一单行 secret（ApiZero Key → B站 Cookie → 豆瓣 Cookie）；桌面端 B站行带「从 CLI 导入」', () => {
-    const rows = schema.groups[4].rows;
+    // 2026-10-26：「外部工具」组插到语音转写之后 → 凭据组不再固定是第 5 个，按名取
+    const rows = schema.groups.find((g) => g.name === '数据源凭据')!.rows;
     // 2026-09-23 用户报「加密的做成多行框看着怪」：textarea 的多行掩码档位退役，
     // 三行凭据一律单行 secret（password 掩码 + 眼睛切明文）
     expect(rows.map((r) => r.type)).toEqual(['secret', 'secret', 'secret']);
@@ -237,7 +242,7 @@ describe('mainSettingsSchema：主设置页区块（issue 422 起 AI 页按模�
     // 桌面端：按钮在场（secret 行 actions 与 text 行同口径）
     (globalThis as unknown as { window: unknown }).window = { require: () => ({}) };
     try {
-      const desktopRows = mainSettingsSchema().groups[4].rows as Array<{
+      const desktopRows = mainSettingsSchema().groups.find((g) => g.name === '数据源凭据')!.rows as Array<{
         name: string;
         actions?: Array<{ text: string }>;
       }>;

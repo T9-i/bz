@@ -763,6 +763,17 @@ function asrGroupRows(): SettingsRow[] {
       visibleWhen: (snapshot) => snapshot.asrEngine === 'faster-whisper',
     },
     {
+      type: 'text',
+      name: '模型目录',
+      desc: '转写模型的缓存根目录，两种引擎共用',
+      help:
+        '转写时模型从哪里读。下面按引擎各占一个子目录：modelscope/models/<模型名>（SenseVoice、VAD、标点）、huggingface/hub/<模型名>（whisper 各档位）。' +
+        '填了就给这一次转写进程把模型缓存指到这里；留空跟随该 Python 自己的默认缓存（用户目录下的 .cache），不注入任何环境变量。' +
+        '想「把工具和模型放在一起、换机离线也能跑」就填你放模型的那个目录，第一次转写前把 .cache 里的两份内容拷进去即可。',
+      binding: { key: 'modelsDir' },
+      placeholder: '如 E:/Obsidian/BZDeps/models',
+    },
+    {
       type: 'toggle',
       name: 'LLM 校对',
       desc: '转写文本发送到所配大模型只修错校对，开启即同意文本出域',
@@ -786,7 +797,9 @@ function asrGroupRows(): SettingsRow[] {
  *  issue 423/ADR-0183：「Embedding」组再收两行 Ollama 地址（本地 URL + 移动端远程地址）。
  *  issue 424/ADR-0184：「移动端远程地址」行删（桌面端自动跟随本机 IP）；JEV 组收口为
  *  服务商 / 密钥 / 模型三行（总开关、端点、超时三行退役——常开、端点由服务商决定、超时固定）。
- *  issue 444：追加「语音转写」组（转写引擎二选一 + Whisper 档位，知识盒视频录入转文字消费）。 */
+ *  issue 444：追加「语音转写」组（转写引擎二选一 + Whisper 档位，知识盒视频录入转文字消费）。
+ *  2026-10-26：「外部工具」组（Python / ffmpeg / ffprobe）自通用页收进本页，紧跟语音转写——
+ *  页名仍是「AI」（用户拍板不改名），内容是「模型 + 凭据 + 本地运行时」。 */
 export function aiSettingsSchema(): SettingsSchema {
   return {
     groups: [
@@ -794,9 +807,39 @@ export function aiSettingsSchema(): SettingsSchema {
       { icon: 'binary', name: 'Embedding', rows: embeddingGroupRows() },
       { icon: 'route', name: 'JEV', rows: jevGroupRows() },
       { icon: 'mic', name: '语音转写', rows: asrGroupRows() },
+      // 外部工具组（issue 462/ADR-0195 的键位 + 2026-10-26 用户拍板）：Python / ffmpeg / ffprobe
+      // 是全域共用的运行时前提（知识盒转写、脸谱录音与导出、视频处理都读这三个键）。原挂知识盒页
+      // 显得像「记笔记的人要装工具」，短暂落过通用页；现按「引擎 → 模型 → 运行时」一条链收在
+      // 语音转写之后——转写缺的就是这三样里的 Python，同页看得到。
+      { icon: 'terminal', name: '外部工具', rows: externalToolGroupRows() },
       { icon: 'key-round', name: '数据源凭据', rows: credentialGroupRows() },
     ],
   };
+}
+
+/**
+ * 「外部工具」组行（issue 462/ADR-0195 键位；2026-10-26 收进 AI 页）：Python / ffmpeg / ffprobe
+ * 是全域共用的本地运行时前提——知识盒转写（funasr / faster-whisper）、脸谱录音与导出、
+ * 知识盒视频压缩都读这三个键。转写缺的就是这里的 Python，所以跟「语音转写」组同页相邻。
+ */
+function externalToolGroupRows(): SettingsRow[] {
+  return [
+    {
+      type: 'text', name: 'Python 路径', desc: '视频转文字与脸谱工具共用的 Python 路径',
+      help: '转写（funasr / faster-whisper）和脸谱的录音、质心、导出都调它。填解释器的完整路径最稳（如 E:/Obsidian/BZDeps/python/python.exe）；留空则按 PATH 上的 python 找。',
+      binding: { key: 'pythonPath' }, placeholder: 'python',
+    },
+    {
+      type: 'text', name: 'ffmpeg 路径', desc: '视频处理与脸谱媒体导出共用的 ffmpeg 路径',
+      help: '知识盒压缩视频、脸谱录音转 16k wav 都用它。留空则按 PATH 上的 ffmpeg 找。',
+      binding: { key: 'ffmpegPath' }, placeholder: 'ffmpeg',
+    },
+    {
+      type: 'text', name: 'ffprobe 路径', desc: '视频处理与脸谱媒体导出共用的 ffprobe 路径',
+      help: '读视频时长、码率、音轨信息用。留空则按 PATH 上的 ffprobe 找。',
+      binding: { key: 'ffprobePath' }, placeholder: 'ffprobe',
+    },
+  ];
 }
 
 /** 通用设置组（原「全局」数据存储路径区块；issue 186 拆出 AI 后的剩余全局项）。
@@ -808,7 +851,8 @@ export function aiSettingsSchema(): SettingsSchema {
  *  面板侧再把「外观」组 unshift 至最前，通用页终序 = 外观 → 通知 → 存储（issue 297：
  *  通知行型全 select，键与行为零变化）。
  *  2026-10-24：「功能域」组置顶（ADR-0254）——域级开关住这里，眼下只有小橘一行，将来要关
- *  别的域就往这组加行；终序变 外观 → 功能域 → 通知 → 存储。 */
+ *  别的域就往这组加行；终序变 外观 → 功能域 → 通知 → 存储。
+ *  2026-10-26：外部工具组不在这儿，已收进 AI 页（用户拍板：工具与模型同页配齐）。 */
 export function generalSettingsSchema(): SettingsSchema {
   return {
     groups: [
@@ -829,6 +873,7 @@ export function generalSettingsSchema(): SettingsSchema {
           },
         ],
       },
+      // 外部工具组（Python / ffmpeg / ffprobe）2026-10-26 已收进 AI 页，见 aiSettingsSchema。
       {
         icon: 'bell',
         name: '通知',

@@ -86,6 +86,13 @@ function refBadgeTitle(n: number): string {
 }
 
 /**
+ * 列表行浮层（右键菜单 / 长按抽屉）的皮肤类：
+ * `kb` 带上纸墨变量域，`bz-kb-menu` 是域内覆盖钩子（core 基线吃 Obsidian 主题变量，
+ * 白底灰字落在纸面上像外挂控件）。样式见 knowledge/styles.css 的「行浮层」段。
+ */
+const ROW_MENU_CLASS = 'kb bz-kb-menu';
+
+/**
  * 录入预填扩展（issue 329，供剪藏本划选工具框等程序化入口消费；全可选，缺省零影响）。
  * source 不在此——来源走 showXxxEntry 的 src 参数（TermSource），由 index.ts 把契约的
  * url/note 两态归一后传入。onCreated 语义：确认写入成功落盘后回调 notePath，且**不自动打开笔记**
@@ -426,19 +433,8 @@ export function knowledgeSettingsSchema(opts?: { onClearHistory?: () => void | P
           { type: 'number', name: '压缩质量 CRF', desc: '压缩画质，越小越高', binding: { key: 'knowledgeCrf' }, min: 18, max: 28, step: 1 },
         ],
       },
-      // 外部工具组（issue 462/ADR-0195）：Python / ffmpeg / ffprobe 三个运行时路径键升格为域无关
-      // 设置（pythonPath / ffmpegPath / ffprobePath，脸谱工具包与知识盒共用同一套值，旧键经
-      // migrateExternalToolKeys 一次性搬值）。2026-09-16 移除整组是因为「记笔记的人不该面对装工具的
-      // 旋钮」；现键位已是两域共用的运行时前提，回归知识盒页收在维护组之前，Whisper 档位走 AI 面板
-      // 「语音转写」组、缓存两键仍不暴露。
-      {
-        icon: 'terminal', name: '外部工具',
-        rows: [
-          { type: 'text', name: 'Python 路径', desc: '视频转文字与脸谱工具共用的 Python 路径', binding: { key: 'pythonPath' }, placeholder: 'python' },
-          { type: 'text', name: 'ffmpeg 路径', desc: '视频处理与脸谱媒体导出共用的 ffmpeg 路径', binding: { key: 'ffmpegPath' }, placeholder: 'ffmpeg' },
-          { type: 'text', name: 'ffprobe 路径', desc: '视频处理与脸谱媒体导出共用的 ffprobe 路径', binding: { key: 'ffprobePath' }, placeholder: 'ffprobe' },
-        ],
-      },
+      // 外部工具组（Python / ffmpeg / ffprobe / 模型目录）2026-10-26 迁出：三个路径键是全域共用
+      // 前提，已收进「设置 → 通用 → 外部工具」；模型目录跟转写引擎一起住在「AI → 语音转写」。
       {
         icon: 'wrench', name: '维护',
         rows: [
@@ -728,7 +724,7 @@ export class UIManager {
       const r = this.rowRefOf(e.target as HTMLElement);
       if (!r) return;
       e.preventDefault();
-      openItemMenu(e.clientX, e.clientY, this.rowActions(r), true);
+      openItemMenu(e.clientX, e.clientY, this.rowActions(r), true, ROW_MENU_CLASS);
       // 右键没有补发 click；不复位的话，Chromium 的 mouseup 落点会把下一次左键当成残余吞掉
       resetItemMenuClickGuard();
     });
@@ -736,7 +732,7 @@ export class UIManager {
       if (!isMobileEnv()) return;
       const r = this.rowRefOf(ev.target as HTMLElement);
       if (!r) return;
-      openItemSheet(this.rowActions(r), undefined, ev.type !== 'touchstart');
+      openItemSheet(this.rowActions(r), { sheetClass: ROW_MENU_CLASS }, ev.type !== 'touchstart');
     });
   }
 
@@ -804,7 +800,6 @@ export class UIManager {
       title: '挂到笔记',
       placeholder: '写笔记名，或从上面选一篇',
       chips,
-      hint: '视频 / 图片会挂在这篇笔记的末尾，原有内容一个字不动',
     });
     if (input === null) return; // 取消
     const text = input.trim();
@@ -832,30 +827,13 @@ export class UIManager {
   }
 
   /** 添加来源：外链（净化 URL + 抓页面标题）或库内笔记（写成内部双链），两态同一输入框 */
+  /** 添加来源：外链（净化 URL + 抓页面标题 → 就地显示成标题签）或库内笔记（写成内部双链） */
   private async addRowSource(r: RowRef): Promise<void> {
-    const input = await this.askRowValue({
-      title: '添加来源',
-      placeholder: '粘贴链接，或写库内笔记名',
-      hint: '外链抓不到标题时只记链接；库内笔记写成双链',
-    });
-    if (input === null) return; // 取消
-    const text = input.trim();
-    if (!text) return;
-    let payload: { source: string; sourceTitle?: string } | null = null;
-    if (isUrlLikeSourceText(text)) {
-      const url = normalizeSourceUrl(text);
-      let title = '';
-      try { title = cleanSourceTitle((await fetchPageTitle(url)) || ''); } catch { title = ''; }
-      payload = serializeTermSource({ kind: 'external', url, title: title || null });
-    } else {
-      const target = this.resolveNotePath(text);
-      if (!target) { notice(`找不到这篇笔记：${text}`, 'error'); return; }
-      payload = serializeTermSource({ kind: 'note', path: target });
-    }
-    if (!payload) { notice('来源没写：内容认不出来', 'error'); return; }
+    const picked = await this.askRowSource();
+    if (!picked) return;
     await this.applyRowEdits(r, [
-      { key: 'source', value: payload.source },
-      { key: 'sourceTitle', value: payload.sourceTitle ?? null },
+      { key: 'source', value: picked.source },
+      { key: 'sourceTitle', value: picked.sourceTitle || null },
     ]);
     notice('已添加来源', 'success');
   }
@@ -865,7 +843,7 @@ export class UIManager {
     const shown = r.sourceTitle || r.source;
     const v = await openFlowDialog({
       title: '删除来源',
-      message: `将删掉这篇笔记的来源属性：\n${shown}\n笔记正文与其余属性不受影响。`,
+      message: `摘掉来源：${shown}`, // 一句话就好：动词 + 对象，别写「正文不受影响」这类安慰
       className: 'kb bz-kb-flow-dialog', // 挂 body 的流程框须自带皮肤类，才与知识盒同皮
       actions: [{ label: '取消', value: 'cancel' }, { label: '删除', value: 'ok', danger: true }],
     });
@@ -884,7 +862,6 @@ export class UIManager {
       placeholder: '领域名；留空 = 未分类',
       value: r.domain === '未分类' ? '' : r.domain,
       chips: this.domainCandidates().slice(0, 8),
-      hint: '候选来自文献目录里已用过的领域与设置里的词表',
     });
     if (value === null) return;
     const domain = value.trim();
@@ -920,8 +897,8 @@ export class UIManager {
     const refs = this.mountIndex ? this.mountIndex.counts[r.path] ?? 0 : 0;
     const v = await openFlowDialog({
       title: `删除${kindLabel}`,
-      message: `《${r.title}》将移入库内回收站（.trash），之后可以从 Obsidian 回收站翻回来。`
-        + (refs > 0 ? `\n有 ${refs} 处引用（正文双链 / 关联属性），删掉后它们会变成断链。` : ''),
+      // 一行说完：删哪篇 + 落在哪 + 会断几条链。回收站能不能翻回是既定设计，不在这儿劝
+      message: `《${r.title}》移入回收站（.trash）` + (refs > 0 ? `，有 ${refs} 处引用会变成断链` : ''),
       className: 'kb bz-kb-flow-dialog',
       actions: [{ label: '取消', value: 'cancel' }, { label: '删除', value: 'ok', danger: true }],
     });
@@ -1016,56 +993,225 @@ export class UIManager {
   }
 
   /**
-   * 单值编辑弹层（添加来源 / 改领域共用）：输入框 + 可选候选胶囊 + 取消 / 保存。
-   * 返回 null = 用户取消（点遮罩 / ESC / 取消钮）；空串 = 用户明确留空（改领域时代表「未分类」）。
-   * 不走 openSheet：那套的遮罩点击只负责关层，拿不到「取消」这个信号（Promise 会一直悬着）。
+   * 编辑弹层骨架（改领域 / 添加来源共用）：标题 + 内容 + 取消 / 保存。
+   * 壳只管「开、关、遮罩点关、ESC 点关、取消钮」，保存与内容语义由调用方绑（保存失败要能留在原地）。
+   * 返回 null = 宿主不可用（弹层没开成）。
    */
-  private askRowValue(opts: { title: string; placeholder: string; value?: string; chips?: string[]; hint?: string }): Promise<string | null> {
-    const host = this.sheetHost();
+  private mountRowSheet(opts: {
+    title: string;
+    body: string;
+    onCancel: () => void;
+    onOk: (close: () => void) => void;
+  }): { ovl: HTMLElement; close: () => void } | null {
+    const ovl = document.createElement('div');
+    ovl.className = 'bz-kb-ovl';
+    ovl.innerHTML = `<div class="bz-kb-sheet bz-kb-sheet--edit">${this.sheetWrap('', `
+      <div class="bz-kb-hw"><span class="bz-kb-w" style="font-size:16px">${esc(opts.title)}</span></div>
+      ${opts.body}
+      <div class="bz-kb-editacts">
+        <button type="button" class="bz-lit-ghost-btn" data-edit="cancel">取消</button>
+        <button type="button" class="bz-lit-accent-btn" data-edit="ok">保存</button>
+      </div>
+    `)}</div>`;
+    let closed = false;
+    const close = (): void => {
+      if (closed) return;
+      closed = true;
+      ovl.remove();
+    };
+    ovl.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t === ovl) { close(); opts.onCancel(); return; } // 点遮罩 = 取消
+      const btn = t.closest?.('[data-edit]') as HTMLElement | null;
+      if (!btn) return;
+      if (btn.getAttribute('data-edit') === 'cancel') { close(); opts.onCancel(); return; }
+      opts.onOk(close);
+    });
+    ovl.addEventListener('keydown', (e) => {
+      // ESC 拦在弹层内：不合流到面板的 ESC 分层（那一层会顺手把整个知识盒关掉）
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      close();
+      opts.onCancel();
+    });
+    this.sheetHost().appendChild(ovl);
+    return { ovl, close };
+  }
+
+  /**
+   * 单值编辑弹层（改领域）：输入框 + 可选候选胶囊 + 取消 / 保存，**不写说明小字**。
+   * 返回 null = 用户取消（点遮罩 / ESC / 取消钮）；空串 = 用户明确留空（改领域时代表「未分类」）。
+   */
+  private askRowValue(opts: { title: string; placeholder: string; value?: string; chips?: string[] }): Promise<string | null> {
     return new Promise((resolve) => {
       const chips = (opts.chips || []).filter(Boolean);
-      const ovl = document.createElement('div');
-      ovl.className = 'bz-kb-ovl';
-      ovl.innerHTML = `<div class="bz-kb-sheet bz-kb-sheet--edit">${this.sheetWrap('', `
-        <div class="bz-kb-hw"><span class="bz-kb-w" style="font-size:16px">${esc(opts.title)}</span></div>
-        ${chips.length ? `<div class="bz-kb-editchips">${chips.map((c) => `<button type="button" class="bz-kb-edit-chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : ''}
-        <div class="bz-kb-editrow"><input id="kb-row-input" type="text" autocomplete="off" placeholder="${esc(opts.placeholder)}" value="${esc(opts.value || '')}"></div>
-        ${opts.hint ? `<div class="bz-kb-edithint">${esc(opts.hint)}</div>` : ''}
-        <div class="bz-kb-editacts">
-          <button type="button" class="bz-lit-ghost-btn" data-edit="cancel">取消</button>
-          <button type="button" class="bz-lit-accent-btn" data-edit="ok">保存</button>
-        </div>
-      `)}</div>`;
+      let inp: HTMLInputElement | null = null;
       let settled = false;
-      const finish = (v: string | null): void => {
+      const done = (v: string | null): void => {
         if (settled) return;
         settled = true;
-        ovl.remove();
         resolve(v);
       };
-      const value = (): string => q<HTMLInputElement>(ovl, '#kb-row-input')?.value ?? '';
-      ovl.addEventListener('click', (e) => {
-        const t = e.target as HTMLElement;
-        if (t === ovl) { finish(null); return; } // 点遮罩 = 取消
-        const chip = t.closest?.('[data-chip]') as HTMLElement | null;
-        if (chip) {
-          const inp = q<HTMLInputElement>(ovl, '#kb-row-input');
-          if (inp) { inp.value = chip.getAttribute('data-chip') || ''; inp.focus(); }
-          return;
-        }
-        const btn = t.closest?.('[data-edit]') as HTMLElement | null;
-        if (!btn) return;
-        finish(btn.getAttribute('data-edit') === 'ok' ? value() : null);
+      const value = (): string => inp?.value ?? '';
+      const shell = this.mountRowSheet({
+        title: opts.title,
+        body: `${chips.length ? `<div class="bz-kb-editchips">${chips.map((c) => `<button type="button" class="bz-kb-edit-chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : ''}
+        <div class="bz-kb-editrow"><input id="kb-row-input" type="text" autocomplete="off" placeholder="${esc(opts.placeholder)}" value="${esc(opts.value || '')}"></div>`,
+        onCancel: () => done(null),
+        onOk: (close) => { const v = value(); close(); done(v); },
       });
-      ovl.addEventListener('keydown', (e) => {
-        // ESC 拦在弹层内：不合流到面板的 ESC 分层（那一层会顺手把整个知识盒关掉）
-        if (e.key === 'Escape') { e.stopPropagation(); finish(null); return; }
-        if (e.key === 'Enter' && (e.target as HTMLElement)?.id === 'kb-row-input') { e.preventDefault(); finish(value()); }
+      if (!shell) { done(null); return; }
+      inp = q<HTMLInputElement>(shell.ovl, '#kb-row-input');
+      shell.ovl.addEventListener('click', (e) => {
+        const chip = (e.target as HTMLElement).closest?.('[data-chip]') as HTMLElement | null;
+        if (!chip || !inp) return;
+        inp.value = chip.getAttribute('data-chip') || '';
+        inp.focus();
       });
-      host.appendChild(ovl);
-      const inp = q<HTMLInputElement>(ovl, '#kb-row-input');
+      shell.ovl.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || (e.target as HTMLElement)?.id !== 'kb-row-input') return;
+        e.preventDefault();
+        const v = value();
+        shell.close();
+        done(v);
+      });
       inp?.focus();
       inp?.select();
+    });
+  }
+
+  /**
+   * 来源弹层（与录入面板的来源行同一套语言，用户 2026-10-26 点名要对齐）：
+   * - 贴链接停手 450ms → **就地变成「外 部 · 页面标题」的签**（标题抓到前先显短链接，抓到即换）；
+   * - 库内笔记名回车/失焦 → 「内 部 · 笔记名」的签；
+   * - 签上的 ✕ 退回输入框重填；保存时才写盘。
+   * 返回 null = 取消 / 没选出东西。
+   */
+  private askRowSource(): Promise<{ source: string; sourceTitle: string } | null> {
+    return new Promise((resolve) => {
+      /** label = 签上显示的名字（内部来源取笔记名，外部来源取标题）；不参与落库 */
+      let picked: { source: string; sourceTitle: string; label: string } | null = null;
+      let seq = 0; // 抓标题的序列号：期间改输入 / 清空 → 迟到结果丢弃
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      let settled = false;
+      let inp: HTMLInputElement | null = null;
+      let chip: HTMLElement | null = null;
+      const done = (v: { source: string; sourceTitle: string } | null): void => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        resolve(v);
+      };
+      const text = (): string => (inp?.value ?? '').trim();
+
+      /** 输入 → 落库形态（URL 走外链、其余当库内笔记）；认不出来返回 null */
+      const resolvePayload = async (raw: string): Promise<{ source: string; sourceTitle: string; label: string } | null> => {
+        const t = raw.trim();
+        if (!t) return null;
+        if (isUrlLikeSourceText(t)) {
+          let title = '';
+          try { title = cleanSourceTitle((await fetchPageTitle(normalizeSourceUrl(t))) || ''); } catch { /* 抓不到就只记链接 */ }
+          const payload = serializeTermSource({ kind: 'external', url: t, title: title || null });
+          return payload ? { source: payload.source, sourceTitle: payload.sourceTitle || '', label: '' } : null;
+        }
+        const target = this.resolveNotePath(t);
+        const payload = target ? serializeTermSource({ kind: 'note', path: target }) : null;
+        return payload ? { source: payload.source, sourceTitle: '', label: target ? noteSourceName(target) : '' } : null;
+      };
+
+      /** 签：外部 = 页面标题（抓不到回短链接），内部 = 笔记名；与录入面板 .bz-lit-srcchip 同一付皮 */
+      const paintChip = (): void => {
+        if (!chip || !inp) return;
+        if (!picked) {
+          chip.style.display = 'none';
+          chip.innerHTML = '';
+          inp.style.display = '';
+          return;
+        }
+        const isNote = picked.source.startsWith('[[');
+        const label = picked.label || picked.sourceTitle || shortUrlText(picked.source);
+        chip.title = picked.source;
+        chip.innerHTML = `<b>${isNote ? '内 部' : '外 部'}</b><span>${esc(label)}</span><button type="button" data-src-clear title="换一个来源" aria-label="换一个来源">✕</button>`;
+        chip.style.display = 'inline-flex';
+        inp.style.display = 'none';
+        motionSrcChipIn(chip);
+      };
+
+      /** 贴链接停手即转签；笔记名不自动认领（怕半截名字被当成另一篇） */
+      const lazyCommit = (): void => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          timer = null;
+          const t = text();
+          if (!t || picked || !isUrlLikeSourceText(t)) return;
+          const mine = ++seq;
+          const payload = serializeTermSource({ kind: 'external', url: t });
+          if (!payload) return;
+          picked = { source: payload.source, sourceTitle: '', label: '' };
+          paintChip();
+          void fetchPageTitle(payload.source)
+            .then((title) => {
+              if (seq !== mine || !picked) return; // 期间改了输入 / 清空
+              const clean = cleanSourceTitle(title || '');
+              if (!clean) return;
+              picked.sourceTitle = clean;
+              paintChip();
+            })
+            .catch(() => { /* 抓不到标题：签保持链接形态 */ });
+        }, 450);
+      };
+
+      const shell = this.mountRowSheet({
+        title: '添加来源',
+        body: '<div class="bz-kb-editrow"><input id="kb-src-input" type="text" autocomplete="off" placeholder="粘贴链接，或写库内笔记名"><span id="kb-src-chip" class="bz-lit-srcchip" style="display:none;"></span></div>',
+        onCancel: () => done(null),
+        onOk: (close) => {
+          void (async () => {
+            let hit = picked;
+            if (!hit) hit = await resolvePayload(text());
+            if (!hit) { notice('认不出这是链接还是笔记名', 'error'); return; } // 不关弹层：让用户就地改
+            close();
+            done({ source: hit.source, sourceTitle: hit.sourceTitle });
+          })();
+        },
+      });
+      if (!shell) { done(null); return; }
+      inp = q<HTMLInputElement>(shell.ovl, '#kb-src-input');
+      chip = q<HTMLElement>(shell.ovl, '#kb-src-chip');
+
+      inp?.addEventListener('input', () => {
+        seq++; // 改了输入 → 在途抓标题作废
+        if (picked) { picked = null; paintChip(); } // 已有签时改动输入 = 换来源
+        lazyCommit();
+      });
+      inp?.addEventListener('blur', () => {
+        // 失焦：把非链接文本按笔记名认领一次（认不出来就保持原样，交给保存时报错）
+        const t = text();
+        if (!t || picked || isUrlLikeSourceText(t)) return;
+        const target = this.resolveNotePath(t);
+        const payload = target ? serializeTermSource({ kind: 'note', path: target }) : null;
+        if (!payload) return;
+        picked = { source: payload.source, sourceTitle: '', label: target ? noteSourceName(target) : '' };
+        paintChip();
+      });
+      shell.ovl.addEventListener('click', (e) => {
+        if (!(e.target as HTMLElement).closest?.('[data-src-clear]')) return;
+        picked = null;
+        seq++;
+        paintChip();
+        if (inp) { inp.value = ''; inp.focus(); }
+      });
+      shell.ovl.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || (e.target as HTMLElement)?.id !== 'kb-src-input' || picked) return;
+        e.preventDefault();
+        void (async () => {
+          const hit = await resolvePayload(text());
+          if (!hit) { notice('认不出这是链接还是笔记名', 'error'); return; }
+          picked = hit;
+          paintChip();
+        })();
+      });
+      setTimeout(() => inp?.focus(), 0);
     });
   }
 

@@ -21,6 +21,9 @@ const DEFAULTS = {
   // pip install funasr torch torchaudio 或 faster-whisper 即可）；Windows 可用 `where python`
   // 查绝对路径后填入（如 C:/Users/<你>/AppData/Local/Programs/Python/Python311/python.exe）
   pythonPath: 'python',
+  // 模型缓存根目录（可选）：填了则转写子进程注入 MODELSCOPE_CACHE=<目录>/modelscope、HF_HOME=<目录>/huggingface；
+  // 留空 = 跟随 Python 环境默认（~/.cache）。手动 CLI 可填，插件 --batch 恒下发覆盖
+  modelsDir: '',
   engine: '',                                          // 转写引擎（issue 444）：'' = 缺省 sensevoice；插件 --batch 恒下发覆盖，本键只服务手动 CLI
   whisperModel: 'small',                               // faster-whisper 档位（仅 engine=faster-whisper 消费；SenseVoice 模型固定无档位）
   cacheDir: '',                                        // 视频/断点续跑缓存目录（留空 = 系统临时目录/bili-dl-cache）

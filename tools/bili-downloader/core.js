@@ -658,10 +658,21 @@ function parseTranscriptUnits(raw) {
 // 转文字：python -c 执行内嵌代码；stdout 逐块回调（修复原版双监听导致的文本双写）。
 // engine（issue 444）：'faster-whisper' → PY_TRANSCRIBE；其余（缺省）→ PY_TRANSCRIBE_SENSEVOICE。
 // args 形状两引擎一致：[档位, 文件…]（SenseVoice 忽略档位占位）。
-function runPython({ py, engine, args, onChunk }) {
+// 模型缓存目录（可选）：填了 → 转写子进程注入 MODELSCOPE_CACHE / HF_HOME（只对这一枪生效，
+// 不改系统环境变量）；留空 → 返回空对象，跟随该 Python 的环境默认（~/.cache/modelscope、~/.cache/huggingface）
+function modelCacheEnv(modelsDir) {
+  const d = String(modelsDir || '').trim()
+  if (!d) return {}
+  return {
+    MODELSCOPE_CACHE: path.join(d, 'modelscope'),
+    HF_HOME: path.join(d, 'huggingface'),
+  }
+}
+
+function runPython({ py, engine, args, onChunk, modelsDir }) {
   const script = resolveEngine(engine) === 'faster-whisper' ? PY_TRANSCRIBE : PY_TRANSCRIBE_SENSEVOICE
   return new Promise((resolve, reject) => {
-    const p = spawn(py, ['-c', script, ...args], { windowsHide: true, env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' } })
+    const p = spawn(py, ['-c', script, ...args], { windowsHide: true, env: { ...process.env, ...modelCacheEnv(modelsDir), PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' } })
     trackProc(p)   // 取消任务时可 kill 中止转录
     let err = ''
     p.stdout.on('data', d => { const s = String(d); onChunk && onChunk(s) })
@@ -779,6 +790,8 @@ async function runBatch(task, deps = {}) {
   const ffmpeg = deps.ffmpeg || conf.ffmpegPath || 'ffmpeg'
   const ffprobe = deps.ffprobe || conf.ffprobePath || 'ffprobe'
   const py = deps.py || conf.pythonPath
+  // 模型缓存根目录（可选，bz 设置「模型目录」下发）：空 → 跟随 Python 环境默认
+  const modelsDir = String(conf.modelsDir || '').trim()
   // 转写引擎与档位（issue 444）：engine 缺省 sensevoice；档位仅 faster-whisper 消费——
   // args 形状两引擎一致（argv[1] 档位，SenseVoice 忽略），打桩与解析零分叉
   const engine = resolveEngine(conf.engine)
@@ -923,7 +936,7 @@ async function runBatch(task, deps = {}) {
     let doneFiles = 0
     try {
       await runPythonImpl({
-        py, engine, args: [model, srcForDeliver],
+        py, engine, modelsDir, args: [model, srcForDeliver],
         onChunk: s => {
           raw += s
           // 完成哨兵（\x1e<file>\x1f\x1f）计数 → 文件级进度（当前单文件：0→100 跳变，诚实不假报）

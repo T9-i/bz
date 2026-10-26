@@ -67,6 +67,11 @@ export default interface BzSettings {
   /** ffprobe 可执行文件路径；缺省 'ffprobe' = 走 PATH。
    *  旧键 knowledgeFfprobePath 已一次性迁移到本键（migrateExternalToolKeys） */
   ffprobePath: string;
+  /** 转写模型缓存根目录（可选）：填了则 spawn 转写子进程时注入
+   *  MODELSCOPE_CACHE=<目录>/modelscope、HF_HOME=<目录>/huggingface；
+   *  留空 = 不注入，跟随该 Python 的环境默认（~/.cache/modelscope、~/.cache/huggingface）。
+   *  只对本次 spawn 生效，不写系统环境变量——用于把模型跟便携工具一起放在 vault 里搬机 */
+  modelsDir: string;
 
   // ===== 🧰 工具坞（dock 域，2026-10-04：外部工具的登记、启动、观测）=====
   /** 已登记工具的**信任表**（工具 id → 授权时刻 + 被授权那条启动命令的签名）。
@@ -917,6 +922,8 @@ export const DEFAULT_SETTINGS: BzSettings = {
   pythonPath: '',
   ffmpegPath: 'ffmpeg',
   ffprobePath: 'ffprobe',
+  // 模型缓存目录：空 = 跟随 Python 环境默认（~/.cache），不注入环境变量
+  modelsDir: '',
 
   // 工具坞（dock 域）：面板数据（登记表 / 台账 / 两个开关）自 ADR-0239 起住数据目录的
   // dock.json，旧键由 main.ts 的迁移读取并清除；这里只留**信任表**（刻意不随 vault 走）

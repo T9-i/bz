@@ -1802,11 +1802,11 @@ describe('知识盒 UI（ADR-0112 三部）', () => {
 
   // ==================== 设置 schema / ESC ====================
 
-  it('knowledgeSettingsSchema：六组（目录与分类含卡片/主题目录新键、自动关联、视频处理、外部工具、维护）+ 清空历史回调', async () => {
+  it('knowledgeSettingsSchema：五组（目录与分类含卡片/主题目录新键、自动关联、视频处理、维护）+ 清空历史回调', async () => {
     const schema = knowledgeSettingsSchema();
     // 「外部工具」组 issue 462 回归（Python/ffmpeg/ffprobe 三行升格域无关键位，脸谱共用）；
     // 原「工具」组 2026-09-16 移除的其余行（Whisper 档位走 AI 面板、缓存两键）仍不暴露
-    expect(schema.groups.map((g) => g.name)).toEqual(['外观', '目录与分类', '自动关联', '视频处理', '外部工具', '维护']);
+    expect(schema.groups.map((g) => g.name)).toEqual(['外观', '目录与分类', '自动关联', '视频处理', '维护']);
     const dirRows = schema.groups[1].rows.map((r) => (r as any).binding?.key);
     expect(dirRows).toContain('knowledgeCardboxDirectory');
     expect(dirRows).toContain('knowledgeTopicDirectory');
@@ -2308,6 +2308,9 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     const ev = rightClick(row);
     await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
     expect(ev.defaultPrevented).toBe(true); // 原生右键菜单被拦掉，出的是域内跟手菜单
+    // 皮肤类必须带上：core 基线是 Obsidian 主题白底，只有 .bz-kb-menu 才换纸墨材质
+    expect(document.querySelector('.bz-item-menu')!.classList.contains('bz-kb-menu')).toBe(true);
+    expect(document.querySelector('.bz-item-menu')!.classList.contains('kb')).toBe(true);
     // 无来源 → 只出「添加来源」，绝不与「删除来源」并列
     expect(menuLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
     expect(menuLabels()).not.toContain('删除来源');
@@ -2338,7 +2341,7 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     expect(vault.files.get('文献盒/带源.md')).toContain('domain: "物理"'); // 其余属性零扰动
   });
 
-  it('添加来源（外链）：URL 净化后落 source，页面标题清洗后落 sourceTitle', async () => {
+  it('添加来源（外链）：不转签直接保存也认——URL 净化落 source、页面标题清洗落 sourceTitle', async () => {
     const reqMock = requestUrl as ReturnType<typeof vi.fn>;
     reqMock.mockResolvedValue(httpResp(200, '<html><head><title>一篇文章 - 知乎</title></head><body></body></html>'));
     vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
@@ -2347,8 +2350,8 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     rightClick(document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement);
     await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
     clickMenuItem('添加来源');
-    await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
-    (document.getElementById('kb-row-input') as HTMLInputElement).value = 'https://example.com/a?utm_source=x&id=7';
+    await vi.waitFor(() => expect(document.getElementById('kb-src-input')).toBeTruthy());
+    (document.getElementById('kb-src-input') as HTMLInputElement).value = 'https://example.com/a?utm_source=x&id=7';
     (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
     await vi.waitFor(() => {
       const text = vault.files.get('文献盒/术语B.md')!;
@@ -2356,6 +2359,35 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
       expect(text).toContain('sourceTitle: "一篇文章"'); // 「 - 知乎」尾巴剥掉
     });
     expect(getNoticeMessages().join()).toContain('已添加来源');
+  });
+
+  it('添加来源（外链）：贴链接停手即转成「外 部 · 页面标题」的签，不再留着那串裸 URL', async () => {
+    const reqMock = requestUrl as ReturnType<typeof vi.fn>;
+    reqMock.mockResolvedValue(httpResp(200, '<html><head><title>标题党文章 - 知乎</title></head></html>'));
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+    rightClick(document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('添加来源');
+    await vi.waitFor(() => expect(document.getElementById('kb-src-input')).toBeTruthy());
+    const input = document.getElementById('kb-src-input') as HTMLInputElement;
+    input.value = 'https://www.bilibili.com/video/BV1demo/?trackid=v';
+    input.dispatchEvent(new Event('input', { bubbles: true })); // 真机由输入事件起 450ms 防抖
+    const chip = document.getElementById('kb-src-chip')!;
+    await vi.waitFor(() => {
+      expect(chip.style.display).not.toBe('none');
+      expect(chip.textContent).toContain('标题党文章'); // 标题抓回来即换掉链接
+      expect(chip.textContent).not.toContain('bilibili.com');
+    }, { timeout: 3000 });
+    expect(chip.textContent).toContain('外 部');
+    expect(input.style.display).toBe('none'); // 输入框让位给签（与录入面板同一交互）
+    (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    await vi.waitFor(() => {
+      const text = vault.files.get('文献盒/术语B.md')!;
+      expect(text).toContain('source: "https://www.bilibili.com/video/BV1demo/"'); // trackid 剥掉
+      expect(text).toContain('sourceTitle: "标题党文章"');
+    });
   });
 
   it('改领域：候选胶囊来自已用过的领域，点选填入 → 保存写 domain 并就地换行内标签', async () => {
@@ -2491,6 +2523,7 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     await vi.waitFor(() => expect(document.querySelector('.bz-item-sheet')).toBeTruthy(), { timeout: 3000 });
     expect(sheetLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
     expect(document.querySelector('.bz-item-menu')).toBeNull(); // 移动端不走桌面跟手菜单
+    expect(document.querySelector('.bz-item-sheet')!.classList.contains('bz-kb-menu')).toBe(true); // 抽屉同皮
     // 内容被长按选走 → 与抽屉抢位（行上的 user-select 豁免由 CSS 负责，这里钉住结构前提）
     expect(document.querySelector('.bz-item-sheet .bz-item-sheet-head')).toBeNull();
   });
