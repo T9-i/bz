@@ -365,6 +365,46 @@
   padding: var(--bz-space-md) 18px 18px;
 }
 
+/* ===== 列表行编辑弹层（2026-10-26：右键菜单「添加来源 / 改领域」）=====
+   比预览弹层窄——只装一行输入 + 可选候选胶囊，太宽会让输入框显得空荡。 */
+.bz-kb-sheet--edit { width: min(430px, calc(100% - 36px)); }
+
+.bz-kb-editrow { display: flex; }
+
+.bz-kb-editrow input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: var(--bz-radius-sm);
+  padding: var(--bz-space-sm) 11px;
+  font-size: var(--bz-font-label);
+  color: var(--ink);
+  font-family: inherit;
+  outline: none;
+}
+.bz-kb-editrow input:focus { border-color: var(--accent); }
+
+/* 候选胶囊：点一下填进输入框（不直接保存——用户还能改） */
+.bz-kb-editchips { display: flex; flex-wrap: wrap; gap: var(--bz-space-sm); margin: 0 0 10px; }
+.bz-kb-edit-chip {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: none;
+  color: var(--ink3);
+  font-family: inherit;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  cursor: pointer;
+}@media (hover: hover) {
+
+.bz-kb-edit-chip:hover { border-color: var(--accent); color: var(--ink); }
+}
+
+.bz-kb-edithint { margin-top: var(--bz-space-sm); font-size: var(--bz-font-meta); color: var(--ink3); line-height: 1.7; }
+
+.bz-kb-editacts { display: flex; justify-content: flex-end; gap: var(--bz-space-sm); margin-top: var(--bz-space-lg); }
+
 .bz-kb-paras p {
   font-size: 12.5px;
   line-height: 1.95;
@@ -1132,6 +1172,14 @@
   height: auto;
   border-radius: 0;
   border: 0;
+}
+
+/* 移动端长按出抽屉（2026-10-26）：行内文本不许被长按选走 / 弹系统 callout —— 长按是抽屉手势。
+   与剪藏本正文的 user-select 豁免方向相反：那里要选字（划词工具框），这里不要。 */
+.bz-kb-window.bz-panel-mtop .bz-kb-lexrow {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* 移动端头部（章回式定稿）：题字居中一行，部切换通栏三格挪出头部、双细线压底 */

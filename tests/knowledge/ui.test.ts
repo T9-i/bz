@@ -36,6 +36,10 @@ const noteGen = vi.hoisted(() => ({
   summarizeTermSummary: vi.fn(),
   backfillNotes: vi.fn(),
   findDuplicateTermNote: vi.fn(), // ADR-0143：mockReset 后默认 undefined = 无重复，既有用例直行
+  // 纯函数（领域词表解析，与 note-gen 实现同口径）：ui 的 domainCandidates 直接用，
+  // 整模块 mock 后必须给真身，否则任何走到领域候选的路径都会报「no export」
+  parseDomainList: (raw: string | undefined | null) =>
+    [...new Set(String(raw ?? '').split(/[,，、]/).map((s) => s.trim()).filter(Boolean))],
 }));
 vi.mock('../../src/knowledge/note-gen', () => noteGen);
 
@@ -2274,6 +2278,193 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     await vi.waitFor(() => expect(noteGen.generatePassageNote).toHaveBeenCalled());
     expect(noteGen.generatePassageNote.mock.calls.at(-1)![0]).toMatchObject({ title: '我改的标题', domain: '睡眠医学' });
     await vi.waitFor(() => expect(applies).toEqual([['文献盒/我改的标题.md', ['卡片盒/昼夜节律.md']]]));
+  });
+
+  // ============ 列表行右键菜单（桌面）/ 长按抽屉（移动）（2026-10-26） ============
+
+  /** 对某行触发右键（桌面路径） */
+  const rightClick = (row: HTMLElement): MouseEvent => {
+    const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 20, clientY: 30 });
+    row.dispatchEvent(ev);
+    return ev;
+  };
+  const menuLabels = (): Array<string | null> =>
+    Array.from(document.querySelectorAll('.bz-item-menu .bz-item-menu-label')).map((x) => x.textContent);
+  const sheetLabels = (): Array<string | null> =>
+    Array.from(document.querySelectorAll('.bz-item-sheet .bz-item-sheet-label')).map((x) => x.textContent);
+  /** 点菜单里的某一项（按文案找） */
+  const clickMenuItem = (text: string): void => {
+    const btn = Array.from(document.querySelectorAll<HTMLElement>('.bz-item-menu-item'))
+      .find((b) => (b.textContent || '').includes(text));
+    expect(btn, `菜单里应有「${text}」`).toBeTruthy();
+    btn!.click();
+  };
+
+  it('列表右键菜单（桌面）：打开笔记 / 添加来源 / 改领域 / 重跑关联 / 删除；并拦掉原生右键菜单', async () => {
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+    const row = document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement;
+    const ev = rightClick(row);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    expect(ev.defaultPrevented).toBe(true); // 原生右键菜单被拦掉，出的是域内跟手菜单
+    // 无来源 → 只出「添加来源」，绝不与「删除来源」并列
+    expect(menuLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
+    expect(menuLabels()).not.toContain('删除来源');
+  });
+
+  it('有来源的行：菜单只出「删除来源」（与添加互斥）；确认框亮出来源并连带摘掉 sourceTitle', async () => {
+    vault.files.set('文献盒/带源.md', noteMd({
+      title: '带源', type: 'term', domain: '物理',
+      source: 'https://example.com/x', sourceTitle: '外链标题',
+    }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+    rightClick(document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    expect(menuLabels()).toEqual(['打开笔记', '删除来源', '改领域', '重跑关联', '删除']);
+    expect(menuLabels()).not.toContain('添加来源');
+
+    clickMenuItem('删除来源');
+    await vi.waitFor(() => expect(flowDialog.openFlowDialog).toHaveBeenCalled());
+    const opts = flowDialog.openFlowDialog.mock.calls.at(-1)![0];
+    expect(opts.title).toBe('删除来源');
+    expect(opts.message).toContain('外链标题'); // 桌面菜单里看不到来源，确认框负责亮出来
+    await vi.waitFor(() => {
+      const text = vault.files.get('文献盒/带源.md')!;
+      expect(text).not.toContain('source:');
+      expect(text).not.toContain('sourceTitle:');
+    });
+    expect(vault.files.get('文献盒/带源.md')).toContain('domain: "物理"'); // 其余属性零扰动
+  });
+
+  it('添加来源（外链）：URL 净化后落 source，页面标题清洗后落 sourceTitle', async () => {
+    const reqMock = requestUrl as ReturnType<typeof vi.fn>;
+    reqMock.mockResolvedValue(httpResp(200, '<html><head><title>一篇文章 - 知乎</title></head><body></body></html>'));
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+    rightClick(document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('添加来源');
+    await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
+    (document.getElementById('kb-row-input') as HTMLInputElement).value = 'https://example.com/a?utm_source=x&id=7';
+    (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    await vi.waitFor(() => {
+      const text = vault.files.get('文献盒/术语B.md')!;
+      expect(text).toContain('source: "https://example.com/a?id=7"'); // utm_* 剥掉、内容参数保留
+      expect(text).toContain('sourceTitle: "一篇文章"'); // 「 - 知乎」尾巴剥掉
+    });
+    expect(getNoticeMessages().join()).toContain('已添加来源');
+  });
+
+  it('改领域：候选胶囊来自已用过的领域，点选填入 → 保存写 domain 并就地换行内标签', async () => {
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    vault.files.set('文献盒/术语C.md', noteMd({ title: '术语C', type: 'term', domain: '物理' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
+    const rowC = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
+      .find((r) => r.getAttribute('data-path') === '文献盒/术语C.md')!;
+    rightClick(rowC);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('改领域');
+    await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
+    const chips = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-edit-chip')).map((x) => x.textContent);
+    expect(chips).toContain('数学'); // 库里已用过的领域
+    (document.querySelector('.bz-kb-edit-chip[data-chip="数学"]') as HTMLElement).click();
+    expect((document.getElementById('kb-row-input') as HTMLInputElement).value).toBe('数学');
+    (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    await vi.waitFor(() => expect(vault.files.get('文献盒/术语C.md')).toContain('domain: "数学"'));
+    // 行上立即换标签（不靠 300ms 后的落盘刷新整表重扫）
+    expect(rowC.querySelector('.bz-kb-dom')!.textContent).toBe('数学');
+    expect((ui as any).allNotes.find((n: any) => n.path === '文献盒/术语C.md')?.domain).toBe('数学');
+  });
+
+  it('删除笔记：二次确认带被引数 → 移入**库内**回收站（不是系统回收站）→ 行从列表消失', async () => {
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    vault.files.set('文献盒/引用者.md', noteMd({
+      title: '引用者', type: 'term', domain: '数学', body: '见 [[文献盒/术语B]]',
+    }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
+    await vi.waitFor(() => expect((ui as any).mountIndex).toBeTruthy()); // 被引索引落地后才有数
+    const rowB = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
+      .find((r) => r.getAttribute('data-path') === '文献盒/术语B.md')!;
+    rightClick(rowB);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('删除');
+    await vi.waitFor(() => expect(flowDialog.openFlowDialog).toHaveBeenCalled());
+    const opts = flowDialog.openFlowDialog.mock.calls.at(-1)![0];
+    expect(opts.title).toBe('删除文献笔记');
+    expect(opts.message).toContain('《术语B》');
+    expect(opts.message).toContain('1 处引用'); // 删之前得知道会断几条链
+    await vi.waitFor(() => expect(vault.trashed.length).toBe(1));
+    expect(vault.trashed[0]).toEqual({ path: '文献盒/术语B.md', system: false });
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+  });
+
+  it('移动端长按：弹**底部抽屉**（不是跟手菜单），动作与桌面同源；抽屉顶部不带自造信息条', async () => {
+    (Platform as any).isMobile = true;
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+    const row = document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement;
+    const ev: any = new Event('touchstart', { bubbles: true });
+    ev.touches = [{ clientX: 10, clientY: 10 }];
+    row.dispatchEvent(ev);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-sheet')).toBeTruthy(), { timeout: 3000 });
+    expect(sheetLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
+    expect(document.querySelector('.bz-item-menu')).toBeNull(); // 移动端不走桌面跟手菜单
+    // 内容被长按选走 → 与抽屉抢位（行上的 user-select 豁免由 CSS 负责，这里钉住结构前提）
+    expect(document.querySelector('.bz-item-sheet .bz-item-sheet-head')).toBeNull();
+  });
+
+  it('部贰卡片行：走同一套菜单（改领域写卡片笔记的 domain，行内标签就地更新）', async () => {
+    vault.files.set('卡片盒/某张卡.md', cardMd({ title: '某张卡', domain: '心理' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-sc')!.textContent).toContain('还没有文献笔记'));
+    (document.querySelector('[data-kb-act=part][data-part=z2]') as HTMLElement).click();
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-lexrow[data-kb-act=card-peek]')).toBeTruthy());
+    const row = document.querySelector('.bz-kb-lexrow[data-kb-act=card-peek]') as HTMLElement;
+    rightClick(row);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    expect(menuLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
+    clickMenuItem('改领域');
+    await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
+    expect((document.getElementById('kb-row-input') as HTMLInputElement).value).toBe('心理');
+    (document.getElementById('kb-row-input') as HTMLInputElement).value = '社会';
+    (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    await vi.waitFor(() => expect(vault.files.get('卡片盒/某张卡.md')).toContain('domain: "社会"'));
+    expect(row.querySelector('.bz-kb-dom')!.textContent).toBe('社会');
+  });
+
+  it('部叁主题行：不出「改领域」（主题的领域来自所在文件夹，写 domain 键没人读）', async () => {
+    vault.files.set('主题盒/某个主题.md', '---\ntitle: "某主题"\n---\n\n正文。');
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-sc')!.textContent).toContain('还没有文献笔记'));
+    (document.querySelector('[data-kb-act=part][data-part=z3]') as HTMLElement).click();
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-lexrow[data-kb-act=topic-open]')).toBeTruthy());
+    rightClick(document.querySelector('.bz-kb-lexrow[data-kb-act=topic-open]') as HTMLElement);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    expect(menuLabels()).toEqual(['打开笔记', '添加来源', '重跑关联', '删除']);
+  });
+
+  it('重跑关联：对**选中的那一行**走 LinkBridge.now(force)，不动「当前打开的笔记」', async () => {
+    const now = vi.fn(async () => ({ status: 'done' as const, created: 2 }));
+    setLinkBridge({
+      backfill: async () => ({ status: 'done' as const, processed: 0, created: 0 }),
+      preview: async () => ({ status: 'done' as const, picks: [] }),
+      apply: async () => ({ status: 'done' as const, created: 0 }),
+      now,
+    });
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(1));
+    rightClick(document.querySelector('.bz-kb-lexrow[data-kb-act=lit-peek]') as HTMLElement);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('重跑关联');
+    await vi.waitFor(() => expect(now).toHaveBeenCalledWith('文献盒/术语B.md', { force: true }));
+    expect(getNoticeMessages().join()).toContain('已新建关联 2 条');
   });
 });
 });

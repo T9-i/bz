@@ -27,7 +27,9 @@ import { tryGetSettings, getSettings, saveSettings, panelSizePersist } from '../
 import { uiResizable } from '../core/ui/resize';
 import { getKnowledgeBoxes } from '../core/knowledge-boxes';
 import { getLinkBridge, type LinkPreviewOutcome } from '../core/link-now';
-import { attachItemActions, type ItemAction } from '../core/item-actions';
+import { attachItemActions, openItemMenu, openItemSheet, resetItemMenuClickGuard, type ItemAction } from '../core/item-actions';
+import { longPress } from '../core/dom';
+import { trashNote } from '../core/note-trash';
 import { confirmDiscard, openFlowDialog } from '../core/flow-dialog';
 import { notice, notify } from '../core/notice';
 import { escapeHtml, fetchPageTitle, formatRelativeTime, stripMdExt, openExternalUrl } from '../core/utils';
@@ -44,7 +46,9 @@ import type { KnowledgeTask } from './types';
 import { BatchRunner, type BatchEvents } from './processor';
 import { openMountTree } from './mount-canvas';
 import { backfillNotes, findDuplicateTermNote, generateImageDraft, generateImageNote, generatePassageDraft, generatePassageNote, generateTermDraft, generateTermNote, parseDomainList, resolveImageDir, type DraftFields, type DraftHooks } from './note-gen';
-import { canonicalVideoUrl, cleanSourceTitle, isUrlLikeSourceText, normalizeSourceUrl, noteSourceName, type TermSource } from './source';
+import { canonicalVideoUrl, cleanSourceTitle, isUrlLikeSourceText, normalizeSourceUrl, noteSourceName, serializeTermSource, type TermSource } from './source';
+import { writeNoteFm, type FmEdit } from './note-edit';
+import { relinkNoteByPath } from './relink';
 import { fetchCheckedQualities, fetchVideoMeta, needsBvidRepair, parseBvid, resolveVideo, type ResolvedVideo, type VideoMeta } from './video-meta';
 import { RangeBar } from './range-bar';
 import {
@@ -309,6 +313,9 @@ interface CardEntry {
   domain: string;
   review: boolean;
   created: number;
+  /** 来源两键（2026-10-26 右键菜单「添加 / 删除来源」要按现状决定出哪一项） */
+  source: string;
+  sourceTitle: string;
 }
 
 /** 部叁主题条目（仅展示） */
@@ -318,6 +325,22 @@ interface TopicEntry {
   title: string;
   where: string;
   created: number;
+  source: string;
+  sourceTitle: string;
+}
+
+/** 列表行属于哪个部（决定右键菜单出哪些动作）：lit = 部壹文献 / card = 部贰卡片 / topic = 部叁主题 */
+type RowKind = 'lit' | 'card' | 'topic';
+
+/** 右键 / 长按的操作对象：行元素 + 这条笔记当下的属性快照（动作按快照决定出哪一项） */
+interface RowRef {
+  kind: RowKind;
+  path: string;
+  row: HTMLElement;
+  title: string;
+  domain: string;
+  source: string;
+  sourceTitle: string;
 }
 
 /** 知识盒设置 schema（声明式五组；ADR-0112 更名并新增卡片/主题目录，ADR-0141 增「自动关联」组） */
@@ -575,6 +598,16 @@ export class UIManager {
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingRefreshPaths = new Set<string>();
   private pendingDeletePaths = new Set<string>();
+  /**
+   * 本面板自己写过的笔记（右键改属性 / 删除）：落盘后 300ms 的刷新别把它们当**外部改动**重扫——
+   * 列表已经就地更新过，重扫会把部贰的增量列表打回首屏 80 行（滚动位置虽保住、内容却缩了）。
+   * value = 登记时刻，只吞 3 秒内的（事件没来时不留永久误吞面）。
+   */
+  private selfWritten = new Map<string, number>();
+  /** 正在重跑关联的路径（连点同一行不重复起跑） */
+  private relinking = new Set<string>();
+  /** 列表行的右键 / 长按监听是否已挂（**容器级一次**，不逐行挂：文献盒上千行） */
+  private rowMenuAttached = false;
   /** 主窗拖拽缩放句柄（ADR-0084 桌面限定；showMain 挂 / hideMain·destroy 摘，域内三窗只挂主窗） */
   private panelResizeDetach: { flush: () => void; detach: () => void } | null = null;
 
@@ -648,6 +681,7 @@ export class UIManager {
     popup.addEventListener('click', (e) => this.onShellClick(e as MouseEvent));
     this.contentEl?.addEventListener('scroll', () => this.onContentScroll());
     this.attachFileListener();
+    this.attachRowMenu();
   }
 
   /** 主壳点击委托（部切换 / 录入入口 / 文献行 / 主题行 / 返回） */
@@ -672,6 +706,316 @@ export class UIManager {
     }
     else if (act === 'topic-open') { const p = t.getAttribute('data-path') || ''; const tp = this.allTopics.find((x) => x.path === p); if (tp) void this.openPreview({ file: tp.file, path: tp.path, title: tp.title, domain: tp.where }, 'topic'); }
     else if (act === 'kb-close') this.hideMain(); // 移动端全屏主窗出口（ADR-0116：手机无 ESC/遮罩边缘）
+  }
+
+  // ==================== 列表行：桌面右键菜单 / 移动端长按抽屉（2026-10-26） ====================
+
+  /**
+   * 三部列表行的操作入口：桌面右键 → 跟手菜单，移动端长按 → 底部抽屉。
+   * 浮层走 core/item-actions 的现成实现（与 memo / clipbook / home 同款），但**不用 attachItemActions**：
+   * 那个是逐卡片挂监听，部壹动辄上千行、部贰还是滚动增量追加的，逐行挂着实浪费。这里在滚动容器上
+   * 挂一次委托（事件冒泡上来再 closest 找行），与既有 data-kb-act 点击委托同一思路。
+   */
+  private attachRowMenu(): void {
+    const host = this.contentEl;
+    if (!host || this.rowMenuAttached) return; // 主窗 DOM 常驻：show/hide 反复走 createMainUI 也不叠挂
+    this.rowMenuAttached = true;
+    host.addEventListener('contextmenu', (e) => {
+      if (isMobileEnv()) return; // 移动端走长按，不弹跟手菜单
+      const r = this.rowRefOf(e.target as HTMLElement);
+      if (!r) return;
+      e.preventDefault();
+      openItemMenu(e.clientX, e.clientY, this.rowActions(r), true);
+      // 右键没有补发 click；不复位的话，Chromium 的 mouseup 落点会把下一次左键当成残余吞掉
+      resetItemMenuClickGuard();
+    });
+    longPress(host, (ev: any) => {
+      if (!isMobileEnv()) return;
+      const r = this.rowRefOf(ev.target as HTMLElement);
+      if (!r) return;
+      openItemSheet(this.rowActions(r), undefined, ev.type !== 'touchstart');
+    });
+  }
+
+  /** 事件目标 → 它所在的行 + 该笔记的当前属性（找不到行 / 缓存里没这篇 → null，不弹空菜单） */
+  private rowRefOf(el: HTMLElement | null): RowRef | null {
+    const row = el?.closest?.('.bz-kb-lexrow[data-path]') as HTMLElement | null;
+    if (!row) return null;
+    const path = row.getAttribute('data-path') || '';
+    if (!path) return null;
+    const act = row.getAttribute('data-kb-act');
+    const kind: RowKind = act === 'card-peek' ? 'card' : act === 'topic-open' ? 'topic' : 'lit';
+    const hit = kind === 'card'
+      ? this.allCards.find((x) => x.path === path)
+      : kind === 'topic'
+        ? this.allTopics.find((x) => x.path === path)
+        : this.allNotes.find((x) => x.path === path);
+    if (!hit) return null; // 列表与缓存脱节（刚被外部删掉）：不给动作，免得对着空路径写盘
+    return {
+      kind, path, row,
+      title: hit.title,
+      domain: kind === 'topic' ? '' : String((hit as any).domain || ''),
+      source: String((hit as any).source || ''),
+      sourceTitle: String((hit as any).sourceTitle || ''),
+    };
+  }
+
+  /**
+   * 一行能出哪些动作（顺序即显示顺序，危险项恒在最后）。互斥口径：
+   * - 来源只有一个槽位：**没有来源时只出「添加」、有来源时只出「删除」**，两者绝不并列；
+   * - 「改领域」只给文献与卡片——主题笔记的领域来自它所在的文件夹，写 domain 键没人读；
+   * - 「打开笔记」与单击预览并存（一个跳出去看，一个留在面板里读）。
+   */
+  private rowActions(r: RowRef): ItemAction[] {
+    const out: ItemAction[] = [
+      { icon: 'book-open', label: '打开笔记', onClick: () => this.openNote(r.path) },
+    ];
+    if (r.source) out.push({ icon: 'unlink', label: '删除来源', onClick: () => void this.removeRowSource(r) });
+    else out.push({ icon: 'link', label: '添加来源', onClick: () => void this.addRowSource(r) });
+    if (r.kind !== 'topic') {
+      out.push({ icon: 'tags', label: '改领域', onClick: () => void this.editRowDomain(r) });
+    }
+    out.push({ icon: 'link-2', label: '重跑关联', onClick: () => void this.relinkRow(r) });
+    out.push({ icon: 'trash-2', label: '删除', kind: 'danger', onClick: () => void this.deleteRowNote(r) });
+    return out;
+  }
+
+  /** 添加来源：外链（净化 URL + 抓页面标题）或库内笔记（写成内部双链），两态同一输入框 */
+  private async addRowSource(r: RowRef): Promise<void> {
+    const input = await this.askRowValue({
+      title: '添加来源',
+      placeholder: '粘贴链接，或写库内笔记名',
+      hint: '外链抓不到标题时只记链接；库内笔记写成双链',
+    });
+    if (input === null) return; // 取消
+    const text = input.trim();
+    if (!text) return;
+    let payload: { source: string; sourceTitle?: string } | null = null;
+    if (isUrlLikeSourceText(text)) {
+      const url = normalizeSourceUrl(text);
+      let title = '';
+      try { title = cleanSourceTitle((await fetchPageTitle(url)) || ''); } catch { title = ''; }
+      payload = serializeTermSource({ kind: 'external', url, title: title || null });
+    } else {
+      const target = this.resolveNotePath(text);
+      if (!target) { notice(`找不到这篇笔记：${text}`, 'error'); return; }
+      payload = serializeTermSource({ kind: 'note', path: target });
+    }
+    if (!payload) { notice('来源没写：内容认不出来', 'error'); return; }
+    await this.applyRowEdits(r, [
+      { key: 'source', value: payload.source },
+      { key: 'sourceTitle', value: payload.sourceTitle ?? null },
+    ]);
+    notice('已添加来源', 'success');
+  }
+
+  /** 删除来源：先确认（顺便把当前来源亮出来——桌面右键菜单里看不到它是啥），再连同 sourceTitle 一起摘 */
+  private async removeRowSource(r: RowRef): Promise<void> {
+    const shown = r.sourceTitle || r.source;
+    const v = await openFlowDialog({
+      title: '删除来源',
+      message: `将删掉这篇笔记的来源属性：\n${shown}\n笔记正文与其余属性不受影响。`,
+      className: 'kb bz-kb-flow-dialog', // 挂 body 的流程框须自带皮肤类，才与知识盒同皮
+      actions: [{ label: '取消', value: 'cancel' }, { label: '删除', value: 'ok', danger: true }],
+    });
+    if (v !== 'ok') return;
+    await this.applyRowEdits(r, [
+      { key: 'source', value: null },
+      { key: 'sourceTitle', value: null },
+    ]);
+    notice('已删除来源', 'success');
+  }
+
+  /** 改领域：候选 = 已用过的领域 ∪ 设置词表（与录入面板同一份口径），留空 = 清掉这个键（显示「未分类」） */
+  private async editRowDomain(r: RowRef): Promise<void> {
+    const value = await this.askRowValue({
+      title: '改领域',
+      placeholder: '领域名；留空 = 未分类',
+      value: r.domain === '未分类' ? '' : r.domain,
+      chips: this.domainCandidates().slice(0, 8),
+      hint: '候选来自文献目录里已用过的领域与设置里的词表',
+    });
+    if (value === null) return;
+    const domain = value.trim();
+    await this.applyRowEdits(r, [{ key: 'domain', value: domain || null }]);
+    notice(domain ? `领域改为：${domain}` : '已清空领域', 'success');
+  }
+
+  /** 重跑这一篇的关联（与 bz-knowledge-relink 命令同一条管线、同一份文案，见 relink.ts） */
+  private async relinkRow(r: RowRef): Promise<void> {
+    if (this.relinking.has(r.path)) { notice('这篇正在重跑关联…', 'info'); return; }
+    this.relinking.add(r.path);
+    try {
+      await relinkNoteByPath(r.path);
+    } finally {
+      this.relinking.delete(r.path);
+    }
+  }
+
+  /**
+   * 删除笔记：二次确认（带上被引数——删之前得知道会断几条链）→ **库内回收站**（ADR-0245 唯一入口）
+   * → 列表就地减一行。knowledge.json 里指向它的任务记录由文件同步（file-sync 的 applyDelete）清空。
+   */
+  private async deleteRowNote(r: RowRef): Promise<void> {
+    const app = getApp();
+    const file = app.vault.getAbstractFileByPath(r.path);
+    const kindLabel = r.kind === 'card' ? '卡片' : r.kind === 'topic' ? '主题笔记' : '文献笔记';
+    if (!file || (file as any).isFolder) {
+      notice('这篇笔记已经不在库里了', 'error');
+      this.dropRowFromList(r);
+      return;
+    }
+    // 被引数只对「有人指向它」的笔记有意义：索引没算过（部叁不加载索引）就不提，别报一个假的 0
+    const refs = this.mountIndex ? this.mountIndex.counts[r.path] ?? 0 : 0;
+    const v = await openFlowDialog({
+      title: `删除${kindLabel}`,
+      message: `《${r.title}》将移入库内回收站（.trash），之后可以从 Obsidian 回收站翻回来。`
+        + (refs > 0 ? `\n有 ${refs} 处引用（正文双链 / 关联属性），删掉后它们会变成断链。` : ''),
+      className: 'kb bz-kb-flow-dialog',
+      actions: [{ label: '取消', value: 'cancel' }, { label: '删除', value: 'ok', danger: true }],
+    });
+    if (v !== 'ok') return;
+    this.noteSelfWrite(r.path); // 删除同样是自家动作：别让 300ms 后的落盘刷新再整表重扫一遍
+    try {
+      await trashNote(app, file as any);
+    } catch (e) {
+      this.selfWritten.delete(r.path);
+      notice(`删除失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+      return;
+    }
+    this.dropRowFromList(r);
+    notice('已移入回收站', 'success');
+  }
+
+  /** 从三部缓存与当前列表里摘掉一行（不动整表；保滚动位置） */
+  private dropRowFromList(r: RowRef): void {
+    this.removeCached(r.path);
+    const keep = this.contentEl ? this.contentEl.scrollTop : 0;
+    if (r.kind === 'card') {
+      r.row.remove();
+      this.cardsShown = Math.max(0, this.cardsShown - 1);
+      this.updateCardMore(this.cardPool());
+      return;
+    }
+    if (r.kind === 'topic') this.renderTopics();
+    else this.renderLiterature();
+    if (this.contentEl) this.contentEl.scrollTop = keep;
+  }
+
+  /** 登记「这篇是面板自己改的」：落盘刷新时按此过滤，别把自家改动当外部变更整表重扫 */
+  private noteSelfWrite(path: string): void {
+    this.selfWritten.set(path, Date.now());
+  }
+
+  /**
+   * 把 frontmatter 改动落到选中的笔记，同时把内存条目与行上的可见部分对齐。
+   * 返回值 = 是否真的写了盘（内容没变 → false，但内存照样按意图对齐：界面不该显示旧值）。
+   */
+  private async applyRowEdits(r: RowRef, edits: FmEdit[]): Promise<boolean> {
+    this.noteSelfWrite(r.path);
+    let wrote = false;
+    try {
+      wrote = await writeNoteFm(getApp(), r.path, edits);
+    } catch (e) {
+      this.selfWritten.delete(r.path);
+      notice(`写入失败：${e instanceof Error ? e.message : String(e)}`, 'error');
+      return false;
+    }
+    // 没落盘就不会有落盘事件，登记要撤（否则会误吞这个文件下一次真被外部改动）
+    if (!wrote) this.selfWritten.delete(r.path);
+    const n = this.allNotes.find((x) => x.path === r.path);
+    const c = this.allCards.find((x) => x.path === r.path);
+    const t = this.allTopics.find((x) => x.path === r.path);
+    const domainEdit = edits.find((e) => e.key === 'domain');
+    if (domainEdit) {
+      const d = domainEdit.value || '';
+      if (n) n.domain = d;
+      if (c) c.domain = d || '未分类';
+      const dom = r.row.querySelector<HTMLElement>('.bz-kb-dom');
+      if (dom) dom.textContent = d || '未分类';
+    }
+    const srcEdit = edits.find((e) => e.key === 'source');
+    if (srcEdit) {
+      const value = srcEdit.value || '';
+      const titleEdit = edits.find((e) => e.key === 'sourceTitle');
+      const st = titleEdit ? titleEdit.value || '' : '';
+      for (const e of [n, c, t]) {
+        if (!e) continue;
+        (e as any).source = value;
+        (e as any).sourceTitle = st;
+      }
+    }
+    return wrote;
+  }
+
+  /** 用户写的「库内笔记名 / 路径 / [[双链]]」→ vault 路径（全路径优先，其次走 Obsidian 的 linkpath 解析） */
+  private resolveNotePath(text: string): string | null {
+    const app = getApp();
+    const t = String(text || '')
+      .replace(/^!?\[\[|\]\]$/g, '')
+      .split('|')[0]
+      .replace(/\\/g, '/')
+      .trim();
+    if (!t) return null;
+    const direct = app.vault.getAbstractFileByPath(/\.md$/i.test(t) ? t : t + '.md');
+    if (direct && !(direct as any).isFolder) return (direct as any).path as string;
+    const resolved = (app.metadataCache as any).getFirstLinkpathDest?.(t.replace(/\.md$/i, ''), '');
+    if (resolved && !(resolved as any).isFolder) return (resolved as any).path as string;
+    return null;
+  }
+
+  /**
+   * 单值编辑弹层（添加来源 / 改领域共用）：输入框 + 可选候选胶囊 + 取消 / 保存。
+   * 返回 null = 用户取消（点遮罩 / ESC / 取消钮）；空串 = 用户明确留空（改领域时代表「未分类」）。
+   * 不走 openSheet：那套的遮罩点击只负责关层，拿不到「取消」这个信号（Promise 会一直悬着）。
+   */
+  private askRowValue(opts: { title: string; placeholder: string; value?: string; chips?: string[]; hint?: string }): Promise<string | null> {
+    const host = this.sheetHost();
+    return new Promise((resolve) => {
+      const chips = (opts.chips || []).filter(Boolean);
+      const ovl = document.createElement('div');
+      ovl.className = 'bz-kb-ovl';
+      ovl.innerHTML = `<div class="bz-kb-sheet bz-kb-sheet--edit">${this.sheetWrap('', `
+        <div class="bz-kb-hw"><span class="bz-kb-w" style="font-size:16px">${esc(opts.title)}</span></div>
+        ${chips.length ? `<div class="bz-kb-editchips">${chips.map((c) => `<button type="button" class="bz-kb-edit-chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : ''}
+        <div class="bz-kb-editrow"><input id="kb-row-input" type="text" autocomplete="off" placeholder="${esc(opts.placeholder)}" value="${esc(opts.value || '')}"></div>
+        ${opts.hint ? `<div class="bz-kb-edithint">${esc(opts.hint)}</div>` : ''}
+        <div class="bz-kb-editacts">
+          <button type="button" class="bz-lit-ghost-btn" data-edit="cancel">取消</button>
+          <button type="button" class="bz-lit-accent-btn" data-edit="ok">保存</button>
+        </div>
+      `)}</div>`;
+      let settled = false;
+      const finish = (v: string | null): void => {
+        if (settled) return;
+        settled = true;
+        ovl.remove();
+        resolve(v);
+      };
+      const value = (): string => q<HTMLInputElement>(ovl, '#kb-row-input')?.value ?? '';
+      ovl.addEventListener('click', (e) => {
+        const t = e.target as HTMLElement;
+        if (t === ovl) { finish(null); return; } // 点遮罩 = 取消
+        const chip = t.closest?.('[data-chip]') as HTMLElement | null;
+        if (chip) {
+          const inp = q<HTMLInputElement>(ovl, '#kb-row-input');
+          if (inp) { inp.value = chip.getAttribute('data-chip') || ''; inp.focus(); }
+          return;
+        }
+        const btn = t.closest?.('[data-edit]') as HTMLElement | null;
+        if (!btn) return;
+        finish(btn.getAttribute('data-edit') === 'ok' ? value() : null);
+      });
+      ovl.addEventListener('keydown', (e) => {
+        // ESC 拦在弹层内：不合流到面板的 ESC 分层（那一层会顺手把整个知识盒关掉）
+        if (e.key === 'Escape') { e.stopPropagation(); finish(null); return; }
+        if (e.key === 'Enter' && (e.target as HTMLElement)?.id === 'kb-row-input') { e.preventDefault(); finish(value()); }
+      });
+      host.appendChild(ovl);
+      const inp = q<HTMLInputElement>(ovl, '#kb-row-input');
+      inp?.focus();
+      inp?.select();
+    });
   }
 
   private syncPartButtons(): void {
@@ -947,6 +1291,8 @@ export class UIManager {
           domain: fm && fm.domain ? String(fm.domain) : '未分类',
           review: fm && fm.reviewStart != null,
           created,
+          source: fm && fm.source ? String(fm.source) : '',
+          sourceTitle: fm && fm.sourceTitle ? String(fm.sourceTitle) : '',
         });
       } catch { /* 单文件解析失败跳过 */ }
     }
@@ -1176,7 +1522,13 @@ export class UIManager {
     const out: TopicEntry[] = mdFiles.map((f: any) => {
       let created = 0;
       try { created = (f as any).stat?.mtime ? new Date((f as any).stat.mtime).valueOf() : 0; } catch { created = 0; }
-      return { file: f, path: f.path, title: f.basename, where: dir, created };
+      // 主题笔记的 frontmatter 只在「来源」一处被消费（右键菜单的添加 / 删除来源），走缓存零 IO
+      const fm = (app.metadataCache.getFileCache(f) as any)?.frontmatter;
+      return {
+        file: f, path: f.path, title: f.basename, where: dir, created,
+        source: fm && fm.source ? String(fm.source) : '',
+        sourceTitle: fm && fm.sourceTitle ? String(fm.sourceTitle) : '',
+      };
     });
     out.sort((a, b) => b.created - a.created || a.path.localeCompare(b.path));
     this.allTopics = out;
@@ -1295,9 +1647,19 @@ export class UIManager {
       const modifies = Array.from(this.pendingRefreshPaths);
       this.pendingDeletePaths.clear();
       this.pendingRefreshPaths.clear();
-      for (const p of deletes) this.removeCached(p);
-      for (const p of modifies) this.invalidateCached(p);
+      // 自家写入（右键改属性 / 删除）不算**外部**改动：列表已就地更新，重扫只会把部贰的
+      // 增量列表打回首屏 80 行。selfWritten 用掉即删；超 3 秒的残留（事件没来）顺手清掉。
+      const now = Date.now();
+      this.selfWritten.forEach((ts, p) => { if (now - ts > 3000) this.selfWritten.delete(p); });
+      const externalDels = deletes.filter((p) => !this.selfWritten.delete(p));
+      const externalMods = modifies.filter((p) => !this.selfWritten.delete(p));
+      for (const p of deletes) this.removeCached(p); // 缓存一律清（自家删的这边幂等重放一次）
+      if (!externalDels.length && !externalMods.length) return;
+      for (const p of externalMods) this.invalidateCached(p);
+      // 外部改动要整表重扫：滚动位置必须保住——否则改一篇库内笔记，列表就弹回顶部
+      const keep = this.contentEl ? this.contentEl.scrollTop : 0;
       if (this.popup && this.popup.style.display === 'flex') await this.refreshCurrent();
+      if (this.contentEl) this.contentEl.scrollTop = keep;
     }, 300);
   }
 
