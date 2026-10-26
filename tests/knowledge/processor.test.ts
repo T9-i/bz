@@ -156,6 +156,8 @@ describe('BatchRunner', () => {
         videoTitle: '从零开始学B站',
         url: 'BV1xx411c7mD',
         uploader: '某UP',
+        // ADR-0261：切片范围原样下发（第一部填了 start/end），笔记靠它记覆盖范围
+        clip: { start: '1:02:03', end: '1:05:00' },
         // ticket 151：CLI [bz-result] 交付的 video 路径随笔记落盘（正文视频双链）
         videoPath: 'CONFIG/APPENDIX/v.mp4',
       });
@@ -168,6 +170,10 @@ describe('BatchRunner', () => {
       child2.stdout.emit('data', Buffer.from(RESULT_LINE));
       child2.emit('close', 0);
       await p;
+      // 第二部没填时间范围 → 整片：clip 两端皆空（ADR-0261；空值不落 clip 键由 note-gen 判）
+      expect(noteGenMocks.generateVideoNote).toHaveBeenLastCalledWith(
+        expect.objectContaining({ clip: { start: null, end: null } }),
+      );
       expect(ev.onBatchDone).toHaveBeenCalledWith({ success: 2, failed: 0, aborted: false, stopped: false });
       const all = await KnowledgeData.loadTasks();
       expect(all.map((x) => x.status).sort()).toEqual(['success', 'success']);

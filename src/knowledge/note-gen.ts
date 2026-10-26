@@ -3,6 +3,7 @@
  * - 视频文献（type: video，frontmatter 九键：title/tags/summary/source/date/author/sourceTitle/type/domain，
  *   正文 = 转写原文或 LLM 校对稿（开关口径，ADR-0222——旧「润色转录」已退役）+ 视频双链——ticket 151 补回：videoPath 非空时正文尾部嵌 `![[路径]]`，
  *   ADR-0066「保留视频原件」关（keepVideo=false）时 videoPath 为 null，无视频段）
+ * - 视频文献·切片任务（task.start/end 有值）多一个 `clip` 键记「这笔记只覆盖哪一段」，ADR-0261
  * - 术语文献（type: term，frontmatter 四键：title/type/domain/date + 可选 source/sourceTitle（术语来源，ADR-0116），
  *   正文=一段百科式简介；term 与 title 同值的历史冗余键已退役，ADR-0169——存量由 backfillNotes 清理）
  * - 段落文献（type: passage，issue 309：用户粘一段文字 → AI 自动出标题 + 领域 + 整理正文；
@@ -154,10 +155,41 @@ export function findDuplicateTermNote(term: string): string | null {
 }
 
 /**
+ * 元数据取样上限（字符，ADR-0261）：一次调用只喂这么多，约等于两三分钟口播——
+ * 够判主题与领域，又不至于把单次请求撑大。
+ */
+const META_EXCERPT_MAX = 4000;
+
+/**
+ * 元数据取样（ADR-0261）：正文是全篇拼起来的，元数据却只喂一次调用。早先固定喂 chunks[0]，
+ * 长转写的标题因此只反映开头，而结论和落点常在结尾。规则：单块直出；
+ * 多块取「开头 3/4 + 省略号 + 结尾 1/4」，两头都看得到。
+ */
+export function metaExcerpt(chunks: string[], maxLen = META_EXCERPT_MAX): string {
+  const all = (Array.isArray(chunks) ? chunks : []).map((c) => String(c ?? '')).filter((c) => c.trim());
+  if (!all.length) return '';
+  if (all.length === 1) return all[0].slice(0, maxLen);
+  const tail = Math.floor(maxLen / 4);
+  const head = all[0].slice(0, Math.max(0, maxLen - tail - 2)); // 2 = 「……」自身占位
+  return `${head}……${all[all.length - 1].slice(-tail)}`;
+}
+
+/**
+ * 切片范围标签（ADR-0261）：任务 start/end → "1:49-3:56"；两端都空 = 整片 → null。
+ * 只拼接不重排格式：用户怎么填就怎么记，与任务记录同一口径（没填的那头不补默认值）。
+ */
+export function clipRangeLabel(clip?: { start?: string | null; end?: string | null } | null): string | null {
+  const parts = [String(clip?.start ?? '').trim(), String(clip?.end ?? '').trim()].filter(Boolean);
+  return parts.length ? parts.join('-') : null;
+}
+
+/**
  * 生成视频文献笔记：元数据（title/tags/summary/domain，一次 JSON 调用，非文本润色，保留）→
  * 正文文本档（ADR-0222 / issue 518）：LLM 校对开 = 分块「只修错不创作」校对后拼接；关 = 转写
  * 原文直出——旧「分块润色」已退役（用户 2026-09-29 拍板），本链路对文本的 LLM 处理只剩校对一档。
  * videoPath 非空时正文尾部附视频双链（ADR-0066/0073，ticket 151 补回）。返回 vault 相对笔记路径。
+ * ADR-0261：标题/简介以文稿为唯一依据——整片任务把视频标题当「仅背景」附上，切片任务**不喂**
+ * 整条视频的标题（片段之外的结论会被模型当成片段内容写进标题），并把覆盖范围落成 `clip` 键。
  */
 export async function generateVideoNote(opts: {
   transcript: string;
@@ -165,22 +197,29 @@ export async function generateVideoNote(opts: {
   url: string;
   uploader: string;
   videoPath?: string | null;
+  /** 剪辑范围（task.start/end；两端都空 = 整片）：决定元数据依据什么写、笔记落不落 clip 键（ADR-0261） */
+  clip?: { start?: string | null; end?: string | null } | null;
 }): Promise<string> {
   const ai = createAI();
   const s = tryGetSettings();
   const list = parseDomainList(s.knowledgeDomainList);
   const chunks = chunkTranscript(opts.transcript);
+  const clip = clipRangeLabel(opts.clip);
   // 元数据（一次 JSON 调用：标题/标签/简介/领域）
-  const metaRaw = await ai.json(
-    `你是文献整理助手。基于下方 B站视频《${opts.videoTitle || '未命名'}》的转写文稿片段，生成文献笔记元数据。只输出 JSON，不要任何解释：
-{"title":"15-30字的中文完整陈述句，不得使用疑问句或疑问语气（为何/为什么/怎么/如何/吗/呢），禁止冒号、破折号、句中句号问号，需要连接时用逗号","tags":["3-6个中文标签，每个不超过5个字，涵盖主题领域、关键概念、应用场景"],"summary":"一句话简介，不超过60字",${domainInstruction(list)}}
-所有字段一律使用简体中文。
-
-【转写文稿片段】
-${chunks[0] || ''}`,
-  );
+  const metaPrompt = [
+    '你是文献整理助手。根据下方转写文稿生成文献笔记元数据。只输出 JSON，不要任何解释：',
+    `{"title":"15-30字的中文完整陈述句，不得使用疑问句或疑问语气（为何/为什么/怎么/如何/吗/呢），禁止冒号、破折号、句中句号问号，需要连接时用逗号","tags":["3-6个中文标签，每个不超过5个字，涵盖主题领域、关键概念、应用场景"],"summary":"一句话简介，不超过60字",${domainInstruction(list)}}`,
+    '硬约束：标题与简介只能写转写文稿里确实讲到的东西——文稿没有提到的人物、事件、结论、数字，一律不得写进标题或简介；不得拿视频标题里的说法代替文稿内容。所有字段一律使用简体中文。',
+    `【转写文稿】\n${metaExcerpt(chunks)}`,
+    clip
+      ? `【本笔记只覆盖视频 ${clip} 这段片段】标题与简介只描述这段片段本身，不要替整条视频下结论。`
+      : `【视频标题·仅背景参考，不是文稿内容】${opts.videoTitle || '未命名'}`,
+  ].join('\n\n');
+  const metaRaw = await ai.json(metaPrompt);
   const meta = parseAiJson(metaRaw);
-  const title = String(meta?.title || '').trim() || opts.videoTitle || '未命名';
+  // 兜底命名：整片可以退回视频标题；切片不行——那是整条视频的题目，不是这段片段的（ADR-0261）
+  const fallbackTitle = clip ? '未命名' : (opts.videoTitle || '未命名');
+  const title = String(meta?.title || '').trim() || fallbackTitle;
   const tags = Array.isArray(meta?.tags) ? meta.tags.map(String).filter(Boolean).slice(0, 6) : [];
   const summary = String(meta?.summary || '').trim();
   const domain = String(meta?.domain || '').trim();
@@ -207,6 +246,7 @@ ${chunks[0] || ''}`,
     `date: ${quoteYaml(nowStamp())}`,
     `author: ${quoteYaml(opts.uploader)}`,
     `sourceTitle: ${quoteYaml(opts.videoTitle)}`,
+    ...(clip ? [`clip: ${quoteYaml(clip)}`] : []),
     'type: video',
     `domain: ${quoteYaml(domain)}`,
     '---',

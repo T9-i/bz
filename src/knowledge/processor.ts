@@ -364,6 +364,8 @@ export const BatchRunner = {
         videoTitle: task.title || '',
         url: task.url,
         uploader: task.uploader || '',
+        // ADR-0261：切片范围随笔记落盘（frontmatter clip 键），并让元数据只依据片段文稿
+        clip: { start: task.start, end: task.end },
         // ticket 151：CLI 交付的 mp4 路径随笔记落盘（正文视频双链）；keepVideo=false 时为 null → 无视频段
         videoPath: videoPath,
       });

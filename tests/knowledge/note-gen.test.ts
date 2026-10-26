@@ -17,6 +17,8 @@ import { notice } from '../../src/core/notice';
 import {
   parseDomainList,
   chunkTranscript,
+  metaExcerpt,
+  clipRangeLabel,
   parseAiJson,
   parseFrontmatter,
   injectFrontmatter,
@@ -142,6 +144,29 @@ describe('parseFrontmatter / injectFrontmatter（frontmatter 轻量读写）', (
   });
 });
 
+describe('metaExcerpt / clipRangeLabel（元数据取样与切片标签，ADR-0261）', () => {
+  it('metaExcerpt：空 → 空串；单块直出（超长按 maxLen 截断）', () => {
+    expect(metaExcerpt([])).toBe('');
+    expect(metaExcerpt(['  ', ''])).toBe('');
+    expect(metaExcerpt(['短文稿'])).toBe('短文稿');
+    expect(metaExcerpt(['长'.repeat(5000)]).length).toBe(4000);
+  });
+
+  it('metaExcerpt：多块取「开头 3/4 + 省略号 + 结尾 1/4」，总长不超上限', () => {
+    const out = metaExcerpt(['A'.repeat(4000), 'B'.repeat(4000)]);
+    expect(out).toBe('A'.repeat(2998) + '……' + 'B'.repeat(1000));
+    expect(out.length).toBe(4000);
+  });
+
+  it('clipRangeLabel：两端都有 → 连字符拼接；只有一端 → 只记那端；都空 → null', () => {
+    expect(clipRangeLabel({ start: '1:49', end: '3:56' })).toBe('1:49-3:56');
+    expect(clipRangeLabel({ start: null, end: '3:56' })).toBe('3:56');
+    expect(clipRangeLabel({ start: '1:49', end: '  ' })).toBe('1:49');
+    expect(clipRangeLabel({ start: null, end: null })).toBeNull();
+    expect(clipRangeLabel(null)).toBeNull();
+  });
+});
+
 describe('generateVideoNote（视频文献：九键 frontmatter + 校对开关两态正文，ADR-0222）', () => {
   let vault: MockVault;
 
@@ -220,6 +245,32 @@ describe('generateVideoNote（视频文献：九键 frontmatter + 校对开关�
       transcript: 'x', videoTitle: 't2', url: 'u', uploader: 'w', videoPath: 'CONFIG\\APPENDIX\\v2.mp4',
     });
     expect(vault.files.get(p2)!).toContain('![[CONFIG/APPENDIX/v2.mp4]]');
+  });
+
+  it('整片任务：视频标题以「仅背景」形态进提示词，不落 clip 键（ADR-0261）', async () => {
+    const path = await generateVideoNote({ transcript: '整片文稿。', videoTitle: '整片标题', url: 'u', uploader: 'w' });
+    const metaPrompt = String(aiStub.json.mock.calls[0][0]);
+    expect(metaPrompt).toContain('【视频标题·仅背景参考，不是文稿内容】整片标题');
+    expect(metaPrompt).not.toContain('这段片段');
+    expect(vaultParseFrontmatter(vault.files.get(path)!)!.clip).toBeUndefined();
+  });
+
+  it('切片任务：整条视频标题不进提示词，clip 键记覆盖范围（ADR-0261；本次事故回归）', async () => {
+    const path = await generateVideoNote({
+      transcript: '这是挂谷转针问题的来历。贝西科维奇证明了可以让扫过的面积为零。',
+      videoTitle: 'AI不会告诉你，王虹到底证明了什么',
+      url: 'https://www.bilibili.com/video/BV1Z6H56oEcQ/', uploader: '老奇好好奇',
+      clip: { start: '1:49', end: '3:56' },
+    });
+    const metaPrompt = String(aiStub.json.mock.calls[0][0]);
+    // 整条视频的标题（含人物名）一个字都不进元数据提示词——片段之外的结论不得倒灌进标题
+    expect(metaPrompt).not.toContain('王虹');
+    expect(metaPrompt).not.toContain('AI不会告诉你');
+    expect(metaPrompt).toContain('【本笔记只覆盖视频 1:49-3:56 这段片段】');
+    expect(metaPrompt).toContain('硬约束：标题与简介只能写转写文稿里确实讲到的东西');
+    const fm = vaultParseFrontmatter(vault.files.get(path)!)!;
+    expect(fm.clip).toBe('1:49-3:56');
+    expect(fm.sourceTitle).toBe('AI不会告诉你，王虹到底证明了什么'); // 出处仍是整条视频
   });
 });
 
