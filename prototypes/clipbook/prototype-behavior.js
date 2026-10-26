@@ -1,5 +1,5 @@
-/* 源指纹 51599eeb47d24578 · 仓内输入 125 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
+/* 源指纹 52647abcc5e10412 · 仓内输入 127 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/clipbook/fake-sim.ts → window.BZW_clipbook（行为单源预览包，issue 245/ADR-0106） */
 var BZW_clipbook = (() => {
   var __create = Object.create;
@@ -840,9 +840,9 @@ var BZW_clipbook = (() => {
     }
   });
 
-  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -8638,6 +8638,10 @@ ${c.trim()}
       touchSettleTimer = null;
     }, TOUCH_SETTLE_MS);
   }
+  function resetItemMenuClickGuard() {
+    suppressNextClick = false;
+    residualClickArmed = false;
+  }
   function attachPopupListeners(id) {
     document.addEventListener("mousedown", onMouseDownCapture, true);
     document.addEventListener("mouseup", onMouseUpCapture, true);
@@ -8914,6 +8918,15 @@ ${c.trim()}
       residualClickArmed = false;
       touchSettlePending = false;
       touchSettleTimer = null;
+    }
+  });
+
+  // src/core/note-trash.ts
+  async function trashNote(app, file) {
+    await app.vault.trash(file, false);
+  }
+  var init_note_trash = __esm({
+    "src/core/note-trash.ts"() {
     }
   });
 
@@ -10034,21 +10047,37 @@ ${lines}`;
     const path = `${dir}/${sanitizeMdTitle(term)}.md`;
     return app.vault.getAbstractFileByPath(path) ? path : null;
   }
+  function metaExcerpt(chunks, maxLen = META_EXCERPT_MAX) {
+    const all = (Array.isArray(chunks) ? chunks : []).map((c) => String(c != null ? c : "")).filter((c) => c.trim());
+    if (!all.length) return "";
+    if (all.length === 1) return all[0].slice(0, maxLen);
+    const tail = Math.floor(maxLen / 4);
+    const head = all[0].slice(0, Math.max(0, maxLen - tail - 2));
+    return `${head}……${all[all.length - 1].slice(-tail)}`;
+  }
+  function clipRangeLabel(clip) {
+    var _a, _b;
+    const parts = [String((_a = clip == null ? void 0 : clip.start) != null ? _a : "").trim(), String((_b = clip == null ? void 0 : clip.end) != null ? _b : "").trim()].filter(Boolean);
+    return parts.length ? parts.join("-") : null;
+  }
   async function generateVideoNote(opts) {
     const ai = createAI();
     const s = tryGetSettings();
     const list = parseDomainList(s.knowledgeDomainList);
     const chunks = chunkTranscript(opts.transcript);
-    const metaRaw = await ai.json(
-      `你是文献整理助手。基于下方 B站视频《${opts.videoTitle || "未命名"}》的转写文稿片段，生成文献笔记元数据。只输出 JSON，不要任何解释：
-{"title":"15-30字的中文完整陈述句，不得使用疑问句或疑问语气（为何/为什么/怎么/如何/吗/呢），禁止冒号、破折号、句中句号问号，需要连接时用逗号","tags":["3-6个中文标签，每个不超过5个字，涵盖主题领域、关键概念、应用场景"],"summary":"一句话简介，不超过60字",${domainInstruction(list)}}
-所有字段一律使用简体中文。
-
-【转写文稿片段】
-${chunks[0] || ""}`
-    );
+    const clip = clipRangeLabel(opts.clip);
+    const metaPrompt = [
+      "你是文献整理助手。根据下方转写文稿生成文献笔记元数据。只输出 JSON，不要任何解释：",
+      `{"title":"15-30字的中文完整陈述句，不得使用疑问句或疑问语气（为何/为什么/怎么/如何/吗/呢），禁止冒号、破折号、句中句号问号，需要连接时用逗号","tags":["3-6个中文标签，每个不超过5个字，涵盖主题领域、关键概念、应用场景"],"summary":"一句话简介，不超过60字",${domainInstruction(list)}}`,
+      "硬约束：标题与简介只能写转写文稿里确实讲到的东西——文稿没有提到的人物、事件、结论、数字，一律不得写进标题或简介；不得拿视频标题里的说法代替文稿内容。所有字段一律使用简体中文。",
+      `【转写文稿】
+${metaExcerpt(chunks)}`,
+      clip ? `【本笔记只覆盖视频 ${clip} 这段片段】标题与简介只描述这段片段本身，不要替整条视频下结论。` : `【视频标题·仅背景参考，不是文稿内容】${opts.videoTitle || "未命名"}`
+    ].join("\n\n");
+    const metaRaw = await ai.json(metaPrompt);
     const meta = parseAiJson(metaRaw);
-    const title = String((meta == null ? void 0 : meta.title) || "").trim() || opts.videoTitle || "未命名";
+    const fallbackTitle = clip ? "未命名" : opts.videoTitle || "未命名";
+    const title = String((meta == null ? void 0 : meta.title) || "").trim() || fallbackTitle;
     const tags = Array.isArray(meta == null ? void 0 : meta.tags) ? meta.tags.map(String).filter(Boolean).slice(0, 6) : [];
     const summary = String((meta == null ? void 0 : meta.summary) || "").trim();
     const domain = String((meta == null ? void 0 : meta.domain) || "").trim();
@@ -10070,6 +10099,7 @@ ${chunks[0] || ""}`
       `date: ${quoteYaml(nowStamp())}`,
       `author: ${quoteYaml(opts.uploader)}`,
       `sourceTitle: ${quoteYaml(opts.videoTitle)}`,
+      ...clip ? [`clip: ${quoteYaml(clip)}`] : [],
       "type: video",
       `domain: ${quoteYaml(domain)}`,
       "---"
@@ -10443,7 +10473,7 @@ ${sample}`
     }
     return { scanned: files.length, filled, aiSkipped };
   }
-  var BACKFILL_AI_TIMEOUT_MS, IMAGE_ASSETS_DIR;
+  var BACKFILL_AI_TIMEOUT_MS, META_EXCERPT_MAX, IMAGE_ASSETS_DIR;
   var init_note_gen = __esm({
     "src/knowledge/note-gen.ts"() {
       init_ai();
@@ -10456,6 +10486,7 @@ ${sample}`
       init_partial_json();
       init_source();
       BACKFILL_AI_TIMEOUT_MS = 25e3;
+      META_EXCERPT_MAX = 4e3;
       IMAGE_ASSETS_DIR = "assets";
     }
   });
@@ -10615,6 +10646,7 @@ ${sample}`
                 ffmpegPath: nonEmpty(s && s.ffmpegPath),
                 ffprobePath: nonEmpty(s && s.ffprobePath),
                 pythonPath: nonEmpty(s && s.pythonPath),
+                modelsDir: nonEmpty(s && s.modelsDir),
                 engine: asrEngine,
                 whisperModel: asrEngine === "faster-whisper" ? nonEmpty(s && s.asrWhisperModel) : void 0,
                 cacheDir: nonEmpty(s && s.knowledgeCacheDir),
@@ -10761,6 +10793,8 @@ ${sample}`
               videoTitle: task.title || "",
               url: task.url,
               uploader: task.uploader || "",
+              // ADR-0261：切片范围随笔记落盘（frontmatter clip 键），并让元数据只依据片段文稿
+              clip: { start: task.start, end: task.end },
               // ticket 151：CLI 交付的 mp4 路径随笔记落盘（正文视频双链）；keepVideo=false 时为 null → 无视频段
               videoPath
             });
@@ -15014,6 +15048,120 @@ ${String(blockText != null ? blockText : "").trim()}`);
     }
   });
 
+  // src/knowledge/note-edit.ts
+  function escapeRe3(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+  function setFrontmatterKeys(content, edits) {
+    var _a;
+    const src = String(content != null ? content : "");
+    if (!edits.length) return src;
+    const eol = src.includes("\r\n") ? "\r\n" : "\n";
+    const lines = src.split(/\r?\n/);
+    const hasFm = ((_a = lines[0]) == null ? void 0 : _a.trim()) === "---";
+    let close = -1;
+    if (hasFm) {
+      for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim() === "---") {
+          close = i;
+          break;
+        }
+      }
+    }
+    if (!hasFm || close === -1) {
+      const add = edits.filter((e) => e.value !== null);
+      if (!add.length) return src;
+      const head = add.map((e) => `${e.key}: ${quoteYaml(e.value)}`).join(eol);
+      const body = src.replace(/^(?:\r?\n)+/, "");
+      return `---${eol}${head}${eol}---${eol}${eol}${body}`;
+    }
+    const append = [];
+    for (const e of edits) {
+      const re = new RegExp(`^${escapeRe3(e.key)}\\s*:`);
+      let at2 = -1;
+      for (let i = 1; i < close; i++) {
+        if (re.test(lines[i])) {
+          at2 = i;
+          break;
+        }
+      }
+      if (at2 === -1) {
+        if (e.value !== null) append.push(`${e.key}: ${quoteYaml(e.value)}`);
+        continue;
+      }
+      if (e.value === null) {
+        lines.splice(at2, 1);
+        close--;
+      } else {
+        lines[at2] = `${e.key}: ${quoteYaml(e.value)}`;
+      }
+    }
+    if (append.length) lines.splice(close, 0, ...append);
+    return lines.join(eol);
+  }
+  async function writeNoteFm(app, notePath, edits) {
+    const path = String(notePath != null ? notePath : "").trim();
+    if (!path || !edits.length) return false;
+    const file = app.vault.getAbstractFileByPath(path);
+    if (!file || file.isFolder) return false;
+    let raw = "";
+    try {
+      raw = await app.vault.read(file);
+    } catch (e) {
+      return false;
+    }
+    const next = setFrontmatterKeys(raw, edits);
+    if (next === raw) return false;
+    await app.vault.modify(file, next);
+    return true;
+  }
+  var init_note_edit = __esm({
+    "src/knowledge/note-edit.ts"() {
+      init_source();
+    }
+  });
+
+  // src/knowledge/relink.ts
+  async function relinkNoteByPath(notePath) {
+    const path = String(notePath != null ? notePath : "").trim();
+    if (!path) return "skipped";
+    if (tryGetSettings().linkAgentEnabled === false) {
+      notice("自动关联已在知识盒设置中关闭", "info");
+      return "unavailable";
+    }
+    const bridge = getLinkBridge();
+    if (!bridge) {
+      notice("自动关联暂不可用：第二大脑尚未就绪", "warning");
+      return "unavailable";
+    }
+    try {
+      const outcome = await bridge.now(path, { force: true });
+      if (outcome.status === "done") {
+        notice(outcome.created > 0 ? `已新建关联 ${outcome.created} 条` : "未发现实质关联，未新建", "success");
+      } else if (outcome.status === "queued") {
+        notice("embedding 服务不可达，已加入待处理队列，服务可达后自动处理", "info");
+      } else if (outcome.status === "out-of-scope") {
+        notice("该笔记不在三个盒子内：自动关联只在文献盒、卡片盒、主题盒里生效", "info");
+      } else if (outcome.status === "failed") {
+        notice(`关联处理失败：${outcome.error}`, "error");
+      } else {
+        notice("该笔记暂无法处理（文件缺失、非 Markdown 或位于加密目录）", "info");
+      }
+      return outcome.status;
+    } catch (e) {
+      console.warn("[knowledge] 重跑关联失败", e);
+      notice(`关联处理失败：${e instanceof Error ? e.message : String(e)}`, "error");
+      return "failed";
+    }
+  }
+  var init_relink = __esm({
+    "src/knowledge/relink.ts"() {
+      init_settings_provider();
+      init_link_now();
+      init_notice();
+    }
+  });
+
   // src/knowledge/video-meta.ts
   function isBiliUrl(text) {
     const m = text.match(/^https?:\/\/([^/?#]+)/i);
@@ -15481,7 +15629,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const m = text.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
     return text.slice(m ? m[0].length : 0).replace(/^\r?\n+/, "");
   }
-  var IMAGE_ENTRY_MAX, PANEL, REL_BG_NOTICE_KEY, STATUS_META, STEP_DONE_MAP, fmtElapsed, UIManager;
+  var IMAGE_ENTRY_MAX, PANEL, ROW_MENU_CLASS, REL_BG_NOTICE_KEY, STATUS_META, STEP_DONE_MAP, fmtElapsed, UIManager;
   var init_ui = __esm({
     "src/knowledge/ui.ts"() {
       init_fake_obsidian();
@@ -15493,6 +15641,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
       init_knowledge_boxes();
       init_link_now();
       init_item_actions();
+      init_dom();
+      init_note_trash();
       init_flow_dialog();
       init_notice();
       init_utils();
@@ -15508,11 +15658,14 @@ ${String(blockText != null ? blockText : "").trim()}`);
       init_mount_canvas();
       init_note_gen();
       init_source();
+      init_note_edit();
+      init_relink();
       init_video_meta();
       init_range_bar();
       init_motion();
       IMAGE_ENTRY_MAX = 9;
       PANEL = { MIN_W: 640, MIN_H: 440, MAX_W: 1280, MAX_H: 880 };
+      ROW_MENU_CLASS = "kb bz-kb-menu";
       REL_BG_NOTICE_KEY = "bz-kb-entry-rel";
       STATUS_META = {
         pending: { label: "待处理", cls: "bz-kb-pending" },
@@ -15675,6 +15828,16 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.refreshTimer = null;
           this.pendingRefreshPaths = /* @__PURE__ */ new Set();
           this.pendingDeletePaths = /* @__PURE__ */ new Set();
+          /**
+           * 本面板自己写过的笔记（右键改属性 / 删除）：落盘后 300ms 的刷新别把它们当**外部改动**重扫——
+           * 列表已经就地更新过，重扫会把部贰的增量列表打回首屏 80 行（滚动位置虽保住、内容却缩了）。
+           * value = 登记时刻，只吞 3 秒内的（事件没来时不留永久误吞面）。
+           */
+          this.selfWritten = /* @__PURE__ */ new Map();
+          /** 正在重跑关联的路径（连点同一行不重复起跑） */
+          this.relinking = /* @__PURE__ */ new Set();
+          /** 列表行的右键 / 长按监听是否已挂（**容器级一次**，不逐行挂：文献盒上千行） */
+          this.rowMenuAttached = false;
           /** 主窗拖拽缩放句柄（ADR-0084 桌面限定；showMain 挂 / hideMain·destroy 摘，域内三窗只挂主窗） */
           this.panelResizeDetach = null;
           this._previewNote = null;
@@ -15745,6 +15908,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
           popup.addEventListener("click", (e) => this.onShellClick(e));
           (_a = this.contentEl) == null ? void 0 : _a.addEventListener("scroll", () => this.onContentScroll());
           this.attachFileListener();
+          this.attachRowMenu();
         }
         /** 主壳点击委托（部切换 / 录入入口 / 文献行 / 主题行 / 返回） */
         onShellClick(e) {
@@ -15781,6 +15945,476 @@ ${String(blockText != null ? blockText : "").trim()}`);
             const tp = this.allTopics.find((x) => x.path === p);
             if (tp) void this.openPreview({ file: tp.file, path: tp.path, title: tp.title, domain: tp.where }, "topic");
           } else if (act === "kb-close") this.hideMain();
+        }
+        // ==================== 列表行：桌面右键菜单 / 移动端长按抽屉（2026-10-26） ====================
+        /**
+         * 三部列表行的操作入口：桌面右键 → 跟手菜单，移动端长按 → 底部抽屉。
+         * 浮层走 core/item-actions 的现成实现（与 memo / clipbook / home 同款），但**不用 attachItemActions**：
+         * 那个是逐卡片挂监听，部壹动辄上千行、部贰还是滚动增量追加的，逐行挂着实浪费。这里在滚动容器上
+         * 挂一次委托（事件冒泡上来再 closest 找行），与既有 data-kb-act 点击委托同一思路。
+         */
+        attachRowMenu() {
+          const host = this.contentEl;
+          if (!host || this.rowMenuAttached) return;
+          this.rowMenuAttached = true;
+          host.addEventListener("contextmenu", (e) => {
+            if (isMobileEnv()) return;
+            const r = this.rowRefOf(e.target);
+            if (!r) return;
+            e.preventDefault();
+            openItemMenu(e.clientX, e.clientY, this.rowActions(r), true, ROW_MENU_CLASS);
+            resetItemMenuClickGuard();
+          });
+          longPress(host, (ev) => {
+            if (!isMobileEnv()) return;
+            const r = this.rowRefOf(ev.target);
+            if (!r) return;
+            openItemSheet(this.rowActions(r), { sheetClass: ROW_MENU_CLASS }, ev.type !== "touchstart");
+          });
+        }
+        /** 事件目标 → 它所在的行 + 该笔记的当前属性（找不到行 / 缓存里没这篇 → null，不弹空菜单） */
+        rowRefOf(el) {
+          var _a;
+          const row = (_a = el == null ? void 0 : el.closest) == null ? void 0 : _a.call(el, ".bz-kb-lexrow[data-path]");
+          if (!row) return null;
+          const path = row.getAttribute("data-path") || "";
+          if (!path) return null;
+          const act = row.getAttribute("data-kb-act");
+          const kind = act === "card-peek" ? "card" : act === "topic-open" ? "topic" : "lit";
+          const hit = kind === "card" ? this.allCards.find((x) => x.path === path) : kind === "topic" ? this.allTopics.find((x) => x.path === path) : this.allNotes.find((x) => x.path === path);
+          if (!hit) return null;
+          return {
+            kind,
+            path,
+            row,
+            title: hit.title,
+            domain: kind === "topic" ? "" : String(hit.domain || ""),
+            source: String(hit.source || ""),
+            sourceTitle: String(hit.sourceTitle || "")
+          };
+        }
+        /**
+         * 一行能出哪些动作（顺序即显示顺序，危险项恒在最后）。互斥口径：
+         * - 来源只有一个槽位：**没有来源时只出「添加」、有来源时只出「删除」**，两者绝不并列；
+         * - 「改领域」只给文献与卡片——主题笔记的领域来自它所在的文件夹，写 domain 键没人读；
+         * - 「打开笔记」与单击预览并存（一个跳出去看，一个留在面板里读）。
+         */
+        rowActions(r) {
+          const out = [
+            { icon: "book-open", label: "打开笔记", onClick: () => this.openNote(r.path) }
+          ];
+          if (r.source) out.push({ icon: "unlink", label: "删除来源", onClick: () => void this.removeRowSource(r) });
+          else out.push({ icon: "link", label: "添加来源", onClick: () => void this.addRowSource(r) });
+          if (r.kind !== "topic") {
+            out.push({ icon: "tags", label: "改领域", onClick: () => void this.editRowDomain(r) });
+          }
+          out.push({ icon: "link-2", label: "重跑关联", onClick: () => void this.relinkRow(r) });
+          out.push({ icon: "trash-2", label: "删除", kind: "danger", onClick: () => void this.deleteRowNote(r) });
+          return out;
+        }
+        /** 添加来源：外链（净化 URL + 抓页面标题 → 就地显示成标题签）或库内笔记（写成内部双链） */
+        async addRowSource(r) {
+          const picked = await this.askRowSource();
+          if (!picked) return;
+          await this.applyRowEdits(r, [
+            { key: "source", value: picked.source },
+            { key: "sourceTitle", value: picked.sourceTitle || null }
+          ]);
+          notice("已添加来源", "success");
+        }
+        /** 删除来源：先确认（顺便把当前来源亮出来——桌面右键菜单里看不到它是啥），再连同 sourceTitle 一起摘 */
+        async removeRowSource(r) {
+          const shown = r.sourceTitle || r.source;
+          const v = await openFlowDialog({
+            title: "删除来源",
+            message: `摘掉来源：${shown}`,
+            // 一句话就好：动词 + 对象，别写「正文不受影响」这类安慰
+            className: "kb bz-kb-flow-dialog",
+            // 挂 body 的流程框须自带皮肤类，才与知识盒同皮
+            actions: [{ label: "取消", value: "cancel" }, { label: "删除", value: "ok", danger: true }]
+          });
+          if (v !== "ok") return;
+          await this.applyRowEdits(r, [
+            { key: "source", value: null },
+            { key: "sourceTitle", value: null }
+          ]);
+          notice("已删除来源", "success");
+        }
+        /** 改领域：候选 = 已用过的领域 ∪ 设置词表（与录入面板同一份口径），留空 = 清掉这个键（显示「未分类」） */
+        async editRowDomain(r) {
+          const value = await this.askRowValue({
+            title: "改领域",
+            placeholder: "领域名；留空 = 未分类",
+            value: r.domain === "未分类" ? "" : r.domain,
+            chips: this.domainCandidates().slice(0, 8)
+          });
+          if (value === null) return;
+          const domain = value.trim();
+          await this.applyRowEdits(r, [{ key: "domain", value: domain || null }]);
+          notice(domain ? `领域改为：${domain}` : "已清空领域", "success");
+        }
+        /** 重跑这一篇的关联（与 bz-knowledge-relink 命令同一条管线、同一份文案，见 relink.ts） */
+        async relinkRow(r) {
+          if (this.relinking.has(r.path)) {
+            notice("这篇正在重跑关联…", "info");
+            return;
+          }
+          this.relinking.add(r.path);
+          try {
+            await relinkNoteByPath(r.path);
+          } finally {
+            this.relinking.delete(r.path);
+          }
+        }
+        /**
+         * 删除笔记：二次确认（带上被引数——删之前得知道会断几条链）→ **库内回收站**（ADR-0245 唯一入口）
+         * → 列表就地减一行。knowledge.json 里指向它的任务记录由文件同步（file-sync 的 applyDelete）清空。
+         */
+        async deleteRowNote(r) {
+          var _a;
+          const app = getApp();
+          const file = app.vault.getAbstractFileByPath(r.path);
+          const kindLabel = r.kind === "card" ? "卡片" : r.kind === "topic" ? "主题笔记" : "文献笔记";
+          if (!file || file.isFolder) {
+            notice("这篇笔记已经不在库里了", "error");
+            this.dropRowFromList(r);
+            return;
+          }
+          const refs = this.mountIndex ? (_a = this.mountIndex.counts[r.path]) != null ? _a : 0 : 0;
+          const v = await openFlowDialog({
+            title: `删除${kindLabel}`,
+            // 一行说完：删哪篇 + 落在哪 + 会断几条链。回收站能不能翻回是既定设计，不在这儿劝
+            message: `《${r.title}》移入回收站（.trash）` + (refs > 0 ? `，有 ${refs} 处引用会变成断链` : ""),
+            className: "kb bz-kb-flow-dialog",
+            actions: [{ label: "取消", value: "cancel" }, { label: "删除", value: "ok", danger: true }]
+          });
+          if (v !== "ok") return;
+          this.noteSelfWrite(r.path);
+          try {
+            await trashNote(app, file);
+          } catch (e) {
+            this.selfWritten.delete(r.path);
+            notice(`删除失败：${e instanceof Error ? e.message : String(e)}`, "error");
+            return;
+          }
+          this.dropRowFromList(r);
+          notice("已移入回收站", "success");
+        }
+        /** 从三部缓存与当前列表里摘掉一行（不动整表；保滚动位置） */
+        dropRowFromList(r) {
+          this.removeCached(r.path);
+          const keep = this.contentEl ? this.contentEl.scrollTop : 0;
+          if (r.kind === "card") {
+            r.row.remove();
+            this.cardsShown = Math.max(0, this.cardsShown - 1);
+            this.updateCardMore(this.cardPool());
+            return;
+          }
+          if (r.kind === "topic") this.renderTopics();
+          else this.renderLiterature();
+          if (this.contentEl) this.contentEl.scrollTop = keep;
+        }
+        /** 登记「这篇是面板自己改的」：落盘刷新时按此过滤，别把自家改动当外部变更整表重扫 */
+        noteSelfWrite(path) {
+          this.selfWritten.set(path, Date.now());
+        }
+        /**
+         * 把 frontmatter 改动落到选中的笔记，同时把内存条目与行上的可见部分对齐。
+         * 返回值 = 是否真的写了盘（内容没变 → false，但内存照样按意图对齐：界面不该显示旧值）。
+         */
+        async applyRowEdits(r, edits) {
+          this.noteSelfWrite(r.path);
+          let wrote = false;
+          try {
+            wrote = await writeNoteFm(getApp(), r.path, edits);
+          } catch (e) {
+            this.selfWritten.delete(r.path);
+            notice(`写入失败：${e instanceof Error ? e.message : String(e)}`, "error");
+            return false;
+          }
+          if (!wrote) this.selfWritten.delete(r.path);
+          const n = this.allNotes.find((x) => x.path === r.path);
+          const c = this.allCards.find((x) => x.path === r.path);
+          const t = this.allTopics.find((x) => x.path === r.path);
+          const domainEdit = edits.find((e) => e.key === "domain");
+          if (domainEdit) {
+            const d = domainEdit.value || "";
+            if (n) n.domain = d;
+            if (c) c.domain = d || "未分类";
+            const dom = r.row.querySelector(".bz-kb-dom");
+            if (dom) dom.textContent = d || "未分类";
+          }
+          const srcEdit = edits.find((e) => e.key === "source");
+          if (srcEdit) {
+            const value = srcEdit.value || "";
+            const titleEdit = edits.find((e) => e.key === "sourceTitle");
+            const st = titleEdit ? titleEdit.value || "" : "";
+            for (const e of [n, c, t]) {
+              if (!e) continue;
+              e.source = value;
+              e.sourceTitle = st;
+            }
+          }
+          return wrote;
+        }
+        /** 用户写的「库内笔记名 / 路径 / [[双链]]」→ vault 路径（全路径优先，其次走 Obsidian 的 linkpath 解析） */
+        resolveNotePath(text) {
+          var _a, _b;
+          const app = getApp();
+          const t = String(text || "").replace(/^!?\[\[|\]\]$/g, "").split("|")[0].replace(/\\/g, "/").trim();
+          if (!t) return null;
+          const direct = app.vault.getAbstractFileByPath(/\.md$/i.test(t) ? t : t + ".md");
+          if (direct && !direct.isFolder) return direct.path;
+          const resolved = (_b = (_a = app.metadataCache).getFirstLinkpathDest) == null ? void 0 : _b.call(_a, t.replace(/\.md$/i, ""), "");
+          if (resolved && !resolved.isFolder) return resolved.path;
+          return null;
+        }
+        /**
+         * 编辑弹层骨架（改领域 / 添加来源共用）：标题 + 内容 + 取消 / 保存。
+         * 壳只管「开、关、遮罩点关、ESC 点关、取消钮」，保存与内容语义由调用方绑（保存失败要能留在原地）。
+         * 返回 null = 宿主不可用（弹层没开成）。
+         */
+        mountRowSheet(opts) {
+          const ovl = document.createElement("div");
+          ovl.className = "bz-kb-ovl";
+          ovl.innerHTML = `<div class="bz-kb-sheet bz-kb-sheet--edit">${this.sheetWrap("", `
+      <div class="bz-kb-hw"><span class="bz-kb-w" style="font-size:16px">${esc2(opts.title)}</span></div>
+      ${opts.body}
+      <div class="bz-kb-editacts">
+        <button type="button" class="bz-lit-ghost-btn" data-edit="cancel">取消</button>
+        <button type="button" class="bz-lit-accent-btn" data-edit="ok">保存</button>
+      </div>
+    `)}</div>`;
+          let closed = false;
+          const close = () => {
+            if (closed) return;
+            closed = true;
+            ovl.remove();
+          };
+          ovl.addEventListener("click", (e) => {
+            var _a;
+            const t = e.target;
+            if (t === ovl) {
+              close();
+              opts.onCancel();
+              return;
+            }
+            const btn = (_a = t.closest) == null ? void 0 : _a.call(t, "[data-edit]");
+            if (!btn) return;
+            if (btn.getAttribute("data-edit") === "cancel") {
+              close();
+              opts.onCancel();
+              return;
+            }
+            opts.onOk(close);
+          });
+          ovl.addEventListener("keydown", (e) => {
+            if (e.key !== "Escape") return;
+            e.stopPropagation();
+            close();
+            opts.onCancel();
+          });
+          this.sheetHost().appendChild(ovl);
+          return { ovl, close };
+        }
+        /**
+         * 单值编辑弹层（改领域）：输入框 + 可选候选胶囊 + 取消 / 保存，**不写说明小字**。
+         * 返回 null = 用户取消（点遮罩 / ESC / 取消钮）；空串 = 用户明确留空（改领域时代表「未分类」）。
+         */
+        askRowValue(opts) {
+          return new Promise((resolve2) => {
+            const chips = (opts.chips || []).filter(Boolean);
+            let inp = null;
+            let settled = false;
+            const done = (v) => {
+              if (settled) return;
+              settled = true;
+              resolve2(v);
+            };
+            const value = () => {
+              var _a;
+              return (_a = inp == null ? void 0 : inp.value) != null ? _a : "";
+            };
+            const shell = this.mountRowSheet({
+              title: opts.title,
+              body: `${chips.length ? `<div class="bz-kb-editchips">${chips.map((c) => `<button type="button" class="bz-kb-edit-chip" data-chip="${esc2(c)}">${esc2(c)}</button>`).join("")}</div>` : ""}
+        <div class="bz-kb-editrow"><input id="kb-row-input" type="text" autocomplete="off" placeholder="${esc2(opts.placeholder)}" value="${esc2(opts.value || "")}"></div>`,
+              onCancel: () => done(null),
+              onOk: (close) => {
+                const v = value();
+                close();
+                done(v);
+              }
+            });
+            if (!shell) {
+              done(null);
+              return;
+            }
+            inp = q(shell.ovl, "#kb-row-input");
+            shell.ovl.addEventListener("click", (e) => {
+              var _a, _b;
+              const chip2 = (_b = (_a = e.target).closest) == null ? void 0 : _b.call(_a, "[data-chip]");
+              if (!chip2 || !inp) return;
+              inp.value = chip2.getAttribute("data-chip") || "";
+              inp.focus();
+            });
+            shell.ovl.addEventListener("keydown", (e) => {
+              var _a;
+              if (e.key !== "Enter" || ((_a = e.target) == null ? void 0 : _a.id) !== "kb-row-input") return;
+              e.preventDefault();
+              const v = value();
+              shell.close();
+              done(v);
+            });
+            inp == null ? void 0 : inp.focus();
+            inp == null ? void 0 : inp.select();
+          });
+        }
+        /**
+         * 来源弹层（与录入面板的来源行同一套语言，用户 2026-10-26 点名要对齐）：
+         * - 贴链接停手 450ms → **就地变成「外 部 · 页面标题」的签**（标题抓到前先显短链接，抓到即换）；
+         * - 库内笔记名回车/失焦 → 「内 部 · 笔记名」的签；
+         * - 签上的 ✕ 退回输入框重填；保存时才写盘。
+         * 返回 null = 取消 / 没选出东西。
+         */
+        askRowSource() {
+          return new Promise((resolve2) => {
+            let picked = null;
+            let seq = 0;
+            let timer = null;
+            let settled = false;
+            let inp = null;
+            let chip2 = null;
+            const done = (v) => {
+              if (settled) return;
+              settled = true;
+              if (timer) clearTimeout(timer);
+              resolve2(v);
+            };
+            const text = () => {
+              var _a;
+              return ((_a = inp == null ? void 0 : inp.value) != null ? _a : "").trim();
+            };
+            const resolvePayload = async (raw) => {
+              const t = raw.trim();
+              if (!t) return null;
+              if (isUrlLikeSourceText(t)) {
+                let title = "";
+                try {
+                  title = cleanSourceTitle(await fetchPageTitle(normalizeSourceUrl(t)) || "");
+                } catch (e) {
+                }
+                const payload2 = serializeTermSource({ kind: "external", url: t, title: title || null });
+                return payload2 ? { source: payload2.source, sourceTitle: payload2.sourceTitle || "", label: "" } : null;
+              }
+              const target = this.resolveNotePath(t);
+              const payload = target ? serializeTermSource({ kind: "note", path: target }) : null;
+              return payload ? { source: payload.source, sourceTitle: "", label: target ? noteSourceName(target) : "" } : null;
+            };
+            const paintChip = () => {
+              if (!chip2 || !inp) return;
+              if (!picked) {
+                chip2.style.display = "none";
+                chip2.innerHTML = "";
+                inp.style.display = "";
+                return;
+              }
+              const isNote = picked.source.startsWith("[[");
+              const label = picked.label || picked.sourceTitle || shortUrlText(picked.source);
+              chip2.title = picked.source;
+              chip2.innerHTML = `<b>${isNote ? "内 部" : "外 部"}</b><span>${esc2(label)}</span><button type="button" data-src-clear title="换一个来源" aria-label="换一个来源">✕</button>`;
+              chip2.style.display = "inline-flex";
+              inp.style.display = "none";
+              motionSrcChipIn(chip2);
+            };
+            const lazyCommit = () => {
+              if (timer) clearTimeout(timer);
+              timer = setTimeout(() => {
+                timer = null;
+                const t = text();
+                if (!t || picked || !isUrlLikeSourceText(t)) return;
+                const mine = ++seq;
+                const payload = serializeTermSource({ kind: "external", url: t });
+                if (!payload) return;
+                picked = { source: payload.source, sourceTitle: "", label: "" };
+                paintChip();
+                void fetchPageTitle(payload.source).then((title) => {
+                  if (seq !== mine || !picked) return;
+                  const clean = cleanSourceTitle(title || "");
+                  if (!clean) return;
+                  picked.sourceTitle = clean;
+                  paintChip();
+                }).catch(() => {
+                });
+              }, 450);
+            };
+            const shell = this.mountRowSheet({
+              title: "添加来源",
+              body: '<div class="bz-kb-editrow"><input id="kb-src-input" type="text" autocomplete="off" placeholder="粘贴链接，或写库内笔记名"><span id="kb-src-chip" class="bz-lit-srcchip" style="display:none;"></span></div>',
+              onCancel: () => done(null),
+              onOk: (close) => {
+                void (async () => {
+                  let hit = picked;
+                  if (!hit) hit = await resolvePayload(text());
+                  if (!hit) {
+                    notice("认不出这是链接还是笔记名", "error");
+                    return;
+                  }
+                  close();
+                  done({ source: hit.source, sourceTitle: hit.sourceTitle });
+                })();
+              }
+            });
+            if (!shell) {
+              done(null);
+              return;
+            }
+            inp = q(shell.ovl, "#kb-src-input");
+            chip2 = q(shell.ovl, "#kb-src-chip");
+            inp == null ? void 0 : inp.addEventListener("input", () => {
+              seq++;
+              if (picked) {
+                picked = null;
+                paintChip();
+              }
+              lazyCommit();
+            });
+            inp == null ? void 0 : inp.addEventListener("blur", () => {
+              const t = text();
+              if (!t || picked || isUrlLikeSourceText(t)) return;
+              const target = this.resolveNotePath(t);
+              const payload = target ? serializeTermSource({ kind: "note", path: target }) : null;
+              if (!payload) return;
+              picked = { source: payload.source, sourceTitle: "", label: target ? noteSourceName(target) : "" };
+              paintChip();
+            });
+            shell.ovl.addEventListener("click", (e) => {
+              var _a, _b;
+              if (!((_b = (_a = e.target).closest) == null ? void 0 : _b.call(_a, "[data-src-clear]"))) return;
+              picked = null;
+              seq++;
+              paintChip();
+              if (inp) {
+                inp.value = "";
+                inp.focus();
+              }
+            });
+            shell.ovl.addEventListener("keydown", (e) => {
+              var _a;
+              if (e.key !== "Enter" || ((_a = e.target) == null ? void 0 : _a.id) !== "kb-src-input" || picked) return;
+              e.preventDefault();
+              void (async () => {
+                const hit = await resolvePayload(text());
+                if (!hit) {
+                  notice("认不出这是链接还是笔记名", "error");
+                  return;
+                }
+                picked = hit;
+                paintChip();
+              })();
+            });
+            setTimeout(() => inp == null ? void 0 : inp.focus(), 0);
+          });
         }
         syncPartButtons() {
           if (!this.popup) return;
@@ -16025,7 +16659,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
                 title: fm && fm.title ? String(fm.title) : f.basename,
                 domain: fm && fm.domain ? String(fm.domain) : "未分类",
                 review: fm && fm.reviewStart != null,
-                created
+                created,
+                source: fm && fm.source ? String(fm.source) : "",
+                sourceTitle: fm && fm.sourceTitle ? String(fm.sourceTitle) : ""
               });
             } catch (e) {
             }
@@ -16230,14 +16866,23 @@ ${String(blockText != null ? blockText : "").trim()}`);
           const prefix = dir + "/";
           const mdFiles2 = (app.vault.getFiles() || []).filter((f) => f.path.startsWith(prefix) && f.extension === "md");
           const out = mdFiles2.map((f) => {
-            var _a;
+            var _a, _b;
             let created = 0;
             try {
               created = ((_a = f.stat) == null ? void 0 : _a.mtime) ? new Date(f.stat.mtime).valueOf() : 0;
             } catch (e) {
               created = 0;
             }
-            return { file: f, path: f.path, title: f.basename, where: dir, created };
+            const fm = (_b = app.metadataCache.getFileCache(f)) == null ? void 0 : _b.frontmatter;
+            return {
+              file: f,
+              path: f.path,
+              title: f.basename,
+              where: dir,
+              created,
+              source: fm && fm.source ? String(fm.source) : "",
+              sourceTitle: fm && fm.sourceTitle ? String(fm.sourceTitle) : ""
+            };
           });
           out.sort((a, b) => b.created - a.created || a.path.localeCompare(b.path));
           this.allTopics = out;
@@ -16350,9 +16995,18 @@ ${String(blockText != null ? blockText : "").trim()}`);
             const modifies = Array.from(this.pendingRefreshPaths);
             this.pendingDeletePaths.clear();
             this.pendingRefreshPaths.clear();
+            const now = Date.now();
+            this.selfWritten.forEach((ts, p) => {
+              if (now - ts > 3e3) this.selfWritten.delete(p);
+            });
+            const externalDels = deletes.filter((p) => !this.selfWritten.delete(p));
+            const externalMods = modifies.filter((p) => !this.selfWritten.delete(p));
             for (const p of deletes) this.removeCached(p);
-            for (const p of modifies) this.invalidateCached(p);
+            if (!externalDels.length && !externalMods.length) return;
+            for (const p of externalMods) this.invalidateCached(p);
+            const keep = this.contentEl ? this.contentEl.scrollTop : 0;
             if (this.popup && this.popup.style.display === "flex") await this.refreshCurrent();
+            if (this.contentEl) this.contentEl.scrollTop = keep;
           }, 300);
         }
         removeCached(path) {
@@ -19182,25 +19836,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
       notice("请先打开一个笔记", "info");
       return;
     }
-    const bridge = takeLinkBridge();
-    if (!bridge) return;
-    try {
-      const outcome = await bridge.now(file.path, { force: true });
-      if (outcome.status === "done") {
-        notice(outcome.created > 0 ? `已新建关联 ${outcome.created} 条` : "未发现实质关联，未新建", "success");
-      } else if (outcome.status === "queued") {
-        notice("embedding 服务不可达，已加入待处理队列，服务可达后自动处理", "info");
-      } else if (outcome.status === "out-of-scope") {
-        notice("该笔记不在三个盒子内：自动关联只在文献盒、卡片盒、主题盒里生效", "info");
-      } else if (outcome.status === "failed") {
-        notice(`关联处理失败：${outcome.error}`, "error");
-      } else {
-        notice("该笔记暂无法处理（文件缺失、非 Markdown 或位于加密目录）", "info");
-      }
-    } catch (e) {
-      console.warn("[knowledge] 重跑关联失败", e);
-      notice(`关联处理失败：${e instanceof Error ? e.message : String(e)}`, "error");
-    }
+    await relinkNoteByPath(file.path);
   }
   async function linkAllInBoxes() {
     const bridge = takeLinkBridge();
@@ -19239,6 +19875,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
       init_data2();
       init_ui();
       init_note_gen();
+      init_relink();
       init_source_retire();
       init_file_sync2();
       initialized = false;
@@ -19703,15 +20340,6 @@ ${body}`;
       READ_LOG_MAX_ENTRIES = 5e3;
       NO_BUMP = { changed: false, upgraded: false, stats: null };
       NO_MARK_ALL = { bumped: 0, snapshot: [] };
-    }
-  });
-
-  // src/core/note-trash.ts
-  async function trashNote(app, file) {
-    await app.vault.trash(file, false);
-  }
-  var init_note_trash = __esm({
-    "src/core/note-trash.ts"() {
     }
   });
 

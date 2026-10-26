@@ -1,4 +1,4 @@
-/* 源指纹 e96a76006f488504 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 54a7a4f0ded03a11 · 仓内输入 80 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/diary/fake-sim.ts","prototypes/diary/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/app.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/data.ts","src/diary/encrypt.ts","src/diary/flip-idle-guard.ts","src/diary/index.ts","src/diary/media-import.ts","src/diary/parser.ts","src/diary/render.ts","src/diary/repair.ts","src/diary/store.ts","src/diary/ui.ts","src/diary/ui/entry-actions.ts","src/diary/ui/locator.ts","src/diary/vendor/page-flip.browser.js","src/diary/volume.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/diary/fake-sim.ts → window.BZW_diary（行为单源预览包，issue 245/ADR-0106） */
 var BZW_diary = (() => {
@@ -42,9 +42,9 @@ var BZW_diary = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -15111,15 +15111,30 @@ var BZW_diary = (() => {
     }
     return out;
   }
+  function dateTextOf(raw) {
+    if (raw instanceof Date) {
+      const d = new Date(raw.getTime());
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+    if (raw && typeof raw === "object" && typeof raw.format === "function") {
+      return String(raw.format("YYYY-MM-DD"));
+    }
+    return String(raw != null ? raw : "").trim();
+  }
+  function movieDateOf(raw) {
+    const m = /^(\d{4}-\d{2}-\d{2})/.exec(dateTextOf(raw));
+    if (!m) return null;
+    const d = (0, import_moment.default)(m[1], "YYYY-MM-DD", true);
+    return d.isValid() ? d.format("YYYY-MM-DD") : null;
+  }
   async function parseMovieFile(file, app) {
     try {
       const fm = getFileFrontmatter(file, app);
       if (!fm) return null;
       let review = fm["影评"];
       if (!review || review.trim() === "") return null;
-      let dateStr = fm["观影日期"];
-      if (!dateStr || !(0, import_moment.default)(dateStr, "YYYY-MM-DD", true).isValid()) return null;
-      dateStr = (0, import_moment.default)(dateStr).format("YYYY-MM-DD");
+      const dateStr = movieDateOf(fm["观影日期"]);
+      if (!dateStr) return null;
       let poster = fm["海报"];
       const timeStr = FALLBACK_TIME;
       const timeValue = FALLBACK_TIME_VALUE;
@@ -15830,6 +15845,10 @@ ${String(review).trim()}`;
       const label = alias || target.split("/").pop().replace(/\.md$/, "");
       return '<span class="bz-diary-wikilink" data-target="' + esc(target) + '">' + esc(label) + "</span>";
     });
+    t = t.replace(
+      /\[([^\]\n]{1,300})][（(](https?:\/\/[^\s)）]+)[)）]/g,
+      (_m, label, href) => '<a class="bz-diary-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + "</a>"
+    );
     t = t.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
     t = t.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<i>$2</i>");
     t = t.replace(/==([^=]+)==/g, '<mark class="bz-diary-hl">$1</mark>');
@@ -15997,10 +16016,11 @@ ${String(review).trim()}`;
     out.push('<div class="bz-diary-b-seal" data-eid="' + eid + '">' + sealHTML(e, hashes) + "</div>");
     if (e.kind === "movie") return out.concat(wrap("bz-diary-b-ticket", ticketHTML(e, ctx)));
     if (e.kind === "book") return out.concat(wrap("bz-diary-b-exlibris", exlibrisHTML(e, ctx)));
+    let pendingLetterTitle = null;
     if (e.kind === "letter") {
-      out.push(
-        '<div class="bz-diary-b-head" data-eid="' + eid + '">' + esc(basenameOf(e.filename)) + "</div>"
-      );
+      const title = basenameOf(e.filename);
+      out.push('<div class="bz-diary-b-head" data-eid="' + eid + '">' + esc(title) + "</div>");
+      pendingLetterTitle = title;
     }
     for (const seg of e.segments) {
       if (seg.kind === "media") {
@@ -16015,6 +16035,12 @@ ${String(review).trim()}`;
             );
             break;
           case "para": {
+            if (pendingLetterTitle !== null) {
+              const bare = b.text.replace(/^\s*\*\*([\s\S]*?)\*\*\s*$/, "$1").trim();
+              const synthesized = bare === pendingLetterTitle;
+              pendingLetterTitle = null;
+              if (synthesized) break;
+            }
             const t = stripHashInto(b.text, []);
             if (t.trim()) out.push(paraHTML({ text: t }, e));
             break;
@@ -16796,6 +16822,13 @@ ${entry.content.trim()}`;
       used = 0;
     };
     newPage();
+    const fitOnEmptyPage = (it, at) => {
+      if (it.h <= availH) return;
+      const c2 = split(it.el, availH - 4);
+      if (!c2) return;
+      it.h = heightOf(c2[0]);
+      metas.splice(at + 1, 0, { el: c2[1], h: c2[2], keep: false, fit: false });
+    };
     for (let i = 0; i < metas.length; i++) {
       const it = metas[i];
       if (it.keep && (cur.length || pages.length > 1)) {
@@ -16803,13 +16836,7 @@ ${entry.content.trim()}`;
         newPage();
         used = 0;
       }
-      if (!cur.length && it.h > availH) {
-        const c2 = split(it.el, availH - 4);
-        if (c2) {
-          it.h = heightOf(c2[0]);
-          metas.splice(i + 1, 0, { el: c2[1], h: c2[2], keep: false, fit: false });
-        }
-      }
+      if (!cur.length) fitOnEmptyPage(it, i);
       if (used + it.h > availH && cur.length) {
         const remain = availH - used;
         if (it.fit && shrink) {
@@ -16827,6 +16854,7 @@ ${entry.content.trim()}`;
             }
           }
           newPage();
+          fitOnEmptyPage(it, i);
         }
       }
       if (it.keep && used + it.h + DAYSTAMP_KEEP_PX > availH && cur.length) newPage();
@@ -17593,7 +17621,7 @@ ${x.review || ""}`;
       }
       if (!this.flip) return;
       if (this.writeGuard()) return;
-      if (dir > 0 && this.cursor >= this.pages.length - 1) {
+      if (dir > 0 && this.cursor >= this.lastSpreadStart()) {
         this.stepVolume(1);
         return;
       }
@@ -17603,6 +17631,20 @@ ${x.review || ""}`;
       }
       if (dir > 0) this.flip.flipNext();
       else this.flip.flipPrev();
+    }
+    /**
+     * 本卷**最后一跨页**的左页号。
+     *
+     * 库的 `flip` 事件给的是「当前跨页的左页号」（`showSpread()` 里 `currentPageIndex = spread[0]`），
+     * 而 `createSpread()` 从 0 开始两两成对：偶数页数时最后一跨页是 `(n-2, n-1)`，**左页号止于 n-2**；
+     * 只有奇数页数时最后一跨页才是单张 `(n-1)`。原先按 `n-1` 判卷尾，碰到偶数页数就永远够不着：
+     * 翻到最后一跨页后 `flipNext()` 是空操作，书就「翻不动了」——用户 2026-10-26 真机
+     * 卡在第 89/90 页（正是本卷末跨页），后面明明还有二十九卷。
+     */
+    lastSpreadStart() {
+      const n = this.pages.length;
+      if (n <= 0) return 0;
+      return n % 2 === 0 ? n - 2 : n - 1;
     }
     /**
      * 换卷（ADR-0259）：往后 = 落新卷第一页；往前 = 落新卷最后一页（一直往前读不断线）。
@@ -17668,8 +17710,9 @@ ${x.review || ""}`;
     /**
      * 点书口 → 抽出「册页索引」那张纸：一年一段、一月一行（ADR-0259：**全书目录**）。
      *
-     * 一册只摊开一卷，所以只有当前卷的月份给得出真实页码；别的卷写「卷 N」，
-     * 点了换到那一卷并落到那个月。顶部两行报的是全册口径——目录报的必须是全书。
+     * 每行右侧一律报**卷号**（单卷写「卷 N」，单月自己就跨卷才写「卷 a–b」）：一册只摊开一卷，
+     * 页码只在当前卷里成立，混着报就成了两套坐标（用户 2026-10-26：「不显示页，只显示卷」）。
+     * 点一行仍是「换到那一卷并落到那个月」。顶部两行报的是全册口径——目录报的必须是全书。
      */
     openIndexSheet() {
       const list = this.visibleEntries();
@@ -17695,9 +17738,7 @@ ${x.review || ""}`;
           curY = parts[0];
           open = true;
         }
-        const single = m.vols.length === 1;
-        const pi = single && m.vols[0] === this.volIndex + 1 ? this.pageOfMonth(m.key) : -1;
-        const right = pi >= 0 ? `第 ${pi + 1} 页` : single ? `卷 ${m.vols[0] || 1}` : `卷 ${m.vols[0]}–${m.vols[m.vols.length - 1]}`;
+        const right = m.vols.length === 1 ? `卷 ${m.vols[0] || 1}` : `卷 ${m.vols[0]}–${m.vols[m.vols.length - 1]}`;
         html += `<div class="bz-diary-idx-row" data-jump-vol="${m.vols[0] || 1}" data-jump-month="${m.key}"><span class="bz-diary-ir-m">${parseInt(parts[1], 10)} 月</span><span class="bz-diary-ir-dots"></span><span class="bz-diary-ir-n">${cnNum(m.n)} 则</span><span class="bz-diary-ir-p">${right}</span></div>`;
       }
       if (open) html += "</div></div>";
@@ -17877,6 +17918,18 @@ ${x.review || ""}`;
     // ============================================================
     //  交互：滚轮 / 键盘 / 缩放
     // ============================================================
+    /**
+     * 这一页真的能滚吗。
+     *
+     * 跨页档的 `.bz-diary-page-inner` 是 `overflow: hidden`（样式见 `./styles.css`，只有窄屏一天一卷
+     * 才换成 `overflow-y: auto`）——内容真溢出了也滚不动，`scrollTop` 永远是 0，于是「到没到底」恒判
+     * 「没到底」。溢出的页若照旧把滚轮扣下，就成了**既看不到溢出那段、也翻不了页**的死角
+     * （用户 2026-10-26 真机：右页正文写到纸边被裁，鼠标放着滚轮翻不动）。
+     */
+    innerScrollable(el) {
+      const oy = getComputedStyle(el).overflowY;
+      return oy === "auto" || oy === "scroll";
+    }
     bindChrome() {
       var _a, _b;
       this.bookEl.addEventListener(
@@ -17886,7 +17939,7 @@ ${x.review || ""}`;
           if (!this.flip && !this.single) return;
           if ((_b2 = (_a2 = ev.target) == null ? void 0 : _a2.closest) == null ? void 0 : _b2.call(_a2, ".bz-diary-wsp")) return;
           const sc = (_d = (_c = ev.target) == null ? void 0 : _c.closest) == null ? void 0 : _d.call(_c, ".bz-diary-page-inner");
-          if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+          if (sc && this.innerScrollable(sc) && sc.scrollHeight > sc.clientHeight + 1) {
             const atTop = sc.scrollTop <= 0;
             const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
             if (ev.deltaY > 0 && !atBottom) return;
@@ -17924,7 +17977,7 @@ ${x.review || ""}`;
           const dx = t.clientX - tx;
           if (Math.abs(dy) < 40 || Math.abs(dy) < Math.abs(dx) * 1.6) return;
           const sc = (_d = (_c = ev.target) == null ? void 0 : _c.closest) == null ? void 0 : _d.call(_c, ".bz-diary-page-inner");
-          if (sc && sc.scrollHeight > sc.clientHeight + 1) {
+          if (sc && this.innerScrollable(sc) && sc.scrollHeight > sc.clientHeight + 1) {
             const atTop = sc.scrollTop <= 0;
             const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
             if (dy > 0 && !atBottom) return;
@@ -18022,6 +18075,14 @@ ${x.review || ""}`;
         const wl = t.closest(".bz-diary-wikilink");
         if (wl) {
           this.openWikilink(wl);
+          return;
+        }
+        const al = t.closest("a.bz-diary-link");
+        if (al) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          const href = al.getAttribute("href") || "";
+          if (/^https?:\/\//i.test(href)) window.open(href, "_blank", "noopener,noreferrer");
           return;
         }
         const reseal = t.closest(".bz-diary-env-reseal");
@@ -19040,9 +19101,9 @@ ${x.review || ""}`;
     /**
      * 摊开写作内页（原型 `.scratch/diary-quill` 的「铅笔写」）。
      *
-     * 与旧弹窗（`openAddDialog`）的分工：那边只剩「按类改标签」的标签选择器在用；
-     * 新建一篇现在全在这一页上——日子/时辰、正文、贴纸、落笔，四件都在纸面上，
-     * 落笔直接进写层（`store.addEntry` 的守卫 / 串行队列 / 同刻唯一一条都不绕）。
+     * 新建一篇全在这一页上——日子/时辰、正文、贴纸、落笔，四件都在纸面上，落笔直接进写层
+     * （`store.addEntry` 的守卫 / 串行队列 / 同刻唯一一条都不绕）。旧弹窗那条链（`openAddDialog`
+     * 与「选择类型」标签选择器）已无 UI 入口，只剩 `./ui/dialogs` 里的实现与它的单元测试。
      */
     startWrite() {
       if (this.draft) {
