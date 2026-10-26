@@ -1,4 +1,4 @@
-/* 源指纹 07f68dcda02380dd · 仓内输入 48 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 412fb9f4e586944a · 仓内输入 48 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/knowledge/fake-sim.ts → window.BZW_knowledge（行为单源预览包，issue 245/ADR-0106） */
 var BZW_knowledge = (() => {
@@ -13065,7 +13065,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const lines = src.split(/\r?\n/);
     if (((_a = lines[0]) == null ? void 0 : _a.trim()) !== "---") return src;
     for (let i = 1; i < lines.length; i++) {
-      if (lines[i].trim() === "---") return lines.slice(i + 1).join(eol);
+      if (lines[i].trim() !== "---") continue;
+      const looksLikeFm = lines.slice(1, i).some((l) => /^[\w-]+\s*:/.test(l));
+      return looksLikeFm ? lines.slice(i + 1).join(eol) : src;
     }
     return src;
   }
@@ -13092,15 +13094,33 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const head = `> [!quote] ${link}`;
     return [head, ...embeds.map((e) => `> ${e}`)].join("\n");
   }
+  var CALLOUT_HEAD_RE = /^>\s*\[![^\]]+\]/;
+  var TACK_HEAD_RE = /^>\s*\[!quote\]/i;
+  function linkNameOf(link) {
+    const m = /\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/.exec(String(link != null ? link : ""));
+    const p = (m ? m[1] : String(link != null ? link : "")).replace(/\\/g, "/");
+    return (p.split("/").pop() || "").replace(/\.md$/i, "").trim();
+  }
+  function isTackHead(line, name) {
+    const t = String(line != null ? line : "").trim();
+    if (!TACK_HEAD_RE.test(t)) return false;
+    return linkNameOf(t) === name;
+  }
   function upsertTackBlock(content, link, embeds) {
     const src = String(content != null ? content : "");
     const eol = src.includes("\r\n") ? "\r\n" : "\n";
     const block = tackBlock(link, embeds);
     const lines = src.split(/\r?\n/);
-    const headAt = lines.findIndex((l) => l.trim() === `> [!quote] ${link}`);
+    const name = linkNameOf(link);
+    const headAt = lines.findIndex((l) => isTackHead(l, name));
     if (headAt >= 0) {
       let end = headAt;
-      while (end + 1 < lines.length && lines[end + 1].trim().startsWith(">")) end++;
+      while (end + 1 < lines.length) {
+        const nxt = lines[end + 1].trim();
+        if (!nxt.startsWith(">")) break;
+        if (CALLOUT_HEAD_RE.test(nxt)) break;
+        end++;
+      }
       const next = [...lines.slice(0, headAt), ...block.split("\n"), ...lines.slice(end + 1)];
       return { text: next.join(eol), action: "updated" };
     }
@@ -13109,10 +13129,14 @@ ${String(blockText != null ? blockText : "").trim()}`);
     const text = body ? body + eol + eol + tail + eol : tail + eol;
     return { text, action: "added" };
   }
+  function samePath2(a, b) {
+    const norm = (p) => String(p != null ? p : "").replace(/\\/g, "/").replace(/^\.\//, "").toLowerCase();
+    return norm(a) === norm(b);
+  }
   async function tackMediaToNote(app, sourcePath, targetPath) {
     const srcPath = String(sourcePath != null ? sourcePath : "").trim();
     const dstPath = String(targetPath != null ? targetPath : "").trim();
-    if (!srcPath || !dstPath || srcPath === dstPath) return "failed";
+    if (!srcPath || !dstPath || samePath2(srcPath, dstPath)) return "failed";
     const srcFile = app.vault.getAbstractFileByPath(srcPath);
     const dstFile = app.vault.getAbstractFileByPath(dstPath);
     if (!srcFile || !dstFile || dstFile.isFolder) return "no-target";
@@ -13991,7 +14015,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
      * 挂进去会变成两条材料挤一篇）；手写路径能出盒，不拦。
      */
     async tackRowNote(r) {
-      var _a, _b;
+      var _a, _b, _c, _d, _e;
       const isMediaNote = (t) => t === "video" || t === "image";
       const chips = [...this.allNotes, ...this.allCards, ...this.allTopics].filter((n) => n.path !== r.path && !isMediaNote(String(n.type || ""))).slice(0, 6).map((n) => String(n.title || ""));
       const input = await this.askRowValue({
@@ -14011,8 +14035,9 @@ ${String(blockText != null ? blockText : "").trim()}`);
         notice("不能挂到自己身上", "error");
         return;
       }
-      const fm = (_b = getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target))) == null ? void 0 : _b.frontmatter;
-      if (isMediaNote(String((fm == null ? void 0 : fm.type) || ""))) {
+      const cachedType = (_b = [...this.allNotes, ...this.allCards, ...this.allTopics].find((n) => n.path === target)) == null ? void 0 : _b.type;
+      const targetType = String((_e = cachedType != null ? cachedType : (_d = (_c = getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target))) == null ? void 0 : _c.frontmatter) == null ? void 0 : _d.type) != null ? _e : "");
+      if (isMediaNote(targetType)) {
         notice("那篇也是图版/影像笔记，换个地方挂", "error");
         return;
       }
