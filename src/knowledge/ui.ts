@@ -812,8 +812,11 @@ export class UIManager {
       || null;
     if (!target) { notice(`找不到这篇笔记：${text}`, 'error'); return; }
     if (target === r.path) { notice('不能挂到自己身上', 'error'); return; }
-    const fm = (getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target) as any) as any)?.frontmatter;
-    if (isMediaNote(String(fm?.type || ''))) {
+    // 目标类型：先看内存三盒缓存（列表刚扫过、现成），盒外笔记才回落到 metadataCache
+    const cachedType = ([...this.allNotes, ...this.allCards, ...this.allTopics] as any[])
+      .find((n) => n.path === target)?.type;
+    const targetType = String(cachedType ?? (getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target) as any) as any)?.frontmatter?.type ?? '');
+    if (isMediaNote(targetType)) {
       notice('那篇也是图版/影像笔记，换个地方挂', 'error');
       return;
     }

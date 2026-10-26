@@ -19,14 +19,17 @@
  */
 import type { App } from 'obsidian';
 
-/** 去掉 YAML frontmatter（只认文件首行的 `---` 块，与 note-edit 的判据同源）；换行符保真 */
+/** 去掉 YAML frontmatter（只认文件首行的 `---` 块，与 note-edit 的判据同源）；换行符保真。
+ *  块内至少得有一行像键值才认——正文以 `---` 分割线开头时不能误剥。 */
 export function stripFrontmatter(content: string): string {
   const src = String(content ?? '');
   const eol = src.includes('\r\n') ? '\r\n' : '\n';
   const lines = src.split(/\r?\n/);
   if (lines[0]?.trim() !== '---') return src;
   for (let i = 1; i < lines.length; i++) {
-    if (lines[i].trim() === '---') return lines.slice(i + 1).join(eol);
+    if (lines[i].trim() !== '---') continue;
+    const looksLikeFm = lines.slice(1, i).some((l) => /^[\w-]+\s*:/.test(l));
+    return looksLikeFm ? lines.slice(i + 1).join(eol) : src;
   }
   return src;
 }
@@ -67,11 +70,36 @@ export function tackBlock(link: string, embeds: string[]): string {
   return [head, ...embeds.map((e) => `> ${e}`)].join('\n');
 }
 
+/** callout 头行（任意类型：块范围到此为止，绝不跨 callout 吃行） */
+const CALLOUT_HEAD_RE = /^>\s*\[![^\]]+\]/;
+
+/** 挂载块自己的头（只认 quote——我们只生成这一种；用户正文里的其它 callout 不能被当成锚点覆盖掉） */
+const TACK_HEAD_RE = /^>\s*\[!quote\]/i;
+
+/** 双链 → 标题（去目录、去别名、去 .md）：锚点比对一律按这个口径 */
+function linkNameOf(link: string): string {
+  const m = /\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/.exec(String(link ?? ''));
+  const p = (m ? m[1] : String(link ?? '')).replace(/\\/g, '/');
+  return (p.split('/').pop() || '').replace(/\.md$/i, '').trim();
+}
+
+/**
+ * 这行是不是**这一篇**的挂载块头。
+ * 按双链标题比、不按整行精确比——用户给重名消歧补上目录（`[[文献盒/挂谷集]]`）后，
+ * 再挂一次必须还认得出是同一块（ADR-0262 决策 1 的落地）。
+ */
+function isTackHead(line: string, name: string): boolean {
+  const t = String(line ?? '').trim();
+  if (!TACK_HEAD_RE.test(t)) return false;
+  return linkNameOf(t) === name;
+}
+
 /**
  * 追加或就地更新挂载块，返回新全文 + 是否真的变了。
- * - 已有同源块 → 整块替换（块范围 = 块头行起，往下吃连续的 `>` 行与块内空行，
- *   遇到「非空且不以 `>` 开头」的行即止）
+ * - 已有同源块（块头双链按标题归一认，见 isTackHead）→ 整块替换
  * - 没有 → 正文右裁空白后补一个空行再追加
+ * 块范围 = 块头起连续 `>` 行；遇空行、非 `>` 行、或**另一个 callout 头**即止——
+ * 误删分界空行时不会把下一块吞掉。
  */
 export function upsertTackBlock(
   content: string,
@@ -82,13 +110,17 @@ export function upsertTackBlock(
   const eol = src.includes('\r\n') ? '\r\n' : '\n';
   const block = tackBlock(link, embeds);
   const lines = src.split(/\r?\n/);
+  const name = linkNameOf(link);
 
-  const headAt = lines.findIndex((l) => l.trim() === `> [!quote] ${link}`);
+  const headAt = lines.findIndex((l) => isTackHead(l, name));
   if (headAt >= 0) {
-    // 块范围 = 从块头起的连续 `>` 行。遇到空行即止——同一篇笔记连挂两条材料时，
-    // 两块之间就靠这个空行分界，多吃的写法会把下一块吞进这一块。
     let end = headAt;
-    while (end + 1 < lines.length && lines[end + 1].trim().startsWith('>')) end++;
+    while (end + 1 < lines.length) {
+      const nxt = lines[end + 1].trim();
+      if (!nxt.startsWith('>')) break;
+      if (CALLOUT_HEAD_RE.test(nxt)) break; // 下一段 callout 是另一块，不吃
+      end++;
+    }
     const next = [...lines.slice(0, headAt), ...block.split('\n'), ...lines.slice(end + 1)];
     return { text: next.join(eol), action: 'updated' };
   }
@@ -101,6 +133,12 @@ export function upsertTackBlock(
 
 export type TackResult = 'added' | 'updated' | 'no-media' | 'no-target' | 'failed';
 
+/** 路径归一（只用于「是不是同一篇」的判定，不改真实路径）：反斜杠、`./`、大小写 */
+function samePath(a: string, b: string): boolean {
+  const norm = (p: string): string => String(p ?? '').replace(/\\/g, '/').replace(/^\.\//, '').toLowerCase();
+  return norm(a) === norm(b);
+}
+
 /**
  * 把 sourcePath 里的媒体挂到 targetPath 末尾。调用方负责「选哪篇」与 toast；
  * 这里只做「读源 → 抽嵌入 → 读目标 → 追加 → 写盘」，失败一律返回枚举不抛。
@@ -112,7 +150,7 @@ export async function tackMediaToNote(
 ): Promise<TackResult> {
   const srcPath = String(sourcePath ?? '').trim();
   const dstPath = String(targetPath ?? '').trim();
-  if (!srcPath || !dstPath || srcPath === dstPath) return 'failed';
+  if (!srcPath || !dstPath || samePath(srcPath, dstPath)) return 'failed';
   const srcFile = app.vault.getAbstractFileByPath(srcPath);
   const dstFile = app.vault.getAbstractFileByPath(dstPath);
   if (!srcFile || !dstFile || (dstFile as any).isFolder) return 'no-target';

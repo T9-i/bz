@@ -94,6 +94,43 @@ describe('upsertTackBlock（追加 / 就地更新）', () => {
     expect(c.match(/\[!quote\]/g)).toHaveLength(2);
   });
 
+  it('两块之间没有空行（用户手动贴一起）：更新前一块也不吞后一块', () => {
+    const two = [
+      TARGET,
+      '',
+      `> [!quote] ${SRC_LINK}`,
+      `> ${MP4}`,
+      `> [!quote] [[文献盒/另一条]]`,
+      `> ![[b.png]]`,
+      '',
+    ].join('\n');
+    const out = upsertTackBlock(two, SRC_LINK, ['![[换过.mp4]]']).text;
+    expect(out.match(/\[!quote\]/g)).toHaveLength(2);
+    expect(out).toContain('[[文献盒/另一条]]');
+    expect(out).toContain('![[b.png]]');
+    expect(out).toContain('![[换过.mp4]]');
+  });
+
+  it('用户给重名消歧补了目录（块头写成全路径）：再挂仍认得出是同一块，不新增', () => {
+    const withPath = `${TARGET}\n\n> [!quote] [[文献盒/王虹证明三维挂谷集维数为三并解释转针问题]]\n> ${MP4}\n`;
+    const out = upsertTackBlock(withPath, SRC_LINK, ['![[换过.mp4]]']);
+    expect(out.action).toBe('updated');
+    expect(out.text.match(/\[!quote\]/g)).toHaveLength(1);
+    expect(out.text).toContain('![[换过.mp4]]');
+  });
+
+  it('别人的 callout 不是锚点：同标题但类型不是 quote 的块不被覆盖', () => {
+    const foreign = `${TARGET}\n\n> [!note] ${SRC_LINK}\n> 人写的注解。\n`;
+    const out = upsertTackBlock(foreign, SRC_LINK, [MP4]);
+    expect(out.action).toBe('added');
+    expect(out.text).toContain('> 人写的注解。');
+  });
+
+  it('正文以 --- 分割线开头：不当成 frontmatter 剥掉', () => {
+    const src = ['---', '', '![[a.png]]', '', '---', '', '后面'].join('\n');
+    expect(stripFrontmatter(src)).toBe(src);
+  });
+
   it('用户手删了块 = 取下；重挂照常追加回来', () => {
     const once = upsertTackBlock(TARGET, SRC_LINK, [MP4]).text;
     const removed = once.replace(/> \[!quote\][\s\S]*$/, '').trimEnd();
