@@ -1,4 +1,4 @@
-/* 源指纹 6d7cd408792b63f3 · 仓内输入 315 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 58bac600c92ad8e6 · 仓内输入 315 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
@@ -28924,7 +28924,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
       ]
     };
   }
-  var IMAGE_ENTRY_MAX, PANEL2, ROW_MENU_CLASS, REL_BG_NOTICE_KEY, STATUS_META, STEP_DONE_MAP, fmtElapsed, UIManager2;
+  var IMAGE_ENTRY_MAX, TACK_LIST_MAX, PANEL2, ROW_MENU_CLASS, REL_BG_NOTICE_KEY, STATUS_META, STEP_DONE_MAP, fmtElapsed, UIManager2;
   var init_ui3 = __esm({
     "src/knowledge/ui.ts"() {
       init_fake_obsidian();
@@ -28960,6 +28960,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
       init_range_bar();
       init_motion3();
       IMAGE_ENTRY_MAX = 9;
+      TACK_LIST_MAX = 200;
       PANEL2 = { MIN_W: 640, MIN_H: 440, MAX_W: 1280, MAX_H: 880 };
       ROW_MENU_CLASS = "kb bz-kb-menu";
       REL_BG_NOTICE_KEY = "bz-kb-entry-rel";
@@ -29134,6 +29135,12 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.relinking = /* @__PURE__ */ new Set();
           /** 列表行的右键 / 长按监听是否已挂（**容器级一次**，不逐行挂：文献盒上千行） */
           this.rowMenuAttached = false;
+          /** 「挂到笔记」页：源行（null = 当前不在这一页）；候选、搜索词、选中下标、本会话已挂过的路径 */
+          this.tackSource = null;
+          this.tackPicks = [];
+          this.tackKw = "";
+          this.tackSel = 0;
+          this.tackDone = /* @__PURE__ */ new Set();
           /** 主窗拖拽缩放句柄（ADR-0084 桌面限定；showMain 挂 / hideMain·destroy 摘，域内三窗只挂主窗） */
           this.panelResizeDetach = null;
           this._previewNote = null;
@@ -29153,7 +29160,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
             else if (this.videoPopup && this.videoPopup.style.display === "flex") {
               if (this.videoView === "history") this.switchVideoView("tasks");
               else this.hideVideo();
-            } else if ((_a2 = this.previewHostEl) == null ? void 0 : _a2.isConnected) this.closeSheet();
+            } else if (this.tackSource) this.closeTackPicker();
+            else if ((_a2 = this.previewHostEl) == null ? void 0 : _a2.isConnected) this.closeSheet();
             else if (this.popup && this.popup.style.display === "flex") this.hideMain();
           };
           document.addEventListener("keydown", this.onKeydown);
@@ -29241,6 +29249,12 @@ ${String(blockText != null ? blockText : "").trim()}`);
             const tp = this.allTopics.find((x) => x.path === p);
             if (tp) void this.openPreview({ file: tp.file, path: tp.path, title: tp.title, domain: tp.where }, "topic");
           } else if (act === "kb-close") this.hideMain();
+          else if (act === "tack-back") this.closeTackPicker();
+          else if (act === "tack-row") {
+            const i = Number(t.getAttribute("data-i"));
+            if (Number.isFinite(i)) this.selectTackRow(i);
+          } else if (act === "tack-ok") void this.commitTack();
+          else if (act === "tack-escape") void this.askTackManual();
         }
         // ==================== 列表行：桌面右键菜单 / 移动端长按抽屉（2026-10-26） ====================
         /**
@@ -29303,7 +29317,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
             { icon: "book-open", label: "打开笔记", onClick: () => this.openNote(r.path) }
           ];
           if (r.kind === "lit" && (r.type === "video" || r.type === "image")) {
-            out.push({ icon: "paperclip", label: "挂到笔记…", onClick: () => void this.tackRowNote(r) });
+            out.push({ icon: "paperclip", label: "挂到笔记…", onClick: () => void this.showTackPicker(r) });
           }
           if (r.source) out.push({ icon: "unlink", label: "删除来源", onClick: () => void this.removeRowSource(r) });
           else out.push({ icon: "link", label: "添加来源", onClick: () => void this.addRowSource(r) });
@@ -29314,45 +29328,253 @@ ${String(blockText != null ? blockText : "").trim()}`);
           out.push({ icon: "trash-2", label: "删除", kind: "danger", onClick: () => void this.deleteRowNote(r) });
           return out;
         }
+        // ==================== 挂到笔记（2026-10-26 独立选择页） ====================
         /**
-         * 挂到笔记：把这条文献里的视频 / 图片追加到另一篇已存在笔记的末尾（quote callout 包裹）。
-         * 目标候选取三盒内最近建的几篇（排除自身与其它素材型文献——素材笔记正文就是媒体，
-         * 挂进去会变成两条材料挤一篇）；手写路径能出盒，不拦。
+         * 打开「挂到笔记」页：**整页替换主窗内容区**，不再是弹层里塞输入框 + 几枚随机胶囊
+         * （那几枚是「最近 6 篇」，多半跟要挂的目标无关，全是噪音）。
+         * 候选 = 三盒全部笔记 − 自身 − 图版/影像（素材笔记正文就是媒体，挂进去是两条材料挤一篇），
+         * 按「同领域 / 其他」两组排，组内最近在前；搜索收窄，↑↓ 选、回车挂、ESC 退回列表。
          */
-        async tackRowNote(r) {
-          var _a2, _b2, _c, _d, _e;
-          const isMediaNote = (t) => t === "video" || t === "image";
-          const chips = [...this.allNotes, ...this.allCards, ...this.allTopics].filter((n) => n.path !== r.path && !isMediaNote(String(n.type || ""))).slice(0, 6).map((n) => String(n.title || ""));
-          const input = await this.askRowValue({
-            title: "挂到笔记",
-            placeholder: "写笔记名，或从上面选一篇",
-            chips
+        async showTackPicker(r) {
+          var _a2;
+          this.tackSource = r;
+          this.tackKw = "";
+          this.tackSel = 0;
+          this.tackPicks = this.tackCandidates(r);
+          this.renderTackPicker();
+          try {
+            const f = this.app.vault.getAbstractFileByPath(r.path);
+            if (f) {
+              const n = mediaEmbedsOf(await this.app.vault.read(f)).length;
+              if (this.tackSource === r && n) {
+                const el2 = (_a2 = this.contentEl) == null ? void 0 : _a2.querySelector(".bz-kb-tack-media");
+                if (el2) el2.textContent = `${n} 个${r.type === "video" ? "视频" : "图片"}`;
+              }
+            }
+          } catch (e) {
+          }
+        }
+        /** 三盒合并成候选行（类型名用给人看的「名词 / 段落 / 卡片 / 主题」，不是 frontmatter 的 type） */
+        tackCandidates(r) {
+          const out = [];
+          for (const n of this.allNotes) {
+            const t = String(n.type || "");
+            if (t === "video" || t === "image" || n.path === r.path) continue;
+            out.push({ path: n.path, title: n.title, kind: litKindPlain(t), domain: n.domain, summary: n.summary, date: n.date, created: n.created });
+          }
+          for (const c of this.allCards) {
+            if (c.path === r.path) continue;
+            out.push({ path: c.path, title: c.title, kind: "卡片", domain: c.domain, summary: "", date: "", created: c.created });
+          }
+          for (const tp of this.allTopics) {
+            if (tp.path === r.path) continue;
+            out.push({ path: tp.path, title: tp.title, kind: "主题", domain: tp.where, summary: "", date: "", created: tp.created });
+          }
+          return out.sort((a, b) => b.created - a.created);
+        }
+        /** 搜索词下的行——渲染、选中、确认三处共用一份，免得点「挂」时口径与屏幕不一致 */
+        tackRows() {
+          const kw = this.tackKw.trim().toLowerCase();
+          if (!kw) return this.tackPicks;
+          return this.tackPicks.filter((p) => [p.title, p.domain, p.summary, p.kind].join(" ").toLowerCase().includes(kw));
+        }
+        /** 搜索命中词高亮（口径同备忘录 hitTextHtml：归一小写后 indexOf 切片，不做动态 regex） */
+        tackHit(text2) {
+          const t = String(text2 != null ? text2 : "");
+          const n = this.tackKw.trim().toLowerCase();
+          if (!n) return esc3(t);
+          const low = t.toLowerCase();
+          let out = "";
+          let cur = 0;
+          for (; ; ) {
+            const at4 = low.indexOf(n, cur);
+            if (at4 < 0) break;
+            out += esc3(t.slice(cur, at4)) + `<mark class="bz-kb-hit">${esc3(t.slice(at4, at4 + n.length))}</mark>`;
+            cur = at4 + n.length;
+          }
+          return out + esc3(t.slice(cur));
+        }
+        /** 「挂到笔记」页渲染（列表全量重建；选中切换走 selectTackRow 只改类，不重绘） */
+        renderTackPicker() {
+          const host = this.contentEl;
+          const r = this.tackSource;
+          if (!host || !r) return;
+          const rows = this.tackRows();
+          if (this.tackSel >= rows.length) this.tackSel = Math.max(0, rows.length - 1);
+          const near = r.domain ? rows.filter((p) => p.domain === r.domain) : [];
+          const rest = near.length ? rows.filter((p) => p.domain !== r.domain) : rows;
+          const rowHtml2 = (p) => {
+            const i = rows.indexOf(p);
+            const on = i === this.tackSel;
+            const done = this.tackDone.has(p.path);
+            const kindCls = p.kind === "卡片" ? " card" : p.kind === "主题" ? " topic" : "";
+            return `<div class="bz-kb-tackrow${on ? " is-on" : ""}" data-kb-act="tack-row" data-i="${i}">
+        <div class="bz-kb-tackrow-main">
+          <span class="bz-kb-tackrow-t">${this.tackHit(p.title)}</span>
+          <span class="bz-kb-tackrow-kind${kindCls}">${esc3(p.kind)}</span>
+          <span class="bz-kb-tackrow-dom">${this.tackHit(p.domain || "未分类")}</span>
+        </div>
+        <span class="bz-kb-tackrow-date">${esc3(p.date)}</span>
+        ${p.summary ? `<div class="bz-kb-tackrow-sum">${this.tackHit(p.summary)}</div>` : ""}
+        ${done ? '<span class="bz-kb-tackrow-flag">已挂</span>' : ""}
+      </div>`;
+          };
+          const shown = rows.slice(0, TACK_LIST_MAX);
+          let listHtml = "";
+          if (!rows.length) {
+            listHtml = `<div class="bz-kb-tack-empty"><div class="bz-kb-tack-empty-t">没有匹配的笔记</div>
+        <div class="bz-kb-tack-empty-s">换个词试试</div></div>`;
+          } else if (near.length && rest.length) {
+            listHtml = `<div class="bz-kb-sec">同 领 域 <span class="bz-kb-tack-n">${near.length}</span></div>` + near.map(rowHtml2).join("") + `<div class="bz-kb-sec">其 他 <span class="bz-kb-tack-n">${rest.length}</span></div>` + rest.slice(0, Math.max(0, TACK_LIST_MAX - near.length)).map(rowHtml2).join("");
+          } else {
+            listHtml = shown.map(rowHtml2).join("");
+          }
+          const countText = this.tackKw.trim() ? `命中 <b>${rows.length}</b> 篇` : `共 ${rows.length} 篇${near.length ? ` · 同领域 ${near.length} 篇` : ""}${rows.length > shown.length ? ` · 只列最近 ${shown.length} 篇` : ""}`;
+          host.innerHTML = `<div class="bz-kb-pd bz-kb-tack">
+      <div class="bz-kb-tack-head">
+        <button class="bz-kb-tack-back" data-kb-act="tack-back" title="返回文献列表" aria-label="返回">←</button>
+        <div class="bz-kb-tack-title">挂 到 笔 记</div>
+        <button class="bz-kb-tack-x" data-kb-act="tack-back" title="关闭" aria-label="关闭">✕</button>
+      </div>
+      <div class="bz-kb-tack-sub">
+        <span class="bz-kb-pos ${r.type === "video" ? "hot" : "img"}">${r.type === "video" ? "影 像" : "图 版"}</span>
+        <span class="bz-kb-tack-src">${esc3(r.title)}</span>
+        <span class="bz-kb-tack-media"></span>
+      </div>
+      <div class="bz-kb-tack-search">
+        <input id="kb-tack-q" type="text" autocomplete="off" spellcheck="false"
+          placeholder="搜笔记名、领域，或摘要里的词" value="${esc3(this.tackKw)}">
+        <span class="bz-kb-tack-keys"><kbd>↑</kbd><kbd>↓</kbd> 选 <kbd>↵</kbd> 挂</span>
+      </div>
+      <div class="bz-kb-tack-count"><span>${countText}</span><a class="bz-kb-tack-escape" data-kb-act="tack-escape">找不到？手动输入</a></div>
+      <div class="bz-kb-tack-list">${listHtml}</div>
+      <div class="bz-kb-tack-foot">
+        <div class="bz-kb-tack-info"></div>
+        <div class="bz-kb-tack-acts">
+          <button class="bz-lit-ghost-btn" data-kb-act="tack-back">取消</button>
+          <button class="bz-lit-accent-btn" data-kb-act="tack-ok">挂 到 笔 记</button>
+        </div>
+      </div>
+    </div>`;
+          const q3 = host.querySelector("#kb-tack-q");
+          q3 == null ? void 0 : q3.addEventListener("input", () => {
+            var _a2;
+            this.tackKw = q3.value;
+            this.tackSel = 0;
+            const at4 = ((_a2 = host.querySelector(".bz-kb-tack-list")) == null ? void 0 : _a2.scrollTop) || 0;
+            this.renderTackPicker();
+            const list = host.querySelector(".bz-kb-tack-list");
+            if (list) list.scrollTop = at4;
           });
-          if (input === null) return;
-          const text2 = input.trim();
-          if (!text2) return;
-          const target = this.resolveNotePath(text2) || ((_a2 = [...this.allNotes, ...this.allCards, ...this.allTopics].find((n) => String(n.title || "").trim() === text2)) == null ? void 0 : _a2.path) || null;
-          if (!target) {
-            notice(`找不到这篇笔记：${text2}`, "error");
+          q3 == null ? void 0 : q3.addEventListener("keydown", (e) => this.onTackKey(e));
+          q3 == null ? void 0 : q3.focus();
+          if (q3) q3.setSelectionRange(q3.value.length, q3.value.length);
+          this.syncTackFoot();
+        }
+        /** 底部「会写到哪儿」+ 主按钮文案（选中变化只走这里，不重绘列表） */
+        syncTackFoot() {
+          const host = this.contentEl;
+          if (!host) return;
+          const rows = this.tackRows();
+          const cur = rows[this.tackSel];
+          const info = host.querySelector(".bz-kb-tack-info");
+          const ok = host.querySelector('[data-kb-act="tack-ok"]');
+          if (!info || !ok) return;
+          if (!cur) {
+            info.innerHTML = '<div class="bz-kb-tack-l1">先选一篇笔记</div>';
+            ok.disabled = true;
+            ok.textContent = "挂 到 笔 记";
             return;
           }
+          ok.disabled = false;
+          ok.textContent = `挂 到 「${cur.title}」`;
+          info.innerHTML = this.tackDone.has(cur.path) ? `<div class="bz-kb-tack-l1">已挂过 <b>${esc3(cur.title)}</b>，再挂一次会就地更新那一块</div><div class="bz-kb-tack-l2">&gt; [!quote] [[${esc3(cur.title)}]]</div>` : `<div class="bz-kb-tack-l1">将追加到 <b>${esc3(cur.title)}</b> 的末尾 · 原有内容不动</div><div class="bz-kb-tack-l2">&gt; [!quote] [[${esc3(cur.title)}]]　+　![[…]]</div>`;
+        }
+        /** 选中第 i 行（只换类 + 滚动到可见 + 刷底部；列表上千行也不重绘） */
+        selectTackRow(i) {
+          var _a2, _b2;
+          const rows = this.tackRows();
+          if (!rows.length) return;
+          const next = Math.max(0, Math.min(rows.length - 1, i));
+          if (next === this.tackSel) return;
+          this.tackSel = next;
+          const list = (_a2 = this.contentEl) == null ? void 0 : _a2.querySelector(".bz-kb-tack-list");
+          if (!list) return;
+          list.querySelectorAll(".bz-kb-tackrow").forEach((el2) => {
+            el2.classList.toggle("is-on", Number(el2.getAttribute("data-i")) === next);
+          });
+          (_b2 = list.querySelector(".bz-kb-tackrow.is-on")) == null ? void 0 : _b2.scrollIntoView({ block: "nearest" });
+          this.syncTackFoot();
+        }
+        onTackKey(e) {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            this.selectTackRow(this.tackSel + 1);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            this.selectTackRow(this.tackSel - 1);
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            void this.commitTack();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            this.closeTackPicker();
+          }
+        }
+        /** 挂上去。**成功后留在本页**（行上标「已挂」，想续挂下一篇接着点），只弹一条通知 */
+        async commitTack() {
+          const cur = this.tackRows()[this.tackSel];
+          if (!this.tackSource || !cur) return;
+          await this.tackTo(cur.path, cur.title);
+        }
+        /** 真正的写入 + 反馈（页内选中的行与手动输入共用同一条路，免得两处各写一遍） */
+        async tackTo(target, label) {
+          var _a2, _b2, _c;
+          const r = this.tackSource;
+          if (!r) return;
           if (target === r.path) {
             notice("不能挂到自己身上", "error");
             return;
           }
-          const cachedType = (_b2 = [...this.allNotes, ...this.allCards, ...this.allTopics].find((n) => n.path === target)) == null ? void 0 : _b2.type;
-          const targetType = String((_e = cachedType != null ? cachedType : (_d = (_c = getApp().metadataCache.getFileCache(getApp().vault.getAbstractFileByPath(target))) == null ? void 0 : _c.frontmatter) == null ? void 0 : _d.type) != null ? _e : "");
-          if (isMediaNote(targetType)) {
-            notice("那篇也是图版/影像笔记，换个地方挂", "error");
+          const res = await tackMediaToNote(getApp(), r.path, target);
+          if (res === "no-media") {
+            notice("这条笔记里没有视频或图片可挂", "warning");
             return;
           }
-          const res = await tackMediaToNote(getApp(), r.path, target);
-          const name = stripMdExt(target.split("/").pop() || target);
-          if (res === "added") notice(`已挂到「${name}」`, "success");
-          else if (res === "updated") notice(`「${name}」里的挂载已更新`, "success");
-          else if (res === "no-media") notice("这条笔记里没有视频或图片可挂", "warning");
-          else if (res === "no-target") notice(`目标笔记不见了：${text2}`, "error");
-          else notice("挂载失败，原文件没动", "error");
+          if (res === "failed" || res === "no-target") {
+            notice("挂载失败，原文件没动", "error");
+            return;
+          }
+          this.tackDone.add(target);
+          notice(res === "added" ? `已挂到「${label}」` : `「${label}」里的挂载已更新`, "success");
+          const at4 = ((_b2 = (_a2 = this.contentEl) == null ? void 0 : _a2.querySelector(".bz-kb-tack-list")) == null ? void 0 : _b2.scrollTop) || 0;
+          this.renderTackPicker();
+          const list = (_c = this.contentEl) == null ? void 0 : _c.querySelector(".bz-kb-tack-list");
+          if (list) list.scrollTop = at4;
+        }
+        /** 逃生口：盒外笔记（日记 / 主页 / 别处）不在三盒列表里，手输名字或路径兜底，不占主路径 */
+        async askTackManual() {
+          var _a2;
+          if (!this.tackSource) return;
+          const text2 = await this.askRowValue({ title: "挂到笔记", placeholder: "笔记名或路径，如 日记/2026-10-26" });
+          if (text2 === null) return;
+          const t = text2.trim();
+          if (!t) return;
+          const target = this.resolveNotePath(t) || ((_a2 = this.tackPicks.find((p) => p.title === t)) == null ? void 0 : _a2.path) || null;
+          if (!target) {
+            notice(`找不到这篇笔记：${t}`, "error");
+            return;
+          }
+          await this.tackTo(target, stripMdExt(target.split("/").pop() || target));
+        }
+        /** 退出本页回文献列表（不做任何写入） */
+        closeTackPicker() {
+          this.tackSource = null;
+          this.tackPicks = [];
+          this.tackKw = "";
+          this.tackSel = 0;
+          void this.refreshCurrent();
         }
         /** 添加来源：外链（净化 URL + 抓页面标题）或库内笔记（写成内部双链），两态同一输入框 */
         /** 添加来源：外链（净化 URL + 抓页面标题 → 就地显示成标题签）或库内笔记（写成内部双链） */
