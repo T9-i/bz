@@ -2455,7 +2455,42 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     expect(menuLabels()).toEqual(['打开笔记', '添加来源', '改领域', '重跑关联', '删除']);
   });
 
-  it('挂到笔记：选一篇已存在的笔记 → 目标末尾追加 quote callout，原有正文一字不动', async () => {
+  /** 进「挂到笔记」页：右键那一行 → 菜单项（多条用例共用） */
+  const openTack = async (path = '文献盒/视频C.md'): Promise<void> => {
+    const row = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
+      .find((r) => r.getAttribute('data-path') === path)!;
+    rightClick(row);
+    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
+    clickMenuItem('挂到笔记');
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-tack')).toBeTruthy());
+  };
+
+  it('挂到笔记（独立页）：整页替换内容区，候选排除自身与素材型文献，按同领域分组', async () => {
+    vault.files.set('文献盒/视频C.md', noteMd({
+      title: '视频C', type: 'video', domain: '数学', body: '![[CONFIG/APPENDIX/c.mp4]]',
+    }));
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    vault.files.set('文献盒/物理术语.md', noteMd({ title: '物理术语', type: 'term', domain: '物理' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(3));
+    await openTack();
+    // 整页视图：题字 / 搜索 / 底部确认条都在（不是弹层里的单行输入）
+    expect(document.querySelector('.bz-kb-tack-title')!.textContent).toContain('挂 到 笔 记');
+    expect(document.getElementById('kb-tack-q')).toBeTruthy();
+    expect(document.querySelector('.bz-kb-tack-foot')).toBeTruthy();
+    // 候选：不含自己，也不含图版 / 影像；剩下的两篇都在
+    const titles = Array.from(document.querySelectorAll('.bz-kb-tackrow-t')).map((x) => x.textContent);
+    expect(titles).toEqual(['术语B', '物理术语']);
+    // 同领域（数学）在前、其他在后
+    const secs = Array.from(document.querySelectorAll('.bz-kb-sec')).map((x) => x.textContent || '');
+    expect(secs[0]).toContain('同 领 域');
+    expect(secs[1]).toContain('其 他');
+    // 副标交代在挂什么：标题 + 媒体数（异步读源笔记补上）
+    expect(document.querySelector('.bz-kb-tack-src')!.textContent).toContain('视频C');
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-tack-media')!.textContent).toBe('1 个视频'));
+  });
+
+  it('挂到笔记（独立页）：搜索收窄 → 回车挂到选中那篇，页内标「已挂」并留在这页', async () => {
     vault.files.set('文献盒/视频C.md', noteMd({
       title: '视频C', type: 'video', domain: '数学',
       body: '一根针转出的面积。![[CONFIG/APPENDIX/c.mp4]]',
@@ -2464,17 +2499,14 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     vault.files.set('文献盒/术语B.md', target);
     ui.showMain();
     await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
-    const row = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
-      .find((r) => r.getAttribute('data-path') === '文献盒/视频C.md')!;
-    rightClick(row);
-    await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
-    clickMenuItem('挂到笔记');
-    await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
-    // 候选胶囊只出非素材型笔记（影像 / 图版不能当目标），点选即填入
-    const chips = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-edit-chip')).map((x) => x.textContent);
-    expect(chips).toEqual(['术语B']);
-    (document.querySelector('.bz-kb-edit-chip[data-chip="术语B"]') as HTMLElement).click();
-    (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
+    await openTack();
+    const q = document.getElementById('kb-tack-q') as HTMLInputElement;
+    q.value = '术语';
+    q.dispatchEvent(new Event('input'));
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-tackrow').length).toBe(1));
+    expect(document.querySelector('.bz-kb-hit')!.textContent).toBe('术语'); // 命中词高亮
+    (document.getElementById('kb-tack-q') as HTMLInputElement)
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
     await vi.waitFor(() => {
       const text = vault.files.get('文献盒/术语B.md')!;
       expect(text).toContain('> [!quote] [[视频C]]');
@@ -2484,31 +2516,39 @@ describe('录入面板关闭二次确认 + 生成后开笔记（issue 326）', (
     expect(after.startsWith(target)).toBe(true); // 原有 frontmatter + 正文逐字不动
     expect(after).toContain('\n\n> [!quote]');
     expect(getNoticeMessages().join()).toContain('已挂到「术语B」');
+    // 不停在结果页：还在这页，行上标「已挂」
+    expect(document.querySelector('.bz-kb-tack')).toBeTruthy();
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-tackrow-flag')!.textContent).toBe('已挂'));
   });
 
-  it('挂到笔记：再挂一次不叠加（幂等），提示改成「已更新」', async () => {
+  it('挂到笔记（独立页）：再挂一次就地更新，块数不叠加', async () => {
     vault.files.set('文献盒/视频C.md', noteMd({
-      title: '视频C', type: 'video', domain: '数学',
-      body: '![[CONFIG/APPENDIX/c.mp4]]',
+      title: '视频C', type: 'video', domain: '数学', body: '![[CONFIG/APPENDIX/c.mp4]]',
     }));
     vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
     ui.showMain();
     await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
-    const tack = async (): Promise<void> => {
-      const row = Array.from(document.querySelectorAll<HTMLElement>('.bz-kb-lexrow'))
-        .find((r) => r.getAttribute('data-path') === '文献盒/视频C.md')!;
-      rightClick(row);
-      await vi.waitFor(() => expect(document.querySelector('.bz-item-menu')).toBeTruthy());
-      clickMenuItem('挂到笔记');
-      await vi.waitFor(() => expect(document.getElementById('kb-row-input')).toBeTruthy());
-      (document.getElementById('kb-row-input') as HTMLInputElement).value = '文献盒/术语B';
-      (document.querySelector('[data-edit="ok"]') as HTMLElement).click();
-    };
-    await tack();
+    await openTack();
+    (document.querySelector('[data-kb-act="tack-ok"]') as HTMLElement).click();
     await vi.waitFor(() => expect(vault.files.get('文献盒/术语B.md')).toContain('> [!quote]'));
-    await tack();
+    (document.querySelector('[data-kb-act="tack-ok"]') as HTMLElement).click();
     await vi.waitFor(() => expect(getNoticeMessages().join()).toContain('已更新'));
     expect((vault.files.get('文献盒/术语B.md')!.match(/\[!quote\]/g) || [])).toHaveLength(1);
+  });
+
+  it('挂到笔记（独立页）：ESC 退回文献列表，不关整个知识盒', async () => {
+    vault.files.set('文献盒/视频C.md', noteMd({
+      title: '视频C', type: 'video', domain: '数学', body: '![[CONFIG/APPENDIX/c.mp4]]',
+    }));
+    vault.files.set('文献盒/术语B.md', noteMd({ title: '术语B', type: 'term', domain: '数学' }));
+    ui.showMain();
+    await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2));
+    await openTack();
+    (document.getElementById('kb-tack-q') as HTMLInputElement)
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await vi.waitFor(() => expect(document.querySelector('.bz-kb-tack')).toBeNull());
+    expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(2); // 回到文献列表
+    expect(document.querySelector('#knowledge-popup')).toBeTruthy();   // 面板没被一起关掉
   });
 
   it('移动端长按：弹**底部抽屉**（不是跟手菜单），动作与桌面同源；抽屉顶部不带自造信息条', async () => {

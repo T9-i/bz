@@ -1826,3 +1826,313 @@
   0%, 100% { transform: translateY(0) scale(1); opacity: 0.55; }
   50% { transform: translateY(-4px) scale(0.82); opacity: 0.95; }
 }
+
+/* ============================================================
+ * 挂到笔记（2026-10-26）：知识盒主窗内的**整页选择视图**
+ * 取代旧弹层（输入框 + 几枚「最近 6 篇」胶囊——多半跟目标无关，纯噪音）。
+ * 布局：词典头 → 副标（在挂什么）→ 搜索 → 计数 → 分组列表 → 底部确认条。
+ * 滚动归列表自己，父容器不再滚（:has 判在场；Electron ≥ 105）。
+ * ============================================================ */
+.bz-kb-sc:has(> .bz-kb-tack) { overflow: hidden; }
+
+.bz-kb-tack {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 26px 0;
+}
+
+/* 头部：标题居左、返回与关闭分列两端（与录入面板的题字同款字距） */
+.bz-kb-tack-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.bz-kb-tack-back,
+.bz-kb-tack-x {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ink3);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+.bz-kb-tack-back { margin-left: -6px; }
+/* 触屏不挂 :hover（bd-paradigm-hover-isolation 守卫）：整组悬停反馈收进 media 圈 */
+@media (hover: hover) {
+.bz-kb-tack-back:hover,
+.bz-kb-tack-x:hover { color: var(--ink); background: var(--chip); }
+.bz-kb-tack-x:hover { color: var(--red); }
+}
+.bz-kb-tack-title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-interface-override, "Noto Serif SC", SimSun, serif);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+
+/* 副标：一条材料在挂给谁看——从列表右键进来时早忘了点的是哪一行 */
+.bz-kb-tack-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 0 0;
+  min-width: 0;
+}
+.bz-kb-tack-src {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bz-kb-tack-media {
+  flex: none;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  letter-spacing: 0.06em;
+}
+.bz-kb-tack-media:empty { display: none; }
+
+/* 搜索：词典皮的下划线输入（不套圆角框），聚焦时下划线转 accent */
+.bz-kb-tack-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--line);
+  transition: border-color var(--bz-dur-fast);
+}
+.bz-kb-tack-search:focus-within { border-color: var(--accent); }
+.bz-kb-tack-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.bz-kb-tack-search input::placeholder { color: var(--ink3); }
+.bz-kb-tack-keys {
+  flex: none;
+  font-size: 9.5px;
+  color: var(--ink3);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.bz-kb-tack-keys kbd {
+  font-family: "Courier New", monospace;
+  font-size: 9px;
+  padding: 0 3px;
+  margin-right: 1px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--chip);
+  color: var(--ink3);
+}
+
+/* 计数行：左边总数、右边逃生口（盒外笔记） */
+.bz-kb-tack-count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 6px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink3);
+}
+.bz-kb-tack-count b {
+  font-family: "Courier New", monospace;
+  font-weight: 400;
+  color: var(--ink2);
+}
+.bz-kb-tack-n { font-family: "Courier New", monospace; letter-spacing: 0.04em; }
+.bz-kb-tack-escape {
+  flex: none;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink3);
+  border-bottom: 1px dotted var(--line);
+  cursor: pointer;
+}
+@media (hover: hover) {
+.bz-kb-tack-escape:hover { color: var(--accent); border-bottom-color: var(--accent); }
+}
+
+/* 列表：整页唯一滚动区 */
+.bz-kb-tack-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+.bz-kb-tackrow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 14px;
+  padding: 11px 10px 11px 14px;
+  margin: 0 -10px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.bz-kb-tackrow::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--bz-dur-fast);
+}
+@media (hover: hover) {
+.bz-kb-tackrow:hover { background: var(--card); }
+}
+.bz-kb-tackrow.is-on { background: var(--card); }
+.bz-kb-tackrow.is-on::before { opacity: 1; }
+
+.bz-kb-tackrow-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.bz-kb-tackrow-t {
+  font-family: var(--font-interface-override, "Noto Serif SC", SimSun, serif);
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--ink);
+  min-width: 0;
+}
+.bz-kb-tackrow.is-on .bz-kb-tackrow-t { color: var(--accent); }
+.bz-kb-tackrow-kind {
+  flex: none;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink3);
+}
+.bz-kb-tackrow-kind.card { border-color: var(--green); color: var(--green); }
+.bz-kb-tackrow-kind.topic { border-color: var(--amber); color: var(--amber); }
+.bz-kb-tackrow-dom {
+  flex: none;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+}
+.bz-kb-tackrow-dom::before { content: "〔"; }
+.bz-kb-tackrow-dom::after { content: "〕"; }
+.bz-kb-tackrow-date {
+  font-family: "Courier New", monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+  align-self: center;
+}
+.bz-kb-tackrow-sum {
+  grid-column: 1;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bz-kb-tackrow-flag {
+  grid-column: 2;
+  align-self: center;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--green);
+}
+.bz-kb-hit {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.bz-kb-tack-empty { padding: 48px 0; text-align: center; }
+.bz-kb-tack-empty-t {
+  font-family: var(--font-interface-override, "Noto Serif SC", SimSun, serif);
+  font-size: 14px;
+  color: var(--ink2);
+  margin-bottom: 6px;
+}
+.bz-kb-tack-empty-s { font-size: 11px; color: var(--ink3); }
+
+/* 底部：左边说清会写到哪儿，右边取消 / 主按钮（文案随选中的笔记变） */
+.bz-kb-tack-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--line);
+}
+.bz-kb-tack-info { flex: 1; min-width: 0; }
+.bz-kb-tack-l1 {
+  font-size: 12px;
+  color: var(--ink2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bz-kb-tack-l1 b {
+  font-family: var(--font-interface-override, "Noto Serif SC", SimSun, serif);
+  font-weight: 700;
+  color: var(--ink);
+}
+.bz-kb-tack-l2 {
+  margin-top: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bz-kb-tack-acts { flex: none; display: flex; align-items: center; gap: 8px; }
+
+/* 移动端：整页全屏时把底部按钮拉通栏，行距放大一档更好点 */
+@media (max-width: 768px) {
+  .bz-kb-tack { padding: 12px 16px 0; }
+  .bz-kb-tack-title { font-size: 15px; letter-spacing: 0.12em; }
+  .bz-kb-tack-keys { display: none; }
+  .bz-kb-tackrow { padding: 13px 8px 13px 12px; margin: 0 -8px; }
+  .bz-kb-tackrow-t { font-size: 15px; }
+  .bz-kb-tackrow-sum { display: none; }
+  .bz-kb-tack-foot { flex-direction: column; gap: 10px; align-items: stretch; padding: 10px 0 14px; }
+  .bz-kb-tack-acts { justify-content: flex-end; }
+  .bz-kb-tack-acts > button { flex: 1; }
+}
