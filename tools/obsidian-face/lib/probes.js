@@ -19,8 +19,11 @@ const { StringDecoder } = require('string_decoder');
 const fs = require('fs');
 const path = require('path');
 
-/** 探测子进程统一超时（毫秒）：PowerShell 冷启动可能到秒级，给足但不至于卡死 */
-const PROBE_TIMEOUT_MS = 15000;
+/** 探测子进程统一超时（毫秒）：PowerShell 冷启动可能到秒级，给足但不至于卡死。
+ *  2026-10-26 由 15s 提到 60s：`import funasr` 要连带拉起 torch，装在外置 USB 盘上的
+ *  解释器实测要 34s——原值会把「装了但慢」误报成「缺失」（误报成 pip 安装命令）。
+ *  缺件的 import 是秒级失败，加长不会拖慢真正缺失的那几项。 */
+const PROBE_TIMEOUT_MS = 60000;
 
 /**
  * 跑一条外部命令并兜错。成功 { ok:true, stdout, stderr }；
