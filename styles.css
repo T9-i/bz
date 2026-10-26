@@ -22637,18 +22637,26 @@ canvas { display: block; }
   transition: border-color var(--bz-dur-fast);
 }
 .bz-kb-tack-search:focus-within { border-color: var(--accent); }
-.bz-kb-tack-search input {
+/* 常/聚焦两态都要盖：Obsidian 的 input[type=text] 自带纸底与边框，:focus 还是 0-2-1 档，
+   只写单类选择器会被它盖住（截图里那条白底圆角框就是它） */
+.bz-kb-tack .bz-kb-tack-search input[type="text"],
+.bz-kb-tack .bz-kb-tack-search input[type="text"]:focus {
   flex: 1;
   min-width: 0;
+  width: auto;
+  height: auto;
   border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   outline: none;
-  background: none;
+  padding: 0;
   font: inherit;
   font-size: 14px;
   letter-spacing: 0.02em;
   color: var(--ink);
 }
-.bz-kb-tack-search input::placeholder { color: var(--ink3); }
+.bz-kb-tack .bz-kb-tack-search input[type="text"]::placeholder { color: var(--ink3); }
 .bz-kb-tack-keys {
   flex: none;
   font-size: 9.5px;
@@ -22819,10 +22827,13 @@ canvas { display: block; }
 .bz-kb-tack-info { flex: 1; min-width: 0; }
 .bz-kb-tack-l1 {
   font-size: 12px;
+  line-height: 1.5;
   color: var(--ink2);
-  white-space: nowrap;
+  /* 目标标题是 AI 生成的完整陈述句，动辄三十字：给两行，截断也留得住主语 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .bz-kb-tack-l1 b {
   font-family: var(--font-interface-override, "Noto Serif SC", SimSun, serif);
@@ -22830,9 +22841,8 @@ canvas { display: block; }
   color: var(--ink);
 }
 .bz-kb-tack-l2 {
-  margin-top: 4px;
-  font-family: "Courier New", monospace;
-  font-size: 9.5px;
+  margin-top: 5px;
+  font-size: 10.5px;
   letter-spacing: 0.04em;
   color: var(--ink3);
   white-space: nowrap;
@@ -22840,6 +22850,9 @@ canvas { display: block; }
   text-overflow: ellipsis;
 }
 .bz-kb-tack-acts { flex: none; display: flex; align-items: center; gap: 8px; }
+/* 主按钮固定文案、固定最小宽：不再塞整条标题，宽度不随选中项长短跳动 */
+.bz-kb-tack-acts > button { white-space: nowrap; }
+.bz-kb-tack-ok { min-width: 104px; }
 
 /* 移动端：整页全屏时把底部按钮拉通栏，行距放大一档更好点 */
 @media (max-width: 768px) {

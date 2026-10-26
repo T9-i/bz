@@ -1,4 +1,4 @@
-/* 源指纹 3e891c67304510cd · 仓内输入 128 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 bec402a219d919fe · 仓内输入 128 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/clipbook/fake-sim.ts → window.BZW_clipbook（行为单源预览包，issue 245/ADR-0106） */
 var BZW_clipbook = (() => {
@@ -15959,6 +15959,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.tackKw = "";
           this.tackSel = 0;
           this.tackDone = /* @__PURE__ */ new Set();
+          /** 源笔记里的媒体数（副标与底部共用；0 = 没读到 / 没有） */
+          this.tackMedia = 0;
           /** 主窗拖拽缩放句柄（ADR-0084 桌面限定；showMain 挂 / hideMain·destroy 摘，域内三窗只挂主窗） */
           this.panelResizeDetach = null;
           this._previewNote = null;
@@ -16158,12 +16160,14 @@ ${String(blockText != null ? blockText : "").trim()}`);
           this.tackSource = r;
           this.tackKw = "";
           this.tackSel = 0;
+          this.tackMedia = 0;
           this.tackPicks = this.tackCandidates(r);
           this.renderTackPicker();
           try {
             const f = this.app.vault.getAbstractFileByPath(r.path);
             if (f) {
               const n = mediaEmbedsOf(await this.app.vault.read(f)).length;
+              this.tackMedia = n;
               if (this.tackSource === r && n) {
                 const el = (_a = this.contentEl) == null ? void 0 : _a.querySelector(".bz-kb-tack-media");
                 if (el) el.textContent = `${n} 个${r.type === "video" ? "视频" : "图片"}`;
@@ -16270,7 +16274,7 @@ ${String(blockText != null ? blockText : "").trim()}`);
         <div class="bz-kb-tack-info"></div>
         <div class="bz-kb-tack-acts">
           <button class="bz-lit-ghost-btn" data-kb-act="tack-back">取消</button>
-          <button class="bz-lit-accent-btn" data-kb-act="tack-ok">挂 到 笔 记</button>
+          <button class="bz-lit-accent-btn bz-kb-tack-ok" data-kb-act="tack-ok">挂 到 这 篇</button>
         </div>
       </div>
     </div>`;
@@ -16289,6 +16293,12 @@ ${String(blockText != null ? blockText : "").trim()}`);
           if (q3) q3.setSelectionRange(q3.value.length, q3.value.length);
           this.syncTackFoot();
         }
+        /** 「1 个视频 / 3 张图片」——副标与底部共用同一份口径，没有就返回空串 */
+        tackMediaLabel() {
+          var _a;
+          if (!this.tackMedia) return "";
+          return this.tackMedia + " 个" + (((_a = this.tackSource) == null ? void 0 : _a.type) === "video" ? "视频" : "图片");
+        }
         /** 底部「会写到哪儿」+ 主按钮文案（选中变化只走这里，不重绘列表） */
         syncTackFoot() {
           const host = this.contentEl;
@@ -16301,12 +16311,13 @@ ${String(blockText != null ? blockText : "").trim()}`);
           if (!cur) {
             info.innerHTML = '<div class="bz-kb-tack-l1">先选一篇笔记</div>';
             ok.disabled = true;
-            ok.textContent = "挂 到 笔 记";
+            ok.textContent = "挂 到 这 篇";
             return;
           }
           ok.disabled = false;
-          ok.textContent = `挂 到 「${cur.title}」`;
-          info.innerHTML = this.tackDone.has(cur.path) ? `<div class="bz-kb-tack-l1">已挂过 <b>${esc2(cur.title)}</b>，再挂一次会就地更新那一块</div><div class="bz-kb-tack-l2">&gt; [!quote] [[${esc2(cur.title)}]]</div>` : `<div class="bz-kb-tack-l1">将追加到 <b>${esc2(cur.title)}</b> 的末尾 · 原有内容不动</div><div class="bz-kb-tack-l2">&gt; [!quote] [[${esc2(cur.title)}]]　+　![[…]]</div>`;
+          ok.textContent = "挂 到 这 篇";
+          const meta = [this.tackMediaLabel(), this.tackDone.has(cur.path) ? "再挂一次会就地更新那一块" : "原有内容不动"].filter(Boolean).join(" · ");
+          info.innerHTML = `<div class="bz-kb-tack-l1">${this.tackDone.has(cur.path) ? "已挂过" : "将追加到"} <b>${esc2(cur.title)}</b></div><div class="bz-kb-tack-l2">${esc2(meta)}</div>`;
         }
         /** 选中第 i 行（只换类 + 滚动到可见 + 刷底部；列表上千行也不重绘） */
         selectTackRow(i) {
