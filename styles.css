@@ -26540,10 +26540,13 @@ canvas { display: block; }
   padding: var(--bz-space-lg);
 }
 
-/* ---------- 卡片网格 ---------- */
+/* ---------- 卡片网格 ----------
+   `minmax(min(250px, 100%), 1fr)` 而不是 `minmax(250px, 1fr)`：容器比 250 还窄时
+   （窄屏 + 面板内再垫一圈内边距），后者的轨道下限仍是 250，整行就比容器宽 —— 卡片右沿
+   被屏幕裁掉。min() 让下限退到容器宽，永远不溢出（gameshelf 同款先例）。 */
 .bz-dock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
   gap: var(--bz-space-sm);
 }
 
@@ -26552,6 +26555,9 @@ canvas { display: block; }
    左沿那条状态条走自定义属性：欠跑 / 在跑 / 悬停要叠在同一个 box-shadow 上。 */
 .bz-dock-card {
   --bz-dock-edge: 0 0 0 0 transparent;
+  /* grid item 的 `min-width: auto` 等于 min-content：卡片里只要有一处不可断的宽内容
+     （长路径、长 id、一串英文），整条轨道就被撑宽，右侧溢出面板。这一行是那条防线。 */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--bz-space-sm);
@@ -26631,6 +26637,8 @@ canvas { display: block; }
   font-size: var(--bz-font-meta);
   color: var(--bz-text-2);
   line-height: var(--bz-leading-normal);
+  /* 长串（URL / 路径 / 无空格英文）也要能断：否则它的 min-content 就是那一整串的宽 */
+  overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -26668,6 +26676,7 @@ canvas { display: block; }
 .bz-dock-card-fail .bz-ic { margin-top: 2px; }
 .bz-dock-card-failtext {
   min-width: 0;
+  overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -26744,9 +26753,9 @@ canvas { display: block; }
   color: var(--bz-text-2);
   line-height: var(--bz-leading-normal);
 }
-.bz-dock-detail-name { font-size: var(--bz-font-title); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); }
+.bz-dock-detail-name { font-size: var(--bz-font-title); font-weight: var(--bz-weight-semibold); color: var(--bz-text-1); overflow-wrap: anywhere; }
 .bz-dock-detail-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
-.bz-dock-detail-desc { font-size: var(--bz-font-body); color: var(--bz-text-2); line-height: var(--bz-leading-normal); }
+.bz-dock-detail-desc { font-size: var(--bz-font-body); color: var(--bz-text-2); line-height: var(--bz-leading-normal); overflow-wrap: anywhere; }
 
 /* 详情页的统计条：当前脚本的三格（复用全局 KPI 瓦片） */
 .bz-dock-toolstats {
@@ -26820,6 +26829,20 @@ canvas { display: block; }
   line-height: var(--bz-leading-normal);
 }
 .bz-dock-runbtns { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bz-space-sm); }
+
+/* 参数只读值（移动端）：跟输入框同一行的位置，但不是控件 —— 手指点不上，也就不会
+   写出一份「看起来已保存、其实没落盘」的假状态。 */
+.bz-dock-roval {
+  display: block;
+  min-width: 0;
+  font-size: var(--bz-font-label);
+  color: var(--bz-text-1);
+  line-height: var(--bz-leading-normal);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.bz-dock-roval.is-empty { color: var(--bz-text-3); }
+.bz-dock-roval--code { font-family: var(--bz-font-mono); font-size: var(--bz-font-meta); }
 
 /* 规则表：一条 = 只读摘要，整行点开弹窗改 */
 .bz-dock-rulespane { gap: var(--bz-space-sm); }
@@ -27059,7 +27082,11 @@ canvas { display: block; }
 /* ---------- 移动端（≤768px：全屏 + 单列 + 只读） ---------- */
 @media (max-width: 768px) {
   .bz-dock-panel {
-    width: 100vw;
+    /* 100% 而不是 100vw：遮罩是 fixed inset:0，父宽就是可视宽；而 100vw 在移动端
+       等于**布局视口**宽（WebView 没设 viewport meta / 有滚动条时比屏幕宽），
+       多出来的那几十像素正是「卡片右沿被裁掉」。 */
+    width: 100%;
+    max-width: none;
     height: 100%;
     max-height: none;
     border-radius: 0;

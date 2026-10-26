@@ -1,4 +1,4 @@
-/* 源指纹 271db4148aaae4ec · 仓内输入 61 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 ddb92f59ec2316be · 仓内输入 61 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -4271,9 +4271,13 @@ var BZW_dock = (() => {
     if (basePath && p.startsWith(`${basePath}/`)) mem.set(p.slice(basePath.length + 1), text);
     else if (basePath) mem.set(`${basePath}/${p.replace(/^\/+/, "")}`, text);
   }
+  function isAbsolutePath(p) {
+    return /^[a-zA-Z]:\//.test(p) || p.startsWith("/");
+  }
   function toVaultRelative(p) {
     const s = norm(p);
     if (isPortablePath(s)) return s.slice(VAULT_PATH_PREFIX.length).replace(/^\/+/, "");
+    if (!isAbsolutePath(s)) return s.replace(/^\.\/+/, "");
     if (basePath && s.startsWith(`${basePath}/`)) return s.slice(basePath.length + 1);
     return null;
   }
@@ -4531,7 +4535,7 @@ var BZW_dock = (() => {
     startTick();
     void refresh();
     notifyDockEvent({ kind: "panel-open" });
-    if (Platform.isMobile) void primeVaultFs(app2).then(() => render());
+    if (Platform.isMobile) void primeVaultFs(app2).then(() => refresh());
     else maybeOfflineReport();
   }
   function closeDock() {
@@ -5428,7 +5432,10 @@ var BZW_dock = (() => {
   function runPane(v) {
     var _a;
     const pane = el("section", "bz-dock-pane bz-dock-runpane");
-    pane.appendChild(el("h3", "bz-dock-pane-title", "运行台"));
+    const head = el("div", "bz-dock-pane-head");
+    head.appendChild(el("h3", "bz-dock-pane-title", "运行台"));
+    if (!canRun()) head.appendChild(el("span", "bz-dock-pane-count", "只读"));
+    pane.appendChild(head);
     if (!v.manifest) {
       const box = el("div", "bz-dock-noManifest");
       box.appendChild(el("div", "bz-dock-note", (_a = v.error) != null ? _a : "声明文件读不到。"));
@@ -5559,6 +5566,9 @@ var BZW_dock = (() => {
     };
     const label = ((_b = p.label) != null ? _b : p.key) + (p.required ? " *" : "");
     const desc = p.hint;
+    if (!canRun()) {
+      return uiField({ label, control: readonlyValueOf(p, current), desc });
+    }
     if (p.type === "bool") {
       const sw = uiSwitch({ checked: current === true, onChange: (on) => commit(on) });
       return uiField({ label, control: sw.el, desc });
@@ -5591,6 +5601,28 @@ var BZW_dock = (() => {
       control: inp,
       desc: p.type === "secret" ? "凭据只存本机工具目录，不进命令行、不写运行记录" : desc
     });
+  }
+  function readonlyValueOf(p, current) {
+    const box = el("span", "bz-dock-roval");
+    if (p.type === "secret") {
+      const set = current !== void 0 && current !== null && String(current) !== "";
+      if (!set) box.classList.add("is-empty");
+      box.textContent = set ? "已设置（手机上不显示）" : "未填";
+      return box;
+    }
+    if (p.type === "bool") {
+      box.textContent = current === true ? "开" : "关";
+      return box;
+    }
+    const text = current === void 0 || current === null ? "" : String(current).trim();
+    if (!text) {
+      box.classList.add("is-empty");
+      box.textContent = "未填";
+      return box;
+    }
+    if (p.type === "multiline") box.classList.add("bz-dock-roval--code");
+    box.textContent = text;
+    return box;
   }
   function rulesPane(v) {
     const pane = el("section", "bz-dock-pane bz-dock-rulespane");
