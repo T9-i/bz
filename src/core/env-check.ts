@@ -271,6 +271,21 @@ export async function environmentCheck(app: unknown): Promise<EnvCheckRow[]> {
     }
   }
 
+  // Windows 的 MAX_PATH 是 260：脸谱包解出来的最深路径大约再叠 100 字符，
+  // vault 放得太深（比如一层层套在 OneDrive\文档\项目\… 下）就会解包到一半失败，
+  // 报错是 ENOENT/mkdir 失败，看不出跟「路径太长」有关。这里提前量一下。
+  if (!mobile && typeof process !== 'undefined' && process.platform === 'win32') {
+    const deep = `${base}/${pluginRelDirOf(app)}/downloads/tools/obsidian-face/python/funasr/models/`.length;
+    if (deep > 180) {
+      rows.push({
+        id: 'path-length',
+        key: '路径长度',
+        value: `vault 路径较长（约 ${deep} 字符），Windows 260 上限下可能解包失败；建议把 vault 放到更浅的目录`,
+        ok: deep < 240 ? null : false,
+      });
+    }
+  }
+
   const python = pythonProbe();
   rows.push({
     id: 'python',

@@ -28,6 +28,7 @@ import { downloadSkinUpdates, skinStatus } from './skin-pack';
 import { installPortableNode, PORTABLE_NODE_VERSION } from './node-runtime-install';
 import { probeNodeRuntime, resetNodeRuntimeCache } from './tool-runtime';
 import { setupAfterInstall } from './tool-setup';
+import { pluginDirOf } from './plugin-path';
 import { openPathPicker } from './path-picker';
 import { isMobileEnv } from './mobile';
 import { getApp } from './app';
@@ -518,6 +519,29 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
   refreshFoot();
 }
 
+/**
+ * 磁盘余量（字节；拿不到 → null）。
+ * 写在前面：便携 Node 解出来 87MB、main.js 2.7MB、皮肤/文档 10MB——再加上解压瞬时占用，
+ * 一次首装大约要 150MB 余量。磁盘满时 Obsidian 的 write 报的是底层错误，
+ * 用户看到的是「下载失败」，根本猜不到是磁盘。
+ */
+export function freeSpaceBytes(app: unknown = getApp()): number | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const fs = (window as any).require?.('fs');
+    const statfs = fs?.statfsSync;
+    if (!statfs) return null;
+    // 目标盘 = vault 所在盘（插件目录与数据目录都在 vault 内）
+    const dir = pluginDirOf(app) || (window as any).require?.('os')?.homedir?.() || '.';
+    const st = statfs(dir);
+    const bsize = Number(st?.bsize) || Number(st?.frsize) || 0;
+    const bavail = Number(st?.bavail ?? st?.bfree) || 0;
+    return bsize && bavail ? bsize * bavail : null;
+  } catch {
+    return null;
+  }
+}
+
 /** 拉清单带超时（失败 → null，不阻断流程） */
 async function fetchManifestWithTimeout(app: unknown): Promise<DownloadManifest | null> {
   return Promise.race([
@@ -641,6 +665,15 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
   ui.foot.appendChild(collapse);
 
   const total = tasks.reduce((n, t) => n + (t.size || 0), 0);
+  // 余量预检：解压瞬时占用按 1.5 倍估，再留 64MB 给插件自己写
+  const free = freeSpaceBytes(ctx.app);
+  if (free !== null && free < total * 1.5 + 64 * 1024 * 1024) {
+    ui.sub.textContent = `磁盘余量不足：需要约 ${sizeText(total * 1.5 + 64 * 1024 * 1024)}，当前只剩 ${sizeText(free)}。清理磁盘后重试。`;
+    const again = button('bz-setup-btn bz-setup-btn--cta', '返回清单');
+    again.onclick = () => void stageResources(ctx, st, ui);
+    ui.foot.appendChild(again);
+    return;
+  }
   let doneBytes = 0;
   for (const t of tasks) {
     const row = rowEl();
@@ -709,13 +742,34 @@ async function stageDone(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void>
 }
 
 /* ---------- 杂项 ---------- */
+
+/** 「引导已走过」的本地兜底键（设置写不进去时用它，免得每次启动都被同一张清单拦住） */
+export const SETUP_DONE_FALLBACK_KEY = 'bz-setup-done';
+
+/** 引导是否已走过：设置优先，其次 localStorage 兜底 */
+export function setupAlreadyDone(settings: { setupDone?: boolean } | null | undefined): boolean {
+  if (settings?.setupDone === true) return true;
+  try {
+    return localStorage.getItem(SETUP_DONE_FALLBACK_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 async function markDone(): Promise<void> {
   try {
     const s = getSettings();
     s.setupDone = true;
     await saveSettings();
   } catch {
-    /* 设置未注入（测试/早期）：不影响本次流程 */
+    /* 设置未注入（测试/早期）：走下面的 localStorage 兜底 */
+  }
+  // 只读 vault / 落盘失败时 data.json 写不进去，光靠设置项会导致**每次启动都弹一次**——
+  // 那比不弹更糟。localStorage 与 vault 无关，作为兜底足够（换机器/清缓存重弹一次无伤）。
+  try {
+    localStorage.setItem(SETUP_DONE_FALLBACK_KEY, '1');
+  } catch {
+    /* 无 localStorage（测试环境） */
   }
 }
 

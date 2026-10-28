@@ -192,7 +192,29 @@ export interface BundleInstallResult {
  * 下载并解包一个目录包（覆盖安装）。
  * 失败一律抛错（含清单 hash 不符 / 归档损坏 / 路径不安全），由调用方转成人话通知。
  */
+/**
+ * 同一个包的并发安装合并（引导的队列、在线资源组的「全部更新」、域面板的下载按钮是三条入口，
+ * 同时点会两个进程同时 clearBundleDir + 解包同一个目录 → 互相删对方刚写进去的文件）。
+ * 这里按**包文件路径**做单飞：同一时刻同一个包只跑一次，后来者复用同一个 Promise。
+ */
+const inFlight = new Map<string, Promise<BundleInstallResult>>();
+
 export async function installBundle(
+  app: unknown,
+  entry: ManifestDocEntry,
+  deps: BundleDeps = {},
+): Promise<BundleInstallResult> {
+  const key = String(entry.file || '');
+  const running = key ? inFlight.get(key) : undefined;
+  if (running) return running;
+  const job = installBundleOnce(app, entry, deps).finally(() => {
+    if (key) inFlight.delete(key);
+  });
+  if (key) inFlight.set(key, job);
+  return job;
+}
+
+async function installBundleOnce(
   app: unknown,
   entry: ManifestDocEntry,
   deps: BundleDeps = {},

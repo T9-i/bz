@@ -489,12 +489,14 @@ export default class BzPlugin extends Plugin {
       // 首次引导（core/setup-wizard）：干净机器上「插件能打开」和「插件能用」是两件事——
       // 缺 Node、缺工具包时功能会静默失效，与其让人自己去报错里猜，不如开局一次补齐。
       // 延迟 3 秒：等 Obsidian 自己的工作区渲染稳定，别在启动瞬间抢焦点。
-      if (!this.settings.setupDone) {
+      void import('./core/setup-wizard').then((m) => {
+        // 判据含 localStorage 兜底：只读 vault 上 data.json 写不进去时，不能每次启动都拦人
+        if (m.setupAlreadyDone(this.settings)) return;
         setTimeout(() => {
           if (this.unloaded) return;
-          void import('./core/setup-wizard').then((m) => m.openSetupWizard(getApp(), { firstRun: true }));
+          m.openSetupWizard(getApp(), { firstRun: true });
         }, 3000);
-      }
+      });
     });
   }
 
