@@ -30,6 +30,7 @@ import {
 } from '../../src/people/ui';
 import type { ExternalToolCallbacks, ExternalToolOutcome, ExternalToolSpec } from '../../src/core/external-tool';
 import { BZ_FACE_INSTALL_HINT, setSyncRunnerForTests, stopSync, type SyncRunner } from '../../src/people/sync';
+import { setToolBaseProbe } from '../../src/core/tool-runtime';
 import { setExportRunnerForTests } from '../../src/people/export';
 import { msgKey } from '../../src/people/datasource';
 import { PeopleSafeStore, setPeopleSafeStoreForTests } from '../../src/people/safe-store';
@@ -175,6 +176,8 @@ beforeEach(() => {
   (window as unknown as { require?: unknown }).require = require; // datasource 读库外目录用
   tool = new FakeTool();
   engineStarted = [];
+  // 单测没有 app → 运行时解析必是「未下载」；显式给一个 shell 口径的假结果（断言引号口径）
+  setToolBaseProbe(() => ({ cmd: 'bz-face', shell: true, via: 'bundle' }));
   dataRoot = mkdtempSync(join(tmpdir(), 'bz-people-sync-'));
   mkdirSync(join(dataRoot, '陈默'), { recursive: true });
   writeFileSync(join(dataRoot, '陈默', 'chat.json'), JSON.stringify([
@@ -189,6 +192,7 @@ afterEach(async () => {
   try { closePeoplePanel(); } catch { /* 幂等 */ }
   setJobsModuleForTests(null);
   setSyncRunnerForTests(null);
+  setToolBaseProbe(null);
   setPeopleSafeStoreForTests(null);
   lastSafe = null;
   try { rmSync(dataRoot, { recursive: true, force: true }); } catch { /* 临时目录尽力清 */ }

@@ -1,22 +1,22 @@
 /**
  * 运行时解析（core/tool-runtime.ts）：外部工具「用谁跑」的唯一判据。
  *
- * 三条不变式（对应用户能感知的三种状态）：
- *  1. 没下载包 → 回落 PATH 上的命令（老用户全局装过，行为一个字不变）；
- *  2. 下载了包但机器上没有 Node → **仍然回落 PATH**（不能拿一个跑不起来的本地路径硬上，
- *     那会让错误从「找不到命令」变成更难懂的 ELF/ENOENT）；
- *  3. 包 + Node 都在 → 绝对路径 + `shell:false`（路径里的空格/中文/& 不再经过 cmd 解析）。
+ * 两条不变式（对应用户能感知的两种状态，2026-10-28 起**没有 PATH 回落**）：
+ *  1. 本地包不在（或包在但机器上没有 Node）→ `via:'none'`、cmd 空串：面板说「未安装」，
+ *     起跑前由调用方给「去在线资源下载」的引导——系统 PATH 上有没有同名命令与插件无关；
+ *  2. 包 + Node 都在 → 绝对路径 + `shell:false`（路径里的空格/中文/& 不再经过 cmd 解析）。
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   resolveToolBase,
   resolveToolCommand,
+  safeToolBase,
   setFsProbe,
+  setToolBaseProbe,
   resetNodeRuntimeCache,
   probeNodeRuntime,
   toolReadyState,
   toolInstallHint,
-  TOOL_ENTRIES,
 } from '../../src/core/tool-runtime';
 
 const VAULT = 'E:/vault';
@@ -59,19 +59,19 @@ afterEach(() => {
   delete (window as unknown as { require?: unknown }).require;
 });
 
-describe('resolveToolBase：回落与本地包优先', () => {
-  it('没包 → PATH 口径（cmd = 命令名，shell = true）', () => {
+describe('resolveToolBase：只认本地包', () => {
+  it('没包 → via=none、cmd 为空（不再回落 PATH）', () => {
     stubNodeOnPath('C:/nodejs/node.exe');
     const base = resolveToolBase(appOf(), 'bili-downloader');
-    expect(base).toMatchObject({ cmd: TOOL_ENTRIES['bili-downloader'].command, shell: true, via: 'path' });
+    expect(base).toEqual({ cmd: '', shell: false, via: 'none' });
   });
 
-  it('包在但没 Node → 仍回落 PATH（不拿跑不了的本地路径硬上）', () => {
+  it('包在但没 Node → 也算未就绪（不拿跑不了的本地路径硬上）', () => {
     stubNodeOnPath(null);
     setFsProbe(fsWith([`${PLUGIN}/downloads/tools/bili-downloader/cli.js`]));
     const base = resolveToolBase(appOf(), 'bili-downloader');
-    expect(base.via).toBe('path');
-    expect(base.shell).toBe(true);
+    expect(base.via).toBe('none');
+    expect(base.cmd).toBe('');
   });
 
   it('包 + Node 都在 → 绝对路径 + shell:false', () => {
@@ -93,10 +93,10 @@ describe('resolveToolCommand：业务参数接在入口脚本之后', () => {
     expect(r.args.slice(1)).toEqual(['sync', '--data-root', 'E:/微信 数据']);
   });
 
-  it('PATH 回落：参数原样、shell=true（老用户行为不变）', () => {
-    stubNodeOnPath(null);
+  it('没包 → 空命令 + via=none（调用方据此拦住，不 spawn）', () => {
+    stubNodeOnPath('C:/nodejs/node.exe');
     const r = resolveToolCommand(appOf(), 'bili-downloader', ['--batch', 'b64:xx']);
-    expect(r).toMatchObject({ cmd: 'bili-dl', shell: true, via: 'path' });
+    expect(r).toMatchObject({ cmd: '', shell: false, via: 'none' });
     expect(r.args).toEqual(['--batch', 'b64:xx']);
   });
 });
@@ -141,5 +141,23 @@ describe('引导文案', () => {
     const hint = toolInstallHint('obsidian-face');
     expect(hint).toContain('在线资源');
     expect(hint).not.toContain('npm install');
+  });
+
+  it('通用版（不传 id）：external-tool 拦空命令时用它', () => {
+    expect(toolInstallHint()).toContain('外部工具');
+    expect(toolInstallHint()).toContain('在线资源');
+  });
+});
+
+describe('safeToolBase：没有 app 时如实说没有', () => {
+  afterEach(() => setToolBaseProbe(null));
+
+  it('拿不到 app → via=none、cmd 空串（不编一条全局命令名出来）', () => {
+    expect(safeToolBase('obsidian-face')).toEqual({ cmd: '', shell: false, via: 'none' });
+  });
+
+  it('注入缝覆盖解析（纯函数 builder 在单测里靠它，生产不走）', () => {
+    setToolBaseProbe(() => ({ cmd: 'bz-face', shell: true, via: 'bundle' }));
+    expect(safeToolBase('obsidian-face')).toMatchObject({ cmd: 'bz-face', via: 'bundle' });
   });
 });

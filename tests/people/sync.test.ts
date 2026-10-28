@@ -34,6 +34,7 @@ import {
   syncState,
   type SyncRunner,
 } from '../../src/people/sync';
+import { setToolBaseProbe } from '../../src/core/tool-runtime';
 
 /** 假进程壳：记录 spec、转发协议行、手动终结（形状对齐 runExternalTool 返回的 handle） */
 class FakeTool {
@@ -83,11 +84,16 @@ beforeEach(() => {
   resetObsidianMocks();
   tool = new FakeTool();
   setSyncRunnerForTests(tool.runner);
+  // 运行时解析：单测没有 app，注定解析成「未下载」。给一个显式的假解析结果——
+  // 这里用 shell 口径（.cmd shim 形态），因为本文件断言的就是引号口径；本地包口径
+  // （shell:false、路径原样）另有用例覆盖。
+  setToolBaseProbe(() => ({ cmd: 'bz-face', shell: true, via: 'bundle' }));
   setCfg();
 });
 
 afterEach(() => {
   setSyncRunnerForTests(null);
+  setToolBaseProbe(null);
 });
 
 describe('纯函数：参数组装与协议映射', () => {

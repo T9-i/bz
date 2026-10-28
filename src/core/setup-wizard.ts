@@ -28,7 +28,8 @@ import { downloadSkinUpdates, skinStatus } from './skin-pack';
 import { installPortableNode, PORTABLE_NODE_VERSION } from './node-runtime-install';
 import { probeNodeRuntime, resetNodeRuntimeCache } from './tool-runtime';
 import { setupAfterInstall } from './tool-setup';
-import { pluginDirOf } from './plugin-path';
+import { pluginDirOf, vaultBasePathOf } from './plugin-path';
+import { vaultKeyOf } from './vault-key';
 import { openPathPicker } from './path-picker';
 import { isMobileEnv } from './mobile';
 import { getApp } from './app';
@@ -397,7 +398,7 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
     ui.sub.textContent = '连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。';
     const later = button('bz-setup-btn', '稍后再说');
     later.onclick = () => {
-      void markDone();
+      void markDone(ctx.app);
       closeModal(ui);
     };
     const retry = button('bz-setup-btn bz-setup-btn--cta', '重新检测');
@@ -547,13 +548,13 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
 
   const skip = button('bz-setup-btn', ctx.firstRun ? '以后再说' : '关闭');
   skip.onclick = () => {
-    void markDone();
+    void markDone(ctx.app);
     closeModal(ui);
   };
   next.onclick = () => {
     const tasks = pending();
     if (!tasks.length) {
-      void markDone();
+      void markDone(ctx.app);
       void stageDone(ctx, st, ui);
       return;
     }
@@ -750,7 +751,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
     (bar.querySelector('i') as HTMLElement).style.width = `${pct}%`;
   }
   (bar.querySelector('i') as HTMLElement).style.width = '100%';
-  await markDone();
+  await markDone(ctx.app);
 
   // 值守是唯一「改系统状态」的一步：bundle 装完就在这里问一次（setupAfterInstall 自带确认框）
   if (tasks.some((t) => t.id === 'tool-dock-watch')) {
@@ -797,20 +798,34 @@ async function stageDone(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void>
 
 /* ---------- 杂项 ---------- */
 
-/** 「引导已走过」的本地兜底键（设置写不进去时用它，免得每次启动都被同一张清单拦住） */
+/** 「引导已走过」的本地兜底键**前缀**（设置写不进去时用它，免得每次启动都被同一张清单拦住） */
 export const SETUP_DONE_FALLBACK_KEY = 'bz-setup-done';
 
-/** 引导是否已走过：设置优先，其次 localStorage 兜底 */
-export function setupAlreadyDone(settings: { setupDone?: boolean } | null | undefined): boolean {
+/**
+ * 兜底键要带上 vault 目录键。
+ *
+ * localStorage 是 Obsidian **整个应用**共用的（所有库同一个 origin），一个全局键会让
+ * 「在 A 库走完引导」变成「B 库也算走完」——2026-10-28 用户报的就是这个：换一个新库打开插件，
+ * 该有的首次引导一次都没弹，而那个库里 Node、工具包、文档一概没有。
+ *
+ * 分键之后每个库各记各的；data.json 里的 `setupDone` 本来就是按库存的，两者口径终于一致。
+ */
+export function setupDoneStorageKey(vault: string): string {
+  const key = vaultKeyOf(vault);
+  return key ? `${SETUP_DONE_FALLBACK_KEY}:${key}` : SETUP_DONE_FALLBACK_KEY;
+}
+
+/** 引导是否已走过：设置优先（按库），其次 localStorage 兜底（也按库） */
+export function setupAlreadyDone(settings: { setupDone?: boolean } | null | undefined, vault = ''): boolean {
   if (settings?.setupDone === true) return true;
   try {
-    return localStorage.getItem(SETUP_DONE_FALLBACK_KEY) === '1';
+    return localStorage.getItem(setupDoneStorageKey(vault)) === '1';
   } catch {
     return false;
   }
 }
 
-async function markDone(): Promise<void> {
+async function markDone(app: unknown): Promise<void> {
   try {
     const s = getSettings();
     s.setupDone = true;
@@ -819,9 +834,9 @@ async function markDone(): Promise<void> {
     /* 设置未注入（测试/早期）：走下面的 localStorage 兜底 */
   }
   // 只读 vault / 落盘失败时 data.json 写不进去，光靠设置项会导致**每次启动都弹一次**——
-  // 那比不弹更糟。localStorage 与 vault 无关，作为兜底足够（换机器/清缓存重弹一次无伤）。
+  // 那比不弹更糟。localStorage 不依赖 data.json，作为兜底足够（键按库分，见 setupDoneStorageKey）。
   try {
-    localStorage.setItem(SETUP_DONE_FALLBACK_KEY, '1');
+    localStorage.setItem(setupDoneStorageKey(vaultBasePathOf(app)), '1');
   } catch {
     /* 无 localStorage（测试环境） */
   }

@@ -905,7 +905,13 @@ export function resetFaceCapabilitiesForTests(): void {
 export async function probeFaceCapabilities(): Promise<FaceCapabilities | null> {
   if (capsCache !== undefined) return capsCache;
   let resultBody: Record<string, unknown> | null = null;
-  const handle = runner({ cmd: 'bz-face', args: ['capabilities'], shell: true }, {
+  const base = safeToolBase('obsidian-face');
+  if (base.via === 'none') {
+    // 工具没下载：能力未知 = null，调用方放行，真起跑时由 external-tool 的「去下载」提示兜住
+    capsCache = null;
+    return capsCache;
+  }
+  const handle = runner({ cmd: base.cmd, args: ['capabilities'], shell: base.shell }, {
     onStep: () => {},
     onProgress: () => {},
     onInfo: () => {},

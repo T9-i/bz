@@ -26,6 +26,7 @@ import { renderPanelSchema } from '../../src/settings-panel/renderer';
 import { writeAssetText } from '../../src/core/remote-asset';
 import { setRowBtnState } from '../../src/core/settings-btn-state';
 import { setSettingsProvider } from '../../src/core/settings-provider';
+import { resetNodeRuntimeCache, setFsProbe } from '../../src/core/tool-runtime';
 import { setApp } from '../../src/core/app';
 import { MockVault } from '../mock-vault';
 import { textSha256 } from '../../src/core/sha256';
@@ -506,6 +507,63 @@ describe('失败态（半自动铁则的 UI 面）', () => {
     expect(btn.classList.contains('bz-rowbtn--busy')).toBe(false);
     expect(btn.textContent).toBe('重试');
     expect(btn.disabled).toBe(false);
+  });
+});
+
+describe('无清单时外部工具不消失（2026-10-28 断网报障）', () => {
+  /** 假 window.require：`where node` 命中给定路径（tool-runtime 探 node 用） */
+  const stubNodeOnPath = (nodePath: string): void => {
+    const cp = {
+      spawnSync: (cmd: string, args: string[]) => {
+        if (cmd === 'where' || cmd === 'which') return { status: 0, stdout: `${nodePath}\n` };
+        if (args?.[0] === '-v') return { status: 0, stdout: 'v22.22.2\n' };
+        return { status: 1, stdout: '' };
+      },
+    };
+    (window as unknown as { require: (m: string) => unknown }).require = (m: string) => (m === 'child_process' ? cp : null);
+  };
+
+  const toolGroup = async (): Promise<HTMLElement> => {
+    const [tools] = await onlineResourcesGroups();
+    const el = document.createElement('div');
+    document.body.appendChild(el);
+    renderPanelSchema(el, { groups: [tools] });
+    await tick(40);
+    return el;
+  };
+
+  it('清单拉不到 → 三个工具照样成行，按钮禁用并说清「联网后可下载」', async () => {
+    newVault();
+    routeFetch({ [REMOTE_MANIFEST]: new Error('ENOTFOUND'), [BACKUP_MANIFEST]: new Error('ETIMEDOUT') });
+
+    const el = await toolGroup();
+    // 三行都在（顺序与 core/tool-runtime 的 TOOL_IDS 一致）
+    expect([rowName(el, 0), rowName(el, 1), rowName(el, 2)]).toEqual(['B站下载器', '工具坞值守', '脸谱工具包']);
+    expect(rowDesc(el, 0)).toContain('联网后可下载');
+    expect(rowBtn(el, 0).textContent).toBe('下载');
+    expect(rowBtn(el, 0).disabled).toBe(true); // 没清单就没有下载地址，不给假可点
+  });
+
+  it('工具已在磁盘上 → 说「已下载」，仍禁用（没清单就没法检查更新）', async () => {
+    const vault = newVault();
+    // MockVault 没有绝对路径：补一个 adapter.getBasePath，让插件目录能被拼出来
+    setApp({ vault: Object.assign(vault, { adapter: { getBasePath: () => '/vault' } }), workspace: {} } as any);
+    // 入口脚本与 system node 都「存在」：运行时解析判成就绪 → 行态 ready
+    setFsProbe((p) => p.endsWith('/downloads/tools/bili-downloader/cli.js') || p === 'C:/nodejs/node.exe');
+    stubNodeOnPath('C:/nodejs/node.exe');
+    routeFetch({ [REMOTE_MANIFEST]: new Error('ENOTFOUND'), [BACKUP_MANIFEST]: new Error('ETIMEDOUT') });
+    try {
+      const el = await toolGroup();
+      expect(rowDesc(el, 0)).toContain('已下载');
+      expect(rowBtn(el, 0).textContent).toBe('已下载');
+      expect(rowBtn(el, 0).disabled).toBe(true);
+      // 另外两个没下载 → 仍是「下载」禁用
+      expect(rowBtn(el, 1).textContent).toBe('下载');
+    } finally {
+      setFsProbe(null);
+      resetNodeRuntimeCache();
+      delete (window as unknown as { require?: unknown }).require;
+    }
   });
 });
 

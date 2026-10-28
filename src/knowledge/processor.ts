@@ -1,7 +1,8 @@
 /**
  * 文献盒批量处理器（视频转文献，literature 域；ADR-0071：AI 回迁插件侧）
  * 串行逐部：对「待处理/失败」任务按列表顺序 spawn 工具无头批处理命令
- * （全局 bili-dl --batch '<json>'，.cmd shim 以 shell:true 启动；P2-2 移除修复期本机 CLI 指针探测），
+ * （插件目录里下载好的 bili-downloader 包 + 探测到的 node，数组参数、不经 shell；
+ *  没下载时起跑即给「去在线资源下载」的引导，不回落到 PATH 上的 bili-dl），
  * _runOne 返回「子进程终结」Promise，循环内 await —— 严格一次一部。
  *
  * AI 回迁（ticket 136/ADR-0071）：CLI 不再调 AI、不再写笔记，只产出机械步骤
@@ -85,12 +86,11 @@ function getFs(): any {
 
 /**
  * 解析 spawn 目标（P2-2→P2-5→2026-10-28）：
- *  - **本地包优先**：在线资源下过 b站下载器就用插件目录里的 `cli.js` + 探测到的 node
- *    （绝对路径 + 数组参数，路径里的空格/中文不再经过 cmd 解析）；
- *  - **PATH 兜底**：老用户全局装过 `bili-dl` 的，行为和以前一模一样（.cmd shim 需 shell:true）。
+ * **只认插件目录里的本地包**：在线资源下过 B站下载器，就用它的 `cli.js` + 探测到的 node
+ * （绝对路径 + 数组参数，路径里的空格/中文不再经过 cmd 解析）。没下载 → cmd 为空串，
+ * `_runOne` 在 spawn 前拦住并给「去下载」的引导（不再回落到 PATH 上的 `bili-dl`）。
  *
- * batch 载荷仍走 base64：shell 那条路会对消 JSON 的引号/空格（Windows cmd 实测 argv 损坏报
- * position 1 JSON 错），base64 无引号无空格，两条路都安全。
+ * batch 载荷仍走 base64：即便将来又出现 shell 路径，base64 也无引号无空格，不会损坏 argv。
  */
 function resolveBatchSpawn(taskJson: string): { cmd: string; args: string[]; shell: boolean } {
   const b64 = Buffer.from(taskJson, 'utf8').toString('base64');
@@ -242,10 +242,16 @@ export const BatchRunner = {
         // 也必须 resolve，否则本 Promise 永不 settle → runAll 卡死、BatchRunner.running 恒 true
         void this._finish(task, events, onEnd, ok, reason, notePath, video).then(resolve, () => { onEnd(false); resolve(); });
       };
+      // 没下载本地包 → cmd 为空串（core/tool-runtime 没有 PATH 回落）：起跑前说清楚，
+      // 不 spawn 一个空命令名（Windows 下会起个空 cmd、退出码 0，看起来「跑完了」）
+      if (!cmd) {
+        finish(false, INSTALL_HINT, null, null);
+        return;
+      }
       try {
         child = cp.spawn(cmd, args, { shell, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
       } catch (e: any) {
-        const reason = /ENOENT/.test(e.message) ? `未找到 bili-dl。${INSTALL_HINT}` : `启动失败：${e.message}。${INSTALL_HINT}`;
+        const reason = /ENOENT/.test(e.message) ? INSTALL_HINT : `启动失败：${e.message}。${INSTALL_HINT}`;
         finish(false, reason, null, null);
         return;
       }
@@ -317,7 +323,7 @@ export const BatchRunner = {
       child.on('error', (e: Error) => {
         // 已终态（如 spawn 抛错路径）或 error 后再补发 close：一律忽略
         if (settled) return;
-        const reason = /ENOENT/.test(e.message) ? `未找到 bili-dl。${INSTALL_HINT}` : `启动失败：${e.message}`;
+        const reason = /ENOENT/.test(e.message) ? INSTALL_HINT : `启动失败：${e.message}`;
         finish(false, reason, null, null);
       });
       child.on('close', (code: number) => {

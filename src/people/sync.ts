@@ -4,9 +4,8 @@
  * （取密钥 → 解密 → 逐联系人导出 chat.json + 头像源）。
  *
  * 职责：
- *   - 命令定位照 bili-downloader 先例（src/knowledge/processor.ts）：纯 PATH 找 `bz-face`、
- *     shell:true（.cmd shim）、不带路径设置键；ENOENT 给安装指引（ADR-0195：不发公开
- *     registry，本机 link / 全局装）。
+ *   - 命令定位走 core/tool-runtime（只认插件目录里的本地包，2026-10-28 起没有 PATH 回落）、
+ *     不带路径设置键；未下载由 external-tool 拦住给「去在线资源下载」的指引。
  *   - 参数下发：--data-root ← peopleDataDir（必填，未配置直接给中文引导不起进程）；
  *     --src ← peopleWxAccountDir、--python ← pythonPath（462 域无关键，非空才传）。
  *   - 进度协议走 core/external-tool 四行协议：[bz-p]{phase,pct} 驱动主进度行
@@ -152,7 +151,8 @@ export interface BuildSyncSpecOpts {
   /** Python 命令覆盖（非空才传；留空 = 跟随工具默认 python） */
   python?: string;
   /**
-   * 命令解析结果（core/tool-runtime）。缺省 = 老的 PATH 口径（`bz-face` + shell:true）。
+   * 命令解析结果（core/tool-runtime）。缺省 = 当场问 `safeToolBase`（只认插件目录里的
+   * 本地包，没有 PATH 回落；未下载时 cmd 为空串，起跑由 external-tool 拦住并给人话提示）。
    * 走本地包时 shell=false，此时**不能**给路径包引号——引号会成为路径的一部分。
    */
   command?: { cmd: string; shell: boolean };
@@ -208,9 +208,10 @@ export function pathArg(v: string, shell: boolean): string {
 export function buildSyncSpec(opts: BuildSyncSpecOpts): ExternalToolSpec {
   const src = opts.src?.trim() || undefined;
   const python = opts.python?.trim() || undefined;
-  const shell = opts.command?.shell ?? true;
+  const base = opts.command ?? safeToolBase('obsidian-face');
+  const shell = base.shell;
   return {
-    cmd: opts.command?.cmd ?? 'bz-face',
+    cmd: base.cmd,
     args: [
       'sync',
       '--data-root',
@@ -384,8 +385,7 @@ export function startSync(): void {
       dataRoot,
       src: nonEmpty(s?.peopleWxAccountDir),
       python: nonEmpty(s?.pythonPath),
-      // 本地包优先、PATH 兜底（core/tool-runtime）：老用户行为不变，新用户不必碰终端
-      command: safeToolBase('obsidian-face'),
+      // 命令解析收在 core/tool-runtime（只认插件目录里的本地包）：缺省已走它，这里不再重复传
     });
   } catch (e) {
     // 参数面问题起跑前明说（quotePathArg 拒绝含 % 的路径等）：落错误面，不静默不出半截状态

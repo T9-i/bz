@@ -3,8 +3,17 @@
  * 这里只测纯函数（buildSetupTasks / sizeText）——DOM 与真实下载不在单测里跑，
  * 但「下哪些、按什么顺序下、体积怎么算」是这里的责任，也最容易写错。
  */
-import { describe, it, expect } from 'vitest';
-import { buildSetupTasks, defaultSelection, resourceDocsOf, selectedTasks, sizeText, splitProbeRows } from '../../src/core/setup-wizard';
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  buildSetupTasks,
+  defaultSelection,
+  resourceDocsOf,
+  selectedTasks,
+  setupAlreadyDone,
+  setupDoneStorageKey,
+  sizeText,
+  splitProbeRows,
+} from '../../src/core/setup-wizard';
 import type { DownloadManifest } from '../../src/core/download-manifest';
 
 const manifest: DownloadManifest = {
@@ -128,5 +137,40 @@ describe('检测屏的分段：工具只出现一次（2026-10-28 截图里的�
       { id: 'manual', name: '使用手册' },
     ];
     expect(resourceDocsOf({ docs }).map((d) => d.id)).toEqual(['changelog', 'manual']);
+  });
+});
+
+/**
+ * 引导是否已走过：**必须按库分开**。
+ *
+ * localStorage 是 Obsidian 整个应用共用的，用一把全局键会让「在 A 库走完引导」变成
+ * 「新开的 B 库也算走过」——2026-10-28 用户报障：换个新库打开插件，Node、工具包、文档
+ * 一概没有，却一次引导都不弹。
+ */
+describe('引导已走过：按库分键', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('设置里 setupDone=true → 走过（与库无关，data.json 本来就是按库的）', () => {
+    expect(setupAlreadyDone({ setupDone: true }, 'E:/vault-a')).toBe(true);
+  });
+
+  it('localStorage 兜底按库分键：A 库走过不影响 B 库', () => {
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), '1');
+    expect(setupAlreadyDone(null, 'E:/vault-a')).toBe(true);
+    expect(setupAlreadyDone(null, 'E:/vault-b')).toBe(false);
+  });
+
+  it('路径形态不同但指向同一个库 → 视为同一个库（反斜杠/尾斜杠归一）', () => {
+    localStorage.setItem(setupDoneStorageKey('E:\\vault-a\\'), '1');
+    expect(setupAlreadyDone(null, 'E:/vault-a')).toBe(true);
+  });
+
+  it('取不到 vault 路径 → 退回全局那把键（不因此崩，也不误判成「走过」）', () => {
+    expect(setupDoneStorageKey('')).toBe('bz-setup-done');
+    expect(setupAlreadyDone(null, '')).toBe(false);
+    localStorage.setItem('bz-setup-done', '1');
+    expect(setupAlreadyDone(null, '')).toBe(true);
   });
 });

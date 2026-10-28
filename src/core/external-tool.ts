@@ -36,6 +36,7 @@
  * 知识盒本次不动（继续用自己的实现，src/knowledge/processor.ts）；后续外部工具集成
  * （脸谱工具包 bz-face 等）统一走此模块。依赖方向：core 层，不 import 任何 src/<域>/。
  */
+import { toolMissingHint } from './tool-hint';
 
 /** ---------- 协议行解析（纯函数，独立可测） ---------- */
 
@@ -381,6 +382,13 @@ export function runExternalTool(spec: ExternalToolSpec, cb: ExternalToolCallback
 
   if (!cp) {
     settle({ ok: false, stopped: false, code: null, stderr: '', error: new Error('仅桌面端可用：外部工具需要 Node.js 子进程') });
+    return { stop: () => {}, answer: () => {}, done };
+  }
+  // 空命令 = 工具没下载（core/tool-runtime 没有 PATH 回落，未就绪时给的就是空串）。
+  // 必须在这里拦住：Windows 下 `shell:true` 配空命令会起一个空 cmd、退出码 0 ——
+  // 看起来「跑完了」，实际什么都没做，比报错难查得多。
+  if (!String(spec.cmd || '').trim()) {
+    settle({ ok: false, stopped: false, code: null, stderr: '', error: new Error(toolMissingHint()) });
     return { stop: () => {}, answer: () => {}, done };
   }
 

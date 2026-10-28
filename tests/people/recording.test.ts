@@ -57,6 +57,7 @@ import {
   type RecordingSidecar,
 } from '../../src/people/recording';
 import type { ExternalToolHandle } from '../../src/core/external-tool';
+import { setToolBaseProbe } from '../../src/core/tool-runtime';
 import type { RecordingTurn } from '../../src/people/datasource';
 
 /** 内存 fs 桩（meta 读写 / 派生物过滤用）：写读往返 + mkdir 记录，不碰真磁盘 */
@@ -124,6 +125,14 @@ function dupShaOf(fs2: { readFileSync: (p: string) => string }) {
  */
 beforeEach(() => {
   resetRecordingProcessesForTests();
+  // 单测没有 app → 运行时解析必是「未下载」；显式给一个 shell 口径的假结果（断言引号口径）
+  setToolBaseProbe(() => ({ cmd: 'bz-face', shell: true, via: 'bundle' }));
+});
+
+afterEach(() => {
+  // 本文件部分用例起的是假 runner，缓存也要跟着清（否则下个用例读到上一个的能力声明）
+  resetFaceCapabilitiesForTests();
+  setToolBaseProbe(null);
 });
 
 describe('路径组装', () => {

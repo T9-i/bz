@@ -41,6 +41,7 @@ import {
 import { ensureAssetWithHash } from '../core/remote-asset';
 import { bundleDirOf, bundleStatus, installBundle, readBundleMarker } from '../core/bundle-asset';
 import { readAsset } from '../core/remote-asset';
+import { TOOL_ENTRIES, TOOL_IDS, toolManifestId, toolReadyState, type ToolId } from '../core/tool-runtime';
 import { isToolBundleId, setupAfterInstall } from '../core/tool-setup';
 import { loadCategoryTable } from '../core/category-table';
 import { loadRssCatalog, catalogCategoryCounts } from '../core/rss-catalog';
@@ -160,11 +161,23 @@ interface RowState {
   doc: DocStatus | null;
   /** 皮肤行三态计数；doc 行 null */
   skin: SkinStatus | null;
+  /**
+   * 本地兜底行（清单没拉到时的那三个外部工具）：`ready` = 包在磁盘上，
+   * `missing` = 没下载。非空即说明这一行不是清单给的，不能下载也不能检查更新。
+   */
+  local: 'ready' | 'missing' | null;
   /** 描述里的规模补充（如「26 组 515 条」）；无则 null */
   extra: string | null;
   /** 该行资源的体积（doc = 清单 size；皮肤 = 区间内各套合计）；无信息 null */
   size: number | null;
 }
+
+/** 外部工具的本地行表（清单拉不到时据此出三行；id/行名与 core/tool-runtime 同源） */
+const LOCAL_TOOL_ROWS: Array<{ id: string; name: string; toolId: ToolId }> = TOOL_IDS.map((id) => ({
+  id: toolManifestId(id),
+  name: TOOL_ENTRIES[id].label,
+  toolId: id,
+}));
 
 /**
  * 行序：清单 `rowOrder` 优先（SKINS_ROW_ID 是皮肤聚合行的保留 id）；缺失 = docs 顺序 + 皮肤末位。
@@ -202,10 +215,26 @@ function sizeText(bytes: number): string {
   return '<1 KB';
 }
 
-/** 组内容一次性算齐（缓存清单 + 本地文件实测）；无清单 → 没有资源行（只剩操作行） */
+/** 组内容一次性算齐（缓存清单 + 本地文件实测）；无清单 → 外部工具行按磁盘事实兜底，其余没有 */
 async function computeRowStates(app: unknown): Promise<{ rows: RowState[]; manifest: DownloadManifest | null }> {
   const manifest = await cachedManifest(app);
-  if (!manifest) return { rows: [], manifest: null };
+  if (!manifest) {
+    // 清单拉不到（首次启动没网 / 资源站不可达）时，外部工具这一组不能整组消失：
+    // 它们是**本机已经装好的东西**，状态只由磁盘决定，与能不能连外网无关
+    // （2026-10-28 用户报障：断网时「外部工具」一行都没有，看起来像插件坏了）。
+    return {
+      rows: LOCAL_TOOL_ROWS.map((t) => ({
+        id: t.id,
+        name: t.name,
+        doc: null,
+        skin: null,
+        local: toolReadyState(app, t.toolId).ready ? 'ready' : 'missing',
+        extra: null,
+        size: null,
+      })),
+      manifest: null,
+    };
+  }
   // 插件版本：doc 版本区间过滤与皮肤区间计数共用（读不到 → 皮肤状态不可判，doc 不过滤）
   const pluginVersion = await readPluginVersion(app);
 
@@ -217,6 +246,7 @@ async function computeRowStates(app: unknown): Promise<{ rows: RowState[]; manif
         name: SKINS_ROW_NAME,
         doc: null,
         skin: pluginVersion ? await skinStatus(app, manifest) : null,
+        local: null,
         extra: null,
         size: skinTotalSize(manifest, pluginVersion),
       });
@@ -231,7 +261,7 @@ async function computeRowStates(app: unknown): Promise<{ rows: RowState[]; manif
     const doc = entry.kind === 'bundle' ? await bundleStatus(app, entry) : await docStatus(app, entry);
     // 规模补充只在就绪态读（未下载时读本地产物无意义，白读盘）
     const extra = doc === 'ready' ? await readyExtra(app, id, entry) : null;
-    rows.push({ id, name: entry.name, doc, skin: null, extra, size: entry.size ?? null });
+    rows.push({ id, name: entry.name, doc, skin: null, local: null, extra, size: entry.size ?? null });
   }
   return { rows, manifest };
 }
@@ -239,6 +269,9 @@ async function computeRowStates(app: unknown): Promise<{ rows: RowState[]; manif
 /** 行状态 → 描述文案（设置项文案规范：一句自然句，无符号花样；就绪态捎带规模与体积） */
 function rowDesc(st: RowState): string {
   const size = st.size !== null ? sizeText(st.size) : '';
+  // 本地兜底行：没有清单就没有下载地址，能说的只有「装没装」与「为什么现在下不了」
+  if (st.local === 'ready') return '已下载，可以正常使用（清单没拉到，暂时无法检查更新）';
+  if (st.local === 'missing') return '尚未下载。资源清单没拉到（网络不可用），联网后可下载';
   if (st.skin) {
     const { ready, missing, updated } = st.skin;
     if (updated > 0) return missing > 0 ? `${updated} 套主题有更新，另有 ${missing} 套未下载` : `${updated} 套主题有更新，已就绪 ${ready} 套`;
@@ -256,6 +289,8 @@ function rowDesc(st: RowState): string {
 
 /** 行状态 → 按钮文案与禁用态（更新优先于下载；两者并存的差额在描述里说清） */
 function rowButton(st: RowState): { text: string; disabled: boolean } {
+  // 本地兜底行恒禁用：没有清单就没有下载地址与 sha256，点下去只能转到 timeout
+  if (st.local) return { text: st.local === 'ready' ? '已下载' : '下载', disabled: true };
   if (st.skin) {
     const { missing, updated } = st.skin;
     if (updated > 0) return { text: `更新 ${updated}`, disabled: false };
@@ -364,6 +399,8 @@ export async function onlineResourcesGroups(): Promise<[GroupDecl, GroupDecl]> {
   // 按 kind 分成两组（行对象还是同一批引用：状态机不变，只是渲染在两处）。
   // 认 id 不认行名：行名是给人看的（「B站下载器」），id 才是清单里的主键（tool-bili-downloader）。
   const bundleIds = new Set((manifest?.docs ?? []).filter((d) => d.kind === 'bundle').map((d) => d.id));
+  // 清单没拉到时上面这一句是空集，三行本地兜底工具会混进「在线资源」——它们本来就属于工具组
+  if (!manifest) for (const t of LOCAL_TOOL_ROWS) bundleIds.add(t.id);
   const toolRows = meta.entries.filter((e) => bundleIds.has(e.id)).map((e) => e.row);
   const toolSet = new Set<SettingsRow>(toolRows);
   const restRows = meta.rows.filter((r) => !toolSet.has(r));

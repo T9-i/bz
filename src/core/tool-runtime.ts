@@ -1,21 +1,20 @@
 /* ============================================================
  * bz · 外部工具的运行时解析（core/tool-runtime.ts）
  *
- * 问题：此前三个外部工具全靠「PATH 上有个全局安装的命令」——
- *   `bili-dl`（知识盒）、`bz-face`（脸谱）、`node`（值守）。自用机器上装好了，
- *   别人机器上就是「找不到命令 / 没装 Node」，而安装指引写的是 `npm install -g <仓库路径>`
- *   —— 对外分发等于没有指引。
- *
- * 现在两件事分开：
+ * 两件事分开：
  *   1. **包**从在线资源下载进插件目录（`downloads/tools/<id>/`，见 core/bundle-asset.ts）；
  *   2. **解释器**按「插件内便携 node → 系统 node」的顺序探测。
+ *
+ * 口径：**只认本地包**（2026-10-28 用户拍板）。此前还有一条「PATH 上全局装的命令」兜底，
+ * 它带来两个真问题：一是同一台机器上可能有开发期的旧版/自建版，插件以为自己带着工具、
+ * 实际跑的是别处那个；二是状态面只能说「用系统里已装的命令」——用户看不出插件到底下没下过。
+ * 所以现在**没有 PATH 回落**：本地包不在 → 未安装，去「在线资源」下一份。
+ * 探测与启动因此是同一个判据（`toolReadyState` / `resolveToolBase` 共用），不会出现
+ * 「面板说就绪、起跑时找不到命令」。
  *
  * 为什么不用 Obsidian 自己的 exe 当 node：**实测不可行**（2026-10-28）。Obsidian 关掉了
  * Electron 的 `runAsNode` fuse，`ELECTRON_RUN_AS_NODE=1 obsidian.exe script.js` 会把它
  * 当成 Obsidian 自己的 CLI 命令，回一句 `Command "…" not found`。所以解释器只能另找。
- *
- * 回落链是刻意的：**本地包优先，PATH 兜底**。已经全局装过工具的老用户一个字都不用改
- * （行为和以前完全一样）；新用户下了包就自动走本地，不必再碰终端。
  *
  * 附带的好处：本地包走 `shell:false` + 参数数组。此前 `.cmd` shim 必须 `shell:true`，
  * 而 cmd 对引号、空格、中文、`&` 的解析规则是 Windows 上最经典的一类坑（vault 路径带
@@ -25,25 +24,37 @@ import { DOWNLOADS_DIR, downloadsVaultPath } from './remote-asset';
 import { bundledNodeFile, NODE_RUNTIME_DIR } from './node-runtime-install';
 import { pluginDirOf, vaultBasePathOf } from './plugin-path';
 import { getApp } from './app';
+import { toolMissingHint } from './tool-hint';
 
 /** 工具 id（= online 资源 id = downloads/tools/ 下的目录名） */
 export type ToolId = 'bili-downloader' | 'obsidian-face' | 'dock-watch';
 
-/** 包内的入口脚本（相对包根）与命令名（PATH 回落时用的那个） */
+/** 包内的入口脚本（相对包根） */
 export interface ToolEntry {
   /** 包内入口脚本（相对 downloads/tools/<id>/） */
   script: string;
-  /** PATH 回落用的命令名（老用户的全局安装） */
-  command: string;
-  /** 人话名字（错误消息里用） */
+  /** 人话名字（错误消息与面板行名共用） */
   label: string;
 }
 
 export const TOOL_ENTRIES: Record<ToolId, ToolEntry> = {
-  'bili-downloader': { script: 'cli.js', command: 'bili-dl', label: 'B站下载器' },
-  'obsidian-face': { script: 'bin/bz-face.js', command: 'bz-face', label: '脸谱工具包' },
-  'dock-watch': { script: 'cli.js', command: 'bz-dock-watch', label: '工具坞值守' },
+  'bili-downloader': { script: 'cli.js', label: 'B站下载器' },
+  'obsidian-face': { script: 'bin/bz-face.js', label: '脸谱工具包' },
+  'dock-watch': { script: 'cli.js', label: '工具坞值守' },
 };
+
+/** 工具 id 的固定顺序（面板行序、诊断行序共用；不随清单来，网络不通时也照样列得出来） */
+export const TOOL_IDS: ToolId[] = ['bili-downloader', 'dock-watch', 'obsidian-face'];
+
+/**
+ * 工具 id → 在线资源清单里的行 id。
+ *
+ * `tool-` 前缀是清单侧的分组线索（bundle 类条目都带），面板靠它把三行归进「外部工具」组。
+ * 写在一处，别在面板里现拼字符串——拼错的结果是工具静默混进在线资源组。
+ */
+export function toolManifestId(id: ToolId): string {
+  return `tool-${id}`;
+}
 
 /** Node 运行时探测结果 */
 export interface NodeRuntime {
@@ -57,12 +68,13 @@ export interface NodeRuntime {
 
 /** 解析结果：直接喂给 runExternalTool 的 spec 片段 */
 export interface ResolvedToolCommand {
+  /** 可执行文件绝对路径；`via='none'` 时为空串 */
   cmd: string;
   args: string[];
-  /** true = 经 shell 启动（只有 PATH 回落那条路需要：Windows 的 .cmd shim） */
+  /** 恒为 false（本地包走数组参数） */
   shell: boolean;
-  /** 这次走的是本地包还是 PATH（调用方据此说人话） */
-  via: 'bundle' | 'path';
+  /** 这次走的是本地包还是根本没有（调用方据此说人话；`none` 时不要 spawn） */
+  via: 'bundle' | 'none';
 }
 
 function isWindows(): boolean {
@@ -169,7 +181,8 @@ function nodeVersionOf(nodePath: string): string {
   }
 }
 
-/** PATH 上找一个可执行（`where` / `which`）；找不到 → 空串 */
+/** PATH 上找一个可执行（`where` / `which`）；找不到 → 空串。
+ *  **只用来找 node**：外部工具本身只认插件目录里的包，不再回落到 PATH（见文件头）。 */
 function findOnPath(cp: any, name: string): string {
   if (!cp?.spawnSync) return '';
   const cmd = isWindows() ? 'where' : 'which';
@@ -185,50 +198,64 @@ function findOnPath(cp: any, name: string): string {
 
 /** 只解析「用谁跑」（不涉及业务参数）——域侧自己拼 args 时用这个 */
 export interface ToolCommandBase {
+  /** 可执行文件绝对路径；`via='none'` 时为空串（域侧据此给「去下载」的引导，别 spawn 空串） */
   cmd: string;
-  /** true = 经 shell 启动（只有 PATH 回落那条路需要：Windows 的 .cmd shim） */
+  /** true = 经 shell 启动。本地包恒为 `false`（数组参数，路径不过 cmd 解析） */
   shell: boolean;
-  via: 'bundle' | 'path';
+  /** 这次走的是本地包还是根本没有（没有 PATH 回落） */
+  via: 'bundle' | 'none';
 }
 
 /**
  * 解析工具的命令行（不含业务参数）。
  *
- * - 本地包在（`downloads/tools/<id>/<script>` 存在）**且**有 node → 绝对路径 + `shell:false`；
- * - 否则回落 PATH 上的命令名（`shell:true`，Windows 的 `.cmd` shim 需要）。
+ * 只有一条路：本地包在（`downloads/tools/<id>/<script>` 存在）**且**有 node →
+ * 绝对路径 + `shell:false`；否则 `via:'none'`（cmd 为空串）。
  *
- * 域侧拼参数时**必须看 `shell`**：走 shell 的那条路要给含空格的路径包引号，走数组参数的
- * 那条路包了引号反而会把引号当路径的一部分（core/tool-runtime 不替它们决定这件事）。
+ * 调用方**必须看 `via`**：`none` 意味着这台机器上没这份工具，该说的是「去下载」，
+ * 而不是 spawn 一个空命令名（Windows 下 `shell:true` 配空命令会起一个空 cmd，
+ * 退出码 0 —— 看起来「跑完了」，实际什么都没做）。
  */
 export function resolveToolBase(app: unknown, id: ToolId): ToolCommandBase {
-  const entry = TOOL_ENTRIES[id];
-  const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+  const script = fsPath(app, `${toolBundleDir(id)}/${TOOL_ENTRIES[id].script}`);
   const node = probeNodeRuntime(app);
   if (script && node.kind !== 'none' && existsOnDisk(script)) {
     return { cmd: node.path, shell: false, via: 'bundle' };
   }
-  return { cmd: entry.command, shell: true, via: 'path' };
+  return { cmd: '', shell: false, via: 'none' };
 }
 
+/** `safeToolBase` 的测试注入缝（纯函数 builder 在单测里没有 app，又确实需要一条命令） */
+let baseProbe: ((id: ToolId) => ToolCommandBase) | null = null;
+
+/** 注入命令解析结果（仅测试用；生产恒走 `resolveToolBase`） */
+export function setToolBaseProbe(fn: ((id: ToolId) => ToolCommandBase) | null): void {
+  baseProbe = fn;
+}
+
+/** 「没有任务书」的解析结果（app 早期/非桌面端）：如实说没有，不编一条命令出来 */
+const NO_TOOL: ToolCommandBase = { cmd: '', shell: false, via: 'none' };
+
 /**
- * `resolveToolBase` 的**不抛版**：app 还没初始化（单测 / 早期调用）时回落 PATH 口径。
+ * `resolveToolBase` 的**不跑版**：app 还没初始化（单测 / 早期调用）时不抛，返回「没有」。
  *
  * 存在的理由：域侧那几个 `buildXxxSpec` 是纯函数、被单测直接调（没有 app），但它们
  * 又确实需要知道「这台机器上该用哪条命令」。让它们全部多一个 `command` 参数，会把
  * 「谁负责解析运行时」这件事散到每个调用点；这里集中收口一次，纯函数内部调它即可。
  */
 export function safeToolBase(id: ToolId): ToolCommandBase {
+  if (baseProbe) return baseProbe(id);
   try {
     return resolveToolBase(getApp(), id);
   } catch {
-    return { cmd: TOOL_ENTRIES[id].command, shell: true, via: 'path' };
+    return NO_TOOL;
   }
 }
 
 /**
  * 解析一条完整的工具命令（业务参数接在入口脚本/命令名之后）。
  *
- * @param args 业务参数（本地包路径下它们会原样进 spawn 的 argv 数组）
+ * @param args 业务参数（本地产路径下它们会原样进 spawn 的 argv 数组）
  */
 export function resolveToolCommand(app: unknown, id: ToolId, args: string[] = []): ResolvedToolCommand {
   const entry = TOOL_ENTRIES[id];
@@ -237,27 +264,25 @@ export function resolveToolCommand(app: unknown, id: ToolId, args: string[] = []
     const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
     return { cmd: base.cmd, args: [script, ...args], shell: false, via: 'bundle' };
   }
-  return { cmd: base.cmd, args, shell: true, via: 'path' };
+  return { cmd: '', args, shell: false, via: 'none' };
 }
 
-/** 工具是否已就绪（本地包在，或 PATH 上有命令）——用于面板「装没装」的一句话 */
-export function toolReadyState(app: unknown, id: ToolId): { ready: boolean; via: 'bundle' | 'path' | 'none' } {
+/** 工具是否已就绪（本地包在 + 有 node）——与 `resolveToolBase` 同一个判据 */
+export function toolReadyState(app: unknown, id: ToolId): { ready: boolean; via: 'bundle' | 'none' } {
   const entry = TOOL_ENTRIES[id];
   const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
   if (script && existsOnDisk(script) && probeNodeRuntime(app).kind !== 'none') return { ready: true, via: 'bundle' };
-  const cp = childProcess();
-  if (findOnPath(cp, entry.command)) return { ready: true, via: 'path' };
   return { ready: false, via: 'none' };
 }
 
 /**
  * 工具没装时给人看的那句话。
- * 引导语必须指向**用户真能点的地方**（设置面板的在线资源组），而不是一条终端命令——
- * 对外分发的第一原则：不要让人复制粘贴。
+ *
+ * 文案本体在 `core/tool-hint`（零依赖：值守进程那条构建链也要用同一句，不能拖进 `obsidian`）。
+ * 这里只负责把工具名填进去。
  */
-export function toolInstallHint(id: ToolId): string {
-  const entry = TOOL_ENTRIES[id];
-  return `未找到${entry.label}：到「设置 → 通用 → 在线资源」里下载它，下载完即可用`;
+export function toolInstallHint(id?: ToolId): string {
+  return toolMissingHint(id ? TOOL_ENTRIES[id].label : undefined);
 }
 
 /** 装了包但没有 Node 时的指引（比「未找到工具」更精确，少让人白试一遍） */
@@ -281,11 +306,12 @@ export function runtimeDiagnostics(app: unknown): Array<{ key: string; value: st
           : `${node.kind === 'bundled' ? '插件内' : '系统'}${node.version ? ` ${node.version}` : ''}（${node.path}）`,
     },
   ];
-  for (const id of Object.keys(TOOL_ENTRIES) as ToolId[]) {
+  for (const id of TOOL_IDS) {
     const st = toolReadyState(app, id);
     rows.push({
       key: TOOL_ENTRIES[id].label,
-      value: st.via === 'bundle' ? '已下载' : st.via === 'path' ? '用系统里已装的命令' : '未安装',
+      // 只剩两种事实：包在磁盘上 / 包不在。系统 PATH 上有没有同名命令与插件的口径无关
+      value: st.via === 'bundle' ? '已下载' : '未安装',
     });
   }
   return rows;

@@ -16,7 +16,7 @@ import { closeLightbox } from './core/ui/lightbox';
 import { closeAllModals } from './core/ui/modal';
 import { closeAllOverlays } from './core/dom';
 import { setApp, getApp } from './core/app';
-import { setPluginRelDir } from './core/plugin-path';
+import { setPluginRelDir, vaultBasePathOf } from './core/plugin-path';
 import { scheduleSelfUpdateCheck } from './core/self-update';
 import { applySkinManifest, loadLocalSkinPack } from './core/skin-pack';
 import { refreshManifest } from './core/download-manifest';
@@ -490,8 +490,9 @@ export default class BzPlugin extends Plugin {
       // 缺 Node、缺工具包时功能会静默失效，与其让人自己去报错里猜，不如开局一次补齐。
       // 延迟 3 秒：等 Obsidian 自己的工作区渲染稳定，别在启动瞬间抢焦点。
       void import('./core/setup-wizard').then((m) => {
-        // 判据含 localStorage 兜底：只读 vault 上 data.json 写不进去时，不能每次启动都拦人
-        if (m.setupAlreadyDone(this.settings)) return;
+        // 判据含 localStorage 兜底（按库分键：localStorage 是 Obsidian 全局的，不按库分
+        // 会让「在 A 库走过引导」变成「新开的 B 库不必引导」——2026-10-28 用户报障）
+        if (m.setupAlreadyDone(this.settings, vaultBasePathOf(this.app))) return;
         setTimeout(() => {
           if (this.unloaded) return;
           m.openSetupWizard(getApp(), { firstRun: true });

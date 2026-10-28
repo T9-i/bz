@@ -39,6 +39,7 @@ import {
 import { applyImageMapToMsgs, applyVoiceToMsgs, type ImageMapItem, type StoreMsg, type VoiceItem } from '../../src/people/datasource';
 import { heavyGateDepth, heavyGateHolder, releaseHeavy, resetHeavyGateForTests, tryAcquireHeavy } from '../../src/people/heavy-gate';
 import { jobsNote, type JobsBlockState } from '../../src/people/render';
+import { setToolBaseProbe } from '../../src/core/tool-runtime';
 
 /** 假进程壳：记录 spec、转发协议行、手动终结（形状对齐 runExternalTool 返回的 handle） */
 class FakeTool {
@@ -89,11 +90,14 @@ beforeEach(() => {
   fs = new MemFs();
   setPrepRunnerForTests(tool.runner);
   setPrepFsForTests(fs);
+  // 单测没有 app → 运行时解析必是「未下载」；显式给一个 shell 口径的假结果（断言引号口径）
+  setToolBaseProbe(() => ({ cmd: 'bz-face', shell: true, via: 'bundle' }));
 });
 
 afterEach(() => {
   setPrepRunnerForTests(null);
   setPrepFsForTests(null);
+  setToolBaseProbe(null);
   resetHeavyGateForTests();
 });
 

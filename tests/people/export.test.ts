@@ -14,6 +14,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { resetObsidianMocks } from '../mock-obsidian-entry';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 import { quotePythonArg } from '../../src/people/sync';
+import { setToolBaseProbe } from '../../src/core/tool-runtime';
 import type { ExternalToolCallbacks, ExternalToolOutcome, ExternalToolSpec } from '../../src/core/external-tool';
 import {
   buildExportSpec,
@@ -61,10 +62,14 @@ beforeEach(() => {
   tool = new FakeTool();
   setExportRunnerForTests(tool.runner);
   setSettingsProvider(() => ({ pythonPath: 'C:\\py\\python.exe' }) as never);
+  // 单测没有 app → 运行时解析必是「未下载」；这里显式给一个 shell 口径的假结果，
+  // 断言的就是引号口径（本地包口径 shell:false 另有覆盖）
+  setToolBaseProbe(() => ({ cmd: 'bz-face', shell: true, via: 'bundle' }));
 });
 
 afterEach(() => {
   setExportRunnerForTests(null);
+  setToolBaseProbe(null);
 });
 
 describe('buildExportSpec 参数组装', () => {

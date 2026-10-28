@@ -4,7 +4,7 @@
  * 接进既有生成任务引擎（jobs.ts 的 preprocess 阶段）。
  *
  * 结构照 sync.ts（issue 465 先例）：
- *   - 命令定位照 bili-downloader 先例：纯 PATH 找 `bz-face`、shell:true（.cmd shim）、
+ *   - 命令定位走 core/tool-runtime（只认插件目录里的本地包，2026-10-28 起没有 PATH 回落）；
  *     ENOENT 给安装指引（与 sync 同一口径文案）。
  *   - 参数下发（468 prep-core CLI 参数面）：--data-root ← peopleDataDir（必填）；
  *     --asr-engine ← asrEngine（恒下发）；--asr-model 仅 faster-whisper 且配置非空才传；
@@ -22,7 +22,8 @@
  * 自然消失，续跑重起进程由工具的产物幂等补缺口。
  */
 import { runExternalTool, type ExternalToolCallbacks, type ExternalToolHandle, type ExternalToolSpec, type ExternalToolOutcome } from '../core/external-tool';
-import { BZ_FACE_INSTALL_HINT, quotePathArg, quotePythonArg } from './sync';
+import { safeToolBase } from '../core/tool-runtime';
+import { BZ_FACE_INSTALL_HINT, pathArg, quotePythonArg } from './sync';
 import { releaseHeavy, tryAcquireHeavy } from './heavy-gate';
 import { isFailedVoice, type VoiceItem, type ImageMapItem, type MediaFailItem } from './datasource';
 
@@ -218,9 +219,10 @@ export function buildPrepSpec(opts: BuildPrepSpecOpts): ExternalToolSpec {
   const src = opts.src?.trim() || undefined;
   const python = opts.python?.trim() || undefined;
   const ffmpeg = opts.ffmpeg?.trim() || undefined;
-  const q = (v: string): string => (process.platform === 'win32' ? quotePathArg(v) : v);
+  const base = safeToolBase('obsidian-face');
+  const q = (v: string): string => pathArg(v, base.shell);
   return {
-    cmd: 'bz-face',
+    cmd: base.cmd,
     args: [
       'prep',
       q(opts.contact),
@@ -231,9 +233,9 @@ export function buildPrepSpec(opts: BuildPrepSpecOpts): ExternalToolSpec {
       ...(engine === 'faster-whisper' && model ? ['--asr-model', model] : []),
       ...(src ? ['--src', q(src)] : []),
       ...(ffmpeg ? ['--ffmpeg', q(ffmpeg)] : []),
-      ...(python ? ['--python', quotePythonArg(python)] : []),
+      ...(python ? ['--python', base.shell ? quotePythonArg(python) : python] : []),
     ],
-    shell: true,
+    shell: base.shell,
   };
 }
 

@@ -18,6 +18,7 @@ import { BatchRunner } from '../../src/knowledge/processor';
 import { KnowledgeData } from '../../src/knowledge/data';
 import type { KnowledgeTask } from '../../src/knowledge/types';
 import { setApp } from '../../src/core/app';
+import { resetNodeRuntimeCache, setFsProbe } from '../../src/core/tool-runtime';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 import { onDomainEvent } from '../../src/core/domain-bus';
 import { MockVault } from '../mock-vault';
@@ -63,6 +64,11 @@ describe('BatchRunner', () => {
 
   beforeEach(() => {
     vault = new MockVault();
+    // 工具运行时（2026-10-28 起只认插件目录里的本地包，没有 PATH 回落）：让下载包的入口脚本
+    // 与插件内便携 node 都「在磁盘上」，resolveToolCommand 才会给出一条真命令、spawn 才会发生
+    (vault.adapter as any).getBasePath = () => 'E:/vault';
+    setFsProbe((p) => p.includes('/downloads/tools/'));
+    resetNodeRuntimeCache();
     setApp({ vault } as any);
     KnowledgeData.init({ storagePath: 'CONFIG/STORAGE' });
     child = new FakeChild();
@@ -84,6 +90,8 @@ describe('BatchRunner', () => {
 
   afterEach(() => {
     (window as any).require = origRequire;
+    setFsProbe(null);
+    resetNodeRuntimeCache();
     vi.clearAllMocks();
     BatchRunner.running = false;
     BatchRunner.aborted = false;
@@ -137,12 +145,14 @@ describe('BatchRunner', () => {
       };
       const p = BatchRunner.runAll(tasks, ev);
       await tick();
-      // 严格串行：第一部未完成前不 spawn 第二部；spawn 固定走全局 bili-dl shim（无本地指针探测）
+      // 严格串行：第一部未完成前不 spawn 第二部；命令走插件目录里的本地包
+      // （node + 入口脚本，数组参数、shell:false——2026-10-28 起没有 PATH 回落）
       expect(cpMock.spawn).toHaveBeenCalledTimes(1);
       const [cmd, args, opts] = cpMock.spawn.mock.calls[0];
-      expect(cmd).toBe('bili-dl');
-      expect(args[0]).toBe('--batch');
-      expect(opts.shell).toBe(true);
+      expect(cmd).toContain('/downloads/tools/node-runtime/');
+      expect(args[0]).toContain('/downloads/tools/bili-downloader/cli.js');
+      expect(args[1]).toBe('--batch');
+      expect(opts.shell).toBe(false);
       child.stdout.emit('data', Buffer.from('[bz-step] 下载中\n[bz-step] 剪辑中\n'));
       child.stdout.emit('data', Buffer.from(INFO_LINE));
       child.stdout.emit('data', Buffer.from(RESULT_LINE));
@@ -289,9 +299,9 @@ describe('BatchRunner', () => {
     const p = BatchRunner.runAll(await KnowledgeData.loadTasks(), ev);
     await tick();
     const [, args] = cpMock.spawn.mock.calls[0];
-    expect(args[0]).toBe('--batch');
-    expect(args[1]).toMatch(/^b64:/); // P2-5：经 shell 启动 JSON 改 base64 传输（b64: 前缀）
-    const json = JSON.parse(Buffer.from(args[1].slice(4), 'base64').toString('utf8'));
+    expect(args[1]).toBe('--batch');
+    expect(args[2]).toMatch(/^b64:/); // P2-5：JSON 走 base64 传输（b64: 前缀），无引号/空格可破坏 argv
+    const json = JSON.parse(Buffer.from(args[2].slice(4), 'base64').toString('utf8'));
     expect(json.page).toBe(3);
     expect(json.options).toEqual({
       quality: '720', // 任务级 quality 优先于全局
@@ -318,15 +328,16 @@ describe('BatchRunner', () => {
     const p = BatchRunner.runAll(await KnowledgeData.loadTasks(), ev);
     await tick();
     const [cmd, args, opts] = cpMock.spawn.mock.calls[0];
-    expect(cmd).toBe('bili-dl');
-    expect(opts.shell).toBe(true);
-    expect(JSON.parse(Buffer.from(args[1].slice(4), 'base64').toString('utf8'))).toEqual({
+    expect(cmd).toContain('/downloads/tools/node-runtime/');
+    expect(opts.shell).toBe(false);
+    expect(JSON.parse(Buffer.from(args[2].slice(4), 'base64').toString('utf8'))).toEqual({
       url: 'BV1xx411c7mD', start: null, end: null, page: null,
       // 留空 = 跟随工具默认配置（rc/DEFAULTS）→ 键不下发（undefined 被 JSON.stringify 省略），
       // 避免空串覆盖 rc 兜底（ticket 149：Python 路径留空时整批转写报「未配置 pythonPath」）
       options: {
         quality: 'highest', keepVideo: true,
-        compress: true, crf: 23, vaultPath: '',
+        // vaultPath 取自 vault 绝对路径（本文件的 MockVault 在 beforeEach 里给了 E:/vault）
+        compress: true, crf: 23, vaultPath: 'E:/vault',
         engine: 'sensevoice', // issue 444：引擎恒下发（无 rc 兜底语义），档位仅 faster-whisper 下发
         cacheRetentionDays: 7,
       },
@@ -344,7 +355,7 @@ describe('BatchRunner', () => {
       const p = BatchRunner.runAll([task], makeEvents());
       await tick();
       const [, args] = cpMock.spawn.mock.calls[0];
-      const json = JSON.parse(Buffer.from(args[1].slice(4), 'base64').toString('utf8'));
+      const json = JSON.parse(Buffer.from(args[2].slice(4), 'base64').toString('utf8'));
       child.emit('close', 0);
       await p;
       return json.options;
@@ -366,18 +377,32 @@ describe('BatchRunner', () => {
     expect(opts).not.toHaveProperty('whisperModel');
   });
 
-  it('spawn 决议唯一化（P2-2）：不探测本地 CLI 指针，固定全局 bili-dl --batch（shell:true）', async () => {
+  it('spawn 决议唯一化：只认插件目录里的本地包，没下载就起跑即失败（不回落 PATH）', async () => {
     await KnowledgeData.addTask({ url: 'BV1xx411c7mD' });
     const ev = makeEvents();
     const p = BatchRunner.runAll(await KnowledgeData.loadTasks(), ev);
     await tick();
-    expect(fsMock.existsSync).not.toHaveBeenCalled(); // 移除本机绝对路径探测（发布版不含开发者本机路径）
+    // 不走 fs 探路径以外的东西：入口脚本存在性由 core/tool-runtime 单点判定
     const [cmd, args, opts] = cpMock.spawn.mock.calls[0];
-    expect(cmd).toBe('bili-dl');
-    expect(args[0]).toBe('--batch');
-    expect(opts.shell).toBe(true);
+    expect(cmd).toContain('/downloads/tools/node-runtime/');
+    expect(args[0]).toContain('/downloads/tools/bili-downloader/cli.js');
+    expect(args[1]).toBe('--batch');
+    expect(opts.shell).toBe(false);
     child.emit('close', 0);
     await p;
+  });
+
+  it('本地包不在 → 不起进程，任务直接失败并指向在线资源（不回落全局 bili-dl）', async () => {
+    setFsProbe(() => false); // 插件目录里什么都没有
+    resetNodeRuntimeCache();
+    await KnowledgeData.addTask({ url: 'BV1xx411c7mD' });
+    const ev = makeEvents();
+    await BatchRunner.runAll(await KnowledgeData.loadTasks(), ev);
+    expect(cpMock.spawn).not.toHaveBeenCalled();
+    const [task] = await KnowledgeData.loadTasks();
+    expect(task.status).toBe('failed');
+    expect(task.reason).toContain('B站下载器');
+    expect(task.reason).toContain('在线资源');
   });
 
   it('单部失败继续剩余：失败项带原因、后续继续处理（CLI close 非 0）', async () => {
@@ -436,16 +461,17 @@ describe('BatchRunner', () => {
   });
 
   it('spawn 同步抛 ENOENT → 失败原因含安装引导，全部任务失败', async () => {
-    cpMock = { spawn: vi.fn(() => { throw Object.assign(new Error('spawn bili-dl ENOENT'), { code: 'ENOENT' }); }) };
+    cpMock = { spawn: vi.fn(() => { throw Object.assign(new Error('spawn node ENOENT'), { code: 'ENOENT' }); }) };
     const tasks = await seedTasks();
     const ev = makeEvents();
     const p = BatchRunner.runAll(tasks, ev);
     await p;
     const all = await KnowledgeData.loadTasks();
     expect(all[0].status).toBe('failed');
-    expect(all[0].reason).toContain('未找到 bili-dl');
+    expect(all[0].reason).toContain('B站下载器');
+    expect(all[0].reason).toContain('在线资源');
     expect(all[1].status).toBe('failed');
-    expect(all[1].reason).toContain('未找到 bili-dl');
+    expect(all[1].reason).toContain('B站下载器');
     expect(ev.onBatchDone).toHaveBeenCalledWith({ success: 0, failed: 2, aborted: false, stopped: false });
   });
 
