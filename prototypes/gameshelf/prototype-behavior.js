@@ -1,5 +1,5 @@
-/* 源指纹 0401f5040b1c80d5 · 仓内输入 313 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/gameshelf/fake-sim.ts","prototypes/gameshelf/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/backfill.ts","src/gameshelf/constants.ts","src/gameshelf/detail.ts","src/gameshelf/index.ts","src/gameshelf/motion.ts","src/gameshelf/names.ts","src/gameshelf/notes.ts","src/gameshelf/posters.ts","src/gameshelf/reconcile.ts","src/gameshelf/report.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/gameshelf/sync.ts","src/gameshelf/ui.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 f33b11d41dec6607 · 仓内输入 317 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/gameshelf/fake-sim.ts","prototypes/gameshelf/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/backfill.ts","src/gameshelf/constants.ts","src/gameshelf/detail.ts","src/gameshelf/index.ts","src/gameshelf/motion.ts","src/gameshelf/names.ts","src/gameshelf/notes.ts","src/gameshelf/posters.ts","src/gameshelf/reconcile.ts","src/gameshelf/report.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/gameshelf/sync.ts","src/gameshelf/ui.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/gameshelf/fake-sim.ts → window.BZW_gameshelf（行为单源预览包，issue 245/ADR-0106） */
 var BZW_gameshelf = (() => {
   var __create = Object.create;
@@ -43,6 +43,33 @@ var BZW_gameshelf = (() => {
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
   // prototypes/gameshelf/fake/fake-obsidian.ts
+  var fake_obsidian_exports = {};
+  __export(fake_obsidian_exports, {
+    AbstractInputSuggest: () => AbstractInputSuggest,
+    Component: () => Component,
+    FakeApp: () => FakeApp,
+    FakeFileManager: () => FakeFileManager,
+    FakeVault: () => FakeVault,
+    FuzzySuggestModal: () => FuzzySuggestModal,
+    MarkdownRenderer: () => MarkdownRenderer,
+    MarkdownView: () => MarkdownView,
+    Modal: () => Modal,
+    Notice: () => Notice,
+    Platform: () => Platform,
+    Plugin: () => Plugin,
+    PluginSettingTab: () => PluginSettingTab,
+    Scope: () => Scope,
+    Setting: () => Setting,
+    TAbstractFile: () => TAbstractFile,
+    TFile: () => TFile,
+    TFolder: () => TFolder,
+    addIcon: () => addIcon,
+    normalizePath: () => normalizePath,
+    requestUrl: () => requestUrl,
+    seedVaultFile: () => seedVaultFile,
+    setIcon: () => setIcon,
+    splitFrontmatter: () => splitFrontmatter
+  });
   function setIcon(container, iconId) {
     var _a2;
     const d = typeof window !== "undefined" && ((_a2 = window.GS_ICONS) == null ? void 0 : _a2[iconId]) || "";
@@ -194,6 +221,11 @@ var BZW_gameshelf = (() => {
     if (!r) throw new Error("原型壳没有这个请求的罐头：" + url);
     return r;
   }
+  function normalizePath(p) {
+    return p.replace(/([\\/])+/g, "/");
+  }
+  function addIcon(_id, _svg) {
+  }
   function remoteOfLocalMedia(name) {
     var _a2, _b2;
     const bundle = detailBundle();
@@ -282,7 +314,7 @@ var BZW_gameshelf = (() => {
     stats[path] = { ctime, mtime: ctime };
     localStorage.setItem(STAT_KEY, JSON.stringify(stats));
   }
-  var Platform, Setting, MarkdownRenderer, MarkdownView, Component, TFile, LS_PREFIX, STAT_KEY, FakeVault, FakeFileManager, FakeApp;
+  var Platform, Setting, MarkdownRenderer, MarkdownView, Component, Notice, Modal, TFolder, TAbstractFile, Plugin, PluginSettingTab, FuzzySuggestModal, AbstractInputSuggest, Scope, TFile, LS_PREFIX, STAT_KEY, FakeVault, FakeFileManager, FakeApp;
   var init_fake_obsidian = __esm({
     "prototypes/gameshelf/fake/fake-obsidian.ts"() {
       Platform = {
@@ -326,6 +358,72 @@ var BZW_gameshelf = (() => {
         registerInterval() {
           return 0;
         }
+      };
+      Notice = class {
+        constructor(_msg, _duration) {
+        }
+        hide() {
+        }
+        setMessage() {
+          return this;
+        }
+      };
+      Modal = class {
+        constructor(_app3) {
+        }
+        open() {
+        }
+        close() {
+        }
+      };
+      TFolder = class {
+      };
+      TAbstractFile = class {
+      };
+      Plugin = class {
+        constructor(_app3, _manifest) {
+        }
+        addRibbonIcon() {
+          return null;
+        }
+        addSettingTab() {
+        }
+        registerEvent() {
+        }
+        register() {
+        }
+        registerDomEvent() {
+        }
+        registerInterval() {
+          return 0;
+        }
+      };
+      PluginSettingTab = class {
+        constructor(_app3, _plugin) {
+        }
+        display() {
+        }
+        hide() {
+        }
+      };
+      FuzzySuggestModal = class {
+        constructor(_app3) {
+        }
+        open() {
+        }
+        getItems() {
+          return [];
+        }
+      };
+      AbstractInputSuggest = class {
+        constructor(_app3, _input) {
+        }
+        open() {
+        }
+        close() {
+        }
+      };
+      Scope = class {
       };
       TFile = class {
         constructor() {
@@ -16500,14 +16598,52 @@ ${countsToText(s.missing)}
     }
   });
 
+  // src/core/plugin-path.ts
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function pluginRelDirOf(app) {
+    var _a2, _b2, _c, _d;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app) {
+    var _a2, _b2;
+    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
+    try {
+      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return trimSlashes(String(p || ""));
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app)}`;
+  }
+  function pluginVaultPath(app, rel) {
+    const dir = pluginRelDirOf(app);
+    return `${dir}/${trimSlashes(rel)}`;
+  }
+  var injectedRelDir;
+  var init_plugin_path = __esm({
+    "src/core/plugin-path.ts"() {
+      injectedRelDir = "";
+    }
+  });
+
   // src/core/remote-asset.ts
   function remotesFor(fileName) {
     return downloadRemotesFor(fileName);
   }
   function assetVaultPath(app, fileName) {
-    var _a2;
-    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
-    return `${configDir}/plugins/bz/${fileName}`;
+    return pluginVaultPath(app, fileName);
   }
   function downloadsVaultPath(app, fileName) {
     return assetVaultPath(app, `${DOWNLOADS_DIR}/${fileName}`);
@@ -16621,34 +16757,367 @@ ${countsToText(s.missing)}
       init_sha256();
       init_domain_bus();
       init_remote_base();
+      init_plugin_path();
       DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
       DOWNLOADS_DIR = "downloads";
+    }
+  });
+
+  // src/core/zip.ts
+  function u16(b, o) {
+    return (b[o] | b[o + 1] << 8) >>> 0;
+  }
+  function u32(b, o) {
+    return (b[o] | b[o + 1] << 8 | b[o + 2] << 16 | b[o + 3] << 24) >>> 0;
+  }
+  function crc32(bytes) {
+    if (!crcTable) {
+      crcTable = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 3988292384 ^ c >>> 1 : c >>> 1;
+        crcTable[i] = c >>> 0;
+      }
+    }
+    const t = crcTable;
+    let crc = 4294967295;
+    for (let i = 0; i < bytes.length; i++) crc = t[(crc ^ bytes[i]) & 255] ^ crc >>> 8;
+    return (crc ^ 4294967295) >>> 0;
+  }
+  function readZipEntries(bytes) {
+    const len = bytes.length;
+    if (len < 22) throw new Error("不是有效的 zip（文件太小）");
+    const floor = Math.max(0, len - 22 - 65535);
+    let eocd = -1;
+    for (let i = len - 22; i >= floor; i--) {
+      if (u32(bytes, i) === SIG_EOCD) {
+        eocd = i;
+        break;
+      }
+    }
+    if (eocd < 0) throw new Error("不是有效的 zip（找不到目录尾）");
+    const count = u16(bytes, eocd + 10);
+    const cdSize = u32(bytes, eocd + 12);
+    const cdOffset = u32(bytes, eocd + 16);
+    if (count === 65535 || cdOffset === 4294967295 || cdSize === 4294967295) {
+      throw new Error("不支持 zip64 格式的压缩包");
+    }
+    if (cdOffset + cdSize > len) throw new Error("zip 目录越界（文件可能未下载完整）");
+    const out = [];
+    let p = cdOffset;
+    for (let i = 0; i < count; i++) {
+      if (p + 46 > len || u32(bytes, p) !== SIG_CEN) throw new Error("zip 目录结构损坏");
+      const method = u16(bytes, p + 10);
+      const crc = u32(bytes, p + 16);
+      const compressedSize = u32(bytes, p + 20);
+      const size = u32(bytes, p + 24);
+      const nameLen = u16(bytes, p + 28);
+      const extraLen = u16(bytes, p + 30);
+      const commentLen = u16(bytes, p + 32);
+      const localOffset = u32(bytes, p + 42);
+      const name = new TextDecoder().decode(bytes.subarray(p + 46, p + 46 + nameLen));
+      out.push({ name, method, crc, compressedSize, size, localOffset });
+      p += 46 + nameLen + extraLen + commentLen;
+    }
+    return out;
+  }
+  function defaultInflateRaw(data) {
+    var _a2, _b2, _c;
+    const w = typeof window !== "undefined" ? window : null;
+    let zlib = null;
+    try {
+      zlib = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "zlib");
+    } catch (e) {
+      zlib = null;
+    }
+    if (!(zlib == null ? void 0 : zlib.inflateRawSync)) throw new Error("当前环境不支持解压（zip 需要桌面端）");
+    const Buf = typeof Buffer !== "undefined" ? Buffer : (_c = (_b2 = w == null ? void 0 : w.require) == null ? void 0 : _b2.call(w, "buffer")) == null ? void 0 : _c.Buffer;
+    if (!Buf) throw new Error("当前环境不支持解压（缺少 Buffer）");
+    const out = zlib.inflateRawSync(Buf.from(data.buffer, data.byteOffset, data.byteLength));
+    return new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
+  }
+  function extractZipEntry(bytes, entry, deps = {}) {
+    var _a2;
+    const o = entry.localOffset;
+    if (o + 30 > bytes.length || u32(bytes, o) !== SIG_LOC) throw new Error(`zip 条目头损坏：${entry.name}`);
+    const nameLen = u16(bytes, o + 26);
+    const extraLen = u16(bytes, o + 28);
+    const start = o + 30 + nameLen + extraLen;
+    const end = start + entry.compressedSize;
+    if (end > bytes.length) throw new Error(`zip 条目越界：${entry.name}`);
+    const raw = bytes.subarray(start, end);
+    let out;
+    if (entry.method === 0) out = raw.slice();
+    else if (entry.method === 8) out = ((_a2 = deps.inflateRaw) != null ? _a2 : defaultInflateRaw)(raw);
+    else throw new Error(`不支持的压缩方式 ${entry.method}（${entry.name}）`);
+    if (entry.size && out.byteLength !== entry.size) {
+      throw new Error(`${entry.name} 解压后大小不符（期望 ${entry.size}，实际 ${out.byteLength}）`);
+    }
+    if (entry.crc && crc32(out) !== entry.crc) throw new Error(`${entry.name} 校验失败（crc32 不符）`);
+    return out;
+  }
+  function findZipEntry(entries, suffix) {
+    const want = `/${suffix}`;
+    for (const e of entries) {
+      if (e.name === suffix || e.name.endsWith(want)) return e;
+    }
+    return null;
+  }
+  var SIG_EOCD, SIG_CEN, SIG_LOC, crcTable;
+  var init_zip = __esm({
+    "src/core/zip.ts"() {
+      SIG_EOCD = 101010256;
+      SIG_CEN = 33639248;
+      SIG_LOC = 67324752;
+      crcTable = null;
+    }
+  });
+
+  // src/core/tar.ts
+  function cstr(bytes, start, len) {
+    let end = start;
+    const stop = Math.min(start + len, bytes.length);
+    while (end < stop && bytes[end] !== 0) end++;
+    return new TextDecoder("utf-8").decode(bytes.subarray(start, end));
+  }
+  function octal(bytes, start, len) {
+    let s = "";
+    const stop = Math.min(start + len, bytes.length);
+    for (let i = start; i < stop; i++) {
+      const c = bytes[i];
+      if (c === 0) break;
+      s += String.fromCharCode(c);
+    }
+    s = s.trim();
+    if (!s) return 0;
+    if (!/^[0-7]+$/.test(s)) return -1;
+    return parseInt(s, 8);
+  }
+  function safeTarPath(raw) {
+    let p = String(raw || "").replace(/\\/g, "/").trim();
+    while (p.startsWith("./")) p = p.slice(2);
+    p = p.replace(/\/+/g, "/");
+    if (!p) return null;
+    if (p.startsWith("/")) return null;
+    if (/^[A-Za-z]:/.test(p)) return null;
+    const segs = p.split("/").filter((s) => s && s !== ".");
+    if (segs.some((s) => s === "..")) return null;
+    if (segs.length === 0) return null;
+    return segs.join("/");
+  }
+  function untar(bytes, limits = UNTAR_LIMITS) {
+    const out = [];
+    let total = 0;
+    let off = 0;
+    while (off + BLOCK <= bytes.length) {
+      let zero = true;
+      for (let i = 0; i < BLOCK; i++) {
+        if (bytes[off + i] !== 0) {
+          zero = false;
+          break;
+        }
+      }
+      if (zero) break;
+      const magic = cstr(bytes, off + 257, 5);
+      if (magic !== "ustar") throw new Error("不是 ustar 格式的 tar（头部 magic 不符）");
+      const size = octal(bytes, off + 124, 12);
+      if (size < 0) throw new Error("tar 头部 size 字段损坏");
+      const typeflag = String.fromCharCode(bytes[off + 156] || 48);
+      const prefix = cstr(bytes, off + 345, 155);
+      const name = cstr(bytes, off + 0, 100);
+      const rawPath = prefix ? `${prefix}/${name}` : name;
+      const dataStart = off + BLOCK;
+      const dataEnd = dataStart + size;
+      if (dataEnd > bytes.length) throw new Error("tar 条目越界（归档被截断）");
+      if (typeflag === "5") {
+        off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
+        continue;
+      }
+      if (typeflag !== "0" && typeflag !== "\0") {
+        off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
+        continue;
+      }
+      const path = safeTarPath(rawPath);
+      if (!path) throw new Error(`tar 条目路径不安全：${rawPath || "(空)"}`);
+      total += size;
+      if (out.length + 1 > limits.maxEntries) throw new Error(`tar 条目过多（>${limits.maxEntries}）`);
+      if (total > limits.maxTotalBytes) throw new Error(`tar 解包总大小超限（>${limits.maxTotalBytes} 字节）`);
+      out.push({ path, data: bytes.subarray(dataStart, dataEnd) });
+      off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
+    }
+    if (out.length === 0) throw new Error("tar 里没有文件");
+    return out;
+  }
+  var UNTAR_LIMITS, BLOCK;
+  var init_tar = __esm({
+    "src/core/tar.ts"() {
+      UNTAR_LIMITS = {
+        maxEntries: 5e3,
+        maxTotalBytes: 128 * 1024 * 1024
+      };
+      BLOCK = 512;
+    }
+  });
+
+  // src/core/node-runtime-install.ts
+  function bundledNodeFile(platform = currentPlatform()) {
+    return platform === "win32" ? "node.exe" : "bin/node";
+  }
+  function currentPlatform() {
+    return typeof process !== "undefined" && process.platform ? process.platform : "win32";
+  }
+  function currentArch() {
+    return typeof process !== "undefined" && process.arch ? process.arch : "x64";
+  }
+  function nodeArchivePlans(platform = currentPlatform(), arch = currentArch(), version = PORTABLE_NODE_VERSION) {
+    const supported = ["x64", "arm64"];
+    if (!supported.includes(arch)) return [];
+    if (platform === "win32") {
+      const file = `node-${version}-win-${arch}.zip`;
+      return [{ version, file, member: "node.exe", kind: "zip", urls: archiveUrls(version, file) }];
+    }
+    if (platform === "darwin" || platform === "linux") {
+      const file = `node-${version}-${platform}-${arch}.tar.gz`;
+      return [{ version, file, member: "bin/node", kind: "tar.gz", urls: archiveUrls(version, file) }];
+    }
+    return [];
+  }
+  function archiveUrls(version, file) {
+    return [
+      `https://registry.npmmirror.com/-/binary/node/${version}/${file}`,
+      `https://nodejs.org/dist/${version}/${file}`
+    ];
+  }
+  async function defaultFetchBytes(url) {
+    const res = await requestUrl({ url, method: "GET", throw: true });
+    const ab = res.arrayBuffer;
+    if (!ab) throw new Error("响应没有二进制体");
+    return new Uint8Array(ab);
+  }
+  function defaultGunzip(bytes) {
+    var _a2, _b2, _c;
+    const w = typeof window !== "undefined" ? window : null;
+    const zlib = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "zlib");
+    if (!(zlib == null ? void 0 : zlib.gunzipSync)) throw new Error("当前环境不支持解压（便携 Node 需要桌面端）");
+    const Buf = typeof Buffer !== "undefined" ? Buffer : (_c = (_b2 = w == null ? void 0 : w.require) == null ? void 0 : _b2.call(w, "buffer")) == null ? void 0 : _c.Buffer;
+    if (!Buf) throw new Error("当前环境不支持解压（缺少 Buffer）");
+    const out = zlib.gunzipSync(Buf.from(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
+  }
+  function extractMember(archive, plan, deps) {
+    var _a2;
+    if (plan.kind === "zip") {
+      const entries = readZipEntries(archive);
+      const entry = findZipEntry(entries, plan.member);
+      if (!entry) throw new Error(`${plan.file} 里没有 ${plan.member}`);
+      return extractZipEntry(archive, entry, { inflateRaw: deps.inflateRaw });
+    }
+    const files = untar(((_a2 = deps.gunzip) != null ? _a2 : defaultGunzip)(archive), {
+      maxEntries: 5e4,
+      maxTotalBytes: 512 * 1024 * 1024
+    });
+    const want = `/${plan.member}`;
+    const hit = files.find((f) => f.path === plan.member || f.path.endsWith(want));
+    if (!hit) throw new Error(`${plan.file} 里没有 ${plan.member}`);
+    return hit.data;
+  }
+  function runNodeVersion(binPath) {
+    var _a2;
+    if (typeof window === "undefined") return "";
+    try {
+      const cp = (_a2 = window.require) == null ? void 0 : _a2.call(window, "child_process");
+      if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+      const r = cp.spawnSync(binPath, ["-v"], { encoding: "utf8", windowsHide: true, timeout: 8e3 });
+      return (r == null ? void 0 : r.status) === 0 ? String(r.stdout || "").trim() : "";
+    } catch (e) {
+      return "";
+    }
+  }
+  async function removeQuietly(app, rel) {
+    var _a2, _b2;
+    try {
+      const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
+      await ((_b2 = adapter == null ? void 0 : adapter.remove) == null ? void 0 : _b2.call(adapter, downloadsVaultPath(app, rel)));
+    } catch (e) {
+    }
+  }
+  async function installPortableNode(app, deps = {}) {
+    var _a2, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+    const platform = (_a2 = deps.platform) != null ? _a2 : currentPlatform();
+    const arch = (_b2 = deps.arch) != null ? _b2 : currentArch();
+    const plans = nodeArchivePlans(platform, arch);
+    if (!plans.length) {
+      throw new Error(`本平台没有官方 Node 产物（${platform}/${arch}）：请自行安装 Node.js 后重试`);
+    }
+    const fetchBytes = (_c = deps.fetchBytes) != null ? _c : defaultFetchBytes;
+    const member = bundledNodeFile(platform);
+    let lastErr = "";
+    for (const plan of plans) {
+      for (const url of plan.urls) {
+        try {
+          (_d = deps.onStage) == null ? void 0 : _d.call(deps, `正在下载 Node 运行时（约 36 MB）`);
+          const archive = await fetchBytes(url);
+          if (!archive.byteLength) {
+            lastErr = `${url} 返回空内容`;
+            continue;
+          }
+          if (archive.byteLength > MAX_ARCHIVE_BYTES) {
+            lastErr = `${url} 体积异常（${archive.byteLength} 字节），拒收`;
+            continue;
+          }
+          (_e = deps.onStage) == null ? void 0 : _e.call(deps, "正在解压");
+          const bin = extractMember(archive, plan, deps);
+          if (bin.byteLength < MIN_NODE_BYTES) {
+            lastErr = `${url} 解出的 ${member} 太小（${bin.byteLength} 字节），不像运行时`;
+            continue;
+          }
+          (_f = deps.onStage) == null ? void 0 : _f.call(deps, "正在写入插件目录");
+          const rel = `${NODE_RUNTIME_DIR}/${member}`;
+          await ensureDir(app, rel);
+          const ab = bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength);
+          const adapter = (_g = app.vault) == null ? void 0 : _g.adapter;
+          if (!(adapter == null ? void 0 : adapter.writeBinary)) throw new Error("当前环境无法写入二进制文件（便携 Node 需要桌面端）");
+          await adapter.writeBinary(downloadsVaultPath(app, rel), ab);
+          if (platform !== "win32") {
+            try {
+              const abs = `${pluginDirOf(app)}/${rel}`;
+              (_j = (_i = (_h = window.require) == null ? void 0 : _h.call(window, "fs")) == null ? void 0 : _i.chmodSync) == null ? void 0 : _j.call(_i, abs, 493);
+            } catch (e) {
+            }
+          }
+          (_k = deps.onStage) == null ? void 0 : _k.call(deps, "正在验证");
+          const version = runNodeVersion(`${pluginDirOf(app)}/${rel}`);
+          if (!version) {
+            await removeQuietly(app, rel);
+            lastErr = "下载的 Node 无法运行（可能是网络中断或文件被拦截）";
+            continue;
+          }
+          return { version, path: `${pluginDirOf(app)}/${rel}`, bytes: bin.byteLength };
+        } catch (e) {
+          lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+        }
+      }
+    }
+    throw new Error(`Node 运行时安装失败：${lastErr}`);
+  }
+  var PORTABLE_NODE_VERSION, NODE_RUNTIME_DIR, MAX_ARCHIVE_BYTES, MIN_NODE_BYTES;
+  var init_node_runtime_install = __esm({
+    "src/core/node-runtime-install.ts"() {
+      init_fake_obsidian();
+      init_remote_asset();
+      init_plugin_path();
+      init_zip();
+      init_tar();
+      PORTABLE_NODE_VERSION = "v24.14.1";
+      NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+      MAX_ARCHIVE_BYTES = 200 * 1024 * 1024;
+      MIN_NODE_BYTES = 5 * 1024 * 1024;
     }
   });
 
   // src/core/tool-runtime.ts
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";
-  }
-  function bundledNodeFile() {
-    return isWindows() ? "node.exe" : "bin/node";
-  }
-  function vaultBasePathOf(app) {
-    var _a2, _b2;
-    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
-    try {
-      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app) {
-    var _a2;
-    const base = vaultBasePathOf(app);
-    if (!base) return "";
-    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
-    return `${base}/${configDir}/plugins/bz`;
   }
   function toolBundleDir(id) {
     return `${DOWNLOADS_DIR}/tools/${id}`;
@@ -16678,6 +17147,9 @@ ${countsToText(s.missing)}
     } catch (e) {
     }
     return false;
+  }
+  function resetNodeRuntimeCache() {
+    cachedNode = null;
   }
   function probeNodeRuntime(app, opts = {}) {
     if (!opts.fresh && cachedNode) return cachedNode;
@@ -16770,13 +17242,15 @@ ${countsToText(s.missing)}
   var init_tool_runtime = __esm({
     "src/core/tool-runtime.ts"() {
       init_remote_asset();
+      init_node_runtime_install();
+      init_plugin_path();
       init_app();
       TOOL_ENTRIES = {
         "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
         "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
         "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
       };
-      BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+      BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
       fsProbe = null;
       cachedNode = null;
     }
@@ -28274,7 +28748,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
         }
         const marks = data.marks && typeof data.marks === "object" && !Array.isArray(data.marks) ? data.marks : {};
         const markKeys = Object.keys(marks);
-        let markDone = 0;
+        let markDone2 = 0;
         let markTotal = 0;
         for (const list of markKeys) markTotal += Array.isArray(marks[list]) ? marks[list].length : 0;
         for (const articleKey of markKeys) {
@@ -28282,7 +28756,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
           if (!Array.isArray(list)) continue;
           for (const mk of list) {
             if ((_m = opts.isCancelled) == null ? void 0 : _m.call(opts)) return null;
-            markDone += 1;
+            markDone2 += 1;
             if (!mk || typeof mk !== "object") continue;
             scanned += 1;
             const notePath = String(mk.notePath || "").trim();
@@ -28301,7 +28775,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
                 fixLabel: "清除标注"
               });
             }
-            await ((_n = opts.tick) == null ? void 0 : _n.call(opts, `剪藏标注 ${markDone}/${markTotal}`, { done: markDone, total: markTotal }));
+            await ((_n = opts.tick) == null ? void 0 : _n.call(opts, `剪藏标注 ${markDone2}/${markTotal}`, { done: markDone2, total: markTotal }));
           }
         }
         const pendingSource = data.pendingSource && typeof data.pendingSource === "object" && !Array.isArray(data.pendingSource) ? data.pendingSource : {};
@@ -29865,97 +30339,11 @@ ${it.text}`).join("\n"));
     }
   });
 
-  // src/core/tar.ts
-  function cstr(bytes, start, len) {
-    let end = start;
-    const stop = Math.min(start + len, bytes.length);
-    while (end < stop && bytes[end] !== 0) end++;
-    return new TextDecoder("utf-8").decode(bytes.subarray(start, end));
-  }
-  function octal(bytes, start, len) {
-    let s = "";
-    const stop = Math.min(start + len, bytes.length);
-    for (let i = start; i < stop; i++) {
-      const c = bytes[i];
-      if (c === 0) break;
-      s += String.fromCharCode(c);
-    }
-    s = s.trim();
-    if (!s) return 0;
-    if (!/^[0-7]+$/.test(s)) return -1;
-    return parseInt(s, 8);
-  }
-  function safeTarPath(raw) {
-    let p = String(raw || "").replace(/\\/g, "/").trim();
-    while (p.startsWith("./")) p = p.slice(2);
-    p = p.replace(/\/+/g, "/");
-    if (!p) return null;
-    if (p.startsWith("/")) return null;
-    if (/^[A-Za-z]:/.test(p)) return null;
-    const segs = p.split("/").filter((s) => s && s !== ".");
-    if (segs.some((s) => s === "..")) return null;
-    if (segs.length === 0) return null;
-    return segs.join("/");
-  }
-  function untar(bytes, limits = UNTAR_LIMITS) {
-    const out = [];
-    let total = 0;
-    let off = 0;
-    while (off + BLOCK <= bytes.length) {
-      let zero = true;
-      for (let i = 0; i < BLOCK; i++) {
-        if (bytes[off + i] !== 0) {
-          zero = false;
-          break;
-        }
-      }
-      if (zero) break;
-      const magic = cstr(bytes, off + 257, 5);
-      if (magic !== "ustar") throw new Error("不是 ustar 格式的 tar（头部 magic 不符）");
-      const size = octal(bytes, off + 124, 12);
-      if (size < 0) throw new Error("tar 头部 size 字段损坏");
-      const typeflag = String.fromCharCode(bytes[off + 156] || 48);
-      const prefix = cstr(bytes, off + 345, 155);
-      const name = cstr(bytes, off + 0, 100);
-      const rawPath = prefix ? `${prefix}/${name}` : name;
-      const dataStart = off + BLOCK;
-      const dataEnd = dataStart + size;
-      if (dataEnd > bytes.length) throw new Error("tar 条目越界（归档被截断）");
-      if (typeflag === "5") {
-        off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
-        continue;
-      }
-      if (typeflag !== "0" && typeflag !== "\0") {
-        off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
-        continue;
-      }
-      const path = safeTarPath(rawPath);
-      if (!path) throw new Error(`tar 条目路径不安全：${rawPath || "(空)"}`);
-      total += size;
-      if (out.length + 1 > limits.maxEntries) throw new Error(`tar 条目过多（>${limits.maxEntries}）`);
-      if (total > limits.maxTotalBytes) throw new Error(`tar 解包总大小超限（>${limits.maxTotalBytes} 字节）`);
-      out.push({ path, data: bytes.subarray(dataStart, dataEnd) });
-      off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
-    }
-    if (out.length === 0) throw new Error("tar 里没有文件");
-    return out;
-  }
-  var UNTAR_LIMITS, BLOCK;
-  var init_tar = __esm({
-    "src/core/tar.ts"() {
-      UNTAR_LIMITS = {
-        maxEntries: 5e3,
-        maxTotalBytes: 128 * 1024 * 1024
-      };
-      BLOCK = 512;
-    }
-  });
-
   // src/core/bundle-asset.ts
   function bundleDirOf(file) {
     return String(file || "").replace(/\.tar\.gz$/i, "");
   }
-  function defaultGunzip(bytes) {
+  function defaultGunzip2(bytes) {
     var _a2, _b2, _c;
     const w = typeof window !== "undefined" ? window : null;
     let zlib = null;
@@ -29977,7 +30365,7 @@ ${it.text}`).join("\n"));
     const out = zlib.gunzipSync(Buf.from(bytes.buffer, bytes.byteOffset, bytes.byteLength));
     return new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
   }
-  async function defaultFetchBytes(url) {
+  async function defaultFetchBytes2(url) {
     const res = await requestUrl({ url, method: "GET", throw: true });
     const ab = res.arrayBuffer;
     if (!ab) throw new Error("响应没有二进制体");
@@ -30011,7 +30399,7 @@ ${it.text}`).join("\n"));
   async function fetchArchive(app, entry, deps) {
     var _a2, _b2, _c, _d, _e;
     const want = String(entry.sha256 || "").toLowerCase();
-    const fetchBytes = (_a2 = deps.fetchBytes) != null ? _a2 : defaultFetchBytes;
+    const fetchBytes = (_a2 = deps.fetchBytes) != null ? _a2 : defaultFetchBytes2;
     try {
       const adapter = (_b2 = app.vault) == null ? void 0 : _b2.adapter;
       if ((adapter == null ? void 0 : adapter.readBinary) && want) {
@@ -30062,7 +30450,7 @@ ${it.text}`).join("\n"));
     var _a2, _b2;
     const dir = bundleDirOf(entry.file);
     if (!dir || dir === entry.file) throw new Error(`${entry.name} 的包名不是 .tar.gz`);
-    const gunzip = (_a2 = deps.gunzip) != null ? _a2 : defaultGunzip;
+    const gunzip = (_a2 = deps.gunzip) != null ? _a2 : defaultGunzip2;
     const archive = await fetchArchive(app, entry, deps);
     const files = untar(gunzip(archive));
     await clearBundleDir(app, dir);
@@ -31253,11 +31641,27 @@ ${it.text}`).join("\n"));
   });
 
   // src/core/env-check.ts
-  var env_check_exports = {};
-  __export(env_check_exports, {
-    environmentCheck: () => environmentCheck,
-    openEnvironmentCheck: () => openEnvironmentCheck
-  });
+  async function timedFetch(url) {
+    const t0 = Date.now();
+    const ok = await Promise.race([
+      (async () => {
+        try {
+          const { requestUrl: requestUrl2 } = await Promise.resolve().then(() => (init_fake_obsidian(), fake_obsidian_exports));
+          await requestUrl2({ url, method: "GET", throw: true });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      })(),
+      new Promise((resolve2) => setTimeout(() => resolve2(false), PROBE_TIMEOUT_MS))
+    ]);
+    return ok ? Date.now() - t0 : -1;
+  }
+  async function probeNetwork() {
+    const urls = downloadRemotesFor("version.json");
+    const [a, b] = await Promise.all([timedFetch(urls[0]), timedFetch(urls[1])]);
+    return { github: a >= 0, jsdelivr: b >= 0, githubMs: a, jsdelivrMs: b };
+  }
   async function canWrite(app, relPath) {
     var _a2, _b2, _c;
     const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
@@ -31290,70 +31694,422 @@ ${it.text}`).join("\n"));
       return "CONFIG/STORAGE";
     }
   }
-  async function environmentCheck(app) {
+  function pythonProbe() {
     var _a2;
+    const configured = String((() => {
+      var _a3;
+      try {
+        return String(((_a3 = tryGetSettings()) == null ? void 0 : _a3.pythonPath) || "");
+      } catch (e) {
+        return "";
+      }
+    })()).trim();
+    if (configured) return { found: true, value: `已配置：${configured}` };
+    if (typeof window === "undefined") return { found: false, value: "未知（非桌面端）" };
+    try {
+      const cp = (_a2 = window.require) == null ? void 0 : _a2.call(window, "child_process");
+      if (!(cp == null ? void 0 : cp.spawnSync)) return { found: false, value: "未知" };
+      const cmd = typeof process !== "undefined" && process.platform === "win32" ? "where" : "which";
+      const r = cp.spawnSync(cmd, ["python"], { encoding: "utf8", windowsHide: true, timeout: 4e3 });
+      const lines = String((r == null ? void 0 : r.stdout) || "").split(String.fromCharCode(10)).map((x) => x.trim()).filter(Boolean);
+      const first = lines[0] || "";
+      return first ? { found: true, value: first } : { found: false, value: "未找到（脸谱导入微信记录时需要，其余功能不受影响）" };
+    } catch (e) {
+      return { found: false, value: "未知" };
+    }
+  }
+  async function aiConfigured() {
+    try {
+      const s = await Promise.resolve().then(() => (init_settings_provider(), settings_provider_exports)).then((m) => m.tryGetSettings());
+      const provider = String((s == null ? void 0 : s.aiProvider) || "deepseek");
+      if (provider === "ollama") return { ok: true, value: "本地 Ollama（无需密钥）" };
+      const key = provider === "zhipu-plan" ? s == null ? void 0 : s.zhipuPlanApiKey : s == null ? void 0 : s.deepseekApiKey;
+      return key && String(key).trim() ? { ok: true, value: provider === "zhipu-plan" ? "智谱 Coding 套餐" : "DeepSeek" } : { ok: false, value: "未配置（摘要、小橘等 AI 功能不可用）" };
+    } catch (e) {
+      return { ok: false, value: "未配置" };
+    }
+  }
+  async function environmentCheck(app) {
     const rows = [];
     const mobile = isMobileEnv();
     const base = vaultBasePathOf(app);
-    const pluginDir2 = pluginDirOf(app);
     rows.push({
+      id: "runtime",
       key: "运行环境",
       value: mobile ? "移动端（部分功能需要桌面端 Obsidian）" : "桌面端",
       ok: mobile ? null : true
     });
     rows.push({
+      id: "vault",
       key: "vault 路径",
       value: base || "取不到（插件可能不在桌面端运行）",
       ok: base ? true : null
     });
     if (!mobile) {
-      const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
-      const pluginRel = `${configDir}/plugins/bz`;
+      const pluginRel = pluginRelDirOf(app);
       const pluginWritable = await canWrite(app, pluginRel);
       rows.push({
+        id: "plugin-writable",
         key: "插件目录可写",
-        value: pluginWritable ? pluginDir2 || pluginRel : `${pluginDir2 || pluginRel}（写不进去：自更新与资源下载都会失败）`,
+        value: pluginWritable ? pluginRel : `${pluginRel}（写不进去：自更新与资源下载都会失败）`,
         ok: pluginWritable
       });
     }
     const storeDir2 = await storageDirOf();
     const storeOk = await canWrite(app, storeDir2);
     rows.push({
+      id: "storage",
       key: "数据目录可写",
-      // 数据目录是 vault 相对路径 —— 别人拿到 vault 时它可能只读、可能被同步盘占位
       value: storeOk ? storeDir2 : `${storeDir2}（写不进去：检查是否只读 / 被同步盘占用）`,
-      ok: storeOk ? true : false
+      ok: storeOk
     });
     if (!mobile) {
       const node = probeNodeRuntime(app, { fresh: true });
       rows.push({
+        id: "node",
         key: "Node 运行时",
         value: node.kind === "none" ? "未找到（B站下载器、值守、脸谱都靠它跑）" : `${node.kind === "bundled" ? "插件内" : "系统"}${node.version ? ` ${node.version}` : ""}`,
-        ok: node.kind === "none" ? false : true
+        ok: node.kind === "none" ? false : true,
+        fix: node.kind === "none" ? "node" : null
       });
       for (const r of runtimeDiagnostics(app).slice(2)) {
         const notInstalled = r.value === "未安装";
-        rows.push({ key: r.key, value: r.value, ok: notInstalled ? null : true });
+        rows.push({
+          id: `tool-${r.key}`,
+          key: r.key,
+          value: r.value,
+          ok: notInstalled ? false : true,
+          fix: notInstalled ? "tools" : null
+        });
       }
     }
+    const python = pythonProbe();
+    rows.push({
+      id: "python",
+      key: "Python 环境",
+      value: python.value,
+      ok: null
+      // 可选项：没装不判红，但要让人看见（脸谱导入需要）
+    });
+    const ai = await aiConfigured();
+    rows.push({
+      id: "ai",
+      key: "AI 服务",
+      value: ai.value,
+      ok: ai.ok ? true : null,
+      // 没配不算坏：主体功能不依赖它
+      fix: ai.ok ? null : "ai"
+    });
     return rows;
   }
-  async function openEnvironmentCheck(app) {
-    const rows = await environmentCheck(app);
-    const mark = (ok) => ok === true ? "✓" : ok === false ? "✗" : "·";
-    const bad = rows.filter((r) => r.ok === false).length;
-    const body = rows.map((r) => `${mark(r.ok)} ${r.key}：${r.value}`).join("\n");
-    await openFlowDialog({
-      title: bad > 0 ? `环境自检：${bad} 项要处理` : "环境自检：全部通过",
-      message: body,
-      actions: [{ label: "知道了", value: "ok", cta: true }]
-    });
-  }
+  var PROBE_TIMEOUT_MS;
   var init_env_check = __esm({
     "src/core/env-check.ts"() {
-      init_flow_dialog();
+      init_remote_base();
+      init_settings_provider();
+      init_plugin_path();
       init_mobile();
       init_tool_runtime();
+      PROBE_TIMEOUT_MS = 6e3;
+    }
+  });
+
+  // src/core/setup-wizard.ts
+  var setup_wizard_exports = {};
+  __export(setup_wizard_exports, {
+    buildSetupTasks: () => buildSetupTasks,
+    openEnvironmentCheck: () => openEnvironmentCheck,
+    openSetupWizard: () => openSetupWizard,
+    sizeText: () => sizeText2
+  });
+  function sizeText2(bytes) {
+    if (!bytes || !Number.isFinite(bytes) || bytes <= 0) return "";
+    const mb = bytes / 1024 / 1024;
+    if (mb >= 1) return `${mb.toFixed(mb >= 10 ? 0 : 1)} MB`;
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+  function buildSetupTasks(app, manifest, opts) {
+    const tasks = [];
+    if (opts.nodeMissing) {
+      tasks.push({
+        id: "node",
+        label: "Node 运行时",
+        desc: `便携版 ${PORTABLE_NODE_VERSION}，装进插件目录`,
+        size: NODE_SIZE_HINT,
+        run: async () => {
+          await installPortableNode(app);
+          resetNodeRuntimeCache();
+        }
+      });
+    }
+    if (!manifest) return tasks;
+    const bundles = manifest.docs.filter((d) => d.kind === "bundle");
+    const docs = manifest.docs.filter((d) => d.kind !== "bundle");
+    for (const e of bundles) {
+      tasks.push(bundleTask(app, e));
+    }
+    for (const e of docs) {
+      tasks.push(docTask(app, e));
+    }
+    const skinBytes = manifest.skins.reduce((n, s) => n + (s.size || 0), 0);
+    if (manifest.skins.length) {
+      tasks.push({
+        id: "skins",
+        label: "主题皮肤",
+        desc: `${manifest.skins.length} 套远端皮肤`,
+        size: skinBytes || null,
+        run: async () => {
+          const r = await downloadSkinUpdates(app, manifest);
+          if (r.failed > 0) throw new Error(`${r.failed} 套皮肤下载失败`);
+        }
+      });
+    }
+    return tasks;
+  }
+  function bundleTask(app, e) {
+    var _a2;
+    return {
+      id: e.id,
+      label: e.name,
+      desc: "外部工具（解包到插件目录，可直接被插件调用）",
+      size: (_a2 = e.size) != null ? _a2 : null,
+      run: async () => {
+        await installBundle(app, e);
+      }
+    };
+  }
+  function docTask(app, e) {
+    var _a2;
+    return {
+      id: e.id,
+      label: e.name,
+      desc: "文档与索引（离线可读）",
+      size: (_a2 = e.size) != null ? _a2 : null,
+      run: async () => {
+        await ensureAssetWithHash(app, e.file, e.sha256, e.name);
+      }
+    };
+  }
+  function skeleton(root) {
+    root.classList.add("bz-setup");
+    root.innerHTML = '<div class="bz-setup-sub"></div><div class="bz-setup-body"></div><div class="bz-setup-foot"></div>';
+    return {
+      sub: root.querySelector(".bz-setup-sub"),
+      body: root.querySelector(".bz-setup-body"),
+      foot: root.querySelector(".bz-setup-foot")
+    };
+  }
+  function button(cls, text2) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = cls;
+    b.textContent = text2;
+    return b;
+  }
+  async function stageProbe(ctx, ui2) {
+    ui2.sub.textContent = ctx.firstRun ? "第一次使用，先看看这台机器缺什么。不会改动你的笔记。" : "重新检查这台机器上的运行环境。";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "bz-setup-list";
+    ui2.body.appendChild(list);
+    const rowEl = (id, key) => {
+      const row = document.createElement("div");
+      row.className = "bz-setup-row";
+      row.dataset.id = id;
+      row.innerHTML = `<span class="bz-setup-mark bz-setup-mark--busy"></span><span class="bz-setup-key">${key}</span><span class="bz-setup-val">检查中</span>`;
+      list.appendChild(row);
+      return row;
+    };
+    const netRow = rowEl("net", "网络 · 资源站");
+    const jsRow = rowEl("net-cdn", "网络 · 备用通道");
+    const paint = (row, ok, text2) => {
+      const mark = row.querySelector(".bz-setup-mark");
+      mark.className = "bz-setup-mark " + (ok === true ? "bz-setup-mark--ok" : ok === false ? "bz-setup-mark--bad" : "bz-setup-mark--idle");
+      row.querySelector(".bz-setup-val").textContent = text2;
+    };
+    let net = null;
+    try {
+      net = await probeNetwork();
+    } catch (e) {
+      net = null;
+    }
+    paint(
+      netRow,
+      (net == null ? void 0 : net.github) ? true : false,
+      (net == null ? void 0 : net.github) ? `可达 · ${net.githubMs} ms` : "不可达，将走备用通道"
+    );
+    paint(
+      jsRow,
+      (net == null ? void 0 : net.jsdelivr) ? true : null,
+      (net == null ? void 0 : net.jsdelivr) ? `可达 · ${net.jsdelivrMs} ms` : "也不可达（下载会失败）"
+    );
+    const envRows = await environmentCheck(ctx.app);
+    for (const r of envRows) {
+      const row = rowEl(r.id, r.key);
+      paint(row, r.ok, r.value);
+    }
+    const bad = envRows.filter((r) => r.ok === false).length;
+    if (!(net == null ? void 0 : net.github) && !(net == null ? void 0 : net.jsdelivr)) {
+      ui2.sub.textContent = "连不上资源站：检查代理或网络后重试。插件主体仍可用，下载类功能要等网络恢复。";
+    }
+    await stagePlan(ctx, ui2, { net, envRows, bad });
+  }
+  async function stagePlan(ctx, ui2, probe) {
+    var _a2;
+    const manifestInfo = await refreshManifest(ctx.app).catch(() => null);
+    const manifest = (_a2 = manifestInfo == null ? void 0 : manifestInfo.manifest) != null ? _a2 : null;
+    const nodeMissing = probeNodeRuntime(ctx.app, { fresh: true }).kind === "none";
+    const tasks = buildSetupTasks(ctx.app, manifest, { nodeMissing });
+    const total = tasks.reduce((n, t) => n + (t.size || 0), 0);
+    ui2.sub.textContent = tasks.length ? `一共 ${tasks.length} 项，约 ${sizeText2(total) || "未知体积"}。点开始后自动完成，中途不用再确认。` : "这台机器什么都不缺，可以直接用了。";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const hint = document.createElement("div");
+    hint.className = "bz-setup-hint";
+    hint.textContent = !manifest ? "资源清单没拉到（网络不通或资源站不可达）：这一次只能补 Node 运行时，其余资源等网络恢复后在「在线资源」里补。" : probe.net && !probe.net.github ? "GitHub 连不上：会自动改用备用通道下载，内容一样，速度可能慢一些。" : "下载的东西都放在插件自己的目录里，不碰笔记、不改系统设置。";
+    ui2.body.appendChild(hint);
+    const list = document.createElement("div");
+    list.className = "bz-setup-list";
+    ui2.body.appendChild(list);
+    for (const t of tasks) {
+      const row = document.createElement("div");
+      row.className = "bz-setup-row";
+      row.dataset.task = t.id;
+      row.innerHTML = `<span class="bz-setup-mark bz-setup-mark--idle"></span><span class="bz-setup-key">${t.label}<em>${t.desc}</em></span><span class="bz-setup-val">${sizeText2(t.size) || "待下载"}</span>`;
+      list.appendChild(row);
+    }
+    const skip = button("bz-setup-btn", ctx.firstRun ? "以后再说" : "关闭");
+    skip.onclick = () => {
+      void markDone(ctx, false);
+      ctx.close();
+    };
+    if (!tasks.length) {
+      const ok = button("bz-setup-btn bz-setup-btn--cta", "知道了");
+      ok.onclick = ctx.close;
+      ui2.foot.appendChild(ok);
+      return;
+    }
+    const go = button("bz-setup-btn bz-setup-btn--cta", "开始下载");
+    go.onclick = () => void stageInstall(ctx, ui2, tasks);
+    ui2.foot.append(skip, go);
+  }
+  async function stageInstall(ctx, ui2, tasks) {
+    ui2.sub.textContent = "全部自动完成。可以先去用别的功能，装完会通知你。";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "bz-setup-list";
+    const bar = document.createElement("div");
+    bar.className = "bz-setup-bar";
+    bar.innerHTML = "<i></i>";
+    ui2.body.append(bar, list);
+    const closeBtn = button("bz-setup-btn", "收起来，后台继续");
+    closeBtn.onclick = () => ctx.close();
+    ui2.foot.appendChild(closeBtn);
+    const total = tasks.reduce((n, t) => n + (t.size || 0), 0);
+    let doneBytes = 0;
+    const failed = [];
+    for (const t of tasks) {
+      const row = list.querySelector(`[data-task="${t.id}"]`);
+      const mark = row == null ? void 0 : row.querySelector(".bz-setup-mark");
+      const val = row == null ? void 0 : row.querySelector(".bz-setup-val");
+      if (mark) mark.className = "bz-setup-mark bz-setup-mark--busy";
+      if (val) val.textContent = "进行中";
+      try {
+        await t.run();
+        doneBytes += t.size || 0;
+        if (mark) mark.className = "bz-setup-mark bz-setup-mark--ok";
+        if (val) val.textContent = "已就绪";
+      } catch (e) {
+        failed.push(t.label);
+        if (mark) mark.className = "bz-setup-mark bz-setup-mark--bad";
+        if (val) val.textContent = "失败";
+        console.warn(`[bz] 首次准备：${t.label} 失败`, e);
+      }
+      const pct = total > 0 ? Math.min(99, Math.round(doneBytes / total * 100)) : 0;
+      bar.querySelector("i").style.width = `${pct}%`;
+    }
+    bar.querySelector("i").style.width = "100%";
+    await markDone(ctx, true);
+    await stageDone(ctx, ui2, { tasks, failed });
+    if (failed.length) {
+      notice(`首次准备完成，但有 ${failed.length} 项失败：${failed.join("、")}。可在「设置 → 通用 → 在线资源」里重试`, "warning");
+    } else {
+      notice("首次准备完成，环境与工具已就绪", "success");
+    }
+  }
+  async function stageDone(ctx, ui2, result) {
+    const envRows = await environmentCheck(ctx.app);
+    const okCount = envRows.filter((r) => r.ok === true).length;
+    const stillBad = envRows.filter((r) => r.ok === false);
+    ui2.sub.textContent = result.failed.length ? `有 ${result.failed.length} 项没装上，其余已就绪。` : "都就位了，接下来正常用就行。";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "bz-setup-list";
+    ui2.body.appendChild(list);
+    for (const r of envRows) {
+      const row = document.createElement("div");
+      row.className = "bz-setup-row";
+      row.innerHTML = `<span class="bz-setup-mark ${r.ok === true ? "bz-setup-mark--ok" : r.ok === false ? "bz-setup-mark--bad" : "bz-setup-mark--idle"}"></span><span class="bz-setup-key">${r.key}</span><span class="bz-setup-val">${r.value}</span>`;
+      list.appendChild(row);
+    }
+    if (!stillBad.length) {
+      const hint = document.createElement("div");
+      hint.className = "bz-setup-hint";
+      hint.textContent = `环境检查通过（${okCount} 项）。脸谱导入微信记录还需要本机 Python 环境，用到时再装即可。`;
+      ui2.body.appendChild(hint);
+    }
+    const enter = button("bz-setup-btn bz-setup-btn--cta", "开始使用");
+    enter.onclick = ctx.close;
+    ui2.foot.appendChild(enter);
+  }
+  async function markDone(ctx, installed) {
+    try {
+      const s = getSettings();
+      s.setupDone = true;
+      await saveSettings();
+    } catch (e) {
+    }
+  }
+  function openSetupWizard(app = getApp(), opts = {}) {
+    const firstRun = opts.firstRun === true;
+    if (isMobileEnv()) {
+      notice("包仔的完整功能需要桌面端 Obsidian", "warning");
+      return;
+    }
+    const content = document.createElement("div");
+    const modal = uiModal({
+      head: true,
+      title: firstRun ? "包仔 · 首次准备" : "环境自检",
+      content,
+      maxWidth: 560,
+      autofocus: false
+    });
+    const ctx = { app, firstRun, root: content, close: modal.close };
+    const ui2 = skeleton(content);
+    void stageProbe(ctx, ui2);
+  }
+  function openEnvironmentCheck(app = getApp()) {
+    openSetupWizard(app, { firstRun: false });
+  }
+  var NODE_SIZE_HINT;
+  var init_setup_wizard = __esm({
+    "src/core/setup-wizard.ts"() {
+      init_notice();
+      init_modal();
+      init_env_check();
+      init_download_manifest();
+      init_bundle_asset();
+      init_remote_asset();
+      init_skin_pack();
+      init_node_runtime_install();
+      init_tool_runtime();
+      init_mobile();
+      init_app();
+      init_settings_provider();
+      NODE_SIZE_HINT = 36.4 * 1024 * 1024;
     }
   });
 
@@ -31407,7 +32163,7 @@ ${it.text}`).join("\n"));
       name: "环境自检",
       desc: "查 Node、工具、数据目录是否就绪",
       buttonText: "检查",
-      onClick: () => void Promise.resolve().then(() => (init_env_check(), env_check_exports)).then((m) => m.openEnvironmentCheck(getApp()))
+      onClick: () => void Promise.resolve().then(() => (init_setup_wizard(), setup_wizard_exports)).then((m) => m.openEnvironmentCheck(getApp()))
     };
     const rewardRow = {
       type: "info",
@@ -66795,7 +67551,7 @@ ${n.content.slice(0, 2e3)}
   function text(s) {
     return document.createTextNode(s);
   }
-  function button(cls, label, attrs) {
+  function button2(cls, label, attrs) {
     const b = el("button", cls, attrs);
     b.type = "button";
     b.textContent = label;
@@ -66837,8 +67593,8 @@ ${n.content.slice(0, 2e3)}
     col.appendChild(el("div", "bz-people-setava-hint", text(myAvatarSourceText(s))));
     col.appendChild(el("div", "bz-people-setava-acts", [
       // 组件库按钮（设置面板的控件基线；面板是本行唯一消费面——ADR-0153 起原生设置页只留跳转）
-      button("bz-btn bz-btn--primary bz-btn--sm", "上传图片…", { "data-people-setava-pick": "" }),
-      button("bz-btn bz-btn--ghost bz-btn--sm", "恢复默认", { "data-people-setava-reset": "" })
+      button2("bz-btn bz-btn--primary bz-btn--sm", "上传图片…", { "data-people-setava-pick": "" }),
+      button2("bz-btn bz-btn--ghost bz-btn--sm", "恢复默认", { "data-people-setava-reset": "" })
     ]));
     box.appendChild(col);
     return box;
@@ -69101,6 +69857,8 @@ ${n.content.slice(0, 2e3)}
         storagePath: "CONFIG/STORAGE",
         // 自动更新：缺省关（2026-10-28 对外分发拍板）——见 interface 里的说明
         autoUpdate: false,
+        // 首次引导没走过（首次启动会弹；走完或被跳过后置 true）
+        setupDone: false,
         // 附件搬移（ticket 65，运行时记忆）
         attachLastFolder: "",
         // 通知（core notice toast 横切偏好，issue 297）

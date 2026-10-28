@@ -39,6 +39,12 @@ const WHITELIST: Array<{ file: RegExp; reason: string; /** 防回归哨兵：预
     reason: '自更新（2026-09-26）：覆盖插件目录 main.js/styles.css/manifest.json 三件套，升级协议自有顺序，非域数据文件',
   },
   {
+    file: /^src\/core\/node-runtime-install\.ts$/,
+    reason:
+      '便携 Node 运行时（2026-10-28 对外分发）：把官方 node 二进制写进 downloads/tools/node-runtime/，' +
+      '是插件资产而非域数据文件，不进 json 段写原语；写完立刻用 -v 验证，跑不起来就删掉',
+  },
+  {
     file: /^src\/core\/bundle-asset\.ts$/,
     reason:
       '目录包解包（2026-10-28）：tar 条目逐个 writeBinary 落 downloads/tools/，是插件资产而非域数据文件，' +

@@ -16,6 +16,7 @@ import { closeLightbox } from './core/ui/lightbox';
 import { closeAllModals } from './core/ui/modal';
 import { closeAllOverlays } from './core/dom';
 import { setApp, getApp } from './core/app';
+import { setPluginRelDir } from './core/plugin-path';
 import { scheduleSelfUpdateCheck } from './core/self-update';
 import { applySkinManifest, loadLocalSkinPack } from './core/skin-pack';
 import { refreshManifest } from './core/download-manifest';
@@ -328,6 +329,10 @@ export default class BzPlugin extends Plugin {
     // issue 462/ADR-0195：knowledge 三路径键 → 外部工具组（pythonPath/ffmpegPath/ffprobePath）
     const externalToolKeysMigrated = migrateExternalToolKeys(loaded);
     this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
+    // 插件安装目录的唯一来源（core/plugin-path）：目录名由用户决定（`bz` / `包仔` / `bz-test`
+    // 都可能），写死 `plugins/bz` 会让下载落位与读取位置双双错到不存在的目录。
+    // manifest.dir 是 Obsidian 记录的、当前真正加载的那份插件的相对路径。
+    setPluginRelDir(this.manifest?.dir || null);
     // 小橘域开关的运行时基线（ADR-0254）：启动这一刻以盘上值为准，之后每次 saveSettings 比对
     this.smartcatDomainOn = this.settings.smartcatEnabled !== false;
     setApp(this.app);
@@ -481,6 +486,15 @@ export default class BzPlugin extends Plugin {
       // 工具坞调度（ADR-0236）：就绪后延迟首跑、之后轮询兜到点触发；只在桌面端起。
       // 传卸载旗标进去 —— 插件禁用后到点的定时器必须短路，不能幽灵运行（同 C13）。
       startDockScheduler(this.app, () => this.unloaded);
+      // 首次引导（core/setup-wizard）：干净机器上「插件能打开」和「插件能用」是两件事——
+      // 缺 Node、缺工具包时功能会静默失效，与其让人自己去报错里猜，不如开局一次补齐。
+      // 延迟 3 秒：等 Obsidian 自己的工作区渲染稳定，别在启动瞬间抢焦点。
+      if (!this.settings.setupDone) {
+        setTimeout(() => {
+          if (this.unloaded) return;
+          void import('./core/setup-wizard').then((m) => m.openSetupWizard(getApp(), { firstRun: true }));
+        }, 3000);
+      }
     });
   }
 

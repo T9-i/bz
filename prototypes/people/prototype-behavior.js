@@ -1,5 +1,5 @@
-/* 源指纹 822524850a88884b · 仓内输入 98 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
+/* 源指纹 00ea03900741fd61 · 仓内输入 102 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/people/fake-sim.ts → window.BZW_people（行为单源预览包，issue 245/ADR-0106） */
 var BZW_people = (() => {
   var __create = Object.create;
@@ -5311,7 +5311,7 @@ var BZW_people = (() => {
       const d = opts.defaultValue;
       return typeof d === "function" ? d() : d === void 0 ? [] : d;
     };
-    async function ensureDir2(app) {
+    async function ensureDir3(app) {
       const d = filePath.substring(0, filePath.lastIndexOf("/"));
       if (!d || app.vault.getAbstractFileByPath(d)) return;
       if (await diskPathExists(app, d)) return;
@@ -5323,7 +5323,7 @@ var BZW_people = (() => {
       }
     }
     async function createIfMissing(app, content) {
-      await ensureDir2(app);
+      await ensureDir3(app);
       try {
         await app.vault.create(filePath, content);
         return true;
@@ -16134,8 +16134,59 @@ ${lines}`;
     `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`
   ];
 
+  // src/core/plugin-path.ts
+  var injectedRelDir = "";
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function pluginRelDirOf(app) {
+    var _a2, _b2, _c2, _d2;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c2 = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c2.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d2 = app == null ? void 0 : app.vault) == null ? void 0 : _d2.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app) {
+    var _a2, _b2;
+    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
+    try {
+      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return trimSlashes(String(p || ""));
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app)}`;
+  }
+
   // src/core/remote-asset.ts
   var DOWNLOADS_DIR = "downloads";
+
+  // src/core/node-runtime-install.ts
+  init_fake_obsidian();
+
+  // src/core/tar.ts
+  var UNTAR_LIMITS = {
+    maxEntries: 5e3,
+    maxTotalBytes: 128 * 1024 * 1024
+  };
+
+  // src/core/node-runtime-install.ts
+  var NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+  function bundledNodeFile(platform = currentPlatform()) {
+    return platform === "win32" ? "node.exe" : "bin/node";
+  }
+  var MAX_ARCHIVE_BYTES = 200 * 1024 * 1024;
+  var MIN_NODE_BYTES = 5 * 1024 * 1024;
+  function currentPlatform() {
+    return typeof process !== "undefined" && process.platform ? process.platform : "win32";
+  }
 
   // src/core/tool-runtime.ts
   init_app();
@@ -16144,30 +16195,10 @@ ${lines}`;
     "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
     "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
   };
-  var BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";
   }
-  function bundledNodeFile() {
-    return isWindows() ? "node.exe" : "bin/node";
-  }
-  function vaultBasePathOf(app) {
-    var _a2, _b2;
-    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
-    try {
-      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app) {
-    var _a2;
-    const base = vaultBasePathOf(app);
-    if (!base) return "";
-    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
-    return `${base}/${configDir}/plugins/bz`;
-  }
+  var BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
   function toolBundleDir(id) {
     return `${DOWNLOADS_DIR}/tools/${id}`;
   }
@@ -22736,7 +22767,7 @@ ${lines}`;
     const wechat = wechatSelfAvatarPath(dataRoot);
     return wechat ? localImgOf(wechat) : "";
   }
-  async function ensureDir(adapter, relDir) {
+  async function ensureDir2(adapter, relDir) {
     if (!adapter.mkdir) return;
     let cur2 = "";
     for (const part of relDir.split("/")) {
@@ -22760,7 +22791,7 @@ ${lines}`;
     const vault = (_a2 = getApp()) == null ? void 0 : _a2.vault;
     const adapter = vault == null ? void 0 : vault.adapter;
     if (!(adapter == null ? void 0 : adapter.writeBinary)) return null;
-    await ensureDir(adapter, MY_AVATAR_DIR);
+    await ensureDir2(adapter, MY_AVATAR_DIR);
     const rel = `${MY_AVATAR_DIR}/avatar.${src.ext}`;
     for (const ext of AVA_EXTS3) {
       if (ext === src.ext) continue;

@@ -22,6 +22,8 @@
  * 空格或中文是常态）。数组参数没有这一层，路径原样到达进程。
  * ============================================================ */
 import { DOWNLOADS_DIR, downloadsVaultPath } from './remote-asset';
+import { bundledNodeFile, NODE_RUNTIME_DIR } from './node-runtime-install';
+import { pluginDirOf, vaultBasePathOf } from './plugin-path';
 import { getApp } from './app';
 
 /** 工具 id（= online 资源 id = downloads/tools/ 下的目录名） */
@@ -63,36 +65,17 @@ export interface ResolvedToolCommand {
   via: 'bundle' | 'path';
 }
 
-/** 便携 node 的落位（在线资源 `node-runtime` 解包后的形态；各平台文件名不同） */
-const BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
-
 function isWindows(): boolean {
   return typeof process !== 'undefined' && process.platform === 'win32';
 }
 
-/** 便携 node 的文件名（解包目录里就这一个可执行） */
-function bundledNodeFile(): string {
-  return isWindows() ? 'node.exe' : 'bin/node';
-}
+/** 便携 node 的落位目录（与 node-runtime-install 同一常量，避免两处各写一份） */
+const BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
 
-/** vault 根的文件系统绝对路径（spawn 只能用真实路径）；拿不到 → 空串 */
-export function vaultBasePathOf(app: unknown): string {
-  const adapter = (app as { vault?: { adapter?: { getBasePath?: () => string; basePath?: string } } })?.vault?.adapter;
-  try {
-    const p = adapter?.getBasePath?.() || adapter?.basePath || '';
-    return String(p || '').replace(/[\\/]+$/, '');
-  } catch {
-    return '';
-  }
-}
-
-/** 插件安装目录的绝对路径；vault 根拿不到 → 空串（调用方退回 PATH 那条路） */
-export function pluginDirOf(app: unknown): string {
-  const base = vaultBasePathOf(app);
-  if (!base) return '';
-  const configDir = String((app as { vault?: { configDir?: string } }).vault?.configDir || '.obsidian').replace(/^[\\/]+|[\\/]+$/g, '');
-  return `${base}/${configDir}/plugins/bz`;
-}
+// vaultBasePathOf / pluginDirOf 的唯一实现在 core/plugin-path（插件目录名由用户决定，
+// 写死 `plugins/bz` 会让「下载落位」与「探测口径」错位，表现为下载成功但功能不可用）——
+// 这里 re-export，既有导入路径不变。
+export { pluginDirOf, vaultBasePathOf };
 
 /** 已下载的包目录（相对 downloads/） */
 export function toolBundleDir(id: ToolId): string {
@@ -280,7 +263,9 @@ export function toolInstallHint(id: ToolId): string {
 /** 装了包但没有 Node 时的指引（比「未找到工具」更精确，少让人白试一遍） */
 export function nodeMissingHint(id: ToolId): string {
   const entry = TOOL_ENTRIES[id];
-  return `${entry.label}已下载，但本机没有可用的 Node 运行时：到「设置 → 通用 → 在线资源」下载「Node 运行时」后重试`;
+  // Node 不在在线资源清单里（它没有仓库产物，是运行时现下的），所以指向「环境自检」——
+  // 那里有「一键补齐」，也是首次引导走完后的常驻入口。
+  return `${entry.label}已下载，但本机没有可用的 Node 运行时：到「设置 → 通用 → 关于 → 环境自检」一键补齐后重试`;
 }
 
 /** 诊断用：把「这台机器上到底探到了什么」摊平成几行（面板/报障截图用） */

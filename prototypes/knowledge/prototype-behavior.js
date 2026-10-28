@@ -1,5 +1,5 @@
-/* 源指纹 482692bbe838dc29 · 仓内输入 52 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tool-runtime.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
+/* 源指纹 4bec6a2100f3bb59 · 仓内输入 56 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/knowledge/fake-sim.ts → window.BZW_knowledge（行为单源预览包，issue 245/ADR-0106） */
 var BZW_knowledge = (() => {
   var __create = Object.create;
@@ -5614,7 +5614,7 @@ var BZW_knowledge = (() => {
       const d = opts.defaultValue;
       return typeof d === "function" ? d() : d === void 0 ? [] : d;
     };
-    async function ensureDir(app) {
+    async function ensureDir2(app) {
       const d = filePath.substring(0, filePath.lastIndexOf("/"));
       if (!d || app.vault.getAbstractFileByPath(d)) return;
       if (await diskPathExists(app, d)) return;
@@ -5626,7 +5626,7 @@ var BZW_knowledge = (() => {
       }
     }
     async function createIfMissing(app, content) {
-      await ensureDir(app);
+      await ensureDir2(app);
       try {
         await app.vault.create(filePath, content);
         return true;
@@ -7886,8 +7886,56 @@ var BZW_knowledge = (() => {
     `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`
   ];
 
+  // src/core/plugin-path.ts
+  var injectedRelDir = "";
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function pluginRelDirOf(app) {
+    var _a, _b, _c, _d;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c = (_b = (_a = app == null ? void 0 : app.plugins) == null ? void 0 : _a.manifests) == null ? void 0 : _b.bz) == null ? void 0 : _c.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app) {
+    var _a, _b;
+    const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
+    try {
+      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return trimSlashes(String(p || ""));
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app)}`;
+  }
+
   // src/core/remote-asset.ts
   var DOWNLOADS_DIR = "downloads";
+
+  // src/core/tar.ts
+  var UNTAR_LIMITS = {
+    maxEntries: 5e3,
+    maxTotalBytes: 128 * 1024 * 1024
+  };
+
+  // src/core/node-runtime-install.ts
+  var NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+  function bundledNodeFile(platform = currentPlatform()) {
+    return platform === "win32" ? "node.exe" : "bin/node";
+  }
+  var MAX_ARCHIVE_BYTES = 200 * 1024 * 1024;
+  var MIN_NODE_BYTES = 5 * 1024 * 1024;
+  function currentPlatform() {
+    return typeof process !== "undefined" && process.platform ? process.platform : "win32";
+  }
 
   // src/core/tool-runtime.ts
   var TOOL_ENTRIES = {
@@ -7895,30 +7943,10 @@ var BZW_knowledge = (() => {
     "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
     "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
   };
-  var BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";
   }
-  function bundledNodeFile() {
-    return isWindows() ? "node.exe" : "bin/node";
-  }
-  function vaultBasePathOf(app) {
-    var _a, _b;
-    const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
-    try {
-      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app) {
-    var _a;
-    const base = vaultBasePathOf(app);
-    if (!base) return "";
-    const configDir = String(((_a = app.vault) == null ? void 0 : _a.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
-    return `${base}/${configDir}/plugins/bz`;
-  }
+  var BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
   function toolBundleDir(id) {
     return `${DOWNLOADS_DIR}/tools/${id}`;
   }

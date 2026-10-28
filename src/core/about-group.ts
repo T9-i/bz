@@ -86,7 +86,7 @@ export async function aboutGroup(): Promise<GroupDecl> {
     name: '环境自检',
     desc: '查 Node、工具、数据目录是否就绪',
     buttonText: '检查',
-    onClick: () => void import('./env-check').then((m) => m.openEnvironmentCheck(getApp())),
+    onClick: () => void import('./setup-wizard').then((m) => m.openEnvironmentCheck(getApp())),
   };
 
   const rewardRow: SettingsRow = {

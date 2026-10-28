@@ -32,6 +32,7 @@ import { requestUrl } from 'obsidian';
 import { textSha256 } from './sha256';
 import { emitDomainEvent } from './domain-bus';
 import { downloadRemotesFor } from './remote-base';
+import { pluginVaultPath } from './plugin-path';
 
 /** 下载资源落盘事件（issue 492）：派发收口在 writeAssetText（所有下载资产唯一落盘口），
  *  消费 = 设置面板在线资源组把已渲染行态同步成磁盘事实（导航入口更新文档后组内按钮翻「已下载」）。 */
@@ -43,10 +44,14 @@ export function remotesFor(fileName: string): string[] {
   return downloadRemotesFor(fileName);
 }
 
-/** 资产在 vault 里的相对路径（插件安装目录内；仅插件自身 manifest.json 等非下载资源用） */
+/**
+ * 资产在 vault 里的相对路径（插件安装目录内；仅插件自身 manifest.json 等非下载资源用）。
+ *
+ * 目录名不能写死 `bz`：用户手动装时文件夹可能叫任何名字（见 core/plugin-path 文件头）。
+ * 写死会让「下载落位」和「读取位置」都错到一个不存在的目录，症状是下载成功但功能不可用。
+ */
 export function assetVaultPath(app: unknown, fileName: string): string {
-  const configDir = String((app as { vault?: { configDir?: string } }).vault?.configDir || '.obsidian');
-  return `${configDir}/plugins/bz/${fileName}`;
+  return pluginVaultPath(app, fileName);
 }
 
 /** 统一资源目录名（远端仓库 downloads/ ↔ 本地插件安装目录 downloads/，逐字镜像） */

@@ -90,6 +90,9 @@ export default interface BzSettings {
    *  所有用户当场换代码；自用顺手，给别人用是事故面（core/self-update.ts 消费）。
    *  注意它只管「装不装」，不管「查不查」：关着也仍会在面板里看到「有新版」。 */
   autoUpdate: boolean;
+  /** 首次引导是否走完（含「以后再说」）：false = 下次启动还会弹（core/setup-wizard）。
+   *  跳过的也算走完——不能每次启动都拿同一张清单拦人。 */
+  setupDone: boolean;
 
   // ===== 📂 数据存储路径（ADR-0009 共享数据路径）=====
   /** 共享 JSON 数据目录（memo/belongings/passwords/favorites/review/quiz/闪念 meta+vec 统一存放） */
@@ -946,6 +949,8 @@ export const DEFAULT_SETTINGS: BzSettings = {
 
   // 自动更新：缺省关（2026-10-28 对外分发拍板）——见 interface 里的说明
   autoUpdate: false,
+  // 首次引导没走过（首次启动会弹；走完或被跳过后置 true）
+  setupDone: false,
 
   // 附件搬移（ticket 65，运行时记忆）
   attachLastFolder: '',
