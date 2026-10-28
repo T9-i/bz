@@ -115,3 +115,33 @@
 **未解决**：`downloads/` 与插件自更新的真正备份通道。jsDelivr 已不可依赖，剩下的
 `raw.githubusercontent.com` 在国内无代理时不通。根治要么瘦仓库（重写历史，tag 全废），
 要么把 `downloads/` 拆到独立小仓库再让 jsDelivr 服务它 —— 都需要拍板，尚未动手。
+
+## 补记三（2026-10-28 晚）：清单「没拉到」的真因是写不进磁盘
+
+用户换新库后仍报「资源清单没拉到」。前两轮查网络（探测自证不可达、串行卡死、jsDelivr 停发）
+都是真问题，但都不是这一现象的原因。真正的原因在本地：
+
+```
+writeAssetText(app, 'manifest.json', text)
+  → ensureDir(app, 'manifest.json')      // 没有斜杠
+  → const slash = relPath.lastIndexOf('/'); if (slash <= 0) return;   // 直接 return
+  → adapter.write('<plugin>/downloads/manifest.json')                 // ENOENT，父目录不存在
+  → refreshManifest 抛错 → 引导页 .catch(() => null) → 「清单没拉到」
+```
+
+`ensureDir` 的循环只在「路径含子目录」时进得去，而「父目录」对单文件资产来说就是
+`downloads/` 本身 —— 之前没有任何一处创建它。老库里 `downloads/` 是早先版本留下的，
+所以一直是绿的；**全新库第一次运行，永远拿不到清单**。同一处缺陷还会连带皮肤包
+（`skins/<域>/<id>.css`：建 `downloads/skins` 时父目录不存在，逐级 try/catch 全吞掉）。
+
+修法：`ensureDir` 第一件事先建 `downloads/` 根（幂等，已存在抛错也无所谓），再逐级建子目录。
+
+两处配套：
+
+- **测试换真文件系统**。`MockVault.adapter.write` 往 Map 里塞、从不校验父目录，所以既有
+  测试对这一类缺陷是盲的。新增 `tests/core/downloads-dir.test.ts`：临时目录 + 非递归
+  `mkdir` + `fs.writeFile`，复刻 Obsidian 的 FileSystemAdapter 语义。验证过它确实抓得住
+  原缺陷（去掉修复后三条用例齐齐 ENOENT）。
+- **别再把原因吞掉**。`fetchManifestWithTimeout` 从「失败返 null」改成「返 null + 原因」，
+  引导页把原因附在提示句后（`（原因：…）`）。这条链上原来每个 catch 都是 `() => null`，
+  三次隔着屏幕猜网络，代价就是这一轮。真出问题时，原文能立刻分清是墙、是代理、还是磁盘。

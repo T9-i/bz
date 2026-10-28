@@ -208,6 +208,8 @@ interface WizardState {
   net: NetworkProbe | null;
   /** 清单（检测屏拉一次，下载屏复用——不让用户在两屏之间等两次网络） */
   manifest?: DownloadManifest | null;
+  /** 清单没拉到时的**具体原因**（引导页原样给人看；空 = 拉到了或还没拉） */
+  manifestError?: string;
   rows: EnvCheckRow[];
   storagePath: string;
   items: SetupItem[];
@@ -376,8 +378,10 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
 
   // 在线资源的下载状态：自检不能只说「这台机器缺什么」，还要说「哪些已经下好了」。
   // 清单只拉一次，③ 屏直接复用（st.manifest）。
-  const manifest = await fetchManifestWithTimeout(ctx.app);
+  const fetched = await fetchManifestWithTimeout(ctx.app);
+  const manifest = fetched.manifest;
   st.manifest = manifest;
+  st.manifestError = fetched.error;
   if (manifest) {
     const group = groupOf('在线资源');
     for (const e of resourceDocsOf(manifest)) {
@@ -485,8 +489,13 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
-  const manifest = st.manifest !== undefined ? st.manifest : await fetchManifestWithTimeout(ctx.app);
-  st.manifest = manifest;
+  if (st.manifest === undefined) {
+    // 检测屏已经拉过就直接复用；直接进到这一屏（重跑引导）才现拉
+    const fetched = await fetchManifestWithTimeout(ctx.app);
+    st.manifest = fetched.manifest;
+    st.manifestError = fetched.error;
+  }
+  const manifest = st.manifest ?? null;
   const nodeMissing = probeNodeRuntime(ctx.app, { fresh: true }).kind === 'none';
   st.items = await planSetupItems(ctx.app, manifest, { nodeMissing });
   st.selected = defaultSelection(st.items);
@@ -505,7 +514,7 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
   const hint = document.createElement('div');
   hint.className = 'bz-setup-hint';
   hint.textContent = !manifest
-    ? '这一次只能补 Node 运行时，其余资源等网络恢复后在「在线资源」里补。'
+    ? `这一次只能补 Node 运行时，其余资源等能拿到清单后在「在线资源」里补${reasonSuffix(st.manifestError)}`
     : st.net && !st.net.github
       ? 'GitHub 直连不通：会自动改用备用通道下载，内容一样，速度可能慢一些。'
       : '下载的东西都放在插件自己的目录里，不碰笔记、不改系统设置。';
@@ -602,12 +611,37 @@ export function freeSpaceBytes(app: unknown = getApp()): number | null {
 }
 
 /** 拉清单带超时（失败 → null，不阻断流程） */
-async function fetchManifestWithTimeout(app: unknown): Promise<DownloadManifest | null> {
+/**
+ * 清单拉不到时的原因后缀（空 → 空串）。
+ *
+ * 以前这条链上每个 catch 都 `() => null`，用户只能看到「清单没拉到」六个字，我们隔着一块屏幕
+ * 猜了两轮（先怀疑网络、再怀疑 jsDelivr）。原文摆出来：哪条通道、什么错，一眼能分清是墙、
+ * 是代理、还是本地磁盘写不进去。
+ */
+function reasonSuffix(error?: string): string {
+  const s = String(error || '').trim();
+  if (!s) return '';
+  return `（原因：${s.length > 160 ? `${s.slice(0, 160)}…` : s}）`;
+}
+
+/** 清单拉取结果：`error` 是给人看的原因（引导页原样显示——无声吞掉过一次，排查盲了两轮） */
+interface ManifestFetch {
+  manifest: DownloadManifest | null;
+  error: string;
+}
+
+async function fetchManifestWithTimeout(app: unknown): Promise<ManifestFetch> {
+  const work = refreshManifest(app)
+    .then((r) => ({ manifest: r?.manifest ?? null, error: '' }))
+    .catch((e: unknown) => ({ manifest: null, error: String((e as Error)?.message || e || '未知错误') }));
   return Promise.race([
-    refreshManifest(app)
-      .then((r) => r?.manifest ?? null)
-      .catch(() => null),
-    new Promise<null>((resolve) => setTimeout(() => resolve(null), MANIFEST_TIMEOUT_MS)),
+    work,
+    new Promise<ManifestFetch>((resolve) =>
+      setTimeout(
+        () => resolve({ manifest: null, error: `超过 ${Math.round(MANIFEST_TIMEOUT_MS / 1000)} 秒没有响应` }),
+        MANIFEST_TIMEOUT_MS,
+      ),
+    ),
   ]);
 }
 

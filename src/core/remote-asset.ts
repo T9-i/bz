@@ -182,10 +182,21 @@ export function downloadsVaultPath(app: unknown, fileName: string): string {
  * 逐级 try/catch 幂等：目录已存在抛错也无所谓，最终由 write 决定成败。
  *
  * 导出给 core/bundle-asset（目录包解包时同一套建目录口径，别在下游再抄一遍）。
+ *
+ * **根目录必须单独建**（2026-10-28 新库报障）：`relPath` 没有斜杠时（`manifest.json`、
+ * `bz-manual.html` 这些单文件资产），「父目录」就是 `downloads/` 本身，而下面按段建的
+ * 循环只在有斜杠时进得去 —— 于是全新库里 `downloads/` 从来没被创建，`adapter.write`
+ * 因父目录不存在直接失败，`refreshManifest` 抛错被引导页吞成「资源清单没拉到」。
+ * Obsidian 的 `adapter.write` 不建父目录（`fs.writeFile` 语义），这一句不能省。
  */
 export async function ensureDir(app: unknown, relPath: string): Promise<void> {
   const adapter = (app as { vault?: { adapter?: { mkdir?: (p: string) => Promise<void> } } }).vault?.adapter;
   if (!adapter?.mkdir) return;
+  try {
+    await adapter.mkdir(assetVaultPath(app, DOWNLOADS_DIR));
+  } catch (e) {
+    /* 已存在 / 不支持 mkdir → 继续建子级 */
+  }
   const slash = relPath.lastIndexOf('/');
   if (slash <= 0) return;
   let cur = '';
