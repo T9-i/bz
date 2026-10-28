@@ -585,10 +585,9 @@ describe('在线资源组（issue 480 / ADR-0203 / ADR-0205 冒烟）', () => {
 
     const group = await onlineResourcesGroup();
     expect(group.name).toBe('在线资源');
-    // 清单缺席 → 两行操作行 + 组尾「镜像源」（text 行；它不是资源，是下载通道设置）
-    expect(group.rows).toHaveLength(3);
-    expect(group.rows.slice(0, 2).every((r) => r.type === 'button')).toBe(true);
-    expect(group.rows[2]).toMatchObject({ type: 'text', name: '镜像源' });
+    // 清单缺席 → 只剩两行操作行（2026-10-28：组尾「镜像源」撤掉）
+    expect(group.rows).toHaveLength(2);
+    expect(group.rows.every((r) => r.type === 'button')).toBe(true);
 
     const body = document.createElement('div');
     document.body.appendChild(body);

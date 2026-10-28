@@ -18,11 +18,11 @@
  * 往里塞版本号要动两侧壳；而组卡片是现成的、跟通用页其余部分同一套视觉。
  * ============================================================ */
 import { getApp } from './app';
-import { notice } from './notice';
+import { notify } from './notice';
 import { openExternalUrl } from './utils';
 import { REPO_SLUG } from './remote-base';
 import { checkSelfUpdate, selfUpdateState, type SelfUpdateState } from './self-update';
-import type { GroupDecl, SettingsRow } from './settings-schema';
+import type { GroupDecl, SettingsRow, SettingsRowContext } from './settings-schema';
 
 /** 反馈渠道（GitHub issues；仓库 slug 与下载通道同一事实源） */
 export const FEEDBACK_URL = `https://github.com/${REPO_SLUG}/issues`;
@@ -56,7 +56,9 @@ export async function aboutGroup(): Promise<GroupDecl> {
         // 人在场点的，一律按「同意装」处理：与 autoUpdate 开关无关
         text: '检查并更新',
         stateful: true,
-        onClick: () => void runCheckAndUpdate(),
+        // 成功态文案自己说：这个钮查的是版本，不是连通性（缺省那句「已连通」会读成另一个意思）
+        okText: '已是最新',
+        onClick: (_v, ctx) => runCheckAndUpdate(ctx),
       },
     ],
   };
@@ -105,16 +107,55 @@ export async function aboutGroup(): Promise<GroupDecl> {
 /**
  * 检查并更新（版本行的动作）。
  *
- * 失败**要说话**：这与启动巡检相反——那是后台自动动作，失败了弹脸是骚扰；这里是用户
- * 亲手点的，什么都不发生才叫 bug。`stateful` 已经把结果画在按钮上（✓ / ✕），所以只补
- * 一条带原因的短通知，不重复报「成功」。
+ * **全过程都要说话**：与启动巡检相反——那是后台自动动作，失败弹脸是骚扰；这里是用户
+ * 亲手点的，几十秒什么都不发生才叫 bug（2026-10-28 用户实测：点了没反应、没提示）。
+ * 所以：点下去立刻起一条常驻通知（跑马灯），结束时原地改成结果；按钮同时走 busy → ✓/✕。
+ *
+ * 失败仍然抛出去：渲染器据此把按钮画成红✕ + 简短原因（「网络不通」这种）。
  */
-async function runCheckAndUpdate(): Promise<void> {
+export async function runCheckAndUpdate(ctx?: SettingsRowContext): Promise<void> {
   const app = getApp();
+  // 常驻 + 不确定态进度：至少让人看见「在跑」，而不是一个不动的按钮
+  const h = notify('正在检查更新…', { type: 'progress', duration: 0, dedupeKey: 'bz-selfupdate-check' });
   try {
-    const result = await checkSelfUpdate(app, { throttle: false, apply: true });
-    if (result === 'current') notice('已是最新版本', 'info');
+    const result = await checkSelfUpdate(app, { throttle: false, apply: true, silent: true });
+    const st = await selfUpdateState(app);
+    paintVersionDesc(ctx, st);
+    if (result === 'installed') {
+      const ver = st.pending || st.onDisk || '';
+      h.setType('success');
+      h.setMessage(ver ? `已更新到 v${ver}：重载插件（或重启 Obsidian）后生效` : '已更新：重载插件后生效');
+      return;
+    }
+    if (result === 'available') {
+      // 只有 apply=false 才会走到这里（面板恒 apply=true），留着是为了口径完整
+      h.setType('info');
+      h.setMessage(`发现新版本${st.available?.version ? ` v${st.available.version}` : ''}，请点「检查并更新」安装`);
+      return;
+    }
+    h.setType('success');
+    h.setMessage(st.running ? `已是最新版本 v${st.running}` : '已是最新版本');
   } catch (e) {
-    notice(`检查更新失败：${(e as Error)?.message || String(e)}`, 'error');
+    const msg = (e as Error)?.message || String(e);
+    h.setType('error');
+    h.setMessage(`检查更新失败：${msg}`);
+    const st = await selfUpdateState(app).catch(() => null);
+    if (st) paintVersionDesc(ctx, st);
+    throw e; // 渲染器接住 → 按钮红✕ + 短原因
   }
+}
+
+/**
+ * 把最新的版本描述就地写回行内（不重建面板）。
+ *
+ * 为什么不用 refresh 重建：行对象上的 `desc` 是字符串，重建读到的还是同一份旧文案；
+ * 而「检查完版本号/有新版本」正是这一刻唯一想看的东西。两个渲染器的描述节点类名不同，
+ * 各认一个（面板自绘 / Obsidian 原生 Setting）。
+ */
+export function paintVersionDesc(ctx: SettingsRowContext | undefined, st: SelfUpdateState): void {
+  const el = ctx?.rowEl;
+  if (!el) return;
+  const node =
+    el.querySelector<HTMLElement>('.bz-sp-set-desc') || el.querySelector<HTMLElement>('.setting-item-description');
+  if (node) node.textContent = versionDesc(st);
 }

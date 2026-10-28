@@ -95,7 +95,11 @@ export default interface BzSettings {
   setupDone: boolean;
   /** 自定义镜像源（可选；空格/逗号分隔多条）。企业网里 raw 与 jsDelivr 可能全不通，
    *  那时把内网静态目录填进来就能下载资源；地址形状与仓库一致（`<基址>/downloads/xxx`）。
-   *  只管**资源下载**，插件自更新仍走官方 tag（core/remote-base.ts 的 mirrorBases）。 */
+   *  只管**资源下载**，插件自更新仍走官方 tag（core/remote-base.ts 的 mirrorBases）。
+   *
+   *  **面板不露出这一行**（2026-10-28 用户拍板去掉）：日常用户看不懂也用不上，
+   *  摆在「在线资源」里只是噪音。能力保留——企业网用户直接改 data.json 的这个键，
+   *  或者把仓库 downloads/ 拷到 vault 下的 bz-offline/（core/offline-source，零配置）。 */
   resourceMirror: string;
 
   // ===== 📂 数据存储路径（ADR-0009 共享数据路径）=====

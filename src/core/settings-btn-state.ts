@@ -42,7 +42,10 @@ export function setRowBtnState(
   el: HTMLElement | undefined,
   state: RowBtnState,
   label: string,
-  failText?: string
+  failText?: string,
+  /** 成功态文案（缺省「已连通」——那是给「测试连接」类按钮的）。
+   *  别的语义得自己说：更新检查成功后写「已是最新」才不别扭（2026-10-28）。 */
+  okText?: string
 ): void {
   if (!el) return;
   el.classList.remove('bz-rowbtn--busy', 'bz-rowbtn--ok', 'bz-rowbtn--fail');
@@ -52,7 +55,7 @@ export function setRowBtnState(
     clearResetTimer(el);
   } else if (state === 'ok') {
     el.classList.add('bz-rowbtn--ok');
-    el.textContent = ROW_BTN_OK_TEXT;
+    el.textContent = okText || ROW_BTN_OK_TEXT;
   } else if (state === 'fail') {
     el.classList.add('bz-rowbtn--fail');
     el.textContent = (failText || '失败').slice(0, 6);

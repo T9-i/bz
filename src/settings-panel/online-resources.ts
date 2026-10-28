@@ -20,7 +20,7 @@ import { getApp } from '../core/app';
 import { notice } from '../core/notice';
 import { onDomainEvent } from '../core/domain-bus';
 import { DOWNLOADS_CHANGED_EVENT } from '../core/remote-asset';
-import type { GroupDecl, SettingsRow, SettingsRowContext, TextRow } from '../core/settings-schema';
+import type { GroupDecl, SettingsRow, SettingsRowContext } from '../core/settings-schema';
 import { setRowBtnState } from '../core/settings-btn-state';
 import {
   cachedManifest,
@@ -361,47 +361,20 @@ export async function onlineResourcesGroups(): Promise<[GroupDecl, GroupDecl]> {
   // 打开面板顺手核对一次（60s 节流；无论成败都记窗——失败也补丁呈现，不记窗补丁链会雪球式重核）
   if (Date.now() - lastCheckAt > CHECK_THROTTLE_MS) void checkInBackground();
 
-  // 按 kind 分成两组（行对象还是同一批引用：状态机不变，只是渲染在两处）
+  // 按 kind 分成两组（行对象还是同一批引用：状态机不变，只是渲染在两处）。
+  // 认 id 不认行名：行名是给人看的（「B站下载器」），id 才是清单里的主键（tool-bili-downloader）。
   const bundleIds = new Set((manifest?.docs ?? []).filter((d) => d.kind === 'bundle').map((d) => d.id));
-  const toolRows = meta.rows.filter((r) => r.type === 'button' && bundleIds.has(String((r as BtnRow).name)));
-  const restRows = meta.rows.filter((r) => !toolRows.includes(r));
+  const toolRows = meta.entries.filter((e) => bundleIds.has(e.id)).map((e) => e.row);
+  const toolSet = new Set<SettingsRow>(toolRows);
+  const restRows = meta.rows.filter((r) => !toolSet.has(r));
 
+  // 两组各只有自己的行：外部工具 = 三个目录包，在线资源 = 操作行 + 文档/皮肤。
+  // （2026-10-28 用户要求：工具单独成组、排在在线资源之上。此前按「行名 ∈ bundle id 集合」
+  //  过滤——名字是「B站下载器」、id 是「tool-bili-downloader」，永远匹配不上，
+  //  于是外部工具组是空的、三个工具全混进在线资源里。）
   const tools: GroupDecl = { name: '外部工具', icon: 'wrench', rows: toolRows };
-  // 「镜像源」只放在资源组：它管的是文档/皮肤/工具包的下载通道，与「工具跑不跑得起来」
-  // 是两件事（Node 走的是 nodejs.org 与 npmmirror，不吃这个设置）。
-  const resources: GroupDecl = { name: '在线资源', icon: 'cloud-download', rows: [...restRows, mirrorRow()] };
+  const resources: GroupDecl = { name: '在线资源', icon: 'cloud-download', rows: restRows };
   return [tools, resources];
-}
-
-/**
- * 自定义镜像源（可选）。企业网里 GitHub raw 与 jsDelivr 四个边缘域名可能全部不通，
- * 而改系统代理往往没有权限 —— 这条路是给那种环境留的。
- * 地址形状与仓库一致（`<基址>/downloads/xxx`），自建一个静态目录就能用。
- */
-function mirrorRow(): TextRow {
-  return {
-    type: 'text',
-    name: '镜像源',
-    desc: '可选：内网镜像地址，下载资源时优先走它',
-    help:
-      '填一个或多个（空格/逗号分隔）基址，插件下载在线资源时会**先**走这些地址，失败再回落官方通道。' +
-      '地址要与仓库结构一致：把仓库的 downloads/ 目录挂到 http://内网/static/bz 下，这里就填 http://内网/static/bz。' +
-      '只影响资源下载（文档、皮肤、工具包）；插件自更新仍走官方 tag，避免出问题时分不清是谁的锅。' +
-      '完全无外网时还有更省事的办法：把仓库 downloads/ 目录整个拷到 vault 下的 bz-offline/ 里，插件直接读本地。',
-    placeholder: 'http://内网/static/bz',
-    binding: { key: 'resourceMirror' },
-    onCommit: () => recheckAfterMirrorChange(),
-  };
-}
-
-/** 镜像改了就重核一次（绕过节流）：填错地址应当当场看出来，而不是等下次下载才失败 */
-function recheckAfterMirrorChange(): void {
-  lastCheckAt = 0;
-  void checkInBackground()
-    .then(() => patchRenderedGroup())
-    .catch(() => {
-      /* 失败态由行自身呈现 */
-    });
 }
 
 /** 兼容入口：只要「在线资源」那一组（旧调用方与测试） */

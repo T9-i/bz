@@ -110,6 +110,9 @@ export interface RowAction {
   /** 状态反馈钮（issue 434，测试类按钮专用）：点击即转圈，resolve→绿✓、reject→红✕，
    *  短暂停留后复原；约定不弹通知——结果长在按钮上（core/settings-btn-state 单源）。 */
   stateful?: boolean;
+  /** 成功态按钮文案（仅 stateful 用；缺省「已连通」）。语义不同就自己说一句——
+   *  「检查更新」成功后显示「已连通」是错的（2026-10-28：info 行动作钮接上 stateful 时一并加）。 */
+  okText?: string;
   onClick: (value: string | undefined, ctx: SettingsRowContext) => void | Promise<void>;
 }
 
@@ -271,7 +274,7 @@ interface ButtonRow extends RowBase {
 }
 
 /** 纯展示行（名称 + 描述，无控件；如影视「海报抓取」指引行）；actions 供展示行附带操作按钮 */
-interface InfoRow extends RowBase {
+export interface InfoRow extends RowBase {
   type: 'info';
   name: string;
   actions?: RowAction[];
@@ -985,7 +988,24 @@ export function renderSettingsInto(container: HTMLElement, schema: SettingsSchem
         for (const a of row.actions ?? []) {
           setting.addButton((b) => {
             if (a.cta) b.setCta();
-            b.setButtonText(a.text).onClick(() => void a.onClick(undefined, ctx));
+            // stateful 钮（与 text 行同口径）：点击转圈、resolve 绿✓、reject 红✕。
+            // info 行原先没有这段，「检查并更新」点下去毫无反馈（2026-10-28 报障）。
+            b.setButtonText(a.text).onClick(() => {
+              void (async () => {
+                const el = (b as unknown as { buttonEl?: HTMLElement }).buttonEl;
+                try {
+                  if (a.stateful) setRowBtnState(el, 'busy', a.text);
+                  await a.onClick(undefined, ctx);
+                  if (a.stateful) setRowBtnState(el, 'ok', a.text, undefined, a.okText);
+                } catch (e) {
+                  if (a.stateful) setRowBtnState(el, 'fail', a.text, shortFailReason(e));
+                  else throw e;
+                } finally {
+                  if (a.stateful) armRowBtnReset(el, a.text);
+                }
+                reevaluate();
+              })();
+            });
           });
         }
         return;

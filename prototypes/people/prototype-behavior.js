@@ -1,4 +1,4 @@
-/* 源指纹 df8e5fc74b0ea7b0 · 仓内输入 104 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 aa54892e9c176125 · 仓内输入 104 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/people/fake-sim.ts → window.BZW_people（行为单源预览包，issue 245/ADR-0106） */
 var BZW_people = (() => {
@@ -8308,7 +8308,7 @@ var BZW_people = (() => {
       resetTimers.delete(el2);
     }
   }
-  function setRowBtnState(el2, state2, label, failText) {
+  function setRowBtnState(el2, state2, label, failText, okText) {
     if (!el2) return;
     el2.classList.remove("bz-rowbtn--busy", "bz-rowbtn--ok", "bz-rowbtn--fail");
     el2.disabled = state2 === "busy";
@@ -8317,7 +8317,7 @@ var BZW_people = (() => {
       clearResetTimer(el2);
     } else if (state2 === "ok") {
       el2.classList.add("bz-rowbtn--ok");
-      el2.textContent = ROW_BTN_OK_TEXT;
+      el2.textContent = okText || ROW_BTN_OK_TEXT;
     } else if (state2 === "fail") {
       el2.classList.add("bz-rowbtn--fail");
       el2.textContent = (failText || "失败").slice(0, 6);
@@ -9295,7 +9295,22 @@ var BZW_people = (() => {
           for (const a of (_c2 = row.actions) != null ? _c2 : []) {
             setting.addButton((b) => {
               if (a.cta) b.setCta();
-              b.setButtonText(a.text).onClick(() => void a.onClick(void 0, ctx));
+              b.setButtonText(a.text).onClick(() => {
+                void (async () => {
+                  const el2 = b.buttonEl;
+                  try {
+                    if (a.stateful) setRowBtnState(el2, "busy", a.text);
+                    await a.onClick(void 0, ctx);
+                    if (a.stateful) setRowBtnState(el2, "ok", a.text, void 0, a.okText);
+                  } catch (e) {
+                    if (a.stateful) setRowBtnState(el2, "fail", a.text, shortFailReason(e));
+                    else throw e;
+                  } finally {
+                    if (a.stateful) armRowBtnReset(el2, a.text);
+                  }
+                  reevaluate();
+                })();
+              });
             });
           }
           return;

@@ -21,7 +21,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { requestUrl } from 'obsidian';
 import { resetObsidianMocks, clearNotices, getNoticeMessages } from '../mock-obsidian-entry';
-import { onlineResourcesGroup, resetOnlineResourcesState } from '../../src/settings-panel/online-resources';
+import { onlineResourcesGroup, onlineResourcesGroups, resetOnlineResourcesState } from '../../src/settings-panel/online-resources';
 import { renderPanelSchema } from '../../src/settings-panel/renderer';
 import { writeAssetText } from '../../src/core/remote-asset';
 import { setRowBtnState } from '../../src/core/settings-btn-state';
@@ -122,12 +122,7 @@ const resName = (el: HTMLElement, i: number) => rowName(el, i + CTRL_ROWS);
 const resDesc = (el: HTMLElement, i: number) => rowDesc(el, i + CTRL_ROWS);
 const resBtn = (el: HTMLElement, i: number) => rowBtn(el, i + CTRL_ROWS);
 /** 资源行总数（DOM 行数减去两行操作行） */
-// 资源行 = **带按钮的行**。组尾还有一行「镜像源」text 行（企业网无外网时的下载出路，
-// 2026-10-28 加），它没有按钮、也不是待下载资源，不该被算进资源行计数里。
-const resCount = (el: HTMLElement) =>
-  el.querySelectorAll('.bz-sp-group-body > .bz-sp-set-row').length -
-  CTRL_ROWS -
-  el.querySelectorAll('.bz-sp-group-body > .bz-sp-set-row:not(:has(.bz-sp-btn))').length;
+const resCount = (el: HTMLElement) => el.querySelectorAll('.bz-sp-group-body > .bz-sp-set-row').length - CTRL_ROWS;
 
 beforeEach(() => {
   // 全文件假钟：tick 只推假钟不烧真实时间（下载/核对/缓存时间链全部可控快进）
@@ -163,10 +158,10 @@ describe('组形状（清单驱动 + 通用声明行）', () => {
     const group = await onlineResourcesGroup();
     expect(group.name).toBe('在线资源');
     expect(group.icon).toBe('cloud-download');
-    // 2 行操作行 + 更新日志 + 主题（rowOrder 里的 skins）+ 组尾「镜像源」（text 行）
-    expect(group.rows).toHaveLength(5);
-    expect(group.rows.slice(0, 4).every((r) => r.type === 'button')).toBe(true); // 无 custom 自绘行
-    expect(group.rows[4]).toMatchObject({ type: 'text', name: '镜像源' });
+    // 2 行操作行 + 更新日志 + 主题（rowOrder 里的 skins）
+    // （2026-10-28：组尾「镜像源」text 行撤掉——用户要求去掉，回归纯资源列表）
+    expect(group.rows).toHaveLength(4);
+    expect(group.rows.every((r) => r.type === 'button')).toBe(true); // 无 custom 自绘行
 
     const el = document.createElement('div');
     document.body.appendChild(el);
@@ -777,5 +772,46 @@ describe('补丁边界（issue 492 review：与动作态/搜索态的交界）',
     await tick(80);
     expect(rowBtn(el2, 0).textContent).toBe('重试'); // 失败态照旧可再点，不留下永久禁用
     expect(rowBtn(el2, 0).disabled).toBe(false);
+  });
+});
+
+
+describe('两组分家：外部工具在前，在线资源在后', () => {
+  it('外部工具只装三个工具；在线资源里不再混入工具（按 id 认，不按行名认）', async () => {
+    const vault = newVault();
+    const bundle = (id: string, name: string) => ({
+      id,
+      name,
+      file: `tools/${id}.tar.gz`,
+      sha256: textSha256(id),
+      kind: 'bundle' as const,
+    });
+    const docs = [
+      docEntry('changelog', HTML_V1),
+      bundle('tool-bili-downloader', 'B站下载器'),
+      bundle('tool-dock-watch', '工具坞值守'),
+      bundle('tool-obsidian-face', '脸谱工具包'),
+    ];
+    const rowOrder = ['changelog', 'tool-bili-downloader', 'tool-dock-watch', 'tool-obsidian-face'];
+    vault.files.set(MANIFEST_CACHE_PATH, manifestJson(docs, [], rowOrder));
+    routeFetch({ [REMOTE_MANIFEST]: manifestJson(docs, [], rowOrder) });
+
+    const [tools, resources] = await onlineResourcesGroups();
+    expect(tools.name).toBe('外部工具');
+    // 2026-10-28 报障的根因：过滤用行名（「B站下载器」）去比 id 集合（tool-bili-downloader），
+    // 永远匹配不上 → 外部工具组是空的，三个工具全挤在在线资源里（用户截图实证）。
+    expect(tools.rows.map((r) => (r as { name: string }).name)).toEqual([
+      'B站下载器',
+      '工具坞值守',
+      '脸谱工具包',
+    ]);
+    expect(resources.name).toBe('在线资源');
+    // 操作行 + 文档 + 皮肤聚合行（skins 恒在，即使清单里没有皮肤条目）
+    expect(resources.rows.map((r) => (r as { name: string }).name)).toEqual([
+      '检查更新',
+      '全部更新',
+      '更新日志',
+      '主题',
+    ]);
   });
 });

@@ -800,6 +800,10 @@ export class SettingsPanelUI {
     try {
       const schema = await loadSchemaCached(domain);
       if (runId !== this.renderSeq) return; // 已有更新的渲染任务，放弃本次结果
+      // 宿主没了就别接着写 DOM：面板可能在等 schema 的这段时间里被关掉（或 Obsidian 退出、
+      // 测试环境 teardown）。此时 document 已不可用，下一句 createElement 抛的是
+      // 「Cannot read properties of undefined」——一条与用户操作毫无关系的未处理拒绝。
+      if (typeof document === 'undefined') return;
       body.innerHTML = '';
       const handle = renderPanelSchema(body, schema);
       // UI-8：refresh 链联动 nav 徽标——「visibleWhen 门控变化后徽标自动跟随」承诺兑现
@@ -841,6 +845,8 @@ export class SettingsPanelUI {
       spm.motionRendered(pane);
       return;
     } catch (e) {
+      // 同上：宿主已销毁时连失败页都不用画了（这里再 createElement 只会抛出第二个未处理拒绝）
+      if (typeof document === 'undefined') return;
       body.innerHTML = '';
       // 失败页也记账（滚位归零——失败态无位置可记，防旧域滚位错记到失败页）
       pane.dataset.spActive = domain.id;

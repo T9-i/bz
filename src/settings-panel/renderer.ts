@@ -802,7 +802,23 @@ function renderRow(
         const holder = document.createElement('div');
         holder.innerHTML = R.rowBtnHtml(a.text, a.cta);
         const btn = holder.firstElementChild as HTMLElement;
-        btn.addEventListener('click', () => void a.onClick(undefined, ctx));
+        // stateful 钮（与 text 行同口径）：点击即转圈、resolve 绿✓、reject 红✕。
+        // 早前 info 行**没有**这段——「检查并更新」点下去毫无反应（2026-10-28 用户实测报障）：
+        // 网络慢时几十秒里既无转圈也无提示，用户只能以为按钮坏了。
+        btn.addEventListener('click', () => {
+          void (async () => {
+            try {
+              if (a.stateful) setRowBtnState(btn, 'busy', a.text);
+              await a.onClick(undefined, ctx);
+              if (a.stateful) setRowBtnState(btn, 'ok', a.text, undefined, a.okText);
+            } catch (e) {
+              if (a.stateful) setRowBtnState(btn, 'fail', a.text, shortFailReason(e));
+              else throw e;
+            } finally {
+              if (a.stateful) armRowBtnReset(btn, a.text);
+            }
+          })();
+        });
         ctrlEl.appendChild(btn);
       }
       break;

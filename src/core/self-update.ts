@@ -22,12 +22,21 @@
  * ============================================================ */
 import { requestUrl } from 'obsidian';
 import { notice } from './notice';
+import { pluginVaultPath } from './plugin-path';
 import { downloadRemotesFor, isValidTag, RELEASE_POINTER, repoRemotesForTag } from './remote-base';
 
 /** 巡检节流：24 小时 */
 const CHECK_INTERVAL_MS = 24 * 3600 * 1000;
 /** 启动后延迟巡检（躲开 Obsidian 启动高峰） */
 const CHECK_DELAY_MS = 15 * 1000;
+/**
+ * 单通道超时（毫秒）。
+ *
+ * `requestUrl` **没有超时参数**：网络被墙/半通时它会一直挂着不 resolve，于是「检查并更新」
+ * 点下去既没有转圈也没有提示（2026-10-28 用户实测报障）。这里给每个通道加一道硬时限，
+ * 五条通道最坏也不会超过十几秒——先说话，再等结果。
+ */
+const FETCH_TIMEOUT_MS = 6000;
 const LAST_CHECK_KEY = 'bz-selfupdate:last-check';
 /** 已下载待重载的版本（`{"version":"1.34.0"}`）：磁盘已是新版、运行中还是旧的 */
 const PENDING_KEY = 'bz-selfupdate:pending';
@@ -36,7 +45,6 @@ const AVAILABLE_KEY = 'bz-selfupdate:available';
 
 /** 备份目录（相对插件安装目录；点前缀是「不是下载产物」的视觉声明，也避开 downloads/ 的清单守卫） */
 const BACKUP_DIR = 'downloads/.backup';
-
 /** 自更新的四种结局（面板据此说人话） */
 export type SelfUpdateResult =
   /** 同版本或更低：无事发生 */
@@ -76,32 +84,57 @@ export function resetSelfUpdateState(): void {
   lastAvailable = null;
 }
 
-function configDirOf(app: unknown): string {
-  return String((app as { vault?: { configDir?: string } }).vault?.configDir || '.obsidian');
-}
-
 function pluginFile(app: unknown, name: string): string {
-  return `${configDirOf(app)}/plugins/bz/${name}`;
+  // 插件目录名由用户决定（`bz` / `包仔` / `bz-test` 都可能）：写死 `plugins/bz` 时，
+  // 改过名字的机器上「检查更新」读不到本地 manifest、覆盖也写去不存在的目录。
+  return pluginVaultPath(app, name);
 }
 
-/** 插件安装目录（备份产物住它的下级） */
-function pluginDir(app: unknown): string {
-  return `${configDirOf(app)}/plugins/bz`;
+/** 给 promise 套一道硬时限（底层请求无法真正取消，但调用方不再无限等） */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`连接超时：${label}`)), ms);
+    p.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
 }
 
 async function fetchText(url: string): Promise<string> {
-  const res = await requestUrl({ url, method: 'GET', throw: true });
+  const res = await withTimeout(requestUrl({ url, method: 'GET', throw: true }), FETCH_TIMEOUT_MS, url);
   return String(res.text || '');
 }
 
-/** 依序试一组 URL（主 GitHub raw → 备 jsDelivr），全失败抛最后一次错误 */
+/**
+ * 依序试一组 URL（raw 主通道 → jsDelivr 各边缘入口）。
+ *
+ * 第一个单独试（raw 最新鲜），失败了把**其余通道并发**打出去：串行试五条时，
+ * 国内半通网络下用户要盯着转圈半分钟才看到「网络不通」。
+ */
 async function fetchFirst(urls: string[]): Promise<{ text: string; url: string }> {
+  const [head, ...rest] = urls;
   let lastErr: unknown = null;
-  for (const url of urls) {
+  if (head) {
     try {
-      return { text: await fetchText(url), url };
+      return { text: await fetchText(head), url: head };
     } catch (e) {
       lastErr = e;
+    }
+  }
+  if (rest.length) {
+    try {
+      return await Promise.any(rest.map(async (url) => ({ text: await fetchText(url), url })));
+    } catch (e) {
+      // AggregateError：里面才是各通道真正的原因
+      const errs = (e as { errors?: unknown[] })?.errors;
+      lastErr = (errs && errs[0]) || e;
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr || '没有可用的下载源'));
@@ -218,7 +251,8 @@ async function backupCurrent(app: unknown, version: string): Promise<void> {
     };
   }).vault?.adapter;
   if (!adapter?.read || !adapter?.write) return;
-  const dir = `${pluginDir(app)}/${BACKUP_DIR}/${version || 'unknown'}`;
+  // pluginVaultPath 已带 `downloads/.backup` 前缀，别再拼插件目录（拼了会出 `bz//downloads`）
+  const dir = `${pluginVaultPath(app, BACKUP_DIR)}/${version || 'unknown'}`;
   try {
     await adapter.mkdir?.(dir);
   } catch {
@@ -242,6 +276,8 @@ export interface SelfUpdateOptions {
   apply?: boolean;
   /** 跳过 24h 节流（面板手动「检查更新」/ 显式动作）。缺省 true 之外的调用方须显式传 */
   throttle?: boolean;
+  /** 装完后不自己弹通知（面板已用一条常驻 toast 全程接管：正在检查 → 结果） */
+  silent?: boolean;
 }
 
 /**
@@ -263,7 +299,9 @@ export async function checkSelfUpdate(app: unknown, opts: SelfUpdateOptions = {}
   lastError = null;
 
   const adapter = (app as { vault?: { adapter?: { read?: (p: string) => Promise<string>; write?: (p: string, d: string) => Promise<void> } } }).vault?.adapter;
-  if (!adapter?.read || !adapter?.write) return 'current';
+  // 没有可写适配器 = 这台机器上根本装不了（移动端/异常环境）。此前返回 'current'，
+  // 面板会显示「已是最新」——把「做不到」说成「不需要」，比报错更糟。
+  if (!adapter?.read || !adapter?.write) throw new Error('当前环境无法读写插件文件（需要在桌面端操作）');
 
   const local = await readDiskManifest(app);
   const localVer = local?.version || runningVersion(app);
@@ -320,7 +358,7 @@ export async function checkSelfUpdate(app: unknown, opts: SelfUpdateOptions = {}
   await adapter.write(pluginFile(app, 'styles.css'), css.text);
   await adapter.write(pluginFile(app, 'manifest.json'), mf.text);
   writeStore(PENDING_KEY, { version: pointer.version });
-  notice(`包仔已更新到 v${pointer.version}：重载插件（或重启 Obsidian）后生效`, 'success');
+  if (!opts.silent) notice(`包仔已更新到 v${pointer.version}：重载插件（或重启 Obsidian）后生效`, 'success');
   return 'installed';
 }
 
