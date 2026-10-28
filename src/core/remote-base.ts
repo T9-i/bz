@@ -116,9 +116,29 @@ export function repoRemotesForTag(tag: string, name: string): string[] {
   return tagBasesFor(tag).map((b) => `${b}/${name}`);
 }
 
+/**
+ * HTML 资产的**最后一跳**：公开反代 gh-proxy.com（把 raw 转出来）。
+ *
+ * 为什么非要有这一条（2026-10-28 实测）：jsDelivr 对 `.html` 一律 301 到
+ * `raw.githubusercontent.com` —— 反钓鱼策略，它不肯以自家域名直接吐 HTML。于是手册与
+ * 更新日志这两份 HTML 走了个死循环：jsDelivr 301 → raw 在国内裸网超时。
+ * 也就是说 CSS/JSON/tar.gz 全部 200，唯独那两页永远拉不到。
+ *
+ * 实测裸网：gh-proxy.com `200`（手册 275 KB，4.1 s）；statically.io / ghfast.top 超时、
+ * ghproxy.net 502、raw.gitmirror.com 拒连 —— 只留这一个能用的。
+ *
+ * 只给 html 用，不污染其他资产的通道链：反代是第三方，能不碰就不碰。内容有 sha256
+ * 兜底（清单里每个 doc 都带 hash，对不上就拒收），被篡改也进不来。
+ */
+const HTML_PROXY_BASE = 'https://gh-proxy.com';
+
 /** downloads/ 资产的双源 URL（fileName 是相对 downloads/ 的路径，可为多级） */
 export function downloadRemotesFor(fileName: string): string[] {
-  return repoBases().map((b) => `${b}/downloads/${fileName}`);
+  const urls = repoBases().map((b) => `${b}/downloads/${fileName}`);
+  if (/\.html?$/i.test(fileName)) {
+    urls.push(`${HTML_PROXY_BASE}/https://raw.githubusercontent.com/${ASSETS_SLUG}/master/downloads/${fileName}`);
+  }
+  return urls;
 }
 
 /* ============================================================

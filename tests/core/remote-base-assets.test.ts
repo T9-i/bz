@@ -63,6 +63,18 @@ describe('资源 URL', () => {
     expect(urls.some((u) => u.includes('/downloads/skins/bookshelf/noir.css'))).toBe(true);
     for (const u of urls) expect(u).toContain('/downloads/');
   });
+
+  it('HTML 资产多一条反代兜底（jsDelivr 对 .html 一律 301 到 raw，裸网就是死循环）', () => {
+    const html = downloadRemotesFor('bz-manual.html');
+    expect(html).toHaveLength(REPO_BASES.length + 1);
+    expect(html[html.length - 1]).toBe(
+      `https://gh-proxy.com/https://raw.githubusercontent.com/${ASSETS_SLUG}/master/downloads/bz-manual.html`,
+    );
+    // 非 html 不许挂反代：第三方能少碰就少碰
+    expect(downloadRemotesFor('manifest.json')).toHaveLength(REPO_BASES.length);
+    expect(downloadRemotesFor('bz-manual.html').some((u) => u.includes('gh-proxy'))).toBe(true);
+    expect(downloadRemotesFor('skins/bookshelf/noir.css').every((u) => !u.includes('gh-proxy'))).toBe(true);
+  });
 });
 
 describe('插件本体三件套：releases/<tag>/', () => {

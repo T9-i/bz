@@ -89,3 +89,35 @@ raw.githubusercontent.com/yeshimei/bz-assets/master/downloads/manifest.json    �
 `tests/core/remote-base-assets.test.ts` 新增 8 条（两个 slug 不同、每条基址指分发仓库、
 raw/jsDelivr 形状、`downloads/` 与 `releases/<tag>/` 的 URL 形状、非法 tag 返空、
 发布脚本不许自带 slug 字面量）。
+
+## 补记（2026-10-28 当晚）：jsDelivr 不服务 HTML
+
+搬完仓库后逐条验通，发现有一类文件仍然拉不到：
+
+```
+fastly.jsdelivr.net/gh/yeshimei/bz-assets@master/downloads/bz-manual.html   → 301
+   Location: https://raw.githubusercontent.com/yeshimei/bz-assets/master/downloads/bz-manual.html
+```
+
+jsDelivr 对 `.html` 一律 301 回 raw（反钓鱼策略：不肯以自家域名直接吐 HTML）。于是手册与
+更新日志走成一个死循环：jsDelivr 301 → raw 在国内裸网超时。而 `.css` / `.json` / `.tar.gz`
+全部 200 —— 唯独那两页永远下不来，且**在带代理的开发机上表现完全正常**（301 之后 raw 通），
+又是一条只有裸网用户才会撞上的坑。
+
+修法：`downloadRemotesFor` 给 `.html` 追加**最后一跳**公开反代 `gh-proxy.com`
+（`HTML_PROXY_BASE`）。实测裸网只有它可用：
+
+| 反代 | 实测 |
+|---|---|
+| `gh-proxy.com` | **200**，手册 154 KB，4.1 s，内容 sha256 与清单一致 |
+| `cdn.statically.io` | 超时（15 s） |
+| `ghfast.top` | 超时 |
+| `ghproxy.net` | 502 |
+| `raw.gitmirror.com` | 拒连 |
+
+只挂在 html 上，其余资产不碰第三方：反代是别人家的服务，能少用就少用。内容有清单里
+的 sha256 兜底（走反代取回的字节与被篡改的字节算得出不同 hash，`ensureAssetWithHash` 直接
+拒收），被投毒也进不来。
+
+代价：`.html` 的最后一跳依赖一个公开反代，它哪天挂了手册就得靠代理。真要根治得改分发
+格式（例如发布成 `.txt` 再在本地改名），那要动清单字段与本地路径口径，本轮没做。

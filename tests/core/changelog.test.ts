@@ -42,16 +42,21 @@ beforeEach(() => {
 });
 
 describe('remotesFor / assetVaultPath（issue 474 共用内核）', () => {
-  it('多通道顺序：raw 主 → 三个能通的 jsDelivr 边缘 → cdn（国内实测 cdn 不通，排最后）', () => {
+  it('多通道顺序：raw 主 → 三个能通的 jsDelivr 边缘 → cdn →（HTML 才有）反代兜底', () => {
     const urls = remotesFor(CHANGELOG_FILENAME);
     expect(urls[0]).toBe(REMOTE_RAW);
     // 分发仓库小到 jsDelivr 肯发，于是「能通的那三个」排前面，cdn 那个已知不可用当长尾
-    expect(urls.slice(1)).toEqual([
+    expect(urls.slice(1, 5)).toEqual([
       REMOTE_CDN.replace('cdn.jsdelivr.net', 'fastly.jsdelivr.net'),
       REMOTE_CDN.replace('cdn.jsdelivr.net', 'gcore.jsdelivr.net'),
       REMOTE_CDN.replace('cdn.jsdelivr.net', 'testingcf.jsdelivr.net'),
       REMOTE_CDN,
     ]);
+    // jsDelivr 对 .html 一律 301 到 raw（反钓鱼），裸网下这条链是死循环 → 最后一跳走反代
+    expect(urls).toHaveLength(6);
+    expect(urls[5]).toBe(
+      `https://gh-proxy.com/https://raw.githubusercontent.com/yeshimei/bz-assets/master/downloads/${CHANGELOG_FILENAME}`,
+    );
   });
 
   it('落盘路径 = 插件安装目录（跟随 configDir），非数据目录', () => {
