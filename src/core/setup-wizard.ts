@@ -495,14 +495,17 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
   const total = pending().reduce((n, t) => n + (t.size || 0), 0);
   ui.sub.textContent = pending().length
     ? `一共 ${pending().length} 项要下载，约 ${sizeText(total) || '未知体积'}。点开始后自动完成，中途不用再确认。`
-    : '这台机器什么都不缺，可以直接用了。';
+    : // 清单没拉到时**不能**说「什么都不缺」：那是「不知道缺什么」，两件事
+      manifest
+      ? '这台机器什么都不缺，可以直接用了。'
+      : '资源清单没拉到，暂时判断不了缺什么。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
   const hint = document.createElement('div');
   hint.className = 'bz-setup-hint';
   hint.textContent = !manifest
-    ? '资源清单没拉到（网络不通或资源站不可达）：这一次只能补 Node 运行时，其余资源等网络恢复后在「在线资源」里补。'
+    ? '这一次只能补 Node 运行时，其余资源等网络恢复后在「在线资源」里补。'
     : st.net && !st.net.github
       ? 'GitHub 直连不通：会自动改用备用通道下载，内容一样，速度可能慢一些。'
       : '下载的东西都放在插件自己的目录里，不碰笔记、不改系统设置。';
