@@ -1,5 +1,5 @@
-/* 源指纹 f8d58b60afa142e1 · 仓内输入 32 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/pomodoro/fake-sim.ts","prototypes/pomodoro/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/http.ts","src/core/mobile.ts","src/core/notice.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-common.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/str.ts","src/core/utils.ts","src/core/z-order.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts"]*/
+/* 源指纹 0e91ce2b0e06ef55 · 仓内输入 33 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/pomodoro/fake-sim.ts","prototypes/pomodoro/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/http.ts","src/core/mobile.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-common.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/str.ts","src/core/utils.ts","src/core/z-order.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/pomodoro/fake-sim.ts → window.BZW_pomodoro（行为单源预览包，issue 245/ADR-0106） */
 var BZW_pomodoro = (() => {
   var __create = Object.create;
@@ -4861,6 +4861,7 @@ var BZW_pomodoro = (() => {
   var REPO_SLUG, JSDELIVR_HOSTS, REPO_BASES;
   var init_remote_base = __esm({
     "src/core/remote-base.ts"() {
+      init_settings_provider();
       REPO_SLUG = "yeshimei/bz";
       JSDELIVR_HOSTS = ["cdn.jsdelivr.net", "fastly.jsdelivr.net", "gcore.jsdelivr.net", "testingcf.jsdelivr.net"];
       REPO_BASES = [
@@ -4876,6 +4877,13 @@ var BZW_pomodoro = (() => {
     }
   });
 
+  // src/core/offline-source.ts
+  var init_offline_source = __esm({
+    "src/core/offline-source.ts"() {
+      init_plugin_path();
+    }
+  });
+
   // src/core/remote-asset.ts
   var init_remote_asset = __esm({
     "src/core/remote-asset.ts"() {
@@ -4884,6 +4892,7 @@ var BZW_pomodoro = (() => {
       init_domain_bus();
       init_remote_base();
       init_plugin_path();
+      init_offline_source();
     }
   });
 

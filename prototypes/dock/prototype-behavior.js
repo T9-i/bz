@@ -1,5 +1,5 @@
-/* 源指纹 ddb92f59ec2316be · 仓内输入 61 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
+/* 源指纹 a9f80e55073ad406 · 仓内输入 63 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/vault-key.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
   var __defProp = Object.defineProperty;
@@ -124,6 +124,11 @@ var BZW_dock = (() => {
   });
 
   // src/core/app.ts
+  var app_exports = {};
+  __export(app_exports, {
+    getApp: () => getApp,
+    setApp: () => setApp
+  });
   function setApp(app2) {
     _app = app2;
   }
@@ -3047,6 +3052,61 @@ var BZW_dock = (() => {
     }
   });
 
+  // src/core/plugin-path.ts
+  var plugin_path_exports = {};
+  __export(plugin_path_exports, {
+    injectedPluginRelDir: () => injectedPluginRelDir,
+    pluginDirOf: () => pluginDirOf,
+    pluginRelDirOf: () => pluginRelDirOf,
+    pluginVaultPath: () => pluginVaultPath,
+    setPluginRelDir: () => setPluginRelDir,
+    vaultBasePathOf: () => vaultBasePathOf
+  });
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function setPluginRelDir(rel) {
+    injectedRelDir = trimSlashes(String(rel || ""));
+  }
+  function injectedPluginRelDir() {
+    return injectedRelDir;
+  }
+  function pluginRelDirOf(app2) {
+    var _a, _b, _c, _d;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c = (_b = (_a = app2 == null ? void 0 : app2.plugins) == null ? void 0 : _a.manifests) == null ? void 0 : _b.bz) == null ? void 0 : _c.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d = app2 == null ? void 0 : app2.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app2) {
+    var _a, _b;
+    const adapter = (_a = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a.adapter;
+    try {
+      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app2) {
+    const base = vaultBasePathOf(app2);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app2)}`;
+  }
+  function pluginVaultPath(app2, rel) {
+    const dir = pluginRelDirOf(app2);
+    return `${dir}/${trimSlashes(rel)}`;
+  }
+  var injectedRelDir;
+  var init_plugin_path = __esm({
+    "src/core/plugin-path.ts"() {
+      injectedRelDir = "";
+    }
+  });
+
   // prototypes/dock/fake-sim.ts
   var fake_sim_exports = {};
   __export(fake_sim_exports, {
@@ -4316,6 +4376,23 @@ var BZW_dock = (() => {
 
   // src/dock/watchdog-status.ts
   init_files();
+
+  // src/core/vault-key.ts
+  function normalizeVaultPath(vault) {
+    return String(vault || "").trim().replace(/\\/g, "/").replace(/\/+$/, "");
+  }
+  function vaultKeyOf(vault) {
+    const text = normalizeVaultPath(vault);
+    if (!text) return "";
+    let h = 2166136261;
+    for (const byte of new TextEncoder().encode(text)) {
+      h ^= byte;
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h.toString(16).padStart(8, "0");
+  }
+
+  // src/dock/watchdog-status.ts
   var WATCHDOG_DIRNAME = "bz-dock-watch";
   function watchdogDirOf(env = guessEnv()) {
     var _a, _b, _c;
@@ -4325,15 +4402,40 @@ var BZW_dock = (() => {
     if (home) return `${home.replace(/[\\/]+$/, "")}/AppData/Local/${WATCHDOG_DIRNAME}`;
     return WATCHDOG_DIRNAME;
   }
+  function watchdogVaultDirOf(vault, env = guessEnv()) {
+    const key = vaultKeyOf(vault);
+    const root = watchdogDirOf(env);
+    return key ? `${root}/vaults/${key}` : root;
+  }
+  function currentVaultPath() {
+    try {
+      const { getApp: getApp2 } = (init_app(), __toCommonJS(app_exports));
+      const { vaultBasePathOf: vaultBasePathOf2 } = (init_plugin_path(), __toCommonJS(plugin_path_exports));
+      return vaultBasePathOf2(getApp2());
+    } catch (e) {
+      return "";
+    }
+  }
+  function activeWatchdogVault(fs = currentFs()) {
+    const text = fs ? fs.readText(`${watchdogDirOf()}/active.json`) : null;
+    if (!text) return null;
+    try {
+      const raw = JSON.parse(text);
+      const vault = String((raw == null ? void 0 : raw.vault) || "").trim().replace(/[\\/]+$/, "");
+      return vault ? { vault, key: vaultKeyOf(vault) } : null;
+    } catch (e) {
+      return null;
+    }
+  }
   function guessEnv() {
     var _a, _b;
     const g = globalThis;
     const env = (_b = (_a = g.process) == null ? void 0 : _a.env) != null ? _b : {};
     return { LOCALAPPDATA: env.LOCALAPPDATA, USERPROFILE: env.USERPROFILE, HOME: env.HOME };
   }
-  function liveLogFileOf(toolId) {
+  function liveLogFileOf(toolId, vault = currentVaultPath()) {
     const safe = String(toolId || "unknown").replace(/[^A-Za-z0-9._-]/g, "_");
-    return `${watchdogDirOf()}/live/${safe}.jsonl`;
+    return `${watchdogVaultDirOf(vault)}/live/${safe}.jsonl`;
   }
   function parseLiveLog(text, limit = 40) {
     if (!text) return [];
@@ -4354,10 +4456,15 @@ var BZW_dock = (() => {
     }
     return out.slice(-limit);
   }
-  function liveLogOf(toolId, limit = 40, fs = currentFs()) {
+  function liveLogOf(toolId, limit = 40, fs = currentFs(), vault = currentVaultPath()) {
     if (!fs) return [];
-    const file = liveLogFileOf(toolId);
+    const file = liveLogFileOf(toolId, vault);
     const text = fs.readTail ? fs.readTail(file, 64 * 1024) : fs.readText(file);
+    if (text === null && !activeWatchdogVault(fs)) {
+      const legacy = `${watchdogDirOf()}/live/${String(toolId || "unknown").replace(/[^A-Za-z0-9._-]/g, "_")}.jsonl`;
+      const old = fs.readTail ? fs.readTail(legacy, 64 * 1024) : fs.readText(legacy);
+      return parseLiveLog(old, limit);
+    }
     return parseLiveLog(text, limit);
   }
 

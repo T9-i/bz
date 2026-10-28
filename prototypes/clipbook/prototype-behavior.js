@@ -1,5 +1,5 @@
-/* 源指纹 e0ac25c181b02155 · 仓内输入 133 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
+/* 源指纹 a1d5ef3ff32da3df · 仓内输入 135 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/offline-source.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/clipbook/fake-sim.ts → window.BZW_clipbook（行为单源预览包，issue 245/ADR-0106） */
 var BZW_clipbook = (() => {
   var __create = Object.create;
@@ -5649,11 +5649,31 @@ var BZW_clipbook = (() => {
 
   // src/core/remote-base.ts
   function downloadRemotesFor(fileName) {
-    return REPO_BASES.map((b) => `${b}/downloads/${fileName}`);
+    return repoBases().map((b) => `${b}/downloads/${fileName}`);
+  }
+  function normalizeMirrorBase(raw) {
+    const text = String(raw != null ? raw : "").trim().replace(/\/+$/, "");
+    if (!text) return "";
+    if (!/^https?:\/\/[^\s]+$/i.test(text)) return "";
+    return text;
+  }
+  function mirrorBases() {
+    var _a;
+    try {
+      const raw = String((_a = tryGetSettings().resourceMirror) != null ? _a : "");
+      return raw.split(/[\s,;]+/).map(normalizeMirrorBase).filter(Boolean);
+    } catch (e) {
+      return [];
+    }
+  }
+  function repoBases() {
+    const mirror = mirrorBases();
+    return mirror.length ? [...mirror, ...REPO_BASES] : REPO_BASES;
   }
   var REPO_SLUG, JSDELIVR_HOSTS, REPO_BASES;
   var init_remote_base = __esm({
     "src/core/remote-base.ts"() {
+      init_settings_provider();
       REPO_SLUG = "yeshimei/bz";
       JSDELIVR_HOSTS = ["cdn.jsdelivr.net", "fastly.jsdelivr.net", "gcore.jsdelivr.net", "testingcf.jsdelivr.net"];
       REPO_BASES = [
@@ -5682,7 +5702,7 @@ var BZW_clipbook = (() => {
     const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
     try {
       const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return trimSlashes(String(p || ""));
+      return String(p || "").replace(/[\\/]+$/, "");
     } catch (e) {
       return "";
     }
@@ -5700,6 +5720,55 @@ var BZW_clipbook = (() => {
   var init_plugin_path = __esm({
     "src/core/plugin-path.ts"() {
       injectedRelDir = "";
+    }
+  });
+
+  // src/core/offline-source.ts
+  function offlineRootOf(app) {
+    const base = vaultBasePathOf(app);
+    return base ? `${base}/${OFFLINE_DIR}` : "";
+  }
+  function offlineFileOf(app, rel) {
+    const root = offlineRootOf(app);
+    if (!root) return "";
+    return `${root}/${String(rel || "").replace(/^[\\/]+/, "")}`;
+  }
+  function nodeRequire(name) {
+    var _a, _b;
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      return (_b = (_a = w == null ? void 0 : w.require) == null ? void 0 : _a.call(w, name)) != null ? _b : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  async function readOfflineBytes(app, rel) {
+    const abs = offlineFileOf(app, rel);
+    if (!abs) return null;
+    const fs = nodeRequire("fs");
+    if (!(fs == null ? void 0 : fs.readFileSync)) return null;
+    try {
+      if (fs.existsSync && !fs.existsSync(abs)) return null;
+      const buf = fs.readFileSync(abs);
+      return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+    } catch (e) {
+      return null;
+    }
+  }
+  async function readOfflineText(app, rel) {
+    const bytes = await readOfflineBytes(app, rel);
+    if (!bytes) return null;
+    try {
+      return new TextDecoder("utf-8").decode(bytes);
+    } catch (e) {
+      return null;
+    }
+  }
+  var OFFLINE_DIR;
+  var init_offline_source = __esm({
+    "src/core/offline-source.ts"() {
+      init_plugin_path();
+      OFFLINE_DIR = "bz-offline";
     }
   });
 
@@ -5728,8 +5797,15 @@ var BZW_clipbook = (() => {
       }
     }
   }
-  async function fetchAssetText(fileName, validate, label, unit = "页") {
+  async function fetchAssetText(fileName, validate, label, unit = "页", app) {
     let lastErr = "";
+    if (app) {
+      try {
+        const offline = await readOfflineText(app, `downloads/${fileName}`);
+        if (offline !== null && validate(offline)) return offline;
+      } catch (e) {
+      }
+    }
     for (const url of remotesFor(fileName)) {
       try {
         const res = await requestUrl({ url, method: "GET", throw: true });
@@ -5755,6 +5831,17 @@ var BZW_clipbook = (() => {
     const cached = await readAsset(app, fileName);
     if (cached !== null && (!want || textSha256(cached) === want)) return cached;
     let lastErr = "";
+    try {
+      const offline = await readOfflineText(app, `downloads/${fileName}`);
+      if (offline !== null) {
+        if (!want || textSha256(offline) === want) {
+          await writeAssetText(app, fileName, offline);
+          return offline;
+        }
+        lastErr = "bz-offline 里的副本 sha256 对不上（与清单不是同一版）";
+      }
+    } catch (e) {
+    }
     for (const url of remotesFor(fileName)) {
       try {
         const res = await requestUrl({ url, method: "GET", throw: true });
@@ -5794,6 +5881,7 @@ var BZW_clipbook = (() => {
       init_domain_bus();
       init_remote_base();
       init_plugin_path();
+      init_offline_source();
       DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
       DOWNLOADS_DIR = "downloads";
     }
@@ -5871,7 +5959,8 @@ var BZW_clipbook = (() => {
       MANIFEST_FILE,
       (t) => parseDownloadManifest(t) !== null,
       "下载清单",
-      ""
+      "",
+      app
     );
     const manifest = parseDownloadManifest(text);
     await writeAssetText(app, MANIFEST_FILE, text);
@@ -9812,6 +9901,14 @@ ${c.trim()}
     }
   });
 
+  // src/core/net-progress.ts
+  var MAX_BYTES;
+  var init_net_progress = __esm({
+    "src/core/net-progress.ts"() {
+      MAX_BYTES = 300 * 1024 * 1024;
+    }
+  });
+
   // src/core/node-runtime-install.ts
   function bundledNodeFile(platform = currentPlatform()) {
     return platform === "win32" ? "node.exe" : "bin/node";
@@ -9827,6 +9924,8 @@ ${c.trim()}
       init_plugin_path();
       init_zip();
       init_tar();
+      init_offline_source();
+      init_net_progress();
       NODE_RUNTIME_REL = "tools/node-runtime";
       NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/${NODE_RUNTIME_REL}`;
       MAX_ARCHIVE_BYTES = 200 * 1024 * 1024;

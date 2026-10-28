@@ -1,5 +1,5 @@
-/* 源指纹 3fc3b943e2ebea12 · 仓内输入 306 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/memo/fake-sim.ts","prototypes/memo/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/file-sync.ts","src/memo/reminder.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 e04d0629df7ecdba · 仓内输入 309 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/memo/fake-sim.ts","prototypes/memo/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/offline-source.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/vault-key.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/file-sync.ts","src/memo/reminder.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/memo/fake-sim.ts → window.BZW_memo（行为单源预览包，issue 245/ADR-0106） */
 var BZW_memo = (() => {
   var __create = Object.create;
@@ -6233,11 +6233,31 @@ var BZW_memo = (() => {
     return tagBasesFor(tag).map((b) => `${b}/${name}`);
   }
   function downloadRemotesFor(fileName) {
-    return REPO_BASES.map((b) => `${b}/downloads/${fileName}`);
+    return repoBases().map((b) => `${b}/downloads/${fileName}`);
+  }
+  function normalizeMirrorBase(raw) {
+    const text2 = String(raw != null ? raw : "").trim().replace(/\/+$/, "");
+    if (!text2) return "";
+    if (!/^https?:\/\/[^\s]+$/i.test(text2)) return "";
+    return text2;
+  }
+  function mirrorBases() {
+    var _a2;
+    try {
+      const raw = String((_a2 = tryGetSettings().resourceMirror) != null ? _a2 : "");
+      return raw.split(/[\s,;]+/).map(normalizeMirrorBase).filter(Boolean);
+    } catch (e) {
+      return [];
+    }
+  }
+  function repoBases() {
+    const mirror = mirrorBases();
+    return mirror.length ? [...mirror, ...REPO_BASES] : REPO_BASES;
   }
   var REPO_SLUG, JSDELIVR_HOSTS, REPO_BASES, RELEASE_POINTER, TAG_RE;
   var init_remote_base = __esm({
     "src/core/remote-base.ts"() {
+      init_settings_provider();
       REPO_SLUG = "yeshimei/bz";
       JSDELIVR_HOSTS = ["cdn.jsdelivr.net", "fastly.jsdelivr.net", "gcore.jsdelivr.net", "testingcf.jsdelivr.net"];
       REPO_BASES = [
@@ -6268,7 +6288,7 @@ var BZW_memo = (() => {
     const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
     try {
       const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return trimSlashes(String(p || ""));
+      return String(p || "").replace(/[\\/]+$/, "");
     } catch (e) {
       return "";
     }
@@ -6286,6 +6306,55 @@ var BZW_memo = (() => {
   var init_plugin_path = __esm({
     "src/core/plugin-path.ts"() {
       injectedRelDir = "";
+    }
+  });
+
+  // src/core/offline-source.ts
+  function offlineRootOf(app) {
+    const base = vaultBasePathOf(app);
+    return base ? `${base}/${OFFLINE_DIR}` : "";
+  }
+  function offlineFileOf(app, rel) {
+    const root = offlineRootOf(app);
+    if (!root) return "";
+    return `${root}/${String(rel || "").replace(/^[\\/]+/, "")}`;
+  }
+  function nodeRequire(name) {
+    var _a2, _b2;
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      return (_b2 = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, name)) != null ? _b2 : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  async function readOfflineBytes(app, rel) {
+    const abs = offlineFileOf(app, rel);
+    if (!abs) return null;
+    const fs = nodeRequire("fs");
+    if (!(fs == null ? void 0 : fs.readFileSync)) return null;
+    try {
+      if (fs.existsSync && !fs.existsSync(abs)) return null;
+      const buf = fs.readFileSync(abs);
+      return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+    } catch (e) {
+      return null;
+    }
+  }
+  async function readOfflineText(app, rel) {
+    const bytes = await readOfflineBytes(app, rel);
+    if (!bytes) return null;
+    try {
+      return new TextDecoder("utf-8").decode(bytes);
+    } catch (e) {
+      return null;
+    }
+  }
+  var OFFLINE_DIR;
+  var init_offline_source = __esm({
+    "src/core/offline-source.ts"() {
+      init_plugin_path();
+      OFFLINE_DIR = "bz-offline";
     }
   });
 
@@ -6314,8 +6383,15 @@ var BZW_memo = (() => {
       }
     }
   }
-  async function fetchAssetText(fileName, validate, label, unit = "页") {
+  async function fetchAssetText(fileName, validate, label, unit = "页", app) {
     let lastErr = "";
+    if (app) {
+      try {
+        const offline = await readOfflineText(app, `downloads/${fileName}`);
+        if (offline !== null && validate(offline)) return offline;
+      } catch (e) {
+      }
+    }
     for (const url of remotesFor(fileName)) {
       try {
         const res = await requestUrl({ url, method: "GET", throw: true });
@@ -6341,6 +6417,17 @@ var BZW_memo = (() => {
     const cached = await readAsset(app, fileName);
     if (cached !== null && (!want || textSha256(cached) === want)) return cached;
     let lastErr = "";
+    try {
+      const offline = await readOfflineText(app, `downloads/${fileName}`);
+      if (offline !== null) {
+        if (!want || textSha256(offline) === want) {
+          await writeAssetText(app, fileName, offline);
+          return offline;
+        }
+        lastErr = "bz-offline 里的副本 sha256 对不上（与清单不是同一版）";
+      }
+    } catch (e) {
+    }
     for (const url of remotesFor(fileName)) {
       try {
         const res = await requestUrl({ url, method: "GET", throw: true });
@@ -6365,7 +6452,7 @@ var BZW_memo = (() => {
     }
   }
   async function downloadAsset(app, fileName, validate, label) {
-    const text2 = await fetchAssetText(fileName, validate, label, "页");
+    const text2 = await fetchAssetText(fileName, validate, label, "页", app);
     await writeAssetText(app, fileName, text2);
   }
   async function readAsset(app, fileName) {
@@ -6392,7 +6479,7 @@ var BZW_memo = (() => {
         const local2 = await readAsset(app, fileName);
         if (local2 !== null && textSha256(local2) === want) return null;
       }
-      const text2 = await fetchAssetText(fileName, validate, label, "页");
+      const text2 = await fetchAssetText(fileName, validate, label, "页", app);
       const local = await readAsset(app, fileName);
       if (local !== null && textSha256(text2) === textSha256(local)) return null;
       await writeAssetText(app, fileName, text2);
@@ -6409,6 +6496,7 @@ var BZW_memo = (() => {
       init_domain_bus();
       init_remote_base();
       init_plugin_path();
+      init_offline_source();
       DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
       DOWNLOADS_DIR = "downloads";
     }
@@ -6492,7 +6580,8 @@ var BZW_memo = (() => {
       MANIFEST_FILE,
       (t) => parseDownloadManifest(t) !== null,
       "下载清单",
-      ""
+      "",
+      app
     );
     const manifest = parseDownloadManifest(text2);
     await writeAssetText(app, MANIFEST_FILE, text2);
@@ -19151,6 +19240,58 @@ ${countsToText(s.missing)}
     }
   });
 
+  // src/core/net-progress.ts
+  async function fetchBytesWithProgress(url, onProgress) {
+    var _a2, _b2;
+    if (typeof fetch !== "function") return null;
+    try {
+      const res = await fetch(url, { method: "GET" });
+      if (!(res == null ? void 0 : res.ok)) return null;
+      const total = Number(((_b2 = (_a2 = res.headers) == null ? void 0 : _a2.get) == null ? void 0 : _b2.call(_a2, "content-length")) || 0);
+      const body = res.body;
+      if (!body || typeof body.getReader !== "function") {
+        const buf = new Uint8Array(await res.arrayBuffer());
+        if (buf.byteLength > MAX_BYTES) return null;
+        onProgress == null ? void 0 : onProgress(buf.byteLength, total || buf.byteLength);
+        return buf;
+      }
+      const reader = body.getReader();
+      const chunks = [];
+      let got = 0;
+      for (; ; ) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!value) continue;
+        got += value.byteLength;
+        if (got > MAX_BYTES) {
+          try {
+            await reader.cancel();
+          } catch (e) {
+          }
+          return null;
+        }
+        chunks.push(value);
+        onProgress == null ? void 0 : onProgress(got, total);
+      }
+      if (!got) return null;
+      const out = new Uint8Array(got);
+      let off = 0;
+      for (const c of chunks) {
+        out.set(c, off);
+        off += c.byteLength;
+      }
+      return out;
+    } catch (e) {
+      return null;
+    }
+  }
+  var MAX_BYTES;
+  var init_net_progress = __esm({
+    "src/core/net-progress.ts"() {
+      MAX_BYTES = 300 * 1024 * 1024;
+    }
+  });
+
   // src/core/node-runtime-install.ts
   function portableNodeDownloadsRel(platform = currentPlatform()) {
     return `${NODE_RUNTIME_REL}/${bundledNodeFile(platform)}`;
@@ -19183,11 +19324,50 @@ ${countsToText(s.missing)}
       `https://nodejs.org/dist/${version}/${file}`
     ];
   }
-  async function defaultFetchBytes(url) {
+  async function defaultFetchBytes(url, onProgress) {
+    const streamed = await fetchBytesWithProgress(url, onProgress);
+    if (streamed && streamed.byteLength) return streamed;
     const res = await requestUrl({ url, method: "GET", throw: true });
     const ab = res.arrayBuffer;
     if (!ab) throw new Error("响应没有二进制体");
     return new Uint8Array(ab);
+  }
+  function cacheRelOf(plan) {
+    return `${NODE_CACHE_REL}/${plan.file}`;
+  }
+  function adapterOf(app) {
+    var _a2, _b2;
+    return (_b2 = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter) != null ? _b2 : null;
+  }
+  async function readCachedArchive(app, plan) {
+    const adapter = adapterOf(app);
+    if (!(adapter == null ? void 0 : adapter.readBinary)) return null;
+    try {
+      const ab = await adapter.readBinary(downloadsVaultPath(app, cacheRelOf(plan)));
+      const bytes = new Uint8Array(ab);
+      return bytes.byteLength > 1024 ? bytes : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  async function writeCachedArchive(app, plan, bytes) {
+    const adapter = adapterOf(app);
+    if (!(adapter == null ? void 0 : adapter.writeBinary)) return;
+    try {
+      await ensureDir(app, cacheRelOf(plan));
+      await adapter.writeBinary(
+        downloadsVaultPath(app, cacheRelOf(plan)),
+        bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+      );
+    } catch (e) {
+    }
+  }
+  async function dropCachedArchive(app, plan) {
+    var _a2, _b2;
+    try {
+      await ((_b2 = (_a2 = adapterOf(app)) == null ? void 0 : _a2.remove) == null ? void 0 : _b2.call(_a2, downloadsVaultPath(app, cacheRelOf(plan))));
+    } catch (e) {
+    }
   }
   function defaultGunzip(bytes) {
     var _a2, _b2, _c;
@@ -19239,21 +19419,45 @@ ${countsToText(s.missing)}
     }
   }
   async function installPortableNode(app, deps = {}) {
-    var _a2, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+    var _a2, _b2, _c, _d, _e;
     const platform = (_a2 = deps.platform) != null ? _a2 : currentPlatform();
     const arch = (_b2 = deps.arch) != null ? _b2 : currentArch();
     const plans = nodeArchivePlans(platform, arch);
     if (!plans.length) {
       throw new Error(`本平台没有官方 Node 产物（${platform}/${arch}）：请自行安装 Node.js 后重试`);
     }
-    const fetchBytes = (_c = deps.fetchBytes) != null ? _c : defaultFetchBytes;
+    const fetchBytes = deps.fetchBytes;
     const member = bundledNodeFile(platform);
     let lastErr = "";
     for (const plan of plans) {
+      const cached = await readCachedArchive(app, plan);
+      if (cached) {
+        try {
+          (_c = deps.onStage) == null ? void 0 : _c.call(deps, "用上次下载的归档重装（不联网）");
+          const r = await installFromArchive(app, cached, plan, deps);
+          return r;
+        } catch (e) {
+          lastErr = `缓存归档不可用：${(e == null ? void 0 : e.message) || String(e)}`;
+          await dropCachedArchive(app, plan);
+        }
+      }
+      try {
+        const offline = await readOfflineBytes(app, `node/${plan.file}`);
+        if (offline && offline.byteLength > 0) {
+          (_d = deps.onStage) == null ? void 0 : _d.call(deps, "用离线包安装 Node 运行时");
+          const r = await installFromArchive(app, offline, plan, deps);
+          await writeCachedArchive(app, plan, offline);
+          return r;
+        }
+      } catch (e) {
+      }
       for (const url of plan.urls) {
         try {
-          (_d = deps.onStage) == null ? void 0 : _d.call(deps, `正在下载 Node 运行时（约 36 MB）`);
-          const archive = await fetchBytes(url);
+          (_e = deps.onStage) == null ? void 0 : _e.call(deps, `正在下载 Node 运行时（约 36 MB）`);
+          const archive = fetchBytes ? await fetchBytes(url) : await defaultFetchBytes(url, (got, total) => {
+            var _a3;
+            return (_a3 = deps.onProgress) == null ? void 0 : _a3.call(deps, got, total);
+          });
           if (!archive.byteLength) {
             lastErr = `${url} 返回空内容`;
             continue;
@@ -19262,34 +19466,9 @@ ${countsToText(s.missing)}
             lastErr = `${url} 体积异常（${archive.byteLength} 字节），拒收`;
             continue;
           }
-          (_e = deps.onStage) == null ? void 0 : _e.call(deps, "正在解压");
-          const bin = extractMember(archive, plan, deps);
-          if (bin.byteLength < MIN_NODE_BYTES) {
-            lastErr = `${url} 解出的 ${member} 太小（${bin.byteLength} 字节），不像运行时`;
-            continue;
-          }
-          (_f = deps.onStage) == null ? void 0 : _f.call(deps, "正在写入插件目录");
-          const rel = portableNodeDownloadsRel(platform);
-          await ensureDir(app, rel);
-          const ab = bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength);
-          const adapter = (_g = app.vault) == null ? void 0 : _g.adapter;
-          if (!(adapter == null ? void 0 : adapter.writeBinary)) throw new Error("当前环境无法写入二进制文件（便携 Node 需要桌面端）");
-          await adapter.writeBinary(downloadsVaultPath(app, rel), ab);
-          if (platform !== "win32") {
-            try {
-              const abs = `${pluginDirOf(app)}/${rel}`;
-              (_j = (_i = (_h = window.require) == null ? void 0 : _h.call(window, "fs")) == null ? void 0 : _i.chmodSync) == null ? void 0 : _j.call(_i, abs, 493);
-            } catch (e) {
-            }
-          }
-          (_k = deps.onStage) == null ? void 0 : _k.call(deps, "正在验证");
-          const version = runNodeVersion(`${pluginDirOf(app)}/${portableNodeRelPath(platform)}`);
-          if (!version) {
-            await removeQuietly(app, rel);
-            lastErr = "下载的 Node 无法运行（可能是网络中断或文件被拦截）";
-            continue;
-          }
-          return { version, path: `${pluginDirOf(app)}/${rel}`, bytes: bin.byteLength };
+          const r = await installFromArchive(app, archive, plan, deps);
+          await writeCachedArchive(app, plan, archive);
+          return r;
         } catch (e) {
           lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
         }
@@ -19297,10 +19476,44 @@ ${countsToText(s.missing)}
     }
     throw new Error(`Node 运行时安装失败：${lastErr}`);
   }
+  async function installFromArchive(app, archive, plan, deps) {
+    var _a2, _b2, _c, _d, _e, _f, _g, _h, _i;
+    const platform = plan.kind === "zip" ? (_a2 = deps.platform) != null ? _a2 : currentPlatform() : (_b2 = deps.platform) != null ? _b2 : currentPlatform();
+    const member = bundledNodeFile(platform);
+    if (archive.byteLength > MAX_ARCHIVE_BYTES) {
+      throw new Error(`归档体积异常（${archive.byteLength} 字节）`);
+    }
+    (_c = deps.onStage) == null ? void 0 : _c.call(deps, "正在解压");
+    const bin = extractMember(archive, plan, deps);
+    if (bin.byteLength < MIN_NODE_BYTES) {
+      throw new Error(`解出的 ${member} 太小（${bin.byteLength} 字节），不像运行时`);
+    }
+    (_d = deps.onStage) == null ? void 0 : _d.call(deps, "正在写入插件目录");
+    const rel = portableNodeDownloadsRel(platform);
+    await ensureDir(app, rel);
+    const ab = bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength);
+    const adapter = (_e = app.vault) == null ? void 0 : _e.adapter;
+    if (!(adapter == null ? void 0 : adapter.writeBinary)) throw new Error("当前环境无法写入二进制文件（便携 Node 需要桌面端）");
+    await adapter.writeBinary(downloadsVaultPath(app, rel), ab);
+    if (platform !== "win32") {
+      try {
+        const abs = `${pluginDirOf(app)}/${rel}`;
+        (_h = (_g = (_f = window.require) == null ? void 0 : _f.call(window, "fs")) == null ? void 0 : _g.chmodSync) == null ? void 0 : _h.call(_g, abs, 493);
+      } catch (e) {
+      }
+    }
+    (_i = deps.onStage) == null ? void 0 : _i.call(deps, "正在验证");
+    const version = runNodeVersion(`${pluginDirOf(app)}/${portableNodeRelPath(platform)}`);
+    if (!version) {
+      await removeQuietly(app, rel);
+      throw new Error("下载的 Node 无法运行（可能是网络中断或文件被拦截）");
+    }
+    return { version, path: `${pluginDirOf(app)}/${rel}`, bytes: bin.byteLength };
+  }
   function portableNodeRelPath(platform = currentPlatform()) {
     return `${NODE_RUNTIME_DIR}/${bundledNodeFile(platform)}`;
   }
-  var PORTABLE_NODE_VERSION, NODE_RUNTIME_REL, NODE_RUNTIME_DIR, MAX_ARCHIVE_BYTES, MIN_NODE_BYTES;
+  var PORTABLE_NODE_VERSION, NODE_RUNTIME_REL, NODE_RUNTIME_DIR, MAX_ARCHIVE_BYTES, MIN_NODE_BYTES, NODE_CACHE_REL;
   var init_node_runtime_install = __esm({
     "src/core/node-runtime-install.ts"() {
       init_fake_obsidian();
@@ -19308,11 +19521,14 @@ ${countsToText(s.missing)}
       init_plugin_path();
       init_zip();
       init_tar();
+      init_offline_source();
+      init_net_progress();
       PORTABLE_NODE_VERSION = "v24.14.1";
       NODE_RUNTIME_REL = "tools/node-runtime";
       NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/${NODE_RUNTIME_REL}`;
       MAX_ARCHIVE_BYTES = 200 * 1024 * 1024;
       MIN_NODE_BYTES = 5 * 1024 * 1024;
+      NODE_CACHE_REL = "tools/.cache";
     }
   });
 
@@ -32004,17 +32220,39 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   async function readTextRel(app, rel) {
     return readAsset(app, rel);
   }
-  async function bundleStatus(app, entry) {
+  async function bundleStatus(app, entry, opts = {}) {
     const dir = bundleDirOf(entry.file);
     const text2 = await readTextRel(app, `${dir}/${BUNDLE_MARKER}`);
     if (text2 === null) return "missing";
+    let m;
     try {
-      const m = JSON.parse(text2);
-      const got = String((m == null ? void 0 : m.sha256) || "").toLowerCase();
-      if (!got) return "updated";
-      return got === String(entry.sha256 || "").toLowerCase() ? "ready" : "updated";
+      m = JSON.parse(text2);
     } catch (e) {
       return "updated";
+    }
+    const got = String((m == null ? void 0 : m.sha256) || "").toLowerCase();
+    if (!got) return "updated";
+    if (got !== String(entry.sha256 || "").toLowerCase()) return "updated";
+    if (opts.deep && !await filesIntact(app, dir, m)) return "updated";
+    return "ready";
+  }
+  async function filesIntact(app, dir, marker) {
+    var _a2, _b2;
+    const sizes = marker.sizes;
+    if (!Array.isArray(sizes) || !sizes.length) return true;
+    const fs = typeof window !== "undefined" ? (_a2 = window == null ? void 0 : window.require) == null ? void 0 : _a2.call(window, "fs") : null;
+    if (!(fs == null ? void 0 : fs.statSync)) return true;
+    const base = vaultBasePathOf(app);
+    if (!base) return true;
+    try {
+      for (const [rel, size] of sizes) {
+        const abs = `${base}/${downloadsVaultPath(app, `${dir}/${rel}`)}`;
+        const st = fs.statSync(abs);
+        if (!((_b2 = st == null ? void 0 : st.isFile) == null ? void 0 : _b2.call(st)) || Number(st.size) !== Number(size)) return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
     }
   }
   async function readBundleMarker(app, entry) {
@@ -32040,6 +32278,14 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     } catch (e) {
     }
     let lastErr = "";
+    try {
+      const offline = await readOfflineBytes(app, `downloads/${entry.file}`);
+      if (offline && offline.byteLength > 0 && (!want || sha256Bytes(offline) === want)) {
+        return offline;
+      }
+      if (offline) lastErr = "bz-offline 里的归档 sha256 对不上（与清单不是同一版）";
+    } catch (e) {
+    }
     for (const url of downloadRemotesFor(entry.file)) {
       try {
         const bytes = await fetchBytes(url);
@@ -32108,6 +32354,10 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       id: entry.id,
       sha256: String(entry.sha256 || "").toLowerCase(),
       files: files.length,
+      bytes,
+      // 每个文件的字节数（解包当时的真值）。深校验用它逐个 stat —— 文件被安全软件删掉、
+      // 被同步盘截断、被手工改坏，都能在「打开面板」这一刻看出来，而不是等它跑起来才报错。
+      sizes: files.map((f) => [f.path, f.data.byteLength]),
       at: Date.now()
     };
     await ensureDir(app, `${dir}/${BUNDLE_MARKER}`);
@@ -32131,8 +32381,29 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       init_tar();
       init_remote_asset();
       init_domain_bus();
+      init_offline_source();
+      init_plugin_path();
       BUNDLE_MARKER = ".bz-bundle.json";
       inFlight = /* @__PURE__ */ new Map();
+    }
+  });
+
+  // src/core/vault-key.ts
+  function normalizeVaultPath(vault) {
+    return String(vault || "").trim().replace(/\\/g, "/").replace(/\/+$/, "");
+  }
+  function vaultKeyOf(vault) {
+    const text2 = normalizeVaultPath(vault);
+    if (!text2) return "";
+    let h = 2166136261;
+    for (const byte of new TextEncoder().encode(text2)) {
+      h ^= byte;
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h.toString(16).padStart(8, "0");
+  }
+  var init_vault_key = __esm({
+    "src/core/vault-key.ts"() {
     }
   });
 
@@ -32144,6 +32415,30 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const home = String(env.USERPROFILE || env.HOME || "").trim();
     if (home) return `${home.replace(/[\\/]+$/, "")}/AppData/Local/bz-dock-watch`;
     return "bz-dock-watch";
+  }
+  function watchdogVaultDirPath(vault) {
+    const root = watchdogDirPath();
+    const key = vaultKeyOf(vault);
+    return key ? `${root}/vaults/${key}` : root;
+  }
+  function nodeFs() {
+    var _a2, _b2;
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      return (_b2 = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "fs")) != null ? _b2 : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function readJsonAt(file) {
+    const fs = nodeFs();
+    try {
+      if (!(fs == null ? void 0 : fs.readFileSync)) return null;
+      const raw = JSON.parse(String(fs.readFileSync(file, "utf8")));
+      return raw && typeof raw === "object" ? raw : null;
+    } catch (e) {
+      return null;
+    }
   }
   function runPowerShell(args, cwd) {
     return new Promise((resolve2) => {
@@ -32177,17 +32472,15 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       child.on("close", (code) => resolve2({ code, out }));
     });
   }
-  async function readWatchdogConfig() {
-    var _a2;
-    const w = typeof window !== "undefined" ? window : null;
-    try {
-      const fs = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "fs");
-      if (!(fs == null ? void 0 : fs.readFileSync)) return null;
-      const text2 = fs.readFileSync(`${watchdogDirPath()}/config.json`, "utf8");
-      return JSON.parse(String(text2));
-    } catch (e) {
-      return null;
-    }
+  async function readWatchdogConfig(vault) {
+    const cfg = readJsonAt(`${watchdogVaultDirPath(vault)}/config.json`);
+    if (cfg) return cfg;
+    if (readJsonAt(`${watchdogDirPath()}/active.json`)) return null;
+    return readJsonAt(`${watchdogDirPath()}/config.json`);
+  }
+  function activeWatchdogVault() {
+    const raw = readJsonAt(`${watchdogDirPath()}/active.json`);
+    return String((raw == null ? void 0 : raw.vault) || "").trim().replace(/[\\/]+$/, "");
   }
   async function setupAfterInstall(app, id) {
     var _a2;
@@ -32205,14 +32498,21 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       notice("值守已下载，但取不到 vault 路径：无法为它生成配置", "warning");
       return "failed";
     }
-    const existing = await readWatchdogConfig();
+    const existing = await readWatchdogConfig(vault);
     if (existing && String(existing.vault || "").replace(/[\\/]+$/, "") === vault) return "skipped";
+    const other = activeWatchdogVault();
+    const switching = !!other && other !== vault;
     const go = await openFlowDialog({
-      title: "启用工具坞值守",
-      message: "值守进程会在后台按你的规则表跑工具，Obsidian 关着也照跑。\n启用后会注册一个登录自启项（计划任务；标准用户自动回退到「启动」文件夹）。\n不想现在启用可以点取消，之后在工具坞面板里随时再开。",
+      title: switching ? "把值守切到这个库" : "启用工具坞值守",
+      message: switching ? `值守现在服务的是另一个库：
+${other}
+
+一台机器同时只跑一个值守进程，继续会把它切到这个库来 —— 那个库的定时任务之后不再执行（它的配置与日志都留着，在那边再点一次启用就切回去）。
+
+继续吗？` : "值守进程会在后台按你的规则表跑工具，Obsidian 关着也照跑。\n启用后会注册一个登录自启项（计划任务；标准用户自动回退到「启动」文件夹）。\n不想现在启用可以点取消，之后在工具坞面板里随时再开。",
       actions: [
         { label: "取消", value: "cancel" },
-        { label: "启用", value: "ok", cta: true }
+        { label: switching ? "切过来" : "启用", value: "ok", cta: true }
       ]
     });
     if (go !== "ok") return "skipped";
@@ -32234,6 +32534,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       init_flow_dialog();
       init_notice();
       init_tool_runtime();
+      init_vault_key();
     }
   });
 
@@ -32862,8 +33163,24 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     const toolRows = meta.rows.filter((r) => r.type === "button" && bundleIds.has(String(r.name)));
     const restRows = meta.rows.filter((r) => !toolRows.includes(r));
     const tools = { name: "外部工具", icon: "wrench", rows: toolRows };
-    const resources = { name: "在线资源", icon: "cloud-download", rows: restRows };
+    const resources = { name: "在线资源", icon: "cloud-download", rows: [...restRows, mirrorRow()] };
     return [tools, resources];
+  }
+  function mirrorRow() {
+    return {
+      type: "text",
+      name: "镜像源",
+      desc: "可选：内网镜像地址，下载资源时优先走它",
+      help: "填一个或多个（空格/逗号分隔）基址，插件下载在线资源时会**先**走这些地址，失败再回落官方通道。地址要与仓库结构一致：把仓库的 downloads/ 目录挂到 http://内网/static/bz 下，这里就填 http://内网/static/bz。只影响资源下载（文档、皮肤、工具包）；插件自更新仍走官方 tag，避免出问题时分不清是谁的锅。完全无外网时还有更省事的办法：把仓库 downloads/ 目录整个拷到 vault 下的 bz-offline/ 里，插件直接读本地。",
+      placeholder: "http://内网/static/bz",
+      binding: { key: "resourceMirror" },
+      onCommit: () => recheckAfterMirrorChange()
+    };
+  }
+  function recheckAfterMirrorChange() {
+    lastCheckAt = 0;
+    void checkInBackground().then(() => patchRenderedGroup()).catch(() => {
+    });
   }
   async function onlineResourcesGroup() {
     return (await onlineResourcesGroups())[1];
@@ -33510,6 +33827,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   // src/core/setup-wizard.ts
   var setup_wizard_exports = {};
   __export(setup_wizard_exports, {
+    LAZY_DOC_IDS: () => LAZY_DOC_IDS,
     SETUP_DONE_FALLBACK_KEY: () => SETUP_DONE_FALLBACK_KEY,
     buildSetupTasks: () => buildSetupTasks,
     defaultSelection: () => defaultSelection,
@@ -33538,8 +33856,14 @@ ${missing.map((m) => `- ${m}`).join("\n")}
           label: "Node 运行时",
           desc: `便携版 ${PORTABLE_NODE_VERSION}，装进插件目录`,
           size: NODE_SIZE_HINT,
-          run: async () => {
-            await installPortableNode(app);
+          run: async (report) => {
+            await installPortableNode(app, {
+              onStage: (stage) => report == null ? void 0 : report(stage),
+              onProgress: (got, total) => {
+                if (total > 0) report == null ? void 0 : report(`${Math.min(99, Math.round(got / total * 100))}% · ${sizeText2(got)} / ${sizeText2(total)}`);
+                else report == null ? void 0 : report(sizeText2(got));
+              }
+            });
             resetNodeRuntimeCache();
           }
         })
@@ -33581,12 +33905,14 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   }
   function docItem(app, e) {
     var _a2;
+    const lazy = LAZY_DOC_IDS.has(e.id);
     return {
       id: e.id,
       kind: "doc",
       label: e.name,
-      desc: "离线可读",
+      desc: lazy ? "按需下载：用到时自动拉" : "离线可读",
       size: (_a2 = e.size) != null ? _a2 : null,
+      ...lazy ? { optional: true } : {},
       run: async () => {
         await ensureAssetWithHash(app, e.file, e.sha256, e.name);
       }
@@ -33612,7 +33938,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   }
   function defaultSelection(items) {
     const sel = /* @__PURE__ */ new Set();
-    for (const it of items) if (!it.ready && it.kind !== "skins") sel.add(it.id);
+    for (const it of items) if (!it.ready && it.kind !== "skins" && !it.optional) sel.add(it.id);
     return sel;
   }
   function selectedTasks(items, selected) {
@@ -33719,7 +34045,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       group.appendChild(head);
       ui2.body.appendChild(group);
       for (const e of manifest.docs) {
-        const state3 = e.kind === "bundle" ? await bundleStatus(ctx.app, e) : await docStatus(ctx.app, e);
+        const state3 = e.kind === "bundle" ? await bundleStatus(ctx.app, e, { deep: true }) : await docStatus(ctx.app, e);
         const text3 = state3 === "ready" ? "已下载" : state3 === "updated" ? "有更新" : "未下载";
         paint(addRow(e.name, group), state3 === "ready" ? true : state3 === "updated" ? null : false, text3);
       }
@@ -33730,7 +34056,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
     const online = !!((net == null ? void 0 : net.github) || (net == null ? void 0 : net.jsdelivr));
     if (!online) {
-      ui2.sub.textContent = "连不上资源站：检查代理或网络后重试。插件主体仍可用，下载类功能要等网络恢复。";
+      ui2.sub.textContent = "连不上资源站。插件主体仍可用，下载类功能要等有网络。两条自带的路：① 把内网镜像填进「设置 → 通用 → 在线资源 → 镜像源」；② 把仓库的 downloads/ 目录拷到 vault 下的 bz-offline/，插件会直接读本地。";
       const later = button("bz-setup-btn", "稍后再说");
       later.onclick = () => {
         void markDone();
@@ -33847,6 +34173,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
           refreshFoot();
         };
         row.append(box, keyEl(it.label, it.desc), valEl(it.ready ? "已就绪" : sizeText2(it.size) || "待下载"));
+        if (it.optional && !it.ready) row.dataset.optional = "1";
         wrap.appendChild(row);
       }
       ui2.body.appendChild(wrap);
@@ -34017,7 +34344,9 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       row.append(mark, keyEl(t.label, t.desc), val);
       list.appendChild(row);
       try {
-        await t.run();
+        await t.run((text2) => {
+          val.textContent = text2;
+        });
         doneBytes += t.size || 0;
         mark.className = "bz-setup-mark bz-setup-mark--ok";
         val.textContent = "已就绪";
@@ -34120,7 +34449,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
   function openEnvironmentCheck(app = getApp()) {
     openSetupWizard(app, { firstRun: false });
   }
-  var NODE_SIZE_HINT, MANIFEST_TIMEOUT_MS, SETUP_DONE_FALLBACK_KEY;
+  var NODE_SIZE_HINT, MANIFEST_TIMEOUT_MS, LAZY_DOC_IDS, SETUP_DONE_FALLBACK_KEY;
   var init_setup_wizard = __esm({
     "src/core/setup-wizard.ts"() {
       init_notice();
@@ -34141,6 +34470,7 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       init_ai();
       NODE_SIZE_HINT = 36.4 * 1024 * 1024;
       MANIFEST_TIMEOUT_MS = 12e3;
+      LAZY_DOC_IDS = /* @__PURE__ */ new Set(["cinema-douban-index"]);
       SETUP_DONE_FALLBACK_KEY = "bz-setup-done";
     }
   });
@@ -67492,6 +67822,8 @@ ${n.content.slice(0, 2e3)}
         autoUpdate: false,
         // 首次引导没走过（首次启动会弹；走完或被跳过后置 true）
         setupDone: false,
+        // 自定义镜像源（空 = 只用官方通道）
+        resourceMirror: "",
         // 附件搬移（ticket 65，运行时记忆）
         attachLastFolder: "",
         // 通知（core notice toast 横切偏好，issue 297）
