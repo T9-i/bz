@@ -39,7 +39,8 @@ import {
   type SkinStatus,
 } from '../core/skin-pack';
 import { ensureAssetWithHash } from '../core/remote-asset';
-import { bundleStatus, installBundle, readBundleMarker } from '../core/bundle-asset';
+import { bundleDirOf, bundleStatus, installBundle, readBundleMarker } from '../core/bundle-asset';
+import { readAsset } from '../core/remote-asset';
 import { isToolBundleId, setupAfterInstall } from '../core/tool-setup';
 import { loadCategoryTable } from '../core/category-table';
 import { loadRssCatalog, catalogCategoryCounts } from '../core/rss-catalog';
@@ -81,11 +82,30 @@ const DESC_EXTRAS: Record<string, (app: unknown, entry: ManifestDocEntry) => Pro
   },
 };
 
-/** 就绪态的描述补充：目录包说「N 个文件」，文本资源走 DESC_EXTRAS 表（无则不补） */
+/**
+ * 读目录包自带的版本号（包内 `package.json` 的 version）。
+ *
+ * 为什么不再说「N 个文件」：文件数只说明解包了几条，说明不了「这是哪个版本的工具」——
+ * 用户排查问题时想知道的是版本。体积那一项由 rowDesc 统一拼在括号里，这里只给版本。
+ */
+async function bundleVersionOf(app: unknown, entry: ManifestDocEntry): Promise<string> {
+  const text = await readAsset(app, `${bundleDirOf(entry.file)}/package.json`);
+  if (!text) return '';
+  try {
+    const v = String((JSON.parse(text) as { version?: unknown })?.version || '').trim();
+    return v ? (v.startsWith('v') ? v : `v${v}`) : '';
+  } catch {
+    return ''; // 坏 JSON：宁可不显示版本，也不显示一个编的
+  }
+}
+
+/** 就绪态的描述补充：目录包说**脚本版本**，文本资源走 DESC_EXTRAS 表（无则不补） */
 async function readyExtra(app: unknown, id: string, entry: ManifestDocEntry): Promise<string | null> {
   if (entry.kind === 'bundle') {
     const m = await readBundleMarker(app, entry);
-    return m ? `${m.files} 个文件` : null;
+    if (!m) return null;
+    const version = await bundleVersionOf(app, entry);
+    return version || null;
   }
   return DESC_EXTRAS[id] ? DESC_EXTRAS[id](app, entry) : null;
 }
@@ -281,7 +301,14 @@ function allButton(states: RowState[], hasManifest: boolean): { text: string; di
  * 「在线资源」组（通用域 schema loader 尾部追加；ADR-0205 起为 async——本地状态现算后建声明行）。
  * 行序：检查更新（可视状态门控）→ 全部更新 → 资源行（清单 rowOrder）；全部 button 行。
  */
-export async function onlineResourcesGroup(): Promise<GroupDecl> {
+/**
+ * 两个组：**外部工具**（B站下载器 / 值守 / 脸谱，kind='bundle'）在**在线资源**（文档 / 皮肤）之上。
+ *
+ * 为什么拆：这三个不是「文档类资源」，它们是**插件运行时真的要 spawn 的程序**——下载完还要
+ * Node、值守还要注册自启。和更新日志/手册排在一个列表里，用户看不出这层区别（2026-10-28 用户拍板拆组）。
+ * 两组的行共用同一个状态机与 meta（runAll / 检查更新 / 落盘事件同步都不分叉）。
+ */
+export async function onlineResourcesGroups(): Promise<[GroupDecl, GroupDecl]> {
   const { rows: states, manifest } = await computeRowStates(getApp());
   const hasManifest = !!manifest;
 
@@ -333,7 +360,20 @@ export async function onlineResourcesGroup(): Promise<GroupDecl> {
 
   // 打开面板顺手核对一次（60s 节流；无论成败都记窗——失败也补丁呈现，不记窗补丁链会雪球式重核）
   if (Date.now() - lastCheckAt > CHECK_THROTTLE_MS) void checkInBackground();
-  return { name: '在线资源', icon: 'cloud-download', rows: meta.rows };
+
+  // 按 kind 分成两组（行对象还是同一批引用：状态机不变，只是渲染在两处）
+  const bundleIds = new Set((manifest?.docs ?? []).filter((d) => d.kind === 'bundle').map((d) => d.id));
+  const toolRows = meta.rows.filter((r) => r.type === 'button' && bundleIds.has(String((r as BtnRow).name)));
+  const restRows = meta.rows.filter((r) => !toolRows.includes(r));
+
+  const tools: GroupDecl = { name: '外部工具', icon: 'wrench', rows: toolRows };
+  const resources: GroupDecl = { name: '在线资源', icon: 'cloud-download', rows: restRows };
+  return [tools, resources];
+}
+
+/** 兼容入口：只要「在线资源」那一组（旧调用方与测试） */
+export async function onlineResourcesGroup(): Promise<GroupDecl> {
+  return (await onlineResourcesGroups())[1];
 }
 
 /** 下载事件订阅（幂等单例）：任何下载资产落盘（导航入口更新文档、分类表自动拉取、皮肤注入）

@@ -2883,13 +2883,29 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   color: var(--bz-text-3);
   line-height: 1.5;
 }
+/* 右值列：
+   - 状态/体积/版本这类短值：单行右对齐、不换行（宽度按内容算，不会被左列挤成一字一列）
+   - 路径这类长值：整行折到第二行（.bz-setup-row--block），左对齐可断行
+   踩过的坑：早前给右列写 `max-width:46% + overflow-wrap:anywhere` 且列宽是 auto，
+   最小内容宽度退化成 1 个字符 → 「26 KB」被拆成三行、「E:\Obsidian\叫我包仔」竖排。 */
 .bz-setup-val {
   font-size: var(--bz-font-meta);
   color: var(--bz-text-2);
   text-align: right;
-  max-width: 46%;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+.bz-setup-row--block { grid-template-columns: 16px minmax(0, 1fr); align-items: start; }
+.bz-setup-row--block .bz-setup-mark,
+.bz-setup-row--block .bz-setup-check { margin-top: 2px; }
+.bz-setup-row--block .bz-setup-val,
+.bz-setup-row--block .bz-setup-val--block {
+  grid-column: 2;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  margin-top: 2px;
+  color: var(--bz-text-3);
 }
 /* 状态点：空心 = 待办/不适用，实心绿 = 正常，实心红 = 要处理，转圈 = 进行中 */
 .bz-setup-mark {
@@ -2970,3 +2986,42 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
 @media (hover: hover) {
   .bz-setup-btn--cta:hover { background: var(--bz-brand-hover); border-color: var(--bz-brand-hover); }
 }
+
+/* 分组小标题（首次引导的清单分四组：运行环境 / 工具 / 文档 / 皮肤） */
+.bz-setup-group { display: flex; flex-direction: column; }
+.bz-setup-group-h {
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  letter-spacing: 0.04em;
+  padding: var(--bz-space-sm) 0 var(--bz-space-xs);
+}
+/* 可勾选行：勾选框占状态点那一格 */
+.bz-setup-row--pick { grid-template-columns: 16px minmax(0, 1fr) auto; }
+.bz-setup-check {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  justify-self: center;
+  accent-color: var(--bz-brand);
+  cursor: pointer;
+}
+.bz-setup-check:disabled { cursor: default; opacity: 0.45; }
+/* 输入行（AI 密钥）：第三格换成输入框 */
+.bz-setup-row--input { grid-template-columns: 16px auto minmax(0, 1fr); }
+.bz-setup-input {
+  height: var(--bz-control-h-sm);
+  min-width: 0;
+  padding: 0 var(--bz-space-sm);
+  border-radius: var(--bz-radius-xs);
+  border: 1px solid var(--bz-border);
+  background: var(--bz-surface-2);
+  color: var(--bz-text-1);
+  font-size: var(--bz-font-meta);
+  font-family: var(--bz-font-mono);
+}
+.bz-setup-input:focus { outline: none; border-color: var(--bz-brand); }
+/* 服务商分段按钮 */
+.bz-setup-seg { display: flex; gap: var(--bz-space-sm); flex-wrap: wrap; }
+.bz-setup-seg .bz-setup-btn { height: var(--bz-control-h-sm); padding: 0 var(--bz-space-md); }
+/* 失败态提示条（AI 测试没通） */
+.bz-setup-hint--bad { color: var(--bz-danger); }

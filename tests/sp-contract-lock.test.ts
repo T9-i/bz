@@ -22,7 +22,7 @@ import type { SettingsSchema } from '../src/core/settings-schema';
 const COUNT_BASELINE: Record<string, number> = {
   // 2026-10-28：最前新增「关于」组 —— 版本 info 行 +「自动更新」toggle +「环境自检」/「反馈」
   // 两个 button 行（button 行不计）+「赞赏」info 行 → +3；基线 8
-  global: 11, // 2026-10-26：「外部工具」组三行收进 AI 页（-3）；2026-10-24 ADR-0254：「功能域」组「小橘陪伴猫」toggle（+1）；2026-09-27 issue 492：在线资源组回归通用声明行（button 行不计，-1；issue 480 自绘 custom 行曾 +1）
+  global: 9, // 2026-10-28：「外观」组（布局/主题两张 choiceCards）撤掉（-2）；2026-10-26：「外部工具」组三行收进 AI 页（-3）；2026-10-24 ADR-0254：「功能域」组「小橘陪伴猫」toggle（+1）；2026-09-27 issue 492：在线资源组回归通用声明行（button 行不计，-1；issue 480 自绘 custom 行曾 +1）
   ai: 20, // 2026-10-26：「外部工具」组三行迁入（+3）与语音转写组「模型目录」text 行（+1）；2026-09-29 issue 518 / ADR-0222：「LLM 校对」toggle（+1）；issue 444 基线 15（「转写引擎」下拉 +1；「Whisper 档位」visibleWhen 门控不计）；issue 431 基线 14
   diary: 6, // 2026-10-25 ADR-0258：「显示」组「每次翻开多少则」number 行（+1；一册只读一窗，翻到册尾续读）
   memo: 11,

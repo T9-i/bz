@@ -1,5 +1,5 @@
-/* 源指纹 64dfa7ce3d938c2e · 仓内输入 303 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/settings-panel/fake-sim.ts","prototypes/settings-panel/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 1ca209a1a7cdc020 · 仓内输入 302 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/settings-panel/fake-sim.ts","prototypes/settings-panel/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/settings-panel/fake-sim.ts → window.BZW_settings_panel（行为单源预览包，issue 245/ADR-0106） */
 var BZW_settings_panel = (() => {
   var __create = Object.create;
@@ -6911,7 +6911,7 @@ var BZW_settings_panel = (() => {
       b.setAttribute("role", "radio");
       b.setAttribute("aria-checked", String(o.value === opts.value));
       b.addEventListener("click", () => {
-        setValue(o.value);
+        setValue2(o.value);
         opts.onChange(o.value);
       });
       b.addEventListener("keydown", (e) => {
@@ -6922,7 +6922,7 @@ var BZW_settings_panel = (() => {
         const curIdx = vals.indexOf(current2());
         const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
         const nextIdx = (curIdx + delta + vals.length) % vals.length;
-        setValue(vals[nextIdx]);
+        setValue2(vals[nextIdx]);
         opts.onChange(vals[nextIdx]);
         (_a2 = btns.get(vals[nextIdx])) == null ? void 0 : _a2.focus();
       });
@@ -6933,7 +6933,7 @@ var BZW_settings_panel = (() => {
     function current2() {
       return cur;
     }
-    function setValue(v) {
+    function setValue2(v) {
       cur = v;
       btns.forEach((b, k) => {
         const on = k === v;
@@ -6941,7 +6941,7 @@ var BZW_settings_panel = (() => {
         b.setAttribute("aria-checked", String(on));
       });
     }
-    return { el: el2, setValue };
+    return { el: el2, setValue: setValue2 };
   }
   var init_segmented = __esm({
     "src/core/ui/segmented.ts"() {
@@ -7006,7 +7006,7 @@ var BZW_settings_panel = (() => {
       }
       b.appendChild(document.createTextNode(o.label));
       b.addEventListener("click", () => {
-        setValue(o.value);
+        setValue2(o.value);
         opts.onChange(o.value);
       });
       b.addEventListener("keydown", (e) => {
@@ -7017,7 +7017,7 @@ var BZW_settings_panel = (() => {
         const curIdx = vals.indexOf(cur);
         const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
         const nextIdx = (curIdx + delta + vals.length) % vals.length;
-        setValue(vals[nextIdx]);
+        setValue2(vals[nextIdx]);
         opts.onChange(vals[nextIdx]);
         (_a2 = btns.get(vals[nextIdx])) == null ? void 0 : _a2.focus();
       });
@@ -7025,7 +7025,7 @@ var BZW_settings_panel = (() => {
       el2.appendChild(b);
     });
     if (opts.float) el2.appendChild(seg);
-    function setValue(v) {
+    function setValue2(v) {
       cur = v;
       btns.forEach((b, k) => {
         const on = k === v;
@@ -7039,7 +7039,7 @@ var BZW_settings_panel = (() => {
       cancelAnimationFrame(segRAF);
       window.removeEventListener("resize", onWinResize);
     };
-    return { el: el2, setValue, detach };
+    return { el: el2, setValue: setValue2, detach };
   }
   var init_choice = __esm({
     "src/core/ui/choice.ts"() {
@@ -7199,7 +7199,7 @@ var BZW_settings_panel = (() => {
         b.appendChild(uiIcon("check", "bz-select-item-ck"));
         b.addEventListener("click", (ev) => {
           ev.stopPropagation();
-          setValue(o.value);
+          setValue2(o.value);
           opts.onChange(o.value);
           close();
         });
@@ -7235,7 +7235,7 @@ var BZW_settings_panel = (() => {
         close: () => close()
       });
     };
-    const setValue = (v) => {
+    const setValue2 = (v) => {
       current2 = v;
       renderVal();
       if (menu) {
@@ -7272,7 +7272,7 @@ var BZW_settings_panel = (() => {
           if (on && on !== el2) {
             const v = opts.options[Number(on.dataset.index)];
             if (v) {
-              setValue(v.value);
+              setValue2(v.value);
               opts.onChange(v.value);
             }
           }
@@ -7293,7 +7293,7 @@ var BZW_settings_panel = (() => {
     document.addEventListener("click", onDocClick);
     return {
       el: el2,
-      setValue,
+      setValue: setValue2,
       detach: () => {
         document.removeEventListener("click", onDocClick);
         close(false);
@@ -7340,11 +7340,11 @@ var BZW_settings_panel = (() => {
     const syncClear = () => {
       if (clearBtn) clearBtn.hidden = !input.value.trim();
     };
-    const setValue = (v) => {
+    const setValue2 = (v) => {
       input.value = v;
       syncClear();
     };
-    return { el: el2, input, setValue, syncClear };
+    return { el: el2, input, setValue: setValue2, syncClear };
   }
   var init_search = __esm({
     "src/core/ui/search.ts"() {
@@ -7528,7 +7528,7 @@ var BZW_settings_panel = (() => {
     const el2 = document.createElement("div");
     el2.className = "bz-mobstrip";
     const chips = /* @__PURE__ */ new Map();
-    const setValue = (id) => {
+    const setValue2 = (id) => {
       chips.forEach((chip2) => chip2.classList.toggle("is-on", chip2.dataset.id === id));
     };
     opts.items.forEach((it) => {
@@ -7545,14 +7545,14 @@ var BZW_settings_panel = (() => {
       chip2.appendChild(document.createTextNode(it.label));
       chip2.addEventListener("click", () => {
         var _a2;
-        setValue(it.id);
+        setValue2(it.id);
         (_a2 = opts.onChange) == null ? void 0 : _a2.call(opts, it.id);
       });
       chips.set(it.id, chip2);
       el2.appendChild(chip2);
     });
-    setValue(opts.value);
-    return { el: el2, setValue };
+    setValue2(opts.value);
+    return { el: el2, setValue: setValue2 };
   }
   var init_mobstrip = __esm({
     "src/core/ui/mobstrip.ts"() {
@@ -7609,12 +7609,12 @@ var BZW_settings_panel = (() => {
     el2.className = cls.join(" ");
     const fill = document.createElement("i");
     el2.appendChild(fill);
-    const setValue = (n) => {
+    const setValue2 = (n) => {
       const v = Math.min(100, Math.max(0, Number(n) || 0));
       fill.style.width = v + "%";
     };
-    if (opts.value !== void 0) setValue(opts.value);
-    return { el: el2, setValue };
+    if (opts.value !== void 0) setValue2(opts.value);
+    return { el: el2, setValue: setValue2 };
   }
   var init_progress = __esm({
     "src/core/ui/progress.ts"() {
@@ -7660,7 +7660,7 @@ var BZW_settings_panel = (() => {
           b.addEventListener("click", (ev) => {
             var _a3;
             ev.stopPropagation();
-            setValue(o.id);
+            setValue2(o.id);
             (_a3 = opts.onPick) == null ? void 0 : _a3.call(opts, o.id);
             close();
           });
@@ -7692,7 +7692,7 @@ var BZW_settings_panel = (() => {
         escHandle8 = null;
       }
     };
-    const setValue = (id) => {
+    const setValue2 = (id) => {
       current2 = id;
       if (!layer) return;
       layer.querySelectorAll(".bz-popover-item").forEach((item) => {
@@ -7715,7 +7715,7 @@ var BZW_settings_panel = (() => {
     return {
       open,
       close,
-      setValue,
+      setValue: setValue2,
       setOptions,
       /** 清理：关浮层并摘除 document 监听（宿主收尾用，对齐 uiSelect.detach） */
       detach: () => {
@@ -9951,8 +9951,8 @@ var BZW_settings_panel = (() => {
   function notifyWriteError(e) {
     notifySaveError(e, "设置写入");
   }
-  function makeCtx(rowEl, refreshVisibility) {
-    return { rowEl, refreshVisibility };
+  function makeCtx(rowEl2, refreshVisibility) {
+    return { rowEl: rowEl2, refreshVisibility };
   }
   function bindTextCommit(input, onCommit) {
     let timer = null;
@@ -10633,9 +10633,9 @@ var BZW_settings_panel = (() => {
     const body = card.querySelector(".bz-sp-group-body");
     const rowEls = [];
     group.rows.forEach((r) => {
-      const rowEl = renderRow(r, refresh2, regRefresh);
-      rowEls.push(rowEl);
-      body.appendChild(rowEl);
+      const rowEl2 = renderRow(r, refresh2, regRefresh);
+      rowEls.push(rowEl2);
+      body.appendChild(rowEl2);
     });
     container.appendChild(card);
     const updateCount = () => {
@@ -10700,8 +10700,8 @@ var BZW_settings_panel = (() => {
         }
       )) == null ? void 0 : _a2.binding.key) != null ? _b2 : null;
       g.rows.forEach((r, i) => {
-        const rowEl = card.querySelectorAll(".bz-sp-set-row")[i];
-        if (!rowEl) return;
+        const rowEl2 = card.querySelectorAll(".bz-sp-set-row")[i];
+        if (!rowEl2) return;
         let vw = r.visibleWhen;
         if (r.isChild && parentToggleKey) {
           const parentKey = parentToggleKey;
@@ -10709,9 +10709,9 @@ var BZW_settings_panel = (() => {
           vw = (snap) => snap[parentKey] === true && (selfVw ? selfVw(snap) : true);
         }
         if (vw) {
-          rowEl.dataset.spRow = String(i);
-          visibleConditions.set(rowEl, vw);
-          applyCond(rowEl, vw);
+          rowEl2.dataset.spRow = String(i);
+          visibleConditions.set(rowEl2, vw);
+          applyCond(rowEl2, vw);
         }
       });
     });
@@ -29081,40 +29081,6 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
   });
 
-  // src/settings-panel/schema.ts
-  var schema_exports = {};
-  __export(schema_exports, {
-    appearanceSettingsSchema: () => appearanceSettingsSchema
-  });
-  function appearanceSettingsSchema() {
-    return {
-      groups: [
-        {
-          icon: "palette",
-          name: "外观",
-          rows: [
-            {
-              type: "choiceCards",
-              name: "布局",
-              binding: { key: "settingsPanelLayout" },
-              options: [{ value: "jingwei", label: "经纬", prevClass: "bz-sp-prev-jingwei" }]
-            },
-            {
-              type: "choiceCards",
-              name: "主题",
-              binding: { key: "settingsPanelSkin" },
-              options: [{ value: "chenhun", label: "晨昏", prevClass: "bz-sp-prev-chenhun" }]
-            }
-          ]
-        }
-      ]
-    };
-  }
-  var init_schema = __esm({
-    "src/settings-panel/schema.ts"() {
-    }
-  });
-
   // src/core/download-manifest.ts
   function normalizeSkinEntry(item) {
     const e = item;
@@ -30065,12 +30031,26 @@ ${it.text}`).join("\n"));
   var online_resources_exports = {};
   __export(online_resources_exports, {
     onlineResourcesGroup: () => onlineResourcesGroup,
+    onlineResourcesGroups: () => onlineResourcesGroups,
     resetOnlineResourcesState: () => resetOnlineResourcesState
   });
+  async function bundleVersionOf(app, entry) {
+    var _a2;
+    const text2 = await readAsset(app, `${bundleDirOf(entry.file)}/package.json`);
+    if (!text2) return "";
+    try {
+      const v = String(((_a2 = JSON.parse(text2)) == null ? void 0 : _a2.version) || "").trim();
+      return v ? v.startsWith("v") ? v : `v${v}` : "";
+    } catch (e) {
+      return "";
+    }
+  }
   async function readyExtra(app, id, entry) {
     if (entry.kind === "bundle") {
       const m = await readBundleMarker(app, entry);
-      return m ? `${m.files} 个文件` : null;
+      if (!m) return null;
+      const version = await bundleVersionOf(app, entry);
+      return version || null;
     }
     return DESC_EXTRAS[id] ? DESC_EXTRAS[id](app, entry) : null;
   }
@@ -30186,7 +30166,8 @@ ${it.text}`).join("\n"));
     if (pending === 0) return { text: "全部更新", disabled: true };
     return { text: updatable > 0 ? `全部更新 ${pending}` : `全部下载 ${pending}`, disabled: false };
   }
-  async function onlineResourcesGroup() {
+  async function onlineResourcesGroups() {
+    var _a2;
     const { rows: states, manifest } = await computeRowStates(getApp());
     const hasManifest = !!manifest;
     const meta = {
@@ -30233,7 +30214,15 @@ ${it.text}`).join("\n"));
     currentGroup = meta;
     subscribeOnce3();
     if (Date.now() - lastCheckAt > CHECK_THROTTLE_MS) void checkInBackground();
-    return { name: "在线资源", icon: "cloud-download", rows: meta.rows };
+    const bundleIds = new Set(((_a2 = manifest == null ? void 0 : manifest.docs) != null ? _a2 : []).filter((d) => d.kind === "bundle").map((d) => d.id));
+    const toolRows = meta.rows.filter((r) => r.type === "button" && bundleIds.has(String(r.name)));
+    const restRows = meta.rows.filter((r) => !toolRows.includes(r));
+    const tools = { name: "外部工具", icon: "wrench", rows: toolRows };
+    const resources = { name: "在线资源", icon: "cloud-download", rows: restRows };
+    return [tools, resources];
+  }
+  async function onlineResourcesGroup() {
+    return (await onlineResourcesGroups())[1];
   }
   function subscribeOnce3() {
     if (subscribed3) return;
@@ -30429,6 +30418,7 @@ ${it.text}`).join("\n"));
       init_skin_pack();
       init_remote_asset();
       init_bundle_asset();
+      init_remote_asset();
       init_tool_setup();
       init_category_table();
       init_rss_catalog();
@@ -30697,7 +30687,7 @@ ${it.text}`).join("\n"));
     const cdnMs = cdn.length ? Math.min(...cdn) : -1;
     return { github: raw >= 0, jsdelivr: cdnMs >= 0, githubMs: raw, jsdelivrMs: cdnMs };
   }
-  async function canWrite(app, relPath) {
+  async function probeWritableDir(app, relPath) {
     var _a2, _b2, _c;
     const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
     if (!(adapter == null ? void 0 : adapter.write)) return false;
@@ -30795,7 +30785,7 @@ ${it.text}`).join("\n"));
     });
     if (!mobile) {
       const pluginRel = pluginRelDirOf(app);
-      const pluginWritable = await canWrite(app, pluginRel);
+      const pluginWritable = await probeWritableDir(app, pluginRel);
       rows.push({
         id: "plugin-writable",
         key: "插件目录可写",
@@ -30804,7 +30794,7 @@ ${it.text}`).join("\n"));
       });
     }
     const storeDir2 = await storageDirOf();
-    const storeOk = await canWrite(app, storeDir2);
+    const storeOk = await probeWritableDir(app, storeDir2);
     rows.push({
       id: "storage",
       key: "数据目录可写",
@@ -30866,8 +30856,11 @@ ${it.text}`).join("\n"));
   var setup_wizard_exports = {};
   __export(setup_wizard_exports, {
     buildSetupTasks: () => buildSetupTasks,
+    defaultSelection: () => defaultSelection,
     openEnvironmentCheck: () => openEnvironmentCheck,
     openSetupWizard: () => openSetupWizard,
+    planSetupItems: () => planSetupItems,
+    selectedTasks: () => selectedTasks,
     sizeText: () => sizeText2
   });
   function sizeText2(bytes) {
@@ -30877,66 +30870,95 @@ ${it.text}`).join("\n"));
     return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   }
   function buildSetupTasks(app, manifest, opts) {
-    const tasks = [];
+    const mk = (i) => ({ ...i, ready: false });
+    const items = [];
     if (opts.nodeMissing) {
-      tasks.push({
-        id: "node",
-        label: "Node 运行时",
-        desc: `便携版 ${PORTABLE_NODE_VERSION}，装进插件目录`,
-        size: NODE_SIZE_HINT,
-        run: async () => {
-          await installPortableNode(app);
-          resetNodeRuntimeCache();
-        }
-      });
+      items.push(
+        mk({
+          id: "node",
+          kind: "node",
+          label: "Node 运行时",
+          desc: `便携版 ${PORTABLE_NODE_VERSION}，装进插件目录`,
+          size: NODE_SIZE_HINT,
+          run: async () => {
+            await installPortableNode(app);
+            resetNodeRuntimeCache();
+          }
+        })
+      );
     }
-    if (!manifest) return tasks;
-    const bundles = manifest.docs.filter((d) => d.kind === "bundle");
-    const docs = manifest.docs.filter((d) => d.kind !== "bundle");
-    for (const e of bundles) {
-      tasks.push(bundleTask(app, e));
-    }
-    for (const e of docs) {
-      tasks.push(docTask(app, e));
-    }
+    if (!manifest) return items;
+    for (const e of manifest.docs.filter((d) => d.kind === "bundle")) items.push(mk(bundleItem(app, e)));
+    for (const e of manifest.docs.filter((d) => d.kind !== "bundle")) items.push(mk(docItem(app, e)));
     const skinBytes = manifest.skins.reduce((n, s) => n + (s.size || 0), 0);
     if (manifest.skins.length) {
-      tasks.push({
-        id: "skins",
-        label: "主题皮肤",
-        desc: `${manifest.skins.length} 套远端皮肤`,
-        size: skinBytes || null,
-        run: async () => {
-          const r = await downloadSkinUpdates(app, manifest);
-          if (r.failed > 0) throw new Error(`${r.failed} 套皮肤下载失败`);
-        }
-      });
+      items.push(
+        mk({
+          id: "skins",
+          kind: "skins",
+          label: "主题皮肤",
+          desc: `${manifest.skins.length} 套远端皮肤，用到才生效`,
+          size: skinBytes || null,
+          run: async () => {
+            const r = await downloadSkinUpdates(app, manifest);
+            if (r.failed > 0) throw new Error(`${r.failed} 套皮肤下载失败`);
+          }
+        })
+      );
     }
-    return tasks;
+    return items;
   }
-  function bundleTask(app, e) {
+  function bundleItem(app, e) {
     var _a2;
     return {
       id: e.id,
+      kind: "bundle",
       label: e.name,
-      desc: "外部工具（解包到插件目录，可直接被插件调用）",
+      desc: "外部工具，解包即可用",
       size: (_a2 = e.size) != null ? _a2 : null,
       run: async () => {
         await installBundle(app, e);
       }
     };
   }
-  function docTask(app, e) {
+  function docItem(app, e) {
     var _a2;
     return {
       id: e.id,
+      kind: "doc",
       label: e.name,
-      desc: "文档与索引（离线可读）",
+      desc: "离线可读",
       size: (_a2 = e.size) != null ? _a2 : null,
       run: async () => {
         await ensureAssetWithHash(app, e.file, e.sha256, e.name);
       }
     };
+  }
+  async function isReady(app, manifest, id, kind) {
+    if (kind === "node") return probeNodeRuntime(app, { fresh: true }).kind !== "none";
+    if (!manifest) return false;
+    if (kind === "skins") {
+      const st = await skinStatus(app, manifest);
+      return st.missing === 0 && st.updated === 0 && st.ready > 0;
+    }
+    const entry = manifest.docs.find((d) => d.id === id);
+    if (!entry) return false;
+    const state3 = entry.kind === "bundle" ? await bundleStatus(app, entry) : await docStatus(app, entry);
+    return state3 === "ready";
+  }
+  async function planSetupItems(app, manifest, opts) {
+    const items = buildSetupTasks(app, manifest, opts);
+    const out = [];
+    for (const it of items) out.push({ ...it, ready: await isReady(app, manifest, it.id, it.kind) });
+    return out;
+  }
+  function defaultSelection(items) {
+    const sel = /* @__PURE__ */ new Set();
+    for (const it of items) if (!it.ready && it.kind !== "skins") sel.add(it.id);
+    return sel;
+  }
+  function selectedTasks(items, selected) {
+    return items.filter((it) => selected.has(it.id) && !it.ready);
   }
   function skeleton(root) {
     root.classList.add("bz-setup");
@@ -30954,166 +30976,418 @@ ${it.text}`).join("\n"));
     b.textContent = text2;
     return b;
   }
-  async function stageProbe(ctx, ui2) {
+  function rowEl(cls = "bz-setup-row") {
+    const row = document.createElement("div");
+    row.className = cls;
+    return row;
+  }
+  function markEl(state3) {
+    const span = document.createElement("span");
+    span.className = `bz-setup-mark bz-setup-mark--${state3}`;
+    return span;
+  }
+  function isLongValue(text2) {
+    const backslash = String.fromCharCode(92);
+    return text2.length > 24 || text2.includes("/") || text2.includes(backslash);
+  }
+  function keyEl(text2, sub) {
+    const k = document.createElement("span");
+    k.className = "bz-setup-key";
+    if (sub) k.innerHTML = `${escapeText(text2)}<em>${escapeText(sub)}</em>`;
+    else k.textContent = text2;
+    return k;
+  }
+  function valEl(text2) {
+    const v = document.createElement("span");
+    v.className = "bz-setup-val";
+    v.textContent = text2;
+    return v;
+  }
+  function setValue(row, val, text2) {
+    val.textContent = text2;
+    const long = isLongValue(text2);
+    row.classList.toggle("bz-setup-row--block", long);
+    val.classList.toggle("bz-setup-val--block", long);
+  }
+  function lineRow(mark, label, sub, value) {
+    const row = rowEl();
+    row.append(mark, keyEl(label, sub), valEl(""));
+    setValue(row, row.querySelector(".bz-setup-val"), value);
+    return row;
+  }
+  function escapeText(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function closeModal(ui2) {
+    var _a2;
+    (_a2 = ui2.body.closest(".bz-overlay-mask")) == null ? void 0 : _a2.remove();
+  }
+  async function stageProbe(ctx, st, ui2) {
     ui2.sub.textContent = ctx.firstRun ? "第一次使用，先看看这台机器缺什么。不会改动你的笔记。" : "重新检查这台机器上的运行环境。";
     ui2.body.innerHTML = "";
     ui2.foot.innerHTML = "";
     const list = document.createElement("div");
     list.className = "bz-setup-list";
     ui2.body.appendChild(list);
-    const rowEl = (id, key) => {
-      const row = document.createElement("div");
-      row.className = "bz-setup-row";
-      row.dataset.id = id;
-      row.innerHTML = `<span class="bz-setup-mark bz-setup-mark--busy"></span><span class="bz-setup-key">${key}</span><span class="bz-setup-val">检查中</span>`;
-      list.appendChild(row);
-      return row;
+    const addRow = (key, into = list) => {
+      const row = rowEl();
+      const mark = markEl("busy");
+      const val = valEl("检查中");
+      row.append(mark, keyEl(key), val);
+      into.appendChild(row);
+      return { row, val, mark };
     };
-    const netRow = rowEl("net", "网络 · 资源站");
-    const jsRow = rowEl("net-cdn", "网络 · 备用通道");
-    const paint = (row, ok, text2) => {
-      const mark = row.querySelector(".bz-setup-mark");
-      mark.className = "bz-setup-mark " + (ok === true ? "bz-setup-mark--ok" : ok === false ? "bz-setup-mark--bad" : "bz-setup-mark--idle");
-      row.querySelector(".bz-setup-val").textContent = text2;
+    const paint = (t, ok, text2) => {
+      t.mark.className = "bz-setup-mark " + (ok === true ? "bz-setup-mark--ok" : ok === false ? "bz-setup-mark--bad" : "bz-setup-mark--idle");
+      setValue(t.row, t.val, text2);
     };
-    let net = null;
-    try {
-      net = await probeNetwork();
-    } catch (e) {
-      net = null;
+    const netRow = addRow("网络 · 资源站");
+    const cdnRow = addRow("网络 · 备用通道");
+    const net = await probeNetwork().catch(() => null);
+    st.net = net;
+    paint(netRow, (net == null ? void 0 : net.github) ? true : false, (net == null ? void 0 : net.github) ? `可达 · ${net.githubMs} ms` : "不可达，走备用通道");
+    paint(cdnRow, (net == null ? void 0 : net.jsdelivr) ? true : null, (net == null ? void 0 : net.jsdelivr) ? `可达 · ${net.jsdelivrMs} ms` : "也不可达（下载会失败）");
+    const rows = await environmentCheck(ctx.app);
+    st.rows = rows;
+    for (const r of rows) paint(addRow(r.key), r.ok, r.value);
+    const manifest = await fetchManifestWithTimeout(ctx.app);
+    st.manifest = manifest;
+    if (manifest) {
+      const group = document.createElement("div");
+      group.className = "bz-setup-group";
+      const head = document.createElement("div");
+      head.className = "bz-setup-group-h";
+      head.textContent = "在线资源";
+      group.appendChild(head);
+      ui2.body.appendChild(group);
+      for (const e of manifest.docs) {
+        const state3 = e.kind === "bundle" ? await bundleStatus(ctx.app, e) : await docStatus(ctx.app, e);
+        const text3 = state3 === "ready" ? "已下载" : state3 === "updated" ? "有更新" : "未下载";
+        paint(addRow(e.name, group), state3 === "ready" ? true : state3 === "updated" ? null : false, text3);
+      }
+      const skin = await skinStatus(ctx.app, manifest);
+      const total = manifest.skins.length;
+      const text2 = skin.missing === 0 && skin.updated === 0 ? `${skin.ready}/${total} 已下载` : `${skin.ready}/${total} 已下载`;
+      paint(addRow("主题皮肤", group), skin.missing === 0 && skin.updated === 0 ? true : null, text2);
     }
-    paint(
-      netRow,
-      (net == null ? void 0 : net.github) ? true : false,
-      (net == null ? void 0 : net.github) ? `可达 · ${net.githubMs} ms` : "不可达，将走备用通道"
-    );
-    paint(
-      jsRow,
-      (net == null ? void 0 : net.jsdelivr) ? true : null,
-      (net == null ? void 0 : net.jsdelivr) ? `可达 · ${net.jsdelivrMs} ms` : "也不可达（下载会失败）"
-    );
-    const envRows = await environmentCheck(ctx.app);
-    for (const r of envRows) {
-      const row = rowEl(r.id, r.key);
-      paint(row, r.ok, r.value);
-    }
-    const bad = envRows.filter((r) => r.ok === false).length;
-    if (!(net == null ? void 0 : net.github) && !(net == null ? void 0 : net.jsdelivr)) {
+    const online = !!((net == null ? void 0 : net.github) || (net == null ? void 0 : net.jsdelivr));
+    if (!online) {
       ui2.sub.textContent = "连不上资源站：检查代理或网络后重试。插件主体仍可用，下载类功能要等网络恢复。";
+      const later = button("bz-setup-btn", "稍后再说");
+      later.onclick = () => {
+        void markDone();
+        closeModal(ui2);
+      };
+      const retry = button("bz-setup-btn bz-setup-btn--cta", "重新检测");
+      retry.onclick = () => void stageProbe(ctx, st, ui2);
+      ui2.foot.append(later, retry);
+      return;
     }
-    await stagePlan(ctx, ui2, { net, envRows, bad });
+    if (ctx.checkOnly) void stageResources(ctx, st, ui2);
+    else void stageStorage(ctx, st, ui2);
   }
-  async function stagePlan(ctx, ui2, probe) {
+  async function stageStorage(ctx, st, ui2) {
     var _a2;
-    const manifestInfo = await refreshManifest(ctx.app).catch(() => null);
-    const manifest = (_a2 = manifestInfo == null ? void 0 : manifestInfo.manifest) != null ? _a2 : null;
+    const current2 = String(((_a2 = tryGetSettings()) == null ? void 0 : _a2.storagePath) || "CONFIG/STORAGE");
+    st.storagePath = current2;
+    ui2.sub.textContent = "各域的数据（备忘录、日记索引、收藏…）都以 JSON 存在这个目录里。默认在 vault 内部，跟着 vault 走。";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "bz-setup-list";
+    ui2.body.appendChild(list);
+    const mark = markEl("idle");
+    const row = rowEl();
+    const val = valEl("");
+    row.append(mark, keyEl("数据目录"), val);
+    setValue(row, val, current2);
+    list.appendChild(row);
+    const hint = document.createElement("div");
+    hint.className = "bz-setup-hint";
+    hint.textContent = "放在 vault 里 = 跟着 vault 走；但同步盘（iCloud / OneDrive）会连带同步这些数据文件。想换就点「换个目录」，只能选 vault 内的文件夹。";
+    ui2.body.appendChild(hint);
+    const pick = button("bz-setup-btn", "换个目录");
+    pick.onclick = () => openPathPicker({
+      title: "数据存放在哪",
+      mode: "single",
+      desc: "选一个 vault 内的文件夹。目录不存在会自动建。",
+      selected: [st.storagePath],
+      okText: "用这个",
+      onConfirm: (picked) => {
+        const chosen = String(picked[0] || "").replace(/\/+$/, "");
+        if (!chosen) return;
+        st.storagePath = chosen;
+        val.textContent = chosen;
+        mark.className = "bz-setup-mark bz-setup-mark--idle";
+      }
+    });
+    const back = button("bz-setup-btn", "上一步");
+    back.onclick = () => void stageProbe(ctx, st, ui2);
+    const next = button("bz-setup-btn bz-setup-btn--cta", "下一步");
+    next.onclick = async () => {
+      const ok = await probeWritableDir(ctx.app, st.storagePath);
+      if (!ok) {
+        mark.className = "bz-setup-mark bz-setup-mark--bad";
+        notice(`这个目录写不进去：${st.storagePath}。换一个，或检查是否只读 / 被同步盘占用`, "error");
+        return;
+      }
+      mark.className = "bz-setup-mark bz-setup-mark--ok";
+      try {
+        const s = getSettings();
+        s.storagePath = st.storagePath;
+        await saveSettings();
+      } catch (e) {
+      }
+      void stageAi(ctx, st, ui2);
+    };
+    ui2.foot.append(back, pick, next);
+  }
+  async function stageResources(ctx, st, ui2) {
+    ui2.sub.textContent = "正在核对磁盘上已经有什么…";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const manifest = st.manifest !== void 0 ? st.manifest : await fetchManifestWithTimeout(ctx.app);
+    st.manifest = manifest;
     const nodeMissing = probeNodeRuntime(ctx.app, { fresh: true }).kind === "none";
-    const tasks = buildSetupTasks(ctx.app, manifest, { nodeMissing });
-    const total = tasks.reduce((n, t) => n + (t.size || 0), 0);
-    ui2.sub.textContent = tasks.length ? `一共 ${tasks.length} 项，约 ${sizeText2(total) || "未知体积"}。点开始后自动完成，中途不用再确认。` : "这台机器什么都不缺，可以直接用了。";
+    st.items = await planSetupItems(ctx.app, manifest, { nodeMissing });
+    st.selected = defaultSelection(st.items);
+    const pending = () => selectedTasks(st.items, st.selected);
+    const total = pending().reduce((n, t) => n + (t.size || 0), 0);
+    ui2.sub.textContent = pending().length ? `一共 ${pending().length} 项要下载，约 ${sizeText2(total) || "未知体积"}。点开始后自动完成，中途不用再确认。` : "这台机器什么都不缺，可以直接用了。";
     ui2.body.innerHTML = "";
     ui2.foot.innerHTML = "";
     const hint = document.createElement("div");
     hint.className = "bz-setup-hint";
-    hint.textContent = !manifest ? "资源清单没拉到（网络不通或资源站不可达）：这一次只能补 Node 运行时，其余资源等网络恢复后在「在线资源」里补。" : probe.net && !probe.net.github ? "GitHub 连不上：会自动改用备用通道下载，内容一样，速度可能慢一些。" : "下载的东西都放在插件自己的目录里，不碰笔记、不改系统设置。";
+    hint.textContent = !manifest ? "资源清单没拉到（网络不通或资源站不可达）：这一次只能补 Node 运行时，其余资源等网络恢复后在「在线资源」里补。" : st.net && !st.net.github ? "GitHub 直连不通：会自动改用备用通道下载，内容一样，速度可能慢一些。" : "下载的东西都放在插件自己的目录里，不碰笔记、不改系统设置。";
     ui2.body.appendChild(hint);
-    const list = document.createElement("div");
-    list.className = "bz-setup-list";
-    ui2.body.appendChild(list);
-    for (const t of tasks) {
-      const row = document.createElement("div");
-      row.className = "bz-setup-row";
-      row.dataset.task = t.id;
-      row.innerHTML = `<span class="bz-setup-mark bz-setup-mark--idle"></span><span class="bz-setup-key">${t.label}<em>${t.desc}</em></span><span class="bz-setup-val">${sizeText2(t.size) || "待下载"}</span>`;
-      list.appendChild(row);
+    const next = button("bz-setup-btn bz-setup-btn--cta", "");
+    const GROUPS = [
+      { kind: "node", title: "运行环境" },
+      { kind: "bundle", title: "外部工具" },
+      { kind: "doc", title: "文档与索引" },
+      { kind: "skins", title: "主题皮肤" }
+    ];
+    for (const g of GROUPS) {
+      const group = st.items.filter((i) => i.kind === g.kind);
+      if (!group.length) continue;
+      const wrap = document.createElement("div");
+      wrap.className = "bz-setup-group";
+      const head = document.createElement("div");
+      head.className = "bz-setup-group-h";
+      head.textContent = g.title;
+      wrap.appendChild(head);
+      for (const it of group) {
+        const row = rowEl("bz-setup-row bz-setup-row--pick");
+        const box = document.createElement("input");
+        box.type = "checkbox";
+        box.className = "bz-setup-check";
+        box.checked = st.selected.has(it.id);
+        box.disabled = it.ready;
+        box.onchange = () => {
+          if (box.checked) st.selected.add(it.id);
+          else st.selected.delete(it.id);
+          refreshFoot();
+        };
+        row.append(box, keyEl(it.label, it.desc), valEl(it.ready ? "已就绪" : sizeText2(it.size) || "待下载"));
+        wrap.appendChild(row);
+      }
+      ui2.body.appendChild(wrap);
     }
+    const refreshFoot = () => {
+      const t = pending();
+      const bytes = t.reduce((s, x) => s + (x.size || 0), 0);
+      next.textContent = t.length ? `开始下载（${sizeText2(bytes) || `${t.length} 项`}）` : "完成";
+    };
     const skip = button("bz-setup-btn", ctx.firstRun ? "以后再说" : "关闭");
     skip.onclick = () => {
-      void markDone(ctx, false);
-      ctx.close();
+      void markDone();
+      closeModal(ui2);
     };
-    if (!tasks.length) {
+    next.onclick = () => {
+      const tasks = pending();
+      if (!tasks.length) {
+        void markDone();
+        void stageDone(ctx, st, ui2);
+        return;
+      }
+      void stageInstall(ctx, st, ui2, tasks);
+    };
+    if (ctx.checkOnly && !st.items.some((i) => !i.ready)) {
       const ok = button("bz-setup-btn bz-setup-btn--cta", "知道了");
-      ok.onclick = ctx.close;
-      ui2.foot.appendChild(ok);
+      ok.onclick = () => closeModal(ui2);
+      ui2.foot.append(ok);
       return;
     }
-    const go = button("bz-setup-btn bz-setup-btn--cta", "开始下载");
-    go.onclick = () => void stageInstall(ctx, ui2, tasks);
-    ui2.foot.append(skip, go);
+    ui2.foot.append(skip, next);
+    refreshFoot();
   }
-  async function stageInstall(ctx, ui2, tasks) {
+  async function fetchManifestWithTimeout(app) {
+    return Promise.race([
+      refreshManifest(app).then((r) => {
+        var _a2;
+        return (_a2 = r == null ? void 0 : r.manifest) != null ? _a2 : null;
+      }).catch(() => null),
+      new Promise((resolve2) => setTimeout(() => resolve2(null), MANIFEST_TIMEOUT_MS))
+    ]);
+  }
+  async function stageAi(ctx, st, ui2) {
+    var _a2;
+    st.provider = String(((_a2 = tryGetSettings()) == null ? void 0 : _a2.aiProvider) || DEFAULT_AI_PROVIDER);
+    st.apiKey = "";
+    st.aiTest = { state: "idle", text: "" };
+    ui2.sub.textContent = "可选。配了才能用摘要、小橘这些 AI 功能；跳过不影响其他所有功能。";
+    ui2.body.innerHTML = "";
+    ui2.foot.innerHTML = "";
+    const input = document.createElement("input");
+    input.type = "password";
+    input.className = "bz-setup-input";
+    input.oninput = () => {
+      st.apiKey = input.value.trim();
+      st.aiTest = { state: "idle", text: "" };
+      paint();
+    };
+    const seg = document.createElement("div");
+    seg.className = "bz-setup-seg";
+    const desc = document.createElement("div");
+    desc.className = "bz-setup-hint";
+    const keyRow = rowEl("bz-setup-row bz-setup-row--input");
+    keyRow.append(markEl("idle"), keyEl("API Key"), input);
+    const testLine = document.createElement("div");
+    testLine.className = "bz-setup-hint";
+    function paint() {
+      const d = getProviderDescriptor(st.provider);
+      desc.textContent = d.id === "ollama" ? "本地 Ollama 不需要密钥：确认本机 Ollama 服务已启动即可。" : "密钥会明文存进你的 data.json。vault 若放在同步盘上，等于把密钥放上云——介意就先跳过。";
+      keyRow.style.display = d.id === "ollama" ? "none" : "";
+      input.placeholder = d.apiKeyLabel || "粘贴 API Key";
+      testLine.textContent = st.aiTest.state === "idle" ? "" : st.aiTest.state === "busy" ? "正在测…" : st.aiTest.text;
+      testLine.className = "bz-setup-hint" + (st.aiTest.state === "fail" ? " bz-setup-hint--bad" : "");
+      for (const b of Array.from(seg.querySelectorAll("button"))) {
+        b.className = "bz-setup-btn" + (b.dataset.id === st.provider ? " bz-setup-btn--cta" : "");
+      }
+    }
+    for (const p of AI_PROVIDER_REGISTRY) {
+      const b = button("bz-setup-btn", p.label);
+      b.dataset.id = p.id;
+      b.onclick = () => {
+        st.provider = p.id;
+        st.aiTest = { state: "idle", text: "" };
+        paint();
+      };
+      seg.appendChild(b);
+    }
+    ui2.body.append(seg, desc, keyRow, testLine);
+    paint();
+    const back = button("bz-setup-btn", "上一步");
+    back.onclick = () => void stageResources(ctx, st, ui2);
+    const skip = button("bz-setup-btn", "跳过");
+    skip.onclick = () => void stageResources(ctx, st, ui2);
+    const test = button("bz-setup-btn", "测一下");
+    test.onclick = async () => {
+      await saveAi(st);
+      st.aiTest = { state: "busy", text: "" };
+      paint();
+      try {
+        const r = await testAIConnectivity(st.provider);
+        st.aiTest = { state: "ok", text: `通了：${r.label} / ${r.model} · ${r.ms} ms · 回复「${r.reply.slice(0, 12)}」` };
+      } catch (e) {
+        st.aiTest = { state: "fail", text: `没通：${(e == null ? void 0 : e.message) || String(e)}` };
+      }
+      paint();
+    };
+    const save2 = button("bz-setup-btn bz-setup-btn--cta", "保存并继续");
+    save2.onclick = async () => {
+      await saveAi(st);
+      void stageResources(ctx, st, ui2);
+    };
+    ui2.foot.append(skip, back, test, save2);
+  }
+  async function saveAi(st) {
+    try {
+      const s = getSettings();
+      s.aiProvider = st.provider;
+      const key = st.apiKey.trim();
+      if (st.provider === "zhipu-plan") s.zhipuPlanApiKey = key;
+      else if (st.provider === "ollama") s.ollamaApiKey = key;
+      else s.deepseekApiKey = key;
+      await saveSettings();
+    } catch (e) {
+    }
+  }
+  async function stageInstall(ctx, st, ui2, tasks) {
     ui2.sub.textContent = "全部自动完成。可以先去用别的功能，装完会通知你。";
     ui2.body.innerHTML = "";
     ui2.foot.innerHTML = "";
-    const list = document.createElement("div");
-    list.className = "bz-setup-list";
     const bar = document.createElement("div");
     bar.className = "bz-setup-bar";
     bar.innerHTML = "<i></i>";
+    const list = document.createElement("div");
+    list.className = "bz-setup-list";
     ui2.body.append(bar, list);
-    const closeBtn = button("bz-setup-btn", "收起来，后台继续");
-    closeBtn.onclick = () => ctx.close();
-    ui2.foot.appendChild(closeBtn);
+    const collapse = button("bz-setup-btn", "收起来，后台继续");
+    collapse.onclick = () => closeModal(ui2);
+    ui2.foot.appendChild(collapse);
     const total = tasks.reduce((n, t) => n + (t.size || 0), 0);
     let doneBytes = 0;
-    const failed = [];
     for (const t of tasks) {
-      const row = list.querySelector(`[data-task="${t.id}"]`);
-      const mark = row == null ? void 0 : row.querySelector(".bz-setup-mark");
-      const val = row == null ? void 0 : row.querySelector(".bz-setup-val");
-      if (mark) mark.className = "bz-setup-mark bz-setup-mark--busy";
-      if (val) val.textContent = "进行中";
+      const row = rowEl();
+      const mark = markEl("busy");
+      const val = valEl("进行中");
+      row.append(mark, keyEl(t.label, t.desc), val);
+      list.appendChild(row);
       try {
         await t.run();
         doneBytes += t.size || 0;
-        if (mark) mark.className = "bz-setup-mark bz-setup-mark--ok";
-        if (val) val.textContent = "已就绪";
+        mark.className = "bz-setup-mark bz-setup-mark--ok";
+        val.textContent = "已就绪";
       } catch (e) {
-        failed.push(t.label);
-        if (mark) mark.className = "bz-setup-mark bz-setup-mark--bad";
-        if (val) val.textContent = "失败";
+        st.failed.push(t.label);
+        mark.className = "bz-setup-mark bz-setup-mark--bad";
+        val.textContent = "失败";
         console.warn(`[bz] 首次准备：${t.label} 失败`, e);
       }
       const pct = total > 0 ? Math.min(99, Math.round(doneBytes / total * 100)) : 0;
       bar.querySelector("i").style.width = `${pct}%`;
     }
     bar.querySelector("i").style.width = "100%";
-    await markDone(ctx, true);
-    await stageDone(ctx, ui2, { tasks, failed });
-    if (failed.length) {
-      notice(`首次准备完成，但有 ${failed.length} 项失败：${failed.join("、")}。可在「设置 → 通用 → 在线资源」里重试`, "warning");
+    await markDone();
+    if (tasks.some((t) => t.id === "tool-dock-watch")) {
+      ui2.sub.textContent = "工具已就位。还有一件事需要你点头：值守要不要开机自启。";
+      try {
+        await setupAfterInstall(ctx.app, "dock-watch");
+      } catch (e) {
+        console.warn("[bz] 值守初始化失败", e);
+      }
+    }
+    await stageDone(ctx, st, ui2);
+    if (st.failed.length) {
+      notice(`首次准备完成，但有 ${st.failed.length} 项失败：${st.failed.join("、")}。可在「设置 → 通用 → 在线资源」里重试`, "warning");
     } else {
       notice("首次准备完成，环境与工具已就绪", "success");
     }
   }
-  async function stageDone(ctx, ui2, result) {
-    const envRows = await environmentCheck(ctx.app);
-    const okCount = envRows.filter((r) => r.ok === true).length;
-    const stillBad = envRows.filter((r) => r.ok === false);
-    ui2.sub.textContent = result.failed.length ? `有 ${result.failed.length} 项没装上，其余已就绪。` : "都就位了，接下来正常用就行。";
+  async function stageDone(ctx, st, ui2) {
+    const rows = await environmentCheck(ctx.app);
+    st.rows = rows;
+    ui2.sub.textContent = "都就位了，接下来正常用就行。";
     ui2.body.innerHTML = "";
     ui2.foot.innerHTML = "";
     const list = document.createElement("div");
     list.className = "bz-setup-list";
     ui2.body.appendChild(list);
-    for (const r of envRows) {
-      const row = document.createElement("div");
-      row.className = "bz-setup-row";
-      row.innerHTML = `<span class="bz-setup-mark ${r.ok === true ? "bz-setup-mark--ok" : r.ok === false ? "bz-setup-mark--bad" : "bz-setup-mark--idle"}"></span><span class="bz-setup-key">${r.key}</span><span class="bz-setup-val">${r.value}</span>`;
-      list.appendChild(row);
+    for (const r of rows) {
+      list.appendChild(lineRow(markEl(r.ok === true ? "ok" : r.ok === false ? "bad" : "idle"), r.key, void 0, r.value));
     }
-    if (!stillBad.length) {
+    if (rows.some((r) => r.id === "python" && r.value.includes("未找到"))) {
       const hint = document.createElement("div");
       hint.className = "bz-setup-hint";
-      hint.textContent = `环境检查通过（${okCount} 项）。脸谱导入微信记录还需要本机 Python 环境，用到时再装即可。`;
+      hint.textContent = "还剩一件手工活：脸谱导入微信记录要先装 Python 3。不影响其他功能，想弄的时候在「设置 → 关于 → 环境自检」里能看到。";
       ui2.body.appendChild(hint);
     }
     const enter = button("bz-setup-btn bz-setup-btn--cta", "开始使用");
-    enter.onclick = ctx.close;
+    enter.onclick = () => closeModal(ui2);
     ui2.foot.appendChild(enter);
   }
-  async function markDone(ctx, installed) {
+  async function markDone() {
     try {
       const s = getSettings();
       s.setupDone = true;
@@ -31122,27 +31396,37 @@ ${it.text}`).join("\n"));
     }
   }
   function openSetupWizard(app = getApp(), opts = {}) {
-    const firstRun = opts.firstRun === true;
     if (isMobileEnv()) {
       notice("包仔的完整功能需要桌面端 Obsidian", "warning");
       return;
     }
+    const firstRun = opts.firstRun === true;
     const content = document.createElement("div");
-    const modal = uiModal({
+    uiModal({
       head: true,
       title: firstRun ? "包仔 · 首次准备" : "环境自检",
       content,
-      maxWidth: 560,
+      maxWidth: 600,
       autofocus: false
     });
-    const ctx = { app, firstRun, root: content, close: modal.close };
-    const ui2 = skeleton(content);
-    void stageProbe(ctx, ui2);
+    const ctx = { app, firstRun, checkOnly: !firstRun };
+    const st = {
+      net: null,
+      rows: [],
+      storagePath: "",
+      items: [],
+      selected: /* @__PURE__ */ new Set(),
+      provider: DEFAULT_AI_PROVIDER,
+      apiKey: "",
+      aiTest: { state: "idle", text: "" },
+      failed: []
+    };
+    void stageProbe(ctx, st, skeleton(content));
   }
   function openEnvironmentCheck(app = getApp()) {
     openSetupWizard(app, { firstRun: false });
   }
-  var NODE_SIZE_HINT;
+  var NODE_SIZE_HINT, MANIFEST_TIMEOUT_MS;
   var init_setup_wizard = __esm({
     "src/core/setup-wizard.ts"() {
       init_notice();
@@ -31154,10 +31438,14 @@ ${it.text}`).join("\n"));
       init_skin_pack();
       init_node_runtime_install();
       init_tool_runtime();
+      init_tool_setup();
+      init_path_picker();
       init_mobile();
       init_app();
       init_settings_provider();
+      init_ai();
       NODE_SIZE_HINT = 36.4 * 1024 * 1024;
+      MANIFEST_TIMEOUT_MS = 12e3;
     }
   });
 
@@ -36148,11 +36436,11 @@ ${it.text}`).join("\n"));
     posHint.textContent = "绑定当前打开的笔记位置";
     posRow.append(posBtn, posHint);
     form.appendChild(posRow);
-    let closeModal = () => {
+    let closeModal2 = () => {
     };
     const modalBox = document.createElement("div");
     modalBox.className = "bz-memo-editor";
-    const cancelBtn = uiBtn({ label: "取消", onClick: () => closeModal() });
+    const cancelBtn = uiBtn({ label: "取消", onClick: () => closeModal2() });
     const saveBtn = uiBtn({ label: isEdit ? "保存" : "添加", tone: "primary" });
     const actionsRow = document.createElement("div");
     actionsRow.className = "bz-memo-form-actions";
@@ -36248,7 +36536,7 @@ ${it.text}`).join("\n"));
             M5.pinnedNewId = it.id;
           }
           editorBusy = false;
-          closeModal();
+          closeModal2();
           (_a3 = opts == null ? void 0 : opts.onSaved) == null ? void 0 : _a3.call(opts);
           await refresh();
         } catch (e) {
@@ -36273,13 +36561,13 @@ ${it.text}`).join("\n"));
     const formBaseline = formSnapshot();
     const requestClose = () => {
       if (formSnapshot() === formBaseline) {
-        closeModal();
+        closeModal2();
         return;
       }
-      confirmDiscard(() => closeModal(), void 0, skinClass());
+      confirmDiscard(() => closeModal2(), void 0, skinClass());
     };
     const { close, popup } = uiModal({ content: modalBox, maxWidth: 420, className: `${skinClass()} bz-memo-editor-popup`, requestClose });
-    closeModal = () => {
+    closeModal2 = () => {
       var _a3;
       playEditorShrink(popup, (_a3 = editing == null ? void 0 : editing.id) != null ? _a3 : null);
       close();
@@ -50670,8 +50958,8 @@ GitHub 仓库：${ghInfo.title}
     var _a2, _b2;
     return (_b2 = FavoritesApp.getInstance().dataManager) != null ? _b2 : new DataManager(getStoragePath((_a2 = tryGetSettings()) == null ? void 0 : _a2.storagePath));
   }
-  function tagMgrSkinOf(rowEl) {
-    return rowEl.closest(".bz-sp-desk, .bz-sp-mobile") ? " bz-sp-skin" : "";
+  function tagMgrSkinOf(rowEl2) {
+    return rowEl2.closest(".bz-sp-desk, .bz-sp-mobile") ? " bz-sp-skin" : "";
   }
   function renderTagManager(body, ctx) {
     const skin = tagMgrSkinOf(ctx.rowEl);
@@ -69360,8 +69648,6 @@ ${n.content.slice(0, 2e3)}
           var _a2;
           const schema = await (await Promise.resolve().then(() => (init_settings_main_schema(), settings_main_schema_exports))).generalSettingsSchema();
           const { openDataCheckup: openDataCheckup2 } = await Promise.resolve().then(() => (init_checkup(), checkup_exports));
-          const { appearanceSettingsSchema: appearanceSettingsSchema2 } = await Promise.resolve().then(() => (init_schema(), schema_exports));
-          schema.groups.unshift(...appearanceSettingsSchema2().groups);
           const storageGroup = (_a2 = schema.groups.find((g) => g.name === "数据存储路径")) != null ? _a2 : schema.groups[schema.groups.length - 1];
           storageGroup.rows.push({
             type: "button",
@@ -69371,8 +69657,8 @@ ${n.content.slice(0, 2e3)}
             desc: "各域数据文件的只读体检",
             onClick: () => void openDataCheckup2(getApp())
           });
-          const { onlineResourcesGroup: onlineResourcesGroup2 } = await Promise.resolve().then(() => (init_online_resources(), online_resources_exports));
-          schema.groups.push(await onlineResourcesGroup2());
+          const { onlineResourcesGroups: onlineResourcesGroups2 } = await Promise.resolve().then(() => (init_online_resources(), online_resources_exports));
+          schema.groups.push(...await onlineResourcesGroups2());
           const { aboutGroup: aboutGroup2 } = await Promise.resolve().then(() => (init_about_group(), about_group_exports));
           schema.groups.unshift(await aboutGroup2());
           return schema;

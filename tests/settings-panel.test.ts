@@ -184,9 +184,10 @@ describe('设置面板（settings-panel）', () => {
     // issue 479：通知组并回通用；issue 480：末尾追加「在线资源」组；issue 478：归物分类表作为
     // doc 条目并入「在线资源」组（不再单开「数据资产」组，见 ADR-0204）；ADR-0254：新增「功能域」组（域级开关）
     // 2026-10-28：最前追加「关于」组（版本 / 自动更新 / 反馈 / 赞赏）
+    // 2026-10-28：撤「外观」组（-1）；「外部工具」从「在线资源」里拆出来单列（+1）
     expect(groups.length).toBe(6);
     expect([...groups].map((g) => g.querySelector('.bz-sp-group-name')!.textContent)).toEqual([
-      '关于', '外观', '功能域', '通知', '数据存储路径', '在线资源',
+      '关于', '功能域', '通知', '数据存储路径', '外部工具', '在线资源',
     ]);
     // 点 AI 域 → 内嵌渲染 AI 组（服务商 select 等）
     const aiItem = Array.from(popup.querySelectorAll('.bz-sp-nav-item')).find(
@@ -380,7 +381,7 @@ describe('设置面板（settings-panel）', () => {
     // （2026-10-26：「外部工具」组收进 AI 页 → 通用页不再有 terminal 卡）
     let icons = [...popup.querySelectorAll('.bz-sp-group-icon')].map((i) => i.getAttribute('data-icon'));
     // 2026-10-28：最前新增「关于」组（info）
-    expect(icons).toEqual(['info', 'palette', 'layout-grid', 'bell', 'folder-open', 'cloud-download']); // issue 480：+ 在线资源组
+    expect(icons).toEqual(['info', 'layout-grid', 'bell', 'folder-open', 'wrench', 'cloud-download']); // issue 480：+ 在线资源组
     // AI 域分组：LLM/Embedding/JEV/语音转写/外部工具/数据源凭据
     // （issue 422 四组重排；issue 444 增语音转写；2026-10-26 外部工具组迁入，排语音转写之后）
     const aiItem = Array.from(popup.querySelectorAll('.bz-sp-nav-item')).find(
@@ -532,33 +533,8 @@ describe('设置面板（settings-panel）', () => {
     ui.cleanup();
   });
 
-  it('桌面端：通用域外观组——布局/主题各一张卡片卡，点主题卡落盘 chenhun（2026-09-12：原「设置」域并入通用）', async () => {
-    const ui = new SettingsPanelUI();
-    ui.open();
-    const popup = document.getElementById('bz-settings-panel-popup')!;
-    // 默认域即通用 → 找「外观」组（2026-10-28 起首组是「关于」，故按名定位不按序）
-    // 上行布局（经纬）+ 下行主题（晨昏），各一张卡（无需再点导航）
-    expect(await waitGroups(popup, 1)).toBe(true);
-    const group = Array.from(popup.querySelectorAll('.bz-sp-group')).find(
-      (g) => g.querySelector('.bz-sp-group-name')!.textContent === '外观',
-    ) as HTMLElement;
-    expect(group).toBeTruthy();
-    const picks = group.querySelectorAll('.bz-sp-cardpick');
-    expect(picks.length).toBe(2);
-    const cards0 = picks[0].querySelectorAll('.bz-sp-cardpick-card');
-    const cards1 = picks[1].querySelectorAll('.bz-sp-cardpick-card');
-    expect(cards0.length).toBe(1);
-    expect(cards0[0].textContent).toContain('经纬');
-    expect(cards1.length).toBe(1);
-    expect(cards1[0].textContent).toContain('晨昏');
-    expect(cards0[0].classList.contains('is-on')).toBe(true); // 默认经纬选中
-    expect(cards1[0].classList.contains('is-on')).toBe(true); // 默认晨昏选中
-    // 点卡片（默认已选中 = 空值回退首选项口径，uiCardChoice 同值点击直接 return 不重复落盘）
-    (cards1[0] as HTMLElement).dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await tick();
-    expect(cards1[0].classList.contains('is-on')).toBe(true);
-    ui.cleanup();
-  });
+  // 2026-10-28 用户拍板：通用页「外观」组撤掉（布局/主题由各域自带皮承担，这里是重复入口），
+  // 对应断言随之删除；appearanceSettingsSchema 也已从 src/settings-panel/schema.ts 移除。
 
   it('桌面端：归物本外观组——布局（大字报）/主题（暖白）占位单卡，layoutKey 过滤后主题行单卡（拍板 C）', async () => {
     const ui = new SettingsPanelUI();

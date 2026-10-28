@@ -74,8 +74,8 @@ const schemaLoaders: Record<string, () => Promise<SettingsSchema>> = {
     const { openDataCheckup } = await import('../checkup');
     // 外观组排最前（2026-09-12 用户拍板：「设置」页撤销，其外观组并入通用），
     // 通知组在 core schema 里排存储路径前 → 通用页终序 = 外观 → 通知 → 存储（issue 479）
-    const { appearanceSettingsSchema } = await import('./schema');
-    schema.groups.unshift(...appearanceSettingsSchema().groups);
+    // 2026-10-28 用户拍板：「外观」组自上而下撤掉——布局与主题都由各自域自带的皮承担，
+    // 通用页再摆一行「布局/主题」是重复入口（原 schema.ts 的 appearanceSettingsSchema 已删）
     // 「数据体检」按钮挂「数据存储路径」组尾（按 name 定位防未来组序漂移）
     const storageGroup = schema.groups.find((g) => g.name === '数据存储路径') ?? schema.groups[schema.groups.length - 1];
     storageGroup.rows.push({
@@ -88,8 +88,10 @@ const schemaLoaders: Record<string, () => Promise<SettingsSchema>> = {
     });
     // 「在线资源」组排最后（2026-09-27 用户拍板，ADR-0203；ADR-0205 回归通用声明行）：
     // 更新日志/手册/主题/分类表四行下载状态机；下载动作收口在这里与文档导航入口两处
-    const { onlineResourcesGroup } = await import('./online-resources');
-    schema.groups.push(await onlineResourcesGroup());
+    const { onlineResourcesGroups } = await import('./online-resources');
+    // 「外部工具」在「在线资源」之上（2026-10-28 用户拍板）：前者是插件运行时真的要 spawn 的
+    // 程序（还要 Node、值守要注册自启），后者是文档与皮肤。混在一个列表里看不出这层区别。
+    schema.groups.push(...(await onlineResourcesGroups()));
     // 「关于」组排最前（2026-10-28 对外分发）：版本 / 自动更新 / 反馈 / 赞赏。
     // 放最前是因为它回答的是「我装的是什么版本、怎么反馈」——那是一个人打开设置第一眼
     // 会问的两件事；外观与功能域都是配置项，可以往后排。

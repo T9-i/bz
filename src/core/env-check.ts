@@ -86,8 +86,11 @@ export async function probeNetwork(): Promise<NetworkProbe> {
   return { github: raw >= 0, jsdelivr: cdnMs >= 0, githubMs: raw, jsdelivrMs: cdnMs };
 }
 
-/** 真写一次再删掉（`exists()` 不代表可写：只读盘、占位文件、权限位都能骗过它） */
-async function canWrite(app: unknown, relPath: string): Promise<boolean> {
+/**
+ * 真写一次再删掉（`exists()` 不代表可写：只读盘、占位文件、权限位都能骗过它）。
+ * 导出给首次引导的「存放位置」一屏用——用户改完路径当场验，不合格就不许往下走。
+ */
+export async function probeWritableDir(app: unknown, relPath: string): Promise<boolean> {
   const adapter = (app as {
     vault?: {
       adapter?: {
@@ -225,7 +228,7 @@ export async function environmentCheck(app: unknown): Promise<EnvCheckRow[]> {
   if (!mobile) {
     // 插件目录名由用户决定（core/plugin-path）——展示真实那一条，别给一个「标准路径」
     const pluginRel = pluginRelDirOf(app);
-    const pluginWritable = await canWrite(app, pluginRel);
+    const pluginWritable = await probeWritableDir(app, pluginRel);
     rows.push({
       id: 'plugin-writable',
       key: '插件目录可写',
@@ -235,7 +238,7 @@ export async function environmentCheck(app: unknown): Promise<EnvCheckRow[]> {
   }
 
   const storeDir = await storageDirOf();
-  const storeOk = await canWrite(app, storeDir);
+  const storeOk = await probeWritableDir(app, storeDir);
   rows.push({
     id: 'storage',
     key: '数据目录可写',
