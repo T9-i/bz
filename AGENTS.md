@@ -26,7 +26,7 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 ## 坑
 - Git Bash 里 pnpm 起不来（shim 把路径解析成 `D:\d\...`）→ 用 PowerShell，或 `node node_modules/<包>/…` 直调。
 - `git worktree remove` 后常残留 `node_modules`，要另删。**删前必须先 `cmd /c rmdir` 掉 worktree 里的 `node_modules` junction**——worktree 的 junction 指向主仓 node_modules 时，remove/remove --force 会穿透删除主仓 `.pnpm` 里的包（表层包还在、深处依赖悬空，测试报 Cannot find module）；穿透后 `pnpm install` 修不回（workspace 状态文件误判 up to date），要 `rm -rf node_modules && pnpm install` 整体重建（store 硬链接，很快）。
-- 发布顺序固定：`tools-pack → skin-pack → changelog → catalog → manifest → build → assets`（前四个出产物、`manifest` 对产物现算 hash、`build` 出插件本体、`assets` 把产物镜像到分发仓库）。**少跑 `manifest` = 清单永远停在上一版**（`changelog` 重出了出版页、sha256 却没跟着算），而且只有跑门禁时 `skin-pack-split-guard` 才会说话。**少跑 `tools-pack` 同理**（旧 tar.gz 还在，用户端显示「已是最新」但内容没更新）。**少跑 `assets` = 客户端拿到的还是上一版**（下载通道只认分发仓库，见下条）。
+- 发布顺序固定：`tools-pack → skin-pack → changelog → catalog → manifest → build → assets`（前四个出产物、`manifest` 对产物现算 hash、`build` 出插件本体、`assets` 把产物镜像到分发仓库；`pnpm assets` 与 `node scripts/push-assets.mjs` 是同一件事，Git Bash 里用后者）。**少跑 `manifest` = 清单永远停在上一版**（`changelog` 重出了出版页、sha256 却没跟着算），而且只有跑门禁时 `skin-pack-split-guard` 才会说话。**少跑 `tools-pack` 同理**（旧 tar.gz 还在，用户端显示「已是最新」但内容没更新）。**少跑 `assets` = 客户端拿到的还是上一版**（下载通道只认分发仓库，见下条）。
 - **下载走独立分发仓库 `yeshimei/bz-assets`**（ADR-0269）：主仓 `.git` 284 MB 超过 jsDelivr 的 50 MB 上限，它对主仓未缓存文件一律 403；国内无代理时 raw 又不通。`node scripts/push-assets.mjs` 把 `downloads/**` 与 `releases/<tag>/`（三件套）镜像过去，只保留最近 3 份发布，`.git` 超 25 MB 自动压平历史。**主仓仍是唯一产出地**，分发仓库随时可删可重建。改了 base 地址只改 `src/core/remote-base.ts`（脚本从那里读 slug，别在两处各写一份）——`tests/core/remote-base-assets.test.ts` 钉着这条。
 - 对外发布还要**打 tag**：tag 名 = `v<manifest.json 的 version>`。自更新分两段——先读分发仓库 master 的 `downloads/version.json` 拿到 tag，再去 `<分发仓库>/releases/<tag>/` 拉三件套（ADR-0263 / ADR-0269）。指针由 `pnpm manifest` 从 `manifest.json` 推出来，两者不同步 `--check` 会拦；`releases/<tag>` 目录由 `push-assets` 按同一个版本号命名，两者天然对齐。
 - 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
@@ -46,5 +46,7 @@ Conventional Commits，**提交信息即更新日志正文**（写法 `docs/chan
 | 离线值守（Obsidian 关着也跑） | `tools/dock-watch/README.md`（装法/排障）· 租约与状态接口 `src/dock/watchdog.ts` · ADR-0242 |
 | 值守跑之前等网络 | `tools/dock-watch/net.js` 文件头 · ADR-0242 补记（等不到不记账，留给下一拍） |
 | 写一个接入工具坞的外部脚本 | `docs/dock-tool-guide.md`（声明文件 / 参数值文件 / 四行协议 / 运行记录 / 展示板 `panel.html`） |
+| 发布怎么推、分发仓库怎么重建 | `scripts/push-assets.mjs`（保留份数 / 压平阈值 / slug 读哪里）· ADR-0269 |
+| 资源地址、通道顺序 | `src/core/remote-base.ts`（唯一事实源；别在别处再写一份 slug 或域名）· ADR-0269 |
 
 本文与代码冲突时以代码为准，并顺手改这里。历史注释里的「铁律 N」是旧编号，按内容找，别按号找。
