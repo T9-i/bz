@@ -42,8 +42,16 @@ beforeEach(() => {
 });
 
 describe('remotesFor / assetVaultPath（issue 474 共用内核）', () => {
-  it('双远端顺序：raw.githubusercontent 主 → jsDelivr 备，同仓库同路径', () => {
-    expect(remotesFor(CHANGELOG_FILENAME)).toEqual([REMOTE_RAW, REMOTE_CDN]);
+  it('多通道顺序：raw 主 → jsDelivr 四个边缘入口（2026-10-28 国内实测 cdn 不通、fastly/gcore/testingcf 通）', () => {
+    const urls = remotesFor(CHANGELOG_FILENAME);
+    expect(urls[0]).toBe(REMOTE_RAW);
+    expect(urls[1]).toBe(REMOTE_CDN);
+    // 后三个是同一份内容的不同边缘域名，顺序固定（最可能通的排在 cdn 之后）
+    expect(urls.slice(2)).toEqual([
+      REMOTE_CDN.replace('cdn.jsdelivr.net', 'fastly.jsdelivr.net'),
+      REMOTE_CDN.replace('cdn.jsdelivr.net', 'gcore.jsdelivr.net'),
+      REMOTE_CDN.replace('cdn.jsdelivr.net', 'testingcf.jsdelivr.net'),
+    ]);
   });
 
   it('落盘路径 = 插件安装目录（跟随 configDir），非数据目录', () => {

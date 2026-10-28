@@ -8,7 +8,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 import { MockVault } from '../mock-vault';
-import { environmentCheck } from '../../src/core/env-check';
+import { environmentCheck, isRealPythonOutput } from '../../src/core/env-check';
 import { resetNodeRuntimeCache, setFsProbe } from '../../src/core/tool-runtime';
 
 function appOf(vault: MockVault): unknown {
@@ -68,5 +68,18 @@ describe('environmentCheck', () => {
     expect(row.ok).toBe(false);
     expect(row.value).toContain('未找到');
     setFsProbe(null);
+  });
+});
+
+describe('Python 探测的真实性判据', () => {
+  it('应用商店别名占位符不算 Python（每台 Win10/11 都有，跑起来什么都不做）', () => {
+    expect(isRealPythonOutput('')).toBe(false);
+    expect(isRealPythonOutput('Python was not found; run without arguments to install from the Microsoft Store')).toBe(false);
+  });
+
+  it('真 Python 的 -V 输出认（大小写不敏感，stderr 也认——老版本打到 stderr）', () => {
+    expect(isRealPythonOutput('Python 3.12.4')).toBe(true);
+    expect(isRealPythonOutput('python 3.11.9')).toBe(true);
+    expect(isRealPythonOutput('Python 2.7.18')).toBe(false);
   });
 });

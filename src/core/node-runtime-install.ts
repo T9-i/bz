@@ -27,8 +27,17 @@ import type { TarFile } from './tar';
 /** 便携运行时的版本（LTS 线；升级时改这一个常量，双源的目录名都跟着变） */
 export const PORTABLE_NODE_VERSION = 'v24.14.1';
 
-/** 落位目录（相对 downloads/）——与 tool-runtime 的探测口径必须一致 */
-export const NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+/** 落位目录（相对 downloads/；adapter 的 ensureDir / downloadsVaultPath 都吃这个口径） */
+export const NODE_RUNTIME_REL = 'tools/node-runtime';
+
+/** 落位目录（**插件目录相对**，含 downloads/ 前缀）——tool-runtime 拼绝对路径时用这个，
+ *  两处必须一致，否则「写在这里、找在那里」。 */
+export const NODE_RUNTIME_DIR = `${DOWNLOADS_DIR}/${NODE_RUNTIME_REL}`;
+
+/** 入口文件的 downloads 相对路径（写盘用） */
+export function portableNodeDownloadsRel(platform: string = currentPlatform()): string {
+  return `${NODE_RUNTIME_REL}/${bundledNodeFile(platform)}`;
+}
 
 /** 解包后入口文件名（相对 NODE_RUNTIME_DIR） */
 export function bundledNodeFile(platform: string = currentPlatform()): string {
@@ -155,8 +164,13 @@ function runNodeVersion(binPath: string): string {
   try {
     const cp = (window as any).require?.('child_process');
     if (!cp?.spawnSync) return '';
-    const r = cp.spawnSync(binPath, ['-v'], { encoding: 'utf8', windowsHide: true, timeout: 8000 });
-    return r?.status === 0 ? String(r.stdout || '').trim() : '';
+    // 30s 而不是 8s：第一次执行一个 90MB 的 exe 时，Windows Defender 会当场全量扫一遍，
+    // 冷机上实测能卡十几秒。卡住被 kill → status 为 null → 会被误判成「装了但跑不起来」，
+    // 然后我们把一个好好的 node.exe 删掉，用户看到的是「下载失败」。
+    const r = cp.spawnSync(binPath, ['-v'], { encoding: 'utf8', windowsHide: true, timeout: 30000 });
+    if (r?.status === 0) return String(r.stdout || '').trim();
+    if (r?.error) console.warn('[bz] 便携 Node 验证失败：', (r.error as Error)?.message || r.error);
+    return '';
   } catch {
     return '';
   }
@@ -208,7 +222,10 @@ export async function installPortableNode(app: unknown, deps: NodeInstallDeps = 
         }
 
         deps.onStage?.('正在写入插件目录');
-        const rel = `${NODE_RUNTIME_DIR}/${member}`;
+        // 注意：这里是 **downloads 相对**路径——ensureDir / downloadsVaultPath 都会自己加
+        // `downloads/` 前缀。早前用 NODE_RUNTIME_DIR（已含该前缀）会写成
+        // `downloads/downloads/tools/...`：文件确实写成功了，但探测永远找不到它。
+        const rel = portableNodeDownloadsRel(platform);
         await ensureDir(app, rel);
         const ab = bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer;
         const adapter = (app as { vault?: { adapter?: { writeBinary?: (p: string, d: ArrayBuffer) => Promise<void> } } })
@@ -227,7 +244,8 @@ export async function installPortableNode(app: unknown, deps: NodeInstallDeps = 
         }
 
         deps.onStage?.('正在验证');
-        const version = runNodeVersion(`${pluginDirOf(app)}/${rel}`);
+        // 验证用的是**插件目录相对**路径（含 downloads/），别拿写盘那条 downloads 相对路径
+        const version = runNodeVersion(`${pluginDirOf(app)}/${portableNodeRelPath(platform)}`);
         if (!version) {
           await removeQuietly(app, rel);
           lastErr = '下载的 Node 无法运行（可能是网络中断或文件被拦截）';
@@ -243,6 +261,7 @@ export async function installPortableNode(app: unknown, deps: NodeInstallDeps = 
 }
 
 /** 便携 Node 是否已就位（只看文件在不在；能不能跑由 tool-runtime 的 -v 探测负责） */
+/** 插件目录相对路径（诊断/展示用；探测口径同 tool-runtime） */
 export function portableNodeRelPath(platform: string = currentPlatform()): string {
   return `${NODE_RUNTIME_DIR}/${bundledNodeFile(platform)}`;
 }

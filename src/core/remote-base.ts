@@ -26,11 +26,22 @@
 /** 仓库 slug（`<owner>/<repo>`）——GitHub raw 与 jsDelivr 的唯一出处 */
 export const REPO_SLUG = 'yeshimei/bz';
 
-/** 仓库双源基址（master 分支）：GitHub raw 主 → jsDelivr 备（国内被墙时的第二通道）。
- *  唯一事实源——资源通道（remote-asset）、发布指针、插件自更新共用。 */
+/** jsDelivr 的四个入口（同一个 CDN 的不同边缘域名）。
+ *
+ *  为什么不是只有 cdn.jsdelivr.net：国内实测 2026-10-28 **cdn 与 raw 同时不通**
+ *  （`code=000`，1.2s / 0.5s 两个都连不上），而 fastly / gcore / testingcf 三个入口
+ *  全通（200）。它们指向同一份内容，只是边缘域名不同——这是零成本的冗余。 */
+const JSDELIVR_HOSTS = ['cdn.jsdelivr.net', 'fastly.jsdelivr.net', 'gcore.jsdelivr.net', 'testingcf.jsdelivr.net'];
+
+/** 仓库多通道基址（master 分支），按「新鲜度优先」排：
+ *  raw（无缓存，最真实）→ cdn → fastly → gcore → testingcf（后三个是国内能通的那几个）。
+ *  唯一事实源——资源通道（remote-asset）、发布指针、插件自更新共用。
+ *
+ *  代价说明：国内无代理时会先撞两个不通的（约 1.7s）再落到能用的那个。这个顺序是刻意的——
+ *  jsDelivr 对 `@master` 有缓存（分钟到小时级），把指针文件放前面会让「检查更新」读到旧值。 */
 export const REPO_BASES = [
   `https://raw.githubusercontent.com/${REPO_SLUG}/master`,
-  `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`,
+  ...JSDELIVR_HOSTS.map((h) => `https://${h}/gh/${REPO_SLUG}@master`),
 ];
 
 /**
@@ -61,7 +72,7 @@ export function tagBasesFor(tag: string): string[] {
   if (!isValidTag(tag)) return [];
   return [
     `https://raw.githubusercontent.com/${REPO_SLUG}/refs/tags/${tag}`,
-    `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@${tag}`,
+    ...JSDELIVR_HOSTS.map((h) => `https://${h}/gh/${REPO_SLUG}@${tag}`),
   ];
 }
 

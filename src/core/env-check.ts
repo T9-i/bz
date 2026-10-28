@@ -16,7 +16,7 @@
  *  - **移动端**不报错，如实说「这一项在手机上不适用」。
  *  - **不把「没配」当「坏了」**：AI 密钥是可选项，只提示，不计红。
  * ============================================================ */
-import { downloadRemotesFor } from './remote-base';
+import { REPO_BASES } from './remote-base';
 import { tryGetSettings } from './settings-provider';
 import { pluginRelDirOf } from './plugin-path';
 import { isMobileEnv } from './mobile';
@@ -75,9 +75,15 @@ async function timedFetch(url: string): Promise<number> {
  * 界面据此给出「检查代理/VPN」的说明而不是一个异常。
  */
 export async function probeNetwork(): Promise<NetworkProbe> {
-  const urls = downloadRemotesFor('version.json');
-  const [a, b] = await Promise.all([timedFetch(urls[0]), timedFetch(urls[1])]);
-  return { github: a >= 0, jsdelivr: b >= 0, githubMs: a, jsdelivrMs: b };
+  // 全通道并发探（raw + jsDelivr 的四个边缘域名）。逐个串行探会让「两条都不通」的结论
+  // 慢三倍，而这一步是首次引导的第一屏——等不起。
+  const urls = REPO_BASES.map((b) => `${b}/downloads/version.json`);
+  const results = await Promise.all(urls.map((u) => timedFetch(u)));
+  const raw = results[0] ?? -1;
+  // jsDelivr 一侧取**最快**的那个入口（国内实测 cdn 不通、fastly/gcore/testingcf 通）
+  const cdn = results.slice(1).filter((ms) => ms >= 0);
+  const cdnMs = cdn.length ? Math.min(...cdn) : -1;
+  return { github: raw >= 0, jsdelivr: cdnMs >= 0, githubMs: raw, jsdelivrMs: cdnMs };
 }
 
 /** 真写一次再删掉（`exists()` 不代表可写：只读盘、占位文件、权限位都能骗过它） */
@@ -131,35 +137,54 @@ async function storageDirOf(): Promise<string> {
  * **只探测、不安装**：脸谱的依赖是 funasr/torch 这一档（pip 装下来 GB 级，还要 ffmpeg 与
  * 模型文件），自动装等于替用户下一个几 GB 的包再赌网络——这种事不能藏在「一键」后面。
  * 所以这一行永远不判红，只如实说「有没有」。
+ *
+ * 一个必须避开的坑：Windows 10/11 的 `%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe`
+ * 是**应用商店别名占位符**，每台机器都有、跑起来什么都不做（要么弹商店，要么直接退出）。
+ * 只看 `where python` 会把它当成「已装 Python」，等脸谱真跑起来才报一个看不懂的错。
+ * 所以拿到路径后必须真跑一次 `-V`，认输出里的版本号。
  */
+export function isRealPythonOutput(out: string): boolean {
+  return /Python\s+3\.\d+/i.test(String(out || ''));
+}
+
 function pythonProbe(): { found: boolean; value: string } {
-  const configured = String((() => {
-    try {
-      // 设置里手填过路径就以此为准（用户可能装在非 PATH 位置）
-      return String(tryGetSettings()?.pythonPath || '');
-    } catch {
-      return '';
-    }
-  })()).trim();
+  const configured = String(tryGetSettings()?.pythonPath || '').trim();
   if (configured) return { found: true, value: `已配置：${configured}` };
   if (typeof window === 'undefined') return { found: false, value: '未知（非桌面端）' };
+  let cp: any = null;
   try {
-    const cp = (window as any).require?.('child_process');
-    if (!cp?.spawnSync) return { found: false, value: '未知' };
-    const cmd = typeof process !== 'undefined' && process.platform === 'win32' ? 'where' : 'which';
-    const r = cp.spawnSync(cmd, ['python'], { encoding: 'utf8', windowsHide: true, timeout: 4000 });
-    // 不用正则（避免转义噪音）：按 LF 切、逐行 trim，取第一条
-    const lines = String(r?.stdout || '')
-      .split(String.fromCharCode(10))
-      .map((x: string) => x.trim())
-      .filter(Boolean);
-    const first = lines[0] || '';
-    return first
-      ? { found: true, value: first }
-      : { found: false, value: '未找到（脸谱导入微信记录时需要，其余功能不受影响）' };
+    cp = (window as any).require?.('child_process');
   } catch {
-    return { found: false, value: '未知' };
+    cp = null;
   }
+  if (!cp?.spawnSync) return { found: false, value: '未知' };
+
+  const win = typeof process !== 'undefined' && process.platform === 'win32';
+  const finder = win ? 'where' : 'which';
+  for (const name of ['python', 'python3']) {
+    let path = '';
+    try {
+      const r = cp.spawnSync(finder, [name], { encoding: 'utf8', windowsHide: true, timeout: 4000 });
+      path = String(r?.stdout || '')
+        .split(String.fromCharCode(10))
+        .map((x: string) => x.trim())
+        .filter(Boolean)[0] || '';
+    } catch {
+      path = '';
+    }
+    if (!path) continue;
+    // 真跑一次：占位符/坏装在 `where` 里也有，只有 `-V` 会说话
+    try {
+      const v = cp.spawnSync(path, ['-V'], { encoding: 'utf8', windowsHide: true, timeout: 8000 });
+      const out = `${v?.stdout || ''}${v?.stderr || ''}`;
+      if (isRealPythonOutput(out)) {
+        return { found: true, value: `${out.trim().split(String.fromCharCode(10))[0]}（${path}）` };
+      }
+    } catch {
+      /* 跑不起来 = 不是真 Python，继续找下一个 */
+    }
+  }
+  return { found: false, value: '未找到可用的 Python 3（脸谱导入微信记录时需要，其余功能不受影响）' };
 }
 
 /** 读 AI 是否已配（按当前服务商判；ollama 本地无鉴权视为已配） */
