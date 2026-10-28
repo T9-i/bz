@@ -253,12 +253,6 @@ function markEl(state: 'ok' | 'bad' | 'idle' | 'busy'): HTMLElement {
   return span;
 }
 
-/** 长值（路径 / 带分隔符 / 超过 24 字）折到第二行；短值留在右列右对齐 */
-function isLongValue(text: string): boolean {
-  const backslash = String.fromCharCode(92);
-  return text.length > 24 || text.includes('/') || text.includes(backslash);
-}
-
 function keyEl(text: string, sub?: string): HTMLElement {
   const k = document.createElement('span');
   k.className = 'bz-setup-key';
@@ -274,12 +268,17 @@ function valEl(text: string): HTMLElement {
   return v;
 }
 
-/** 把「值」写进行里，并按长短决定放右列还是折到第二行 */
-function setValue(row: HTMLElement, val: HTMLElement, text: string): void {
+/**
+ * 把「值」写进行里。
+ *
+ * 一律左右两列：名称在左、值在右，**长值（路径）也在右列自己的宽度里换行**。
+ * 早前把长值整行折到第二行、还染成灰字——读起来像两条不同的信息，
+ * 截图里「已配置：E:/…” 单独漂在下面就是那样（2026-10-28 用户否掉）。
+ * 折行的老写法本来是为了绕开「右列被压成一字一列」的 bug；那个 bug 的真因是
+ * 列宽 auto + overflow-wrap:anywhere，现在用两列 fr + min-width 解决，不必再折行。
+ */
+function setValue(_row: HTMLElement, val: HTMLElement, text: string): void {
   val.textContent = text;
-  const long = isLongValue(text);
-  row.classList.toggle('bz-setup-row--block', long);
-  val.classList.toggle('bz-setup-val--block', long);
 }
 
 /** 装一行：状态点 + 名称（可带一句用途）+ 值 */
@@ -293,6 +292,21 @@ function lineRow(mark: HTMLElement, label: string, sub: string | undefined, valu
 /** 只转义三件事：文案来自本地常量，但 `& < >` 会被当标签解析，够了 */
 function escapeText(s: string): string {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * 检测屏的分段（纯函数，便于钉住「工具只出现一次」）：
+ * 环境行里 `tool-*` 前缀的就是三个外部工具（core/env-check 用 runtimeDiagnostics 生成），
+ * 其余是本机环境。两段互斥——重复列同一件事是用户 2026-10-28 截图里最刺眼的一条。
+ */
+export function splitProbeRows<T extends { id?: string }>(rows: T[]): { env: T[]; tools: T[] } {
+  const isTool = (id: string | undefined): boolean => String(id || '').startsWith('tool-');
+  return { env: rows.filter((r) => !isTool(r.id)), tools: rows.filter((r) => isTool(r.id)) };
+}
+
+/** 「在线资源」段只列文档与皮肤（目录包已经归「外部工具」，不在这里重复） */
+export function resourceDocsOf<T extends { kind?: string }>(manifest: { docs: T[] }): T[] {
+  return manifest.docs.filter((d) => d.kind !== 'bundle');
 }
 
 function closeModal(ui: Ui): void {
@@ -334,41 +348,53 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
 
   const rows = await environmentCheck(ctx.app);
   st.rows = rows;
-  for (const r of rows) paint(addRow(r.key), r.ok, r.value);
+  // 三段而不是一段平铺（2026-10-28 用户截图报障）：
+  //  ① 本机环境（运行环境 / 路径 / 可写 / Node / Python / AI）
+  //  ② **外部工具**（三个目录包）——此前混在环境行里，又在「在线资源」里重复出现一次
+  //  ③ **在线资源**（文档 / 皮肤）——只列文档与皮肤，不再把三个工具重复列一遍
+  const { env: envRows, tools: toolRows } = splitProbeRows(rows);
+  for (const r of envRows) paint(addRow(r.key), r.ok, r.value);
+
+  const groupOf = (title: string): HTMLElement => {
+    const group = document.createElement('div');
+    group.className = 'bz-setup-group';
+    const head = document.createElement('div');
+    head.className = 'bz-setup-group-h';
+    head.textContent = title;
+    group.appendChild(head);
+    ui.body.appendChild(group);
+    return group;
+  };
+
+  if (toolRows.length) {
+    const group = groupOf('外部工具');
+    for (const r of toolRows) paint(addRow(r.key, group), r.ok, r.value);
+  }
 
   // 在线资源的下载状态：自检不能只说「这台机器缺什么」，还要说「哪些已经下好了」。
   // 清单只拉一次，③ 屏直接复用（st.manifest）。
   const manifest = await fetchManifestWithTimeout(ctx.app);
   st.manifest = manifest;
   if (manifest) {
-    const group = document.createElement('div');
-    group.className = 'bz-setup-group';
-    const head = document.createElement('div');
-    head.className = 'bz-setup-group-h';
-    head.textContent = '在线资源';
-    group.appendChild(head);
-    ui.body.appendChild(group);
-    for (const e of manifest.docs) {
-      // 深校验（逐个文件 stat）：自检的意义就是「看一眼现在的磁盘」，只看标记会漏掉
-      // 被安全软件隔离 / 被同步盘截断这类「标记在、文件没了」的情况
-      const state = e.kind === 'bundle' ? await bundleStatus(ctx.app, e, { deep: true }) : await docStatus(ctx.app, e);
+    const group = groupOf('在线资源');
+    for (const e of resourceDocsOf(manifest)) {
+      // 深校验只对目录包有意义（逐文件 stat）；文档是单文件 sha256，docStatus 立刻能判
+      const state = await docStatus(ctx.app, e);
       const text = state === 'ready' ? '已下载' : state === 'updated' ? '有更新' : '未下载';
       paint(addRow(e.name, group), state === 'ready' ? true : state === 'updated' ? null : false, text);
     }
     const skin = await skinStatus(ctx.app, manifest);
     const total = manifest.skins.length;
-    const text = skin.missing === 0 && skin.updated === 0 ? `${skin.ready}/${total} 已下载` : `${skin.ready}/${total} 已下载`;
+    const text = `${skin.ready}/${total} 已下载`;
     paint(addRow('主题皮肤', group), skin.missing === 0 && skin.updated === 0 ? true : null, text);
   }
 
   const online = !!(net?.github || net?.jsdelivr);
   if (!online) {
-    // 公网全不通时要说「还有哪条路」，不能只丢一句「检查网络」：
-    // 企业网里改系统代理往往没权限，而镜像源与离线包是人自己就能做的两件事。
-    ui.sub.textContent =
-      '连不上资源站。插件主体仍可用，下载类功能要等有网络。两条自带的路：' +
-      '① 把内网镜像填进「设置 → 通用 → 在线资源 → 镜像源」；' +
-      '② 把仓库的 downloads/ 目录拷到 vault 下的 bz-offline/，插件会直接读本地。';
+    // 只说事实，不给操作指令（2026-10-28 用户拍板）：原先那两句「填镜像源」「把 downloads/ 拷到
+    // bz-offline/」都不该出现在这里——镜像源行已经下线，而让人手动摆文件路径本身就是错的指引
+    // （摆错位置不会报错，只会表现为「下载一直失败」）。真无外网的人自己知道该怎么办。
+    ui.sub.textContent = '连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。';
     const later = button('bz-setup-btn', '稍后再说');
     later.onclick = () => {
       void markDone();
@@ -813,7 +839,9 @@ export function openSetupWizard(app: unknown = getApp(), opts: { firstRun?: bool
     head: true,
     title: firstRun ? '包仔 · 首次准备' : '环境自检',
     content,
-    maxWidth: 600,
+    // 760 而不是 600（2026-10-28 用户：太窄，布局不好看）：清单是「名称——值」两列，
+    // 窄窗里右侧那列只能挤成豆腐块；宽一点才读得出一条是一条。
+    maxWidth: 760,
     autofocus: false,
   });
   const ctx: WizardCtx = { app, firstRun, checkOnly: !firstRun };

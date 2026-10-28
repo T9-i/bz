@@ -4,7 +4,7 @@
  * 但「下哪些、按什么顺序下、体积怎么算」是这里的责任，也最容易写错。
  */
 import { describe, it, expect } from 'vitest';
-import { buildSetupTasks, defaultSelection, selectedTasks, sizeText } from '../../src/core/setup-wizard';
+import { buildSetupTasks, defaultSelection, resourceDocsOf, selectedTasks, sizeText, splitProbeRows } from '../../src/core/setup-wizard';
 import type { DownloadManifest } from '../../src/core/download-manifest';
 
 const manifest: DownloadManifest = {
@@ -93,5 +93,40 @@ describe('按需下载：大索引不占首装', () => {
     const items = buildSetupTasks({}, manifest, { nodeMissing: false }).map((t) => ({ ...t, ready: false }));
     const selected = new Set(['cinema-douban-index']);
     expect(selectedTasks(items, selected).map((t) => t.id)).toEqual(['cinema-douban-index']);
+  });
+});
+
+
+describe('检测屏的分段：工具只出现一次（2026-10-28 截图里的重复）', () => {
+  const rows = [
+    { id: 'runtime', key: '运行环境' },
+    { id: 'node', key: 'Node 运行时' },
+    { id: 'tool-B站下载器', key: 'B站下载器' },
+    { id: 'tool-工具坞值守', key: '工具坞值守' },
+    { id: 'tool-脸谱工具包', key: '脸谱工具包' },
+    { id: 'python', key: 'Python 环境' },
+    { id: 'ai', key: 'AI 服务' },
+  ];
+
+  it('三个工具进「外部工具」段，环境行里不再出现它们', () => {
+    const { env, tools } = splitProbeRows(rows);
+    expect(tools.map((r) => r.key)).toEqual(['B站下载器', '工具坞值守', '脸谱工具包']);
+    expect(env.map((r) => r.key)).toEqual(['运行环境', 'Node 运行时', 'Python 环境', 'AI 服务']);
+  });
+
+  it('两段互斥：没有任何一行同时出现在两边', () => {
+    const { env, tools } = splitProbeRows(rows);
+    const set = new Set(tools.map((r) => r.key));
+    expect(env.some((r) => set.has(r.key))).toBe(false);
+    expect(env.length + tools.length).toBe(rows.length);
+  });
+
+  it('「在线资源」段排除目录包：工具不会在下面再列一遍', () => {
+    const docs = [
+      { id: 'changelog', name: '更新日志' },
+      { id: 'tool-dock-watch', name: '工具坞值守', kind: 'bundle' },
+      { id: 'manual', name: '使用手册' },
+    ];
+    expect(resourceDocsOf({ docs }).map((d) => d.id)).toEqual(['changelog', 'manual']);
   });
 });

@@ -4646,7 +4646,9 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
 .bz-setup-list { display: flex; flex-direction: column; }
 .bz-setup-row {
   display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) auto;
+  /* 左右两列：名称在左、值在右。两列都给 fr（不是 auto），值列再长也不会被挤成一字一列；
+     长值（路径）在**自己这一列**里换行，不整行折到下面——折行会让一条信息读起来像两条。 */
+  grid-template-columns: 16px minmax(140px, 1fr) minmax(120px, 1.05fr);
   align-items: center;
   gap: var(--bz-space-md);
   padding: 9px 0;
@@ -4667,29 +4669,18 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   color: var(--bz-text-3);
   line-height: 1.5;
 }
-/* 右值列：
-   - 状态/体积/版本这类短值：单行右对齐、不换行（宽度按内容算，不会被左列挤成一字一列）
-   - 路径这类长值：整行折到第二行（.bz-setup-row--block），左对齐可断行
+/* 右值列：短值单行右对齐；长值（路径）在自己的列宽内换行，仍贴右缘。
    踩过的坑：早前给右列写 `max-width:46% + overflow-wrap:anywhere` 且列宽是 auto，
-   最小内容宽度退化成 1 个字符 → 「26 KB」被拆成三行、「E:\Obsidian\叫我包仔」竖排。 */
+   最小内容宽度退化成 1 个字符 → 「26 KB」被拆成三行、「E:\Obsidian\叫我包仔」竖排。
+   那个问题的真因是 auto 列宽，不是「值太长」——所以修法是两列都给 fr，不是折行。 */
 .bz-setup-val {
   font-size: var(--bz-font-meta);
   color: var(--bz-text-2);
   text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-.bz-setup-row--block { grid-template-columns: 16px minmax(0, 1fr); align-items: start; }
-.bz-setup-row--block .bz-setup-mark,
-.bz-setup-row--block .bz-setup-check { margin-top: 2px; }
-.bz-setup-row--block .bz-setup-val,
-.bz-setup-row--block .bz-setup-val--block {
-  grid-column: 2;
-  text-align: left;
   white-space: normal;
   overflow-wrap: anywhere;
-  margin-top: 2px;
-  color: var(--bz-text-3);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
 }
 /* 状态点：空心 = 待办/不适用，实心绿 = 正常，实心红 = 要处理，转圈 = 进行中 */
 .bz-setup-mark {

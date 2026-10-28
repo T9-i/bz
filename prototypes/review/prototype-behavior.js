@@ -1,4 +1,4 @@
-/* 源指纹 b8e41d1e2853880f · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 2ce07e641ef4fc62 · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/review/fake-sim.ts","prototypes/review/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/vault-key.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/review/fake-sim.ts → window.BZW_review（行为单源预览包，issue 245/ADR-0106） */
 var BZW_review = (() => {
@@ -38041,9 +38041,11 @@ ${other}
     openEnvironmentCheck: () => openEnvironmentCheck,
     openSetupWizard: () => openSetupWizard,
     planSetupItems: () => planSetupItems,
+    resourceDocsOf: () => resourceDocsOf,
     selectedTasks: () => selectedTasks,
     setupAlreadyDone: () => setupAlreadyDone,
-    sizeText: () => sizeText2
+    sizeText: () => sizeText2,
+    splitProbeRows: () => splitProbeRows
   });
   function sizeText2(bytes) {
     if (!bytes || !Number.isFinite(bytes) || bytes <= 0) return "";
@@ -38176,10 +38178,6 @@ ${other}
     span.className = `bz-setup-mark bz-setup-mark--${state3}`;
     return span;
   }
-  function isLongValue(text2) {
-    const backslash = String.fromCharCode(92);
-    return text2.length > 24 || text2.includes("/") || text2.includes(backslash);
-  }
   function keyEl(text2, sub) {
     const k = document.createElement("span");
     k.className = "bz-setup-key";
@@ -38193,11 +38191,8 @@ ${other}
     v.textContent = text2;
     return v;
   }
-  function setValue(row, val, text2) {
+  function setValue(_row, val, text2) {
     val.textContent = text2;
-    const long = isLongValue(text2);
-    row.classList.toggle("bz-setup-row--block", long);
-    val.classList.toggle("bz-setup-val--block", long);
   }
   function lineRow(mark, label, sub, value) {
     const row = rowEl();
@@ -38207,6 +38202,13 @@ ${other}
   }
   function escapeText(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function splitProbeRows(rows) {
+    const isTool = (id) => String(id || "").startsWith("tool-");
+    return { env: rows.filter((r) => !isTool(r.id)), tools: rows.filter((r) => isTool(r.id)) };
+  }
+  function resourceDocsOf(manifest) {
+    return manifest.docs.filter((d) => d.kind !== "bundle");
   }
   function closeModal(ui2) {
     var _a2;
@@ -38239,30 +38241,39 @@ ${other}
     paint(cdnRow, (net == null ? void 0 : net.jsdelivr) ? true : null, (net == null ? void 0 : net.jsdelivr) ? `可达 · ${net.jsdelivrMs} ms` : "也不可达（下载会失败）");
     const rows = await environmentCheck(ctx.app);
     st.rows = rows;
-    for (const r of rows) paint(addRow(r.key), r.ok, r.value);
-    const manifest = await fetchManifestWithTimeout(ctx.app);
-    st.manifest = manifest;
-    if (manifest) {
+    const { env: envRows, tools: toolRows } = splitProbeRows(rows);
+    for (const r of envRows) paint(addRow(r.key), r.ok, r.value);
+    const groupOf = (title) => {
       const group = document.createElement("div");
       group.className = "bz-setup-group";
       const head = document.createElement("div");
       head.className = "bz-setup-group-h";
-      head.textContent = "在线资源";
+      head.textContent = title;
       group.appendChild(head);
       ui2.body.appendChild(group);
-      for (const e of manifest.docs) {
-        const state3 = e.kind === "bundle" ? await bundleStatus(ctx.app, e, { deep: true }) : await docStatus(ctx.app, e);
+      return group;
+    };
+    if (toolRows.length) {
+      const group = groupOf("外部工具");
+      for (const r of toolRows) paint(addRow(r.key, group), r.ok, r.value);
+    }
+    const manifest = await fetchManifestWithTimeout(ctx.app);
+    st.manifest = manifest;
+    if (manifest) {
+      const group = groupOf("在线资源");
+      for (const e of resourceDocsOf(manifest)) {
+        const state3 = await docStatus(ctx.app, e);
         const text3 = state3 === "ready" ? "已下载" : state3 === "updated" ? "有更新" : "未下载";
         paint(addRow(e.name, group), state3 === "ready" ? true : state3 === "updated" ? null : false, text3);
       }
       const skin = await skinStatus(ctx.app, manifest);
       const total = manifest.skins.length;
-      const text2 = skin.missing === 0 && skin.updated === 0 ? `${skin.ready}/${total} 已下载` : `${skin.ready}/${total} 已下载`;
+      const text2 = `${skin.ready}/${total} 已下载`;
       paint(addRow("主题皮肤", group), skin.missing === 0 && skin.updated === 0 ? true : null, text2);
     }
     const online = !!((net == null ? void 0 : net.github) || (net == null ? void 0 : net.jsdelivr));
     if (!online) {
-      ui2.sub.textContent = "连不上资源站。插件主体仍可用，下载类功能要等有网络。两条自带的路：① 把内网镜像填进「设置 → 通用 → 在线资源 → 镜像源」；② 把仓库的 downloads/ 目录拷到 vault 下的 bz-offline/，插件会直接读本地。";
+      ui2.sub.textContent = "连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。";
       const later = button("bz-setup-btn", "稍后再说");
       later.onclick = () => {
         void markDone();
@@ -38635,7 +38646,9 @@ ${other}
       head: true,
       title: firstRun ? "包仔 · 首次准备" : "环境自检",
       content,
-      maxWidth: 600,
+      // 760 而不是 600（2026-10-28 用户：太窄，布局不好看）：清单是「名称——值」两列，
+      // 窄窗里右侧那列只能挤成豆腐块；宽一点才读得出一条是一条。
+      maxWidth: 760,
       autofocus: false
     });
     const ctx = { app, firstRun, checkOnly: !firstRun };
