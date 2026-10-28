@@ -1,0 +1,237 @@
+// scripts/push-assets.mjs — 分发仓库镜像推送（2026-10-28 拆分 downloads/，ADR-0269）
+//
+// 主仓 `yeshimei/bz` 的 `.git` 已 284 MB，**超过 jsDelivr 的 50 MB 包上限**——它对
+// 主仓里任何没被缓存过的文件一律回 `HTTP 403 · Package size exceeded`；而国内无代理时
+// `raw.githubusercontent.com` 又不通。两条通道同时死掉，插件端下载功能等于没有。
+//
+// 解法：把「客户端要下载的那点东西」搬进独立小仓库 `yeshimei/bz-assets`（约 14 MB），
+// jsDelivr 立刻恢复服务（裸网实测 200，约 0.9 s）。主仓仍是**产物唯一的产出地**，
+// 这个仓库只是逐字镜像，删掉重建没有任何副作用。
+//
+// 推送内容：
+//   downloads/**             ← 主仓 downloads/ 逐字镜像（手册/更新日志/皮肤/目录包/清单/指针）
+//   releases/<tag>/          ← 插件本体三件套（manifest.json / main.js / styles.css）
+//                              只留最近 RELEASES_KEEP 份：jsDelivr 看的是**当前快照**体积，
+//                              历史版本对客户端没有价值（指针只会指向最新那份）。
+//
+// 体积守卫：`.git` 超过 SQUASH_AT_BYTES 就压成单提交历史再强推。否则每次发布多几十 MB
+// 历史，早晚重新撞上 50 MB 上限——而那个失败是「下载全挂」，不是慢慢变差。
+//
+// 发布顺序：manifest → **build** → push-assets → 打 tag。
+//   （清单由 manifest 出、main.js 由 build 出，两者都要在推送前就位）
+//
+// 用法：
+//   node scripts/push-assets.mjs               # 同步 + 提交 + 推送
+//   node scripts/push-assets.mjs --dry-run     # 只算差异，不动仓库、不推送
+//   node scripts/push-assets.mjs --no-push     # 本地提交，不推送（排查用）
+//   node scripts/push-assets.mjs --force-squash# 无条件压平历史
+//
+// 目标目录：`<主仓同级>/bz-assets`，可用环境变量 BZ_ASSETS_DIR 覆盖。
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const DRY = process.argv.includes('--dry-run');
+const NO_PUSH = process.argv.includes('--no-push');
+const FORCE_SQUASH = process.argv.includes('--force-squash');
+
+/** 一个分发仓库最多留几份发布（客户端只会指向最新那份，旧的是给「指针还没更新就断网」的人兜底） */
+const RELEASES_KEEP = 3;
+/** `.git` 超过这个体积就压平历史（jsDelivr 上限 50 MB，留一半余量给文件本身） */
+const SQUASH_AT_BYTES = 25 * 1024 * 1024;
+
+const BUNDLE_FILES = ['manifest.json', 'main.js', 'styles.css'];
+
+/** 分发仓库 slug：从 src/core/remote-base.ts 读，**不在脚本里另写一份**——
+ *  两处各写一份字面量的结果一定是某天只改了一处，客户端去拉一个不存在的仓库。 */
+function assetsSlug() {
+  const src = fs.readFileSync(path.join(ROOT, 'src/core/remote-base.ts'), 'utf8');
+  const m = /export const ASSETS_SLUG = '([^']+)'/.exec(src);
+  if (!m) {
+    console.error('src/core/remote-base.ts 里找不到 ASSETS_SLUG —— 先修好它再发布');
+    process.exit(1);
+  }
+  return m[1];
+}
+
+const SLUG = assetsSlug();
+const TARGET = path.resolve(process.env.BZ_ASSETS_DIR || path.join(ROOT, '..', 'bz-assets'));
+const REMOTE = `https://github.com/${SLUG}.git`;
+
+function log(msg) {
+  console.log(DRY ? `[dry] ${msg}` : msg);
+}
+
+/** 跑一条 git/gh（失败即退出，输出末尾 8 行便于定位） */
+function run(cmd, args, opts = {}) {
+  try {
+    return execFileSync(cmd, args, { cwd: TARGET, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...opts }).trim();
+  } catch (e) {
+    console.error(`\n${cmd} ${args.join(' ')} 失败：`);
+    console.error(String(e.stderr || e.stdout || e.message).trim().split('\n').slice(-8).join('\n'));
+    process.exit(1);
+  }
+}
+
+/** 目录体积（字节；跳过 .git 由调用方决定） */
+function sizeOf(dir, { skipGit = false } = {}) {
+  let total = 0;
+  const walk = (p) => {
+    let st;
+    try {
+      st = fs.lstatSync(p);
+    } catch {
+      return;
+    }
+    if (st.isDirectory()) {
+      for (const name of fs.readdirSync(p)) {
+        if (skipGit && p === dir && name === '.git') continue;
+        walk(path.join(p, name));
+      }
+    } else if (st.isFile()) {
+      total += st.size;
+    }
+  };
+  walk(dir);
+  return total;
+}
+
+const mb = (b) => `${(b / 1024 / 1024).toFixed(1)} MB`;
+
+/** 版本：主仓 manifest.json 的 version（= 插件本体版本），tag 由它推出 */
+function readVersion() {
+  const mf = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
+  const version = String(mf.version || '').trim();
+  if (!/^\d+\.\d+\.\d+$/.test(version)) {
+    console.error(`manifest.json 的 version 不合法：${JSON.stringify(mf.version)}`);
+    process.exit(1);
+  }
+  return { version, tag: `v${version}` };
+}
+
+/** 版本号比较（只用于给 releases/ 排序，够用就行） */
+function cmpVersion(a, b) {
+  const pa = a.replace(/^v/, '').split('.').map(Number);
+  const pb = b.replace(/^v/, '').split('.').map(Number);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) - (pb[i] || 0);
+  return 0;
+}
+
+/** 仓库就位：目录、git、远端、GitHub 侧存在性 */
+function ensureRepo() {
+  if (!fs.existsSync(path.join(TARGET, '.git'))) {
+    log(`初始化分发仓库目录 ${TARGET}`);
+    if (DRY) return;
+    fs.mkdirSync(TARGET, { recursive: true });
+    run('git', ['init', '-b', 'master']);
+    run('git', ['remote', 'add', 'origin', REMOTE]);
+  }
+  // GitHub 侧：仓库不存在就建（public —— jsDelivr 只服务公开仓库）
+  if (!DRY) {
+    try {
+      execFileSync('gh', ['repo', 'view', SLUG], { stdio: 'ignore' });
+    } catch {
+      log(`GitHub 上没有 ${SLUG}，创建空仓库`);
+      execFileSync('gh', ['repo', 'create', SLUG, '--public', '--description', 'bz 分发镜像：downloads/ 与 releases/<tag>（jsDelivr 取用）'], {
+        stdio: 'inherit',
+      });
+    }
+  }
+}
+
+/** 主仓产物 → 分发仓库（downloads 整体替换；releases/<tag> 三件套） */
+function syncFiles(tag) {
+  const srcDl = path.join(ROOT, 'downloads');
+  const dstDl = path.join(TARGET, 'downloads');
+  log(`镜像 downloads/（${mb(sizeOf(srcDl))}）`);
+  if (!DRY) {
+    fs.rmSync(dstDl, { recursive: true, force: true });
+    fs.cpSync(srcDl, dstDl, { recursive: true });
+  }
+
+  const dstRel = path.join(TARGET, 'releases', tag);
+  log(`镜像 ${tag} 三件套`);
+  if (!DRY) {
+    fs.rmSync(dstRel, { recursive: true, force: true });
+    fs.mkdirSync(dstRel, { recursive: true });
+    for (const f of BUNDLE_FILES) {
+      const from = path.join(ROOT, f);
+      if (!fs.existsSync(from)) {
+        console.error(`缺 ${f}：先跑 pnpm run build（三件套要在推送前就位）`);
+        process.exit(1);
+      }
+      fs.cpSync(from, path.join(dstRel, f));
+    }
+  }
+}
+
+/** 只留最近 N 份发布 */
+function pruneReleases() {
+  const dir = path.join(TARGET, 'releases');
+  if (!fs.existsSync(dir)) return;
+  const all = fs
+    .readdirSync(dir)
+    .filter((n) => /^v\d+\.\d+\.\d+$/.test(n) && fs.statSync(path.join(dir, n)).isDirectory())
+    .sort(cmpVersion)
+    .reverse();
+  for (const old of all.slice(RELEASES_KEEP)) {
+    log(`删旧发布 ${old}`);
+    if (!DRY) fs.rmSync(path.join(dir, old), { recursive: true, force: true });
+  }
+}
+
+/** 历史压平（`.git` 太大就做；jsDelivr 只看当前快照，历史对这个仓库没有价值） */
+function compactIfNeeded() {
+  const gitSize = sizeOf(path.join(TARGET, '.git'));
+  const snapshot = sizeOf(TARGET, { skipGit: true });
+  log(`仓库体积：快照 ${mb(snapshot)} · 历史 ${mb(gitSize)}`);
+  if (!FORCE_SQUASH && gitSize < SQUASH_AT_BYTES) return false;
+  log('历史过大 → 压成单提交（force push）');
+  if (!DRY) {
+    run('git', ['checkout', '--orphan', 'dist-squash']);
+    run('git', ['add', '-A']);
+    run('git', ['commit', '-m', 'dist: 快照（历史已压平）']);
+    run('git', ['branch', '-M', 'master']);
+  }
+  return true;
+}
+
+/** 提交 + 推送 */
+function commitAndPush(tag, squashed) {
+  const status = DRY ? '' : run('git', ['status', '--porcelain']);
+  const msg = `release: ${tag} 资源镜像`;
+  if (status) {
+    log(`提交 ${status.split('\n').length} 处变更`);
+    if (!DRY) {
+      run('git', ['add', '-A']);
+      run('git', ['commit', '-m', msg]);
+    }
+  } else {
+    log('内容与远端一致，没有新提交');
+  }
+  if (NO_PUSH || DRY) {
+    log('跳过推送（--dry-run / --no-push）');
+    return;
+  }
+  if (squashed) run('git', ['push', '-f', 'origin', 'master']);
+  else run('git', ['push', '-u', 'origin', 'master']);
+}
+
+const { version, tag } = readVersion();
+console.log(`分发仓库 ${SLUG} → ${TARGET}`);
+console.log(`发布 ${tag}（保留最近 ${RELEASES_KEEP} 份）`);
+
+ensureRepo();
+syncFiles(tag);
+pruneReleases();
+const squashed = compactIfNeeded();
+commitAndPush(tag, squashed);
+
+const base = `https://fastly.jsdelivr.net/gh/${SLUG}@master`;
+console.log(`\n完成。客户端取用地址：`);
+console.log(`  清单 ${base}/downloads/manifest.json`);
+console.log(`  指针 ${base}/downloads/version.json`);
+console.log(`  本体 ${base}/releases/${tag}/main.js`);
+if (DRY) console.log('\n（dry-run：以上都没真的写盘、没推送）');

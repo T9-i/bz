@@ -27,8 +27,8 @@ import { MockVault } from '../mock-vault';
 
 const CHG_HTML = '<!DOCTYPE html><html><head><title>包仔更新日志</title></head><body><script>\nconst DATA = {"current":"1.24.0","releases":[]};\n</script></body></html>';
 const STORED = `.obsidian/plugins/bz/downloads/${CHANGELOG_FILENAME}`; // issue 480b：落 downloads 单独目录
-const REMOTE_RAW = 'https://raw.githubusercontent.com/yeshimei/bz/master/downloads/bz-changelog.html';
-const REMOTE_CDN = 'https://cdn.jsdelivr.net/gh/yeshimei/bz@master/downloads/bz-changelog.html';
+const REMOTE_RAW = 'https://raw.githubusercontent.com/yeshimei/bz-assets/master/downloads/bz-changelog.html';
+const REMOTE_CDN = 'https://cdn.jsdelivr.net/gh/yeshimei/bz-assets@master/downloads/bz-changelog.html';
 
 const newVault = () => new MockVault();
 const appOf = (vault: MockVault, extra: Record<string, unknown> = {}) =>
@@ -42,15 +42,15 @@ beforeEach(() => {
 });
 
 describe('remotesFor / assetVaultPath（issue 474 共用内核）', () => {
-  it('多通道顺序：raw 主 → jsDelivr 四个边缘入口（2026-10-28 国内实测 cdn 不通、fastly/gcore/testingcf 通）', () => {
+  it('多通道顺序：raw 主 → 三个能通的 jsDelivr 边缘 → cdn（国内实测 cdn 不通，排最后）', () => {
     const urls = remotesFor(CHANGELOG_FILENAME);
     expect(urls[0]).toBe(REMOTE_RAW);
-    expect(urls[1]).toBe(REMOTE_CDN);
-    // 后三个是同一份内容的不同边缘域名，顺序固定（最可能通的排在 cdn 之后）
-    expect(urls.slice(2)).toEqual([
+    // 分发仓库小到 jsDelivr 肯发，于是「能通的那三个」排前面，cdn 那个已知不可用当长尾
+    expect(urls.slice(1)).toEqual([
       REMOTE_CDN.replace('cdn.jsdelivr.net', 'fastly.jsdelivr.net'),
       REMOTE_CDN.replace('cdn.jsdelivr.net', 'gcore.jsdelivr.net'),
       REMOTE_CDN.replace('cdn.jsdelivr.net', 'testingcf.jsdelivr.net'),
+      REMOTE_CDN,
     ]);
   });
 

@@ -26,12 +26,13 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 ## 坑
 - Git Bash 里 pnpm 起不来（shim 把路径解析成 `D:\d\...`）→ 用 PowerShell，或 `node node_modules/<包>/…` 直调。
 - `git worktree remove` 后常残留 `node_modules`，要另删。**删前必须先 `cmd /c rmdir` 掉 worktree 里的 `node_modules` junction**——worktree 的 junction 指向主仓 node_modules 时，remove/remove --force 会穿透删除主仓 `.pnpm` 里的包（表层包还在、深处依赖悬空，测试报 Cannot find module）；穿透后 `pnpm install` 修不回（workspace 状态文件误判 up to date），要 `rm -rf node_modules && pnpm install` 整体重建（store 硬链接，很快）。
-- 发布顺序固定：`tools-pack → skin-pack → changelog → catalog → manifest → build`（前四个出产物、`manifest` 对产物现算 hash、`build` 出插件本体）。**少跑 `manifest` = 清单永远停在上一版**（`changelog` 重出了出版页、sha256 却没跟着算），而且只有跑门禁时 `skin-pack-split-guard` 才会说话。**少跑 `tools-pack` 同理**（旧 tar.gz 还在，用户端显示「已是最新」但内容没更新）。
-- 对外发布还要**打 tag**：tag 名 = `v<manifest.json 的 version>`。自更新分两段——先读 master 的 `downloads/version.json` 拿到 tag，再去那个 tag 拉三件套（ADR-0263）。指针由 `pnpm manifest` 从 `manifest.json` 推出来，两者不同步 `--check` 会拦。
+- 发布顺序固定：`tools-pack → skin-pack → changelog → catalog → manifest → build → assets`（前四个出产物、`manifest` 对产物现算 hash、`build` 出插件本体、`assets` 把产物镜像到分发仓库）。**少跑 `manifest` = 清单永远停在上一版**（`changelog` 重出了出版页、sha256 却没跟着算），而且只有跑门禁时 `skin-pack-split-guard` 才会说话。**少跑 `tools-pack` 同理**（旧 tar.gz 还在，用户端显示「已是最新」但内容没更新）。**少跑 `assets` = 客户端拿到的还是上一版**（下载通道只认分发仓库，见下条）。
+- **下载走独立分发仓库 `yeshimei/bz-assets`**（ADR-0269）：主仓 `.git` 284 MB 超过 jsDelivr 的 50 MB 上限，它对主仓未缓存文件一律 403；国内无代理时 raw 又不通。`node scripts/push-assets.mjs` 把 `downloads/**` 与 `releases/<tag>/`（三件套）镜像过去，只保留最近 3 份发布，`.git` 超 25 MB 自动压平历史。**主仓仍是唯一产出地**，分发仓库随时可删可重建。改了 base 地址只改 `src/core/remote-base.ts`（脚本从那里读 slug，别在两处各写一份）——`tests/core/remote-base-assets.test.ts` 钉着这条。
+- 对外发布还要**打 tag**：tag 名 = `v<manifest.json 的 version>`。自更新分两段——先读分发仓库 master 的 `downloads/version.json` 拿到 tag，再去 `<分发仓库>/releases/<tag>/` 拉三件套（ADR-0263 / ADR-0269）。指针由 `pnpm manifest` 从 `manifest.json` 推出来，两者不同步 `--check` 会拦；`releases/<tag>` 目录由 `push-assets` 按同一个版本号命名，两者天然对齐。
 - 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
 
 ## 提交
-Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build`（六步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）→ 子代理 review → 清 worktree。
+Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build` → `assets`（七步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）→ 子代理 review → 清 worktree。
 
 占 issues / ADR 编号前先查主仓库最新号；拍板结论进 `.scratch/memo-suite-plugin/spec.md`，决策进 `docs/adr/` 并同步 `CONTEXT.md`。
 

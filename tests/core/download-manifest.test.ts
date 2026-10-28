@@ -27,10 +27,10 @@ import {
 import { refreshAsset } from '../../src/core/remote-asset';
 
 const MANIFEST_CACHE_PATH = '.obsidian/plugins/bz/downloads/manifest.json';
-const REMOTE_MANIFEST = 'https://raw.githubusercontent.com/yeshimei/bz/master/downloads/manifest.json';
-const BACKUP_MANIFEST = 'https://cdn.jsdelivr.net/gh/yeshimei/bz@master/downloads/manifest.json';
-const REMOTE_HTML = (f: string) => `https://raw.githubusercontent.com/yeshimei/bz/master/downloads/${f}`;
-const BACKUP_HTML = (f: string) => `https://cdn.jsdelivr.net/gh/yeshimei/bz@master/downloads/${f}`;
+const REMOTE_MANIFEST = 'https://raw.githubusercontent.com/yeshimei/bz-assets/master/downloads/manifest.json';
+const BACKUP_MANIFEST = 'https://cdn.jsdelivr.net/gh/yeshimei/bz-assets@master/downloads/manifest.json';
+const REMOTE_HTML = (f: string) => `https://raw.githubusercontent.com/yeshimei/bz-assets/master/downloads/${f}`;
+const BACKUP_HTML = (f: string) => `https://cdn.jsdelivr.net/gh/yeshimei/bz-assets@master/downloads/${f}`;
 
 const appOf = (vault: MockVault) => ({ vault, workspace: {} }) as any;
 

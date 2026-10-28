@@ -21,7 +21,8 @@
     "test:changed": "node scripts/test-affected.mjs --since master",
     "test:changed:vitest": "node node_modules/vitest/vitest.mjs run --changed master",
     "test:watch": "node node_modules/vitest/vitest.mjs",
-    "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage --maxWorkers=2"
+    "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage --maxWorkers=2",
+    "assets": "node scripts/push-assets.mjs"
   },
   "keywords": [
     "obsidian",

@@ -36,13 +36,13 @@ function stubRemote(opts: { pointerVersion?: string; badBundle?: boolean } = {})
     if (url.includes('/downloads/version.json')) {
       return { status: 200, text: JSON.stringify({ version: NEW, tag: TAG }) };
     }
-    if (url.includes(`/refs/tags/${TAG}/main.js`) || url.includes(`@${TAG}/main.js`)) {
+    if (url.includes(`/releases/${TAG}/main.js`)) {
       return { status: 200, text: opts.badBundle ? '<!DOCTYPE html><html>404</html>' : js };
     }
-    if (url.includes(`/refs/tags/${TAG}/styles.css`) || url.includes(`@${TAG}/styles.css`)) {
+    if (url.includes(`/releases/${TAG}/styles.css`)) {
       return { status: 200, text: css };
     }
-    if (url.includes(`/refs/tags/${TAG}/manifest.json`) || url.includes(`@${TAG}/manifest.json`)) {
+    if (url.includes(`/releases/${TAG}/manifest.json`)) {
       return { status: 200, text: manifest };
     }
     throw new Error('offline');
@@ -111,7 +111,7 @@ describe('checkSelfUpdate：安装', () => {
     // 旧版备份在 downloads/.backup/<旧版本>/
     expect(vault.files.has(`.obsidian/plugins/bz/downloads/.backup/${LOCAL}/manifest.json`)).toBe(true);
     // 全程走 tag，不碰 master 的三件套
-    expect(seen.some((u) => u.includes(`@${TAG}/main.js`) || u.includes(`/refs/tags/${TAG}/main.js`))).toBe(true);
+    expect(seen.some((u) => u.includes(`/releases/${TAG}/main.js`))).toBe(true);
     expect(seen.some((u) => /@master\/main\.js|\/master\/main\.js/.test(u))).toBe(false);
     // pending 让面板说「重载后生效」
     const st = await selfUpdateState(app);
