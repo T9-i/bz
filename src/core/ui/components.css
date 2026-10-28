@@ -2851,14 +2851,28 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
    形制：弹窗壳由 uiModal 承担（.bz-overlay-popup），这里只管三段内容——
    说明行 / 清单 / 底栏。清单是「状态点 + 名称（带一句用途）+ 右值」三列，
    与设置面板的行视觉同源（深色下靠 1px 分隔线立层级，不靠底色块）。 */
-.bz-setup { display: flex; flex-direction: column; min-height: 0; gap: var(--bz-space-md); }
+.bz-setup { display: flex; flex-direction: column; min-height: 0; gap: var(--bz-space-md); flex: 1 1 auto; }
+/* 弹窗壳这边补两件事（2026-10-28 用户「ui 有问题」，截图实测）：
+   ① **宽度**：`maxWidth: 760` 只是上限，弹窗宽度本来是内容撑的 —— 实测只有 514px，
+      行距被挤、右侧数值列贴边。要的宽度得给死；
+   ② **高度**：默认壳只给 82vh，九行清单要 914px，正好在那一刀上被齐切一行（「主题皮肤」
+      的说明整行没了一半），而且看不出还能滚 —— 高度预算提到整屏（遮罩上下各 16px），
+      滚动收进内容区，底栏常驻。 */
+.bz-overlay-popup.bz-setup-modal {
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: hidden; /* 滚动只发生在 .bz-setup-body，不留双层滚动条 */
+}
+/* 弹窗被 max-height 夹住后，内容区必须是那个「能被压缩」的 flex 项，否则压不到就会
+   被 overflow:hidden 直接切掉（不给滚动，等于更糟）。 */
+.bz-setup-modal .bz-dialog-body { flex: 1 1 auto; min-height: 0; }
 .bz-setup-sub {
   font-size: var(--bz-font-label);
   line-height: 1.6;
   color: var(--bz-text-2);
   flex: none;
 }
-.bz-setup-body { display: flex; flex-direction: column; gap: var(--bz-space-sm); overflow-y: auto; min-height: 0; }
+.bz-setup-body { display: flex; flex-direction: column; gap: var(--bz-space-sm); overflow-y: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; }
 .bz-setup-list { display: flex; flex-direction: column; }
 .bz-setup-row {
   display: grid;
@@ -2867,7 +2881,7 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   grid-template-columns: 16px minmax(140px, 1fr) minmax(120px, 1.05fr);
   align-items: center;
   gap: var(--bz-space-md);
-  padding: 9px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--bz-border);
 }
 .bz-setup-row:last-child { border-bottom: 0; }
@@ -2984,7 +2998,7 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   font-size: var(--bz-font-caption);
   color: var(--bz-text-3);
   letter-spacing: 0.04em;
-  padding: var(--bz-space-sm) 0 var(--bz-space-xs);
+  padding: var(--bz-space-xs) 0 2px;
 }
 /* 可勾选行：勾选框占状态点那一格 */
 .bz-setup-row--pick { grid-template-columns: 16px minmax(0, 1fr) auto; }

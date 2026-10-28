@@ -856,9 +856,27 @@ export function setupDoneStorageKey(vault: string): string {
   return key ? `${SETUP_DONE_FALLBACK_KEY}:${key}` : SETUP_DONE_FALLBACK_KEY;
 }
 
-/** 引导是否已走过：设置优先（按库），其次 localStorage 兜底（也按库） */
-export function setupAlreadyDone(settings: { setupDone?: boolean } | null | undefined, vault = ''): boolean {
+/**
+ * 引导是否已走过。
+ *
+ * @param explicitInSettings data.json 里**确实有** `setupDone` 这个键（main.ts 从 loadData 的
+ *   原始对象判断）。有键 = 设置能写，设置就是唯一事实源。
+ *
+ * 三条判据的优先级不能换（2026-10-28 用户报障：手改 `"setupDone": false` 后重载仍不弹引导）：
+ *  1. 设置说走过 → 走过；
+ *  2. 设置里明确写着 false（含手改重置）→ **就是没走过**，不许拿 localStorage 兜底把它盖掉；
+ *  3. 设置压根写不进去（只读 vault，data.json 永远留不下这个键）→ 才轮到兜底键。
+ *
+ * 兜底键存在的前提是「设置存不下」，所以它只能在第 3 条里说话。否则一个关过引导的人，
+ * 改 data.json 也永远看不到引导——那是用户最直接的复位手段。
+ */
+export function setupAlreadyDone(
+  settings: { setupDone?: boolean } | null | undefined,
+  vault = '',
+  explicitInSettings = false,
+): boolean {
   if (settings?.setupDone === true) return true;
+  if (explicitInSettings) return false;
   try {
     return localStorage.getItem(setupDoneStorageKey(vault)) === '1';
   } catch {
@@ -898,6 +916,10 @@ export function openSetupWizard(app: unknown = getApp(), opts: { firstRun?: bool
     // 760 而不是 600（2026-10-28 用户：太窄，布局不好看）：清单是「名称——值」两列，
     // 窄窗里右侧那列只能挤成豆腐块；宽一点才读得出一条是一条。
     maxWidth: 760,
+    // 但 `max-width` 只是**上限**，弹窗宽度本来是内容撑的（实测只有 514px）——
+    // 要的宽度得由 .bz-setup-modal 给死（见 components.css）。这里的类还负责把
+    // 高度预算提到整屏、让长清单只滚内容区而不齐切一行。
+    className: 'bz-setup-modal',
     autofocus: false,
   });
   const ctx: WizardCtx = { app, firstRun, checkOnly: !firstRun };

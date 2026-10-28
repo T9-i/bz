@@ -174,3 +174,30 @@ describe('引导已走过：按库分键', () => {
     expect(setupAlreadyDone(null, '')).toBe(true);
   });
 });
+
+/**
+ * 手改 `"setupDone": false` 必须能复位引导（2026-10-28 用户报障）。
+ *
+ * 兜底键只在「设置压根写不进去」时才有资格说话：关过引导的人，localStorage 里已经有一把
+ * `1`，若还让兜底参与判定，改 data.json 就永远看不到引导 —— 而手改 data.json 是用户最直接
+ * 的复位手段。第三个参数 = data.json 里是否真有这个键（main.ts 从 loadData 的原始对象判断）。
+ */
+describe('引导已走过：设置优先，兜底只兜「设置写不进去」', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('data.json 里明确 false + 兜底键还在 → 仍算没走过（复位生效）', () => {
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), '1');
+    expect(setupAlreadyDone({ setupDone: false }, 'E:/vault-a', true)).toBe(false);
+  });
+
+  it('data.json 里明确 true → 走过（哪怕兜底键被清掉）', () => {
+    expect(setupAlreadyDone({ setupDone: true }, 'E:/vault-a', true)).toBe(true);
+  });
+
+  it('data.json 里没这个键（只读库/首次）→ 才吃兜底键', () => {
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), '1');
+    expect(setupAlreadyDone({ setupDone: false }, 'E:/vault-a', false)).toBe(true);
+  });
+});

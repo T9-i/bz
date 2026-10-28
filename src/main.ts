@@ -310,6 +310,9 @@ export default class BzPlugin extends Plugin {
 
   async onload() {
     const loaded = await this.loadData();
+    // data.json 里有没有 `setupDone` 这个键：有 = 设置写得进去，引导判据以设置为准；
+    // 没有 = 只读库/首次运行，才轮到 localStorage 兜底（判据细节见 core/setup-wizard）
+    const setupDoneSaved = !!loaded && typeof loaded === 'object' && 'setupDone' in (loaded as Record<string, unknown>);
     // issue 260 正名迁移：旧 todo* 面板设置键就地改名（读旧写新删旧）；
     // C16：发生迁移即调度落盘——原先只改内存，data.json 旧键长期残留、每次启动重复迁移
     const memoKeysMigrated = migrateMemoSettingKeys(loaded);
@@ -490,9 +493,9 @@ export default class BzPlugin extends Plugin {
       // 缺 Node、缺工具包时功能会静默失效，与其让人自己去报错里猜，不如开局一次补齐。
       // 延迟 3 秒：等 Obsidian 自己的工作区渲染稳定，别在启动瞬间抢焦点。
       void import('./core/setup-wizard').then((m) => {
-        // 判据含 localStorage 兜底（按库分键：localStorage 是 Obsidian 全局的，不按库分
-        // 会让「在 A 库走过引导」变成「新开的 B 库不必引导」——2026-10-28 用户报障）
-        if (m.setupAlreadyDone(this.settings, vaultBasePathOf(this.app))) return;
+        // 判据见 core/setup-wizard 的 setupAlreadyDone：设置能写就以设置为准（手改 false
+        // 即复位），只有设置写不进去的只读库才吃 localStorage 兜底
+        if (m.setupAlreadyDone(this.settings, vaultBasePathOf(this.app), setupDoneSaved)) return;
         setTimeout(() => {
           if (this.unloaded) return;
           m.openSetupWizard(getApp(), { firstRun: true });
