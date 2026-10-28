@@ -4630,6 +4630,130 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   background: var(--bz-text-3);
 }
 
+
+/* ═══════════ 首次引导 / 环境自检 .bz-setup（core/setup-wizard.ts） ═══════════
+   形制：弹窗壳由 uiModal 承担（.bz-overlay-popup），这里只管三段内容——
+   说明行 / 清单 / 底栏。清单是「状态点 + 名称（带一句用途）+ 右值」三列，
+   与设置面板的行视觉同源（深色下靠 1px 分隔线立层级，不靠底色块）。 */
+.bz-setup { display: flex; flex-direction: column; min-height: 0; gap: var(--bz-space-md); }
+.bz-setup-sub {
+  font-size: var(--bz-font-label);
+  line-height: 1.6;
+  color: var(--bz-text-2);
+  flex: none;
+}
+.bz-setup-body { display: flex; flex-direction: column; gap: var(--bz-space-sm); overflow-y: auto; min-height: 0; }
+.bz-setup-list { display: flex; flex-direction: column; }
+.bz-setup-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--bz-space-md);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--bz-border);
+}
+.bz-setup-row:last-child { border-bottom: 0; }
+.bz-setup-key {
+  font-size: var(--bz-font-label);
+  color: var(--bz-text-1);
+  min-width: 0;
+}
+/* 一行用途：紧跟名称的第二行，弱一档 */
+.bz-setup-key em {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  line-height: 1.5;
+}
+.bz-setup-val {
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-2);
+  text-align: right;
+  max-width: 46%;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+/* 状态点：空心 = 待办/不适用，实心绿 = 正常，实心红 = 要处理，转圈 = 进行中 */
+.bz-setup-mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bz-border-strong);
+  box-sizing: border-box;
+  justify-self: center;
+}
+.bz-setup-mark--ok { border-color: var(--bz-success); background: var(--bz-success); }
+.bz-setup-mark--bad { border-color: var(--bz-danger); background: var(--bz-danger); }
+.bz-setup-mark--idle { border-color: var(--bz-border-strong); }
+.bz-setup-mark--busy {
+  border-color: var(--bz-brand);
+  border-right-color: transparent;
+  animation: bz-setup-spin 0.7s linear infinite;
+}
+@keyframes bz-setup-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .bz-setup-mark--busy { animation: none; border-right-color: var(--bz-brand); }
+}
+
+/* 提示条（「会下到哪」「GitHub 不通」）：中性底 + 1px 边框，不用彩色块压人 */
+.bz-setup-hint {
+  padding: 9px 11px;
+  border-radius: var(--bz-radius-sm);
+  border: 1px solid var(--bz-border);
+  background: var(--bz-surface-2);
+  font-size: var(--bz-font-meta);
+  color: var(--bz-text-2);
+  line-height: 1.6;
+}
+/* 总进度条 */
+.bz-setup-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bz-track);
+  overflow: hidden;
+  flex: none;
+}
+.bz-setup-bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--bz-brand);
+  border-radius: 2px;
+  transition: width var(--bz-dur-base) var(--bz-ease-out);
+}
+/* 底栏 */
+.bz-setup-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--bz-space-sm);
+  flex: none;
+  padding-top: var(--bz-space-xs);
+}
+.bz-setup-btn {
+  height: var(--bz-control-h);
+  padding: 0 var(--bz-space-lg);
+  border-radius: var(--bz-radius-sm);
+  border: 1px solid var(--bz-border);
+  background: transparent;
+  color: var(--bz-text-1);
+  font-size: var(--bz-font-label);
+  cursor: pointer;
+}
+/* 触屏悬浮隔离范式（呈报#9/F4）：:hover 一律包 media，避免触屏点按后粘滞 */
+@media (hover: hover) {
+  .bz-setup-btn:hover { background: var(--bz-surface-hover); }
+}
+.bz-setup-btn--cta {
+  background: var(--bz-brand);
+  border-color: var(--bz-brand);
+  color: var(--bz-on-brand);
+  font-weight: var(--bz-weight-medium);
+}
+@media (hover: hover) {
+  .bz-setup-btn--cta:hover { background: var(--bz-brand-hover); border-color: var(--bz-brand-hover); }
+}
 .stf__parent {
   position: relative;
   display: block;
