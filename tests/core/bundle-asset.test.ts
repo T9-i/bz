@@ -155,3 +155,64 @@ describe('bundleStatus：三态', () => {
     expect(await bundleStatus(app, entry)).toBe('updated');
   });
 });
+
+/** 把 MockVault 的二进制树接到真实 fs 语义上（深校验要 stat，测试里不能真写盘） */
+function appWithStat(vault: MockVault): unknown {
+  const base = '/mock-vault';
+  const abs = (rel: string): string => `${base}/${rel}`;
+  (globalThis as unknown as { window: { require: (m: string) => unknown } }).window.require = (m: string) => {
+    if (m !== 'fs') return null;
+    return {
+      statSync: (p: string) => {
+        const rel = p.startsWith(`${base}/`) ? p.slice(base.length + 1) : p;
+        const bytes = vault.binaryFiles.get(rel);
+        const text = vault.files.get(rel);
+        if (bytes) return { isFile: () => true, size: bytes.byteLength };
+        if (text !== undefined) return { isFile: () => true, size: new TextEncoder().encode(text).byteLength };
+        throw new Error(`ENOENT: ${p}`);
+      },
+    };
+  };
+  return { vault: { adapter: { ...vault.adapter, basePath: base }, configDir: '.obsidian' } };
+}
+
+describe('bundleStatus 深校验：标记在、文件没了要看得出来', () => {
+  it('正常装完后 deep 也是 ready', async () => {
+    const vault = new MockVault();
+    const app = appWithStat(vault);
+    const tgz = makeTgz([
+      { name: 'cli.js', body: 'console.log(1)' },
+      { name: 'lib/a.js', body: 'a' },
+    ]);
+    const entry = entryOf(tgz);
+    await installBundle(app, entry, { gunzip, fetchBytes: async () => tgz });
+    expect(await bundleStatus(app, entry, { deep: true })).toBe('ready');
+  });
+
+  it('有文件被删（安全软件隔离 / 同步盘截断）→ 深校验判 updated，浅校验仍说 ready', async () => {
+    const vault = new MockVault();
+    const app = appWithStat(vault);
+    const tgz = makeTgz([
+      { name: 'cli.js', body: 'console.log(1)' },
+      { name: 'lib/a.js', body: 'a' },
+    ]);
+    const entry = entryOf(tgz);
+    await installBundle(app, entry, { gunzip, fetchBytes: async () => tgz });
+
+    vault.binaryFiles.delete('.obsidian/plugins/bz/downloads/tools/demo/lib/a.js');
+    // 只看标记的判据会骗人：这正是「面板说已就绪、一跑就报找不到文件」的来源
+    expect(await bundleStatus(app, entry)).toBe('ready');
+    expect(await bundleStatus(app, entry, { deep: true })).toBe('updated');
+  });
+
+  it('文件被改坏（字节数变了）也能抓到', async () => {
+    const vault = new MockVault();
+    const app = appWithStat(vault);
+    const tgz = makeTgz([{ name: 'cli.js', body: 'console.log(1)' }]);
+    const entry = entryOf(tgz);
+    await installBundle(app, entry, { gunzip, fetchBytes: async () => tgz });
+
+    vault.binaryFiles.set('.obsidian/plugins/bz/downloads/tools/demo/cli.js', new Uint8Array([1, 2, 3]));
+    expect(await bundleStatus(app, entry, { deep: true })).toBe('updated');
+  });
+});

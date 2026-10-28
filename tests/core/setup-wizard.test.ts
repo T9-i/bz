@@ -4,7 +4,7 @@
  * 但「下哪些、按什么顺序下、体积怎么算」是这里的责任，也最容易写错。
  */
 import { describe, it, expect } from 'vitest';
-import { buildSetupTasks, sizeText } from '../../src/core/setup-wizard';
+import { buildSetupTasks, defaultSelection, selectedTasks, sizeText } from '../../src/core/setup-wizard';
 import type { DownloadManifest } from '../../src/core/download-manifest';
 
 const manifest: DownloadManifest = {
@@ -68,5 +68,30 @@ describe('体积文案', () => {
     expect(sizeText(26 * 1024)).toBe('26 KB');
     expect(sizeText(0)).toBe('');
     expect(sizeText(null)).toBe('');
+  });
+});
+
+describe('按需下载：大索引不占首装', () => {
+  it('豆瓣索引标成按需项（列出来，但默认不勾）', () => {
+    const item = buildSetupTasks({}, manifest, { nodeMissing: false }).find((t) => t.id === 'cinema-douban-index')!;
+    expect(item.optional).toBe(true);
+    expect(item.desc).toContain('按需');
+    // 其它文档不是按需项：该下的还是要下
+    expect(buildSetupTasks({}, manifest, { nodeMissing: false }).find((t) => t.id === 'changelog')!.optional).toBeUndefined();
+  });
+
+  it('defaultSelection 跳过按需项与皮肤，其余都勾上', () => {
+    const items = buildSetupTasks({}, manifest, { nodeMissing: true }).map((t) => ({ ...t, ready: false }));
+    const selected = defaultSelection(items);
+    expect(selected.has('cinema-douban-index')).toBe(false);
+    expect(selected.has('skins')).toBe(false);
+    expect(selected.has('changelog')).toBe(true);
+    expect(selected.has('tool-dock-watch')).toBe(true);
+  });
+
+  it('用户自己勾上按需项 → 照样下（不拦）', () => {
+    const items = buildSetupTasks({}, manifest, { nodeMissing: false }).map((t) => ({ ...t, ready: false }));
+    const selected = new Set(['cinema-douban-index']);
+    expect(selectedTasks(items, selected).map((t) => t.id)).toEqual(['cinema-douban-index']);
   });
 });

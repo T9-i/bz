@@ -122,7 +122,12 @@ const resName = (el: HTMLElement, i: number) => rowName(el, i + CTRL_ROWS);
 const resDesc = (el: HTMLElement, i: number) => rowDesc(el, i + CTRL_ROWS);
 const resBtn = (el: HTMLElement, i: number) => rowBtn(el, i + CTRL_ROWS);
 /** 资源行总数（DOM 行数减去两行操作行） */
-const resCount = (el: HTMLElement) => el.querySelectorAll('.bz-sp-group-body > .bz-sp-set-row').length - CTRL_ROWS;
+// 资源行 = **带按钮的行**。组尾还有一行「镜像源」text 行（企业网无外网时的下载出路，
+// 2026-10-28 加），它没有按钮、也不是待下载资源，不该被算进资源行计数里。
+const resCount = (el: HTMLElement) =>
+  el.querySelectorAll('.bz-sp-group-body > .bz-sp-set-row').length -
+  CTRL_ROWS -
+  el.querySelectorAll('.bz-sp-group-body > .bz-sp-set-row:not(:has(.bz-sp-btn))').length;
 
 beforeEach(() => {
   // 全文件假钟：tick 只推假钟不烧真实时间（下载/核对/缓存时间链全部可控快进）
@@ -158,8 +163,10 @@ describe('组形状（清单驱动 + 通用声明行）', () => {
     const group = await onlineResourcesGroup();
     expect(group.name).toBe('在线资源');
     expect(group.icon).toBe('cloud-download');
-    expect(group.rows).toHaveLength(4); // 2 行操作行 + 更新日志 + 主题（rowOrder 里的 skins）
-    expect(group.rows.every((r) => r.type === 'button')).toBe(true); // 无 custom 自绘行
+    // 2 行操作行 + 更新日志 + 主题（rowOrder 里的 skins）+ 组尾「镜像源」（text 行）
+    expect(group.rows).toHaveLength(5);
+    expect(group.rows.slice(0, 4).every((r) => r.type === 'button')).toBe(true); // 无 custom 自绘行
+    expect(group.rows[4]).toMatchObject({ type: 'text', name: '镜像源' });
 
     const el = document.createElement('div');
     document.body.appendChild(el);

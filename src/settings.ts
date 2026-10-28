@@ -93,6 +93,10 @@ export default interface BzSettings {
   /** 首次引导是否走完（含「以后再说」）：false = 下次启动还会弹（core/setup-wizard）。
    *  跳过的也算走完——不能每次启动都拿同一张清单拦人。 */
   setupDone: boolean;
+  /** 自定义镜像源（可选；空格/逗号分隔多条）。企业网里 raw 与 jsDelivr 可能全不通，
+   *  那时把内网静态目录填进来就能下载资源；地址形状与仓库一致（`<基址>/downloads/xxx`）。
+   *  只管**资源下载**，插件自更新仍走官方 tag（core/remote-base.ts 的 mirrorBases）。 */
+  resourceMirror: string;
 
   // ===== 📂 数据存储路径（ADR-0009 共享数据路径）=====
   /** 共享 JSON 数据目录（memo/belongings/passwords/favorites/review/quiz/闪念 meta+vec 统一存放） */
@@ -951,6 +955,8 @@ export const DEFAULT_SETTINGS: BzSettings = {
   autoUpdate: false,
   // 首次引导没走过（首次启动会弹；走完或被跳过后置 true）
   setupDone: false,
+  // 自定义镜像源（空 = 只用官方通道）
+  resourceMirror: '',
 
   // 附件搬移（ticket 65，运行时记忆）
   attachLastFolder: '',

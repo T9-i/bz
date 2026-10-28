@@ -194,6 +194,7 @@ export async function refreshManifest(app: unknown): Promise<ManifestRefresh> {
     (t) => parseDownloadManifest(t) !== null,
     '下载清单',
     '',
+    app,
   );
   const manifest = parseDownloadManifest(text)!;
   await writeAssetText(app, MANIFEST_FILE, text);

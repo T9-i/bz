@@ -54,7 +54,10 @@ export interface SetupItem {
   size: number | null;
   /** 磁盘上已经就绪（已下载 / 已有可用运行时）——重跑时不重下 */
   ready: boolean;
-  run: () => Promise<void>;
+  /** 按需项：列出来但不默认勾（大索引这类，早下纯占地方，用到的域会自己拉） */
+  optional?: boolean;
+  /** 干活；`report` 用于中途改这一行的状态文字（进度、阶段） */
+  run: (report?: (text: string) => void) => Promise<void>;
 }
 
 /** 体积人话 */
@@ -81,8 +84,15 @@ export function buildSetupTasks(app: unknown, manifest: DownloadManifest | null,
         label: 'Node 运行时',
         desc: `便携版 ${PORTABLE_NODE_VERSION}，装进插件目录`,
         size: NODE_SIZE_HINT,
-        run: async () => {
-          await installPortableNode(app);
+        run: async (report) => {
+          // 36MB 是这一轮最久的一项：没有进度的话用户会以为卡死，然后去点第二次
+          await installPortableNode(app, {
+            onStage: (stage) => report?.(stage),
+            onProgress: (got, total) => {
+              if (total > 0) report?.(`${Math.min(99, Math.round((got / total) * 100))}% · ${sizeText(got)} / ${sizeText(total)}`);
+              else report?.(sizeText(got));
+            },
+          });
           // 刚装好的运行时必须让探测缓存失效：否则同一会话里 toolReadyState 还是旧结论
           resetNodeRuntimeCache();
         },
@@ -127,17 +137,24 @@ function bundleItem(app: unknown, e: ManifestDocEntry): Omit<SetupItem, 'ready'>
 }
 
 function docItem(app: unknown, e: ManifestDocEntry): Omit<SetupItem, 'ready'> {
+  // 大索引（豆瓣影视索引 7.2MB）不占首装：它只服务影院域的输入联想，用到的域进页面时自己拉。
+  // 首装跟着下一遍，是纯占地方——而且走镜像要 30 秒，正好卡在「最后一项」让人以为卡死。
+  const lazy = LAZY_DOC_IDS.has(e.id);
   return {
     id: e.id,
     kind: 'doc',
     label: e.name,
-    desc: '离线可读',
+    desc: lazy ? '按需下载：用到时自动拉' : '离线可读',
     size: e.size ?? null,
+    ...(lazy ? { optional: true } : {}),
     run: async () => {
       await ensureAssetWithHash(app, e.file, e.sha256, e.name);
     },
   };
 }
+
+/** 按需下载的资源 id（首装默认不勾；对应功能首次用到时自己拉） */
+export const LAZY_DOC_IDS = new Set(['cinema-douban-index']);
 
 /** 磁盘上这一项是不是已经就绪（重跑引导时用来跳过，避免白拉几十 MB） */
 async function isReady(app: unknown, manifest: DownloadManifest | null, id: string, kind: SetupKind): Promise<boolean> {
@@ -165,10 +182,10 @@ export async function planSetupItems(
   return out;
 }
 
-/** 缺省勾选：没就绪的都勾上，皮肤不勾（用到再下，提前下纯占地方） */
+/** 缺省勾选：没就绪的都勾上；皮肤与「按需」项不勾（用到再下，提前下纯占地方） */
 export function defaultSelection(items: SetupItem[]): Set<string> {
   const sel = new Set<string>();
-  for (const it of items) if (!it.ready && it.kind !== 'skins') sel.add(it.id);
+  for (const it of items) if (!it.ready && it.kind !== 'skins' && !it.optional) sel.add(it.id);
   return sel;
 }
 
@@ -332,7 +349,9 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
     group.appendChild(head);
     ui.body.appendChild(group);
     for (const e of manifest.docs) {
-      const state = e.kind === 'bundle' ? await bundleStatus(ctx.app, e) : await docStatus(ctx.app, e);
+      // 深校验（逐个文件 stat）：自检的意义就是「看一眼现在的磁盘」，只看标记会漏掉
+      // 被安全软件隔离 / 被同步盘截断这类「标记在、文件没了」的情况
+      const state = e.kind === 'bundle' ? await bundleStatus(ctx.app, e, { deep: true }) : await docStatus(ctx.app, e);
       const text = state === 'ready' ? '已下载' : state === 'updated' ? '有更新' : '未下载';
       paint(addRow(e.name, group), state === 'ready' ? true : state === 'updated' ? null : false, text);
     }
@@ -344,7 +363,12 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
 
   const online = !!(net?.github || net?.jsdelivr);
   if (!online) {
-    ui.sub.textContent = '连不上资源站：检查代理或网络后重试。插件主体仍可用，下载类功能要等网络恢复。';
+    // 公网全不通时要说「还有哪条路」，不能只丢一句「检查网络」：
+    // 企业网里改系统代理往往没权限，而镜像源与离线包是人自己就能做的两件事。
+    ui.sub.textContent =
+      '连不上资源站。插件主体仍可用，下载类功能要等有网络。两条自带的路：' +
+      '① 把内网镜像填进「设置 → 通用 → 在线资源 → 镜像源」；' +
+      '② 把仓库的 downloads/ 目录拷到 vault 下的 bz-offline/，插件会直接读本地。';
     const later = button('bz-setup-btn', '稍后再说');
     later.onclick = () => {
       void markDone();
@@ -483,6 +507,7 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
         refreshFoot();
       };
       row.append(box, keyEl(it.label, it.desc), valEl(it.ready ? '已就绪' : sizeText(it.size) || '待下载'));
+      if (it.optional && !it.ready) row.dataset.optional = '1';
       wrap.appendChild(row);
     }
     ui.body.appendChild(wrap);
@@ -682,7 +707,10 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
     row.append(mark, keyEl(t.label, t.desc), val);
     list.appendChild(row);
     try {
-      await t.run();
+      await t.run((text) => {
+        // 单项的进度直接写在这一行（Node 那一项会走到 42% · 15 MB / 36 MB）
+        val.textContent = text;
+      });
       doneBytes += t.size || 0;
       mark.className = 'bz-setup-mark bz-setup-mark--ok';
       val.textContent = '已就绪';

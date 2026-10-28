@@ -92,10 +92,51 @@ if (-not (Test-Path -LiteralPath $pluginData)) {
   Write-Host '  （bz 插件没在这个库里启用过？值守进程会读不到 storagePath 与信任表）' -ForegroundColor DarkGray
 }
 
-# ---------- 3. 写配置 ----------
+# ---------- 3. 写配置（按 vault 分家） ----------
 
-$dir = Join-Path $env:LOCALAPPDATA 'bz-dock-watch'
+<#
+为什么要分目录：一台机器上常常有多个 vault。早前所有状态都写在同一层
+（`%LOCALAPPDATA%\bz-dock-watch\config.json`），第二个库装值守时直接把第一个的配置盖掉 ——
+先装的那个库从此再没被值守过，而两边界面都显示「已启用」。一个进程只能服务一个库（规则表、
+账本都在库里），所以正确形状是：每个库各有一份状态目录，根上放一个「当前服务谁」的指针。
+
+目录键必须与 tools/dock-watch/runtime.js 的 vaultKeyOf、src/dock/watchdog-status.ts 算出
+同一个值（FNV-1a 32 位，取 UTF-8 字节）。三处由 tests/dock/watchdog-path.test.ts 钉住。
+#>
+function Get-VaultKey([string]$path) {
+  $norm = ($path.Trim() -replace '\\', '/') -replace '/+$', ''
+  $bytes = [System.Text.Encoding]::UTF8.GetBytes($norm)
+  $h = [uint64]2166136261
+  foreach ($b in $bytes) {
+    $h = $h -bxor [uint64]$b
+    # 必须用 decimal 乘：PowerShell 的整数乘法会溢出成负数（UInt64 -band 当场抛错），
+    # 而 [uint64] 在本机实测直接报「值对于 UInt64 太大或太小」。decimal 有 96 位尾数，
+    # 4.29e9 × 1.68e7 = 7.2e16 完全精确，取模后再转回 uint64。
+    $h = [uint64](([decimal]$h * [decimal]16777619) % [decimal]4294967296)
+  }
+  return ('{0:x8}' -f $h)
+}
+
+$root = Join-Path $env:LOCALAPPDATA 'bz-dock-watch'
+$vaultKey = Get-VaultKey $Vault
+$dir = Join-Path (Join-Path $root 'vaults') $vaultKey
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
+
+# 之前服务的是别的库？说清楚（不阻止切换，但别让人以为两个库都在跑）
+$activePath = Join-Path $root 'active.json'
+$prevVault = ''
+if (Test-Path -LiteralPath $activePath) {
+  try {
+    $prev = Get-Content -LiteralPath $activePath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($prev.vault) { $prevVault = ([string]$prev.vault).TrimEnd('\', '/') }
+  } catch { $prevVault = '' }
+}
+if ($prevVault -and $prevVault -ne $Vault) {
+  Write-Host "! 值守现在改为服务这个库：$Vault" -ForegroundColor Yellow
+  Write-Host "  之前服务的是：$prevVault" -ForegroundColor Yellow
+  Write-Host '  一台机器同时只跑一个值守进程，所以那个库的定时任务之后不再执行（它的配置与日志都留着，' -ForegroundColor DarkGray
+  Write-Host '  再在那边点一次启用就切回去）。' -ForegroundColor DarkGray
+}
 
 $configPath = Join-Path $dir 'config.json'
 $config = [ordered]@{
@@ -112,6 +153,17 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($configPath, ($config | ConvertTo-Json), $utf8NoBom)
 Write-Host "✓ 配置：$configPath"
 
+# 「当前服务谁」的指针（runtime.js 的 readConfig 先读它）
+$active = [ordered]@{ vault = $Vault; key = $vaultKey; at = (Get-Date).ToString('s') }
+[System.IO.File]::WriteAllText($activePath, ($active | ConvertTo-Json), $utf8NoBom)
+
+# 老形态的根配置留着会让「到底读哪份」变成两个真相，删掉（内容已写进 per-vault 那份）
+$legacyConfig = Join-Path $root 'config.json'
+if (Test-Path -LiteralPath $legacyConfig) {
+  Remove-Item -LiteralPath $legacyConfig -Force
+  Write-Host "✓ 已把老配置迁到本库目录并删除根上的 config.json"
+}
+
 # ---------- 4. 生成隐藏窗口启动器 ----------
 
 $cliPath = Join-Path $PSScriptRoot 'cli.js'
@@ -120,6 +172,12 @@ if (-not (Test-Path -LiteralPath $cliPath)) { Fail "找不到 cli.js（本脚本
 $vbsPath = Join-Path $dir 'watch.vbs'
 $vbsTemplate = @'
 ' 由 install.ps1 生成 —— 隐藏窗口启动值守进程（node 是控制台程序，直接挂计划任务会闪黑框）
+' 守卫（2026-10-28）：插件卸载后这个自启项不会自己消失（计划任务归系统管，不归插件管）。
+' 没有守卫的话，每次登录都会拉起一个立刻失败的进程，wscript 还会弹错误框 —— 卸载插件的人
+' 从此每开机被骂一次。这里先确认 node 与入口脚本都还在，不在就静默退出。
+Set fso = CreateObject("Scripting.FileSystemObject")
+If Not fso.FileExists("{0}") Then WScript.Quit 0
+If Not fso.FileExists("{1}") Then WScript.Quit 0
 Set sh = CreateObject("WScript.Shell")
 cmd = """" & "{0}" & """ """ & "{1}" & """"
 ' 0 = 隐藏窗口，False = 不等待它结束

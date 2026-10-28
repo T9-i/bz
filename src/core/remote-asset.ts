@@ -33,6 +33,7 @@ import { textSha256 } from './sha256';
 import { emitDomainEvent } from './domain-bus';
 import { downloadRemotesFor } from './remote-base';
 import { pluginVaultPath } from './plugin-path';
+import { readOfflineText } from './offline-source';
 
 /** 下载资源落盘事件（issue 492）：派发收口在 writeAssetText（所有下载资产唯一落盘口），
  *  消费 = 设置面板在线资源组把已渲染行态同步成磁盘事实（导航入口更新文档后组内按钮翻「已下载」）。 */
@@ -88,14 +89,25 @@ export async function ensureDir(app: unknown, relPath: string): Promise<void> {
 }
 
 /** 双源取文本（不落盘）；全失败抛人话错误
- *  @param unit 内容校验失败文案的后缀（手册/日志是「页」，皮肤包不是） */
+ *  @param unit 内容校验失败文案的后缀（手册/日志是「页」，皮肤包不是）
+ *  @param app  给了就先看离线包（`<vault>/bz-offline/downloads/<file>`）；不给只走网络 */
 export async function fetchAssetText(
   fileName: string,
   validate: (text: string) => boolean,
   label: string,
   unit = '页',
+  app?: unknown,
 ): Promise<string> {
   let lastErr = '';
+  // 离线包优先（同 ensureAssetWithHash 的理由）
+  if (app) {
+    try {
+      const offline = await readOfflineText(app, `downloads/${fileName}`);
+      if (offline !== null && validate(offline)) return offline;
+    } catch {
+      /* 走网络 */
+    }
+  }
   for (const url of remotesFor(fileName)) {
     try {
       const res = await requestUrl({ url, method: 'GET', throw: true });
@@ -137,6 +149,22 @@ export async function ensureAssetWithHash(
   if (cached !== null && (!want || textSha256(cached) === want)) return cached;
 
   let lastErr = '';
+
+  // 离线包优先（`<vault>/bz-offline/downloads/<file>`）：企业网 / 无外网时这是唯一的路。
+  // hash 对不上就整份丢弃当没有——离线包也要过同一道校验，否则「本地文件」就成了免检通道。
+  try {
+    const offline = await readOfflineText(app, `downloads/${fileName}`);
+    if (offline !== null) {
+      if (!want || textSha256(offline) === want) {
+        await writeAssetText(app, fileName, offline);
+        return offline;
+      }
+      lastErr = 'bz-offline 里的副本 sha256 对不上（与清单不是同一版）';
+    }
+  } catch {
+    /* 没有离线包：走网络 */
+  }
+
   for (const url of remotesFor(fileName)) {
     try {
       const res = await requestUrl({ url, method: 'GET', throw: true });
@@ -176,7 +204,7 @@ export async function downloadAsset(
   validate: (text: string) => boolean,
   label: string,
 ): Promise<void> {
-  const text = await fetchAssetText(fileName, validate, label, '页');
+  const text = await fetchAssetText(fileName, validate, label, '页', app);
   await writeAssetText(app, fileName, text);
 }
 
@@ -244,7 +272,7 @@ export async function refreshAsset(
       const local = await readAsset(app, fileName);
       if (local !== null && textSha256(local) === want) return null;
     }
-    const text = await fetchAssetText(fileName, validate, label, '页');
+    const text = await fetchAssetText(fileName, validate, label, '页', app);
     const local = await readAsset(app, fileName);
     if (local !== null && textSha256(text) === textSha256(local)) return null;
     await writeAssetText(app, fileName, text);

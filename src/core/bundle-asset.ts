@@ -25,6 +25,8 @@ import {
   readAsset,
 } from './remote-asset';
 import { emitDomainEvent } from './domain-bus';
+import { readOfflineBytes } from './offline-source';
+import { vaultBasePathOf } from './plugin-path';
 import type { DocStatus, ManifestDocEntry } from './download-manifest';
 
 /** 就绪标记文件名（住在解包目录根部；点前缀避开「工具自己会读到什么」这类意外） */
@@ -35,6 +37,10 @@ export interface BundleMarker {
   id: string;
   sha256: string;
   files: number;
+  /** 解包后总字节（深校验时与逐文件 stat 之和对照） */
+  bytes?: number;
+  /** 逐文件字节数 `[相对解包目录的路径, 字节]` —— 深校验用（老标记没有这一项） */
+  sizes?: Array<[string, number]>;
   at: number;
 }
 
@@ -96,17 +102,61 @@ async function readTextRel(app: unknown, rel: string): Promise<string | null> {
  * 目录包状态：`missing`（没装过） / `updated`（标记的 hash 与清单不符） / `ready`。
  * 与单文件资源的 `docStatus` 同三态，UI 状态机不必分叉。
  */
-export async function bundleStatus(app: unknown, entry: ManifestDocEntry): Promise<DocStatus> {
+/**
+ * 目录包状态。
+ *
+ * 默认只看标记（开面板时调，几百毫秒都不该花在 224 次 stat 上）；
+ * `deep: true` 时**逐个核对文件是否还在、字节数是否还对**——安全软件隔离、同步盘截断、
+ * 手工改坏都能被抓出来。早前只有标记，症状是面板说「已就绪」，一跑工具就报
+ * 「找不到 xxx.js」，用户完全不知道从哪下手。
+ */
+export async function bundleStatus(
+  app: unknown,
+  entry: ManifestDocEntry,
+  opts: { deep?: boolean } = {},
+): Promise<DocStatus> {
   const dir = bundleDirOf(entry.file);
   const text = await readTextRel(app, `${dir}/${BUNDLE_MARKER}`);
   if (text === null) return 'missing';
+  let m: BundleMarker;
   try {
-    const m = JSON.parse(text) as BundleMarker;
-    const got = String(m?.sha256 || '').toLowerCase();
-    if (!got) return 'updated';
-    return got === String(entry.sha256 || '').toLowerCase() ? 'ready' : 'updated';
+    m = JSON.parse(text) as BundleMarker;
   } catch {
     return 'updated'; // 标记坏 = 这份目录来路不明，重装一遍最省事
+  }
+  const got = String(m?.sha256 || '').toLowerCase();
+  if (!got) return 'updated';
+  if (got !== String(entry.sha256 || '').toLowerCase()) return 'updated';
+  if (opts.deep && !(await filesIntact(app, dir, m))) return 'updated';
+  return 'ready';
+}
+
+/**
+ * 深校验：逐个 stat 解包目录里的文件，与标记记下的字节数比对。
+ *
+ * 只对「打开自检 / 首次引导检测」这种**用户明确要求看一眼**的时刻调用：224 次 stat
+ * 约 20~60ms，可接受；但开面板每次都做就没必要了。老标记（没有 `sizes`）一律放行——
+ * 它们来自旧版本，硬判「坏」会让所有人白白重下一遍。
+ */
+async function filesIntact(app: unknown, dir: string, marker: BundleMarker): Promise<boolean> {
+  const sizes = marker.sizes;
+  if (!Array.isArray(sizes) || !sizes.length) return true;
+  const fs = typeof window !== 'undefined' ? (window as any)?.require?.('fs') : null;
+  if (!fs?.statSync) return true; // 拿不到 fs（非桌面端）：不做判断，不制造假红
+  const base = vaultBasePathOf(app);
+  if (!base) return true;
+  try {
+    for (const [rel, size] of sizes) {
+      // downloadsVaultPath 是 **vault 相对**路径（`.obsidian/plugins/<目录>/downloads/...`），
+      // 所以拼的是 vault 根，不是插件目录——拼错会每次都判「文件不在」，等于所有人无脑重下
+      const abs = `${base}/${downloadsVaultPath(app, `${dir}/${rel}`)}`;
+      const st = fs.statSync(abs);
+      if (!st?.isFile?.() || Number(st.size) !== Number(size)) return false;
+    }
+    return true;
+  } catch {
+    // 任何一个 stat 抛错（不存在）就是缺文件
+    return false;
   }
 }
 
@@ -139,6 +189,19 @@ async function fetchArchive(app: unknown, entry: ManifestDocEntry, deps: BundleD
   }
 
   let lastErr = '';
+
+  // 离线包（`<vault>/bz-offline/downloads/tools/*.tar.gz`）：封闭网络里唯一的来源。
+  // 放在网络之前是因为它是用户亲手放的，意图明确；hash 照样校验，对不上就当没有。
+  try {
+    const offline = await readOfflineBytes(app, `downloads/${entry.file}`);
+    if (offline && offline.byteLength > 0 && (!want || sha256Bytes(offline) === want)) {
+      return offline;
+    }
+    if (offline) lastErr = 'bz-offline 里的归档 sha256 对不上（与清单不是同一版）';
+  } catch {
+    /* 没有离线包：走网络 */
+  }
+
   for (const url of downloadRemotesFor(entry.file)) {
     try {
       const bytes = await fetchBytes(url);
@@ -251,6 +314,10 @@ async function installBundleOnce(
     id: entry.id,
     sha256: String(entry.sha256 || '').toLowerCase(),
     files: files.length,
+    bytes,
+    // 每个文件的字节数（解包当时的真值）。深校验用它逐个 stat —— 文件被安全软件删掉、
+    // 被同步盘截断、被手工改坏，都能在「打开面板」这一刻看出来，而不是等它跑起来才报错。
+    sizes: files.map((f) => [f.path, f.data.byteLength] as [string, number]),
     at: Date.now(),
   };
   await ensureDir(app, `${dir}/${BUNDLE_MARKER}`);

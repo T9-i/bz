@@ -49,8 +49,8 @@
       "name": "工具坞值守",
       "file": "tools/dock-watch.tar.gz",
       "kind": "bundle",
-      "sha256": "78d93f0aa1c99cfe20a68c1c96619f5ee920a2cef6c3021b4567a3a57d6450bc",
-      "size": 46129
+      "sha256": "8735571cf637369004d88ee259756be730ebea66aae7014a5dd14f03038ba567",
+      "size": 49488
     },
     {
       "id": "tool-obsidian-face",

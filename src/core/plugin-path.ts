@@ -55,7 +55,11 @@ export function vaultBasePathOf(app: unknown): string {
   const adapter = (app as { vault?: { adapter?: { getBasePath?: () => string; basePath?: string } } })?.vault?.adapter;
   try {
     const p = adapter?.getBasePath?.() || adapter?.basePath || '';
-    return trimSlashes(String(p || ''));
+    // 只去**尾**斜杠：这是绝对路径，macOS/Linux 的前导 `/` 是路径的一部分。
+    // 早前用 trimSlashes（两头都去）会把 `/Users/x/vault` 变成 `Users/x/vault` ——
+    // Windows 上毫无症状（`C:/...` 本来没有前导斜杠），mac/linux 上所有 spawn 与 fs 调用
+    // 都会指向一个不存在的相对路径。
+    return String(p || '').replace(/[\\/]+$/, '');
   } catch {
     return '';
   }

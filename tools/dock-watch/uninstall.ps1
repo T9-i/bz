@@ -65,10 +65,20 @@ if (Test-Path -LiteralPath $lockFile) {
 if ($Purge) {
   if (Test-Path -LiteralPath $dir) {
     Remove-Item -LiteralPath $dir -Recurse -Force
-    Write-Host "✓ 已删除：$dir"
+    Write-Host "✓ 已删除：$dir（含 vaults\ 下各库的状态目录）"
   }
 } else {
-  Write-Host "· 保留：$dir（配置/状态/日志；重装时会覆盖配置）" -ForegroundColor DarkGray
+  # 只摘掉「当前服务谁」的指针与老形态的根配置：它们一旦留着，重装/换库时会继续被读到，
+  # 症状是「明明卸载了，换个库装却说之前服务的是另一个库」。各库自己的状态目录与日志保留
+  # （重装即继续，也便于事后翻日志）。
+  foreach ($name in @('active.json', 'config.json')) {
+    $f = Join-Path $dir $name
+    if (Test-Path -LiteralPath $f) {
+      Remove-Item -LiteralPath $f -Force
+      Write-Host "✓ 已删除：$f"
+    }
+  }
+  Write-Host "· 保留：$dir（各库状态/日志；重装时会覆盖配置）" -ForegroundColor DarkGray
   Write-Host '  想全清就加 -Purge 再跑一次'
 }
 

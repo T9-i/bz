@@ -22,6 +22,8 @@ import { DOWNLOADS_DIR, downloadsVaultPath, ensureDir } from './remote-asset';
 import { pluginDirOf } from './plugin-path';
 import { extractZipEntry, findZipEntry, readZipEntries } from './zip';
 import { untar } from './tar';
+import { readOfflineBytes } from './offline-source';
+import { fetchBytesWithProgress } from './net-progress';
 import type { TarFile } from './tar';
 
 /** 便携运行时的版本（LTS 线；升级时改这一个常量，双源的目录名都跟着变） */
@@ -108,6 +110,8 @@ export interface NodeInstallDeps {
   arch?: string;
   /** 阶段回调（「正在下载」「正在解压」这类人话，UI 拿去显示） */
   onStage?: (stage: string) => void;
+  /** 进度回调（已收 / 总字节；总字节 0 = 未知）。只有走流式下载时才有中间值 */
+  onProgress?: (received: number, total: number) => void;
 }
 
 export interface NodeInstallResult {
@@ -119,11 +123,80 @@ export interface NodeInstallResult {
   bytes: number;
 }
 
-async function defaultFetchBytes(url: string): Promise<Uint8Array> {
+async function defaultFetchBytes(url: string, onProgress?: (r: number, t: number) => void): Promise<Uint8Array> {
+  // 先试流式（能显示百分比）；拿不到就回落 requestUrl（绕 CORS、必通但不带进度）
+  const streamed = await fetchBytesWithProgress(url, onProgress);
+  if (streamed && streamed.byteLength) return streamed;
   const res = await requestUrl({ url, method: 'GET', throw: true });
   const ab = (res as { arrayBuffer?: ArrayBuffer }).arrayBuffer;
   if (!ab) throw new Error('响应没有二进制体');
   return new Uint8Array(ab);
+}
+
+/* ---------- 归档缓存（Defender 删掉 node.exe 之后不必重下 36MB） ---------- */
+
+/**
+ * 归档缓存目录（**downloads 相对**）。
+ *
+ * 为什么留一份 36MB 的 zip 在盘上：Windows Defender 见到一个刚下下来的、无签名的大 exe，
+ * 有相当概率直接隔离。被隔离后 `node.exe` 不见了 → 探测判「没有运行时」→ 用户再点一次，
+ * 又从网上拉 36MB。慢网下这一来一回是灾难，而归档还在盘上时，重装只要解一次压。
+ *
+ * 代价说明：多占 36MB。缓存只在**同一版本**有效（文件名带版本号），换版本时旧缓存
+ * 靠 `pruneNodeCache` 顺手清掉。
+ */
+export const NODE_CACHE_REL = 'tools/.cache';
+
+function cacheRelOf(plan: NodeArchivePlan): string {
+  return `${NODE_CACHE_REL}/${plan.file}`;
+}
+
+interface AdapterLike {
+  readBinary?: (p: string) => Promise<ArrayBuffer>;
+  writeBinary?: (p: string, d: ArrayBuffer) => Promise<void>;
+  remove?: (p: string) => Promise<void>;
+}
+
+function adapterOf(app: unknown): AdapterLike | null {
+  return (app as { vault?: { adapter?: AdapterLike } })?.vault?.adapter ?? null;
+}
+
+/** 读缓存归档（读不到 / 空 → null） */
+async function readCachedArchive(app: unknown, plan: NodeArchivePlan): Promise<Uint8Array | null> {
+  const adapter = adapterOf(app);
+  if (!adapter?.readBinary) return null;
+  try {
+    const ab = await adapter.readBinary(downloadsVaultPath(app, cacheRelOf(plan)));
+    const bytes = new Uint8Array(ab);
+    // 归档是压缩包，几十 MB；只要不是空/半截就给一次机会 —— 真正的把关在「解出的 node.exe
+    // 够不够大」和「-v 跑不跑得起来」那两步，这里卡体积只会把合法的归档拦在门外
+    return bytes.byteLength > 1024 ? bytes : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 写缓存（失败不影响安装：缓存是加速手段，不是正确性的一部分） */
+async function writeCachedArchive(app: unknown, plan: NodeArchivePlan, bytes: Uint8Array): Promise<void> {
+  const adapter = adapterOf(app);
+  if (!adapter?.writeBinary) return;
+  try {
+    await ensureDir(app, cacheRelOf(plan));
+    await adapter.writeBinary(
+      downloadsVaultPath(app, cacheRelOf(plan)),
+      bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
+    );
+  } catch {
+    /* 缓存写不进去就算了 */
+  }
+}
+
+async function dropCachedArchive(app: unknown, plan: NodeArchivePlan): Promise<void> {
+  try {
+    await adapterOf(app)?.remove?.(downloadsVaultPath(app, cacheRelOf(plan)));
+  } catch {
+    /* 本来就没了 */
+  }
 }
 
 /** 缺省 gunzip（tar.gz 走这里；与 bundle-asset 同源） */
@@ -197,15 +270,45 @@ export async function installPortableNode(app: unknown, deps: NodeInstallDeps = 
   if (!plans.length) {
     throw new Error(`本平台没有官方 Node 产物（${platform}/${arch}）：请自行安装 Node.js 后重试`);
   }
-  const fetchBytes = deps.fetchBytes ?? defaultFetchBytes;
+  const fetchBytes = deps.fetchBytes;
   const member = bundledNodeFile(platform);
 
   let lastErr = '';
   for (const plan of plans) {
+    // ① 归档缓存：上次装成功留下的那份。Defender 隔离了 node.exe 时，这一步能免掉重下
+    const cached = await readCachedArchive(app, plan);
+    if (cached) {
+      try {
+        deps.onStage?.('用上次下载的归档重装（不联网）');
+        const r = await installFromArchive(app, cached, plan, deps);
+        return r;
+      } catch (e) {
+        // 缓存坏了（下了一半 / 版本错位）：删掉，继续往下走
+        lastErr = `缓存归档不可用：${(e as Error)?.message || String(e)}`;
+        await dropCachedArchive(app, plan);
+      }
+    }
+
+    // ② 离线包（`<vault>/bz-offline/node/<归档>`）：封闭网络里它是唯一来源
+    try {
+      const offline = await readOfflineBytes(app, `node/${plan.file}`);
+      if (offline && offline.byteLength > 0) {
+        deps.onStage?.('用离线包安装 Node 运行时');
+        const r = await installFromArchive(app, offline, plan, deps);
+        await writeCachedArchive(app, plan, offline); // 下次重装连解压前的读盘都省
+        return r;
+      }
+    } catch {
+      /* 没有离线包 */
+    }
+
+    // ③ 双源下载
     for (const url of plan.urls) {
       try {
         deps.onStage?.(`正在下载 Node 运行时（约 36 MB）`);
-        const archive = await fetchBytes(url);
+        const archive = fetchBytes
+          ? await fetchBytes(url)
+          : await defaultFetchBytes(url, (got, total) => deps.onProgress?.(got, total));
         if (!archive.byteLength) {
           lastErr = `${url} 返回空内容`;
           continue;
@@ -214,50 +317,71 @@ export async function installPortableNode(app: unknown, deps: NodeInstallDeps = 
           lastErr = `${url} 体积异常（${archive.byteLength} 字节），拒收`;
           continue;
         }
-        deps.onStage?.('正在解压');
-        const bin = extractMember(archive, plan, deps);
-        if (bin.byteLength < MIN_NODE_BYTES) {
-          lastErr = `${url} 解出的 ${member} 太小（${bin.byteLength} 字节），不像运行时`;
-          continue;
-        }
-
-        deps.onStage?.('正在写入插件目录');
-        // 注意：这里是 **downloads 相对**路径——ensureDir / downloadsVaultPath 都会自己加
-        // `downloads/` 前缀。早前用 NODE_RUNTIME_DIR（已含该前缀）会写成
-        // `downloads/downloads/tools/...`：文件确实写成功了，但探测永远找不到它。
-        const rel = portableNodeDownloadsRel(platform);
-        await ensureDir(app, rel);
-        const ab = bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer;
-        const adapter = (app as { vault?: { adapter?: { writeBinary?: (p: string, d: ArrayBuffer) => Promise<void> } } })
-          .vault?.adapter;
-        if (!adapter?.writeBinary) throw new Error('当前环境无法写入二进制文件（便携 Node 需要桌面端）');
-        await adapter.writeBinary(downloadsVaultPath(app, rel), ab);
-
-        // POSIX 需要可执行位（adapter 不管这个，只能走真实文件系统）
-        if (platform !== 'win32') {
-          try {
-            const abs = `${pluginDirOf(app)}/${rel}`;
-            (window as any).require?.('fs')?.chmodSync?.(abs, 0o755);
-          } catch {
-            /* 权限位失败交给下面 -v 判定 */
-          }
-        }
-
-        deps.onStage?.('正在验证');
-        // 验证用的是**插件目录相对**路径（含 downloads/），别拿写盘那条 downloads 相对路径
-        const version = runNodeVersion(`${pluginDirOf(app)}/${portableNodeRelPath(platform)}`);
-        if (!version) {
-          await removeQuietly(app, rel);
-          lastErr = '下载的 Node 无法运行（可能是网络中断或文件被拦截）';
-          continue;
-        }
-        return { version, path: `${pluginDirOf(app)}/${rel}`, bytes: bin.byteLength };
+        const r = await installFromArchive(app, archive, plan, deps);
+        await writeCachedArchive(app, plan, archive);
+        return r;
       } catch (e) {
         lastErr = `${url} → ${(e as Error)?.message || String(e)}`;
       }
     }
   }
   throw new Error(`Node 运行时安装失败：${lastErr}`);
+}
+
+/**
+ * 从一份归档装出运行时（解包 → 落盘 → 跑一次 `-v`）。
+ * 缓存、离线包、网络三条来源共用这一步 —— 三种来源的「装」必须完全一样，
+ * 否则会出现「从网上下的能跑、从缓存装的不能跑」这种只在特定用户身上复现的问题。
+ */
+async function installFromArchive(
+  app: unknown,
+  archive: Uint8Array,
+  plan: NodeArchivePlan,
+  deps: NodeInstallDeps,
+): Promise<NodeInstallResult> {
+  const platform = plan.kind === 'zip' ? (deps.platform ?? currentPlatform()) : (deps.platform ?? currentPlatform());
+  const member = bundledNodeFile(platform);
+
+  if (archive.byteLength > MAX_ARCHIVE_BYTES) {
+    throw new Error(`归档体积异常（${archive.byteLength} 字节）`);
+  }
+
+  deps.onStage?.('正在解压');
+  const bin = extractMember(archive, plan, deps);
+  if (bin.byteLength < MIN_NODE_BYTES) {
+    throw new Error(`解出的 ${member} 太小（${bin.byteLength} 字节），不像运行时`);
+  }
+
+  deps.onStage?.('正在写入插件目录');
+  // 注意：这里是 **downloads 相对**路径——ensureDir / downloadsVaultPath 都会自己加
+  // `downloads/` 前缀。早前用 NODE_RUNTIME_DIR（已含该前缀）会写成
+  // `downloads/downloads/tools/...`：文件确实写成功了，但探测永远找不到它。
+  const rel = portableNodeDownloadsRel(platform);
+  await ensureDir(app, rel);
+  const ab = bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength) as ArrayBuffer;
+  const adapter = (app as { vault?: { adapter?: { writeBinary?: (p: string, d: ArrayBuffer) => Promise<void> } } }).vault
+    ?.adapter;
+  if (!adapter?.writeBinary) throw new Error('当前环境无法写入二进制文件（便携 Node 需要桌面端）');
+  await adapter.writeBinary(downloadsVaultPath(app, rel), ab);
+
+  // POSIX 需要可执行位（adapter 不管这个，只能走真实文件系统）
+  if (platform !== 'win32') {
+    try {
+      const abs = `${pluginDirOf(app)}/${rel}`;
+      (window as any).require?.('fs')?.chmodSync?.(abs, 0o755);
+    } catch {
+      /* 权限位失败交给下面 -v 判定 */
+    }
+  }
+
+  deps.onStage?.('正在验证');
+  // 验证用的是**插件目录相对**路径（含 downloads/），别拿写盘那条 downloads 相对路径
+  const version = runNodeVersion(`${pluginDirOf(app)}/${portableNodeRelPath(platform)}`);
+  if (!version) {
+    await removeQuietly(app, rel);
+    throw new Error('下载的 Node 无法运行（可能是网络中断或文件被拦截）');
+  }
+  return { version, path: `${pluginDirOf(app)}/${rel}`, bytes: bin.byteLength };
 }
 
 /** 便携 Node 是否已就位（只看文件在不在；能不能跑由 tool-runtime 的 -v 探测负责） */

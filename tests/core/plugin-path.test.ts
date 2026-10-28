@@ -57,3 +57,19 @@ describe('插件目录解析', () => {
     );
   });
 });
+
+describe('vault 绝对路径：只剪尾斜杠，前导斜杠是路径的一部分', () => {
+  it('macOS / Linux 的 /Users/x/vault 不被剪成相对路径', () => {
+    // 早前两头都剪：`/Users/x/vault` → `Users/x/vault`，于是 spawn 的 cwd、fs.stat 全部
+    // 指向一个不存在的相对目录。Windows 上毫无症状（`C:/...` 本来没有前导斜杠），
+    // 所以这类 bug 只会在别人的 mac 上出现。
+    expect(vaultBasePathOf(appOf({ base: '/Users/x/vault' }))).toBe('/Users/x/vault');
+    expect(pluginDirOf(appOf({ base: '/Users/x/vault' }))).toBe('/Users/x/vault/.obsidian/plugins/bz');
+  });
+
+  it('根目录 / 与 Windows 盘符都保留原形', () => {
+    expect(vaultBasePathOf(appOf({ base: '/' }))).toBe('');
+    const bs = String.fromCharCode(92); // 反斜杠（写死在断言里会被各行工具吃掉，取码点更稳）
+    expect(pluginDirOf(appOf({ base: `D:${bs}vault${bs}` }))).toBe(`D:${bs}vault/.obsidian/plugins/bz`);
+  });
+});

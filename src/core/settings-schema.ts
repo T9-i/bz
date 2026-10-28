@@ -117,7 +117,7 @@ export interface RowAction {
  *  真正的合法性由各域消费侧兜底，别在这里演「格式校验」）。'url' = 地址类行（端点/服务地址）。 */
 export type SettingsInputMode = 'text' | 'url' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email';
 
-interface TextRow extends RowBase, TextualCommit {
+export interface TextRow extends RowBase, TextualCommit {
   type: 'text';
   name: string;
   binding: RowBinding<string>;

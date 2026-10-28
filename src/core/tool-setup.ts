@@ -20,11 +20,12 @@
 import { openFlowDialog } from './flow-dialog';
 import { notice } from './notice';
 import { probeNodeRuntime, pluginDirOf, TOOL_ENTRIES, vaultBasePathOf, type ToolId } from './tool-runtime';
+import { vaultKeyOf } from './vault-key';
 
 /** 初始化结局：`skipped` = 无需/用户放弃；`done` = 做完；`failed` = 做了但没成 */
 export type ToolSetupOutcome = 'skipped' | 'done' | 'failed';
 
-/** 值守的本机会话态目录（口径与 tools/dock-watch/runtime.js 的 watchdogDir() 逐字一致） */
+/** 值守的本机会话态根目录（口径与 tools/dock-watch/runtime.js 的 watchdogDir() 逐字一致） */
 export function watchdogDirPath(): string {
   const env = (typeof process !== 'undefined' ? process.env : {}) as Record<string, string | undefined>;
   const local = String(env.LOCALAPPDATA || '').trim();
@@ -32,6 +33,38 @@ export function watchdogDirPath(): string {
   const home = String(env.USERPROFILE || env.HOME || '').trim();
   if (home) return `${home.replace(/[\\/]+$/, '')}/AppData/Local/bz-dock-watch`;
   return 'bz-dock-watch';
+}
+
+/** 某个库自己的状态目录（`<root>/vaults/<key>`；空 vault → 根目录，兼容老形态） */
+export function watchdogVaultDirPath(vault: string): string {
+  const root = watchdogDirPath();
+  const key = vaultKeyOf(vault);
+  return key ? `${root}/vaults/${key}` : root;
+}
+
+/** 桌面端 fs（拿不到 → null） */
+function nodeFs(): {
+  readFileSync?: (p: string, enc: string) => string;
+  existsSync?: (p: string) => boolean;
+} | null {
+  const w = typeof window !== 'undefined' ? (window as any) : null;
+  try {
+    return w?.require?.('fs') ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** 读一份 JSON（读不到 / 坏 → null） */
+function readJsonAt(file: string): Record<string, unknown> | null {
+  const fs = nodeFs();
+  try {
+    if (!fs?.readFileSync) return null;
+    const raw = JSON.parse(String(fs.readFileSync(file, 'utf8'))) as unknown;
+    return raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
 }
 
 interface PsResult {
@@ -72,17 +105,20 @@ function runPowerShell(args: string[], cwd: string): Promise<PsResult> {
   });
 }
 
-/** 读值守配置（判断「已经装过了」用）；坏读/不存在 → null */
-async function readWatchdogConfig(): Promise<{ vault?: string } | null> {
-  const w = typeof window !== 'undefined' ? (window as any) : null;
-  try {
-    const fs = w?.require?.('fs');
-    if (!fs?.readFileSync) return null;
-    const text = fs.readFileSync(`${watchdogDirPath()}/config.json`, 'utf8');
-    return JSON.parse(String(text));
-  } catch {
-    return null;
-  }
+/** 读这个库自己的值守配置（判断「已经装过了」用）；坏读/不存在 → null */
+async function readWatchdogConfig(vault: string): Promise<{ vault?: string } | null> {
+  const cfg = readJsonAt(`${watchdogVaultDirPath(vault)}/config.json`);
+  if (cfg) return cfg as { vault?: string };
+  // 老安装（还没有 vaults/ 分层）配置在根上：只在 active.json 也没有时才认，
+  // 否则「服务着别的库」会被误判成「这个库已经装过」
+  if (readJsonAt(`${watchdogDirPath()}/active.json`)) return null;
+  return readJsonAt(`${watchdogDirPath()}/config.json`) as { vault?: string } | null;
+}
+
+/** 值守现在服务的是哪个库（读 active.json；没有 → 空串） */
+export function activeWatchdogVault(): string {
+  const raw = readJsonAt(`${watchdogDirPath()}/active.json`);
+  return String((raw?.vault as string) || '').trim().replace(/[\\/]+$/, '');
 }
 
 /**
@@ -108,18 +144,26 @@ export async function setupAfterInstall(app: unknown, id: ToolId): Promise<ToolS
   }
 
   // 已经装过（同一 vault）→ 不重复注册，也别再弹一次确认
-  const existing = await readWatchdogConfig();
+  const existing = await readWatchdogConfig(vault);
   if (existing && String(existing.vault || '').replace(/[\\/]+$/, '') === vault) return 'skipped';
 
+  // 值守正服务着**另一个**库：一台机器只跑一个值守进程，继续装等于把那个库的定时任务顶掉。
+  // 不阻止（用户可能就是想要这个），但必须说清楚是「切过去」，不是「两个都跑」。
+  const other = activeWatchdogVault();
+  const switching = !!other && other !== vault;
   const go = await openFlowDialog({
-    title: '启用工具坞值守',
-    message:
-      '值守进程会在后台按你的规则表跑工具，Obsidian 关着也照跑。\n' +
-      '启用后会注册一个登录自启项（计划任务；标准用户自动回退到「启动」文件夹）。\n' +
-      '不想现在启用可以点取消，之后在工具坞面板里随时再开。',
+    title: switching ? '把值守切到这个库' : '启用工具坞值守',
+    message: switching
+      ? `值守现在服务的是另一个库：\n${other}\n\n` +
+        '一台机器同时只跑一个值守进程，继续会把它切到这个库来 —— 那个库的定时任务之后不再执行' +
+        '（它的配置与日志都留着，在那边再点一次启用就切回去）。\n\n' +
+        '继续吗？'
+      : '值守进程会在后台按你的规则表跑工具，Obsidian 关着也照跑。\n' +
+        '启用后会注册一个登录自启项（计划任务；标准用户自动回退到「启动」文件夹）。\n' +
+        '不想现在启用可以点取消，之后在工具坞面板里随时再开。',
     actions: [
       { label: '取消', value: 'cancel' },
-      { label: '启用', value: 'ok', cta: true },
+      { label: switching ? '切过来' : '启用', value: 'ok', cta: true },
     ],
   });
   if (go !== 'ok') return 'skipped';

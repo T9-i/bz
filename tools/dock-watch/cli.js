@@ -53,11 +53,15 @@ function readCoreVersion() {
 
 function printStatus() {
   const config = rt.readConfig();
+  const active = rt.readActive();
   const status = rt.readJson(rt.fileOf('status.json'));
   const lines = [
     `配置      ${config ? `${config.vault}（每 ${Math.round(config.intervalMs / 1000)} 秒扫一次，${Math.round(config.conditionMs / 1000)} 秒看一眼条件）` : '读不到 —— 先跑 install.ps1'}`,
     `值守件    ${readCoreVersion() || '（未知）'}`,
+    // 一台机器只服务一个库；多库时这条最容易被误会成「我另一个库也在跑」
+    `当前服务  ${active ? `${active.vault}（key ${active.key}）` : config ? '（老式单层配置，无 active.json）' : '—'}`,
     `本机目录  ${rt.watchdogDir()}`,
+    `状态目录  ${config ? config.stateDir || rt.watchdogDir() : rt.watchdogDir()}`,
   ];
   if (config) {
     const plugin = rt.readPluginData(config);
@@ -94,7 +98,9 @@ function main() {
   const config = rt.readConfig();
   if (!config) {
     process.stderr.write(
-      `读不到值守配置：${rt.fileOf('config.json')}\n先跑 tools/dock-watch/install.ps1（它会写下 vault 根并挂上开机自启）。\n`,
+      `读不到值守配置：${rt.fileOf('config.json')}\n` +
+        `（或 active.json 指向的库没有配置：${rt.activeFile()}）\n` +
+        `先跑 tools/dock-watch/install.ps1（它会写下 vault 根并挂上开机自启）。\n`,
     );
     return 2;
   }
