@@ -16,6 +16,7 @@
  *  - **移动端**不报错，如实说「这一项在手机上不适用」。
  *  - **不把「没配」当「坏了」**：AI 密钥是可选项，只提示，不计红。
  * ============================================================ */
+import { requestUrl } from 'obsidian';
 import { REPO_BASES } from './remote-base';
 import { tryGetSettings } from './settings-provider';
 import { pluginRelDirOf } from './plugin-path';
@@ -47,27 +48,75 @@ export interface NetworkProbe {
   githubMs: number;
   /** 备用通道耗时（ms；不可达 = -1） */
   jsdelivrMs: number;
+  /** 不可达时的原因（可达 = 空串）——「不可达」三个字没法排查，原因才有用 */
+  githubError: string;
+  /** 备用通道不可达的原因（可达 = 空串） */
+  jsdelivrError: string;
 }
 
 /** 单次探测的超时（requestUrl 没有 abort，用 race 兜住；超时按不可达算） */
 const PROBE_TIMEOUT_MS = 6000;
 
-/** 拉一个小文件试通道（`downloads/version.json`，46 字节，代价可忽略） */
-async function timedFetch(url: string): Promise<number> {
+/** 一次探测的原始结果 */
+interface NetAttempt {
+  /** 耗时（ms）；拿不到响应 = -1 */
+  ms: number;
+  /** HTTP 状态码；0 = 连响应都没有（网络层就断了） */
+  status: number;
+  /** 失败原因（成功 = 空串） */
+  error: string;
+}
+
+/**
+ * 拉一个小文件试通道（`downloads/version.json`，46 字节，代价可忽略）。
+ *
+ * 两处刻意的写法，都是 2026-10-28 用户报障（网络正常却显示「两条都不可达」）改出来的：
+ *
+ * 1. **`requestUrl` 用静态 import**。此前写 `await import('obsidian')`，而 Obsidian 的
+ *    渲染进程跑的是 CJS、没有 importmap，裸模块名的动态 import 解析不了 —— 那个 await
+ *    永远进 catch，于是**无论网络多好，两条通道都判成不可达**。全仓只有这一处这么写，
+ *    它的兄弟（remote-asset / self-update / douban-queue）都是静态 import。
+ * 2. **`throw: false` + 看状态码**。探的是「通道通不通」，不是「这个文件在不在」：
+ *    `throw: true` 会把 404 也算成不可达，把「文件没了」误报成「断网」。
+ */
+async function timedFetch(url: string): Promise<NetAttempt> {
   const t0 = Date.now();
-  const ok = await Promise.race([
-    (async () => {
-      try {
-        const { requestUrl } = await import('obsidian');
-        await requestUrl({ url, method: 'GET', throw: true });
-        return true;
-      } catch {
-        return false;
-      }
-    })(),
-    new Promise<boolean>((resolve) => setTimeout(() => resolve(false), PROBE_TIMEOUT_MS)),
-  ]);
-  return ok ? Date.now() - t0 : -1;
+  const attempt = (async (): Promise<NetAttempt> => {
+    try {
+      const r = await requestUrl({ url, method: 'GET', throw: false });
+      const status = Number(r?.status) || 0;
+      return status ? { ms: Date.now() - t0, status, error: '' } : { ms: -1, status: 0, error: '响应没有状态码' };
+    } catch (e: unknown) {
+      return { ms: -1, status: 0, error: String((e as Error)?.message || e || '未知错误') };
+    }
+  })();
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<NetAttempt>((resolve) => {
+    timer = setTimeout(
+      () => resolve({ ms: -1, status: 0, error: `超时（${PROBE_TIMEOUT_MS} ms 内没有响应）` }),
+      PROBE_TIMEOUT_MS,
+    );
+  });
+  const out = await Promise.race([attempt, timeout]);
+  if (timer) clearTimeout(timer);
+  return out;
+}
+
+/**
+ * 把错误原文折成一句人话。原文（`net::ERR_NAME_NOT_RESOLVED` 之类）留在括号里给排查用，
+ * 但第一眼要能看懂是哪一类问题——「不可达」三个字对用户毫无用处。
+ */
+export function explainNetError(raw: string): string {
+  const s = String(raw || '').trim();
+  if (!s) return '未知原因';
+  if (/超时|timed? ?out|ETIMEDOUT/i.test(s)) return '超时';
+  if (/ENOTFOUND|EAI_AGAIN|getaddrinfo|ERR_NAME_NOT_RESOLVED|ERR_NAME_RESOLUTION/i.test(s)) return '域名解析失败';
+  if (/ECONNREFUSED|ERR_CONNECTION_REFUSED/i.test(s)) return '连接被拒绝（代理没开？）';
+  if (/ECONNRESET|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED|ERR_CONNECTION_ABORTED/i.test(s)) return '连接被重置（常见于被墙）';
+  if (/CERT|SSL|TLS|ERR_CERT/i.test(s)) return '证书校验失败（代理做了解密？）';
+  if (/407|proxy|PROXY/i.test(s)) return '代理要求认证';
+  if (/ENETUNREACH|ERR_INTERNET_DISCONNECTED|EHOSTUNREACH/i.test(s)) return '本机没有网络';
+  return s.length > 40 ? `${s.slice(0, 40)}…` : s;
 }
 
 /**
@@ -79,11 +128,18 @@ export async function probeNetwork(): Promise<NetworkProbe> {
   // 慢三倍，而这一步是首次引导的第一屏——等不起。
   const urls = REPO_BASES.map((b) => `${b}/downloads/version.json`);
   const results = await Promise.all(urls.map((u) => timedFetch(u)));
-  const raw = results[0] ?? -1;
+  const raw = results[0] ?? { ms: -1, status: 0, error: '未探测' };
   // jsDelivr 一侧取**最快**的那个入口（国内实测 cdn 不通、fastly/gcore/testingcf 通）
-  const cdn = results.slice(1).filter((ms) => ms >= 0);
-  const cdnMs = cdn.length ? Math.min(...cdn) : -1;
-  return { github: raw >= 0, jsdelivr: cdnMs >= 0, githubMs: raw, jsdelivrMs: cdnMs };
+  const cdn = results.slice(1).filter((r) => r.status > 0);
+  const fastest = cdn.length ? cdn.reduce((a, b) => (b.ms < a.ms ? b : a)) : null;
+  return {
+    github: raw.status > 0,
+    jsdelivr: !!fastest,
+    githubMs: raw.status > 0 ? raw.ms : -1,
+    jsdelivrMs: fastest ? fastest.ms : -1,
+    githubError: raw.status > 0 ? '' : explainNetError(raw.error),
+    jsdelivrError: fastest ? '' : explainNetError((results.slice(1).find((r) => r.error) ?? raw).error),
+  };
 }
 
 /**

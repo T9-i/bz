@@ -6,9 +6,11 @@
  *  1. **「目录还没建」不等于「不可写」**——首次运行时数据目录是空的，逐级建一遍再写探针才作数；
  *  2. **真写一次**才算可写——`exists()` / 只读盘 / 占位文件都能让「存在」错当成「能写」。
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { requestUrl } from 'obsidian';
 import { MockVault } from '../mock-vault';
-import { environmentCheck, isRealPythonOutput } from '../../src/core/env-check';
+import { environmentCheck, explainNetError, isRealPythonOutput, probeNetwork } from '../../src/core/env-check';
+import { REPO_BASES } from '../../src/core/remote-base';
 import { resetNodeRuntimeCache, setFsProbe } from '../../src/core/tool-runtime';
 
 function appOf(vault: MockVault): unknown {
@@ -81,5 +83,92 @@ describe('Python 探测的真实性判据', () => {
     expect(isRealPythonOutput('Python 3.12.4')).toBe(true);
     expect(isRealPythonOutput('python 3.11.9')).toBe(true);
     expect(isRealPythonOutput('Python 2.7.18')).toBe(false);
+  });
+});
+
+/**
+ * 通道探测（2026-10-28 用户报障：网页能开 GitHub，引导却显示两条通道都不可达）。
+ *
+ * 根因不是网络，是探测本身：`await import('obsidian')` 在 Obsidian 的渲染进程里解析不了
+ * 裸模块名（跑的是 CJS、没有 importmap），永远进 catch。这几条钉住「探的是网络」这个语义。
+ */
+describe('probeNetwork：通道可达性', () => {
+  beforeEach(() => {
+    vi.mocked(requestUrl).mockReset();
+  });
+
+  const RAW = REPO_BASES[0];
+  const CDN = REPO_BASES[1];
+
+  /** 按域名分派：命中的 resolve，其余按给的错误 reject */
+  function route(ok: (url: string) => boolean, err = 'net::ERR_CONNECTION_RESET'): void {
+    vi.mocked(requestUrl).mockImplementation((async (opts: { url: string }) => {
+      if (ok(opts.url)) return { status: 200, text: '{"version":"1.33.0"}' };
+      throw new Error(err);
+    }) as never);
+  }
+
+  it('主通道通 → github 可达、耗时为正、无原因', async () => {
+    route(() => true);
+    const net = await probeNetwork();
+    expect(net.github).toBe(true);
+    expect(net.githubMs).toBeGreaterThanOrEqual(0);
+    expect(net.githubError).toBe('');
+    expect(net.jsdelivr).toBe(true);
+  });
+
+  it('主通道被墙、备用通 → 各说各的（国内最常见的那一种）', async () => {
+    route((u) => !u.startsWith(RAW), 'net::ERR_CONNECTION_RESET');
+    const net = await probeNetwork();
+    expect(net.github).toBe(false);
+    expect(net.githubError).toBe('连接被重置（常见于被墙）');
+    expect(net.jsdelivr).toBe(true);
+    expect(net.jsdelivrError).toBe('');
+  });
+
+  it('只有慢的那个入口通 → 备用通道取最快的那条', async () => {
+    route((u) => !u.startsWith(RAW));
+    const net = await probeNetwork();
+    expect(net.jsdelivr).toBe(true);
+    expect(net.jsdelivrMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it('全都不通 → 两条都红，原因折成人话（不是一句「不可达」）', async () => {
+    route(() => false, 'getaddrinfo ENOTFOUND raw.githubusercontent.com');
+    const net = await probeNetwork();
+    expect(net.github).toBe(false);
+    expect(net.jsdelivr).toBe(false);
+    expect(net.githubError).toBe('域名解析失败');
+    expect(net.jsdelivrError).toBe('域名解析失败');
+  });
+
+  it('404 也算通：探的是「网络通不通」，不是「这个文件在不在」', async () => {
+    vi.mocked(requestUrl).mockImplementation((async (opts: { url: string }) => ({
+      status: opts.url === RAW ? 404 : 200,
+      text: '',
+    })) as never);
+    const net = await probeNetwork();
+    expect(net.github).toBe(true); // 有 HTTP 响应 = 网络通（文件缺失是另一件事）
+  });
+
+  it('用静态 import 拿 requestUrl（动态 import 裸模块在 Obsidian 里永远失败）', async () => {
+    const src = await import('node:fs').then((fs) => fs.readFileSync('src/core/env-check.ts', 'utf8'));
+    expect(src).toContain("import { requestUrl } from 'obsidian'");
+    expect(src).not.toMatch(/requestUrls*=s*await import/);
+  });
+});
+
+describe('explainNetError：错误原文 → 一句人话', () => {
+  it('按最常见的几类分', () => {
+    expect(explainNetError('net::ERR_NAME_NOT_RESOLVED')).toBe('域名解析失败');
+    expect(explainNetError('connect ETIMEDOUT 185.199.108.133:443')).toBe('超时');
+    expect(explainNetError('net::ERR_CONNECTION_REFUSED')).toBe('连接被拒绝（代理没开？）');
+    expect(explainNetError('net::ERR_CERT_AUTHORITY_INVALID')).toBe('证书校验失败（代理做了解密？）');
+    expect(explainNetError('net::ERR_INTERNET_DISCONNECTED')).toBe('本机没有网络');
+  });
+
+  it('不认识的原文截断后照抄，空串给「未知原因」', () => {
+    expect(explainNetError('')).toBe('未知原因');
+    expect(explainNetError('x'.repeat(80)).endsWith('…')).toBe(true);
   });
 });

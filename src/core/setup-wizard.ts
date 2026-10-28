@@ -344,8 +344,10 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
   const cdnRow = addRow('网络 · 备用通道');
   const net = await probeNetwork().catch(() => null);
   st.net = net;
-  paint(netRow, net?.github ? true : false, net?.github ? `可达 · ${net.githubMs} ms` : '不可达，走备用通道');
-  paint(cdnRow, net?.jsdelivr ? true : null, net?.jsdelivr ? `可达 · ${net.jsdelivrMs} ms` : '也不可达（下载会失败）');
+  // 不可达时把**原因**带上（2026-10-28：只说「不可达」时，网页能开 GitHub 的人根本无从判断
+  // 是墙、是代理还是 DNS——raw.githubusercontent.com 与 github.com 是两回事）
+  paint(netRow, net?.github ? true : false, net?.github ? `可达 · ${net.githubMs} ms` : `不可达 · ${net?.githubError || '未知原因'}`);
+  paint(cdnRow, net?.jsdelivr ? true : null, net?.jsdelivr ? `可达 · ${net.jsdelivrMs} ms` : `不可达 · ${net?.jsdelivrError || '未知原因'}`);
 
   const rows = await environmentCheck(ctx.app);
   st.rows = rows;
@@ -395,7 +397,9 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
     // 只说事实，不给操作指令（2026-10-28 用户拍板）：原先那两句「填镜像源」「把 downloads/ 拷到
     // bz-offline/」都不该出现在这里——镜像源行已经下线，而让人手动摆文件路径本身就是错的指引
     // （摆错位置不会报错，只会表现为「下载一直失败」）。真无外网的人自己知道该怎么办。
-    ui.sub.textContent = '连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。';
+    ui.sub.textContent = net
+      ? `连不上资源站（主通道 ${net.githubError || '不可达'}，备用通道 ${net.jsdelivrError || '不可达'}）：下载类功能要等网络恢复后再用，插件主体不受影响。`
+      : '连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。';
     const later = button('bz-setup-btn', '稍后再说');
     later.onclick = () => {
       void markDone(ctx.app);

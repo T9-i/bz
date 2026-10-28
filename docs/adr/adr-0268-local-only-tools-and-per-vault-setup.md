@@ -71,3 +71,26 @@
   生产不调用它。
 - people / knowledge 的测试夹具统一注入「shell 口径的假工具」，因为参数引号口径仍要覆盖
   （`buildSyncSpec` 的 `opts.command` 是公开入口，仍可传 shell 口径）。
+
+## 补记（2026-10-28）：探测本身也有两个 bug
+
+同一次报障的另一半——用户说「网页能开 GitHub，引导却显示两条通道都不可达」。查下来网络
+没问题（实测：走系统代理五条全 200；直连时 raw 被墙、jsDelivr 三个边缘域名 200），
+问题在 `core/env-check.ts` 的 `timedFetch`：
+
+1. **`await import('obsidian')` 在 Obsidian 里永远失败**。插件以 CJS 加载、渲染进程没有
+   importmap，裸模块名的动态 import 解析不了（社区结论一致：Obsidian 的 Electron 环境
+   无法把 `import('obsidian')` 扩展成可用形式）。那行 `await` 每次都进 catch，于是**无论
+   网络多好，两条通道一律判成不可达**。全仓只有这一处这么写，其余（`remote-asset` /
+   `self-update` / `douban-queue`）都是静态 import —— 改成静态 import 即可。
+2. **`throw: true` 把 404 也算成断网**。探的是「通道通不通」，不是「`version.json` 在不在」。
+   改 `throw: false` + 看状态码：有 HTTP 响应就是通。
+
+顺带把「不可达」三个字拆开：`NetworkProbe` 增 `githubError` / `jsdelivrError`，
+`explainNetError` 把原文折成「域名解析失败 / 超时 / 连接被重置（常见于被墙）/ 证书校验失败
+（代理做了解密？）/ 代理要求认证 / 本机没有网络」，界面值列与底部说明都带原因。
+只说「不可达」时，能开 GitHub 的人根本无从判断是墙、是代理还是 DNS ——
+而 `github.com` 与 `raw.githubusercontent.com` 本来就是两回事。
+
+测试钉住五条：主通道通、主被墙备通、只有慢入口通、全不通、404 也算通，外加一条读源码
+断言「不许再出现动态 import 裸模块」。
