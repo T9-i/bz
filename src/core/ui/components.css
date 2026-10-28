@@ -2848,83 +2848,120 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
 
 
 /* ═══════════ 首次引导 / 环境自检 .bz-setup（core/setup-wizard.ts） ═══════════
-   形制：弹窗壳由 uiModal 承担（.bz-overlay-popup），这里只管三段内容——
-   说明行 / 清单 / 底栏。清单是「状态点 + 名称（带一句用途）+ 右值」三列，
-   与设置面板的行视觉同源（深色下靠 1px 分隔线立层级，不靠底色块）。 */
+   形制（2026-10-28 重做）：弹窗壳由 uiModal 承担，这里只管三段——
+   一句说明 / 卡片化清单 / 底栏。
+   清单从「逐行分隔线」改成「分组卡片」：每组自带小标题，行只在卡内用发丝线断开，
+   视线有落点，长清单不再读成日志。层级靠 1px 边框 + 低一档底色，不靠色块。 */
 .bz-setup { display: flex; flex-direction: column; min-height: 0; gap: var(--bz-space-md); flex: 1 1 auto; }
 /* 弹窗壳这边补两件事（2026-10-28 用户「ui 有问题」，截图实测）：
    ① **宽度**：`maxWidth: 760` 只是上限，弹窗宽度本来是内容撑的 —— 实测只有 514px，
       行距被挤、右侧数值列贴边。要的宽度得给死；
-   ② **高度**：默认壳只给 82vh，九行清单要 914px，正好在那一刀上被齐切一行（「主题皮肤」
-      的说明整行没了一半），而且看不出还能滚 —— 高度预算提到整屏（遮罩上下各 16px），
-      滚动收进内容区，底栏常驻。 */
+   ② **高度**：默认壳只给 82vh，九行清单要 914px，正好在那一刀上被齐切一行，
+      而且看不出还能滚——高度预算提到整屏，滚动收进内容区，底栏常驻。 */
 .bz-overlay-popup.bz-setup-modal {
-  width: min(760px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
+  width: min(720px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
   overflow: hidden; /* 滚动只发生在 .bz-setup-body，不留双层滚动条 */
 }
-/* 弹窗被 max-height 夹住后，内容区必须是那个「能被压缩」的 flex 项，否则压不到就会
-   被 overflow:hidden 直接切掉（不给滚动，等于更糟）。 */
+/* 弹窗被 max-height 夹住后，内容区必须是那个「能被压缩」的 flex 项，否则压不动就会被
+   overflow:hidden 直接切掉（不给滚动，等于更糟）。 */
 .bz-setup-modal .bz-dialog-body { flex: 1 1 auto; min-height: 0; }
 .bz-setup-sub {
-  font-size: var(--bz-font-label);
-  line-height: 1.6;
+  font-size: var(--bz-font-meta);
+  line-height: 1.55;
   color: var(--bz-text-2);
   flex: none;
 }
-.bz-setup-body { display: flex; flex-direction: column; gap: var(--bz-space-sm); overflow-y: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; }
-.bz-setup-list { display: flex; flex-direction: column; }
+.bz-setup-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bz-space-md);
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+  overscroll-behavior: contain;
+  padding-right: 2px; /* 滚动条不贴内容 */
+}
+
+/* ── 分组卡片 ── */
+.bz-setup-group { display: flex; flex-direction: column; gap: 6px; }
+.bz-setup-group-h {
+  font-size: var(--bz-font-caption);
+  color: var(--bz-text-3);
+  letter-spacing: 0.04em;
+  padding-left: 2px;
+}
+.bz-setup-card {
+  border: 1px solid var(--bz-border);
+  border-radius: var(--bz-radius-md);
+  background: var(--bz-code-bg); /* 明暗两套都能当「低一档底」用 */
+  padding: 0 var(--bz-space-md);
+}
+.bz-setup-card .bz-setup-row {
+  border-bottom: 1px solid var(--bz-border);
+  padding: 9px 0;
+}
+.bz-setup-card .bz-setup-row:last-child { border-bottom: 0; }
+
+/* ── 行：状态点 + 名称（可带一句用途）+ 值 ── */
 .bz-setup-row {
   display: grid;
-  /* 左右两列：名称在左、值在右。两列都给 fr（不是 auto），值列再长也不会被挤成一字一列；
-     长值（路径）在**自己这一列**里换行，不整行折到下面——折行会让一条信息读起来像两条。 */
-  grid-template-columns: 16px minmax(140px, 1fr) minmax(120px, 1.05fr);
-  align-items: center;
+  /* 两列都给 fr（不是 auto）：值列再长也只会换行，不会被挤成一字一列。
+     踩过的坑：早前列宽 auto + overflow-wrap:anywhere，最小内容宽度退化成 1 个字符 →
+     「26 KB」被拆成三行、路径竖排。真因是 auto，不是「值太长」。 */
+  grid-template-columns: 14px minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: start;
   gap: var(--bz-space-md);
-  padding: 8px 0;
-  border-bottom: 1px solid var(--bz-border);
 }
-.bz-setup-row:last-child { border-bottom: 0; }
 .bz-setup-key {
   font-size: var(--bz-font-label);
   color: var(--bz-text-1);
+  line-height: 1.45;
   min-width: 0;
 }
 /* 一行用途：紧跟名称的第二行，弱一档 */
 .bz-setup-key em {
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
   font-style: normal;
   font-size: var(--bz-font-caption);
   color: var(--bz-text-3);
-  line-height: 1.5;
+  line-height: 1.4;
 }
-/* 右值列：短值单行右对齐；长值（路径）在自己的列宽内换行，仍贴右缘。
-   踩过的坑：早前给右列写 `max-width:46% + overflow-wrap:anywhere` 且列宽是 auto，
-   最小内容宽度退化成 1 个字符 → 「26 KB」被拆成三行、「E:\Obsidian\叫我包仔」竖排。
-   那个问题的真因是 auto 列宽，不是「值太长」——所以修法是两列都给 fr，不是折行。 */
 .bz-setup-val {
   font-size: var(--bz-font-meta);
   color: var(--bz-text-2);
   text-align: right;
   white-space: normal;
   overflow-wrap: anywhere;
-  line-height: 1.5;
+  line-height: 1.45;
   font-variant-numeric: tabular-nums;
+  padding-top: 1px;
 }
-/* 状态点：空心 = 待办/不适用，实心绿 = 正常，实心红 = 要处理，转圈 = 进行中 */
+.bz-setup-row.is-bad .bz-setup-val { color: var(--bz-danger); }
+.bz-setup-row.is-ok .bz-setup-val { color: var(--bz-text-3); }
+.bz-setup-val--mono { font-family: var(--bz-font-mono); font-size: var(--bz-font-caption); }
+
+/* 状态点：实心绿 = 正常，实心红 = 要处理，空心 = 不适用，转圈 = 进行中。
+   缩到 7px：清单一眼扫的是行文，不是圆点。 */
 .bz-setup-mark {
-  width: 12px;
-  height: 12px;
+  width: 7px;
+  height: 7px;
+  margin-top: 5px;
   border-radius: 50%;
-  border: 1.5px solid var(--bz-border-strong);
+  border: 1px solid var(--bz-border-strong);
   box-sizing: border-box;
   justify-self: center;
+  flex: none;
 }
 .bz-setup-mark--ok { border-color: var(--bz-success); background: var(--bz-success); }
 .bz-setup-mark--bad { border-color: var(--bz-danger); background: var(--bz-danger); }
-.bz-setup-mark--idle { border-color: var(--bz-border-strong); }
+.bz-setup-mark--idle { border-color: var(--bz-border-strong); background: transparent; }
 .bz-setup-mark--busy {
+  width: 9px;
+  height: 9px;
+  margin-top: 4px;
+  background: transparent;
   border-color: var(--bz-brand);
   border-right-color: transparent;
   animation: bz-setup-spin 0.7s linear infinite;
@@ -2934,17 +2971,16 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   .bz-setup-mark--busy { animation: none; border-right-color: var(--bz-brand); }
 }
 
-/* 提示条（「会下到哪」「GitHub 不通」）：中性底 + 1px 边框，不用彩色块压人 */
-.bz-setup-hint {
-  padding: 9px 11px;
-  border-radius: var(--bz-radius-sm);
-  border: 1px solid var(--bz-border);
-  background: var(--bz-surface-2);
-  font-size: var(--bz-font-meta);
-  color: var(--bz-text-2);
+/* 注释：不带框、不占视觉重量——只在真需要交代时出现（清单没拉到 / 走备用通道 / 语义警示） */
+.bz-setup-note {
+  font-size: var(--bz-font-caption);
   line-height: 1.6;
+  color: var(--bz-text-3);
+  padding: 0 2px;
 }
-/* 总进度条 */
+.bz-setup-note--bad { color: var(--bz-danger); }
+
+/* ── 总进度条 ── */
 .bz-setup-bar {
   height: 3px;
   border-radius: 2px;
@@ -2960,9 +2996,11 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   border-radius: 2px;
   transition: width var(--bz-dur-base) var(--bz-ease-out);
 }
-/* 底栏 */
+
+/* ── 底栏：次要动作贴左，主行动贴右 ── */
 .bz-setup-foot {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--bz-space-sm);
   flex: none;
@@ -2991,17 +3029,30 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
 @media (hover: hover) {
   .bz-setup-btn--cta:hover { background: var(--bz-brand-hover); border-color: var(--bz-brand-hover); }
 }
+/* 「上一步 / 稍后再说」这类次要动作推到左边，主行动永远在最右 */
+.bz-setup-btn--back { margin-right: auto; }
 
-/* 分组小标题（首次引导的清单分四组：运行环境 / 工具 / 文档 / 皮肤） */
-.bz-setup-group { display: flex; flex-direction: column; }
-.bz-setup-group-h {
-  font-size: var(--bz-font-caption);
-  color: var(--bz-text-3);
-  letter-spacing: 0.04em;
-  padding: var(--bz-space-xs) 0 2px;
+/* 行内文字按钮（更改目录 / 测一下）：不抢主行动的视觉权重 */
+.bz-setup-link {
+  height: var(--bz-control-h-sm);
+  padding: 0 var(--bz-space-sm);
+  border: 0;
+  border-radius: var(--bz-radius-sm);
+  background: transparent;
+  color: var(--bz-brand);
+  font-size: var(--bz-font-meta);
+  cursor: pointer;
+  white-space: nowrap;
 }
+@media (hover: hover) {
+  .bz-setup-link:hover { background: var(--bz-brand-soft); }
+}
+/* 输入框隐藏时（Ollama 不需要密钥）它不再是 grid item，行内按钮会落进 1fr 那格被
+   拉满整行——让它始终贴右。 */
+.bz-setup-row .bz-setup-link { justify-self: end; }
+
 /* 可勾选行：勾选框占状态点那一格 */
-.bz-setup-row--pick { grid-template-columns: 16px minmax(0, 1fr) auto; }
+.bz-setup-row--pick { grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; }
 .bz-setup-check {
   width: 14px;
   height: 14px;
@@ -3011,8 +3062,10 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   cursor: pointer;
 }
 .bz-setup-check:disabled { cursor: default; opacity: 0.45; }
-/* 输入行（AI 密钥）：第三格换成输入框 */
-.bz-setup-row--input { grid-template-columns: 16px auto minmax(0, 1fr); }
+/* 路径行：名称 —— 路径 —— 操作，三段贴一行 */
+.bz-setup-row--path { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
+/* 输入行（AI 密钥）：名称 / 输入框 / 行内按钮 */
+.bz-setup-row--input { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
 .bz-setup-input {
   height: var(--bz-control-h-sm);
   min-width: 0;
@@ -3025,8 +3078,27 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   font-family: var(--bz-font-mono);
 }
 .bz-setup-input:focus { outline: none; border-color: var(--bz-brand); }
-/* 服务商分段按钮 */
-.bz-setup-seg { display: flex; gap: var(--bz-space-sm); flex-wrap: wrap; }
-.bz-setup-seg .bz-setup-btn { height: var(--bz-control-h-sm); padding: 0 var(--bz-space-md); }
-/* 失败态提示条（AI 测试没通） */
-.bz-setup-hint--bad { color: var(--bz-danger); }
+
+/* 服务商胶囊：选中是「染一档品牌色」，不是整颗填满——一行三个填满太吵 */
+.bz-setup-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.bz-setup-chip {
+  height: var(--bz-control-h-sm);
+  padding: 0 var(--bz-space-md);
+  border-radius: var(--bz-radius-full);
+  border: 1px solid var(--bz-border);
+  background: transparent;
+  color: var(--bz-text-2);
+  font-size: var(--bz-font-meta);
+  cursor: pointer;
+}
+.bz-setup-chip.is-on {
+  border-color: var(--bz-brand);
+  background: var(--bz-brand-soft);
+  color: var(--bz-text-1);
+}
+@media (hover: hover) {
+  .bz-setup-chip:hover { border-color: var(--bz-border-hover); color: var(--bz-text-1); }
+}
+
+/* 运行时隐藏（不用内联 display，样式单源） */
+.bz-setup .is-hidden { display: none; }

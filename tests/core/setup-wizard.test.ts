@@ -81,7 +81,7 @@ describe('体积文案', () => {
 });
 
 describe('按需下载：大索引不占首装', () => {
-  it('豆瓣索引标成按需项（列出来，但默认不勾）', () => {
+  it('豆瓣索引标成按需项（照样列出来、照样默认勾，只是文案说明「用到时会自己拉」）', () => {
     const item = buildSetupTasks({}, manifest, { nodeMissing: false }).find((t) => t.id === 'cinema-douban-index')!;
     expect(item.optional).toBe(true);
     expect(item.desc).toContain('按需');
@@ -89,16 +89,28 @@ describe('按需下载：大索引不占首装', () => {
     expect(buildSetupTasks({}, manifest, { nodeMissing: false }).find((t) => t.id === 'changelog')!.optional).toBeUndefined();
   });
 
-  it('defaultSelection 跳过按需项与皮肤，其余都勾上', () => {
+  it('defaultSelection 全部勾上（含按需项与皮肤：装了不等于能用，用户 2026-10-28 拍板）', () => {
     const items = buildSetupTasks({}, manifest, { nodeMissing: true }).map((t) => ({ ...t, ready: false }));
     const selected = defaultSelection(items);
-    expect(selected.has('cinema-douban-index')).toBe(false);
-    expect(selected.has('skins')).toBe(false);
+    expect(selected.has('cinema-douban-index')).toBe(true);
+    expect(selected.has('skins')).toBe(true);
     expect(selected.has('changelog')).toBe(true);
     expect(selected.has('tool-dock-watch')).toBe(true);
   });
 
-  it('用户自己勾上按需项 → 照样下（不拦）', () => {
+  it('已就绪的不进勾选（勾中也只补真缺的）', () => {
+    const items = buildSetupTasks({}, manifest, { nodeMissing: false }).map((t) => ({
+      ...t,
+      ready: t.id === 'changelog',
+    }));
+    const selected = defaultSelection(items);
+    expect(selected.has('changelog')).toBe(false);
+    expect(selectedTasks(items, selected).some((t) => t.id === 'changelog')).toBe(false);
+    // 没就绪的照旧全勾
+    expect(selectedTasks(items, selected).map((t) => t.id)).toContain('skins');
+  });
+
+  it('用户取消勾选 → 不跑那一项', () => {
     const items = buildSetupTasks({}, manifest, { nodeMissing: false }).map((t) => ({ ...t, ready: false }));
     const selected = new Set(['cinema-douban-index']);
     expect(selectedTasks(items, selected).map((t) => t.id)).toEqual(['cinema-douban-index']);

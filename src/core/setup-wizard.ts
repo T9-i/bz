@@ -55,7 +55,7 @@ export interface SetupItem {
   size: number | null;
   /** 磁盘上已经就绪（已下载 / 已有可用运行时）——重跑时不重下 */
   ready: boolean;
-  /** 按需项：列出来但不默认勾（大索引这类，早下纯占地方，用到的域会自己拉） */
+  /** 按需项：只影响「装完再补」的提示，勾选口径与其他项一致（默认全勾） */
   optional?: boolean;
   /** 干活；`report` 用于中途改这一行的状态文字（进度、阶段） */
   run: (report?: (text: string) => void) => Promise<void>;
@@ -83,7 +83,7 @@ export function buildSetupTasks(app: unknown, manifest: DownloadManifest | null,
         id: 'node',
         kind: 'node',
         label: 'Node 运行时',
-        desc: `便携版 ${PORTABLE_NODE_VERSION}，装进插件目录`,
+        desc: `便携版 ${PORTABLE_NODE_VERSION}`,
         size: NODE_SIZE_HINT,
         run: async (report) => {
           // 36MB 是这一轮最久的一项：没有进度的话用户会以为卡死，然后去点第二次
@@ -112,7 +112,7 @@ export function buildSetupTasks(app: unknown, manifest: DownloadManifest | null,
         id: 'skins',
         kind: 'skins',
         label: '主题皮肤',
-        desc: `${manifest.skins.length} 套远端皮肤，用到才生效`,
+        desc: `${manifest.skins.length} 套`,
         size: skinBytes || null,
         run: async () => {
           const r = await downloadSkinUpdates(app, manifest);
@@ -129,7 +129,8 @@ function bundleItem(app: unknown, e: ManifestDocEntry): Omit<SetupItem, 'ready'>
     id: e.id,
     kind: 'bundle',
     label: e.name,
-    desc: '外部工具，解包即可用',
+    // 名称即说明（三个工具名都自带用途），不再补「解包即可用」这种谁都知道的话
+    desc: '',
     size: e.size ?? null,
     run: async () => {
       await installBundle(app, e);
@@ -145,7 +146,7 @@ function docItem(app: unknown, e: ManifestDocEntry): Omit<SetupItem, 'ready'> {
     id: e.id,
     kind: 'doc',
     label: e.name,
-    desc: lazy ? '按需下载：用到时自动拉' : '离线可读',
+    desc: lazy ? '按需下载' : '',
     size: e.size ?? null,
     ...(lazy ? { optional: true } : {}),
     run: async () => {
@@ -183,10 +184,15 @@ export async function planSetupItems(
   return out;
 }
 
-/** 缺省勾选：没就绪的都勾上；皮肤与「按需」项不勾（用到再下，提前下纯占地方） */
+/**
+ * 缺省勾选：**全部勾上**（2026-10-28 用户拍板「默认全部都下载」）。
+ * 早前把皮肤和按需项留空，理由是「提前下纯占地方」——实际用起来是「装了不等于能用」：
+ * 皮肤要单点、索引要等首次进影院才拉，用户以为坏了。已经就绪的项照旧不列进勾选
+ * （selectedTasks 会再滤一遍，勾中也只补真缺的）。
+ */
 export function defaultSelection(items: SetupItem[]): Set<string> {
   const sel = new Set<string>();
-  for (const it of items) if (!it.ready && it.kind !== 'skins' && !it.optional) sel.add(it.id);
+  for (const it of items) if (!it.ready) sel.add(it.id);
   return sel;
 }
 
@@ -292,6 +298,26 @@ function lineRow(mark: HTMLElement, label: string, sub: string | undefined, valu
   return row;
 }
 
+/**
+ * 分组：小标题 + 卡片（1px 边框 + 低一档底色）。
+ * 早前是「一条分隔线一条信息」的平铺清单，九行下来没有段落感，读起来像日志；
+ * 收进卡片后每组自成一块，视线有落点。返回 `group` 挂进页面、`card` 收行。
+ */
+function setupGroup(title?: string): { group: HTMLElement; card: HTMLElement } {
+  const group = document.createElement('div');
+  group.className = 'bz-setup-group';
+  if (title) {
+    const head = document.createElement('div');
+    head.className = 'bz-setup-group-h';
+    head.textContent = title;
+    group.appendChild(head);
+  }
+  const card = document.createElement('div');
+  card.className = 'bz-setup-card';
+  group.appendChild(card);
+  return { group, card };
+}
+
 /** 只转义三件事：文案来自本地常量，但 `& < >` 会被当标签解析，够了 */
 function escapeText(s: string): string {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -317,18 +343,22 @@ function closeModal(ui: Ui): void {
 }
 
 /* ---------- ① 检测 ---------- */
+/**
+ * 检测屏。
+ *
+ * 结果按组收进卡片（网络 / 本机 / 外部工具 / 在线资源），失败行的值直接染红——
+ * 「哪条不对」一眼能扫到，不必逐行读。
+ *
+ * 走完**不再自动跳下一步**（2026-10-28）：早前跑完就自动进「存放」，从「存放」按
+ * 「上一步」回来会再探一遍网（好几秒），探完又被自动推回去——那个「上一步」等于刷新。
+ * 现在每次进来先吃缓存（st.net / st.rows / st.manifest），要重探得点「重新检测」。
+ */
 async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
-  ui.sub.textContent = ctx.firstRun
-    ? '第一次使用，先看看这台机器缺什么。不会改动你的笔记。'
-    : '重新检查这台机器上的运行环境。';
+  ui.sub.textContent = ctx.firstRun ? '先看看这台机器缺什么。不会改动笔记。' : '检查运行环境。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
-  const list = document.createElement('div');
-  list.className = 'bz-setup-list';
-  ui.body.appendChild(list);
-
-  const addRow = (key: string, into: HTMLElement = list): { row: HTMLElement; val: HTMLElement; mark: HTMLElement } => {
+  const addRow = (key: string, into: HTMLElement): { row: HTMLElement; val: HTMLElement; mark: HTMLElement } => {
     const row = rowEl();
     const mark = markEl('busy');
     const val = valEl('检查中');
@@ -339,115 +369,130 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
   const paint = (t: { row: HTMLElement; val: HTMLElement; mark: HTMLElement }, ok: boolean | null, text: string): void => {
     t.mark.className =
       'bz-setup-mark ' + (ok === true ? 'bz-setup-mark--ok' : ok === false ? 'bz-setup-mark--bad' : 'bz-setup-mark--idle');
+    t.row.classList.toggle('is-bad', ok === false);
     setValue(t.row, t.val, text);
   };
 
-  const netRow = addRow('网络 · 资源站');
-  const cdnRow = addRow('网络 · 备用通道');
-  const net = await probeNetwork().catch(() => null);
-  st.net = net;
+  const net = setupGroup('网络');
+  ui.body.appendChild(net.group);
+  const netRow = addRow('资源站', net.card);
+  const cdnRow = addRow('备用通道', net.card);
+  const probe = st.net ?? (await probeNetwork().catch(() => null));
+  st.net = probe;
   // 不可达时把**原因**带上（2026-10-28：只说「不可达」时，网页能开 GitHub 的人根本无从判断
   // 是墙、是代理还是 DNS——raw.githubusercontent.com 与 github.com 是两回事）
-  paint(netRow, net?.github ? true : false, net?.github ? `可达 · ${net.githubMs} ms` : `不可达 · ${net?.githubError || '未知原因'}`);
-  paint(cdnRow, net?.jsdelivr ? true : null, net?.jsdelivr ? `可达 · ${net.jsdelivrMs} ms` : `不可达 · ${net?.jsdelivrError || '未知原因'}`);
+  paint(netRow, probe?.github === true, probe?.github ? `可达 · ${probe.githubMs} ms` : `不可达 · ${probe?.githubError || '未知原因'}`);
+  paint(cdnRow, probe?.jsdelivr ? true : null, probe?.jsdelivr ? `可达 · ${probe.jsdelivrMs} ms` : `不可达 · ${probe?.jsdelivrError || '未知原因'}`);
 
-  const rows = await environmentCheck(ctx.app);
+  // 分组而不是一段平铺（2026-10-28 用户截图报障）：
+  //  ① 本机环境，② **外部工具**（三个目录包，此前在「在线资源」里又重复列过一遍），
+  //  ③ **在线资源**（只列文档与皮肤）
+  const rows = st.rows.length ? st.rows : await environmentCheck(ctx.app);
   st.rows = rows;
-  // 三段而不是一段平铺（2026-10-28 用户截图报障）：
-  //  ① 本机环境（运行环境 / 路径 / 可写 / Node / Python / AI）
-  //  ② **外部工具**（三个目录包）——此前混在环境行里，又在「在线资源」里重复出现一次
-  //  ③ **在线资源**（文档 / 皮肤）——只列文档与皮肤，不再把三个工具重复列一遍
   const { env: envRows, tools: toolRows } = splitProbeRows(rows);
-  for (const r of envRows) paint(addRow(r.key), r.ok, r.value);
 
-  const groupOf = (title: string): HTMLElement => {
-    const group = document.createElement('div');
-    group.className = 'bz-setup-group';
-    const head = document.createElement('div');
-    head.className = 'bz-setup-group-h';
-    head.textContent = title;
-    group.appendChild(head);
-    ui.body.appendChild(group);
-    return group;
-  };
+  const env = setupGroup('本机');
+  ui.body.appendChild(env.group);
+  for (const r of envRows) paint(addRow(r.key, env.card), r.ok, r.value);
 
   if (toolRows.length) {
-    const group = groupOf('外部工具');
-    for (const r of toolRows) paint(addRow(r.key, group), r.ok, r.value);
+    const tools = setupGroup('外部工具');
+    ui.body.appendChild(tools.group);
+    for (const r of toolRows) paint(addRow(r.key, tools.card), r.ok, r.value);
   }
 
   // 在线资源的下载状态：自检不能只说「这台机器缺什么」，还要说「哪些已经下好了」。
   // 清单只拉一次，③ 屏直接复用（st.manifest）。
-  const fetched = await fetchManifestWithTimeout(ctx.app);
-  const manifest = fetched.manifest;
-  st.manifest = manifest;
-  st.manifestError = fetched.error;
+  if (st.manifest === undefined) {
+    const fetched = await fetchManifestWithTimeout(ctx.app);
+    st.manifest = fetched.manifest;
+    st.manifestError = fetched.error;
+  }
+  const manifest = st.manifest;
   if (manifest) {
-    const group = groupOf('在线资源');
+    const onlineRes = setupGroup('在线资源');
+    ui.body.appendChild(onlineRes.group);
     for (const e of resourceDocsOf(manifest)) {
       // 深校验只对目录包有意义（逐文件 stat）；文档是单文件 sha256，docStatus 立刻能判
       const state = await docStatus(ctx.app, e);
       const text = state === 'ready' ? '已下载' : state === 'updated' ? '有更新' : '未下载';
-      paint(addRow(e.name, group), state === 'ready' ? true : state === 'updated' ? null : false, text);
+      paint(addRow(e.name, onlineRes.card), state === 'ready' ? true : state === 'updated' ? null : false, text);
     }
     const skin = await skinStatus(ctx.app, manifest);
-    const total = manifest.skins.length;
-    const text = `${skin.ready}/${total} 已下载`;
-    paint(addRow('主题皮肤', group), skin.missing === 0 && skin.updated === 0 ? true : null, text);
+    const text = `${skin.ready}/${manifest.skins.length} 已下载`;
+    paint(addRow('主题皮肤', onlineRes.card), skin.missing === 0 && skin.updated === 0 ? true : null, text);
   }
 
-  const online = !!(net?.github || net?.jsdelivr);
+  const rescan = (): void => {
+    st.net = null;
+    st.rows = [];
+    st.manifest = undefined;
+    void stageProbe(ctx, st, ui);
+  };
+
+  const online = !!(probe?.github || probe?.jsdelivr);
   if (!online) {
     // 只说事实，不给操作指令（2026-10-28 用户拍板）：原先那两句「填镜像源」「把 downloads/ 拷到
     // bz-offline/」都不该出现在这里——镜像源行已经下线，而让人手动摆文件路径本身就是错的指引
     // （摆错位置不会报错，只会表现为「下载一直失败」）。真无外网的人自己知道该怎么办。
-    ui.sub.textContent = net
-      ? `连不上资源站（主通道 ${net.githubError || '不可达'}，备用通道 ${net.jsdelivrError || '不可达'}）：下载类功能要等网络恢复后再用，插件主体不受影响。`
-      : '连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。';
-    const later = button('bz-setup-btn', '稍后再说');
+    // 具体原因不在这里复述：上面两行的值已经写着「不可达 · <原因>」。
+    ui.sub.textContent = '连不上资源站。下载类功能等网络恢复后再用，其余功能不受影响。';
+    const later = button('bz-setup-btn bz-setup-btn--back', '稍后再说');
     later.onclick = () => {
       void markDone(ctx.app);
       closeModal(ui);
     };
     const retry = button('bz-setup-btn bz-setup-btn--cta', '重新检测');
-    retry.onclick = () => void stageProbe(ctx, st, ui);
+    retry.onclick = rescan;
     ui.foot.append(later, retry);
     return;
   }
-  if (ctx.checkOnly) void stageResources(ctx, st, ui);
-  else void stageStorage(ctx, st, ui);
+
+  const again = button('bz-setup-btn bz-setup-btn--back', '重新检测');
+  again.onclick = rescan;
+  const next = button('bz-setup-btn bz-setup-btn--cta', '下一步');
+  next.onclick = () => (ctx.checkOnly ? void stageResources(ctx, st, ui) : void stageStorage(ctx, st, ui));
+  ui.foot.append(again, next);
 }
 
 /* ---------- ② 存放位置 ---------- */
+/**
+ * 一页只问一件事：存在哪。
+ * 早前这一屏有长句说明 + 一节带框的注意事项（内容互相重复：都在讲「放 vault 里会跟着同步」），
+ * 而真正能操作的东西只有一个灰字路径和一个底栏按钮。现在路径进卡片、改目录贴着路径放，
+ * 说明压成一行注释。
+ */
 async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   const current = String(tryGetSettings()?.storagePath || 'CONFIG/STORAGE');
   st.storagePath = current;
-  ui.sub.textContent = '各域的数据（备忘录、日记索引、收藏…）都以 JSON 存在这个目录里。默认在 vault 内部，跟着 vault 走。';
+  ui.sub.textContent = '数据以 JSON 存在这里，跟着 vault 走。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
-  const list = document.createElement('div');
-  list.className = 'bz-setup-list';
-  ui.body.appendChild(list);
-  const mark = markEl('idle');
-  const row = rowEl();
-  const val = valEl('');
-  row.append(mark, keyEl('数据目录'), val);
-  setValue(row, val, current);
-  list.appendChild(row);
+  const box = setupGroup();
+  ui.body.appendChild(box.group);
+  const row = rowEl('bz-setup-row bz-setup-row--path');
+  const val = valEl(current);
+  val.classList.add('bz-setup-val--mono');
+  const pick = button('bz-setup-link', '更改');
+  row.append(keyEl('数据目录'), val, pick);
+  box.card.appendChild(row);
 
-  const hint = document.createElement('div');
-  hint.className = 'bz-setup-hint';
-  hint.textContent =
-    '放在 vault 里 = 跟着 vault 走；但同步盘（iCloud / OneDrive）会连带同步这些数据文件。想换就点「换个目录」，只能选 vault 内的文件夹。';
-  ui.body.appendChild(hint);
+  const note = document.createElement('div');
+  note.className = 'bz-setup-note';
+  note.textContent = '在 vault 内，会被 iCloud / OneDrive 一起同步；目录不存在会自动创建。';
+  ui.body.appendChild(note);
 
-  const pick = button('bz-setup-btn', '换个目录');
+  const setNote = (text: string, bad = false): void => {
+    note.textContent = text;
+    note.classList.toggle('bz-setup-note--bad', bad);
+  };
+
   pick.onclick = () =>
     openPathPicker({
       title: '数据存放在哪',
       mode: 'single',
-      desc: '选一个 vault 内的文件夹。目录不存在会自动建。',
+      desc: '选一个 vault 内的文件夹，不存在会自动创建。',
       selected: [st.storagePath],
       okText: '用这个',
       onConfirm: (picked) => {
@@ -455,21 +500,18 @@ async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<vo
         if (!chosen) return;
         st.storagePath = chosen;
         val.textContent = chosen;
-        mark.className = 'bz-setup-mark bz-setup-mark--idle';
+        setNote('在 vault 内，会被 iCloud / OneDrive 一起同步；目录不存在会自动创建。');
       },
     });
 
-  const back = button('bz-setup-btn', '上一步');
+  const back = button('bz-setup-btn bz-setup-btn--back', '上一步');
   back.onclick = () => void stageProbe(ctx, st, ui);
   const next = button('bz-setup-btn bz-setup-btn--cta', '下一步');
   next.onclick = async () => {
-    const ok = await probeWritableDir(ctx.app, st.storagePath);
-    if (!ok) {
-      mark.className = 'bz-setup-mark bz-setup-mark--bad';
-      notice(`这个目录写不进去：${st.storagePath}。换一个，或检查是否只读 / 被同步盘占用`, 'error');
+    if (!(await probeWritableDir(ctx.app, st.storagePath))) {
+      setNote('这个目录写不进去，换一个，或检查是否只读 / 被同步盘占用。', true);
       return;
     }
-    mark.className = 'bz-setup-mark bz-setup-mark--ok';
     try {
       const s = getSettings();
       s.storagePath = st.storagePath;
@@ -480,12 +522,12 @@ async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<vo
     // 存哪定了 → 再问「要不要顺手配 AI」，最后才谈下什么
     void stageAi(ctx, st, ui);
   };
-  ui.foot.append(back, pick, next);
+  ui.foot.append(back, next);
 }
 
 /* ---------- ③ 下载内容 ---------- */
 async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
-  ui.sub.textContent = '正在核对磁盘上已经有什么…';
+  ui.sub.textContent = '正在核对磁盘…';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -502,41 +544,41 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
 
   const pending = (): SetupItem[] => selectedTasks(st.items, st.selected);
   const total = pending().reduce((n, t) => n + (t.size || 0), 0);
+  // 一句话说清「下多少」；「点开始后自动完成，中途不用再确认」那种交代属于多余说明
   ui.sub.textContent = pending().length
-    ? `一共 ${pending().length} 项要下载，约 ${sizeText(total) || '未知体积'}。点开始后自动完成，中途不用再确认。`
+    ? `${pending().length} 项 · ${sizeText(total) || '体积未知'}`
     : // 清单没拉到时**不能**说「什么都不缺」：那是「不知道缺什么」，两件事
       manifest
-      ? '这台机器什么都不缺，可以直接用了。'
-      : '资源清单没拉到，暂时判断不了缺什么。';
+      ? '都齐了。'
+      : '清单没拉到。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
-  const hint = document.createElement('div');
-  hint.className = 'bz-setup-hint';
-  hint.textContent = !manifest
-    ? `这一次只能补 Node 运行时，其余资源等能拿到清单后在「在线资源」里补${reasonSuffix(st.manifestError)}`
+  // 只在真需要交代的时候给一行注释（清单缺 / 走备用通道）
+  const hintText = !manifest
+    ? `这次只能补 Node 运行时，其余资源等清单能拉到再说${reasonSuffix(st.manifestError)}`
     : st.net && !st.net.github
-      ? 'GitHub 直连不通：会自动改用备用通道下载，内容一样，速度可能慢一些。'
-      : '下载的东西都放在插件自己的目录里，不碰笔记、不改系统设置。';
-  ui.body.appendChild(hint);
+      ? 'GitHub 不通，自动走备用通道。'
+      : '';
+  if (hintText) {
+    const hint = document.createElement('div');
+    hint.className = 'bz-setup-note';
+    hint.textContent = hintText;
+    ui.body.appendChild(hint);
+  }
 
   const next = button('bz-setup-btn bz-setup-btn--cta', '');
 
   const GROUPS: Array<{ kind: SetupKind; title: string }> = [
     { kind: 'node', title: '运行环境' },
     { kind: 'bundle', title: '外部工具' },
-    { kind: 'doc', title: '文档与索引' },
-    { kind: 'skins', title: '主题皮肤' },
+    { kind: 'doc', title: '文档' },
+    { kind: 'skins', title: '皮肤' },
   ];
   for (const g of GROUPS) {
     const group = st.items.filter((i) => i.kind === g.kind);
     if (!group.length) continue;
-    const wrap = document.createElement('div');
-    wrap.className = 'bz-setup-group';
-    const head = document.createElement('div');
-    head.className = 'bz-setup-group-h';
-    head.textContent = g.title;
-    wrap.appendChild(head);
+    const wrap = setupGroup(g.title);
     for (const it of group) {
       const row = rowEl('bz-setup-row bz-setup-row--pick');
       const box = document.createElement('input');
@@ -550,10 +592,11 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
         refreshFoot();
       };
       row.append(box, keyEl(it.label, it.desc), valEl(it.ready ? '已就绪' : sizeText(it.size) || '待下载'));
+      if (it.ready) row.classList.add('is-ok');
       if (it.optional && !it.ready) row.dataset.optional = '1';
-      wrap.appendChild(row);
+      wrap.card.appendChild(row);
     }
-    ui.body.appendChild(wrap);
+    ui.body.appendChild(wrap.group);
   }
 
   const refreshFoot = (): void => {
@@ -562,7 +605,7 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
     next.textContent = t.length ? `开始下载（${sizeText(bytes) || `${t.length} 项`}）` : '完成';
   };
 
-  const skip = button('bz-setup-btn', ctx.firstRun ? '以后再说' : '关闭');
+  const skip = button('bz-setup-btn bz-setup-btn--back', ctx.firstRun ? '以后再说' : '关闭');
   skip.onclick = () => {
     void markDone(ctx.app);
     closeModal(ui);
@@ -651,7 +694,7 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   st.apiKey = '';
   st.aiTest = { state: 'idle', text: '' };
 
-  ui.sub.textContent = '可选。配了才能用摘要、小橘这些 AI 功能；跳过不影响其他所有功能。';
+  ui.sub.textContent = '可选，用来做摘要和小橘。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -666,30 +709,35 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
 
   const seg = document.createElement('div');
   seg.className = 'bz-setup-seg';
-  const desc = document.createElement('div');
-  desc.className = 'bz-setup-hint';
   const keyRow = rowEl('bz-setup-row bz-setup-row--input');
-  keyRow.append(markEl('idle'), keyEl('API Key'), input);
+  const keyLabel = keyEl('API Key');
+  const test = button('bz-setup-link', '测一下');
+  keyRow.append(keyLabel, input, test);
+  const desc = document.createElement('div');
+  desc.className = 'bz-setup-note';
   const testLine = document.createElement('div');
-  testLine.className = 'bz-setup-hint';
+  testLine.className = 'bz-setup-note';
 
   function paint(): void {
     const d = getProviderDescriptor(st.provider);
-    desc.textContent =
-      d.id === 'ollama'
-        ? '本地 Ollama 不需要密钥：确认本机 Ollama 服务已启动即可。'
-        : '密钥会明文存进你的 data.json。vault 若放在同步盘上，等于把密钥放上云——介意就先跳过。';
-    keyRow.style.display = d.id === 'ollama' ? 'none' : '';
+    const local = d.id === 'ollama';
+    desc.textContent = local
+      ? '本机 Ollama，不需要密钥，确认服务已启动即可。'
+      : '密钥明文存在 data.json；vault 在同步盘上就等于放上云了。';
+    // 只藏输入框：「测一下」对本地服务同样有用（此前跟着整行一起藏掉了）
+    keyLabel.textContent = local ? '本机服务' : 'API Key';
+    input.classList.toggle('is-hidden', local);
     input.placeholder = d.apiKeyLabel || '粘贴 API Key';
     testLine.textContent = st.aiTest.state === 'idle' ? '' : st.aiTest.state === 'busy' ? '正在测…' : st.aiTest.text;
-    testLine.className = 'bz-setup-hint' + (st.aiTest.state === 'fail' ? ' bz-setup-hint--bad' : '');
+    testLine.classList.toggle('bz-setup-note--bad', st.aiTest.state === 'fail');
+    testLine.classList.toggle('is-hidden', st.aiTest.state === 'idle');
     for (const b of Array.from(seg.querySelectorAll('button'))) {
-      b.className = 'bz-setup-btn' + (b.dataset.id === st.provider ? ' bz-setup-btn--cta' : '');
+      b.classList.toggle('is-on', b.dataset.id === st.provider);
     }
   }
 
   for (const p of AI_PROVIDER_REGISTRY) {
-    const b = button('bz-setup-btn', p.label);
+    const b = button('bz-setup-chip', p.label);
     b.dataset.id = p.id;
     b.onclick = () => {
       st.provider = p.id;
@@ -698,21 +746,22 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
     };
     seg.appendChild(b);
   }
-  ui.body.append(seg, desc, keyRow, testLine);
+  const box = setupGroup();
+  box.card.append(keyRow);
+  ui.body.append(seg, desc, box.group, testLine);
   paint();
 
-  const back = button('bz-setup-btn', '上一步');
+  const back = button('bz-setup-btn bz-setup-btn--back', '上一步');
   back.onclick = () => void stageResources(ctx, st, ui);
   const skip = button('bz-setup-btn', '跳过');
   skip.onclick = () => void stageResources(ctx, st, ui);
-  const test = button('bz-setup-btn', '测一下');
   test.onclick = async () => {
     await saveAi(st);
     st.aiTest = { state: 'busy', text: '' };
     paint();
     try {
       const r = await testAIConnectivity(st.provider);
-      st.aiTest = { state: 'ok', text: `通了：${r.label} / ${r.model} · ${r.ms} ms · 回复「${r.reply.slice(0, 12)}」` };
+      st.aiTest = { state: 'ok', text: `通了 · ${r.ms} ms · 回复「${r.reply.slice(0, 12)}」` };
     } catch (e) {
       st.aiTest = { state: 'fail', text: `没通：${(e as Error)?.message || String(e)}` };
     }
@@ -723,7 +772,7 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
     await saveAi(st);
     void stageResources(ctx, st, ui);
   };
-  ui.foot.append(skip, back, test, save);
+  ui.foot.append(back, skip, save);
 }
 
 async function saveAi(st: WizardState): Promise<void> {
@@ -742,16 +791,15 @@ async function saveAi(st: WizardState): Promise<void> {
 
 /* ---------- ⑤ 安装 ---------- */
 async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: SetupItem[]): Promise<void> {
-  ui.sub.textContent = '全部自动完成。可以先去用别的功能，装完会通知你。';
+  ui.sub.textContent = '自动完成，可以收起来先去忙别的。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
   const bar = document.createElement('div');
   bar.className = 'bz-setup-bar';
   bar.innerHTML = '<i></i>';
-  const list = document.createElement('div');
-  list.className = 'bz-setup-list';
-  ui.body.append(bar, list);
+  const box = setupGroup();
+  ui.body.append(bar, box.group);
 
   const collapse = button('bz-setup-btn', '收起来，后台继续');
   collapse.onclick = () => closeModal(ui);
@@ -761,7 +809,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
   // 余量预检：解压瞬时占用按 1.5 倍估，再留 64MB 给插件自己写
   const free = freeSpaceBytes(ctx.app);
   if (free !== null && free < total * 1.5 + 64 * 1024 * 1024) {
-    ui.sub.textContent = `磁盘余量不足：需要约 ${sizeText(total * 1.5 + 64 * 1024 * 1024)}，当前只剩 ${sizeText(free)}。清理磁盘后重试。`;
+    ui.sub.textContent = `磁盘余量不足：需要约 ${sizeText(total * 1.5 + 64 * 1024 * 1024)}，当前只剩 ${sizeText(free)}。`;
     const again = button('bz-setup-btn bz-setup-btn--cta', '返回清单');
     again.onclick = () => void stageResources(ctx, st, ui);
     ui.foot.appendChild(again);
@@ -773,7 +821,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
     const mark = markEl('busy');
     const val = valEl('进行中');
     row.append(mark, keyEl(t.label, t.desc), val);
-    list.appendChild(row);
+    box.card.appendChild(row);
     try {
       await t.run((text) => {
         // 单项的进度直接写在这一行（Node 那一项会走到 42% · 15 MB / 36 MB）
@@ -782,10 +830,12 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
       doneBytes += t.size || 0;
       mark.className = 'bz-setup-mark bz-setup-mark--ok';
       val.textContent = '已就绪';
+      row.classList.add('is-ok');
     } catch (e) {
       st.failed.push(t.label);
       mark.className = 'bz-setup-mark bz-setup-mark--bad';
       val.textContent = '失败';
+      row.classList.add('is-bad');
       console.warn(`[bz] 首次准备：${t.label} 失败`, e);
     }
     const pct = total > 0 ? Math.min(99, Math.round((doneBytes / total) * 100)) : 0;
@@ -796,7 +846,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
 
   // 值守是唯一「改系统状态」的一步：bundle 装完就在这里问一次（setupAfterInstall 自带确认框）
   if (tasks.some((t) => t.id === 'tool-dock-watch')) {
-    ui.sub.textContent = '工具已就位。还有一件事需要你点头：值守要不要开机自启。';
+    ui.sub.textContent = '工具就位。还有一件事要你点头：值守要不要开机自启。';
     try {
       await setupAfterInstall(ctx.app, 'dock-watch');
     } catch (e) {
@@ -815,21 +865,21 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
 async function stageDone(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   const rows = await environmentCheck(ctx.app);
   st.rows = rows;
-  ui.sub.textContent = '都就位了，接下来正常用就行。';
+  ui.sub.textContent = '都就位了。';
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
-  const list = document.createElement('div');
-  list.className = 'bz-setup-list';
-  ui.body.appendChild(list);
+  const box = setupGroup();
+  ui.body.appendChild(box.group);
   for (const r of rows) {
-    list.appendChild(lineRow(markEl(r.ok === true ? 'ok' : r.ok === false ? 'bad' : 'idle'), r.key, undefined, r.value));
+    const row = lineRow(markEl(r.ok === true ? 'ok' : r.ok === false ? 'bad' : 'idle'), r.key, undefined, r.value);
+    if (r.ok === false) row.classList.add('is-bad');
+    box.card.appendChild(row);
   }
   if (rows.some((r) => r.id === 'python' && r.value.includes('未找到'))) {
     const hint = document.createElement('div');
-    hint.className = 'bz-setup-hint';
-    hint.textContent =
-      '还剩一件手工活：脸谱导入微信记录要先装 Python 3。不影响其他功能，想弄的时候在「设置 → 关于 → 环境自检」里能看到。';
+    hint.className = 'bz-setup-note';
+    hint.textContent = '脸谱导入微信记录要先装 Python 3，不影响其他功能。';
     ui.body.appendChild(hint);
   }
   const enter = button('bz-setup-btn bz-setup-btn--cta', '开始使用');
