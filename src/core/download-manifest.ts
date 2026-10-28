@@ -195,6 +195,8 @@ export async function refreshManifest(app: unknown): Promise<ManifestRefresh> {
     '下载清单',
     '',
     app,
+    // 清单 9 KB：并发试通道（串行时只要第一条通道卡住，后面能用的全被外层超时砍掉）
+    { concurrent: true },
   );
   const manifest = parseDownloadManifest(text)!;
   await writeAssetText(app, MANIFEST_FILE, text);

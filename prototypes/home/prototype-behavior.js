@@ -1,4 +1,4 @@
-/* 源指纹 14ba5311247d54ff · 仓内输入 329 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 f4deac82ee27f38c · 仓内输入 329 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/vault-key.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
@@ -23051,7 +23051,62 @@ ${countsToText(s.missing)}
 
   // src/core/remote-asset.ts
   function remotesFor(fileName) {
-    return downloadRemotesFor(fileName);
+    return rankRemotes(downloadRemotesFor(fileName));
+  }
+  function baseOfUrl(url) {
+    return url.replace(/\/downloads\/.*$/, "");
+  }
+  function hostOf(url) {
+    const m = /^https?:\/\/([^/]+)/.exec(url);
+    return m ? m[1] : url;
+  }
+  function rankRemotes(urls) {
+    if (!preferredBase) return urls;
+    const front = urls.filter((u) => u.startsWith(preferredBase));
+    return front.length ? [...front, ...urls.filter((u) => !u.startsWith(preferredBase))] : urls;
+  }
+  async function requestText(url) {
+    let timer = null;
+    try {
+      const req = requestUrl({ url, method: "GET", throw: false });
+      const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`超时（${CHANNEL_TIMEOUT_MS} ms 内没有响应）`)), CHANNEL_TIMEOUT_MS);
+      });
+      const res = await Promise.race([req, timeout]);
+      const text2 = String((res == null ? void 0 : res.text) || "");
+      const status = Number(res == null ? void 0 : res.status) || 0;
+      if (status && (status < 200 || status >= 300)) {
+        throw new Error(
+          /Package size exceeded/i.test(text2) ? "HTTP 403 · 通道拒绝分发（仓库超过 50 MB，jsDelivr 已停发未缓存的文件）" : `HTTP ${status}`
+        );
+      }
+      preferredBase = baseOfUrl(url);
+      return text2;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+  function describeChannelError(url, e) {
+    return `${hostOf(url)} ${String((e == null ? void 0 : e.message) || e || "未知错误")}`;
+  }
+  function fetchConcurrently(urls, validate, label, unit) {
+    const errors = [];
+    let settled = false;
+    return new Promise((resolve2, reject) => {
+      let left = urls.length;
+      for (const url of urls) {
+        requestText(url).then((text2) => {
+          if (!validate(text2)) throw new Error(`返回内容不是${label}${unit}`);
+          if (!settled) {
+            settled = true;
+            resolve2(text2);
+          }
+        }).catch((e) => {
+          errors.push(describeChannelError(url, e));
+          if (--left === 0 && !settled) reject(new Error(`${label}下载失败：${errors.join("；")}`));
+        });
+      }
+    });
   }
   function assetVaultPath(app, fileName) {
     return pluginVaultPath(app, fileName);
@@ -23074,8 +23129,7 @@ ${countsToText(s.missing)}
       }
     }
   }
-  async function fetchAssetText(fileName, validate, label, unit = "页", app) {
-    let lastErr = "";
+  async function fetchAssetText(fileName, validate, label, unit = "页", app, opts) {
     if (app) {
       try {
         const offline = await readOfflineText(app, `downloads/${fileName}`);
@@ -23083,17 +23137,19 @@ ${countsToText(s.missing)}
       } catch (e) {
       }
     }
-    for (const url of remotesFor(fileName)) {
+    const urls = remotesFor(fileName);
+    if ((opts == null ? void 0 : opts.concurrent) && urls.length > 1) return fetchConcurrently(urls, validate, label, unit);
+    let lastErr = "";
+    for (const url of urls) {
       try {
-        const res = await requestUrl({ url, method: "GET", throw: true });
-        const text2 = String(res.text || "");
+        const text2 = await requestText(url);
         if (!validate(text2)) {
-          lastErr = `${url} 返回内容不是${label}${unit}`;
+          lastErr = `${hostOf(url)} 返回内容不是${label}${unit}`;
           continue;
         }
         return text2;
       } catch (e) {
-        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+        lastErr = describeChannelError(url, e);
       }
     }
     throw new Error(`${label}下载失败：${lastErr}`);
@@ -23121,16 +23177,15 @@ ${countsToText(s.missing)}
     }
     for (const url of remotesFor(fileName)) {
       try {
-        const res = await requestUrl({ url, method: "GET", throw: true });
-        const text2 = String(res.text || "");
+        const text2 = await requestText(url);
         if (want && textSha256(text2) !== want) {
-          lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
+          lastErr = `${hostOf(url)} 内容 sha256 不匹配（可能被篡改或版本错位）`;
           continue;
         }
         await writeAssetText(app, fileName, text2);
         return text2;
       } catch (e) {
-        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+        lastErr = describeChannelError(url, e);
       }
     }
     throw new Error(`${label}下载失败：${lastErr}`);
@@ -23179,7 +23234,7 @@ ${countsToText(s.missing)}
       return null;
     }
   }
-  var DOWNLOADS_CHANGED_EVENT, DOWNLOADS_DIR;
+  var DOWNLOADS_CHANGED_EVENT, CHANNEL_TIMEOUT_MS, preferredBase, DOWNLOADS_DIR;
   var init_remote_asset = __esm({
     "src/core/remote-asset.ts"() {
       init_fake_obsidian();
@@ -23189,6 +23244,8 @@ ${countsToText(s.missing)}
       init_plugin_path();
       init_offline_source();
       DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
+      CHANNEL_TIMEOUT_MS = 8e3;
+      preferredBase = "";
       DOWNLOADS_DIR = "downloads";
     }
   });
@@ -36617,7 +36674,9 @@ ${missing.map((m) => `- ${m}`).join("\n")}
       (t) => parseDownloadManifest(t) !== null,
       "下载清单",
       "",
-      app
+      app,
+      // 清单 9 KB：并发试通道（串行时只要第一条通道卡住，后面能用的全被外层超时砍掉）
+      { concurrent: true }
     );
     const manifest = parseDownloadManifest(text2);
     await writeAssetText(app, MANIFEST_FILE, text2);
@@ -38266,7 +38325,15 @@ ${other}
       try {
         const r = await requestUrl({ url, method: "GET", throw: false });
         const status = Number(r == null ? void 0 : r.status) || 0;
-        return status ? { ms: Date.now() - t0, status, error: "" } : { ms: -1, status: 0, error: "响应没有状态码" };
+        if (!status) return { ms: -1, status: 0, error: "响应没有状态码" };
+        if (status === 403 || status === 407 || status === 451) {
+          return {
+            ms: -1,
+            status,
+            error: /Package size exceeded/i.test(String((r == null ? void 0 : r.text) || "")) ? "通道拒绝分发（仓库超过 50 MB）" : `HTTP ${status}`
+          };
+        }
+        return { ms: Date.now() - t0, status, error: "" };
       } catch (e) {
         return { ms: -1, status: 0, error: String((e == null ? void 0 : e.message) || e || "未知错误") };
       }
@@ -38286,6 +38353,7 @@ ${other}
     const s = String(raw || "").trim();
     if (!s) return "未知原因";
     if (/超时|timed? ?out|ETIMEDOUT/i.test(s)) return "超时";
+    if (/仓库超过 50 MB|Package size exceeded/i.test(s)) return "通道拒绝分发（仓库超过 50 MB）";
     if (/ENOTFOUND|EAI_AGAIN|getaddrinfo|ERR_NAME_NOT_RESOLVED|ERR_NAME_RESOLUTION/i.test(s)) return "域名解析失败";
     if (/ECONNREFUSED|ERR_CONNECTION_REFUSED/i.test(s)) return "连接被拒绝（代理没开？）";
     if (/ECONNRESET|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED|ERR_CONNECTION_ABORTED/i.test(s)) return "连接被重置（常见于被墙）";
@@ -38299,14 +38367,14 @@ ${other}
     const urls = REPO_BASES.map((b) => `${b}/downloads/version.json`);
     const results = await Promise.all(urls.map((u) => timedFetch(u)));
     const raw = (_a2 = results[0]) != null ? _a2 : { ms: -1, status: 0, error: "未探测" };
-    const cdn = results.slice(1).filter((r) => r.status > 0);
+    const cdn = results.slice(1).filter((r) => r.ms >= 0);
     const fastest = cdn.length ? cdn.reduce((a, b) => b.ms < a.ms ? b : a) : null;
     return {
-      github: raw.status > 0,
+      github: raw.ms >= 0,
       jsdelivr: !!fastest,
-      githubMs: raw.status > 0 ? raw.ms : -1,
+      githubMs: raw.ms >= 0 ? raw.ms : -1,
       jsdelivrMs: fastest ? fastest.ms : -1,
-      githubError: raw.status > 0 ? "" : explainNetError(raw.error),
+      githubError: raw.ms >= 0 ? "" : explainNetError(raw.error),
       jsdelivrError: fastest ? "" : explainNetError(((_b2 = results.slice(1).find((r) => r.error)) != null ? _b2 : raw).error)
     };
   }

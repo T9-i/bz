@@ -151,6 +151,17 @@ describe('probeNetwork：通道可达性', () => {
     expect(net.github).toBe(true); // 有 HTTP 响应 = 网络通（文件缺失是另一件事）
   });
 
+  it('403 拒绝分发 ≠ 可达：jsDelivr 对超 50 MB 的仓库停发，要说清是它拒了', async () => {
+    vi.mocked(requestUrl).mockImplementation((async () => ({
+      status: 403,
+      text: 'Package size exceeded the configured limit of 50 MB.',
+    })) as never);
+    const net = await probeNetwork();
+    expect(net.github).toBe(false);
+    expect(net.jsdelivr).toBe(false);
+    expect(net.githubError).toBe('通道拒绝分发（仓库超过 50 MB）');
+  });
+
   it('用静态 import 拿 requestUrl（动态 import 裸模块在 Obsidian 里永远失败）', async () => {
     const src = await import('node:fs').then((fs) => fs.readFileSync('src/core/env-check.ts', 'utf8'));
     expect(src).toContain("import { requestUrl } from 'obsidian'");

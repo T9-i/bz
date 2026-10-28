@@ -40,9 +40,120 @@ import { readOfflineText } from './offline-source';
 export const DOWNLOADS_CHANGED_EVENT = 'downloads:asset-changed';
 
 /** 远端 URL：主 GitHub raw → 备 jsDelivr（双源基址唯一事实源见 core/remote-base.ts）。
- *  导出与签名不变（测试在用）；函数体直接转发 downloadRemotesFor。 */
+ *  导出与签名不变（测试在用）；函数体直接转发 downloadRemotesFor。
+ *
+ *  顺序按「上次谁成功过」动态排（`rankRemotes`）：一条卡死的通道不该永远占着队首。 */
 export function remotesFor(fileName: string): string[] {
-  return downloadRemotesFor(fileName);
+  return rankRemotes(downloadRemotesFor(fileName));
+}
+
+/* ---------- 通道超时与健康排序（2026-10-28 报障：清单永远「没拉到」） ----------
+ *
+ * 此前这里是「串行 await requestUrl」，没有任何单通道超时。raw 一旦卡住（被墙时常见的
+ * 是 TCP 连上但不回），要等 Chromium 自己的超时（十几秒到几十秒），而调用方
+ * `fetchManifestWithTimeout` 只等 12 s —— 一条通道卡住，后面三条能用的根本没被试到，
+ * 界面就报「资源清单没拉到」。两个改法：
+ *
+ *  1. **单通道 8 s 封顶**：超过就算这条不可用，换下一条；
+ *  2. **成功的通道排到队首**（会话内记忆）：第二次请求直接走已知能用的那条。
+ */
+const CHANNEL_TIMEOUT_MS = 8000;
+
+/** 最近一次成功拿到内容的通道基址（空 = 还不知道） */
+let preferredBase = '';
+
+/** URL 去掉 `/downloads/...` 之后的基址（master 与 tag 两条口径都适用） */
+function baseOfUrl(url: string): string {
+  return url.replace(/\/downloads\/.*$/, '');
+}
+
+/** 主机名（错误消息里只说主机，不糊一长串 URL） */
+function hostOf(url: string): string {
+  const m = /^https?:\/\/([^/]+)/.exec(url);
+  return m ? m[1] : url;
+}
+
+/** 把「上次成功过的通道」提到最前；没记忆就原样返回 */
+function rankRemotes(urls: string[]): string[] {
+  if (!preferredBase) return urls;
+  const front = urls.filter((u) => u.startsWith(preferredBase));
+  return front.length ? [...front, ...urls.filter((u) => !u.startsWith(preferredBase))] : urls;
+}
+
+/** 测试用：清掉通道记忆（跨用例不该互相影响） */
+export function resetChannelPreferenceForTests(): void {
+  preferredBase = '';
+}
+
+/**
+ * 单通道取文本（8 s 封顶，非 2xx 抛人话）。
+ *
+ * `throw: false` 而不是 `throw: true`：jsDelivr 的 403 正文写着原因
+ * （「Package size exceeded the configured limit of 50 MB」——本仓库 284 MB 已超限，
+ * 未缓存的文件一律被拒）。用 throw:true 只能拿到一句 `status 403`，把「通道拒绝分发」
+ * 误读成「网络不通」，排查方向整个跑偏。
+ */
+async function requestText(url: string): Promise<string> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  try {
+    const req = requestUrl({ url, method: 'GET', throw: false });
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`超时（${CHANNEL_TIMEOUT_MS} ms 内没有响应）`)), CHANNEL_TIMEOUT_MS);
+    });
+    const res = await Promise.race([req, timeout]);
+    const text = String(res?.text || '');
+    const status = Number(res?.status) || 0;
+    if (status && (status < 200 || status >= 300)) {
+      throw new Error(
+        /Package size exceeded/i.test(text)
+          ? 'HTTP 403 · 通道拒绝分发（仓库超过 50 MB，jsDelivr 已停发未缓存的文件）'
+          : `HTTP ${status}`,
+      );
+    }
+    preferredBase = baseOfUrl(url);
+    return text;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+/** 一条通道的失败说明（主机 + 原因；原因里已经带了 HTTP 码的不重复糊 URL） */
+function describeChannelError(url: string, e: unknown): string {
+  return `${hostOf(url)} ${String((e as Error)?.message || e || '未知错误')}`;
+}
+
+/**
+ * 并发取第一条通过校验的内容（清单这种小文件专用）。
+ *
+ * 为什么能并发：清单 9 KB，五份加起来不到 50 KB，代价可以忽略；而串行在「第一条卡住」
+ * 时会把后面能用的通道全耽误掉。下载正文（手册、皮肤、目录包）仍走串行——那是 MB 级，
+ * 五路并发既费流量又费带宽。
+ */
+function fetchConcurrently(
+  urls: string[],
+  validate: (text: string) => boolean,
+  label: string,
+  unit: string,
+): Promise<string> {
+  const errors: string[] = [];
+  let settled = false;
+  return new Promise<string>((resolve, reject) => {
+    let left = urls.length;
+    for (const url of urls) {
+      requestText(url)
+        .then((text) => {
+          if (!validate(text)) throw new Error(`返回内容不是${label}${unit}`);
+          if (!settled) {
+            settled = true;
+            resolve(text);
+          }
+        })
+        .catch((e: unknown) => {
+          errors.push(describeChannelError(url, e));
+          if (--left === 0 && !settled) reject(new Error(`${label}下载失败：${errors.join('；')}`));
+        });
+    }
+  });
 }
 
 /**
@@ -88,17 +199,24 @@ export async function ensureDir(app: unknown, relPath: string): Promise<void> {
   }
 }
 
+/** 取文本的可选开关 */
+export interface FetchAssetOpts {
+  /** 并发试通道（**只给清单这类 KB 级小文件用**；下载正文是 MB 级，并发既费流量又费带宽） */
+  concurrent?: boolean;
+}
+
 /** 双源取文本（不落盘）；全失败抛人话错误
  *  @param unit 内容校验失败文案的后缀（手册/日志是「页」，皮肤包不是）
- *  @param app  给了就先看离线包（`<vault>/bz-offline/downloads/<file>`）；不给只走网络 */
+ *  @param app  给了就先看离线包（`<vault>/bz-offline/downloads/<file>`）；不给只走网络
+ *  @param opts 见 FetchAssetOpts */
 export async function fetchAssetText(
   fileName: string,
   validate: (text: string) => boolean,
   label: string,
   unit = '页',
   app?: unknown,
+  opts?: FetchAssetOpts,
 ): Promise<string> {
-  let lastErr = '';
   // 离线包优先（同 ensureAssetWithHash 的理由）
   if (app) {
     try {
@@ -108,17 +226,20 @@ export async function fetchAssetText(
       /* 走网络 */
     }
   }
-  for (const url of remotesFor(fileName)) {
+  const urls = remotesFor(fileName);
+  if (opts?.concurrent && urls.length > 1) return fetchConcurrently(urls, validate, label, unit);
+
+  let lastErr = '';
+  for (const url of urls) {
     try {
-      const res = await requestUrl({ url, method: 'GET', throw: true });
-      const text = String(res.text || '');
+      const text = await requestText(url);
       if (!validate(text)) {
-        lastErr = `${url} 返回内容不是${label}${unit}`;
+        lastErr = `${hostOf(url)} 返回内容不是${label}${unit}`;
         continue;
       }
       return text;
-    } catch (e) {
-      lastErr = `${url} → ${(e as Error)?.message || String(e)}`;
+    } catch (e: unknown) {
+      lastErr = describeChannelError(url, e);
     }
   }
   throw new Error(`${label}下载失败：${lastErr}`);
@@ -167,16 +288,15 @@ export async function ensureAssetWithHash(
 
   for (const url of remotesFor(fileName)) {
     try {
-      const res = await requestUrl({ url, method: 'GET', throw: true });
-      const text = String(res.text || '');
+      const text = await requestText(url);
       if (want && textSha256(text) !== want) {
-        lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
+        lastErr = `${hostOf(url)} 内容 sha256 不匹配（可能被篡改或版本错位）`;
         continue;
       }
       await writeAssetText(app, fileName, text);
       return text;
-    } catch (e) {
-      lastErr = `${url} → ${(e as Error)?.message || String(e)}`;
+    } catch (e: unknown) {
+      lastErr = describeChannelError(url, e);
     }
   }
   throw new Error(`${label}下载失败：${lastErr}`);

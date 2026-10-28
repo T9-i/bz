@@ -1,4 +1,4 @@
-/* 源指纹 ce5d0243d900d062 · 仓内输入 136 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 f993280616f118d0 · 仓内输入 136 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/offline-source.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/clipbook/fake-sim.ts → window.BZW_clipbook（行为单源预览包，issue 245/ADR-0106） */
 var BZW_clipbook = (() => {
@@ -5774,7 +5774,62 @@ var BZW_clipbook = (() => {
 
   // src/core/remote-asset.ts
   function remotesFor(fileName) {
-    return downloadRemotesFor(fileName);
+    return rankRemotes(downloadRemotesFor(fileName));
+  }
+  function baseOfUrl(url) {
+    return url.replace(/\/downloads\/.*$/, "");
+  }
+  function hostOf(url) {
+    const m = /^https?:\/\/([^/]+)/.exec(url);
+    return m ? m[1] : url;
+  }
+  function rankRemotes(urls) {
+    if (!preferredBase) return urls;
+    const front = urls.filter((u) => u.startsWith(preferredBase));
+    return front.length ? [...front, ...urls.filter((u) => !u.startsWith(preferredBase))] : urls;
+  }
+  async function requestText(url) {
+    let timer = null;
+    try {
+      const req = requestUrl({ url, method: "GET", throw: false });
+      const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`超时（${CHANNEL_TIMEOUT_MS} ms 内没有响应）`)), CHANNEL_TIMEOUT_MS);
+      });
+      const res = await Promise.race([req, timeout]);
+      const text = String((res == null ? void 0 : res.text) || "");
+      const status = Number(res == null ? void 0 : res.status) || 0;
+      if (status && (status < 200 || status >= 300)) {
+        throw new Error(
+          /Package size exceeded/i.test(text) ? "HTTP 403 · 通道拒绝分发（仓库超过 50 MB，jsDelivr 已停发未缓存的文件）" : `HTTP ${status}`
+        );
+      }
+      preferredBase = baseOfUrl(url);
+      return text;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+  function describeChannelError(url, e) {
+    return `${hostOf(url)} ${String((e == null ? void 0 : e.message) || e || "未知错误")}`;
+  }
+  function fetchConcurrently(urls, validate, label, unit) {
+    const errors = [];
+    let settled = false;
+    return new Promise((resolve2, reject) => {
+      let left = urls.length;
+      for (const url of urls) {
+        requestText(url).then((text) => {
+          if (!validate(text)) throw new Error(`返回内容不是${label}${unit}`);
+          if (!settled) {
+            settled = true;
+            resolve2(text);
+          }
+        }).catch((e) => {
+          errors.push(describeChannelError(url, e));
+          if (--left === 0 && !settled) reject(new Error(`${label}下载失败：${errors.join("；")}`));
+        });
+      }
+    });
   }
   function assetVaultPath(app, fileName) {
     return pluginVaultPath(app, fileName);
@@ -5797,8 +5852,7 @@ var BZW_clipbook = (() => {
       }
     }
   }
-  async function fetchAssetText(fileName, validate, label, unit = "页", app) {
-    let lastErr = "";
+  async function fetchAssetText(fileName, validate, label, unit = "页", app, opts) {
     if (app) {
       try {
         const offline = await readOfflineText(app, `downloads/${fileName}`);
@@ -5806,17 +5860,19 @@ var BZW_clipbook = (() => {
       } catch (e) {
       }
     }
-    for (const url of remotesFor(fileName)) {
+    const urls = remotesFor(fileName);
+    if ((opts == null ? void 0 : opts.concurrent) && urls.length > 1) return fetchConcurrently(urls, validate, label, unit);
+    let lastErr = "";
+    for (const url of urls) {
       try {
-        const res = await requestUrl({ url, method: "GET", throw: true });
-        const text = String(res.text || "");
+        const text = await requestText(url);
         if (!validate(text)) {
-          lastErr = `${url} 返回内容不是${label}${unit}`;
+          lastErr = `${hostOf(url)} 返回内容不是${label}${unit}`;
           continue;
         }
         return text;
       } catch (e) {
-        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+        lastErr = describeChannelError(url, e);
       }
     }
     throw new Error(`${label}下载失败：${lastErr}`);
@@ -5844,16 +5900,15 @@ var BZW_clipbook = (() => {
     }
     for (const url of remotesFor(fileName)) {
       try {
-        const res = await requestUrl({ url, method: "GET", throw: true });
-        const text = String(res.text || "");
+        const text = await requestText(url);
         if (want && textSha256(text) !== want) {
-          lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
+          lastErr = `${hostOf(url)} 内容 sha256 不匹配（可能被篡改或版本错位）`;
           continue;
         }
         await writeAssetText(app, fileName, text);
         return text;
       } catch (e) {
-        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+        lastErr = describeChannelError(url, e);
       }
     }
     throw new Error(`${label}下载失败：${lastErr}`);
@@ -5873,7 +5928,7 @@ var BZW_clipbook = (() => {
       return null;
     }
   }
-  var DOWNLOADS_CHANGED_EVENT, DOWNLOADS_DIR;
+  var DOWNLOADS_CHANGED_EVENT, CHANNEL_TIMEOUT_MS, preferredBase, DOWNLOADS_DIR;
   var init_remote_asset = __esm({
     "src/core/remote-asset.ts"() {
       init_fake_obsidian();
@@ -5883,6 +5938,8 @@ var BZW_clipbook = (() => {
       init_plugin_path();
       init_offline_source();
       DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
+      CHANNEL_TIMEOUT_MS = 8e3;
+      preferredBase = "";
       DOWNLOADS_DIR = "downloads";
     }
   });
@@ -5960,7 +6017,9 @@ var BZW_clipbook = (() => {
       (t) => parseDownloadManifest(t) !== null,
       "下载清单",
       "",
-      app
+      app,
+      // 清单 9 KB：并发试通道（串行时只要第一条通道卡住，后面能用的全被外层超时砍掉）
+      { concurrent: true }
     );
     const manifest = parseDownloadManifest(text);
     await writeAssetText(app, MANIFEST_FILE, text);

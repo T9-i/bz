@@ -85,7 +85,19 @@ async function timedFetch(url: string): Promise<NetAttempt> {
     try {
       const r = await requestUrl({ url, method: 'GET', throw: false });
       const status = Number(r?.status) || 0;
-      return status ? { ms: Date.now() - t0, status, error: '' } : { ms: -1, status: 0, error: '响应没有状态码' };
+      if (!status) return { ms: -1, status: 0, error: '响应没有状态码' };
+      // 403 / 407 / 451 是「通道拒绝服务」，跟断网一样用不了；404 只是「这个文件不在」
+      // （网络通着），不能混为一谈——jsDelivr 对本仓库的 403 正文是「仓库超过 50 MB」。
+      if (status === 403 || status === 407 || status === 451) {
+        return {
+          ms: -1,
+          status,
+          error: /Package size exceeded/i.test(String(r?.text || ''))
+            ? '通道拒绝分发（仓库超过 50 MB）'
+            : `HTTP ${status}`,
+        };
+      }
+      return { ms: Date.now() - t0, status, error: '' };
     } catch (e: unknown) {
       return { ms: -1, status: 0, error: String((e as Error)?.message || e || '未知错误') };
     }
@@ -110,6 +122,7 @@ export function explainNetError(raw: string): string {
   const s = String(raw || '').trim();
   if (!s) return '未知原因';
   if (/超时|timed? ?out|ETIMEDOUT/i.test(s)) return '超时';
+  if (/仓库超过 50 MB|Package size exceeded/i.test(s)) return '通道拒绝分发（仓库超过 50 MB）';
   if (/ENOTFOUND|EAI_AGAIN|getaddrinfo|ERR_NAME_NOT_RESOLVED|ERR_NAME_RESOLUTION/i.test(s)) return '域名解析失败';
   if (/ECONNREFUSED|ERR_CONNECTION_REFUSED/i.test(s)) return '连接被拒绝（代理没开？）';
   if (/ECONNRESET|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED|ERR_CONNECTION_ABORTED/i.test(s)) return '连接被重置（常见于被墙）';
@@ -130,14 +143,15 @@ export async function probeNetwork(): Promise<NetworkProbe> {
   const results = await Promise.all(urls.map((u) => timedFetch(u)));
   const raw = results[0] ?? { ms: -1, status: 0, error: '未探测' };
   // jsDelivr 一侧取**最快**的那个入口（国内实测 cdn 不通、fastly/gcore/testingcf 通）
-  const cdn = results.slice(1).filter((r) => r.status > 0);
+  // 判据是 ms >= 0（只有真拿到 2xx/3xx 才算），不是 status > 0 —— 403 也有状态码
+  const cdn = results.slice(1).filter((r) => r.ms >= 0);
   const fastest = cdn.length ? cdn.reduce((a, b) => (b.ms < a.ms ? b : a)) : null;
   return {
-    github: raw.status > 0,
+    github: raw.ms >= 0,
     jsdelivr: !!fastest,
-    githubMs: raw.status > 0 ? raw.ms : -1,
+    githubMs: raw.ms >= 0 ? raw.ms : -1,
     jsdelivrMs: fastest ? fastest.ms : -1,
-    githubError: raw.status > 0 ? '' : explainNetError(raw.error),
+    githubError: raw.ms >= 0 ? '' : explainNetError(raw.error),
     jsdelivrError: fastest ? '' : explainNetError((results.slice(1).find((r) => r.error) ?? raw).error),
   };
 }
