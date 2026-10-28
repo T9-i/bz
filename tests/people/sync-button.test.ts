@@ -355,14 +355,14 @@ describe('错误面：册页内中文原因与下一步动作，不抛栈', () =
     expect(document.querySelector('[data-people-ds-sync-text]')!.textContent).not.toContain('Error');
   });
 
-  it('工具未装（ENOENT）：进度行给安装指引（npm link 口径）', async () => {
+  it('工具未装（ENOENT）：进度行给安装指引（在线资源指引口径）', async () => {
     await bootWithDsOpen();
     click('[data-people-ds-sync]');
     await vi.waitFor(() => expect(document.querySelector('[data-people-ds-sync-line]')).toBeTruthy());
     await tool.settle({ ok: false, code: null, error: new Error('外部工具启动失败：spawn bz-face ENOENT') });
-    await vi.waitFor(() => expect(document.querySelector('[data-people-ds-sync-line]')!.textContent).toContain('npm link'));
+    await vi.waitFor(() => expect(document.querySelector('[data-people-ds-sync-line]')!.textContent).toContain('在线资源'));
     expect(document.querySelector('[data-people-ds-sync-line]')!.textContent).toContain('bz-face');
-    expect(BZ_FACE_INSTALL_HINT).toContain('@jwbz/obsidian-face');
+    expect(BZ_FACE_INSTALL_HINT).toContain('在线资源');
   });
 
   it('数据根未配置：点同步不开进程，进度行给「先在下方配置数据根目录」与设置页指引', async () => {

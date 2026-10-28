@@ -40,6 +40,18 @@ function fileSha256(rel) {
   return textSha256(fs.readFileSync(abs, 'utf8'));
 }
 
+/** 对 downloads/ 里的**二进制**产物算字节 sha256（目录包 tar.gz 用这个）。
+ *  不能走上面那个：`readFileSync(abs,'utf8')` + 换行归一用在压缩流上会当场改坏内容，
+ *  算出来的 hash 与插件端 `sha256Bytes` 永远对不上——症状是「每次下载都校验失败」。 */
+function fileSha256Bytes(rel) {
+  const abs = path.join(ROOT, 'downloads', rel);
+  if (!fs.existsSync(abs)) {
+    console.error(`downloads/${rel} 不存在——先跑 pnpm tools-pack 出目录包，再跑 pnpm manifest`);
+    process.exit(1);
+  }
+  return createHash('sha256').update(fs.readFileSync(abs)).digest('hex');
+}
+
 /** 对 downloads/ 里的产物文件算字节数；产物缺席沿用 fileSha256 的既有报错口径 */
 function fileSize(rel) {
   const abs = path.join(ROOT, 'downloads', rel);
@@ -64,17 +76,41 @@ const DOCS = [
   // issue 498：豆瓣影视名称索引（影院输入联想，ADR-0209；产物由 pnpm cinema-index 出，
   // 上游数据集不入 git，见该脚本头注）
   { id: 'cinema-douban-index', name: '豆瓣影视索引', file: 'cinema-douban-index.json' },
+  // ===== 外部工具（2026-10-28 对外分发；kind='bundle' = tar.gz 目录包，产物由 pnpm tools-pack 出，
+  // 故发布顺序里 tools-pack 也在 manifest 之前）。这三个是插件**运行时真的会 spawn 的东西**：
+  // 知识盒批量下载（bili-dl）、工具坞离线值守、脸谱（bz-face）。
+  // 已移植进插件的 news-watcher / douban-poster **不在这里**——它们运行时零依赖，上架只会让人白下。
+  { id: 'tool-bili-downloader', name: 'B站下载器', file: 'tools/bili-downloader.tar.gz', kind: 'bundle' },
+  { id: 'tool-dock-watch', name: '工具坞值守', file: 'tools/dock-watch.tar.gz', kind: 'bundle' },
+  { id: 'tool-obsidian-face', name: '脸谱工具包', file: 'tools/obsidian-face.tar.gz', kind: 'bundle' },
 ];
-const docs = DOCS.map((d) => ({ ...d, sha256: fileSha256(d.file), size: fileSize(d.file) }));
+const docs = DOCS.map((d) => ({
+  ...d,
+  // 文本存量走归一换行 hash，目录包走字节 hash——两条口径各自对齐插件端的 textSha256 / sha256Bytes
+  sha256: d.kind === 'bundle' ? fileSha256Bytes(d.file) : fileSha256(d.file),
+  size: fileSize(d.file),
+}));
 
 // 行序（在线资源组内的行顺序）：'skins' 是皮肤聚合行的保留 id，不是 doc 条目。
 // 新增资源 = DOCS 加一行 + 本表加一个 id；漏登记由下方守卫拦下。
-const ROW_ORDER = ['changelog', 'manual', 'skins', 'belongings-categories', 'rss-catalog', 'cinema-douban-index'];
+const ROW_ORDER = [
+  'changelog',
+  'manual',
+  'skins',
+  'belongings-categories',
+  'rss-catalog',
+  'cinema-douban-index',
+  // 外部工具排在最后：它们是「可选增强」（知识盒批量下载 / 离线值守 / 脸谱），
+  // 而上面四条是大多数人都要吃到的数据与文档。
+  'tool-bili-downloader',
+  'tool-dock-watch',
+  'tool-obsidian-face',
+];
 
 // ── 反向守卫（issue 490）：downloads/ 顶层不允许存在清单外的文件 ──
 // 新产物进目录但忘了登记 DOCS → 构建期就炸，而不是发布后插件端校验才失败
-// （那些失败发生在用户机器上，构建期不查就没人查）。清单文件自身与皮肤子目录豁免。
-const MANIFEST_GUARD_IGNORE = new Set(['manifest.json', ...DOCS.map((d) => d.file)]);
+// （那些失败发生在用户机器上，构建期不查就没人查）。清单文件自身、发布指针与皮肤子目录豁免。
+const MANIFEST_GUARD_IGNORE = new Set(['manifest.json', 'version.json', ...DOCS.map((d) => d.file)]);
 for (const name of fs.readdirSync(path.join(ROOT, 'downloads'), { withFileTypes: true })) {
   if (!name.isFile() || MANIFEST_GUARD_IGNORE.has(name.name)) continue;
   problems.push(
@@ -136,8 +172,33 @@ if (problems.length) {
 
 const manifestText = JSON.stringify({ version: CATALOG.version ?? 1, docs, skins, rowOrder: ROW_ORDER }, null, 2) + '\n';
 
+// ── 发布指针 downloads/version.json（2026-10-28 对外分发） ──
+// 自更新分两段：先读这个小文件拿到「最新发布是哪个 tag」，再去那个 tag 下拉三件套。
+// 为什么不能只靠 API：GitHub API 限流（按 IP，同一出口整个局域网共用）且国内常在超时名单里；
+// 本指针走的是与在线资源同一套双源，失败口径/被墙兜底全部复用。
+// 指针里的 tag 按 `<repo 版本号>` 推：tag 名就是 `v<manifest.json 的 version>`，
+// 发布流程必须（1）先 bump manifest.json（2）构建（3）打同名 tag（4）push。
+const PLUGIN_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8')).version;
+const POINTER_OUT = path.join(ROOT, 'downloads/version.json');
+const pointerText = JSON.stringify({ version: PLUGIN_VERSION, tag: `v${PLUGIN_VERSION}` }, null, 2) + '\n';
+const prevPointer = fs.existsSync(POINTER_OUT) ? fs.readFileSync(POINTER_OUT, 'utf8') : null;
+if (prevPointer !== pointerText) {
+  if (CHECK_ONLY) {
+    problems.push(`downloads/version.json 与 manifest.json 版本不同步（指针应为 v${PLUGIN_VERSION}）——跑 pnpm manifest 重出`);
+  } else {
+    fs.writeFileSync(POINTER_OUT, pointerText, 'utf8');
+    console.log(`产出 downloads/version.json（v${PLUGIN_VERSION}）`);
+  }
+}
+
 const prev = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : null;
 if (prev === manifestText) {
+  if (problems.length) {
+    // 清单本身同步，但指针/登记有问题（--check 下才会走到这里）——不能报「同步 ✓」蒙混过去
+    console.error('清单本身已同步，但还有别的问题：');
+    for (const p of problems) console.error('  - ' + p);
+    process.exit(1);
+  }
   console.log(`清单与产物同步 ✓（docs ${docs.length} + skins ${skins.length} 条）`);
   process.exit(0);
 }

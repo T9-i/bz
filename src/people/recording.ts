@@ -20,7 +20,8 @@
 import { runExternalTool, type ExternalToolHandle, type ExternalToolSpec } from '../core/external-tool';
 import { notice } from '../core/notice';
 import { preemptHeavyStandby, releaseHeavy, waitHeavyGate } from './heavy-gate';
-import { quotePathArg, quotePythonArg } from './sync';
+import { pathArg, quotePathArg, quotePythonArg } from './sync';
+import { safeToolBase } from '../core/tool-runtime';
 import { recordingTurnSegments, type RecordingTurn } from './datasource';
 
 // ---------------- 路径 ----------------
@@ -237,36 +238,40 @@ export interface BuildRecordingSpecOpts {
 export function buildRecordingSpec(opts: BuildRecordingSpecOpts): ExternalToolSpec {
   const python = opts.python?.trim() || undefined;
   const ffmpeg = opts.ffmpeg?.trim() || undefined;
+  const base = safeToolBase('obsidian-face');
+  const q = (v: string) => pathArg(v, base.shell);
   return {
-    cmd: 'bz-face',
+    cmd: base.cmd,
     args: [
       'rec',
-      quotePathArg(opts.file),
+      q(opts.file),
       '--data-root',
-      quotePathArg(opts.dataRoot),
+      q(opts.dataRoot),
       '--contact',
-      quotePathArg(opts.talker),
-      ...(ffmpeg ? ['--ffmpeg', quotePathArg(ffmpeg)] : []),
-      ...(python ? ['--python', quotePythonArg(python)] : []),
+      q(opts.talker),
+      ...(ffmpeg ? ['--ffmpeg', q(ffmpeg)] : []),
+      ...(python ? ['--python', base.shell ? quotePythonArg(python) : python] : []),
     ],
-    shell: true,
+    shell: base.shell,
   };
 }
 
 /** `bz-face refs --data-root … --contact …`（质心构建；语音样本不足脚本自行降级 / 跳过） */
 export function buildVoiceprintSpec(opts: { dataRoot: string; talker: string; python?: string }): ExternalToolSpec {
   const python = opts.python?.trim() || undefined;
+  const base = safeToolBase('obsidian-face');
+  const q = (v: string) => pathArg(v, base.shell);
   return {
-    cmd: 'bz-face',
+    cmd: base.cmd,
     args: [
       'refs',
       '--data-root',
-      quotePathArg(opts.dataRoot),
+      q(opts.dataRoot),
       '--contact',
-      quotePathArg(opts.talker),
-      ...(python ? ['--python', quotePythonArg(python)] : []),
+      q(opts.talker),
+      ...(python ? ['--python', base.shell ? quotePythonArg(python) : python] : []),
     ],
-    shell: true,
+    shell: base.shell,
   };
 }
 
@@ -275,19 +280,21 @@ export function buildVoiceprintSpec(opts: { dataRoot: string; talker: string; py
 export function buildRecordingCheckSpec(opts: { dataRoot: string; talker: string; srcs: string[]; python?: string; ffmpeg?: string }): ExternalToolSpec {
   const python = opts.python?.trim() || undefined;
   const ffmpeg = opts.ffmpeg?.trim() || undefined;
+  const base = safeToolBase('obsidian-face');
+  const q = (v: string) => pathArg(v, base.shell);
   return {
-    cmd: 'bz-face',
+    cmd: base.cmd,
     args: [
       'check',
       '--data-root',
-      quotePathArg(opts.dataRoot),
+      q(opts.dataRoot),
       '--contact',
-      quotePathArg(opts.talker),
-      ...opts.srcs.flatMap((s) => ['--src', quotePathArg(s)]),
-      ...(ffmpeg ? ['--ffmpeg', quotePathArg(ffmpeg)] : []),
-      ...(python ? ['--python', quotePythonArg(python)] : []),
+      q(opts.talker),
+      ...opts.srcs.flatMap((s) => ['--src', q(s)]),
+      ...(ffmpeg ? ['--ffmpeg', q(ffmpeg)] : []),
+      ...(python ? ['--python', base.shell ? quotePythonArg(python) : python] : []),
     ],
-    shell: true,
+    shell: base.shell,
   };
 }
 
@@ -937,8 +944,8 @@ export function faceRecSupportError(caps: FaceCapabilities | null): string | nul
   const [maj, min] = minorVersionOf(caps.version);
   const tooOld = maj === 0 && min < 6; // v0.6 = 旁音过滤 + 归属抽检 + 账本替换重试的起线；0.10 / 1.x 都不算旧
   if (tooOld || !caps.commands.includes('rec') || !caps.commands.includes('check')) {
-    // 本包不发公开 registry——npm update 拉不到，指 npm link / 仓内路径重装
-    return `本机 bz-face（v${caps.version}）过旧：v0.6 起才有「账本替换重试（修你遇到的那个 PermissionError 拒绝访问）」+ 旁音过滤 + 归属抽检——本包不发 registry，请在包目录 tools/obsidian-face 重新 npm link（或 npm install -g <仓库>/tools/obsidian-face）后重试`;
+    // 本包不发公开 registry——升级只能整包换：到在线资源组重新下载即覆盖安装
+    return `本机脸谱工具包（v${caps.version}）过旧：v0.6 起才有「账本替换重试（修你遇到的那个 PermissionError 拒绝访问）」+ 旁音过滤 + 归属抽检——到「设置 → 通用 → 在线资源」里重新下载「脸谱工具包」，覆盖安装后重试`;
   }
   return null;
 }

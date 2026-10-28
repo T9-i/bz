@@ -53,10 +53,19 @@ export interface ManifestDocEntry {
   id: string;
   /** 中文名（在线资源组行文案） */
   name: string;
-  /** 相对插件安装目录的路径（= 远端 downloads/ 内相对路径） */
+  /** 相对插件安装目录的路径（= 远端 downloads/ 内相对路径）。
+   *  `kind='bundle'` 时指向一个 `.tar.gz` 归档，解包目标是去掉该后缀的目录。 */
   file: string;
-  /** 归一换行后文本的 sha256（64 位小写） */
+  /** 归一换行后文本的 sha256（64 位小写）；`kind='bundle'` 时是**归档字节**的 sha256 */
   sha256: string;
+  /**
+   * 资源形态（2026-10-28 对外分发新增，缺省 `doc`）：
+   *  - `doc`    —— 单文件文本/JSON，落盘即用（手册、更新日志、分类表）；
+   *  - `bundle` —— tar.gz 目录包（外部工具：b站下载器 / 值守 / 脸谱），下载后要解包 +
+   *    写就绪标记才算装好（core/bundle-asset.ts）。
+   * 两种形态的下载通道、校验口径、UI 状态机都共用，只有「落盘那一步」不同。
+   */
+  kind?: 'doc' | 'bundle';
   /** 最低插件版本（含），空 = 不限；语义与 SkinPackEntry.since 完全一致 */
   since?: string;
   /** 最高插件版本（不含），空 = 不限；语义与 SkinPackEntry.until 完全一致 */
@@ -126,6 +135,8 @@ export function parseDownloadManifest(text: string | null): DownloadManifest | n
       name: e.name,
       file: e.file,
       sha256: e.sha256.toLowerCase(),
+      // 形态是可选字段：旧清单没有它（= 全是 doc），认成 doc 即可，不要让整份清单失效
+      kind: e.kind === 'bundle' ? 'bundle' : 'doc',
       since: typeof e.since === 'string' && e.since ? e.since : undefined,
       until: typeof e.until === 'string' && e.until ? e.until : undefined,
       size: typeof e.size === 'number' && Number.isFinite(e.size) && e.size > 0 ? e.size : undefined,

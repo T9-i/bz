@@ -22,12 +22,16 @@ import { localNow } from '../core/ui/str';
 import { emitDomainEvent } from '../core/domain-bus';
 import { tryGetSettings } from '../core/settings-provider';
 import { getApp } from '../core/app';
+import { resolveToolCommand, toolInstallHint } from '../core/tool-runtime';
 import { KnowledgeData } from './data';
 import { generateVideoNote } from './note-gen';
 import type { KnowledgeTask } from './types';
 
-/** 统一走全局 bili-dl（P2-2：移除修复期本机绝对路径 LOCAL_CLI_CANDIDATE；未安装由 INSTALL_HINT 引导） */
-const INSTALL_HINT = '请先运行 npm install -g @jwbz/bili-downloader';
+/**
+ * 未装时的引导（2026-10-28）：**不再教人 npm install -g**，直接指到设置面板的在线资源组
+ * ——对外分发时「复制粘贴一条终端命令」就是最大的失败面（没 npm / 权限 / 国内源）。
+ */
+const INSTALL_HINT = toolInstallHint('bili-downloader');
 
 const STEP_RE = /^\[bz-step\]\s*(.+)$/;
 const RESULT_RE = /^\[bz-result\]\s*(\{.*\})$/;
@@ -80,14 +84,18 @@ function getFs(): any {
 }
 
 /**
- * 解析 spawn 目标（P2-2→P2-5）：纯走全局 bili-dl --batch，.cmd shim 需 shell:true；
- * shell 会对消 JSON 的引号/空格（Windows cmd 实测 argv 损坏报 position 1 JSON 错，
- * 面上表现「--batch 参数不是合法 JSON：Expected property name or '}'」），故 taskJson
- * 改传 base64（`b64:` 前缀，cli.js decodeBatchArg 解码）——base64 无引号无空格，shell 全程安全。
+ * 解析 spawn 目标（P2-2→P2-5→2026-10-28）：
+ *  - **本地包优先**：在线资源下过 b站下载器就用插件目录里的 `cli.js` + 探测到的 node
+ *    （绝对路径 + 数组参数，路径里的空格/中文不再经过 cmd 解析）；
+ *  - **PATH 兜底**：老用户全局装过 `bili-dl` 的，行为和以前一模一样（.cmd shim 需 shell:true）。
+ *
+ * batch 载荷仍走 base64：shell 那条路会对消 JSON 的引号/空格（Windows cmd 实测 argv 损坏报
+ * position 1 JSON 错），base64 无引号无空格，两条路都安全。
  */
 function resolveBatchSpawn(taskJson: string): { cmd: string; args: string[]; shell: boolean } {
   const b64 = Buffer.from(taskJson, 'utf8').toString('base64');
-  return { cmd: 'bili-dl', args: ['--batch', `b64:${b64}`], shell: true };
+  const r = resolveToolCommand(getApp(), 'bili-downloader', ['--batch', `b64:${b64}`]);
+  return { cmd: r.cmd, args: r.args, shell: r.shell };
 }
 
 /** 转录临时文件删除（尽力而为：已删/读失败等一律静默，不阻塞主流程） */

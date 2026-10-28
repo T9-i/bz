@@ -37,11 +37,12 @@ export function normalizeEol(text: string): string {
 }
 
 /**
- * SHA-256 → 64 位小写十六进制。
- * @param text 待摘要文本（UTF-8）
+ * SHA-256 → 64 位小写十六进制（**字节**入参）。
+ *
+ * 文本资源走 `textSha256`（先归一换行）；二进制资源（tar.gz 包、可执行文件）走这里，
+ * 两侧都必须按「原样字节」算——归一换行只对文本成立，套到二进制上会把压缩流改坏。
  */
-export function sha256Hex(text: string): string {
-  const bytes = toBytes(String(text ?? ''));
+export function sha256Bytes(bytes: Uint8Array): string {
   const dataLen = bytes.length;
 
   // 填充：0x80 + 0x00… 至 (len ≡ 56 mod 64)，末尾 8 字节大端位长
@@ -89,5 +90,5 @@ export function sha256Hex(text: string): string {
 
 /** 文本摘要（先归一换行再算——与构建脚本同口径，免 CRLF/LF 两套 hash） */
 export function textSha256(text: string): string {
-  return sha256Hex(normalizeEol(text));
+  return sha256Bytes(toBytes(normalizeEol(text)));
 }

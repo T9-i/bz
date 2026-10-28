@@ -1,5 +1,5 @@
-/* 源指纹 bec402a219d919fe · 仓内输入 128 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
+/* 源指纹 b24c5dcda57258c9 · 仓内输入 129 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/clipbook/fake-sim.ts → window.BZW_clipbook（行为单源预览包，issue 245/ADR-0106） */
 var BZW_clipbook = (() => {
   var __create = Object.create;
@@ -840,9 +840,9 @@ var BZW_clipbook = (() => {
     }
   });
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -5524,8 +5524,7 @@ var BZW_clipbook = (() => {
   function normalizeEol(text) {
     return String(text != null ? text : "").replace(/\r\n?/g, "\n");
   }
-  function sha256Hex(text) {
-    const bytes = toBytes(String(text != null ? text : ""));
+  function sha256Bytes(bytes) {
     const dataLen = bytes.length;
     const padded = new Uint8Array((dataLen + 8 >> 6) + 1 << 6);
     padded.set(bytes);
@@ -5574,7 +5573,7 @@ var BZW_clipbook = (() => {
     return [h0, h1, h2, h3, h4, h5, h6, h7].map((x) => x.toString(16).padStart(8, "0")).join("");
   }
   function textSha256(text) {
-    return sha256Hex(normalizeEol(text));
+    return sha256Bytes(toBytes(normalizeEol(text)));
   }
   var K;
   var init_sha256 = __esm({
@@ -5652,12 +5651,13 @@ var BZW_clipbook = (() => {
   function downloadRemotesFor(fileName) {
     return REPO_BASES.map((b) => `${b}/downloads/${fileName}`);
   }
-  var REPO_BASES;
+  var REPO_SLUG, REPO_BASES;
   var init_remote_base = __esm({
     "src/core/remote-base.ts"() {
+      REPO_SLUG = "yeshimei/bz";
       REPO_BASES = [
-        "https://raw.githubusercontent.com/yeshimei/bz/master",
-        "https://cdn.jsdelivr.net/gh/yeshimei/bz@master"
+        `https://raw.githubusercontent.com/${REPO_SLUG}/master`,
+        `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`
       ];
     }
   });
@@ -5800,6 +5800,8 @@ var BZW_clipbook = (() => {
         name: e.name,
         file: e.file,
         sha256: e.sha256.toLowerCase(),
+        // 形态是可选字段：旧清单没有它（= 全是 doc），认成 doc 即可，不要让整份清单失效
+        kind: e.kind === "bundle" ? "bundle" : "doc",
         since: typeof e.since === "string" && e.since ? e.since : void 0,
         until: typeof e.until === "string" && e.until ? e.until : void 0,
         size: typeof e.size === "number" && Number.isFinite(e.size) && e.size > 0 ? e.size : void 0
@@ -9753,6 +9755,136 @@ ${c.trim()}
     }
   });
 
+  // src/core/tool-runtime.ts
+  function isWindows() {
+    return typeof process !== "undefined" && process.platform === "win32";
+  }
+  function bundledNodeFile() {
+    return isWindows() ? "node.exe" : "bin/node";
+  }
+  function vaultBasePathOf(app) {
+    var _a, _b;
+    const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
+    try {
+      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    var _a;
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    const configDir = String(((_a = app.vault) == null ? void 0 : _a.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
+    return `${base}/${configDir}/plugins/bz`;
+  }
+  function toolBundleDir(id) {
+    return `${DOWNLOADS_DIR}/tools/${id}`;
+  }
+  function fsPath(app, rel) {
+    const dir = pluginDirOf(app);
+    return dir ? `${dir}/${rel}` : "";
+  }
+  function childProcess() {
+    if (typeof window === "undefined") return null;
+    const w = window;
+    if (!(w == null ? void 0 : w.require)) return null;
+    try {
+      return w.require("child_process");
+    } catch (e) {
+      return null;
+    }
+  }
+  function existsOnDisk(p) {
+    var _a;
+    if (!p) return false;
+    if (fsProbe) return fsProbe(p);
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      const fs = (_a = w == null ? void 0 : w.require) == null ? void 0 : _a.call(w, "fs");
+      if (fs == null ? void 0 : fs.existsSync) return !!fs.existsSync(p);
+    } catch (e) {
+    }
+    return false;
+  }
+  function probeNodeRuntime(app, opts = {}) {
+    if (!opts.fresh && cachedNode) return cachedNode;
+    const bundled = fsPath(app, `${BUNDLED_NODE_DIR}/${bundledNodeFile()}`);
+    if (existsOnDisk(bundled)) {
+      const v = nodeVersionOf(bundled);
+      cachedNode = { kind: "bundled", path: bundled, version: v };
+      return cachedNode;
+    }
+    const cp = childProcess();
+    const sysPath = findOnPath(cp, "node");
+    if (sysPath) {
+      cachedNode = { kind: "system", path: sysPath, version: nodeVersionOf(sysPath) };
+      return cachedNode;
+    }
+    cachedNode = { kind: "none", path: "", version: "" };
+    return cachedNode;
+  }
+  function nodeVersionOf(nodePath) {
+    const cp = childProcess();
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    try {
+      const r = cp.spawnSync(nodePath, ["-v"], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      return String((r == null ? void 0 : r.stdout) || "").trim();
+    } catch (e) {
+      return "";
+    }
+  }
+  function findOnPath(cp, name) {
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    const cmd = isWindows() ? "where" : "which";
+    try {
+      const r = cp.spawnSync(cmd, [name], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      if ((r == null ? void 0 : r.status) !== 0) return "";
+      const first = String(r.stdout || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean)[0] || "";
+      return first;
+    } catch (e) {
+      return "";
+    }
+  }
+  function resolveToolBase(app, id) {
+    const entry = TOOL_ENTRIES[id];
+    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const node = probeNodeRuntime(app);
+    if (script && node.kind !== "none" && existsOnDisk(script)) {
+      return { cmd: node.path, shell: false, via: "bundle" };
+    }
+    return { cmd: entry.command, shell: true, via: "path" };
+  }
+  function resolveToolCommand(app, id, args = []) {
+    const entry = TOOL_ENTRIES[id];
+    const base = resolveToolBase(app, id);
+    if (base.via === "bundle") {
+      const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+      return { cmd: base.cmd, args: [script, ...args], shell: false, via: "bundle" };
+    }
+    return { cmd: base.cmd, args, shell: true, via: "path" };
+  }
+  function toolInstallHint(id) {
+    const entry = TOOL_ENTRIES[id];
+    return `未找到${entry.label}：到「设置 → 通用 → 在线资源」里下载它，下载完即可用`;
+  }
+  var TOOL_ENTRIES, BUNDLED_NODE_DIR, fsProbe, cachedNode;
+  var init_tool_runtime = __esm({
+    "src/core/tool-runtime.ts"() {
+      init_remote_asset();
+      init_app();
+      TOOL_ENTRIES = {
+        "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
+        "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
+        "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+      };
+      BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+      fsProbe = null;
+      cachedNode = null;
+    }
+  });
+
   // src/core/asr-proofread.ts
   function proofreadPrompt(entries, contextNote) {
     const lines = entries.map((e) => `#${e.n}|${e.text}`).join("\n");
@@ -10512,7 +10644,8 @@ ${sample}`
   }
   function resolveBatchSpawn(taskJson) {
     const b64 = Buffer.from(taskJson, "utf8").toString("base64");
-    return { cmd: "bili-dl", args: ["--batch", `b64:${b64}`], shell: true };
+    const r = resolveToolCommand(getApp(), "bili-downloader", ["--batch", `b64:${b64}`]);
+    return { cmd: r.cmd, args: r.args, shell: r.shell };
   }
   function tryUnlink(path) {
     if (!path) return;
@@ -10550,9 +10683,10 @@ ${sample}`
       init_domain_bus();
       init_settings_provider();
       init_app();
+      init_tool_runtime();
       init_data2();
       init_note_gen();
-      INSTALL_HINT = "请先运行 npm install -g @jwbz/bili-downloader";
+      INSTALL_HINT = toolInstallHint("bili-downloader");
       STEP_RE = /^\[bz-step\]\s*(.+)$/;
       RESULT_RE = /^\[bz-result\]\s*(\{.*\})$/;
       PROGRESS_RE = /^\[bz-p\]\s*(\{.*\})$/;
@@ -15678,8 +15812,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function humanizeError(reason) {
     const s = String(reason != null ? reason : "").trim();
     if (!s) return "";
-    if (/未找到 bili-dl|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
-      return "下载工具未安装：在电脑上运行 npm install -g @jwbz/bili-downloader 后重试";
+    if (/未找到\s*(bili-dl|B站下载器)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
+      return "下载工具未安装：到「设置 → 通用 → 在线资源」里下载「B站下载器」后重试";
     }
     if (/ffmpeg/i.test(s)) return "视频处理工具（ffmpeg）不可用：检查电脑是否已安装，或设置里的「ffmpeg 路径」";
     if (/ffprobe/i.test(s)) return "视频探测工具（ffprobe）不可用：检查电脑是否已安装，或设置里的「ffprobe 路径」";

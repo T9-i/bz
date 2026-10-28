@@ -312,7 +312,7 @@ describe('纯函数：阶段词汇表与计数账本', () => {
 describe('纯函数：失败面归类（同 sync 口径）', () => {
   it('ENOENT → 安装指引；依赖缺失 → doctor；工具中文引导透传不带多余 hint', () => {
     expect(classifyPrepFailure({ ok: false, stopped: false, code: null, stderr: '', error: new Error('外部工具启动失败：spawn bz-face ENOENT') }).hint)
-      .toContain('npm link');
+      .toContain('在线资源');
     const dep = classifyPrepFailure({ ok: false, stopped: false, code: 1, stderr: 'ModuleNotFoundError: No module named funasr', error: new Error('外部工具异常退出（退出码 1）') });
     expect(dep.message).toBe('Python 缺少预处理依赖');
     expect(dep.hint).toContain('bz-face doctor');

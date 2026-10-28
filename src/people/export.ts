@@ -14,7 +14,8 @@
  */
 import { runExternalTool, type ExternalToolCallbacks, type ExternalToolHandle, type ExternalToolSpec, type ExternalToolOutcome } from '../core/external-tool';
 import { tryGetSettings } from '../core/settings-provider';
-import { classifySyncFailure, emptySyncStats, firstLine, quotePathArg, quotePythonArg, statsFromResult } from './sync';
+import { classifySyncFailure, emptySyncStats, firstLine, pathArg, quotePythonArg, statsFromResult } from './sync';
+import { safeToolBase } from '../core/tool-runtime';
 
 /** 组装 `bz-face export` 的参数（引号口径与 buildSyncSpec 同源：quotePathArg） */
 export interface BuildExportSpecOpts {
@@ -28,16 +29,18 @@ export interface BuildExportSpecOpts {
 /** `bz-face export --data-root … --contact <名>…`（--contact 可重复；路径类参数包引号） */
 export function buildExportSpec(opts: BuildExportSpecOpts): ExternalToolSpec {
   const python = opts.python?.trim() || undefined;
+  const base = safeToolBase('obsidian-face');
+  const q = (v: string) => pathArg(v, base.shell);
   return {
-    cmd: 'bz-face',
+    cmd: base.cmd,
     args: [
       'export',
       '--data-root',
-      quotePathArg(opts.dataRoot),
-      ...opts.contacts.flatMap((c) => ['--contact', quotePathArg(c)]),
-      ...(python ? ['--python', quotePythonArg(python)] : []),
+      q(opts.dataRoot),
+      ...opts.contacts.flatMap((c) => ['--contact', q(c)]),
+      ...(python ? ['--python', base.shell ? quotePythonArg(python) : python] : []),
     ],
-    shell: true,
+    shell: base.shell,
   };
 }
 

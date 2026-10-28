@@ -84,6 +84,13 @@ export default interface BzSettings {
    *  管理入口 = 设置面板「工具坞 → 信任」；面板内「重新导入声明」也会写到它。 */
   dockTrust: Record<string, DockTrustRecord>;
 
+  // ===== ℹ️ 关于（通用页首组，2026-10-28 对外分发）=====
+  /** 自动更新：开 = 启动 15 秒后静默检查并安装新版本（24h 节流）；关（缺省）= 只手动检查，
+   *  发现新版也**不自动覆盖**。对外分发的缺省必须是关 —— 自动更新意味着作者每推一次主干，
+   *  所有用户当场换代码；自用顺手，给别人用是事故面（core/self-update.ts 消费）。
+   *  注意它只管「装不装」，不管「查不查」：关着也仍会在面板里看到「有新版」。 */
+  autoUpdate: boolean;
+
   // ===== 📂 数据存储路径（ADR-0009 共享数据路径）=====
   /** 共享 JSON 数据目录（memo/belongings/passwords/favorites/review/quiz/闪念 meta+vec 统一存放） */
   storagePath: string;
@@ -936,6 +943,9 @@ export const DEFAULT_SETTINGS: BzSettings = {
 
   // 共享数据路径（ADR-0009）
   storagePath: 'CONFIG/STORAGE',
+
+  // 自动更新：缺省关（2026-10-28 对外分发拍板）——见 interface 里的说明
+  autoUpdate: false,
 
   // 附件搬移（ticket 65，运行时记忆）
   attachLastFolder: '',

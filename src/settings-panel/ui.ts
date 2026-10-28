@@ -90,6 +90,11 @@ const schemaLoaders: Record<string, () => Promise<SettingsSchema>> = {
     // 更新日志/手册/主题/分类表四行下载状态机；下载动作收口在这里与文档导航入口两处
     const { onlineResourcesGroup } = await import('./online-resources');
     schema.groups.push(await onlineResourcesGroup());
+    // 「关于」组排最前（2026-10-28 对外分发）：版本 / 自动更新 / 反馈 / 赞赏。
+    // 放最前是因为它回答的是「我装的是什么版本、怎么反馈」——那是一个人打开设置第一眼
+    // 会问的两件事；外观与功能域都是配置项，可以往后排。
+    const { aboutGroup } = await import('../core/about-group');
+    schema.groups.unshift(await aboutGroup());
     return schema;
   },
   ai: async () => (await import('../core/settings-main-schema')).aiSettingsSchema(),

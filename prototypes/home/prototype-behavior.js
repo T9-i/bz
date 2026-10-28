@@ -1,5 +1,5 @@
-/* 源指纹 6ded58bb4527db0c · 仓内输入 315 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 c819c3a50f96f1f3 · 仓内输入 322 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/home/fake-sim.ts","prototypes/home/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/abort.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/diary/parser.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/notes.ts","src/gameshelf/reconcile.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/gameshelf/steam.ts","src/home/behavior-timeline.ts","src/home/domains.ts","src/home/entry-editor.ts","src/home/index.ts","src/home/layouts/river/render.ts","src/home/motion.ts","src/home/order.ts","src/home/render.ts","src/home/river.ts","src/home/settings.ts","src/home/shared.ts","src/home/state.ts","src/home/ui.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/recap/aggregate.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/ollama.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/schema.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/api.ts","src/smartcat/behavior-trim.ts","src/smartcat/behavior-wording.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/cognitive.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/insight-version.ts","src/smartcat/memory.ts","src/smartcat/motion.ts","src/smartcat/routing.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/home/fake-sim.ts → window.BZW_home（行为单源预览包，issue 245/ADR-0106） */
 var BZW_home = (() => {
   var __create = Object.create;
@@ -42,9 +42,9 @@ var BZW_home = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -4072,8 +4072,20 @@ var BZW_home = (() => {
   });
 
   // src/core/settings-provider.ts
+  var settings_provider_exports = {};
+  __export(settings_provider_exports, {
+    getSettings: () => getSettings,
+    panelSizePersist: () => panelSizePersist,
+    saveSettings: () => saveSettings,
+    setSettingsProvider: () => setSettingsProvider,
+    setSettingsSaver: () => setSettingsSaver,
+    tryGetSettings: () => tryGetSettings
+  });
   function setSettingsProvider(fn) {
     _provider = fn;
+  }
+  function setSettingsSaver(fn) {
+    _saver = fn;
   }
   function saveSettings() {
     return _saver ? _saver() : Promise.resolve();
@@ -8482,6 +8494,12 @@ var BZW_home = (() => {
   });
 
   // src/core/storage-path.ts
+  var storage_path_exports = {};
+  __export(storage_path_exports, {
+    DEFAULT_STORAGE_DIR: () => DEFAULT_STORAGE_DIR,
+    normalizeStorageDir: () => normalizeStorageDir,
+    storageFileIn: () => storageFileIn
+  });
   function normalizeStorageDir(value) {
     let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
     if (/\.json$/i.test(dir)) {
@@ -8489,6 +8507,9 @@ var BZW_home = (() => {
       dir = idx >= 0 ? dir.slice(0, idx) : "";
     }
     return dir || DEFAULT_STORAGE_DIR;
+  }
+  function storageFileIn(dir, name) {
+    return `${normalizeStorageDir(dir).replace(/\/+$/, "")}/${name}`;
   }
   var DEFAULT_STORAGE_DIR;
   var init_storage_path = __esm({
@@ -22730,6 +22751,448 @@ ${countsToText(s.missing)}
     }
   });
 
+  // src/core/sha256.ts
+  function toBytes(text2) {
+    return new TextEncoder().encode(text2);
+  }
+  function normalizeEol(text2) {
+    return String(text2 != null ? text2 : "").replace(/\r\n?/g, "\n");
+  }
+  function sha256Bytes(bytes) {
+    const dataLen = bytes.length;
+    const padded = new Uint8Array((dataLen + 8 >> 6) + 1 << 6);
+    padded.set(bytes);
+    padded[dataLen] = 128;
+    const bitLen = dataLen * 8;
+    const view = new DataView(padded.buffer);
+    view.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296), false);
+    view.setUint32(padded.length - 4, bitLen >>> 0, false);
+    let h0 = 1779033703, h1 = 3144134277, h2 = 1013904242, h3 = 2773480762;
+    let h4 = 1359893119, h5 = 2600822924, h6 = 528734635, h7 = 1541459225;
+    const w = new Uint32Array(64);
+    const rotr = (x, n) => (x >>> n | x << 32 - n) >>> 0;
+    for (let off = 0; off < padded.length; off += 64) {
+      for (let i = 0; i < 16; i++) w[i] = view.getUint32(off + i * 4, false);
+      for (let i = 16; i < 64; i++) {
+        const s0 = (rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ w[i - 15] >>> 3) >>> 0;
+        const s1 = (rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ w[i - 2] >>> 10) >>> 0;
+        w[i] = w[i - 16] + s0 + w[i - 7] + s1 >>> 0;
+      }
+      let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+      for (let i = 0; i < 64; i++) {
+        const S1 = (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) >>> 0;
+        const ch = (e & f ^ ~e & g) >>> 0;
+        const t1 = h + S1 + ch + K[i] + w[i] >>> 0;
+        const S0 = (rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) >>> 0;
+        const maj = (a & b ^ a & c ^ b & c) >>> 0;
+        const t2 = S0 + maj >>> 0;
+        h = g;
+        g = f;
+        f = e;
+        e = d + t1 >>> 0;
+        d = c;
+        c = b;
+        b = a;
+        a = t1 + t2 >>> 0;
+      }
+      h0 = h0 + a >>> 0;
+      h1 = h1 + b >>> 0;
+      h2 = h2 + c >>> 0;
+      h3 = h3 + d >>> 0;
+      h4 = h4 + e >>> 0;
+      h5 = h5 + f >>> 0;
+      h6 = h6 + g >>> 0;
+      h7 = h7 + h >>> 0;
+    }
+    return [h0, h1, h2, h3, h4, h5, h6, h7].map((x) => x.toString(16).padStart(8, "0")).join("");
+  }
+  function textSha256(text2) {
+    return sha256Bytes(toBytes(normalizeEol(text2)));
+  }
+  var K;
+  var init_sha256 = __esm({
+    "src/core/sha256.ts"() {
+      K = new Uint32Array([
+        1116352408,
+        1899447441,
+        3049323471,
+        3921009573,
+        961987163,
+        1508970993,
+        2453635748,
+        2870763221,
+        3624381080,
+        310598401,
+        607225278,
+        1426881987,
+        1925078388,
+        2162078206,
+        2614888103,
+        3248222580,
+        3835390401,
+        4022224774,
+        264347078,
+        604807628,
+        770255983,
+        1249150122,
+        1555081692,
+        1996064986,
+        2554220882,
+        2821834349,
+        2952996808,
+        3210313671,
+        3336571891,
+        3584528711,
+        113926993,
+        338241895,
+        666307205,
+        773529912,
+        1294757372,
+        1396182291,
+        1695183700,
+        1986661051,
+        2177026350,
+        2456956037,
+        2730485921,
+        2820302411,
+        3259730800,
+        3345764771,
+        3516065817,
+        3600352804,
+        4094571909,
+        275423344,
+        430227734,
+        506948616,
+        659060556,
+        883997877,
+        958139571,
+        1322822218,
+        1537002063,
+        1747873779,
+        1955562222,
+        2024104815,
+        2227730452,
+        2361852424,
+        2428436474,
+        2756734187,
+        3204031479,
+        3329325298
+      ]);
+    }
+  });
+
+  // src/core/remote-base.ts
+  function isValidTag(tag) {
+    return typeof tag === "string" && TAG_RE.test(tag);
+  }
+  function tagBasesFor(tag) {
+    if (!isValidTag(tag)) return [];
+    return [
+      `https://raw.githubusercontent.com/${REPO_SLUG}/refs/tags/${tag}`,
+      `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@${tag}`
+    ];
+  }
+  function repoRemotesForTag(tag, name) {
+    return tagBasesFor(tag).map((b) => `${b}/${name}`);
+  }
+  function downloadRemotesFor(fileName) {
+    return REPO_BASES.map((b) => `${b}/downloads/${fileName}`);
+  }
+  var REPO_SLUG, REPO_BASES, RELEASE_POINTER, TAG_RE;
+  var init_remote_base = __esm({
+    "src/core/remote-base.ts"() {
+      REPO_SLUG = "yeshimei/bz";
+      REPO_BASES = [
+        `https://raw.githubusercontent.com/${REPO_SLUG}/master`,
+        `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`
+      ];
+      RELEASE_POINTER = "version.json";
+      TAG_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+    }
+  });
+
+  // src/core/remote-asset.ts
+  function remotesFor(fileName) {
+    return downloadRemotesFor(fileName);
+  }
+  function assetVaultPath(app, fileName) {
+    var _a2;
+    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
+    return `${configDir}/plugins/bz/${fileName}`;
+  }
+  function downloadsVaultPath(app, fileName) {
+    return assetVaultPath(app, `${DOWNLOADS_DIR}/${fileName}`);
+  }
+  async function ensureDir(app, relPath) {
+    var _a2;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
+    if (!(adapter == null ? void 0 : adapter.mkdir)) return;
+    const slash = relPath.lastIndexOf("/");
+    if (slash <= 0) return;
+    let cur = "";
+    for (const part of relPath.slice(0, slash).split("/")) {
+      cur = cur ? `${cur}/${part}` : part;
+      try {
+        await adapter.mkdir(downloadsVaultPath(app, cur));
+      } catch (e) {
+      }
+    }
+  }
+  async function fetchAssetText(fileName, validate, label, unit = "页") {
+    let lastErr = "";
+    for (const url of remotesFor(fileName)) {
+      try {
+        const res = await requestUrl({ url, method: "GET", throw: true });
+        const text2 = String(res.text || "");
+        if (!validate(text2)) {
+          lastErr = `${url} 返回内容不是${label}${unit}`;
+          continue;
+        }
+        return text2;
+      } catch (e) {
+        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+      }
+    }
+    throw new Error(`${label}下载失败：${lastErr}`);
+  }
+  async function writeAssetText(app, fileName, text2) {
+    await ensureDir(app, fileName);
+    await app.vault.adapter.write(downloadsVaultPath(app, fileName), text2);
+    emitDomainEvent(DOWNLOADS_CHANGED_EVENT, { fileName });
+  }
+  async function ensureAssetWithHash(app, fileName, expected, label) {
+    const want = String(expected || "").toLowerCase();
+    const cached = await readAsset(app, fileName);
+    if (cached !== null && (!want || textSha256(cached) === want)) return cached;
+    let lastErr = "";
+    for (const url of remotesFor(fileName)) {
+      try {
+        const res = await requestUrl({ url, method: "GET", throw: true });
+        const text2 = String(res.text || "");
+        if (want && textSha256(text2) !== want) {
+          lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
+          continue;
+        }
+        await writeAssetText(app, fileName, text2);
+        return text2;
+      } catch (e) {
+        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+      }
+    }
+    throw new Error(`${label}下载失败：${lastErr}`);
+  }
+  async function hasAsset(app, fileName) {
+    try {
+      return await app.vault.adapter.exists(downloadsVaultPath(app, fileName));
+    } catch (e) {
+      return false;
+    }
+  }
+  async function downloadAsset(app, fileName, validate, label) {
+    const text2 = await fetchAssetText(fileName, validate, label, "页");
+    await writeAssetText(app, fileName, text2);
+  }
+  async function readAsset(app, fileName) {
+    try {
+      if (!await hasAsset(app, fileName)) return null;
+      return await app.vault.adapter.read(downloadsVaultPath(app, fileName));
+    } catch (e) {
+      return null;
+    }
+  }
+  async function ensureAssetReady(app, fileName, validate, label) {
+    let text2 = await readAsset(app, fileName);
+    if (!text2) {
+      await downloadAsset(app, fileName, validate, label);
+      text2 = await readAsset(app, fileName);
+    }
+    if (!text2) throw new Error(`${label}下载后读取失败：插件目录写入异常`);
+    return text2;
+  }
+  async function refreshAsset(app, fileName, validate, label, expectedSha256) {
+    try {
+      const want = String(expectedSha256 || "").toLowerCase();
+      if (want) {
+        const local2 = await readAsset(app, fileName);
+        if (local2 !== null && textSha256(local2) === want) return null;
+      }
+      const text2 = await fetchAssetText(fileName, validate, label, "页");
+      const local = await readAsset(app, fileName);
+      if (local !== null && textSha256(text2) === textSha256(local)) return null;
+      await writeAssetText(app, fileName, text2);
+      return text2;
+    } catch (e) {
+      return null;
+    }
+  }
+  var DOWNLOADS_CHANGED_EVENT, DOWNLOADS_DIR;
+  var init_remote_asset = __esm({
+    "src/core/remote-asset.ts"() {
+      init_fake_obsidian();
+      init_sha256();
+      init_domain_bus();
+      init_remote_base();
+      DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
+      DOWNLOADS_DIR = "downloads";
+    }
+  });
+
+  // src/core/tool-runtime.ts
+  function isWindows() {
+    return typeof process !== "undefined" && process.platform === "win32";
+  }
+  function bundledNodeFile() {
+    return isWindows() ? "node.exe" : "bin/node";
+  }
+  function vaultBasePathOf(app) {
+    var _a2, _b2;
+    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
+    try {
+      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    var _a2;
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
+    return `${base}/${configDir}/plugins/bz`;
+  }
+  function toolBundleDir(id) {
+    return `${DOWNLOADS_DIR}/tools/${id}`;
+  }
+  function fsPath(app, rel) {
+    const dir = pluginDirOf(app);
+    return dir ? `${dir}/${rel}` : "";
+  }
+  function childProcess() {
+    if (typeof window === "undefined") return null;
+    const w = window;
+    if (!(w == null ? void 0 : w.require)) return null;
+    try {
+      return w.require("child_process");
+    } catch (e) {
+      return null;
+    }
+  }
+  function existsOnDisk(p) {
+    var _a2;
+    if (!p) return false;
+    if (fsProbe) return fsProbe(p);
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      const fs = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "fs");
+      if (fs == null ? void 0 : fs.existsSync) return !!fs.existsSync(p);
+    } catch (e) {
+    }
+    return false;
+  }
+  function probeNodeRuntime(app, opts = {}) {
+    if (!opts.fresh && cachedNode) return cachedNode;
+    const bundled = fsPath(app, `${BUNDLED_NODE_DIR}/${bundledNodeFile()}`);
+    if (existsOnDisk(bundled)) {
+      const v = nodeVersionOf(bundled);
+      cachedNode = { kind: "bundled", path: bundled, version: v };
+      return cachedNode;
+    }
+    const cp = childProcess();
+    const sysPath = findOnPath(cp, "node");
+    if (sysPath) {
+      cachedNode = { kind: "system", path: sysPath, version: nodeVersionOf(sysPath) };
+      return cachedNode;
+    }
+    cachedNode = { kind: "none", path: "", version: "" };
+    return cachedNode;
+  }
+  function nodeVersionOf(nodePath) {
+    const cp = childProcess();
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    try {
+      const r = cp.spawnSync(nodePath, ["-v"], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      return String((r == null ? void 0 : r.stdout) || "").trim();
+    } catch (e) {
+      return "";
+    }
+  }
+  function findOnPath(cp, name) {
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    const cmd = isWindows() ? "where" : "which";
+    try {
+      const r = cp.spawnSync(cmd, [name], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      if ((r == null ? void 0 : r.status) !== 0) return "";
+      const first = String(r.stdout || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean)[0] || "";
+      return first;
+    } catch (e) {
+      return "";
+    }
+  }
+  function resolveToolBase(app, id) {
+    const entry = TOOL_ENTRIES[id];
+    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const node = probeNodeRuntime(app);
+    if (script && node.kind !== "none" && existsOnDisk(script)) {
+      return { cmd: node.path, shell: false, via: "bundle" };
+    }
+    return { cmd: entry.command, shell: true, via: "path" };
+  }
+  function resolveToolCommand(app, id, args = []) {
+    const entry = TOOL_ENTRIES[id];
+    const base = resolveToolBase(app, id);
+    if (base.via === "bundle") {
+      const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+      return { cmd: base.cmd, args: [script, ...args], shell: false, via: "bundle" };
+    }
+    return { cmd: base.cmd, args, shell: true, via: "path" };
+  }
+  function toolReadyState(app, id) {
+    const entry = TOOL_ENTRIES[id];
+    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    if (script && existsOnDisk(script) && probeNodeRuntime(app).kind !== "none") return { ready: true, via: "bundle" };
+    const cp = childProcess();
+    if (findOnPath(cp, entry.command)) return { ready: true, via: "path" };
+    return { ready: false, via: "none" };
+  }
+  function toolInstallHint(id) {
+    const entry = TOOL_ENTRIES[id];
+    return `未找到${entry.label}：到「设置 → 通用 → 在线资源」里下载它，下载完即可用`;
+  }
+  function runtimeDiagnostics(app) {
+    const node = probeNodeRuntime(app);
+    const rows = [
+      { key: "插件目录", value: pluginDirOf(app) || "(取不到 vault 路径)" },
+      {
+        key: "Node 运行时",
+        value: node.kind === "none" ? "未找到" : `${node.kind === "bundled" ? "插件内" : "系统"}${node.version ? ` ${node.version}` : ""}（${node.path}）`
+      }
+    ];
+    for (const id of Object.keys(TOOL_ENTRIES)) {
+      const st = toolReadyState(app, id);
+      rows.push({
+        key: TOOL_ENTRIES[id].label,
+        value: st.via === "bundle" ? "已下载" : st.via === "path" ? "用系统里已装的命令" : "未安装"
+      });
+    }
+    return rows;
+  }
+  var TOOL_ENTRIES, BUNDLED_NODE_DIR, fsProbe, cachedNode;
+  var init_tool_runtime = __esm({
+    "src/core/tool-runtime.ts"() {
+      init_remote_asset();
+      init_app();
+      TOOL_ENTRIES = {
+        "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
+        "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
+        "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+      };
+      BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+      fsProbe = null;
+      cachedNode = null;
+    }
+  });
+
   // src/core/asr-proofread.ts
   function proofreadPrompt(entries, contextNote) {
     const lines = entries.map((e) => `#${e.n}|${e.text}`).join("\n");
@@ -23489,7 +23952,8 @@ ${sample}`
   }
   function resolveBatchSpawn(taskJson) {
     const b64 = Buffer.from(taskJson, "utf8").toString("base64");
-    return { cmd: "bili-dl", args: ["--batch", `b64:${b64}`], shell: true };
+    const r = resolveToolCommand(getApp(), "bili-downloader", ["--batch", `b64:${b64}`]);
+    return { cmd: r.cmd, args: r.args, shell: r.shell };
   }
   function tryUnlink(path) {
     if (!path) return;
@@ -23527,9 +23991,10 @@ ${sample}`
       init_domain_bus();
       init_settings_provider();
       init_app();
+      init_tool_runtime();
       init_data7();
       init_note_gen();
-      INSTALL_HINT = "请先运行 npm install -g @jwbz/bili-downloader";
+      INSTALL_HINT = toolInstallHint("bili-downloader");
       STEP_RE = /^\[bz-step\]\s*(.+)$/;
       RESULT_RE = /^\[bz-result\]\s*(\{.*\})$/;
       PROGRESS_RE = /^\[bz-p\]\s*(\{.*\})$/;
@@ -28739,8 +29204,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function humanizeError(reason) {
     const s = String(reason != null ? reason : "").trim();
     if (!s) return "";
-    if (/未找到 bili-dl|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
-      return "下载工具未安装：在电脑上运行 npm install -g @jwbz/bili-downloader 后重试";
+    if (/未找到\s*(bili-dl|B站下载器)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
+      return "下载工具未安装：到「设置 → 通用 → 在线资源」里下载「B站下载器」后重试";
     }
     if (/ffmpeg/i.test(s)) return "视频处理工具（ffmpeg）不可用：检查电脑是否已安装，或设置里的「ffmpeg 路径」";
     if (/ffprobe/i.test(s)) return "视频探测工具（ffprobe）不可用：检查电脑是否已安装，或设置里的「ffprobe 路径」";
@@ -35461,277 +35926,6 @@ ${missing.map((m) => `- ${m}`).join("\n")}
     }
   });
 
-  // src/core/sha256.ts
-  function toBytes(text2) {
-    return new TextEncoder().encode(text2);
-  }
-  function normalizeEol(text2) {
-    return String(text2 != null ? text2 : "").replace(/\r\n?/g, "\n");
-  }
-  function sha256Hex(text2) {
-    const bytes = toBytes(String(text2 != null ? text2 : ""));
-    const dataLen = bytes.length;
-    const padded = new Uint8Array((dataLen + 8 >> 6) + 1 << 6);
-    padded.set(bytes);
-    padded[dataLen] = 128;
-    const bitLen = dataLen * 8;
-    const view = new DataView(padded.buffer);
-    view.setUint32(padded.length - 8, Math.floor(bitLen / 4294967296), false);
-    view.setUint32(padded.length - 4, bitLen >>> 0, false);
-    let h0 = 1779033703, h1 = 3144134277, h2 = 1013904242, h3 = 2773480762;
-    let h4 = 1359893119, h5 = 2600822924, h6 = 528734635, h7 = 1541459225;
-    const w = new Uint32Array(64);
-    const rotr = (x, n) => (x >>> n | x << 32 - n) >>> 0;
-    for (let off = 0; off < padded.length; off += 64) {
-      for (let i = 0; i < 16; i++) w[i] = view.getUint32(off + i * 4, false);
-      for (let i = 16; i < 64; i++) {
-        const s0 = (rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ w[i - 15] >>> 3) >>> 0;
-        const s1 = (rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ w[i - 2] >>> 10) >>> 0;
-        w[i] = w[i - 16] + s0 + w[i - 7] + s1 >>> 0;
-      }
-      let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
-      for (let i = 0; i < 64; i++) {
-        const S1 = (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) >>> 0;
-        const ch = (e & f ^ ~e & g) >>> 0;
-        const t1 = h + S1 + ch + K[i] + w[i] >>> 0;
-        const S0 = (rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) >>> 0;
-        const maj = (a & b ^ a & c ^ b & c) >>> 0;
-        const t2 = S0 + maj >>> 0;
-        h = g;
-        g = f;
-        f = e;
-        e = d + t1 >>> 0;
-        d = c;
-        c = b;
-        b = a;
-        a = t1 + t2 >>> 0;
-      }
-      h0 = h0 + a >>> 0;
-      h1 = h1 + b >>> 0;
-      h2 = h2 + c >>> 0;
-      h3 = h3 + d >>> 0;
-      h4 = h4 + e >>> 0;
-      h5 = h5 + f >>> 0;
-      h6 = h6 + g >>> 0;
-      h7 = h7 + h >>> 0;
-    }
-    return [h0, h1, h2, h3, h4, h5, h6, h7].map((x) => x.toString(16).padStart(8, "0")).join("");
-  }
-  function textSha256(text2) {
-    return sha256Hex(normalizeEol(text2));
-  }
-  var K;
-  var init_sha256 = __esm({
-    "src/core/sha256.ts"() {
-      K = new Uint32Array([
-        1116352408,
-        1899447441,
-        3049323471,
-        3921009573,
-        961987163,
-        1508970993,
-        2453635748,
-        2870763221,
-        3624381080,
-        310598401,
-        607225278,
-        1426881987,
-        1925078388,
-        2162078206,
-        2614888103,
-        3248222580,
-        3835390401,
-        4022224774,
-        264347078,
-        604807628,
-        770255983,
-        1249150122,
-        1555081692,
-        1996064986,
-        2554220882,
-        2821834349,
-        2952996808,
-        3210313671,
-        3336571891,
-        3584528711,
-        113926993,
-        338241895,
-        666307205,
-        773529912,
-        1294757372,
-        1396182291,
-        1695183700,
-        1986661051,
-        2177026350,
-        2456956037,
-        2730485921,
-        2820302411,
-        3259730800,
-        3345764771,
-        3516065817,
-        3600352804,
-        4094571909,
-        275423344,
-        430227734,
-        506948616,
-        659060556,
-        883997877,
-        958139571,
-        1322822218,
-        1537002063,
-        1747873779,
-        1955562222,
-        2024104815,
-        2227730452,
-        2361852424,
-        2428436474,
-        2756734187,
-        3204031479,
-        3329325298
-      ]);
-    }
-  });
-
-  // src/core/remote-base.ts
-  function downloadRemotesFor(fileName) {
-    return REPO_BASES.map((b) => `${b}/downloads/${fileName}`);
-  }
-  var REPO_BASES;
-  var init_remote_base = __esm({
-    "src/core/remote-base.ts"() {
-      REPO_BASES = [
-        "https://raw.githubusercontent.com/yeshimei/bz/master",
-        "https://cdn.jsdelivr.net/gh/yeshimei/bz@master"
-      ];
-    }
-  });
-
-  // src/core/remote-asset.ts
-  function remotesFor(fileName) {
-    return downloadRemotesFor(fileName);
-  }
-  function assetVaultPath(app, fileName) {
-    var _a2;
-    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
-    return `${configDir}/plugins/bz/${fileName}`;
-  }
-  function downloadsVaultPath(app, fileName) {
-    return assetVaultPath(app, `${DOWNLOADS_DIR}/${fileName}`);
-  }
-  async function ensureDir(app, relPath) {
-    var _a2;
-    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
-    if (!(adapter == null ? void 0 : adapter.mkdir)) return;
-    const slash = relPath.lastIndexOf("/");
-    if (slash <= 0) return;
-    let cur = "";
-    for (const part of relPath.slice(0, slash).split("/")) {
-      cur = cur ? `${cur}/${part}` : part;
-      try {
-        await adapter.mkdir(downloadsVaultPath(app, cur));
-      } catch (e) {
-      }
-    }
-  }
-  async function fetchAssetText(fileName, validate, label, unit = "页") {
-    let lastErr = "";
-    for (const url of remotesFor(fileName)) {
-      try {
-        const res = await requestUrl({ url, method: "GET", throw: true });
-        const text2 = String(res.text || "");
-        if (!validate(text2)) {
-          lastErr = `${url} 返回内容不是${label}${unit}`;
-          continue;
-        }
-        return text2;
-      } catch (e) {
-        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
-      }
-    }
-    throw new Error(`${label}下载失败：${lastErr}`);
-  }
-  async function writeAssetText(app, fileName, text2) {
-    await ensureDir(app, fileName);
-    await app.vault.adapter.write(downloadsVaultPath(app, fileName), text2);
-    emitDomainEvent(DOWNLOADS_CHANGED_EVENT, { fileName });
-  }
-  async function ensureAssetWithHash(app, fileName, expected, label) {
-    const want = String(expected || "").toLowerCase();
-    const cached = await readAsset(app, fileName);
-    if (cached !== null && (!want || textSha256(cached) === want)) return cached;
-    let lastErr = "";
-    for (const url of remotesFor(fileName)) {
-      try {
-        const res = await requestUrl({ url, method: "GET", throw: true });
-        const text2 = String(res.text || "");
-        if (want && textSha256(text2) !== want) {
-          lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
-          continue;
-        }
-        await writeAssetText(app, fileName, text2);
-        return text2;
-      } catch (e) {
-        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
-      }
-    }
-    throw new Error(`${label}下载失败：${lastErr}`);
-  }
-  async function hasAsset(app, fileName) {
-    try {
-      return await app.vault.adapter.exists(downloadsVaultPath(app, fileName));
-    } catch (e) {
-      return false;
-    }
-  }
-  async function downloadAsset(app, fileName, validate, label) {
-    const text2 = await fetchAssetText(fileName, validate, label, "页");
-    await writeAssetText(app, fileName, text2);
-  }
-  async function readAsset(app, fileName) {
-    try {
-      if (!await hasAsset(app, fileName)) return null;
-      return await app.vault.adapter.read(downloadsVaultPath(app, fileName));
-    } catch (e) {
-      return null;
-    }
-  }
-  async function ensureAssetReady(app, fileName, validate, label) {
-    let text2 = await readAsset(app, fileName);
-    if (!text2) {
-      await downloadAsset(app, fileName, validate, label);
-      text2 = await readAsset(app, fileName);
-    }
-    if (!text2) throw new Error(`${label}下载后读取失败：插件目录写入异常`);
-    return text2;
-  }
-  async function refreshAsset(app, fileName, validate, label, expectedSha256) {
-    try {
-      const want = String(expectedSha256 || "").toLowerCase();
-      if (want) {
-        const local2 = await readAsset(app, fileName);
-        if (local2 !== null && textSha256(local2) === want) return null;
-      }
-      const text2 = await fetchAssetText(fileName, validate, label, "页");
-      const local = await readAsset(app, fileName);
-      if (local !== null && textSha256(text2) === textSha256(local)) return null;
-      await writeAssetText(app, fileName, text2);
-      return text2;
-    } catch (e) {
-      return null;
-    }
-  }
-  var DOWNLOADS_CHANGED_EVENT, DOWNLOADS_DIR;
-  var init_remote_asset = __esm({
-    "src/core/remote-asset.ts"() {
-      init_fake_obsidian();
-      init_sha256();
-      init_domain_bus();
-      init_remote_base();
-      DOWNLOADS_CHANGED_EVENT = "downloads:asset-changed";
-      DOWNLOADS_DIR = "downloads";
-    }
-  });
-
   // src/core/download-manifest.ts
   function normalizeSkinEntry(item) {
     const e = item;
@@ -35773,6 +35967,8 @@ ${missing.map((m) => `- ${m}`).join("\n")}
         name: e.name,
         file: e.file,
         sha256: e.sha256.toLowerCase(),
+        // 形态是可选字段：旧清单没有它（= 全是 doc），认成 doc 即可，不要让整份清单失效
+        kind: e.kind === "bundle" ? "bundle" : "doc",
         since: typeof e.since === "string" && e.since ? e.since : void 0,
         until: typeof e.until === "string" && e.until ? e.until : void 0,
         size: typeof e.size === "number" && Number.isFinite(e.size) && e.size > 0 ? e.size : void 0
@@ -35982,6 +36178,349 @@ ${it.text}`).join("\n"));
       init_download_manifest();
       ready = /* @__PURE__ */ new Map();
       STYLE_ID = "bz-skin-pack-style";
+    }
+  });
+
+  // src/core/tar.ts
+  function cstr(bytes, start, len) {
+    let end = start;
+    const stop = Math.min(start + len, bytes.length);
+    while (end < stop && bytes[end] !== 0) end++;
+    return new TextDecoder("utf-8").decode(bytes.subarray(start, end));
+  }
+  function octal(bytes, start, len) {
+    let s = "";
+    const stop = Math.min(start + len, bytes.length);
+    for (let i = start; i < stop; i++) {
+      const c = bytes[i];
+      if (c === 0) break;
+      s += String.fromCharCode(c);
+    }
+    s = s.trim();
+    if (!s) return 0;
+    if (!/^[0-7]+$/.test(s)) return -1;
+    return parseInt(s, 8);
+  }
+  function safeTarPath(raw) {
+    let p = String(raw || "").replace(/\\/g, "/").trim();
+    while (p.startsWith("./")) p = p.slice(2);
+    p = p.replace(/\/+/g, "/");
+    if (!p) return null;
+    if (p.startsWith("/")) return null;
+    if (/^[A-Za-z]:/.test(p)) return null;
+    const segs = p.split("/").filter((s) => s && s !== ".");
+    if (segs.some((s) => s === "..")) return null;
+    if (segs.length === 0) return null;
+    return segs.join("/");
+  }
+  function untar(bytes, limits = UNTAR_LIMITS) {
+    const out = [];
+    let total = 0;
+    let off = 0;
+    while (off + BLOCK <= bytes.length) {
+      let zero = true;
+      for (let i = 0; i < BLOCK; i++) {
+        if (bytes[off + i] !== 0) {
+          zero = false;
+          break;
+        }
+      }
+      if (zero) break;
+      const magic = cstr(bytes, off + 257, 5);
+      if (magic !== "ustar") throw new Error("不是 ustar 格式的 tar（头部 magic 不符）");
+      const size = octal(bytes, off + 124, 12);
+      if (size < 0) throw new Error("tar 头部 size 字段损坏");
+      const typeflag = String.fromCharCode(bytes[off + 156] || 48);
+      const prefix = cstr(bytes, off + 345, 155);
+      const name = cstr(bytes, off + 0, 100);
+      const rawPath = prefix ? `${prefix}/${name}` : name;
+      const dataStart = off + BLOCK;
+      const dataEnd = dataStart + size;
+      if (dataEnd > bytes.length) throw new Error("tar 条目越界（归档被截断）");
+      if (typeflag === "5") {
+        off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
+        continue;
+      }
+      if (typeflag !== "0" && typeflag !== "\0") {
+        off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
+        continue;
+      }
+      const path = safeTarPath(rawPath);
+      if (!path) throw new Error(`tar 条目路径不安全：${rawPath || "(空)"}`);
+      total += size;
+      if (out.length + 1 > limits.maxEntries) throw new Error(`tar 条目过多（>${limits.maxEntries}）`);
+      if (total > limits.maxTotalBytes) throw new Error(`tar 解包总大小超限（>${limits.maxTotalBytes} 字节）`);
+      out.push({ path, data: bytes.subarray(dataStart, dataEnd) });
+      off = dataStart + Math.ceil(size / BLOCK) * BLOCK;
+    }
+    if (out.length === 0) throw new Error("tar 里没有文件");
+    return out;
+  }
+  var UNTAR_LIMITS, BLOCK;
+  var init_tar = __esm({
+    "src/core/tar.ts"() {
+      UNTAR_LIMITS = {
+        maxEntries: 5e3,
+        maxTotalBytes: 128 * 1024 * 1024
+      };
+      BLOCK = 512;
+    }
+  });
+
+  // src/core/bundle-asset.ts
+  function bundleDirOf(file) {
+    return String(file || "").replace(/\.tar\.gz$/i, "");
+  }
+  function defaultGunzip(bytes) {
+    var _a2, _b2, _c;
+    const w = typeof window !== "undefined" ? window : null;
+    let zlib = null;
+    try {
+      zlib = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "zlib");
+    } catch (e) {
+      zlib = null;
+    }
+    if (!(zlib == null ? void 0 : zlib.gunzipSync)) throw new Error("当前环境不支持解压（目录包需要桌面端）");
+    let Buf = typeof Buffer !== "undefined" ? Buffer : null;
+    if (!Buf) {
+      try {
+        Buf = (_c = (_b2 = w == null ? void 0 : w.require) == null ? void 0 : _b2.call(w, "buffer")) == null ? void 0 : _c.Buffer;
+      } catch (e) {
+        Buf = null;
+      }
+    }
+    if (!Buf) throw new Error("当前环境不支持解压（缺少 Buffer）");
+    const out = zlib.gunzipSync(Buf.from(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    return new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
+  }
+  async function defaultFetchBytes(url) {
+    const res = await requestUrl({ url, method: "GET", throw: true });
+    const ab = res.arrayBuffer;
+    if (!ab) throw new Error("响应没有二进制体");
+    return new Uint8Array(ab);
+  }
+  async function readTextRel(app, rel) {
+    return readAsset(app, rel);
+  }
+  async function bundleStatus(app, entry) {
+    const dir = bundleDirOf(entry.file);
+    const text2 = await readTextRel(app, `${dir}/${BUNDLE_MARKER}`);
+    if (text2 === null) return "missing";
+    try {
+      const m = JSON.parse(text2);
+      const got = String((m == null ? void 0 : m.sha256) || "").toLowerCase();
+      if (!got) return "updated";
+      return got === String(entry.sha256 || "").toLowerCase() ? "ready" : "updated";
+    } catch (e) {
+      return "updated";
+    }
+  }
+  async function readBundleMarker(app, entry) {
+    const text2 = await readTextRel(app, `${bundleDirOf(entry.file)}/${BUNDLE_MARKER}`);
+    if (text2 === null) return null;
+    try {
+      return JSON.parse(text2);
+    } catch (e) {
+      return null;
+    }
+  }
+  async function fetchArchive(app, entry, deps) {
+    var _a2, _b2, _c, _d, _e;
+    const want = String(entry.sha256 || "").toLowerCase();
+    const fetchBytes = (_a2 = deps.fetchBytes) != null ? _a2 : defaultFetchBytes;
+    try {
+      const adapter = (_b2 = app.vault) == null ? void 0 : _b2.adapter;
+      if ((adapter == null ? void 0 : adapter.readBinary) && want) {
+        const ab = await adapter.readBinary(downloadsVaultPath(app, entry.file));
+        const cached = new Uint8Array(ab);
+        if (cached.byteLength > 0 && sha256Bytes(cached) === want) return cached;
+      }
+    } catch (e) {
+    }
+    let lastErr = "";
+    for (const url of downloadRemotesFor(entry.file)) {
+      try {
+        const bytes = await fetchBytes(url);
+        if (bytes.byteLength === 0) {
+          lastErr = `${url} 返回空内容`;
+          continue;
+        }
+        if (want && sha256Bytes(bytes) !== want) {
+          lastErr = `${url} 内容 sha256 不匹配（可能被篡改或版本错位）`;
+          continue;
+        }
+        try {
+          await ensureDir(app, entry.file);
+          await ((_e = (_d = (_c = app.vault) == null ? void 0 : _c.adapter) == null ? void 0 : _d.writeBinary) == null ? void 0 : _e.call(
+            _d,
+            downloadsVaultPath(app, entry.file),
+            bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+          ));
+        } catch (e) {
+        }
+        return bytes;
+      } catch (e) {
+        lastErr = `${url} → ${(e == null ? void 0 : e.message) || String(e)}`;
+      }
+    }
+    throw new Error(`${entry.name}下载失败：${lastErr}`);
+  }
+  async function clearBundleDir(app, dir) {
+    var _a2;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
+    if (!(adapter == null ? void 0 : adapter.rmdir)) return;
+    try {
+      await adapter.rmdir(downloadsVaultPath(app, dir), true);
+    } catch (e) {
+    }
+  }
+  async function installBundle(app, entry, deps = {}) {
+    var _a2, _b2;
+    const dir = bundleDirOf(entry.file);
+    if (!dir || dir === entry.file) throw new Error(`${entry.name} 的包名不是 .tar.gz`);
+    const gunzip = (_a2 = deps.gunzip) != null ? _a2 : defaultGunzip;
+    const archive = await fetchArchive(app, entry, deps);
+    const files = untar(gunzip(archive));
+    await clearBundleDir(app, dir);
+    const adapter = (_b2 = app.vault) == null ? void 0 : _b2.adapter;
+    if (!(adapter == null ? void 0 : adapter.writeBinary)) throw new Error("当前环境无法写入二进制文件（目录包需要桌面端）");
+    let bytes = 0;
+    for (const f of files) {
+      const rel = `${dir}/${f.path}`;
+      await ensureDir(app, rel);
+      const copy = f.data.buffer.slice(f.data.byteOffset, f.data.byteOffset + f.data.byteLength);
+      await adapter.writeBinary(downloadsVaultPath(app, rel), copy);
+      bytes += f.data.byteLength;
+    }
+    const marker = {
+      id: entry.id,
+      sha256: String(entry.sha256 || "").toLowerCase(),
+      files: files.length,
+      at: Date.now()
+    };
+    await ensureDir(app, `${dir}/${BUNDLE_MARKER}`);
+    const markerPath = downloadsVaultPath(app, `${dir}/${BUNDLE_MARKER}`);
+    const markerText = JSON.stringify(marker, null, 2);
+    if (adapter.write) {
+      await adapter.write(markerPath, markerText);
+    } else {
+      const bytes2 = new TextEncoder().encode(markerText);
+      await adapter.writeBinary(markerPath, bytes2.buffer.slice(bytes2.byteOffset, bytes2.byteOffset + bytes2.byteLength));
+    }
+    emitDomainEvent(DOWNLOADS_CHANGED_EVENT, { fileName: entry.file });
+    return { dir, files: files.length, bytes };
+  }
+  var BUNDLE_MARKER;
+  var init_bundle_asset = __esm({
+    "src/core/bundle-asset.ts"() {
+      init_fake_obsidian();
+      init_remote_base();
+      init_sha256();
+      init_tar();
+      init_remote_asset();
+      init_domain_bus();
+      BUNDLE_MARKER = ".bz-bundle.json";
+    }
+  });
+
+  // src/core/tool-setup.ts
+  function watchdogDirPath() {
+    const env = typeof process !== "undefined" ? process.env : {};
+    const local = String(env.LOCALAPPDATA || "").trim();
+    if (local) return `${local.replace(/[\\/]+$/, "")}/bz-dock-watch`;
+    const home = String(env.USERPROFILE || env.HOME || "").trim();
+    if (home) return `${home.replace(/[\\/]+$/, "")}/AppData/Local/bz-dock-watch`;
+    return "bz-dock-watch";
+  }
+  function runPowerShell(args, cwd) {
+    return new Promise((resolve2) => {
+      var _a2, _b2, _c;
+      const w = typeof window !== "undefined" ? window : null;
+      let cp = null;
+      try {
+        cp = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "child_process");
+      } catch (e) {
+        cp = null;
+      }
+      if (!(cp == null ? void 0 : cp.spawn)) {
+        resolve2({ code: null, out: "当前环境不能起外部进程（需要桌面端）" });
+        return;
+      }
+      let out = "";
+      let child;
+      try {
+        child = cp.spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", ...args], {
+          cwd,
+          windowsHide: true,
+          stdio: ["ignore", "pipe", "pipe"]
+        });
+      } catch (e) {
+        resolve2({ code: null, out: (e == null ? void 0 : e.message) || String(e) });
+        return;
+      }
+      (_b2 = child.stdout) == null ? void 0 : _b2.on("data", (d) => out += String(d));
+      (_c = child.stderr) == null ? void 0 : _c.on("data", (d) => out += String(d));
+      child.on("error", (e) => resolve2({ code: null, out: out || e.message }));
+      child.on("close", (code) => resolve2({ code, out }));
+    });
+  }
+  async function readWatchdogConfig() {
+    var _a2;
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      const fs = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "fs");
+      if (!(fs == null ? void 0 : fs.readFileSync)) return null;
+      const text2 = fs.readFileSync(`${watchdogDirPath()}/config.json`, "utf8");
+      return JSON.parse(String(text2));
+    } catch (e) {
+      return null;
+    }
+  }
+  async function setupAfterInstall(app, id) {
+    var _a2;
+    if (id !== "dock-watch") {
+      return "skipped";
+    }
+    const node = probeNodeRuntime(app);
+    const vault = vaultBasePathOf(app);
+    const dir = pluginDirOf(app);
+    if (node.kind === "none") {
+      notice("值守已下载，但本机没有 Node 运行时：装好 Node.js 后再启用值守", "warning");
+      return "failed";
+    }
+    if (!vault || !dir) {
+      notice("值守已下载，但取不到 vault 路径：无法为它生成配置", "warning");
+      return "failed";
+    }
+    const existing = await readWatchdogConfig();
+    if (existing && String(existing.vault || "").replace(/[\\/]+$/, "") === vault) return "skipped";
+    const go = await openFlowDialog({
+      title: "启用工具坞值守",
+      message: "值守进程会在后台按你的规则表跑工具，Obsidian 关着也照跑。\n启用后会注册一个登录自启项（计划任务；标准用户自动回退到「启动」文件夹）。\n不想现在启用可以点取消，之后在工具坞面板里随时再开。",
+      actions: [
+        { label: "取消", value: "cancel" },
+        { label: "启用", value: "ok", cta: true }
+      ]
+    });
+    if (go !== "ok") return "skipped";
+    const script = `${dir}/downloads/tools/dock-watch/install.ps1`;
+    const r = await runPowerShell(["-File", script, "-Vault", vault, "-Node", node.path], `${dir}/downloads/tools/dock-watch`);
+    if (r.code === 0) {
+      notice("值守已启用：登录后自动在后台运行", "success");
+      return "done";
+    }
+    const tail = r.out.trim().split(/\r?\n/).slice(-3).join(" ").slice(0, 200);
+    notice(`值守启用失败（退出码 ${(_a2 = r.code) != null ? _a2 : "—"}）：${tail || "没有输出"}`, "error");
+    return "failed";
+  }
+  function isToolBundleId(id) {
+    return Object.prototype.hasOwnProperty.call(TOOL_ENTRIES, id);
+  }
+  var init_tool_setup = __esm({
+    "src/core/tool-setup.ts"() {
+      init_flow_dialog();
+      init_notice();
+      init_tool_runtime();
     }
   });
 
@@ -36425,6 +36964,13 @@ ${it.text}`).join("\n"));
     onlineResourcesGroup: () => onlineResourcesGroup,
     resetOnlineResourcesState: () => resetOnlineResourcesState
   });
+  async function readyExtra(app, id, entry) {
+    if (entry.kind === "bundle") {
+      const m = await readBundleMarker(app, entry);
+      return m ? `${m.files} 个文件` : null;
+    }
+    return DESC_EXTRAS[id] ? DESC_EXTRAS[id](app, entry) : null;
+  }
   function resetOnlineResourcesState() {
     lastCheckAt = 0;
     checkFailed = false;
@@ -36481,8 +37027,8 @@ ${it.text}`).join("\n"));
       const entry = manifest.docs.find((d) => d.id === id);
       if (!entry) continue;
       if (pluginVersion && !isInVersionRange(entry, pluginVersion)) continue;
-      const doc = await docStatus(app, entry);
-      const extra = doc === "ready" && DESC_EXTRAS[id] ? await DESC_EXTRAS[id](app, entry) : null;
+      const doc = entry.kind === "bundle" ? await bundleStatus(app, entry) : await docStatus(app, entry);
+      const extra = doc === "ready" ? await readyExtra(app, id, entry) : null;
       rows.push({ id, name: entry.name, doc, skin: null, extra, size: (_a2 = entry.size) != null ? _a2 : null });
     }
     return { rows, manifest };
@@ -36699,6 +37245,12 @@ ${it.text}`).join("\n"));
     }
     const entry = manifest.docs.find((d) => d.id === id);
     if (!entry) return;
+    if (entry.kind === "bundle") {
+      await installBundle(app, entry);
+      const toolId = id.replace(/^tool-/, "");
+      if (isToolBundleId(toolId)) await setupAfterInstall(app, toolId);
+      return;
+    }
     await ensureAssetWithHash(app, entry.file, entry.sha256, entry.name);
   }
   async function runAction(ctx, id) {
@@ -36773,6 +37325,8 @@ ${it.text}`).join("\n"));
       init_download_manifest();
       init_skin_pack();
       init_remote_asset();
+      init_bundle_asset();
+      init_tool_setup();
       init_category_table();
       init_rss_catalog();
       init_douban_name_index();
@@ -36809,6 +37363,397 @@ ${it.text}`).join("\n"));
       syncDirty = false;
       busyIds = /* @__PURE__ */ new Set();
       subscribed3 = false;
+    }
+  });
+
+  // src/core/self-update.ts
+  function configDirOf(app) {
+    var _a2;
+    return String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
+  }
+  function pluginFile(app, name) {
+    return `${configDirOf(app)}/plugins/bz/${name}`;
+  }
+  function pluginDir(app) {
+    return `${configDirOf(app)}/plugins/bz`;
+  }
+  async function fetchText(url) {
+    const res = await requestUrl({ url, method: "GET", throw: true });
+    return String(res.text || "");
+  }
+  async function fetchFirst(urls) {
+    let lastErr = null;
+    for (const url of urls) {
+      try {
+        return { text: await fetchText(url), url };
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr instanceof Error ? lastErr : new Error(String(lastErr || "没有可用的下载源"));
+  }
+  function versionGt(a, b) {
+    const pa = String(a || "").split(".").map((x) => parseInt(x, 10) || 0);
+    const pb = String(b || "").split(".").map((x) => parseInt(x, 10) || 0);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const d = (pa[i] || 0) - (pb[i] || 0);
+      if (d !== 0) return d > 0;
+    }
+    return false;
+  }
+  function looksLikeBundle(text2) {
+    const t = String(text2 || "");
+    return t.length > 1e3 && !/^\s*<(!DOCTYPE|html)/i.test(t);
+  }
+  function readStore(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function writeStore(key, value) {
+    try {
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+    }
+  }
+  async function readDiskManifest(app) {
+    var _a2;
+    try {
+      const text2 = await app.vault.adapter.read(pluginFile(app, "manifest.json"));
+      const version = String(((_a2 = JSON.parse(text2)) == null ? void 0 : _a2.version) || "");
+      return version ? { version, text: text2 } : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function runningVersion(app) {
+    var _a2, _b2, _c;
+    const v = (_c = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c.version;
+    return String(v || "");
+  }
+  async function selfUpdateState(app) {
+    const disk = await readDiskManifest(app);
+    const onDisk = (disk == null ? void 0 : disk.version) || "";
+    const running2 = runningVersion(app) || onDisk;
+    const pendingRec = readStore(PENDING_KEY);
+    const pendingVer = String((pendingRec == null ? void 0 : pendingRec.version) || "");
+    const pending = pendingVer && versionGt(pendingVer, running2) ? pendingVer : null;
+    if (pendingVer && !pending) writeStore(PENDING_KEY, null);
+    const avail = lastAvailable != null ? lastAvailable : readStore(AVAILABLE_KEY);
+    const stillAhead = !!avail && versionGt(String(avail.version), onDisk || running2);
+    return {
+      running: running2,
+      onDisk,
+      available: stillAhead ? avail : null,
+      pending,
+      error: lastError,
+      checkedAt: lastCheckedAt
+    };
+  }
+  async function fetchPointer() {
+    const { text: text2, url } = await fetchFirst(downloadRemotesFor(RELEASE_POINTER));
+    let raw;
+    try {
+      raw = JSON.parse(text2);
+    } catch (e) {
+      throw new Error(`发布指针不是 JSON：${url}`);
+    }
+    const o = raw;
+    const version = String((o == null ? void 0 : o.version) || "").trim();
+    const tag = String((o == null ? void 0 : o.tag) || "").trim();
+    if (!version) throw new Error(`发布指针缺 version：${url}`);
+    if (!isValidTag(tag)) throw new Error(`发布指针的 tag 不可用：${url}`);
+    return { version, tag };
+  }
+  async function backupCurrent(app, version) {
+    var _a2, _b2;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
+    if (!(adapter == null ? void 0 : adapter.read) || !(adapter == null ? void 0 : adapter.write)) return;
+    const dir = `${pluginDir(app)}/${BACKUP_DIR}/${version || "unknown"}`;
+    try {
+      await ((_b2 = adapter.mkdir) == null ? void 0 : _b2.call(adapter, dir));
+    } catch (e) {
+    }
+    for (const name of ["main.js", "styles.css", "manifest.json"]) {
+      try {
+        const text2 = await adapter.read(pluginFile(app, name));
+        if (text2) await adapter.write(`${dir}/${name}`, text2);
+      } catch (e) {
+        console.warn(`[bz] 自更新备份 ${name} 失败（继续）:`, (e == null ? void 0 : e.message) || e);
+      }
+    }
+  }
+  async function checkSelfUpdate(app, opts = {}) {
+    var _a2, _b2;
+    const now = Date.now();
+    const throttle = opts.throttle !== false;
+    if (throttle) {
+      const last = Number(readStore(LAST_CHECK_KEY) || 0);
+      if (last && now - last < CHECK_INTERVAL_MS) {
+        return lastAvailable ? "available" : "current";
+      }
+    }
+    writeStore(LAST_CHECK_KEY, now);
+    lastCheckedAt = now;
+    lastError = null;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
+    if (!(adapter == null ? void 0 : adapter.read) || !(adapter == null ? void 0 : adapter.write)) return "current";
+    const local = await readDiskManifest(app);
+    const localVer = (local == null ? void 0 : local.version) || runningVersion(app);
+    if (!localVer) return "current";
+    let apply = opts.apply;
+    if (apply === void 0) {
+      try {
+        const { tryGetSettings: tryGetSettings2 } = await Promise.resolve().then(() => (init_settings_provider(), settings_provider_exports));
+        apply = ((_b2 = tryGetSettings2()) == null ? void 0 : _b2.autoUpdate) === true;
+      } catch (e) {
+        apply = false;
+      }
+    }
+    let pointer;
+    try {
+      pointer = await fetchPointer();
+    } catch (e) {
+      lastError = (e == null ? void 0 : e.message) || String(e);
+      lastAvailable = null;
+      throw e;
+    }
+    if (!versionGt(pointer.version, localVer)) {
+      lastAvailable = null;
+      writeStore(AVAILABLE_KEY, null);
+      return "current";
+    }
+    lastAvailable = { version: pointer.version, tag: pointer.tag, at: now };
+    writeStore(AVAILABLE_KEY, lastAvailable);
+    if (!apply) return "available";
+    const js = await fetchFirst(repoRemotesForTag(pointer.tag, "main.js"));
+    const css = await fetchFirst(repoRemotesForTag(pointer.tag, "styles.css"));
+    const mf = await fetchFirst(repoRemotesForTag(pointer.tag, "manifest.json"));
+    if (!looksLikeBundle(js.text)) throw new Error("远端 main.js 内容异常，放弃覆盖");
+    let mfOk = false;
+    try {
+      const o = JSON.parse(mf.text);
+      mfOk = (o == null ? void 0 : o.id) === "bz";
+    } catch (e) {
+      mfOk = false;
+    }
+    if (!mfOk) throw new Error("远端 manifest.json 内容异常，放弃覆盖");
+    await backupCurrent(app, localVer);
+    await adapter.write(pluginFile(app, "main.js"), js.text);
+    await adapter.write(pluginFile(app, "styles.css"), css.text);
+    await adapter.write(pluginFile(app, "manifest.json"), mf.text);
+    writeStore(PENDING_KEY, { version: pointer.version });
+    notice(`包仔已更新到 v${pointer.version}：重载插件（或重启 Obsidian）后生效`, "success");
+    return "installed";
+  }
+  var CHECK_INTERVAL_MS, CHECK_DELAY_MS, LAST_CHECK_KEY, PENDING_KEY, AVAILABLE_KEY, BACKUP_DIR, lastError, lastCheckedAt, lastAvailable;
+  var init_self_update = __esm({
+    "src/core/self-update.ts"() {
+      init_fake_obsidian();
+      init_notice();
+      init_remote_base();
+      CHECK_INTERVAL_MS = 24 * 3600 * 1e3;
+      CHECK_DELAY_MS = 15 * 1e3;
+      LAST_CHECK_KEY = "bz-selfupdate:last-check";
+      PENDING_KEY = "bz-selfupdate:pending";
+      AVAILABLE_KEY = "bz-selfupdate:available";
+      BACKUP_DIR = "downloads/.backup";
+      lastError = null;
+      lastCheckedAt = 0;
+      lastAvailable = null;
+    }
+  });
+
+  // src/core/env-check.ts
+  var env_check_exports = {};
+  __export(env_check_exports, {
+    environmentCheck: () => environmentCheck,
+    openEnvironmentCheck: () => openEnvironmentCheck
+  });
+  async function canWrite(app, relPath) {
+    var _a2, _b2, _c;
+    const adapter = (_a2 = app.vault) == null ? void 0 : _a2.adapter;
+    if (!(adapter == null ? void 0 : adapter.write)) return false;
+    const dir = relPath.replace(/\/+$/, "");
+    let cur = "";
+    for (const part of dir.split("/").filter(Boolean)) {
+      cur = cur ? `${cur}/${part}` : part;
+      try {
+        await ((_b2 = adapter.mkdir) == null ? void 0 : _b2.call(adapter, cur));
+      } catch (e) {
+      }
+    }
+    const probe = `${dir}/.bz-write-probe`;
+    try {
+      await adapter.write(probe, "ok");
+      await ((_c = adapter.remove) == null ? void 0 : _c.call(adapter, probe));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  async function storageDirOf() {
+    var _a2;
+    try {
+      const { tryGetSettings: tryGetSettings2 } = await Promise.resolve().then(() => (init_settings_provider(), settings_provider_exports));
+      const { normalizeStorageDir: normalizeStorageDir2 } = await Promise.resolve().then(() => (init_storage_path(), storage_path_exports));
+      return normalizeStorageDir2((_a2 = tryGetSettings2()) == null ? void 0 : _a2.storagePath);
+    } catch (e) {
+      return "CONFIG/STORAGE";
+    }
+  }
+  async function environmentCheck(app) {
+    var _a2;
+    const rows = [];
+    const mobile = isMobileEnv();
+    const base = vaultBasePathOf(app);
+    const pluginDir2 = pluginDirOf(app);
+    rows.push({
+      key: "运行环境",
+      value: mobile ? "移动端（部分功能需要桌面端 Obsidian）" : "桌面端",
+      ok: mobile ? null : true
+    });
+    rows.push({
+      key: "vault 路径",
+      value: base || "取不到（插件可能不在桌面端运行）",
+      ok: base ? true : null
+    });
+    if (!mobile) {
+      const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian");
+      const pluginRel = `${configDir}/plugins/bz`;
+      const pluginWritable = await canWrite(app, pluginRel);
+      rows.push({
+        key: "插件目录可写",
+        value: pluginWritable ? pluginDir2 || pluginRel : `${pluginDir2 || pluginRel}（写不进去：自更新与资源下载都会失败）`,
+        ok: pluginWritable
+      });
+    }
+    const storeDir2 = await storageDirOf();
+    const storeOk = await canWrite(app, storeDir2);
+    rows.push({
+      key: "数据目录可写",
+      // 数据目录是 vault 相对路径 —— 别人拿到 vault 时它可能只读、可能被同步盘占位
+      value: storeOk ? storeDir2 : `${storeDir2}（写不进去：检查是否只读 / 被同步盘占用）`,
+      ok: storeOk ? true : false
+    });
+    if (!mobile) {
+      const node = probeNodeRuntime(app, { fresh: true });
+      rows.push({
+        key: "Node 运行时",
+        value: node.kind === "none" ? "未找到（B站下载器、值守、脸谱都靠它跑）" : `${node.kind === "bundled" ? "插件内" : "系统"}${node.version ? ` ${node.version}` : ""}`,
+        ok: node.kind === "none" ? false : true
+      });
+      for (const r of runtimeDiagnostics(app).slice(2)) {
+        const notInstalled = r.value === "未安装";
+        rows.push({ key: r.key, value: r.value, ok: notInstalled ? null : true });
+      }
+    }
+    return rows;
+  }
+  async function openEnvironmentCheck(app) {
+    const rows = await environmentCheck(app);
+    const mark = (ok) => ok === true ? "✓" : ok === false ? "✗" : "·";
+    const bad = rows.filter((r) => r.ok === false).length;
+    const body = rows.map((r) => `${mark(r.ok)} ${r.key}：${r.value}`).join("\n");
+    await openFlowDialog({
+      title: bad > 0 ? `环境自检：${bad} 项要处理` : "环境自检：全部通过",
+      message: body,
+      actions: [{ label: "知道了", value: "ok", cta: true }]
+    });
+  }
+  var init_env_check = __esm({
+    "src/core/env-check.ts"() {
+      init_flow_dialog();
+      init_mobile();
+      init_tool_runtime();
+    }
+  });
+
+  // src/core/about-group.ts
+  var about_group_exports = {};
+  __export(about_group_exports, {
+    FEEDBACK_URL: () => FEEDBACK_URL,
+    aboutGroup: () => aboutGroup,
+    versionDesc: () => versionDesc
+  });
+  function versionDesc(st) {
+    const base = st.running ? `v${st.running}` : "版本未知";
+    if (st.pending) return `${base}，已下载 v${st.pending}，重载后生效`;
+    if (st.available) return `${base}，有新版本 v${st.available.version}`;
+    if (st.error) return `${base}，上次检查更新失败`;
+    return base;
+  }
+  async function aboutGroup() {
+    const app = getApp();
+    const st = await selfUpdateState(app);
+    const versionRow = {
+      type: "info",
+      name: "版本",
+      desc: versionDesc(st),
+      help: "「检查并更新」会立刻去仓库取最新发布：有新版本就装下来，重载插件后生效。装之前会把当前版本备份进插件目录的 downloads/.backup 里。",
+      actions: [
+        {
+          // 人在场点的，一律按「同意装」处理：与 autoUpdate 开关无关
+          text: "检查并更新",
+          stateful: true,
+          onClick: () => void runCheckAndUpdate()
+        }
+      ]
+    };
+    const autoUpdateRow = {
+      type: "toggle",
+      name: "自动更新",
+      desc: "启动时自动检查并安装新版本",
+      help: "关闭时只在打开这个面板时提示有没有新版本，不会动插件文件。开启后每次启动会在后台静默检查一次（24 小时内不重复），发现新版本直接安装。",
+      binding: { key: "autoUpdate" }
+    };
+    const feedbackRow = {
+      type: "button",
+      name: "反馈",
+      desc: "有问题或建议，去 GitHub 提 issue",
+      buttonText: "打开",
+      onClick: () => openExternalUrl(getApp(), FEEDBACK_URL)
+    };
+    const envRow = {
+      type: "button",
+      name: "环境自检",
+      desc: "查 Node、工具、数据目录是否就绪",
+      buttonText: "检查",
+      onClick: () => void Promise.resolve().then(() => (init_env_check(), env_check_exports)).then((m) => m.openEnvironmentCheck(getApp()))
+    };
+    const rewardRow = {
+      type: "info",
+      name: "赞赏",
+      desc: "微信与支付宝收款码稍后放上"
+    };
+    return {
+      name: "关于",
+      icon: "info",
+      rows: [versionRow, autoUpdateRow, envRow, feedbackRow, rewardRow]
+    };
+  }
+  async function runCheckAndUpdate() {
+    const app = getApp();
+    try {
+      const result = await checkSelfUpdate(app, { throttle: false, apply: true });
+      if (result === "current") notice("已是最新版本", "info");
+    } catch (e) {
+      notice(`检查更新失败：${(e == null ? void 0 : e.message) || String(e)}`, "error");
+    }
+  }
+  var FEEDBACK_URL;
+  var init_about_group = __esm({
+    "src/core/about-group.ts"() {
+      init_app();
+      init_notice();
+      init_utils();
+      init_remote_base();
+      init_self_update();
+      FEEDBACK_URL = `https://github.com/${REPO_SLUG}/issues`;
     }
   });
 
@@ -66009,6 +66954,8 @@ GitHub 仓库：${ghInfo.title}
         jevModels: {},
         // 共享数据路径（ADR-0009）
         storagePath: "CONFIG/STORAGE",
+        // 自动更新：缺省关（2026-10-28 对外分发拍板）——见 interface 里的说明
+        autoUpdate: false,
         // 附件搬移（ticket 65，运行时记忆）
         attachLastFolder: "",
         // 通知（core notice toast 横切偏好，issue 297）
@@ -66403,6 +67350,8 @@ GitHub 仓库：${ghInfo.title}
           });
           const { onlineResourcesGroup: onlineResourcesGroup2 } = await Promise.resolve().then(() => (init_online_resources(), online_resources_exports));
           schema.groups.push(await onlineResourcesGroup2());
+          const { aboutGroup: aboutGroup2 } = await Promise.resolve().then(() => (init_about_group(), about_group_exports));
+          schema.groups.unshift(await aboutGroup2());
           return schema;
         },
         ai: async () => (await Promise.resolve().then(() => (init_settings_main_schema(), settings_main_schema_exports))).aiSettingsSchema(),

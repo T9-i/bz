@@ -39,6 +39,8 @@ import {
   type SkinStatus,
 } from '../core/skin-pack';
 import { ensureAssetWithHash } from '../core/remote-asset';
+import { bundleStatus, installBundle, readBundleMarker } from '../core/bundle-asset';
+import { isToolBundleId, setupAfterInstall } from '../core/tool-setup';
 import { loadCategoryTable } from '../core/category-table';
 import { loadRssCatalog, catalogCategoryCounts } from '../core/rss-catalog';
 import { loadDoubanNameIndex, indexKindCounts } from '../core/douban-name-index';
@@ -78,6 +80,15 @@ const DESC_EXTRAS: Record<string, (app: unknown, entry: ManifestDocEntry) => Pro
     return `${thousand(idx.stats.total)} 条 · ${parts.join(' / ')}`;
   },
 };
+
+/** 就绪态的描述补充：目录包说「N 个文件」，文本资源走 DESC_EXTRAS 表（无则不补） */
+async function readyExtra(app: unknown, id: string, entry: ManifestDocEntry): Promise<string | null> {
+  if (entry.kind === 'bundle') {
+    const m = await readBundleMarker(app, entry);
+    return m ? `${m.files} 个文件` : null;
+  }
+  return DESC_EXTRAS[id] ? DESC_EXTRAS[id](app, entry) : null;
+}
 
 /** 打开面板时后台核对的节流窗（快速开关面板不狂拉；启动链每次启动独立跑不受此限） */
 const CHECK_THROTTLE_MS = 60_000;
@@ -195,9 +206,11 @@ async function computeRowStates(app: unknown): Promise<{ rows: RowState[]; manif
     if (!entry) continue;
     // 版本区间外 → 该行不呈现（旧版插件看到「需新版」的资源不误报可下载）
     if (pluginVersion && !isInVersionRange(entry, pluginVersion)) continue;
-    const doc = await docStatus(app, entry);
+    // 两种形态共用三态（missing / updated / ready），只有「怎么判就绪」不同：
+    // doc 看文件 sha256，bundle 看解包目录里的标记（core/bundle-asset）
+    const doc = entry.kind === 'bundle' ? await bundleStatus(app, entry) : await docStatus(app, entry);
     // 规模补充只在就绪态读（未下载时读本地产物无意义，白读盘）
-    const extra = doc === 'ready' && DESC_EXTRAS[id] ? await DESC_EXTRAS[id](app, entry) : null;
+    const extra = doc === 'ready' ? await readyExtra(app, id, entry) : null;
     rows.push({ id, name: entry.name, doc, skin: null, extra, size: entry.size ?? null });
   }
   return { rows, manifest };
@@ -467,6 +480,15 @@ async function downloadOne(app: unknown, manifest: DownloadManifest, id: string)
   }
   const entry: ManifestDocEntry | undefined = manifest.docs.find((d) => d.id === id);
   if (!entry) return;
+  // 目录包：解包 + 落就绪标记，然后（工具类）走下载后初始化
+  if (entry.kind === 'bundle') {
+    await installBundle(app, entry);
+    // 工具 id 带 `tool-` 前缀（清单里与文档资源同表，前缀是给人看的分组线索）。
+    // 只有值守需要「初始化」这一步（注册登录自启）；另两个落盘即完成。
+    const toolId = id.replace(/^tool-/, '');
+    if (isToolBundleId(toolId)) await setupAfterInstall(app, toolId);
+    return;
+  }
   // 走 sha256 校验通道（与皮肤同口径）：清单 hash 对不上即拒收，不把坏内容写进本地
   await ensureAssetWithHash(app, entry.file, entry.sha256, entry.name);
 }

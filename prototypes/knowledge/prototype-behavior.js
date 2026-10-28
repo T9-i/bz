@@ -1,5 +1,5 @@
-/* 源指纹 52f39ef9f622c9e0 · 仓内输入 48 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
+/* 源指纹 482692bbe838dc29 · 仓内输入 52 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tool-runtime.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/knowledge/fake-sim.ts → window.BZW_knowledge（行为单源预览包，issue 245/ADR-0106） */
 var BZW_knowledge = (() => {
   var __create = Object.create;
@@ -39,9 +39,9 @@ var BZW_knowledge = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -7811,6 +7811,207 @@ var BZW_knowledge = (() => {
     return out.sort();
   }
 
+  // src/core/sha256.ts
+  var K = new Uint32Array([
+    1116352408,
+    1899447441,
+    3049323471,
+    3921009573,
+    961987163,
+    1508970993,
+    2453635748,
+    2870763221,
+    3624381080,
+    310598401,
+    607225278,
+    1426881987,
+    1925078388,
+    2162078206,
+    2614888103,
+    3248222580,
+    3835390401,
+    4022224774,
+    264347078,
+    604807628,
+    770255983,
+    1249150122,
+    1555081692,
+    1996064986,
+    2554220882,
+    2821834349,
+    2952996808,
+    3210313671,
+    3336571891,
+    3584528711,
+    113926993,
+    338241895,
+    666307205,
+    773529912,
+    1294757372,
+    1396182291,
+    1695183700,
+    1986661051,
+    2177026350,
+    2456956037,
+    2730485921,
+    2820302411,
+    3259730800,
+    3345764771,
+    3516065817,
+    3600352804,
+    4094571909,
+    275423344,
+    430227734,
+    506948616,
+    659060556,
+    883997877,
+    958139571,
+    1322822218,
+    1537002063,
+    1747873779,
+    1955562222,
+    2024104815,
+    2227730452,
+    2361852424,
+    2428436474,
+    2756734187,
+    3204031479,
+    3329325298
+  ]);
+
+  // src/core/remote-base.ts
+  var REPO_SLUG = "yeshimei/bz";
+  var REPO_BASES = [
+    `https://raw.githubusercontent.com/${REPO_SLUG}/master`,
+    `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`
+  ];
+
+  // src/core/remote-asset.ts
+  var DOWNLOADS_DIR = "downloads";
+
+  // src/core/tool-runtime.ts
+  var TOOL_ENTRIES = {
+    "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
+    "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
+    "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+  };
+  var BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+  function isWindows() {
+    return typeof process !== "undefined" && process.platform === "win32";
+  }
+  function bundledNodeFile() {
+    return isWindows() ? "node.exe" : "bin/node";
+  }
+  function vaultBasePathOf(app) {
+    var _a, _b;
+    const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
+    try {
+      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    var _a;
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    const configDir = String(((_a = app.vault) == null ? void 0 : _a.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
+    return `${base}/${configDir}/plugins/bz`;
+  }
+  function toolBundleDir(id) {
+    return `${DOWNLOADS_DIR}/tools/${id}`;
+  }
+  function fsPath(app, rel) {
+    const dir = pluginDirOf(app);
+    return dir ? `${dir}/${rel}` : "";
+  }
+  function childProcess() {
+    if (typeof window === "undefined") return null;
+    const w = window;
+    if (!(w == null ? void 0 : w.require)) return null;
+    try {
+      return w.require("child_process");
+    } catch (e) {
+      return null;
+    }
+  }
+  var fsProbe = null;
+  function existsOnDisk(p) {
+    var _a;
+    if (!p) return false;
+    if (fsProbe) return fsProbe(p);
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      const fs = (_a = w == null ? void 0 : w.require) == null ? void 0 : _a.call(w, "fs");
+      if (fs == null ? void 0 : fs.existsSync) return !!fs.existsSync(p);
+    } catch (e) {
+    }
+    return false;
+  }
+  var cachedNode = null;
+  function probeNodeRuntime(app, opts = {}) {
+    if (!opts.fresh && cachedNode) return cachedNode;
+    const bundled = fsPath(app, `${BUNDLED_NODE_DIR}/${bundledNodeFile()}`);
+    if (existsOnDisk(bundled)) {
+      const v = nodeVersionOf(bundled);
+      cachedNode = { kind: "bundled", path: bundled, version: v };
+      return cachedNode;
+    }
+    const cp = childProcess();
+    const sysPath = findOnPath(cp, "node");
+    if (sysPath) {
+      cachedNode = { kind: "system", path: sysPath, version: nodeVersionOf(sysPath) };
+      return cachedNode;
+    }
+    cachedNode = { kind: "none", path: "", version: "" };
+    return cachedNode;
+  }
+  function nodeVersionOf(nodePath) {
+    const cp = childProcess();
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    try {
+      const r = cp.spawnSync(nodePath, ["-v"], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      return String((r == null ? void 0 : r.stdout) || "").trim();
+    } catch (e) {
+      return "";
+    }
+  }
+  function findOnPath(cp, name) {
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    const cmd = isWindows() ? "where" : "which";
+    try {
+      const r = cp.spawnSync(cmd, [name], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      if ((r == null ? void 0 : r.status) !== 0) return "";
+      const first = String(r.stdout || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean)[0] || "";
+      return first;
+    } catch (e) {
+      return "";
+    }
+  }
+  function resolveToolBase(app, id) {
+    const entry = TOOL_ENTRIES[id];
+    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const node = probeNodeRuntime(app);
+    if (script && node.kind !== "none" && existsOnDisk(script)) {
+      return { cmd: node.path, shell: false, via: "bundle" };
+    }
+    return { cmd: entry.command, shell: true, via: "path" };
+  }
+  function resolveToolCommand(app, id, args = []) {
+    const entry = TOOL_ENTRIES[id];
+    const base = resolveToolBase(app, id);
+    if (base.via === "bundle") {
+      const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+      return { cmd: base.cmd, args: [script, ...args], shell: false, via: "bundle" };
+    }
+    return { cmd: base.cmd, args, shell: true, via: "path" };
+  }
+  function toolInstallHint(id) {
+    const entry = TOOL_ENTRIES[id];
+    return `未找到${entry.label}：到「设置 → 通用 → 在线资源」里下载它，下载完即可用`;
+  }
+
   // src/core/asr-proofread.ts
   function proofreadPrompt(entries, contextNote) {
     const lines = entries.map((e) => `#${e.n}|${e.text}`).join("\n");
@@ -8508,7 +8709,7 @@ ${sample}`
   }
 
   // src/knowledge/processor.ts
-  var INSTALL_HINT = "请先运行 npm install -g @jwbz/bili-downloader";
+  var INSTALL_HINT = toolInstallHint("bili-downloader");
   var STEP_RE = /^\[bz-step\]\s*(.+)$/;
   var RESULT_RE = /^\[bz-result\]\s*(\{.*\})$/;
   var PROGRESS_RE = /^\[bz-p\]\s*(\{.*\})$/;
@@ -8535,7 +8736,8 @@ ${sample}`
   }
   function resolveBatchSpawn(taskJson) {
     const b64 = Buffer.from(taskJson, "utf8").toString("base64");
-    return { cmd: "bili-dl", args: ["--batch", `b64:${b64}`], shell: true };
+    const r = resolveToolCommand(getApp(), "bili-downloader", ["--batch", `b64:${b64}`]);
+    return { cmd: r.cmd, args: r.args, shell: r.shell };
   }
   function tryUnlink(path) {
     if (!path) return;
@@ -13601,8 +13803,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function humanizeError(reason) {
     const s = String(reason != null ? reason : "").trim();
     if (!s) return "";
-    if (/未找到 bili-dl|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
-      return "下载工具未安装：在电脑上运行 npm install -g @jwbz/bili-downloader 后重试";
+    if (/未找到\s*(bili-dl|B站下载器)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
+      return "下载工具未安装：到「设置 → 通用 → 在线资源」里下载「B站下载器」后重试";
     }
     if (/ffmpeg/i.test(s)) return "视频处理工具（ffmpeg）不可用：检查电脑是否已安装，或设置里的「ffmpeg 路径」";
     if (/ffprobe/i.test(s)) return "视频探测工具（ffprobe）不可用：检查电脑是否已安装，或设置里的「ffprobe 路径」";

@@ -35,6 +35,30 @@
       "file": "cinema-douban-index.json",
       "sha256": "0a3ae062b78cecdc7d1f129303b130fe641bc80b8612794155ac031c96671260",
       "size": 7505930
+    },
+    {
+      "id": "tool-bili-downloader",
+      "name": "B站下载器",
+      "file": "tools/bili-downloader.tar.gz",
+      "kind": "bundle",
+      "sha256": "08d70b582475875d59dc8d96516af3f59a35b0340b645276c4ad13c8f3dcd0c4",
+      "size": 26113
+    },
+    {
+      "id": "tool-dock-watch",
+      "name": "工具坞值守",
+      "file": "tools/dock-watch.tar.gz",
+      "kind": "bundle",
+      "sha256": "78d93f0aa1c99cfe20a68c1c96619f5ee920a2cef6c3021b4567a3a57d6450bc",
+      "size": 46129
+    },
+    {
+      "id": "tool-obsidian-face",
+      "name": "脸谱工具包",
+      "file": "tools/obsidian-face.tar.gz",
+      "kind": "bundle",
+      "sha256": "9534d4d54171134a166d4be2e13f00b629a716be9374a42de1c3287b3417d47a",
+      "size": 176813
     }
   ],
   "skins": [
@@ -279,6 +303,9 @@
     "skins",
     "belongings-categories",
     "rss-catalog",
-    "cinema-douban-index"
+    "cinema-douban-index",
+    "tool-bili-downloader",
+    "tool-dock-watch",
+    "tool-obsidian-face"
   ]
 }

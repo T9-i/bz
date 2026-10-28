@@ -191,8 +191,8 @@ export function parseRelatedNames(text: string): string[] {
 export function humanizeError(reason: string | null | undefined): string {
   const s = String(reason ?? '').trim();
   if (!s) return '';
-  if (/未找到 bili-dl|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
-    return '下载工具未安装：在电脑上运行 npm install -g @jwbz/bili-downloader 后重试';
+  if (/未找到\s*(bili-dl|B站下载器)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
+    return '下载工具未安装：到「设置 → 通用 → 在线资源」里下载「B站下载器」后重试';
   }
   if (/ffmpeg/i.test(s)) return '视频处理工具（ffmpeg）不可用：检查电脑是否已安装，或设置里的「ffmpeg 路径」';
   if (/ffprobe/i.test(s)) return '视频探测工具（ffprobe）不可用：检查电脑是否已安装，或设置里的「ffprobe 路径」';

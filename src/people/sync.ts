@@ -23,6 +23,7 @@
  * 指引；Python 依赖缺失（stderr ModuleNotFoundError）给 bz-face doctor 引导。
  */
 import { runExternalTool, type ExternalToolCallbacks, type ExternalToolHandle, type ExternalToolSpec, type ExternalToolOutcome } from '../core/external-tool';
+import { safeToolBase } from '../core/tool-runtime';
 import { notice } from '../core/notice';
 import { tryGetSettings } from '../core/settings-provider';
 import { plainNameOf } from './datasource';
@@ -75,9 +76,12 @@ export interface PeopleSyncState {
   lastContact: string;
 }
 
-/** 工具未装时的安装指引（ADR-0195 口径：不发公开 registry，本机 link / 全局装） */
+/**
+ * 工具未装时的指引（2026-10-28 对外分发改口径）：**指向设置面板的在线资源组**，
+ * 不再教人 `npm link` / `npm install -g <仓库路径>`（那条路对外等于没有指引）。
+ */
 export const BZ_FACE_INSTALL_HINT =
-  '未找到 bz-face 命令——先安装脸谱工具包（@jwbz/obsidian-face）：在仓库 tools/obsidian-face 目录下运行 npm link，或 npm install -g <仓库>/tools/obsidian-face，装好后重试';
+  '未找到脸谱工具包：到「设置 → 通用 → 在线资源」里下载「脸谱工具包」，下载完即可用（Python 依赖另见该组提示）';
 
 const DOCTOR_HINT = '到终端运行 bz-face doctor 可自检环境';
 
@@ -147,6 +151,11 @@ export interface BuildSyncSpecOpts {
   src?: string;
   /** Python 命令覆盖（非空才传；留空 = 跟随工具默认 python） */
   python?: string;
+  /**
+   * 命令解析结果（core/tool-runtime）。缺省 = 老的 PATH 口径（`bz-face` + shell:true）。
+   * 走本地包时 shell=false，此时**不能**给路径包引号——引号会成为路径的一部分。
+   */
+  command?: { cmd: string; shell: boolean };
 }
 
 /**
@@ -183,22 +192,33 @@ export function quotePythonArg(v: string): string {
 }
 
 /**
- * 组装 `bz-face sync` 启动参数（照 bili-dl 先例：纯 PATH 找命令、.cmd shim 需 shell:true）。
- * src / python 空白视同未配置。--python 是命令词不包引号（'py -3' 需拆成两个词）。
+ * 路径参数引号（口径分叉的唯一一处）：
+ *  - 走 shell（PATH 回落 / 老的 .cmd shim）→ `quotePathArg`（含 % 的那条保护也生效）；
+ *  - 走数组参数（本地包 + node，shell:false）→ **原样**，包了引号反而会把引号当路径。
+ */
+export function pathArg(v: string, shell: boolean): string {
+  return shell ? quotePathArg(v) : v;
+}
+
+/**
+ * 组装 `bz-face sync` 启动参数。
+ * 命令与 shell 口径由 `opts.command` 决定（缺省 = PATH 上的 `bz-face` + shell:true，
+ * 与 2026-10-28 之前完全一致）；`--python` 是命令词不包引号（'py -3' 需拆成两个词）。
  */
 export function buildSyncSpec(opts: BuildSyncSpecOpts): ExternalToolSpec {
   const src = opts.src?.trim() || undefined;
   const python = opts.python?.trim() || undefined;
+  const shell = opts.command?.shell ?? true;
   return {
-    cmd: 'bz-face',
+    cmd: opts.command?.cmd ?? 'bz-face',
     args: [
       'sync',
       '--data-root',
-      quotePathArg(opts.dataRoot),
-      ...(src ? ['--src', quotePathArg(src)] : []),
-      ...(python ? ['--python', quotePythonArg(python)] : []),
+      pathArg(opts.dataRoot, shell),
+      ...(src ? ['--src', pathArg(src, shell)] : []),
+      ...(python ? ['--python', shell ? quotePythonArg(python) : python] : []),
     ],
-    shell: true,
+    shell,
   };
 }
 
@@ -364,6 +384,8 @@ export function startSync(): void {
       dataRoot,
       src: nonEmpty(s?.peopleWxAccountDir),
       python: nonEmpty(s?.pythonPath),
+      // 本地包优先、PATH 兜底（core/tool-runtime）：老用户行为不变，新用户不必碰终端
+      command: safeToolBase('obsidian-face'),
     });
   } catch (e) {
     // 参数面问题起跑前明说（quotePathArg 拒绝含 % 的路径等）：落错误面，不静默不出半截状态

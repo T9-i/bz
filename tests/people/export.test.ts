@@ -142,7 +142,7 @@ describe('finishExport 终结分流', () => {
     const res = finishExport({ ok: false, stopped: false, code: null, stderr: '', error: new Error('外部工具启动失败：spawn bz-face ENOENT') }, null);
     expect(res.ok).toBe(false);
     expect(res.error).toContain('未找到 bz-face 命令');
-    expect(res.hint).toContain('npm link');
+    expect(res.hint).toContain('在线资源');
   });
 
   it('stopped 优先：即使结果行已来也按中止算', () => {

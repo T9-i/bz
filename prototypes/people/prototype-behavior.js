@@ -1,5 +1,5 @@
-/* 源指纹 2f934a9da07a726c · 仓内输入 94 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
+/* 源指纹 822524850a88884b · 仓内输入 98 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/people/fake-sim.ts → window.BZW_people（行为单源预览包，issue 245/ADR-0106） */
 var BZW_people = (() => {
   var __create = Object.create;
@@ -42,9 +42,9 @@ var BZW_people = (() => {
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
+  // ../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js
   var require_moment = __commonJS({
-    "node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
+    "../bz/node_modules/.pnpm/moment@2.30.1/node_modules/moment/moment.js"(exports, module) {
       (function(global, factory) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : global.moment = factory();
       })(exports, function() {
@@ -15991,7 +15991,7 @@ ${lines}`;
       err.stderr = stderr;
       settle({ ok: false, stopped: false, code, stderr, error: err });
     });
-    const isWindows = () => process.platform === "win32";
+    const isWindows2 = () => process.platform === "win32";
     const spawnSuppressed = (cmd, args) => {
       var _a3;
       try {
@@ -16010,7 +16010,7 @@ ${lines}`;
         settle({ ok: false, stopped: true, code: exitCode, stderr: stderrTail.trim(), error: null });
         return;
       }
-      if (isWindows()) {
+      if (isWindows2()) {
         spawnSuppressed("taskkill", ["/pid", String(pid), "/T", "/F"]);
         return;
       }
@@ -16022,7 +16022,7 @@ ${lines}`;
     const stopChild = () => {
       var _a3;
       const pid = child == null ? void 0 : child.pid;
-      if (spec.shell && isWindows() && typeof pid === "number" && pid > 0) {
+      if (spec.shell && isWindows2() && typeof pid === "number" && pid > 0) {
         spawnSuppressed("taskkill", ["/pid", String(pid), "/T"]);
       } else {
         try {
@@ -16051,6 +16051,208 @@ ${lines}`;
       },
       done
     };
+  }
+
+  // src/core/remote-asset.ts
+  init_fake_obsidian();
+
+  // src/core/sha256.ts
+  var K = new Uint32Array([
+    1116352408,
+    1899447441,
+    3049323471,
+    3921009573,
+    961987163,
+    1508970993,
+    2453635748,
+    2870763221,
+    3624381080,
+    310598401,
+    607225278,
+    1426881987,
+    1925078388,
+    2162078206,
+    2614888103,
+    3248222580,
+    3835390401,
+    4022224774,
+    264347078,
+    604807628,
+    770255983,
+    1249150122,
+    1555081692,
+    1996064986,
+    2554220882,
+    2821834349,
+    2952996808,
+    3210313671,
+    3336571891,
+    3584528711,
+    113926993,
+    338241895,
+    666307205,
+    773529912,
+    1294757372,
+    1396182291,
+    1695183700,
+    1986661051,
+    2177026350,
+    2456956037,
+    2730485921,
+    2820302411,
+    3259730800,
+    3345764771,
+    3516065817,
+    3600352804,
+    4094571909,
+    275423344,
+    430227734,
+    506948616,
+    659060556,
+    883997877,
+    958139571,
+    1322822218,
+    1537002063,
+    1747873779,
+    1955562222,
+    2024104815,
+    2227730452,
+    2361852424,
+    2428436474,
+    2756734187,
+    3204031479,
+    3329325298
+  ]);
+
+  // src/core/remote-asset.ts
+  init_domain_bus();
+
+  // src/core/remote-base.ts
+  var REPO_SLUG = "yeshimei/bz";
+  var REPO_BASES = [
+    `https://raw.githubusercontent.com/${REPO_SLUG}/master`,
+    `https://cdn.jsdelivr.net/gh/${REPO_SLUG}@master`
+  ];
+
+  // src/core/remote-asset.ts
+  var DOWNLOADS_DIR = "downloads";
+
+  // src/core/tool-runtime.ts
+  init_app();
+  var TOOL_ENTRIES = {
+    "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
+    "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
+    "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+  };
+  var BUNDLED_NODE_DIR = `${DOWNLOADS_DIR}/tools/node-runtime`;
+  function isWindows() {
+    return typeof process !== "undefined" && process.platform === "win32";
+  }
+  function bundledNodeFile() {
+    return isWindows() ? "node.exe" : "bin/node";
+  }
+  function vaultBasePathOf(app) {
+    var _a2, _b2;
+    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
+    try {
+      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    var _a2;
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    const configDir = String(((_a2 = app.vault) == null ? void 0 : _a2.configDir) || ".obsidian").replace(/^[\\/]+|[\\/]+$/g, "");
+    return `${base}/${configDir}/plugins/bz`;
+  }
+  function toolBundleDir(id) {
+    return `${DOWNLOADS_DIR}/tools/${id}`;
+  }
+  function fsPath(app, rel) {
+    const dir = pluginDirOf(app);
+    return dir ? `${dir}/${rel}` : "";
+  }
+  function childProcess() {
+    if (typeof window === "undefined") return null;
+    const w = window;
+    if (!(w == null ? void 0 : w.require)) return null;
+    try {
+      return w.require("child_process");
+    } catch (e) {
+      return null;
+    }
+  }
+  var fsProbe = null;
+  function existsOnDisk(p) {
+    var _a2;
+    if (!p) return false;
+    if (fsProbe) return fsProbe(p);
+    const w = typeof window !== "undefined" ? window : null;
+    try {
+      const fs = (_a2 = w == null ? void 0 : w.require) == null ? void 0 : _a2.call(w, "fs");
+      if (fs == null ? void 0 : fs.existsSync) return !!fs.existsSync(p);
+    } catch (e) {
+    }
+    return false;
+  }
+  var cachedNode = null;
+  function probeNodeRuntime(app, opts = {}) {
+    if (!opts.fresh && cachedNode) return cachedNode;
+    const bundled = fsPath(app, `${BUNDLED_NODE_DIR}/${bundledNodeFile()}`);
+    if (existsOnDisk(bundled)) {
+      const v = nodeVersionOf(bundled);
+      cachedNode = { kind: "bundled", path: bundled, version: v };
+      return cachedNode;
+    }
+    const cp = childProcess();
+    const sysPath = findOnPath(cp, "node");
+    if (sysPath) {
+      cachedNode = { kind: "system", path: sysPath, version: nodeVersionOf(sysPath) };
+      return cachedNode;
+    }
+    cachedNode = { kind: "none", path: "", version: "" };
+    return cachedNode;
+  }
+  function nodeVersionOf(nodePath) {
+    const cp = childProcess();
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    try {
+      const r = cp.spawnSync(nodePath, ["-v"], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      return String((r == null ? void 0 : r.stdout) || "").trim();
+    } catch (e) {
+      return "";
+    }
+  }
+  function findOnPath(cp, name) {
+    if (!(cp == null ? void 0 : cp.spawnSync)) return "";
+    const cmd = isWindows() ? "where" : "which";
+    try {
+      const r = cp.spawnSync(cmd, [name], { encoding: "utf8", windowsHide: true, timeout: 5e3 });
+      if ((r == null ? void 0 : r.status) !== 0) return "";
+      const first = String(r.stdout || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean)[0] || "";
+      return first;
+    } catch (e) {
+      return "";
+    }
+  }
+  function resolveToolBase(app, id) {
+    const entry = TOOL_ENTRIES[id];
+    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const node = probeNodeRuntime(app);
+    if (script && node.kind !== "none" && existsOnDisk(script)) {
+      return { cmd: node.path, shell: false, via: "bundle" };
+    }
+    return { cmd: entry.command, shell: true, via: "path" };
+  }
+  function safeToolBase(id) {
+    try {
+      return resolveToolBase(getApp(), id);
+    } catch (e) {
+      return { cmd: TOOL_ENTRIES[id].command, shell: true, via: "path" };
+    }
   }
 
   // src/people/sync.ts
@@ -17181,7 +17383,7 @@ ${lines}`;
   }
 
   // src/people/sync.ts
-  var BZ_FACE_INSTALL_HINT = "未找到 bz-face 命令——先安装脸谱工具包（@jwbz/obsidian-face）：在仓库 tools/obsidian-face 目录下运行 npm link，或 npm install -g <仓库>/tools/obsidian-face，装好后重试";
+  var BZ_FACE_INSTALL_HINT = "未找到脸谱工具包：到「设置 → 通用 → 在线资源」里下载「脸谱工具包」，下载完即可用（Python 依赖另见该组提示）";
   var DOCTOR_HINT = "到终端运行 bz-face doctor 可自检环境";
   var PHASE_LABELS = {
     key: "取密钥",
@@ -17240,20 +17442,24 @@ ${lines}`;
     if (!isPath) return t;
     return quotePathArg(t);
   }
+  function pathArg(v, shell) {
+    return shell ? quotePathArg(v) : v;
+  }
   function buildSyncSpec(opts) {
-    var _a2, _b2;
+    var _a2, _b2, _c2, _d2, _e, _f;
     const src = ((_a2 = opts.src) == null ? void 0 : _a2.trim()) || void 0;
     const python = ((_b2 = opts.python) == null ? void 0 : _b2.trim()) || void 0;
+    const shell = (_d2 = (_c2 = opts.command) == null ? void 0 : _c2.shell) != null ? _d2 : true;
     return {
-      cmd: "bz-face",
+      cmd: (_f = (_e = opts.command) == null ? void 0 : _e.cmd) != null ? _f : "bz-face",
       args: [
         "sync",
         "--data-root",
-        quotePathArg(opts.dataRoot),
-        ...src ? ["--src", quotePathArg(src)] : [],
-        ...python ? ["--python", quotePythonArg(python)] : []
+        pathArg(opts.dataRoot, shell),
+        ...src ? ["--src", pathArg(src, shell)] : [],
+        ...python ? ["--python", shell ? quotePythonArg(python) : python] : []
       ],
-      shell: true
+      shell
     };
   }
   function collectContactInfo(stats, data) {
@@ -17377,7 +17583,9 @@ ${lines}`;
       spec = buildSyncSpec({
         dataRoot,
         src: nonEmpty(s == null ? void 0 : s.peopleWxAccountDir),
-        python: nonEmpty(s == null ? void 0 : s.pythonPath)
+        python: nonEmpty(s == null ? void 0 : s.pythonPath),
+        // 本地包优先、PATH 兜底（core/tool-runtime）：老用户行为不变，新用户不必碰终端
+        command: safeToolBase("obsidian-face")
       });
     } catch (e) {
       setState({
@@ -19393,54 +19601,60 @@ ${lines}`;
     var _a2, _b2;
     const python = ((_a2 = opts.python) == null ? void 0 : _a2.trim()) || void 0;
     const ffmpeg = ((_b2 = opts.ffmpeg) == null ? void 0 : _b2.trim()) || void 0;
+    const base = safeToolBase("obsidian-face");
+    const q = (v) => pathArg(v, base.shell);
     return {
-      cmd: "bz-face",
+      cmd: base.cmd,
       args: [
         "rec",
-        quotePathArg(opts.file),
+        q(opts.file),
         "--data-root",
-        quotePathArg(opts.dataRoot),
+        q(opts.dataRoot),
         "--contact",
-        quotePathArg(opts.talker),
-        ...ffmpeg ? ["--ffmpeg", quotePathArg(ffmpeg)] : [],
-        ...python ? ["--python", quotePythonArg(python)] : []
+        q(opts.talker),
+        ...ffmpeg ? ["--ffmpeg", q(ffmpeg)] : [],
+        ...python ? ["--python", base.shell ? quotePythonArg(python) : python] : []
       ],
-      shell: true
+      shell: base.shell
     };
   }
   function buildVoiceprintSpec(opts) {
     var _a2;
     const python = ((_a2 = opts.python) == null ? void 0 : _a2.trim()) || void 0;
+    const base = safeToolBase("obsidian-face");
+    const q = (v) => pathArg(v, base.shell);
     return {
-      cmd: "bz-face",
+      cmd: base.cmd,
       args: [
         "refs",
         "--data-root",
-        quotePathArg(opts.dataRoot),
+        q(opts.dataRoot),
         "--contact",
-        quotePathArg(opts.talker),
-        ...python ? ["--python", quotePythonArg(python)] : []
+        q(opts.talker),
+        ...python ? ["--python", base.shell ? quotePythonArg(python) : python] : []
       ],
-      shell: true
+      shell: base.shell
     };
   }
   function buildRecordingCheckSpec(opts) {
     var _a2, _b2;
     const python = ((_a2 = opts.python) == null ? void 0 : _a2.trim()) || void 0;
     const ffmpeg = ((_b2 = opts.ffmpeg) == null ? void 0 : _b2.trim()) || void 0;
+    const base = safeToolBase("obsidian-face");
+    const q = (v) => pathArg(v, base.shell);
     return {
-      cmd: "bz-face",
+      cmd: base.cmd,
       args: [
         "check",
         "--data-root",
-        quotePathArg(opts.dataRoot),
+        q(opts.dataRoot),
         "--contact",
-        quotePathArg(opts.talker),
-        ...opts.srcs.flatMap((s) => ["--src", quotePathArg(s)]),
-        ...ffmpeg ? ["--ffmpeg", quotePathArg(ffmpeg)] : [],
-        ...python ? ["--python", quotePythonArg(python)] : []
+        q(opts.talker),
+        ...opts.srcs.flatMap((s) => ["--src", q(s)]),
+        ...ffmpeg ? ["--ffmpeg", q(ffmpeg)] : [],
+        ...python ? ["--python", base.shell ? quotePythonArg(python) : python] : []
       ],
-      shell: true
+      shell: base.shell
     };
   }
   function parseRecordingCheckResult(data) {
@@ -19861,7 +20075,7 @@ ${lines}`;
     const [maj, min] = minorVersionOf(caps.version);
     const tooOld = maj === 0 && min < 6;
     if (tooOld || !caps.commands.includes("rec") || !caps.commands.includes("check")) {
-      return `本机 bz-face（v${caps.version}）过旧：v0.6 起才有「账本替换重试（修你遇到的那个 PermissionError 拒绝访问）」+ 旁音过滤 + 归属抽检——本包不发 registry，请在包目录 tools/obsidian-face 重新 npm link（或 npm install -g <仓库>/tools/obsidian-face）后重试`;
+      return `本机脸谱工具包（v${caps.version}）过旧：v0.6 起才有「账本替换重试（修你遇到的那个 PermissionError 拒绝访问）」+ 旁音过滤 + 归属抽检——到「设置 → 通用 → 在线资源」里重新下载「脸谱工具包」，覆盖安装后重试`;
     }
     return null;
   }
@@ -20053,16 +20267,18 @@ ${lines}`;
   function buildExportSpec(opts) {
     var _a2;
     const python = ((_a2 = opts.python) == null ? void 0 : _a2.trim()) || void 0;
+    const base = safeToolBase("obsidian-face");
+    const q = (v) => pathArg(v, base.shell);
     return {
-      cmd: "bz-face",
+      cmd: base.cmd,
       args: [
         "export",
         "--data-root",
-        quotePathArg(opts.dataRoot),
-        ...opts.contacts.flatMap((c) => ["--contact", quotePathArg(c)]),
-        ...python ? ["--python", quotePythonArg(python)] : []
+        q(opts.dataRoot),
+        ...opts.contacts.flatMap((c) => ["--contact", q(c)]),
+        ...python ? ["--python", base.shell ? quotePythonArg(python) : python] : []
       ],
-      shell: true
+      shell: base.shell
     };
   }
   function exportContactEvent(data) {

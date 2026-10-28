@@ -487,11 +487,11 @@ describe('协作式控制文件与版本门（issue 510）', () => {
     expect(await probeFaceCapabilities()).toBeNull();
   });
 
-  it('faceRecSupportError：能力未知放行；< 0.6 或缺 rec / check 给升级指引（npm link 口径）；0.6+ 放行', () => {
+  it('faceRecSupportError：能力未知放行；< 0.6 或缺 rec / check 给升级指引（在线资源指引口径）；0.6+ 放行', () => {
     expect(faceRecSupportError(null)).toBeNull();
     const old = faceRecSupportError({ version: '0.5.0', commands: ['rec', 'refs', 'check'] });
     expect(old).toContain('过旧');
-    expect(old).toContain('npm link'); // 本包不发 registry，指引不能是 npm update
+    expect(old).toContain('在线资源'); // 对外分发：指引必须指向设置面板的在线资源组
     expect(faceRecSupportError({ version: '0.6.0', commands: ['sync'] })).toContain('过旧');
     expect(faceRecSupportError({ version: '0.6.0', commands: ['rec'] })).toContain('过旧'); // 缺 check（旁音/抽检的伴生能力）
     expect(faceRecSupportError({ version: '0.6.0', commands: ['sync', 'rec', 'refs', 'check'] })).toBeNull();

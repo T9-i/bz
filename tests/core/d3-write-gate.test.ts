@@ -39,6 +39,18 @@ const WHITELIST: Array<{ file: RegExp; reason: string; /** 防回归哨兵：预
     reason: '自更新（2026-09-26）：覆盖插件目录 main.js/styles.css/manifest.json 三件套，升级协议自有顺序，非域数据文件',
   },
   {
+    file: /^src\/core\/bundle-asset\.ts$/,
+    reason:
+      '目录包解包（2026-10-28）：tar 条目逐个 writeBinary 落 downloads/tools/，是插件资产而非域数据文件，' +
+      '不进 json 段写原语；顺序性由「整包解完才写就绪标记」保证（半截目录无标记 = 下次重解）',
+  },
+  {
+    file: /^src\/core\/env-check\.ts$/,
+    reason:
+      '环境自检（2026-10-28）：写一个 .bz-write-probe 立刻删掉，只为判「这个目录能不能写」——' +
+      '它不产出任何数据，走 json 段写原语反而会污染数据目录',
+  },
+  {
     file: /^src\/encrypt\/data\.ts$/,
     reason: 'D2 已收编域：.safe.enc/staging 密文走 adapter 自有原子写协议（tmp 写成后替换，防半截密文）；解密产出 md/附件为用户文档写',
   },

@@ -63,8 +63,10 @@ export function downloadsVaultPath(app: unknown, fileName: string): string {
  * 而 Obsidian `adapter.mkdir` 未文档化「递归建父级」，单次 `mkdir('skins/bookshelf')`
  * 在非递归实现下会直接失败 → write 失败 → 远端皮肤永久静默回落首套（功能全失效）。
  * 逐级 try/catch 幂等：目录已存在抛错也无所谓，最终由 write 决定成败。
+ *
+ * 导出给 core/bundle-asset（目录包解包时同一套建目录口径，别在下游再抄一遍）。
  */
-async function ensureDir(app: unknown, relPath: string): Promise<void> {
+export async function ensureDir(app: unknown, relPath: string): Promise<void> {
   const adapter = (app as { vault?: { adapter?: { mkdir?: (p: string) => Promise<void> } } }).vault?.adapter;
   if (!adapter?.mkdir) return;
   const slash = relPath.lastIndexOf('/');

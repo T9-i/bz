@@ -304,7 +304,7 @@ describe('状态机：startSync / stopSync 终态分流', () => {
     const s = syncState();
     expect(s.outcome).toBe('error');
     expect(s.hint).toBe(BZ_FACE_INSTALL_HINT);
-    expect(s.hint).toContain('npm link');
+    expect(s.hint).toContain('在线资源');
   });
 
   it('Python 依赖缺失（stderr ModuleNotFoundError、无结果行）：给 doctor 引导', async () => {
