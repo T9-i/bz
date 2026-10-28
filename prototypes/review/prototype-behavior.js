@@ -1,5 +1,5 @@
-/* 源指纹 2ce07e641ef4fc62 · 仓内输入 305 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/review/fake-sim.ts","prototypes/review/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/vault-key.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
+/* 源指纹 c2998828952e9c80 · 仓内输入 306 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/review/fake-sim.ts","prototypes/review/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/vault-key.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/review/fake-sim.ts → window.BZW_review（行为单源预览包，issue 245/ADR-0106） */
 var BZW_review = (() => {
   var __create = Object.create;
@@ -23134,7 +23134,21 @@ ${countsToText(s.missing)}
     }
   });
 
+  // src/core/tool-hint.ts
+  function toolMissingHint(label = "外部工具") {
+    return `未找到${label}：到${TOOL_SETTINGS_HINT}里下载它，下载完即可用`;
+  }
+  var TOOL_SETTINGS_HINT;
+  var init_tool_hint = __esm({
+    "src/core/tool-hint.ts"() {
+      TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+    }
+  });
+
   // src/core/tool-runtime.ts
+  function toolManifestId(id) {
+    return `tool-${id}`;
+  }
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";
   }
@@ -23210,13 +23224,12 @@ ${countsToText(s.missing)}
     }
   }
   function resolveToolBase(app, id) {
-    const entry = TOOL_ENTRIES[id];
-    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const script = fsPath(app, `${toolBundleDir(id)}/${TOOL_ENTRIES[id].script}`);
     const node = probeNodeRuntime(app);
     if (script && node.kind !== "none" && existsOnDisk(script)) {
       return { cmd: node.path, shell: false, via: "bundle" };
     }
-    return { cmd: entry.command, shell: true, via: "path" };
+    return { cmd: "", shell: false, via: "none" };
   }
   function resolveToolCommand(app, id, args = []) {
     const entry = TOOL_ENTRIES[id];
@@ -23225,19 +23238,16 @@ ${countsToText(s.missing)}
       const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
       return { cmd: base.cmd, args: [script, ...args], shell: false, via: "bundle" };
     }
-    return { cmd: base.cmd, args, shell: true, via: "path" };
+    return { cmd: "", args, shell: false, via: "none" };
   }
   function toolReadyState(app, id) {
     const entry = TOOL_ENTRIES[id];
     const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
     if (script && existsOnDisk(script) && probeNodeRuntime(app).kind !== "none") return { ready: true, via: "bundle" };
-    const cp = childProcess();
-    if (findOnPath(cp, entry.command)) return { ready: true, via: "path" };
     return { ready: false, via: "none" };
   }
   function toolInstallHint(id) {
-    const entry = TOOL_ENTRIES[id];
-    return `未找到${entry.label}：到「设置 → 通用 → 在线资源」里下载它，下载完即可用`;
+    return toolMissingHint(id ? TOOL_ENTRIES[id].label : void 0);
   }
   function runtimeDiagnostics(app) {
     const node = probeNodeRuntime(app);
@@ -23248,27 +23258,30 @@ ${countsToText(s.missing)}
         value: node.kind === "none" ? "未找到" : `${node.kind === "bundled" ? "插件内" : "系统"}${node.version ? ` ${node.version}` : ""}（${node.path}）`
       }
     ];
-    for (const id of Object.keys(TOOL_ENTRIES)) {
+    for (const id of TOOL_IDS) {
       const st = toolReadyState(app, id);
       rows.push({
         key: TOOL_ENTRIES[id].label,
-        value: st.via === "bundle" ? "已下载" : st.via === "path" ? "用系统里已装的命令" : "未安装"
+        // 只剩两种事实：包在磁盘上 / 包不在。系统 PATH 上有没有同名命令与插件的口径无关
+        value: st.via === "bundle" ? "已下载" : "未安装"
       });
     }
     return rows;
   }
-  var TOOL_ENTRIES, BUNDLED_NODE_DIR, fsProbe, cachedNode;
+  var TOOL_ENTRIES, TOOL_IDS, BUNDLED_NODE_DIR, fsProbe, cachedNode;
   var init_tool_runtime = __esm({
     "src/core/tool-runtime.ts"() {
       init_remote_asset();
       init_node_runtime_install();
       init_plugin_path();
       init_app();
+      init_tool_hint();
       TOOL_ENTRIES = {
-        "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
-        "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
-        "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+        "bili-downloader": { script: "cli.js", label: "B站下载器" },
+        "obsidian-face": { script: "bin/bz-face.js", label: "脸谱工具包" },
+        "dock-watch": { script: "cli.js", label: "工具坞值守" }
       };
+      TOOL_IDS = ["bili-downloader", "dock-watch", "obsidian-face"];
       BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
       fsProbe = null;
       cachedNode = null;
@@ -24195,10 +24208,14 @@ ${sample}`
                 resolve2();
               });
             };
+            if (!cmd) {
+              finish(false, INSTALL_HINT, null, null);
+              return;
+            }
             try {
               child = cp.spawn(cmd, args, { shell, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
             } catch (e) {
-              const reason = /ENOENT/.test(e.message) ? `未找到 bili-dl。${INSTALL_HINT}` : `启动失败：${e.message}。${INSTALL_HINT}`;
+              const reason = /ENOENT/.test(e.message) ? INSTALL_HINT : `启动失败：${e.message}。${INSTALL_HINT}`;
               finish(false, reason, null, null);
               return;
             }
@@ -24267,7 +24284,7 @@ ${sample}`
             });
             child.on("error", (e) => {
               if (settled) return;
-              const reason = /ENOENT/.test(e.message) ? `未找到 bili-dl。${INSTALL_HINT}` : `启动失败：${e.message}`;
+              const reason = /ENOENT/.test(e.message) ? INSTALL_HINT : `启动失败：${e.message}`;
               finish(false, reason, null, null);
             });
             child.on("close", (code) => {
@@ -37239,7 +37256,20 @@ ${other}
   async function computeRowStates(app) {
     var _a2;
     const manifest = await cachedManifest(app);
-    if (!manifest) return { rows: [], manifest: null };
+    if (!manifest) {
+      return {
+        rows: LOCAL_TOOL_ROWS.map((t) => ({
+          id: t.id,
+          name: t.name,
+          doc: null,
+          skin: null,
+          local: toolReadyState(app, t.toolId).ready ? "ready" : "missing",
+          extra: null,
+          size: null
+        })),
+        manifest: null
+      };
+    }
     const pluginVersion = await readPluginVersion(app);
     const rows = [];
     for (const id of rowIdsOf(manifest)) {
@@ -37249,6 +37279,7 @@ ${other}
           name: SKINS_ROW_NAME,
           doc: null,
           skin: pluginVersion ? await skinStatus(app, manifest) : null,
+          local: null,
           extra: null,
           size: skinTotalSize(manifest, pluginVersion)
         });
@@ -37259,12 +37290,14 @@ ${other}
       if (pluginVersion && !isInVersionRange(entry, pluginVersion)) continue;
       const doc = entry.kind === "bundle" ? await bundleStatus(app, entry) : await docStatus(app, entry);
       const extra = doc === "ready" ? await readyExtra(app, id, entry) : null;
-      rows.push({ id, name: entry.name, doc, skin: null, extra, size: (_a2 = entry.size) != null ? _a2 : null });
+      rows.push({ id, name: entry.name, doc, skin: null, local: null, extra, size: (_a2 = entry.size) != null ? _a2 : null });
     }
     return { rows, manifest };
   }
   function rowDesc(st) {
     const size = st.size !== null ? sizeText(st.size) : "";
+    if (st.local === "ready") return "已下载，可以正常使用（清单没拉到，暂时无法检查更新）";
+    if (st.local === "missing") return "尚未下载。资源清单没拉到（网络不可用），联网后可下载";
     if (st.skin) {
       const { ready: ready2, missing, updated } = st.skin;
       if (updated > 0) return missing > 0 ? `${updated} 套主题有更新，另有 ${missing} 套未下载` : `${updated} 套主题有更新，已就绪 ${ready2} 套`;
@@ -37280,6 +37313,7 @@ ${other}
     return "等待检查更新";
   }
   function rowButton(st) {
+    if (st.local) return { text: st.local === "ready" ? "已下载" : "下载", disabled: true };
     if (st.skin) {
       const { missing, updated } = st.skin;
       if (updated > 0) return { text: `更新 ${updated}`, disabled: false };
@@ -37362,6 +37396,7 @@ ${other}
     subscribeOnce3();
     if (Date.now() - lastCheckAt > CHECK_THROTTLE_MS) void checkInBackground();
     const bundleIds = new Set(((_a2 = manifest == null ? void 0 : manifest.docs) != null ? _a2 : []).filter((d) => d.kind === "bundle").map((d) => d.id));
+    if (!manifest) for (const t of LOCAL_TOOL_ROWS) bundleIds.add(t.id);
     const toolRows = meta.entries.filter((e) => bundleIds.has(e.id)).map((e) => e.row);
     const toolSet = new Set(toolRows);
     const restRows = meta.rows.filter((r) => !toolSet.has(r));
@@ -37554,7 +37589,7 @@ ${other}
     setRowBtnState(btn, "idle", (_d = allRow == null ? void 0 : allRow.buttonText) != null ? _d : "全部更新");
     patchRenderedGroup();
   }
-  var thousand, SKINS_ROW_NAME, ALL_BUSY_ID, DESC_EXTRAS, CHECK_THROTTLE_MS, lastCheckAt, checkFailed, currentGroup, syncRunning, syncDirty, busyIds, subscribed3;
+  var thousand, SKINS_ROW_NAME, ALL_BUSY_ID, DESC_EXTRAS, CHECK_THROTTLE_MS, lastCheckAt, checkFailed, currentGroup, syncRunning, syncDirty, busyIds, LOCAL_TOOL_ROWS, subscribed3;
   var init_online_resources = __esm({
     "src/settings-panel/online-resources.ts"() {
       init_app();
@@ -37567,6 +37602,7 @@ ${other}
       init_remote_asset();
       init_bundle_asset();
       init_remote_asset();
+      init_tool_runtime();
       init_tool_setup();
       init_category_table();
       init_rss_catalog();
@@ -37603,6 +37639,11 @@ ${other}
       syncRunning = null;
       syncDirty = false;
       busyIds = /* @__PURE__ */ new Set();
+      LOCAL_TOOL_ROWS = TOOL_IDS.map((id) => ({
+        id: toolManifestId(id),
+        name: TOOL_ENTRIES[id].label,
+        toolId: id
+      }));
       subscribed3 = false;
     }
   });
@@ -38044,6 +38085,7 @@ ${other}
     resourceDocsOf: () => resourceDocsOf,
     selectedTasks: () => selectedTasks,
     setupAlreadyDone: () => setupAlreadyDone,
+    setupDoneStorageKey: () => setupDoneStorageKey,
     sizeText: () => sizeText2,
     splitProbeRows: () => splitProbeRows
   });
@@ -38276,7 +38318,7 @@ ${other}
       ui2.sub.textContent = "连不上资源站：下载类功能要等网络恢复后再用，插件主体不受影响。";
       const later = button("bz-setup-btn", "稍后再说");
       later.onclick = () => {
-        void markDone();
+        void markDone(ctx.app);
         closeModal(ui2);
       };
       const retry = button("bz-setup-btn bz-setup-btn--cta", "重新检测");
@@ -38402,13 +38444,13 @@ ${other}
     };
     const skip = button("bz-setup-btn", ctx.firstRun ? "以后再说" : "关闭");
     skip.onclick = () => {
-      void markDone();
+      void markDone(ctx.app);
       closeModal(ui2);
     };
     next.onclick = () => {
       const tasks = pending();
       if (!tasks.length) {
-        void markDone();
+        void markDone(ctx.app);
         void stageDone(ctx, st, ui2);
         return;
       }
@@ -38577,7 +38619,7 @@ ${other}
       bar.querySelector("i").style.width = `${pct}%`;
     }
     bar.querySelector("i").style.width = "100%";
-    await markDone();
+    await markDone(ctx.app);
     if (tasks.some((t) => t.id === "tool-dock-watch")) {
       ui2.sub.textContent = "工具已就位。还有一件事需要你点头：值守要不要开机自启。";
       try {
@@ -38615,15 +38657,19 @@ ${other}
     enter.onclick = () => closeModal(ui2);
     ui2.foot.appendChild(enter);
   }
-  function setupAlreadyDone(settings) {
+  function setupDoneStorageKey(vault) {
+    const key = vaultKeyOf(vault);
+    return key ? `${SETUP_DONE_FALLBACK_KEY}:${key}` : SETUP_DONE_FALLBACK_KEY;
+  }
+  function setupAlreadyDone(settings, vault = "") {
     if ((settings == null ? void 0 : settings.setupDone) === true) return true;
     try {
-      return localStorage.getItem(SETUP_DONE_FALLBACK_KEY) === "1";
+      return localStorage.getItem(setupDoneStorageKey(vault)) === "1";
     } catch (e) {
       return false;
     }
   }
-  async function markDone() {
+  async function markDone(app) {
     try {
       const s = getSettings();
       s.setupDone = true;
@@ -38631,7 +38677,7 @@ ${other}
     } catch (e) {
     }
     try {
-      localStorage.setItem(SETUP_DONE_FALLBACK_KEY, "1");
+      localStorage.setItem(setupDoneStorageKey(vaultBasePathOf(app)), "1");
     } catch (e) {
     }
   }
@@ -38682,6 +38728,7 @@ ${other}
       init_tool_runtime();
       init_tool_setup();
       init_plugin_path();
+      init_vault_key();
       init_path_picker();
       init_mobile();
       init_app();

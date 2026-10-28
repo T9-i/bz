@@ -1462,6 +1462,12 @@ function removeToolAt(path, id, fs) {
   return next;
 }
 
+// src/core/tool-hint.ts
+var TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+function toolMissingHint(label = "外部工具") {
+  return `未找到${label}：到${TOOL_SETTINGS_HINT}里下载它，下载完即可用`;
+}
+
 // src/core/external-tool.ts
 var ASK_TIMEOUT_DEFAULT_SEC = 300;
 var ASK_TIMEOUT_MIN_SEC = 10;
@@ -1646,6 +1652,12 @@ function runExternalTool(spec, cb, deps2) {
   };
   if (!cp) {
     settle2({ ok: false, stopped: false, code: null, stderr: "", error: new Error("仅桌面端可用：外部工具需要 Node.js 子进程") });
+    return { stop: () => {
+    }, answer: () => {
+    }, done };
+  }
+  if (!String(spec.cmd || "").trim()) {
+    settle2({ ok: false, stopped: false, code: null, stderr: "", error: new Error(toolMissingHint()) });
     return { stop: () => {
     }, answer: () => {
     }, done };

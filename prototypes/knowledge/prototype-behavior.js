@@ -1,5 +1,5 @@
-/* 源指纹 c0dd7c39a928e76a · 仓内输入 58 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
+/* 源指纹 4d19f7327f383347 · 仓内输入 59 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/knowledge/fake-sim.ts","prototypes/knowledge/fake/ai-index.ts","prototypes/knowledge/fake/fake-obsidian.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/ui/focus-trap.ts","src/core/ui/icons.ts","src/core/ui/resize.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/knowledge/fake-sim.ts → window.BZW_knowledge（行为单源预览包，issue 245/ADR-0106） */
 var BZW_knowledge = (() => {
   var __create = Object.create;
@@ -7942,11 +7942,17 @@ var BZW_knowledge = (() => {
     return typeof process !== "undefined" && process.platform ? process.platform : "win32";
   }
 
+  // src/core/tool-hint.ts
+  var TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+  function toolMissingHint(label = "外部工具") {
+    return `未找到${label}：到${TOOL_SETTINGS_HINT}里下载它，下载完即可用`;
+  }
+
   // src/core/tool-runtime.ts
   var TOOL_ENTRIES = {
-    "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
-    "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
-    "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+    "bili-downloader": { script: "cli.js", label: "B站下载器" },
+    "obsidian-face": { script: "bin/bz-face.js", label: "脸谱工具包" },
+    "dock-watch": { script: "cli.js", label: "工具坞值守" }
   };
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";
@@ -8023,13 +8029,12 @@ var BZW_knowledge = (() => {
     }
   }
   function resolveToolBase(app, id) {
-    const entry = TOOL_ENTRIES[id];
-    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const script = fsPath(app, `${toolBundleDir(id)}/${TOOL_ENTRIES[id].script}`);
     const node = probeNodeRuntime(app);
     if (script && node.kind !== "none" && existsOnDisk(script)) {
       return { cmd: node.path, shell: false, via: "bundle" };
     }
-    return { cmd: entry.command, shell: true, via: "path" };
+    return { cmd: "", shell: false, via: "none" };
   }
   function resolveToolCommand(app, id, args = []) {
     const entry = TOOL_ENTRIES[id];
@@ -8038,11 +8043,10 @@ var BZW_knowledge = (() => {
       const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
       return { cmd: base.cmd, args: [script, ...args], shell: false, via: "bundle" };
     }
-    return { cmd: base.cmd, args, shell: true, via: "path" };
+    return { cmd: "", args, shell: false, via: "none" };
   }
   function toolInstallHint(id) {
-    const entry = TOOL_ENTRIES[id];
-    return `未找到${entry.label}：到「设置 → 通用 → 在线资源」里下载它，下载完即可用`;
+    return toolMissingHint(id ? TOOL_ENTRIES[id].label : void 0);
   }
 
   // src/core/asr-proofread.ts
@@ -8912,10 +8916,14 @@ ${sample}`
             resolve();
           });
         };
+        if (!cmd) {
+          finish(false, INSTALL_HINT, null, null);
+          return;
+        }
         try {
           child = cp.spawn(cmd, args, { shell, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
         } catch (e) {
-          const reason = /ENOENT/.test(e.message) ? `未找到 bili-dl。${INSTALL_HINT}` : `启动失败：${e.message}。${INSTALL_HINT}`;
+          const reason = /ENOENT/.test(e.message) ? INSTALL_HINT : `启动失败：${e.message}。${INSTALL_HINT}`;
           finish(false, reason, null, null);
           return;
         }
@@ -8984,7 +8992,7 @@ ${sample}`
         });
         child.on("error", (e) => {
           if (settled) return;
-          const reason = /ENOENT/.test(e.message) ? `未找到 bili-dl。${INSTALL_HINT}` : `启动失败：${e.message}`;
+          const reason = /ENOENT/.test(e.message) ? INSTALL_HINT : `启动失败：${e.message}`;
           finish(false, reason, null, null);
         });
         child.on("close", (code) => {

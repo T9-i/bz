@@ -1,5 +1,5 @@
-/* 源指纹 aa54892e9c176125 · 仓内输入 104 个（校验见 tests/preview-freshness.test.ts） */
-/*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
+/* 源指纹 bf595c5f4d53de72 · 仓内输入 105 个（校验见 tests/preview-freshness.test.ts） */
+/*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/people/fake-sim.ts → window.BZW_people（行为单源预览包，issue 245/ADR-0106） */
 var BZW_people = (() => {
   var __create = Object.create;
@@ -15770,6 +15770,12 @@ ${lines}`;
     }
   }
 
+  // src/core/tool-hint.ts
+  var TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+  function toolMissingHint(label = "外部工具") {
+    return `未找到${label}：到${TOOL_SETTINGS_HINT}里下载它，下载完即可用`;
+  }
+
   // src/core/external-tool.ts
   var ASK_TIMEOUT_DEFAULT_SEC = 300;
   var ASK_TIMEOUT_MIN_SEC = 10;
@@ -15956,6 +15962,12 @@ ${lines}`;
     };
     if (!cp) {
       settle({ ok: false, stopped: false, code: null, stderr: "", error: new Error("仅桌面端可用：外部工具需要 Node.js 子进程") });
+      return { stop: () => {
+      }, answer: () => {
+      }, done };
+    }
+    if (!String(spec.cmd || "").trim()) {
+      settle({ ok: false, stopped: false, code: null, stderr: "", error: new Error(toolMissingHint()) });
       return { stop: () => {
       }, answer: () => {
       }, done };
@@ -16212,9 +16224,9 @@ ${lines}`;
   // src/core/tool-runtime.ts
   init_app();
   var TOOL_ENTRIES = {
-    "bili-downloader": { script: "cli.js", command: "bili-dl", label: "B站下载器" },
-    "obsidian-face": { script: "bin/bz-face.js", command: "bz-face", label: "脸谱工具包" },
-    "dock-watch": { script: "cli.js", command: "bz-dock-watch", label: "工具坞值守" }
+    "bili-downloader": { script: "cli.js", label: "B站下载器" },
+    "obsidian-face": { script: "bin/bz-face.js", label: "脸谱工具包" },
+    "dock-watch": { script: "cli.js", label: "工具坞值守" }
   };
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";
@@ -16291,19 +16303,21 @@ ${lines}`;
     }
   }
   function resolveToolBase(app, id) {
-    const entry = TOOL_ENTRIES[id];
-    const script = fsPath(app, `${toolBundleDir(id)}/${entry.script}`);
+    const script = fsPath(app, `${toolBundleDir(id)}/${TOOL_ENTRIES[id].script}`);
     const node = probeNodeRuntime(app);
     if (script && node.kind !== "none" && existsOnDisk(script)) {
       return { cmd: node.path, shell: false, via: "bundle" };
     }
-    return { cmd: entry.command, shell: true, via: "path" };
+    return { cmd: "", shell: false, via: "none" };
   }
+  var baseProbe = null;
+  var NO_TOOL = { cmd: "", shell: false, via: "none" };
   function safeToolBase(id) {
+    if (baseProbe) return baseProbe(id);
     try {
       return resolveToolBase(getApp(), id);
     } catch (e) {
-      return { cmd: TOOL_ENTRIES[id].command, shell: true, via: "path" };
+      return NO_TOOL;
     }
   }
 
@@ -17498,12 +17512,13 @@ ${lines}`;
     return shell ? quotePathArg(v) : v;
   }
   function buildSyncSpec(opts) {
-    var _a2, _b2, _c2, _d2, _e, _f;
+    var _a2, _b2, _c2;
     const src = ((_a2 = opts.src) == null ? void 0 : _a2.trim()) || void 0;
     const python = ((_b2 = opts.python) == null ? void 0 : _b2.trim()) || void 0;
-    const shell = (_d2 = (_c2 = opts.command) == null ? void 0 : _c2.shell) != null ? _d2 : true;
+    const base = (_c2 = opts.command) != null ? _c2 : safeToolBase("obsidian-face");
+    const shell = base.shell;
     return {
-      cmd: (_f = (_e = opts.command) == null ? void 0 : _e.cmd) != null ? _f : "bz-face",
+      cmd: base.cmd,
       args: [
         "sync",
         "--data-root",
@@ -17635,9 +17650,8 @@ ${lines}`;
       spec = buildSyncSpec({
         dataRoot,
         src: nonEmpty(s == null ? void 0 : s.peopleWxAccountDir),
-        python: nonEmpty(s == null ? void 0 : s.pythonPath),
-        // 本地包优先、PATH 兜底（core/tool-runtime）：老用户行为不变，新用户不必碰终端
-        command: safeToolBase("obsidian-face")
+        python: nonEmpty(s == null ? void 0 : s.pythonPath)
+        // 命令解析收在 core/tool-runtime（只认插件目录里的本地包）：缺省已走它，这里不再重复传
       });
     } catch (e) {
       setState({
@@ -17821,9 +17835,10 @@ ${lines}`;
     const src = ((_b2 = opts.src) == null ? void 0 : _b2.trim()) || void 0;
     const python = ((_c2 = opts.python) == null ? void 0 : _c2.trim()) || void 0;
     const ffmpeg = ((_d2 = opts.ffmpeg) == null ? void 0 : _d2.trim()) || void 0;
-    const q = (v) => process.platform === "win32" ? quotePathArg(v) : v;
+    const base = safeToolBase("obsidian-face");
+    const q = (v) => pathArg(v, base.shell);
     return {
-      cmd: "bz-face",
+      cmd: base.cmd,
       args: [
         "prep",
         q(opts.contact),
@@ -17834,9 +17849,9 @@ ${lines}`;
         ...engine === "faster-whisper" && model ? ["--asr-model", model] : [],
         ...src ? ["--src", q(src)] : [],
         ...ffmpeg ? ["--ffmpeg", q(ffmpeg)] : [],
-        ...python ? ["--python", quotePythonArg(python)] : []
+        ...python ? ["--python", base.shell ? quotePythonArg(python) : python] : []
       ],
-      shell: true
+      shell: base.shell
     };
   }
   function controlFilePath(dataRoot) {
@@ -20092,7 +20107,12 @@ ${lines}`;
   async function probeFaceCapabilities() {
     if (capsCache !== void 0) return capsCache;
     let resultBody = null;
-    const handle2 = runner3({ cmd: "bz-face", args: ["capabilities"], shell: true }, {
+    const base = safeToolBase("obsidian-face");
+    if (base.via === "none") {
+      capsCache = null;
+      return capsCache;
+    }
+    const handle2 = runner3({ cmd: base.cmd, args: ["capabilities"], shell: base.shell }, {
       onStep: () => {
       },
       onProgress: () => {
