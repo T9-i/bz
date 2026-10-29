@@ -4,6 +4,13 @@
 # 本地（autocrlf=false）永远复现不了。2026-10-29 CI 首跑实测：不写这条，主干永远红。
 *.css text eol=lf
 
+# 同一批守卫还会逐字节核对 downloads/ 里被清单登记过的文档与数据文件
+# （build-manifest --check：bz-changelog.html / bz-manual.html / *.json 的 sha256）。
+# 二进制（*.tar.gz）必须显式声明，别让 autocrlf 碰它们。
+downloads/**/*.html text eol=lf
+downloads/**/*.json text eol=lf
+downloads/**/*.tar.gz binary
+
 # 发布版 main.js 由构建生成（esbuild 输出 LF）：固定 LF 避免 autocrlf 检出成 CRLF，
 # 否则每次 pnpm run build 同步后 git status 都会出现行尾假差异
 main.js text eol=lf

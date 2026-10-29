@@ -184,14 +184,18 @@ describe('挂载树·列表侧（issue 320）', () => {
     for (let i = 0; i < 100; i++) vault.files.set(`卡片盒/卡${String(i).padStart(3, '0')}.md`, `卡${i}正文。`);
     await openCards(80); // 首屏仍是 80 行
     await waitIndex();
-    const firstRow = row('卡片盒/甲卡.md');
+    // 不认具体是哪张卡：列表按 localeCompare 排序，CI（en-US）与中文系统下顺序不同，
+    // 钉死「甲卡在第一屏」会得到一条只在本机绿的断言
+    const firstRow = sc().querySelector('.bz-kb-lexrow') as HTMLElement;
+    expect(firstRow).not.toBeNull();
+    const firstPath = String(firstRow.getAttribute('data-path'));
     const more = () => document.querySelector('[data-kb-act=cards-more]') as HTMLElement;
     expect(more().textContent).toContain('还有 24 张'); // 104 - 80
 
     // 滚动到底 → 只追加新行（旧口径会整表 innerHTML 重建，已渲染行全换成新节点）
     sc().dispatchEvent(new Event('scroll'));
     await vi.waitFor(() => expect(document.querySelectorAll('.bz-kb-lexrow').length).toBe(104));
-    expect(row('卡片盒/甲卡.md')).toBe(firstRow); // 同一个 DOM 节点：没被重建
+    expect(row(firstPath)).toBe(firstRow); // 同一个 DOM 节点：没被重建
     expect(more().style.display).toBe('none'); // 页脚原地收起
     // 徽标落地后不丢（增量追加的行也带徽标）
     expect(row('卡片盒/甲卡.md').querySelector('.bz-kb-refbadge')!.textContent).toBe('被引 2');
