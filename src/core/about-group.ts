@@ -1,8 +1,8 @@
 /* ============================================================
  * bz · 设置面板「关于」组（core/about-group.ts）
  *
- * 通用页**最上面**那一组（2026-10-28 对外分发）：版本 / 自动更新 / 反馈 / 赞赏。
- * 四行的分工与边界：
+ * 通用页**最上面**那一组（2026-10-28 对外分发）：版本 / 自动更新 / 环境自检 / 反馈 /
+ * GitHub 主页 / 使用教程 / 赞赏。分工与边界：
  *
  *  - **版本**（info 行 + 动作钮）：运行中版本为真值；磁盘比运行中新时补一句
  *    「已下载 vX，重载后生效」——不补的话用户会看到「更新完了但版本号没变」。
@@ -10,9 +10,9 @@
  *  - **自动更新**（toggle）：只管「启动时会不会自己装」，缺省关（对外分发的缺省必须是关，
  *    见 core/self-update.ts 文件头）。关着也仍会检查——面板照样能看见「有新版」。
  *  - **反馈**：直接开 GitHub issues（仓库地址单源在 core/remote-base.ts 的 REPO_SLUG）。
- *  - **赞赏**：**暂时只有位置，没有任何内容**（用户 2026-10-28 拍板）。做成 info 行而不是
- *    空 button——入口在，但不给一个点了没反应的按钮。将来放微信/支付宝收款码时就地改成
- *    button 行 + 弹窗，收款码图片走在线资源下发（不塞进 main.js）。
+ *  - **赞赏**：暂时只有一个禁用的「暂无」按钮（2026-10-29 用户改口径：去掉描述、右列摆按钮）。
+ *    禁用态比空 button 诚实——位置在、写着「暂无」、也点不出没反应的东西。将来放微信/支付宝
+ *    收款码时就地改成可点的 button 行 + 弹窗，收款码图片走在线资源下发（不塞进 main.js）。
  *
  * 为什么是组而不是页头：页头是影院式整宽头行、只放标题（ADR-0104 markup 单源），
  * 往里塞版本号要动两侧壳；而组卡片是现成的、跟通用页其余部分同一套视觉。
@@ -26,6 +26,12 @@ import type { GroupDecl, SettingsRow, SettingsRowContext } from './settings-sche
 
 /** 反馈渠道（GitHub issues；仓库 slug 与下载通道同一事实源） */
 export const FEEDBACK_URL = `https://github.com/${REPO_SLUG}/issues`;
+
+/** 项目主页（GitHub 仓库首页；与反馈、下载通道同一 slug，不另立字面量） */
+export const REPO_URL = `https://github.com/${REPO_SLUG}`;
+
+/** 视频版使用教程（B 站，2026-10-29 用户给定）。改地址只改这一处，文案与测试都从这里取 */
+export const VIDEO_URL = 'https://www.bilibili.com/video/BV1vNsZ6pE7i';
 
 /** 版本行的描述文案（一句自然句，无符号花样——设置项文案规范） */
 export function versionDesc(st: SelfUpdateState): string {
@@ -84,6 +90,31 @@ export async function aboutGroup(): Promise<GroupDecl> {
     onClick: () => openExternalUrl(getApp(), FEEDBACK_URL),
   };
 
+  // 项目主页与使用教程（2026-10-29 用户要求）：关于组原本只回答「有问题去哪说」，
+  // 补上「东西在哪、怎么上手」——三行都是外链，读下来是一条链接清单，不比原来绕。
+  const repoRow: SettingsRow = {
+    type: 'button',
+    name: 'GitHub 主页',
+    desc: '源码和更新说明都在这里',
+    buttonText: '打开',
+    onClick: () => openExternalUrl(getApp(), REPO_URL),
+  };
+
+  const videoRow: SettingsRow = {
+    type: 'button',
+    name: '使用教程',
+    desc: '视频版教程，边看边用',
+    buttonText: '观看',
+    // 地址是常量（VIDEO_URL）；哪天视频下架把常量清空，这里降级成一句提示，别开一张空页
+    onClick: () => {
+      if (!VIDEO_URL) {
+        notify('使用教程还没发布，发布后这里会直连');
+        return;
+      }
+      openExternalUrl(getApp(), VIDEO_URL);
+    },
+  };
+
   // 环境自检（2026-10-28 对外分发）：把「这台机器上缺什么」一次说清。
   // 放在关于组而不是在线资源组：它回答的是「我这台机器能不能用」，与「下什么」是两件事。
   const envRow: SettingsRow = {
@@ -94,16 +125,22 @@ export async function aboutGroup(): Promise<GroupDecl> {
     onClick: () => void import('./setup-wizard').then((m) => m.openEnvironmentCheck(getApp())),
   };
 
+  // 赞赏（2026-10-29 用户改口径）：**暂时只有一个禁用的「暂无」**——原先是 info 行 + 一句
+  // 「收款码稍后放上」，用户要求去掉那句描述、右列直接摆按钮。禁用态（ADR-0205 的 :disabled
+  // 样式：压暗 + cursor default）比空 button 诚实：位置在、说了「暂无」、也点不出没反应的东西。
+  // 将来放微信/支付宝收款码时改成真 button 行 + 弹窗，收款码图片走在线资源下发（不塞进 main.js）。
   const rewardRow: SettingsRow = {
-    type: 'info',
+    type: 'button',
     name: '赞赏',
-    desc: '微信与支付宝收款码稍后放上',
+    buttonText: '暂无',
+    disabled: true,
+    onClick: () => undefined,
   };
 
   return {
     name: '关于',
     icon: 'info',
-    rows: [versionRow, autoUpdateRow, envRow, feedbackRow, rewardRow],
+    rows: [versionRow, autoUpdateRow, envRow, feedbackRow, repoRow, videoRow, rewardRow],
   };
 }
 
