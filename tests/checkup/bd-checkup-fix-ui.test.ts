@@ -78,7 +78,7 @@ function makeApp(files: Record<string, string>, frontmatter: Record<string, Reco
     plugins: {},
   } as any;
   setApp(app);
-  setSettingsProvider(() => ({}) as any);
+  setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE' }) as any);
   return { app, vault };
 }
 

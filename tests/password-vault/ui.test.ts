@@ -36,7 +36,7 @@ describe('PasswordVaultUIManager', () => {
     localStorage.clear();
     vault = new MockVault();
     setApp({ vault, metadataCache: { trigger: vi.fn() } } as any);
-    setSettingsProvider(() => ({ passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE', passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
     sm = new SafeManager('CONFIG/.ENCRYPT');
     dm = new PasswordVaultDataManager(sm);
     ui = new PasswordVaultUIManager(dm, { charset: '', length: '16', securityMode: false });
@@ -402,7 +402,7 @@ describe('面板拖拽缩放 + 尺寸记忆（ADR-0084/0094）', () => {
     localStorage.clear();
     vault = new MockVault();
     setApp({ vault, metadataCache: { trigger: vi.fn() } } as any);
-    setSettingsProvider(() => ({ passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE', passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
     sm = new SafeManager('CONFIG/.ENCRYPT');
     dm = new PasswordVaultDataManager(sm);
     ui = new PasswordVaultUIManager(dm, { charset: '', length: '16', securityMode: false });

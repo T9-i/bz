@@ -19,6 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { normalizeStorageDir, storageDir, storageFile } from '../../src/core/storage';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 import { getStorageDir, getStoragePath } from '../../src/favorites/config';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 
@@ -43,9 +44,10 @@ describe('core normalizeStorageDir：storagePath 目录归一单源', () => {
     setSettingsProvider(() => ({} as any));
   });
 
-  it('缺省/空 → CONFIG/STORAGE；尾斜杠 trim', () => {
-    expect(normalizeStorageDir(undefined)).toBe('CONFIG/STORAGE');
-    expect(normalizeStorageDir('')).toBe('CONFIG/STORAGE');
+  it('缺省/空 → <插件目录>/storage；尾斜杠 trim', () => {
+    // 2026-10-29：缺省从 vault 根的 CONFIG/STORAGE 搬到插件目录（ADR-0270 修订）
+    expect(normalizeStorageDir(undefined)).toBe(DEFAULT_STORAGE_DIR);
+    expect(normalizeStorageDir('')).toBe(DEFAULT_STORAGE_DIR);
     expect(normalizeStorageDir('DATA/番茄/')).toBe('DATA/番茄');
     expect(normalizeStorageDir('我的/数据')).toBe('我的/数据');
   });
@@ -53,7 +55,7 @@ describe('core normalizeStorageDir：storagePath 目录归一单源', () => {
   it('误配 .json 尾段 → 剥到所在目录（旧设置存了完整文件路径的兼容防御）', () => {
     expect(normalizeStorageDir('CONFIG/STORAGE/favorites.json')).toBe('CONFIG/STORAGE');
     expect(normalizeStorageDir('我的/数据/fav.json')).toBe('我的/数据');
-    expect(normalizeStorageDir('fav.json')).toBe('CONFIG/STORAGE'); // 无目录段 → 回退缺省
+    expect(normalizeStorageDir('fav.json')).toBe(DEFAULT_STORAGE_DIR); // 无目录段 → 回退缺省
   });
 
   it('storageDir() 经单源归一：settings.storagePath 误配 .json 也剥（全域受益）', () => {
@@ -79,7 +81,7 @@ describe('favorites 旧口 = core 单源的恒等转发', () => {
     // 既有行为锚（tests/favorites/data.test.ts 同款断言，收敛后不得漂移）
     expect(getStoragePath('我的/数据')).toBe('我的/数据/favorites.json');
     expect(getStoragePath('我的/数据/')).toBe('我的/数据/favorites.json');
-    expect(getStoragePath(undefined)).toBe('CONFIG/STORAGE/favorites.json');
+    expect(getStoragePath(undefined)).toBe(`${DEFAULT_STORAGE_DIR}/favorites.json`);
     expect(getStoragePath('CONFIG/STORAGE/favorites.json')).toBe('CONFIG/STORAGE/favorites.json');
     expect(getStoragePath('我的/数据/fav.json')).toBe('我的/数据/favorites.json');
   });

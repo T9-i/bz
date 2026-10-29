@@ -79,7 +79,7 @@ describe('快速取密统一流（选择器 UI + 命令链路）', () => {
     localStorage.clear();
     vault = new MockVault();
     setApp(mockAppWithVault(vault) as any);
-    setSettingsProvider(() => ({ passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE', passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
     sm = new SafeManager('CONFIG/STORAGE/.ENCRYPT');
     dm = new PasswordVaultDataManager(sm);
     await sm.unlock('pw');

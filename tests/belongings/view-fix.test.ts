@@ -132,7 +132,7 @@ function openAddForm(overlayEl: HTMLElement) {
 
 async function open(vault: MockVault, settings: any = {}) {
   setApp({ vault } as any);
-  setSettingsProvider(() => ({ belongingsDataFolder: 'CONFIG/STORAGE', ...settings }) as any);
+  setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE', belongingsDataFolder: 'CONFIG/STORAGE', ...settings }) as any);
   resetObsidianMocks();
   await openPanel();
   return panel()!;

@@ -4,6 +4,7 @@
  * issue 363 修订：标签定义 data.json 设置键 favoriteTags 读写 / seed 回退 / 旧伴生文件
  * favorites.tags.json 一次性迁移（幂等）+ 改名/删除条目批量跟随（updateTagLabelBulk）。
  */
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setApp } from '../../src/core/app';
 import { setSettingsProvider, setSettingsSaver } from '../../src/core/settings-provider';
@@ -118,7 +119,7 @@ describe('存储路径解析（文件名固定 favorites.json）', () => {
     expect(getStoragePath('我的/数据/')).toBe('我的/数据/favorites.json');
   });
   it('未设置 → 默认目录', () => {
-    expect(getStoragePath(undefined)).toBe('CONFIG/STORAGE/favorites.json');
+    expect(getStoragePath(undefined)).toBe(`${DEFAULT_STORAGE_DIR}/favorites.json`); // 2026-10-29：缺省搬到插件目录
   });
   it('兼容旧值：完整文件路径 → 取目录', () => {
     expect(getStoragePath('CONFIG/STORAGE/favorites.json')).toBe('CONFIG/STORAGE/favorites.json');

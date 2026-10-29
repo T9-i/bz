@@ -225,7 +225,7 @@ describe('年度报告页渲染（body 级 mask）', () => {
   it('面板工具行入口：点 data-bel-report 开报告；closePanel 连带收口', async () => {
     const vault = seedVault(seedItems());
     setApp({ vault } as any);
-    setSettingsProvider(() => ({}) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE' }) as any);
     await openPanel();
     const reportBtn = document.querySelector('[data-bel-report]') as HTMLElement;
     expect(reportBtn).toBeTruthy();
@@ -242,7 +242,7 @@ describe('年度报告页渲染（body 级 mask）', () => {
   it('命令路径（bz-belongings-report 回调）：面板未开从盘载库直开，ESC 层已注册', async () => {
     const vault = seedVault(seedItems());
     setApp({ vault } as any);
-    setSettingsProvider(() => ({}) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE' }) as any);
     openBelongingsReport({ vault } as any);
     await until(() => !!mask());
     await waitReportDone();
@@ -307,7 +307,7 @@ describe('年度报告页 · 审查修复批', () => {
   it('报告开着保存物品后就地刷新：空库空态「记一笔」保存 → 报告出现新记录（旧一次性快照问题）', async () => {
     const vault = seedVault([]);
     setApp({ vault } as any);
-    setSettingsProvider(() => ({}) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE' }) as any);
     await openPanel();
     await openBelongingsReportView();
     await until(() => !!body()?.querySelector('.bz-empty')); // 空库空态

@@ -8,6 +8,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MockVault, mockAppWithVault } from '../mock-vault';
 import { setApp } from '../../src/core/app';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 import { DEFAULT_SETTINGS } from '../../src/settings';
 import {
@@ -163,7 +164,7 @@ describe('待处理队列 CRUD', () => {
 
   it('队列数据并入 secondbrain.json 的 link.queue 段（ticket 120：storagePath 单文件口径）', () => {
     makeEnv();
-    expect(getSecondBrainStorePath()).toBe('CONFIG/STORAGE/secondbrain.json');
+    expect(getSecondBrainStorePath()).toBe(`${DEFAULT_STORAGE_DIR}/secondbrain.json`);
   });
 
   it('入队写入 link.queue 段并落盘；同 path 重入队合并为一条并刷新 hash 与 queuedAt', async () => {
@@ -233,7 +234,7 @@ describe('正文基准哈希状态（v1.4/ticket 119）', () => {
 
   it('基准哈希并入 secondbrain.json 的 link.state 段（ticket 120：storagePath 单文件口径）', () => {
     makeEnv();
-    expect(getSecondBrainStorePath()).toBe('CONFIG/STORAGE/secondbrain.json');
+    expect(getSecondBrainStorePath()).toBe(`${DEFAULT_STORAGE_DIR}/secondbrain.json`);
   });
 
   it('upsert 写入并读回（hash + linkedAt 时间戳）；重复 upsert 覆盖旧条目', async () => {

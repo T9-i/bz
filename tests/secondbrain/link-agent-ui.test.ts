@@ -38,7 +38,7 @@ import { setLinkBridge } from '../../src/core/link-now';
 
 function baseSettings() {
   // ADR-0141 §3：白名单不再是候选来源开关（三盒恒含索引），此处留空不影响自动关联行为
-  return { ...DEFAULT_SETTINGS, secondBrainAllowPaths: '' } as any;
+  return { ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', secondBrainAllowPaths: '' } as any;
 }
 
 /** 知识盒设置弹窗（「自动关联」组所在处；ADR-0141 §1 自第二大脑设置页迁入） */

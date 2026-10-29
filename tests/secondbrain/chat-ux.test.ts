@@ -29,7 +29,7 @@ function makeEnv() {
   const vault = new MockVault();
   const app = mockAppWithVault(vault);
   setApp(app);
-  setSettingsProvider(() => ({ ...DEFAULT_SETTINGS }) as BzSettings);
+  setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE' }) as BzSettings);
   return { vault, app };
 }
 

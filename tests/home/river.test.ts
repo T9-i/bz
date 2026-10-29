@@ -259,7 +259,7 @@ describe('collectRiver（只读采集集成）', () => {
   beforeEach(() => {
     vault = new MockVault();
     setApp(mockAppWithVault(vault) as any);
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE' }));
   });
 
   it('空库：今天/昨天空河、计数全 0、连击 0，且不创建任何文件', async () => {
@@ -411,7 +411,7 @@ describe('collectRiver（只读采集集成）', () => {
   });
 
   it('eff P2-1：采集窗口随「时间范围」档裁剪（today 档保底 2 天，yesterday 恒在）', async () => {
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineRange: 'today' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineRange: 'today' }));
     const data = await collectRiver(mockAppWithVault(vault) as any, NOW);
     // 下限 2：渲染点评 buildNotes 读「昨天首动」，窗口只含今天会在渲染层崩
     expect(data.days.length).toBe(2);
@@ -421,7 +421,7 @@ describe('collectRiver（只读采集集成）', () => {
     // 渲染消费面（ui.renderAll slice(0, rangeDays=1)）口径等价：仍只显示今天一格
     expect(data.week.slice(0, 1).map((w) => w.dateStr)).toEqual([dateStrOf(NOW)]);
     // week 档恒 7 天（默认档行为零变化）
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineRange: 'week' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineRange: 'week' }));
     const full = await collectRiver(mockAppWithVault(vault) as any, NOW);
     expect(full.days.length).toBe(7);
   });
@@ -434,11 +434,11 @@ describe('collectRiver（只读采集集成）', () => {
     vault.files.set('CONFIG/STORAGE/pomodoro.json', JSON.stringify({ version: 1, state: {}, history: [], archived: [] }));
     const app = mockAppWithVault(vault) as any;
     const spy = vi.spyOn(vault, 'read');
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineRange: 'week' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineRange: 'week' }));
     await collectRiver(app, NOW);
     const weekReads = spy.mock.calls.length;
     spy.mockClear();
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineRange: 'today' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineRange: 'today' }));
     await collectRiver(app, NOW);
     const todayReads = spy.mock.calls.length;
     spy.mockRestore();

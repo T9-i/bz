@@ -32,7 +32,7 @@ describe('锁家族修复批（encrypt UI）', () => {
     vault = new MockVault();
     const app = mockAppWithVault(vault);
     setApp(app as any);
-    setSettingsProvider(() => ({ ...CONFIG, securityMode: false }) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE', ...CONFIG, securityMode: false }) as any);
     resetObsidianMocks();
     clearNotices();
     document.body.innerHTML = '';

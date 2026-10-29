@@ -10,6 +10,11 @@ import {
   normalizeBehaviorItem, mapBehaviorEvent, behaviorToDays, readBehaviorItems, behaviorSourceDomain,
   type BehaviorItemLite,
 } from '../../src/home/behavior-timeline';
+import { setSettingsProvider } from '../../src/core/settings-provider';
+
+// 本文件的种子文件写在老数据目录下：缺省 2026-10-29 起搬到了 <插件目录>/storage，
+// 这里要验的是归一与只读契约，路径显式钉住即可。
+setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE' } as any));
 
 /** 2026-09-13（本地时区）内的时刻 */
 const at = (h: number, m = 0, day = 13): number => new Date(2026, 8, day, h, m).getTime();
