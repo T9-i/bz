@@ -51,45 +51,57 @@
       <sub>书脊按时长和字数长，按题材装区</sub>
     </td>
     <td align="center" valign="top" width="50%">
+      <img src="docs/images/16-cinema.jpg" height="230" alt="影院"><br>
+      <b>影院</b><br>
+      <sub>想看 / 在看 / 已看，海报自动补齐</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="50%">
       <img src="docs/images/04-games.jpg" height="230" alt="游戏库"><br>
       <b>游戏库</b><br>
       <sub>从 Steam 拉时长，按游玩排行</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/06-clips.png" height="230" alt="剪藏本"><br>
       <b>剪藏本</b><br>
       <sub>网页剪藏 + 订阅源未读流</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/07-collections.png" height="230" alt="收藏本"><br>
       <b>收藏本</b><br>
       <sub>链接按标签贴成便签，可归档可置顶</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/09-knowledge-box.png" height="230" alt="知识盒"><br>
       <b>知识盒</b><br>
       <sub>名词、段落、图版、影像四类文献</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/10-second-brain.png" height="230" alt="第二大脑"><br>
       <b>第二大脑</b><br>
       <sub>向量库规模、来源分布与索引健康</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/05-review.png" height="230" alt="复习计划"><br>
       <b>复习计划</b><br>
       <sub>逾期 / 今天 / 未来三栏排队</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/11-pomodoro.png" height="230" alt="番茄钟"><br>
       <b>番茄钟</b><br>
       <sub>关掉窗口，计时照走</sub>
+    </td>
+    <td align="center" valign="top" width="50%">
+      <img src="docs/images/14-tool-dock.png" height="230" alt="工具坞"><br>
+      <b>工具坞</b><br>
+      <sub>外部工具的运行与观察</sub>
     </td>
   </tr>
   <tr>
@@ -99,16 +111,16 @@
       <sub>解密预览、取出还原、销毁</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="docs/images/13-passwords.png" height="230" alt="密码本"><br>
-      <b>密码本</b><br>
-      <sub>平台 / 账号 / 详情三栏</sub>
+      <img src="docs/images/17-faces.png" height="230" alt="脸谱"><br>
+      <b>脸谱</b><br>
+      <sub>人物档案与随记附件，同一把主密码</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="docs/images/14-tool-dock.png" height="230" alt="工具坞"><br>
-      <b>工具坞</b><br>
-      <sub>外部工具的运行与观察</sub>
+      <img src="docs/images/13-passwords.png" height="230" alt="密码本"><br>
+      <b>密码本</b><br>
+      <sub>平台 / 账号 / 详情三栏</sub>
     </td>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/15-settings.png" height="230" alt="设置"><br>

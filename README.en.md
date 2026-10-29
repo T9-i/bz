@@ -51,45 +51,57 @@
       <sub>Spine height = reading time, thickness = word count</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="docs/images/04-games.jpg" height="230" alt="Games"><br>
-      <b>Game shelf</b><br>
-      <sub>Playtime pulled from Steam, ranked</sub>
+      <img src="docs/images/16-cinema.jpg" height="230" alt="Cinema"><br>
+      <b>Cinema</b><br>
+      <sub>Want / watching / watched, posters filled in</sub>
     </td>
   </tr>
   <tr>
+    <td align="center" valign="top" width="50%">
+      <img src="docs/images/04-games.jpg" height="230" alt="Game shelf"><br>
+      <b>Game shelf</b><br>
+      <sub>Playtime pulled from Steam, ranked</sub>
+    </td>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/06-clips.png" height="230" alt="Clippings"><br>
       <b>Clippings</b><br>
       <sub>Web clips plus an unread feed from your subscriptions</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/07-collections.png" height="230" alt="Collections"><br>
       <b>Collections</b><br>
       <sub>Links as sticky notes, tagged, pinnable, archivable</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/09-knowledge-box.png" height="230" alt="Knowledge box"><br>
       <b>Knowledge box</b><br>
       <sub>Terms, passages, figures and videos as literature notes</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/10-second-brain.png" height="230" alt="Second brain"><br>
       <b>Second brain</b><br>
       <sub>Vector index size, source mix, index health</sub>
     </td>
-  </tr>
-  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/05-review.png" height="230" alt="Review"><br>
       <b>Review</b><br>
       <sub>Overdue / today / later, three columns</sub>
     </td>
+  </tr>
+  <tr>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/11-pomodoro.png" height="230" alt="Pomodoro"><br>
       <b>Pomodoro</b><br>
       <sub>Keeps running after the window closes</sub>
+    </td>
+    <td align="center" valign="top" width="50%">
+      <img src="docs/images/14-tool-dock.png" height="230" alt="Tool dock"><br>
+      <b>Tool dock</b><br>
+      <sub>Runs and watches external tools</sub>
     </td>
   </tr>
   <tr>
@@ -99,16 +111,16 @@
       <sub>Encrypted notes: preview, restore, destroy</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="docs/images/13-passwords.png" height="230" alt="Passwords"><br>
-      <b>Passwords</b><br>
-      <sub>Platform / account / detail, three panes</sub>
+      <img src="docs/images/17-faces.png" height="230" alt="Faces"><br>
+      <b>Faces</b><br>
+      <sub>People profiles and attachments, same master password</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="docs/images/14-tool-dock.png" height="230" alt="Tool dock"><br>
-      <b>Tool dock</b><br>
-      <sub>Runs and watches external tools</sub>
+      <img src="docs/images/13-passwords.png" height="230" alt="Passwords"><br>
+      <b>Passwords</b><br>
+      <sub>Platform / account / detail, three panes</sub>
     </td>
     <td align="center" valign="top" width="50%">
       <img src="docs/images/15-settings.png" height="230" alt="Settings"><br>
