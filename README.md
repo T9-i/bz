@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/">
-    <img src="https://img.shields.io/badge/%E2%96%B6%20B%E7%AB%99-%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B-fb7299?style=for-the-badge&logo=bilibili&logoColor=white" alt="B站使用教程">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20B%E7%AB%99-%E9%A2%84%E8%A7%88%20%26%20%E5%AE%89%E8%A3%85%20%26%20%E6%95%99%E7%A8%8B-fb7299?style=for-the-badge&logo=bilibili&logoColor=white" alt="预览 & 安装 & 教程">
   </a>
 </p>
 
@@ -19,8 +19,7 @@
 </p>
 
 <p align="center">
-  从装上到用起来，视频里从头走了一遍 —— <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/"><b>▶ B站使用教程</b></a><br>
-  <sub>不想看视频的话，下面是界面截图和安装步骤</sub>
+  长什么样、怎么装、每个功能怎么用，视频里从头走了一遍 —— <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/"><b>▶ 点这里看视频</b></a>
 </p>
 
 <p align="center">

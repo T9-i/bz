@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/">
-    <img src="https://img.shields.io/badge/%E2%96%B6%20Bilibili-tutorial-fb7299?style=for-the-badge&logo=bilibili&logoColor=white" alt="Bilibili tutorial">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20Bilibili-preview%20%26%20install%20%26%20tutorial-fb7299?style=for-the-badge&logo=bilibili&logoColor=white" alt="Preview & install & tutorial">
   </a>
 </p>
 
@@ -19,8 +19,7 @@
 </p>
 
 <p align="center">
-  From install to daily use, walked through end to end — <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/"><b>▶ Tutorial on Bilibili</b></a><br>
-  <sub>Prefer reading? Screenshots and install steps are below. The video is in Chinese.</sub>
+  What it looks like, how to install it, and how each module works — walked through end to end — <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/"><b>▶ Watch it here</b></a>
 </p>
 
 <p align="center">
