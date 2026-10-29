@@ -19,7 +19,9 @@ export function getNewsFilePath(): string {
   return storageFile('news.json');
 }
 
-export const DEFAULT_SOURCES = { zhihu: true, guokr: true, bilibili: true, rss: true };
+/** 数据源缺省开关（2026-10-29 用户拍板：知乎日报与果壳科学人**默认关**——
+ *  这两个源要联网拉整站文章，新装的人没主动开就不该替他抓；B 站与 RSS 维持开）。 */
+export const DEFAULT_SOURCES = { zhihu: false, guokr: false, bilibili: true, rss: true };
 export const DEFAULT_STATS = () => ({ totalRead: 0, totalSaved: 0, totalSkipped: 0, byPlatform: {} as Record<string, number>, byDate: {} as Record<string, number> });
 
 export interface NewsSources {
