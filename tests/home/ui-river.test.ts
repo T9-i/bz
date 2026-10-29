@@ -40,19 +40,15 @@ function yesterdayAt(h: number, m = 0): Date {
   return d;
 }
 
-/** 写行为流侧车（issue 305：时间线痕迹源；recap 文件统计只供摘要/计数） */
+/** 写备忘录数据（时间线痕迹源 = 各域数据文件，不再是行为流侧车）。
+ *  参数形状沿用旧调用点：只用 name 与 dt，source/type 忽略。 */
 function writeBehavior(vault: MockVault, items: Array<{ source: string; type: string; name: string; dt: Date }>): void {
-  vault.files.set('CONFIG/STORAGE/smartcat-behavior.json', JSON.stringify({
-    version: 1,
-    items: items.map(({ source, type, name, dt }) => ({
-      id: `beh_${dt.getTime()}`,
-      timestamp: dt.toISOString(),
-      type,
-      source,
-      description: `${source}:${type} ${name}`,
-      metadata: { entityType: source, action: type, name },
-    })),
-  }));
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  const stamp = (d: Date) =>
+    `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}:00`;
+  vault.files.set('CONFIG/STORAGE/memo.json', JSON.stringify(
+    items.map(({ name, dt }) => ({ title: name, created: stamp(dt), completed: null, due: null })),
+  ));
 }
 
 function recApp(vault: MockVault): any {

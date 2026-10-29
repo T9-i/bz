@@ -304,8 +304,8 @@ export default interface BzSettings {
   homeTimelineSize: string;
   /** 时间线时间范围（天数口径）：today 当天 / 3d 最近 3 天 / week 本周 7 天（= 周历窗口，默认） */
   homeTimelineRange: string;
-  /** 时间线内容过滤：勾选显示哪些类（产出 / 状态推进 / 点评 ✦ / 已跳过，issue 305） */
-  homeTimelineSkipped: boolean;
+  /** 时间线内容过滤：勾选显示哪些类（产出 / 状态推进 / 记录与评价）。
+   *  `homeTimelineSkipped` 已于 2026-10-29 随换源下线——聚合讯跳过不再进时间线，开关空转。 */
   homeTimelineProduce: boolean;
   homeTimelineProgress: boolean;
   homeTimelineNotes: boolean;
@@ -1164,7 +1164,6 @@ export const DEFAULT_SETTINGS: BzSettings = {
   homeTimelineSize: 'normal',
   homeTimelineRange: 'week',
   homeTimelineProduce: true,
-  homeTimelineSkipped: false,
   homeTimelineProgress: true,
   homeTimelineNotes: true,
   homeDefaultDay: 'today',

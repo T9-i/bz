@@ -79,37 +79,30 @@ export function homeSettingsSchema(): SettingsSchema {
         ],
       },
       {
-        // 内容过滤组（issue 288 从时间线组拆出）：只放「哪些痕迹进来」，与「长相」分开
+        // 内容过滤组（issue 288 从时间线组拆出）：只放「哪些痕迹进来」，与「长相」分开。
+        // 2026-10-29 时间线换源（各域数据文件现算）后重写：原来的「小橘点评」装着评分/影评/归档，
+        // 名不副实；「跳过痕迹」的事件源（聚合讯跳过）已随换源下线，开关成了空转，整行删掉。
         icon: 'funnel',
         name: '内容过滤',
         rows: [
           {
             type: 'toggle',
             name: '产出动作',
-            desc: '写下的收进的读完的动作记录',
+            desc: '写完的收进来的读完的记录',
             binding: { key: 'homeTimelineProduce' },
           },
           {
             type: 'toggle',
             name: '状态推进',
-            desc: '加入片单读到一半等推进记录',
+            desc: '加入片单开始读挂成闲置这类推进',
             binding: { key: 'homeTimelineProgress' },
           },
           {
+            // note 类现在装的是「记录与评价」：评分、影评、书评、归档、锁入保险库、物品离场
             type: 'toggle',
-            // 2026-09-12：「点评 ✦」→「小橘点评」（去符号；说明白这句话是谁说的）
-            // issue 305 / ADR-0132：点评类含行为流的星级评价（movie:rated），描述同步覆盖
-            name: '小橘点评',
-            desc: '小橘的点评与影片星级记录',
+            name: '记录与评价',
+            desc: '评分影评归档锁入留下的痕迹',
             binding: { key: 'homeTimelineNotes' },
-          },
-          {
-            // issue 305 / ADR-0132：时间线改吃行为流，已跳过回归（默认关——聚合讯跳过量级大）
-            // 题名「跳过痕迹」：遵循设置项题名 4-8 字规范（lint），与同组「产出动作/状态推进」同构
-            type: 'toggle',
-            name: '跳过痕迹',
-            desc: '聚合讯里跳过的文章记录',
-            binding: { key: 'homeTimelineSkipped' },
           },
         ],
       },
