@@ -954,14 +954,14 @@ async function markDone(app: unknown): Promise<void> {
 /** 打开首次引导 */
 export function openSetupWizard(app: unknown = getApp(), opts: { firstRun?: boolean } = {}): void {
   if (isMobileEnv()) {
-    notice('包仔的完整功能需要桌面端 Obsidian', 'warning');
+    notice('bz 的完整功能需要桌面端 Obsidian', 'warning');
     return;
   }
   const firstRun = opts.firstRun === true;
   const content = document.createElement('div');
   uiModal({
     head: true,
-    title: firstRun ? '包仔 · 首次准备' : '环境自检',
+    title: firstRun ? 'bz · 首次准备' : '环境自检',
     content,
     // 760 而不是 600（2026-10-28 用户：太窄，布局不好看）：清单是「名称——值」两列，
     // 窄窗里右侧那列只能挤成豆腐块；宽一点才读得出一条是一条。
