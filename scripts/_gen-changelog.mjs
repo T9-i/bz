@@ -136,78 +136,73 @@ function rewrite(subject) {
 
 /* ==================== 收集提交与版本切点 ==================== */
 
-const raw = execSync('git log --no-merges --format=%ad%x09%s --date=short', {
-  cwd: ROOT, maxBuffer: 64 * 1024 * 1024, encoding: 'utf8',
-});
+/** 版本基线：只从这一版起算（更早的 tag 与提交不进日志，历史不重写、不改写） */
+const BASELINE_TAG = 'v1.35.0';
 
-const commits = [];   // { date, type, text(原始正文), domain }
-const deployDays = new Set();
-for (const line of raw.split('\n')) {
-  if (!line) continue;
-  const i = line.indexOf('\t');
-  const date = line.slice(0, i);
-  const subject = line.slice(i + 1);
-  if (/主构建部署产物/.test(subject)) { deployDays.add(date); continue; }
-  const m = subject.match(/^([a-z]+)(?:\(([^)]*)\))?!?:\s*(.*)$/);
-  if (!m || !['feat', 'fix', 'perf'].includes(m[1])) continue;
-  const text = m[3];
-  if (text.length < 8) continue;
-  const scope = (m[2] || '').toLowerCase();
-  let domain = SCOPE2DOMAIN[scope];
-  if (!domain) {
-    domain = 'other';
-    for (const [re, d] of KEYWORDS) {
-      if (re.test(text) || (scope && re.test(scope))) { domain = d; break; }
-    }
-  }
-  commits.push({ date, type: m[1], text, domain });
-}
-
-/** 归并键：部署约定日前按自然周（周一），之后按部署日；晚于最后一次部署 → 生成日 */
-function mondayOf(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00Z');
-  const day = (d.getUTCDay() + 6) % 7; // 周一=0
-  d.setUTCDate(d.getUTCDate() - day);
-  return d.toISOString().slice(0, 10);
-}
-const deploySorted = [...deployDays].sort();
-const firstDeployDay = deploySorted[0];
-const lastDeployDay = deploySorted[deploySorted.length - 1];
 const generatedAt = new Date().toISOString().slice(0, 10);
 
-function shipKey(date) {
-  if (deployDays.has(date)) return date;
-  if (firstDeployDay && date > lastDeployDay) return generatedAt;
-  if (firstDeployDay && date > firstDeployDay) {
-    const days = deploySorted.filter((x) => x <= date);
-    return days[days.length - 1];
+const git = (args) => execSync(`git ${args}`, {
+  cwd: ROOT, maxBuffer: 64 * 1024 * 1024, encoding: 'utf8',
+}).trim();
+
+/** 仓库里的版本 tag（形如 v1.2.3，按版本号升序；其他形状的 tag 一律忽略） */
+function listVersionTags() {
+  const out = git('tag --list "v*" --sort=v:refname');
+  if (!out) return [];
+  return out.split('\n').map((t) => t.trim()).filter((t) => /^v\d+\.\d+\.\d+$/.test(t));
+}
+
+/** tag 的提交日（日志里显示的日期；不取 tagger 时间——同一版重打 tag 不该改日期） */
+function tagDateOf(tag) {
+  return git(`log -1 --format=%ad --date=short ${tag}`) || generatedAt;
+}
+
+/** 某个版本块覆盖的提交：上一个 tag → 本 tag（没有上一个 tag 时用整条历史） */
+function collectCommits(range) {
+  const raw = git(`log ${range} --no-merges --format=%ad%x09%s --date=short`);
+  const out = [];
+  if (!raw) return out;
+  for (const line of raw.split('\n')) {
+    if (!line) continue;
+    const i = line.indexOf('\t');
+    const date = line.slice(0, i);
+    const subject = line.slice(i + 1);
+    const m = subject.match(/^([a-z]+)(?:\(([^)]*)\))?!?:\s*(.*)$/);
+    if (!m || !['feat', 'fix', 'perf'].includes(m[1])) continue;
+    const text = m[3];
+    if (text.length < 8) continue;
+    const scope = (m[2] || '').toLowerCase();
+    let domain = SCOPE2DOMAIN[scope];
+    if (!domain) {
+      domain = 'other';
+      for (const [re, d] of KEYWORDS) {
+        if (re.test(text) || (scope && re.test(scope))) { domain = d; break; }
+      }
+    }
+    out.push({ date, type: m[1], text, domain });
   }
-  return mondayOf(date); // 部署约定前的史前史按周
+  return out;
 }
 
-// 版本块（键有序）+ 原始类型收集（版本升降判定用，不受内容过滤影响）
-const buckets = new Map(); // key → { types:Set, items:{added:[],fixed:[],improved:[]} }
-for (const c of commits) {
-  const key = shipKey(c.date);
-  if (!buckets.has(key)) buckets.set(key, { types: new Set(), items: { added: [], fixed: [], improved: [] } });
-  const b = buckets.get(key);
-  b.types.add(c.type);
-  const r = rewrite(c.text);
-  if (!r) continue;
-  const sec = c.type === 'feat' ? 'added' : c.type === 'fix' ? 'fixed' : 'improved';
-  b.items[sec].push({ domain: c.domain, ...r });
-}
-
-/* ==================== 版本合成 + 去重截断 ==================== */
+/* ==================== 版本合成（按 tag，不按天） ==================== */
 
 const CAPS = { added: 14, fixed: 12, improved: 8 };
-const keys = [...buckets.keys()].sort();
+
+const allTags = listVersionTags();
+const firstUsed = allTags.indexOf(BASELINE_TAG);
+// 基线之前的 tag 整体跳过；基线还不存在时（还没发这一版）版本列表为空
+const usedTags = firstUsed >= 0 ? allTags.slice(firstUsed) : [];
+
 const releases = [];
-let major = 1, minor = 0, patch = 0;
-keys.forEach((key, idx) => {
-  const b = buckets.get(key);
-  if (idx > 0) {
-    if (b.types.has('feat')) { minor += 1; patch = 0; } else { patch += 1; }
+for (const tag of usedTags) {
+  const idx = allTags.indexOf(tag);
+  const prev = idx > 0 ? allTags[idx - 1] : '';
+  const items = { added: [], fixed: [], improved: [] };
+  for (const c of collectCommits(prev ? `${prev}..${tag}` : tag)) {
+    const r = rewrite(c.text);
+    if (!r) continue;
+    const sec = c.type === 'feat' ? 'added' : c.type === 'fix' ? 'fixed' : 'improved';
+    items[sec].push({ domain: c.domain, ...r });
   }
   const dedup = (arr, cap) => {
     const seen = new Set();
@@ -220,40 +215,94 @@ keys.forEach((key, idx) => {
     }
     return out;
   };
-  const items = {
-    added: dedup(b.items.added, CAPS.added),
-    fixed: dedup(b.items.fixed, CAPS.fixed),
-    improved: dedup(b.items.improved, CAPS.improved),
+  const trimmed = {
+    added: dedup(items.added, CAPS.added),
+    fixed: dedup(items.fixed, CAPS.fixed),
+    improved: dedup(items.improved, CAPS.improved),
   };
-  const count = items.added.length + items.fixed.length + items.improved.length;
-  if (!count) return; // 全是内部条目的版本块不展示（版本链照常推进）
-  releases.push({ version: `${major}.${minor}.${patch}`, date: key, current: false, ...items });
-});
+  const count = trimmed.added.length + trimmed.fixed.length + trimmed.improved.length;
+  if (!count) continue; // 全是内部条目的版本不展示（版本链照常，用户看到的就是空）
+  releases.push({ version: tag.slice(1), date: tagDateOf(tag), current: false, ...trimmed });
+}
 if (releases.length) releases[releases.length - 1].current = true;
 
-/* 版本号显式覆盖（--version=1.34.0，2026-10-29 加）。
- * 版本块按「部署日」切，而部署日来自「主构建部署产物」提交——那个标记一旦隔了十几天没打，
- * 之后所有提交都会折进同一个块、算出同一个号。此时同一天要对外发一个新版本号，
- * 只能显式指定：只改「当前版本」这一个字符串（版本块、manifest 回写、页面标签同取它），
- * 不参与任何分块判定，历史块的编号与内容一个字节不动。 */
-const verArg = process.argv.find((a) => a.startsWith('--version='));
-if (verArg && !/^--version=\d+\.\d+\.\d+$/.test(verArg)) {
-  console.error('--version 要写成 --version=1.2.3');
+/* 未发布块（`--next=1.35.0`）：发版顺序是「先七步出产物、提交、再打 tag」，
+ * 打 tag 之前这一个块还不存在——不加这个参数，发布前的日志会少最新一版。
+ * 只取「最新 tag → HEAD」之间的提交，版本号由人给（tag 还没打，没法从 tag 推）。 */
+const nextArg = (process.argv.find((a) => a.startsWith('--next=')) || '').slice('--next='.length);
+if (nextArg && !/^\d+\.\d+\.\d+$/.test(nextArg)) {
+  console.error('--next 要写成 --next=1.2.3');
   process.exit(1);
 }
-let current = releases.length ? releases[releases.length - 1].version : '1.0.0';
-if (verArg) {
-  current = verArg.slice('--version='.length);
-  if (releases.length) releases[releases.length - 1].version = current;
+if (nextArg) {
+  const latest = allTags.length ? allTags[allTags.length - 1] : '';
+  const range = latest ? `${latest}..HEAD` : 'HEAD';
+  const items = { added: [], fixed: [], improved: [] };
+  for (const c of collectCommits(range)) {
+    const r = rewrite(c.text);
+    if (!r) continue;
+    const sec = c.type === 'feat' ? 'added' : c.type === 'fix' ? 'fixed' : 'improved';
+    items[sec].push({ domain: c.domain, ...r });
+  }
+  const dedup = (arr, cap) => {
+    const seen = new Set();
+    const out = [];
+    for (const it of arr) {
+      if (seen.has(it.text)) continue;
+      seen.add(it.text);
+      out.push(it);
+      if (out.length >= cap) break;
+    }
+    return out;
+  };
+  const trimmed = {
+    added: dedup(items.added, CAPS.added),
+    fixed: dedup(items.fixed, CAPS.fixed),
+    improved: dedup(items.improved, CAPS.improved),
+  };
+  if (trimmed.added.length + trimmed.fixed.length + trimmed.improved.length) {
+    if (releases.length) releases[releases.length - 1].current = false;
+    releases.push({ version: nextArg, date: generatedAt, current: true, ...trimmed });
+  }
 }
 
-/* ==================== manifest.json 版本回写 ==================== */
+/* ==================== manifest.json 版本对齐 ==================== */
 
 const manifestPath = join(ROOT, 'manifest.json');
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+
+const latestTag = allTags.length ? allTags[allTags.length - 1] : '';
+const current = releases.length ? releases[releases.length - 1].version : manifest.version;
+const targetVersion = nextArg || current;
+
+/* --check：发布前的三项对账。版本号的事实源是 tag，manifest 与日志都必须跟它一致。 */
+if (process.argv.includes('--check')) {
+  const problems = [];
+  if (!latestTag) {
+    problems.push('仓库里没有任何 v<版本> tag（版本号事实源缺失）');
+  } else {
+    const latestVer = latestTag.slice(1);
+    if (manifest.version !== latestVer) {
+      problems.push(`manifest.json 的 version 是 ${manifest.version}，最新 tag 是 ${latestTag}`);
+    }
+    if (!releases.length) {
+      problems.push(`基线 ${BASELINE_TAG} 之后没有可展示的版本块（先打 tag 再生成日志）`);
+    } else if (releases[releases.length - 1].version !== latestVer) {
+      problems.push(`日志顶部版本是 ${releases[releases.length - 1].version}，最新 tag 是 ${latestTag}`);
+    }
+  }
+  if (problems.length) {
+    console.error('更新日志与版本不一致：');
+    for (const p of problems) console.error('  - ' + p);
+    process.exit(1);
+  }
+  console.log(`更新日志与 tag 一致 ✓（最新 ${latestTag}，共 ${releases.length} 个版本块）`);
+  process.exit(0);
+}
+
 let manifestSynced = false;
-if (manifest.version !== current) {
-  manifest.version = current;
+if (targetVersion && manifest.version !== targetVersion) {
+  manifest.version = targetVersion;
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
   manifestSynced = true;
 }
