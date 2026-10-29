@@ -53,10 +53,10 @@ export function addMemoForActiveNote(app: App): void {
 }
 
 /** main.ts onLayoutReady：备忘录提醒后台（启动自动弹出 + 打开笔记提醒；落点=备忘录面板） */
-export function ensureMemoReminders(app: App): void {
+export function ensureMemoReminders(app: App, opts: { skipStartPopup?: boolean } = {}): void {
   MemoData.init(tryGetSettings());
   ensureMemo(app);
-  remindersEnsure(app);
+  remindersEnsure(app, opts);
 }
 
 /** 卸载清理（main.ts onunload 调用） */

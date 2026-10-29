@@ -69,6 +69,11 @@ export interface BzModalOpts {
   /** 初始焦点管理开关（效率整改 2）：缺省 true = 打开聚焦首个可交互元素 + 关闭还原焦点；
    *  传 false 逃生口——特殊弹窗（如需聚焦特定控件的域自管焦点）完全跳过本组件的焦点接管 */
   autofocus?: boolean;
+  /** 关闭方式开关（首次引导用）：缺省 true = 点遮罩 / ESC 都能关；
+   *  false = 只能由代码显式 close()，遮罩点击与 ESC 都不理会。
+   *  适用场景只有一个——**必须走完的流程**（引导没走完就被关掉等于静默中断，
+   *  用户看到的是「插件打不开」）。普通弹窗别用。 */
+  closable?: boolean;
 }
 
 /** 打开居中模态，返回 { mask, popup, close } */
@@ -129,16 +134,18 @@ export function uiModal(opts: BzModalOpts): { mask: HTMLElement; popup: HTMLElem
     else close();
   };
 
-  // 点遮罩关闭（弹窗内元素不触发）
-  mask.addEventListener('click', (e) => {
-    if (e.target === mask) attemptClose();
-  });
+  // 点遮罩关闭（弹窗内元素不触发）；closable: false 时整段不挂——引导类流程只能由按钮结束
+  if (opts.closable !== false) {
+    mask.addEventListener('click', (e) => {
+      if (e.target === mask) attemptClose();
+    });
 
-  // ESC：栈顶后开先关（escManager 会做可见性判断）
-  escHandle = escManager.register('bz-modal', {
-    isVisible: () => mask.isConnected,
-    close: attemptClose,
-  });
+    // ESC：栈顶后开先关（escManager 会做可见性判断）
+    escHandle = escManager.register('bz-modal', {
+      isVisible: () => mask.isConnected,
+      close: attemptClose,
+    });
+  }
 
   document.body.appendChild(mask);
   // 聚焦 popup 内首个可交互元素（跳过隐藏项；移动端跳过 input/textarea 防软键盘）

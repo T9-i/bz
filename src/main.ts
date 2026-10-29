@@ -28,6 +28,8 @@ import { clearDomainEvents } from './core/domain-bus';
 import { attachObsidianAdapter, detachObsidianAdapter } from './core/obsidian-adapter';
 
 import { bootstrapStorageDir } from './core/storage';
+import { setupAlreadyDone } from './core/setup-state';
+import { isMobileEnv } from './core/mobile';
 import BzSettings, { DEFAULT_SETTINGS, migrateMemoSettingKeys, migrateAutoLinkSettings, migrateRetiredAIKeys, migrateRetiredFavoritesSortKey, migrateLinkMinScoreScale, migrateRetiredSecondBrainKeys, migrateRetiredJevKeys, migrateAsrKeys, migrateExternalToolKeys } from './settings';
 
 // 备忘录（memo 域，ADR-0092 旧备忘录域退役后 memo.json 唯一属主，ADR-0117 正名：UI/交互/写盘/引用同步归本域；
@@ -453,8 +455,15 @@ export default class BzPlugin extends Plugin {
       // C13：布局就绪回调不随插件卸载摘除——启动窗口期内禁用插件时此处必须短路，
       // 否则备忘录自动弹出/剪藏摘要/复习监听/小橘等全部幽灵初始化且无卸载路径
       if (this.unloaded) return;
-      // 备忘录提醒后台：启动自动弹出 + 打开笔记提醒（落点=备忘录面板；设置键 autoPopupOnStart/openNoteReminder）
-      ensureMemoReminders(this.app);
+      // 首次引导是这次启动的第一个界面（2026-10-29 用户要求：先引导，不先开别的页面）。
+      // 判据同步算（core/setup-state，零依赖），所以下面每个「启动就自动开面板」的动作
+      // 这一拍都能被压住；引导走完点「开始使用」再由 onFinish 打开首页。
+      // 移动端不弹引导（openSetupWizard 直接劝退）→ 也就不存在「先弹它」这回事，别误压备忘录。
+      const needSetup =
+        !isMobileEnv() && !setupAlreadyDone(this.settings, vaultBasePathOf(this.app), setupDoneSaved);
+      // 备忘录提醒后台：启动自动弹出 + 打开笔记提醒（落点=备忘录面板；设置键 autoPopupOnStart/openNoteReminder）。
+      // 要弹引导时只跳过「启动自动弹出」——事件监听照挂，引导背后不该先蹦出一个备忘录面板。
+      ensureMemoReminders(this.app, { skipStartPopup: needSetup });
       if (this.settings.autoSummaryEnabled) ensureAutoSummary(this.app);
       // 引用同步无条件常驻（issue 187：原 aiAgentEnabled 开关随旧 AIAgent 退役——
       // 备忘录/收藏本笔记 rename/delete 引用同步是数据完整性功能，不设开关）
@@ -497,16 +506,21 @@ export default class BzPlugin extends Plugin {
       startDockScheduler(this.app, () => this.unloaded);
       // 首次引导（core/setup-wizard）：干净机器上「插件能打开」和「插件能用」是两件事——
       // 缺 Node、缺工具包时功能会静默失效，与其让人自己去报错里猜，不如开局一次补齐。
-      // 延迟 3 秒：等 Obsidian 自己的工作区渲染稳定，别在启动瞬间抢焦点。
-      void import('./core/setup-wizard').then((m) => {
-        // 判据见 core/setup-wizard 的 setupAlreadyDone：设置能写就以设置为准（手改 false
-        // 即复位），只有设置写不进去的只读库才吃 localStorage 兜底
-        if (m.setupAlreadyDone(this.settings, vaultBasePathOf(this.app), setupDoneSaved)) return;
-        setTimeout(() => {
+      // **不延迟、就是这次启动的第一个界面**（2026-10-29 用户要求）：原先那 3 秒是怕抢焦点，
+      // 代价是用户先看到别的页面再被引导盖住——顺序反了。判据已在上面同步算好（needSetup），
+      // 走完（点「开始使用」或「以后再说」）就打开首页，不留空窗。
+      if (needSetup) {
+        void import('./core/setup-wizard').then((m) => {
           if (this.unloaded) return;
-          m.openSetupWizard(getApp(), { firstRun: true });
-        }, 3000);
-      });
+          m.openSetupWizard(getApp(), {
+            firstRun: true,
+            onFinish: () => {
+              if (this.unloaded) return;
+              openHome(getApp());
+            },
+          });
+        });
+      }
     });
   }
 
