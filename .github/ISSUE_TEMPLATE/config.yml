@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 先看视频（功能预览 + 安装）
+    url: https://www.bilibili.com/video/BV1vNsZ6pE7i/
+    about: 装不上、找不到入口、不知道某个功能在哪，视频里基本都有。
+  - name: 下载与更新日志
+    url: https://github.com/yeshimei/bz/releases
+    about: 新版安装包、离线资源包，以及每一版改了什么。

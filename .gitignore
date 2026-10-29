@@ -11,6 +11,8 @@ viz/
 .scratch/
 .dsh-worktrees/
 .zcode/
+# ZCode 自己生成的排除清单（内容随编辑器同步，属于本机配置）
+.zcodeignore
 .workbuddy/
 # 增量跑测试的结果缓存（按文件复用上次成功结果；本轮通过即写回）
 .bz-test-cache/

@@ -30,17 +30,18 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 - **下载走独立分发仓库 `yeshimei/bz-assets`**（ADR-0269）：主仓 `.git` 284 MB 超过 jsDelivr 的 50 MB 上限，它对主仓未缓存文件一律 403；国内无代理时 raw 又不通。`node scripts/push-assets.mjs` 把 `downloads/**` 与 `releases/<tag>/`（三件套）镜像过去，只保留最近 3 份发布，`.git` 超 25 MB 自动压平历史。**主仓仍是唯一产出地**，分发仓库随时可删可重建。改了 base 地址只改 `src/core/remote-base.ts`（脚本从那里读 slug，别在两处各写一份）——`tests/core/remote-base-assets.test.ts` 钉着这条。
 - 对外发布还要**打 tag**：tag 名 = `v<manifest.json 的 version>`。自更新分两段——先读分发仓库 master 的 `downloads/version.json` 拿到 tag，再去 `<分发仓库>/releases/<tag>/` 拉三件套（ADR-0263 / ADR-0269）。指针由 `pnpm manifest` 从 `manifest.json` 推出来，两者不同步 `--check` 会拦；`releases/<tag>` 目录由 `push-assets` 按同一个版本号命名，两者天然对齐。
 - **tag 之后是 GitHub Release**（`yeshimei/bz`，Release 页是普通人唯一看得到的安装说明）：三个资产 + 一份带安装教程的正文。
+  - **外加平铺的三件套**：`main.js` / `manifest.json` / `styles.css` 要作为**独立资产**挂在同一个 release 上。社区插件市场的自动校验只认平铺的那三个文件，zip 里的不算——漏了这条，市场里永远装不上，而 Release 页看起来一切正常。
   - `bz-<版本>.zip` ← 主仓根 `main.js` / `manifest.json` / `styles.css`，包内必须留一层 `bz/`（压平了就是三个文件散一地，用户得自己猜往哪放）。
   - `bz-offline-<版本>.zip` ← 主仓 `downloads/` 整目录，包内路径必须是 `bz-offline/downloads/<file>`。插件按 `<vault>/bz-offline/downloads/…` 直接开文件（`src/core/offline-source.ts`），**多套一层（`bz-offline/bz-offline/downloads`）不会报错，只会静默回落到联网**，然后用户以为包没用。
   - `SHA256SUMS.txt` ← `sha256sum *.zip | sed 's/\*/ /'`（msys 默认输出 `hash *file`，那个 `*` 要去掉，不然 `sha256sum -c` 之外的工具认不出）。
   - 正文每次重写，不复制上一版：这次改了什么 + 三条安装路（压缩包 / 三个文件 / 手机：文件 App 解压后移进 `.obsidian/plugins/`，先关限制模式）+ **离线包装法单独一节**（解压 → `bz-offline/` 放 vault 根目录、与 `.obsidian` 同级 → 目录结构图 → 回插件再点下载），并写明离线包只管资源下载与便携 Node（`bz-offline/node/`）、**插件本体升级仍要手动覆盖三件套**；内网有静态服务可改走「镜像源」。
   - 顺序不能倒：**先本地 `git tag -a v<版本>` 并 push，再 `gh release create`** —— tag 不存在时 `gh` 会自建一个轻量 tag，和已 push 的标注 tag 对不上。
-  - 命令（Git Bash；Windows 没有 `zip`/`7z`，打包用 PowerShell `Compress-Archive`，别用 `Add-Type`——安全策略直接拦）：`gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file note.md bz-<版本>.zip bz-offline-<版本>.zip SHA256SUMS.txt`
+  - 命令（Git Bash；Windows 没有 `zip`/`7z`，打包用 PowerShell `Compress-Archive`，别用 `Add-Type`——安全策略直接拦）：`gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file note.md bz-<版本>.zip bz-offline-<版本>.zip SHA256SUMS.txt main.js manifest.json styles.css`
   - 同一天发第二个版本：`_gen-changelog.mjs` 的版本块按部署日切，自己推不出新号，要显式 `--version=<新号>`，否则 `manifest.json` 与日志版本对不上。
 - 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
 
 ## 提交
-Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build` → `assets`（七步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）并 push → GitHub Release（`bz-<版本>.zip` + `bz-offline-<版本>.zip` + `SHA256SUMS.txt` + 重写的安装正文，见上）→ 子代理 review → 清 worktree。
+Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build` → `assets`（七步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）并 push → GitHub Release（`bz-<版本>.zip` + `bz-offline-<版本>.zip` + `SHA256SUMS.txt` + **平铺的 `main.js`/`manifest.json`/`styles.css`** + 重写的安装正文，见上）→ 子代理 review → 清 worktree。
 
 占 issues / ADR 编号前先查主仓库最新号；拍板结论进 `.scratch/memo-suite-plugin/spec.md`，决策进 `docs/adr/` 并同步 `CONTEXT.md`。
 

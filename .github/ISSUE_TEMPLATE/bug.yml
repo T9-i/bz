@@ -1,0 +1,85 @@
+name: 报个问题
+description: 某个功能不对、报错、或者界面错位
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提之前先看一眼 [使用手册](https://github.com/yeshimei/bz/releases) 和 [常见问题](https://github.com/yeshimei/bz#readme)，能省一轮来回。
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 尽量写清「点了什么 → 看到什么」，别只写「不能用了」。
+      placeholder: 打开备忘录 → 勾选一条 → 列表里没打勾，控制台报 xxx
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 你期望它怎样
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 能稳定复现的路径。只在特定笔记/特定数据下才出现，也请说明。
+      placeholder: |
+        1. 打开…
+        2. 点…
+        3. 结果…
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: 插件版本
+      description: 设置 → 第三方插件 → bz 里能看到，或 `manifest.json` 的 version。
+      placeholder: 1.34.1
+    validations:
+      required: true
+
+  - type: input
+    id: obsidian-version
+    attributes:
+      label: Obsidian 版本
+      description: 设置 → 关于 里能看到。
+      placeholder: 1.9.14
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - iOS
+        - Android
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: 控制台报错
+      description: '`Ctrl/Cmd + Shift + I` 打开开发者工具 → Console，把红色那几行贴上来。没有就写「无」。'
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 截图或其它线索
+      description: 直接拖图片进来。涉及数据的，说清是哪个模块、哪种条目，**别贴密码或私密内容**。
+    validations:
+      required: false

@@ -3,7 +3,8 @@
   "name": "bz",
   "version": "1.34.1",
   "minAppVersion": "1.4.0",
-  "description": "bz：一站式个人信息管理——主页、日记本、备忘录、归物本、剪藏本、聚合讯、密码本、收藏本、书库、阅读报告、影视、影视分析报告、自动摘要、复习计划、做题家、闪念、番茄钟、知识盒工具包、附件搬移、保险箱、小橘陪伴猫。",
+  "description": "装在笔记库里的个人管理插件：日记、备忘、读书观影、复习、密码，21 个模块共用一个首页，数据只存本地。",
   "author": "叫我包仔",
+  "authorUrl": "https://github.com/yeshimei",
   "isDesktopOnly": false
 }
