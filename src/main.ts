@@ -350,9 +350,8 @@ export default class BzPlugin extends Plugin {
     resetAIProviderCache();
     // 通用设置访问器（各域经 getSettings 读取）
     setSettingsProvider(() => this.settings);
-    // 数据目录落位（2026-10-29：缺省从 vault 根的 CONFIG/STORAGE 搬到 <插件目录>/storage）：
-    // 没写过 storagePath、或写的正好是老缺省（插件早期自己写进去的，不是用户选的）时，
-    // 在这里改成新目录；盘上有老目录就先复制过去（不删原目录）。
+    // 数据目录初值（2026-10-29：缺省从 vault 根的 CONFIG/STORAGE 搬到 <插件目录>/storage）：
+    // 只在 data.json 里还没有 storagePath 时写一次（新库）；已有值的库一律不动，不复制不搬运。
     // 必须排在 initDock 之前 —— 登记表路径就是从数据目录推出来的。
     const storageDirBootstrapped = await bootstrapStorageDir(this.app, this.settings);
     // 设置保存通道（域设置弹窗写回后持久化）

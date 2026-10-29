@@ -7,11 +7,11 @@
  *
  * ---------- 2026-10-29：缺省目录 = `<插件目录>/storage`（小写） ----------
  *
- * 老口径是 vault 根的 `CONFIG/STORAGE`：那是**插件早期自己写进 data.json 的默认值**，
- * 不是用户选的。它在磁盘上留了一个跟笔记混在一起的 CONFIG 目录，也让「数据跟着插件走」
- * 这件事落空。现在这个值只作为**迁移来源**存在（`LEGACY_STORAGE_DIR`），
- * 不再出现在任何缺省路径上：`core/storage.bootstrapStorageDir` 启动时把它改成 `<插件目录>/storage`
- * （老目录里的数据先复制过去，不删原目录）。
+ * 缺省值只服务**还没设过 storagePath 的库**，也就是新装用户在引导页里看到的那份初值
+ * （引导的「存放」一步允许改，改了就按他填的落）。data.json 里已经有值的库一律不动：
+ * 哪怕值是插件早期自己写进去的老 `CONFIG/STORAGE`，那也是库里数据的实际位置，改它等于搬家。
+ * 老口径只留在 `LEGACY_STORAGE_DIR` 里，用途只剩一条：库里没有值、而盘上已经有老目录时
+ * 把它认领回来（清过 data.json 的老库不至于突然变空）。不做任何复制或迁移。
  *
  * 常量里那个 `.obsidian/plugins/bz` 只是「谁都没说」时的答案：真正落盘时调用方都传
  * `initialStorageDir(pluginRelDirOf(app))`，插件文件夹叫什么就落在哪。
@@ -21,8 +21,9 @@
 export const DEFAULT_STORAGE_DIR = '.obsidian/plugins/bz/storage';
 
 /**
- * 旧缺省（vault 根 `CONFIG/STORAGE`）。**只用于迁移**：盘上有、且设置里正好是这个值，
- * 启动时复制到 `<插件目录>/storage` 并把设置改过去。别在任何路径计算里用它。
+ * 旧缺省（vault 根 `CONFIG/STORAGE`）。**只在「库里还没有值」时用于认领**：
+ * 盘上有这个目录、data.json 又没有 storagePath，说明是老库清过设置——认它，不搬。
+ * 别在任何路径计算里用它。
  */
 export const LEGACY_STORAGE_DIR = 'CONFIG/STORAGE';
 
@@ -49,8 +50,8 @@ export function initialStorageDir(pluginRelDir?: string): string {
  * 共享数据目录归一（纯函数，storagePath 解析唯一入口）：
  * trim 去尾斜杠；误配 .json 尾段剥到所在目录；剥空/未设回退缺省目录。
  *
- * 旧的 `CONFIG/STORAGE` **原样透传**：那是升级上来的库的真实数据位置，
- * 在这里偷偷改写只会让「路径显示一处、文件在另一处」。改路径是 bootstrap 的事（带数据迁移）。
+ * 已经是显式值的一律原样透传（老 `CONFIG/STORAGE` 也一样）：那是库里数据的真实位置，
+ * 在这里偷偷改写只会让「路径显示一处、文件在另一处」。
  */
 export function normalizeStorageDir(value?: string): string {
   let dir = (value || '').trim().replace(/\\/g, '/').replace(/\/+$/, '');

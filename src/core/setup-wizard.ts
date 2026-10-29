@@ -4,7 +4,7 @@
  * 一次把「新机器缺什么、缺的怎么补」走完。六屏：
  *
  *   ① 检测   先探网络（raw + jsDelivr 四个边缘），再探本机八项
- *   ② 存放   数据存哪（默认 <插件目录>/storage，可改，当场写探针验证）
+ *   ② 存放   数据存哪（默认 <插件目录>/storage，可改；点「下一步」写探针验证时才建目录）
  *   ③ 内容   下什么（运行时 / 工具 / 文档索引 / 皮肤，逐项可勾；**已就绪的自动跳过**）
  *   ④ AI     可选：服务商 + 密钥 + 当场测通（跳过不影响其他功能）
  *   ⑤ 安装   勾了就全自动，不再逐项确认；单项失败不牵连
@@ -28,8 +28,8 @@ import { downloadSkinUpdates, skinStatus } from './skin-pack';
 import { installPortableNode, PORTABLE_NODE_VERSION } from './node-runtime-install';
 import { probeNodeRuntime, resetNodeRuntimeCache } from './tool-runtime';
 import { setupAfterInstall } from './tool-setup';
-import { pluginDirOf, vaultBasePathOf } from './plugin-path';
-import { storageDir } from './storage';
+import { pluginDirOf, pluginRelDirOf, vaultBasePathOf } from './plugin-path';
+import { initialStorageDir } from './storage-path';
 import { vaultKeyOf } from './vault-key';
 import { openPathPicker } from './path-picker';
 import { isMobileEnv } from './mobile';
@@ -464,9 +464,9 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
  * 说明压成一行注释。
  */
 async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
-  // 与全域同一口径（core/storage.storageDir）：缺省 = <插件目录>/storage，
-  // 别在这儿再写一个「空值回退 CONFIG/STORAGE」的第二答案
-  const current = storageDir();
+  // 初值 = 缺省数据目录（<插件目录>/storage）。引导只在这里给新库一个起点，
+  // 用户点「更改」选别的就按他选的；已有值的库读到的本来就是自己的值。
+  const current = String(tryGetSettings()?.storagePath || initialStorageDir(pluginRelDirOf(ctx.app)));
   st.storagePath = current;
   ui.sub.textContent = '数据以 JSON 存在这里，跟着 vault 走。';
   ui.body.innerHTML = '';

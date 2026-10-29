@@ -39,7 +39,7 @@ import { DEFAULT_STORAGE_DIR, LEGACY_STORAGE_DIR, initialStorageDir, normalizeSt
 
 /**
  * 路径口径的实现在 core/storage-path.ts（零依赖，值守进程共用）—— 这里只做转发，
- * 免得全仓两处各写一遍「缺省是 CONFIG/STORAGE、误配成 .json 要剥尾段」。
+ * 免得全仓两处各写一遍「缺省目录是什么、误配成 .json 要剥尾段」。
  */
 export { DEFAULT_STORAGE_DIR, LEGACY_STORAGE_DIR, initialStorageDir, normalizeStorageDir };
 
@@ -50,96 +50,38 @@ export function storageDir(): string {
 }
 
 /**
- * 数据目录落位（2026-10-29：`<插件目录>/storage`，小写）。
+ * 数据目录初值（2026-10-29：缺省 = <插件目录>/storage，小写）。
  *
- * 为什么启动时要写一次显式值，而不是让归一函数现算：归一函数要在没有 app 的地方被调用
- * （值守进程、纯函数单测），兜底只能是常量；而「数据住哪」这件事必须落成一个看得见、
- * 改得动、值守也读得到的值。
+ * **只在 data.json 里还没有值时写一次**，此后它就是普通设置项 —— 用户改过就听用户的。
+ * 已经有值的库一律不碰：哪怕值是插件早期自己写进去的老 CONFIG/STORAGE，那也是库里数据
+ * 的实际位置，改它等于搬家（老用户升级过来不受这个缺省值影响）。
  *
- * 判据（按序）：
- *  1. data.json 里的值**不是**老的 `CONFIG/STORAGE` → 用户自己定的，一个字不动；
- *  2. 目标目录已经存在 → 认它（删过 data.json 的库照旧接回原处）；
- *  3. 老目录 `CONFIG/STORAGE` 有东西 → 先复制到目标（**不删原目录**），再把设置改过去；
- *  4. 都没有 → 新库，直接写目标。
+ * 判据：
+ *  1. 已有 storagePath → 什么都不做；
+ *  2. 盘上已有 <插件目录>/storage → 认它（清过一次 data.json 的库照旧接回原处）；
+ *  3. 盘上已有老的 CONFIG/STORAGE → 认老目录（清过设置的老库，数据在那儿；不复制、不搬运）；
+ *  4. 都没有 → 新库，写 <插件目录>/storage（目录本身等首次落盘／引导探针时再建）。
  *
- * 第 3 条为什么是复制不是搬：老值多半不是用户选的，而是插件早期自己写进 data.json 的默认值
- * （「提前生成的 data.json」把它冻住了）。路径要改，但那个目录里可能是这个库的全部数据，
- * 搬一半失败就等于丢数据。复制完成才改路径，原目录留着让用户自己删。
+ * 为什么不把「缺省」做成现算：归一函数要在没有 app 的地方被调用（值守进程、纯函数单测），
+ * 兜底必须是常量；而「数据住哪」这件事必须落成一个看得见、改得动、值守也读得到的值。
  *
  * @returns 是否写了新值（调用方据此调度落盘）
  */
 export async function bootstrapStorageDir(app: any, settings: { storagePath?: string } | null | undefined): Promise<boolean> {
   if (!settings) return false;
-  const raw = String(settings.storagePath || '')
-    .trim()
-    .replace(/\\/g, '/')
-    .replace(/\/+$/, '');
-  const target = initialStorageDir(pluginRelDirOf(app));
-  if (raw === target) return false;
-  if (raw && raw !== LEGACY_STORAGE_DIR) return false;
-  const adapter = app?.vault?.adapter;
+  if (String(settings.storagePath || '').trim()) return false;
   const exists = async (p: string): Promise<boolean> => {
     try {
-      return !!(await adapter?.exists?.(p));
+      return !!(await app?.vault?.adapter?.exists?.(p));
     } catch {
       return false;
     }
   };
-  if (await exists(target)) {
-    settings.storagePath = target;
-    return true;
-  }
-  if (await exists(LEGACY_STORAGE_DIR)) {
-    const { copied, seen } = await copyTree(app, LEGACY_STORAGE_DIR, target);
-    // 一个都没复制成功、而老目录里**确实有文件**（seen > 0）或**根本读不了**（seen < 0）→ 不改路径：
-    // 把设置指向一个空目录比留着旧路径更糟。只有确认老目录是空的（seen === 0）才照常切过去。
-    if (!copied && seen !== 0) return false;
-    settings.storagePath = target;
-    if (copied > 0) {
-      notify(`数据目录已改到「${target}」：原 ${LEGACY_STORAGE_DIR} 里的 ${copied} 个文件已复制过去，旧目录保留，可自行删除`, { type: 'info' });
-    }
-    return true;
-  }
-  settings.storagePath = target;
+  const target = initialStorageDir(pluginRelDirOf(app));
+  if (await exists(target)) settings.storagePath = target;
+  else if (await exists(LEGACY_STORAGE_DIR)) settings.storagePath = LEGACY_STORAGE_DIR;
+  else settings.storagePath = target;
   return true;
-}
-
-/**
- * 递归复制目录（vault 相对路径）。
- *
- * 返回 `seen`：老目录里看到的文件数 —— **-1 表示读不了**（adapter 没有读写能力，或 list 抛错），
- * 与「目录是空的（0）」区分开：前者不能改路径，后者可以。
- */
-async function copyTree(app: any, from: string, to: string): Promise<{ copied: number; seen: number }> {
-  const adapter = app?.vault?.adapter;
-  if (!adapter?.list || !adapter?.readBinary || !adapter?.writeBinary) return { copied: 0, seen: -1 };
-  let copied = 0;
-  let seen = 0;
-  let ok = true;
-  const walk = async (src: string, dst: string): Promise<void> => {
-    let listing: { files?: string[]; folders?: string[] };
-    try {
-      listing = await adapter.list(src);
-    } catch {
-      ok = false;
-      return;
-    }
-    for (const f of listing.files || []) {
-      seen += 1;
-      try {
-        const bin = await adapter.readBinary(f);
-        await adapter.writeBinary(`${dst}/${f.slice(src.length + 1)}`, bin);
-        copied += 1;
-      } catch {
-        /* 单个文件失败：继续，路径改过去后该文件在旧目录里仍是完整一份 */
-      }
-    }
-    for (const d of listing.folders || []) {
-      await walk(d, `${dst}/${d.slice(src.length + 1)}`);
-    }
-  };
-  await walk(from, to);
-  return { copied, seen: ok ? seen : -1 };
 }
 
 /** 共享数据文件路径（base 可覆盖 storagePath——旧字段兜底域用 storagePath||xxxPath） */
