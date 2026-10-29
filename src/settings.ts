@@ -1067,7 +1067,7 @@ export const DEFAULT_SETTINGS: BzSettings = {
 
   enableAutoNotify: true,
   reviewAutoAddNotice: true,
-  forceQuizForReview: false,
+  forceQuizForReview: true,
   reviewDailyLimit: 0,
   reviewIntervalScale: 1,
   reviewTreeBadge: true,
