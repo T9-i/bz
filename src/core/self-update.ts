@@ -358,7 +358,7 @@ export async function checkSelfUpdate(app: unknown, opts: SelfUpdateOptions = {}
   await adapter.write(pluginFile(app, 'styles.css'), css.text);
   await adapter.write(pluginFile(app, 'manifest.json'), mf.text);
   writeStore(PENDING_KEY, { version: pointer.version });
-  if (!opts.silent) notice(`包仔已更新到 v${pointer.version}：重载插件（或重启 Obsidian）后生效`, 'success');
+  if (!opts.silent) notice(`bz 已更新到 v${pointer.version}：重载插件（或重启 Obsidian）后生效`, 'success');
   return 'installed';
 }
 
