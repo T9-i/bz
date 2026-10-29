@@ -71,6 +71,10 @@ function makeApp() {
   return { app, state };
 }
 
+/** 数据目录初值：2026-10-29 起「首次启动没有 storagePath」会写一次值（core/storage.bootstrapStorageDir）。
+ *  C15/C16 盯的是「一次保存」与「有没有额外落盘」，所以夹具里显式给一个值，把那条首启落盘摘掉。 */
+const LOADED_WITH_STORAGE = { storagePath: 'CONFIG/STORAGE' };
+
 async function createPlugin(loadData: unknown, saveDataImpl?: (data: any) => Promise<void>) {
   const { app, state } = makeApp();
   const plugin: any = new BzPlugin(app as any, {} as any);
@@ -131,7 +135,7 @@ describe('C15：saveSettings 串行化', () => {
     const saveDataSpy = vi.fn(
       () => new Promise<void>((resolve) => resolvers.push(resolve))
     );
-    const { plugin } = await createPlugin({}, async () => saveDataSpy());
+    const { plugin } = await createPlugin({ ...LOADED_WITH_STORAGE }, async () => saveDataSpy());
     const s1 = plugin.saveSettings();
     const s2 = plugin.saveSettings();
     const s3 = plugin.saveSettings();
@@ -155,7 +159,7 @@ describe('C15：saveSettings 串行化', () => {
     const saveDataSpy = vi.fn(async () => {
       if (fail) throw new Error('磁盘写失败');
     });
-    const { plugin } = await createPlugin({}, async () => saveDataSpy());
+    const { plugin } = await createPlugin({ ...LOADED_WITH_STORAGE }, async () => saveDataSpy());
     await expect(plugin.saveSettings()).rejects.toThrow('磁盘写失败'); // 错误照常透出给调用方
     fail = false;
     await plugin.saveSettings(); // 队列未被毒化
@@ -192,7 +196,7 @@ describe('C16：设置键迁移落盘', () => {
 
   it('无旧键时不触发额外落盘', async () => {
     const saveDataSpy = vi.fn(async () => {});
-    await createPlugin({ aiProvider: 'deepseek' }, async () => saveDataSpy());
+    await createPlugin({ ...LOADED_WITH_STORAGE, aiProvider: 'deepseek' }, async () => saveDataSpy());
     // 让微任务队列跑空
     await new Promise((r) => setTimeout(r, 0));
     expect(saveDataSpy).not.toHaveBeenCalled();

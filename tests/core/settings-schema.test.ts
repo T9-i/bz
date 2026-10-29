@@ -19,16 +19,16 @@ function snapOf(partial: Partial<SettingsSnapshot>): SettingsSnapshot {
 describe('mainSettingsSchema：主设置页区块（issue 422 起 AI 页按模型族分组；issue 444 增语音转写）', () => {
   const schema = mainSettingsSchema();
 
-  it('issue 444 + ADR-0254：九个分组卡片（带 icon）——LLM/Embedding/JEV/语音转写/外部工具/数据源凭据 + 功能域 + 通知 + 数据存储路径', () => {
+  it('issue 444 + ADR-0254：八个分组卡片（带 icon）——LLM/Embedding/JEV/语音转写/外部工具/数据源凭据 + 通知 + 数据存储路径', () => {
     // issue 473：「使用手册」组撤出（入口搬设置面板侧栏 footer），恢复真·七个分组；
     // issue 479：通知组并回通用（core generalSettingsSchema 内排存储路径前）→ 聚合序 = AI 六组 + 通知 + 存储；
-    // ADR-0254：通用页新增「功能域」组（域级开关，眼下只有小橘一行），排在通知之前
+    // ADR-0254 的「功能域」组 2026-10-29 撤下（小橘默认关，见 generalSettingsSchema 头注）
     // 2026-10-26：外部工具组自知识盒页迁出，直接落 AI 页（用户拍板：引擎 → 模型 → 运行时同页），排语音转写之后
     expect(schema.groups.map((g) => g.name)).toEqual([
-      'LLM', 'Embedding', 'JEV', '语音转写', '外部工具', '数据源凭据', '功能域', '通知', '数据存储路径',
+      'LLM', 'Embedding', 'JEV', '语音转写', '外部工具', '数据源凭据', '通知', '数据存储路径',
     ]);
     expect(schema.groups.map((g) => g.icon)).toEqual([
-      'cpu', 'binary', 'route', 'mic', 'terminal', 'key-round', 'layout-grid', 'bell', 'folder-open',
+      'cpu', 'binary', 'route', 'mic', 'terminal', 'key-round', 'bell', 'folder-open',
     ]);
   });
 

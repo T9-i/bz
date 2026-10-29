@@ -424,6 +424,7 @@ describe('path 行接入统一路径选择器（ADR-0061）', () => {
 
   it('单选：选择…按钮开选择器，确定后写内存 + 落盘 + onCommit 一次性提示', async () => {
     seedVault();
+    state.storagePath = 'CONFIG/STORAGE'; // 初始值：本用例验的是「改回原值不重复提示」
     const container = document.createElement('div');
     const onCommit = vi.fn();
     renderSettingsInto(container, {

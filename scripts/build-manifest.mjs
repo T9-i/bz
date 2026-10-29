@@ -79,9 +79,11 @@ const DOCS = [
   // ===== 外部工具（2026-10-28 对外分发；kind='bundle' = tar.gz 目录包，产物由 pnpm tools-pack 出，
   // 故发布顺序里 tools-pack 也在 manifest 之前）。这三个是插件**运行时真的会 spawn 的东西**：
   // 知识盒批量下载（bili-dl）、工具坞离线值守、脸谱（bz-face）。
+  // 行名 2026-10-29 改名（知识盒工具包 / 工具坞工具包）：与 src/core/tool-runtime 的
+  // TOOL_ENTRIES label 同源，改名两处一起改——行名给谁看，id 才是主键。
   // 已移植进插件的 news-watcher / douban-poster **不在这里**——它们运行时零依赖，上架只会让人白下。
-  { id: 'tool-bili-downloader', name: 'B站下载器', file: 'tools/bili-downloader.tar.gz', kind: 'bundle' },
-  { id: 'tool-dock-watch', name: '工具坞值守', file: 'tools/dock-watch.tar.gz', kind: 'bundle' },
+  { id: 'tool-bili-downloader', name: '知识盒工具包', file: 'tools/bili-downloader.tar.gz', kind: 'bundle' },
+  { id: 'tool-dock-watch', name: '工具坞工具包', file: 'tools/dock-watch.tar.gz', kind: 'bundle' },
   { id: 'tool-obsidian-face', name: '脸谱工具包', file: 'tools/obsidian-face.tar.gz', kind: 'bundle' },
 ];
 const docs = DOCS.map((d) => ({

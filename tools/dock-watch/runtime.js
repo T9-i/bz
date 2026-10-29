@@ -291,6 +291,7 @@ function pluginDataFile(config, pluginId = 'bz') {
   return path.join(config.vault, '.obsidian', 'plugins', pluginId, 'data.json');
 }
 
+
 /**
  * 读插件设置里值守需要的那几项。
  *

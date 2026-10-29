@@ -31,7 +31,7 @@ describe('environmentCheck', () => {
     expect(keys).toContain('vault 路径');
     expect(keys).toContain('数据目录可写');
     expect(keys).toContain('Node 运行时');
-    expect(keys).toContain('B站下载器');
+    expect(keys).toContain('知识盒工具包');
     setFsProbe(null);
   });
 

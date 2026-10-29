@@ -1,4 +1,4 @@
-# B站下载器
+# 知识盒工具包（bili-dl）
 
 无头批处理 CLI（`bili-dl --batch '<json>'`）：B站视频解析、分P 选择、下载（多 CDN 节点切换 + 下载原件本地缓存）、多段剪辑/压缩（ffmpeg，产物 ffprobe 校验兜底）、转文字（faster-whisper）、交付（移入交付目录）。由 QuickAdd 脚本《B站下载.js》独立化而来，核心逻辑（CORE）零依赖、可 headless 测试。**ticket 136 起网页版已移除、AI/文献笔记生成回迁 bz 插件**——本工具不再写笔记、不再调 AI。
 

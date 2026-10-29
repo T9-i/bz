@@ -208,7 +208,7 @@ if ($NoTask) {
     $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
 
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
-      -Description 'bz 工具坞值守：Obsidian 关着时按同一份规则表跑外部工具（判据复用插件的 ruleDue）' `
+      -Description 'bz 工具坞工具包：Obsidian 关着时按同一份规则表跑外部工具（判据复用插件的 ruleDue）' `
       -Force -ErrorAction Stop | Out-Null
     Write-Host "✓ 计划任务：$TaskName（登录时启动，隐藏窗口，失败重试 3 次）"
     $script:taskOk = $true

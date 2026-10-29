@@ -796,8 +796,10 @@ function renderRow(
       break;
     }
     case 'info': {
-      // 徽标结构单源（R.badgeHtml）；actions 在场时附操作按钮
-      ctrlEl.innerHTML = R.badgeHtml(row.name);
+      // 徽标结构单源（R.badgeHtml）；actions 在场时附操作按钮。
+      // hideBadge（2026-10-29）：右列那枚名称小字按行关掉——版本行左列已经写着「版本」，
+      // 右列再挂一枚「版本」是同一个词说两遍。
+      if (!row.hideBadge) ctrlEl.innerHTML = R.badgeHtml(row.name);
       for (const a of row.actions ?? []) {
         const holder = document.createElement('div');
         holder.innerHTML = R.rowBtnHtml(a.text, a.cta);

@@ -392,7 +392,7 @@ describe('BatchRunner', () => {
     await p;
   });
 
-  it('本地包不在 → 不起进程，任务直接失败并指向在线资源（不回落全局 bili-dl）', async () => {
+  it('本地包不在 → 不起进程，任务直接失败并指向外部工具组（不回落全局 bili-dl）', async () => {
     setFsProbe(() => false); // 插件目录里什么都没有
     resetNodeRuntimeCache();
     await KnowledgeData.addTask({ url: 'BV1xx411c7mD' });
@@ -401,8 +401,8 @@ describe('BatchRunner', () => {
     expect(cpMock.spawn).not.toHaveBeenCalled();
     const [task] = await KnowledgeData.loadTasks();
     expect(task.status).toBe('failed');
-    expect(task.reason).toContain('B站下载器');
-    expect(task.reason).toContain('在线资源');
+    expect(task.reason).toContain('知识盒工具包');
+    expect(task.reason).toContain('外部工具'); // 2026-10-28 起工具单独成组
   });
 
   it('单部失败继续剩余：失败项带原因、后续继续处理（CLI close 非 0）', async () => {
@@ -468,10 +468,10 @@ describe('BatchRunner', () => {
     await p;
     const all = await KnowledgeData.loadTasks();
     expect(all[0].status).toBe('failed');
-    expect(all[0].reason).toContain('B站下载器');
-    expect(all[0].reason).toContain('在线资源');
+    expect(all[0].reason).toContain('知识盒工具包');
+    expect(all[0].reason).toContain('外部工具');
     expect(all[1].status).toBe('failed');
-    expect(all[1].reason).toContain('B站下载器');
+    expect(all[1].reason).toContain('知识盒工具包');
     expect(ev.onBatchDone).toHaveBeenCalledWith({ success: 0, failed: 2, aborted: false, stopped: false });
   });
 

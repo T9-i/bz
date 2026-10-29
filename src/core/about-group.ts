@@ -48,6 +48,9 @@ export async function aboutGroup(): Promise<GroupDecl> {
     type: 'info',
     name: '版本',
     desc: versionDesc(st),
+    // 右列那枚「版本」小字去掉（2026-10-29 用户要求）：左列已经写着「版本」，
+    // 右列再挂一枚同名词只是噪声，还挤窄了「检查并更新」的落位。
+    hideBadge: true,
     help:
       '「检查并更新」会立刻去仓库取最新发布：有新版本就装下来，重载插件后生效。' +
       '装之前会把当前版本备份进插件目录的 downloads/.backup 里。',

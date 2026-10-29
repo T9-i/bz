@@ -3,7 +3,7 @@
  *
  * 为什么需要它：对外分发时**不能假设别人的电脑装了 Node**。而 Obsidian 自己不能当
  * Node 用（实测：`runAsNode` fuse 被关，`ELECTRON_RUN_AS_NODE=1 obsidian.exe x.js`
- * 会被当成 Obsidian 自己的 CLI 命令）。所以三个外部工具（B站下载器 / 值守 / 脸谱）
+ * 会被当成 Obsidian 自己的 CLI 命令）。所以三个外部工具（知识盒工具包 / 工具坞工具包 / 脸谱工具包）
  * 在干净机器上唯一的出路是：**把一份 Node 下下来，放进插件目录**。
  *
  * 落位：`<插件目录>/downloads/tools/node-runtime/`（Windows = `node.exe`，

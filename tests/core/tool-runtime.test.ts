@@ -139,13 +139,13 @@ describe('probeNodeRuntime / toolReadyState', () => {
 describe('引导文案', () => {
   it('未安装的指引指向设置面板，而不是一条终端命令', () => {
     const hint = toolInstallHint('obsidian-face');
-    expect(hint).toContain('在线资源');
+    expect(hint).toContain('外部工具'); // 2026-10-28 起工具单独成组，不再在「在线资源」里
     expect(hint).not.toContain('npm install');
   });
 
   it('通用版（不传 id）：external-tool 拦空命令时用它', () => {
     expect(toolInstallHint()).toContain('外部工具');
-    expect(toolInstallHint()).toContain('在线资源');
+    expect(toolInstallHint()).toContain('设置');
   });
 });
 

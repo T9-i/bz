@@ -5,8 +5,8 @@
  *
  * | 工具 | 下载后还要做什么 | 这一层怎么处理 |
  * |---|---|---|
- * | B站下载器 | 没有。纯 Node 脚本、无依赖、无配置 | 直接算完成 |
- * | 工具坞值守 | **要注册登录自启**（计划任务），否则「Obsidian 关着也跑」不成立 | 弹确认 → 跑包里的 install.ps1 |
+ * | 知识盒工具包 | 没有。纯 Node 脚本、无依赖、无配置 | 直接算完成 |
+ * | 工具坞工具包 | **要注册登录自启**（计划任务），否则「Obsidian 关着也跑」不成立 | 弹确认 → 跑包里的 install.ps1 |
  * | 脸谱工具包 | Node 外壳已就位；Python 依赖（funasr / torch / pycryptodome）装不了 | 不算失败，返回一句「还差什么」 |
  *
  * 三条边界：
@@ -127,7 +127,7 @@ export function activeWatchdogVault(): string {
  */
 export async function setupAfterInstall(app: unknown, id: ToolId): Promise<ToolSetupOutcome> {
   if (id !== 'dock-watch') {
-    // B站下载器 / 脸谱：落盘即完成（脸谱的 Python 依赖在面板上另有说明，不在这里假装装好）
+    // 知识盒工具包 / 脸谱工具包：落盘即完成（脸谱的 Python 依赖在面板上另有说明，不在这里假装装好）
     return 'skipped';
   }
 
@@ -152,7 +152,7 @@ export async function setupAfterInstall(app: unknown, id: ToolId): Promise<ToolS
   const other = activeWatchdogVault();
   const switching = !!other && other !== vault;
   const go = await openFlowDialog({
-    title: switching ? '把值守切到这个库' : '启用工具坞值守',
+    title: switching ? '把值守切到这个库' : '启用工具坞后台值守',
     message: switching
       ? `值守现在服务的是另一个库：\n${other}\n\n` +
         '一台机器同时只跑一个值守进程，继续会把它切到这个库来 —— 那个库的定时任务之后不再执行' +

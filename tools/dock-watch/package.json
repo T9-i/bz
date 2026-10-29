@@ -2,7 +2,7 @@
   "name": "@jwbz/dock-watch",
   "version": "1.0.0",
   "private": true,
-  "description": "工具坞值守进程 —— Obsidian 关着时，替它按同一份规则表跑外部工具（判据/执行/记账全在 src/dock，打包成 dock-core.cjs）",
+  "description": "工具坞工具包（dock-watch）—— 后台值守进程：Obsidian 关着时，替它按同一份规则表跑外部工具（判据/执行/记账全在 src/dock，打包成 dock-core.cjs）",
   "main": "watch.js",
   "bin": {
     "bz-dock-watch": "./cli.js"

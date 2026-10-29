@@ -170,7 +170,9 @@ describe('bz 骨架冒烟', () => {
     resetObsidianMocks();
     removedCommands.length = 0;
     registeredCommands.length = 0;
-    delete diskData['bz'];
+    // 小橘陪伴猫 2026-10-29 起默认关闭（命令表会随域开关撤下四条）——本文件的断言是
+    // "全域命令都在"，所以夹具里显式打开，别让默认值把命令表断言拖成 70 条。
+    diskData['bz'] = { smartcatEnabled: true };
     document.body.innerHTML = '';
   });
 
