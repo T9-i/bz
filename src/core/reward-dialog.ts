@@ -93,10 +93,20 @@ const FOOT_ARC =
   '<path d="M0,27 C140,0 380,0 520,27" fill="none" stroke="rgba(189,148,64,.3)" stroke-width="0.7"/>' +
   '</svg>';
 
-/** 弹窗正文（整块纸） */
-export function buildRewardBody(names: readonly RewardName[]): HTMLElement {
+/** 弹窗正文（整块纸）。`onClose` 由关闭钮调用——移动端全屏时遮罩被纸盖满，没有这枚钮就只能靠 ESC */
+export function buildRewardBody(names: readonly RewardName[], onClose: () => void = () => undefined): HTMLElement {
   const root = document.createElement('div');
   root.className = 'bz-rw';
+
+  const close = document.createElement('button');
+  close.className = 'bz-rw-close';
+  close.type = 'button';
+  close.setAttribute('aria-label', '关闭');
+  close.innerHTML =
+    '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.3" stroke-linecap="round"><path d="M1 1l11 11M12 1L1 12"/></svg>';
+  close.addEventListener('click', () => onClose());
+  root.appendChild(close);
 
   const head = document.createElement('div');
   head.className = 'bz-rw-head';
@@ -137,10 +147,14 @@ export function buildRewardBody(names: readonly RewardName[]): HTMLElement {
   return root;
 }
 
-/** 打开赞赏弹窗（设置「关于」组 → 「留言」）。重复点击只留一个（uiModal 单例靠用户不叠点，这里不再加锁） */
+/** 打开赞赏弹窗（设置「关于」组 → 「留言」）。
+ *  关闭钮要拿 close 句柄，而 content 在 open 之前就得建好——先建 body、占位一个闭包，
+ *  open 返回后再把句柄填进去（点击发生在返回之后，闭包读到的一定是真句柄）。 */
 export function openRewardDialog(): void {
-  uiModal({
-    content: buildRewardBody(REWARD_NAMES),
+  let handle: { close: () => void } | null = null;
+  const body = buildRewardBody(REWARD_NAMES, () => handle?.close());
+  handle = uiModal({
+    content: body,
     maxWidth: 520,
     className: 'bz-rw-modal',
     autofocus: false,
