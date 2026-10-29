@@ -137,7 +137,11 @@ export function lastPlayedStr(tsMs: number): string {
   if (!tsMs || tsMs <= 0) return '';
   const d = new Date(tsMs);
   if (isNaN(d.getTime())) return '';
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; // C2 余量：pad2 收编 core 单源（深审批A 登记）
+  // 存到秒：首页时间线要按分钟落位；展示侧 dateText 统一取前 10 位（`YYYY-MM-DD`）
+  const ymd = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const hms = `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  // 上游只给到天（时刻是 00:00:00）时不编造时刻，原样留日期；真有时刻才写到秒
+  return hms === '00:00:00' ? ymd : `${ymd} ${hms}`;
 }
 
 /**

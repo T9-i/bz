@@ -1,4 +1,4 @@
-/* 源指纹 8157b964b8ad5887 · 仓内输入 69 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 d3d92f76761bbaae · 仓内输入 69 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/belongings/fake-sim.ts","prototypes/belongings/fake/fake-obsidian.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/core/ai.ts","src/core/app.ts","src/core/category-table.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/flow-dialog.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/smartcat/belongings-source.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/belongings/fake-sim.ts → window.BZW_belongings（行为单源预览包，issue 245/ADR-0106） */
 var BZW_belongings = (() => {
@@ -4665,6 +4665,10 @@ var BZW_belongings = (() => {
   function pad2(n) {
     return String(n).padStart(2, "0");
   }
+  function localNow() {
+    const d = /* @__PURE__ */ new Date();
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  }
   function emptyHtmlStr(icon, title, desc) {
     return `<div class="bz-empty">${icon ? iconSpan(icon, "bz-empty-ic") : ""}<div class="bz-empty-title">${esc(title)}</div>${desc ? `<div class="bz-empty-desc">${esc(desc)}</div>` : ""}</div>`;
   }
@@ -6255,7 +6259,7 @@ var BZW_belongings = (() => {
       <div class="bz-bel-dfield"><span>购买价</span><b>${money(Number(it.purchase_price) || 0, unit)}</b></div>
       <div class="bz-bel-dfield"><span>购买日期</span><b>${esc(String(it.purchase_date || "").slice(0, 10) || "—")} · ${daysUsed(it)} 天</b></div>
       <div class="bz-bel-dfield"><span>日均成本</span><b>${moneyWith(dailyCostOf(it).toFixed(2), unit)}${gone ? "（已封口）" : "/天 · 越用越便宜"}</b></div>
-      ${gone ? `<div class="bz-bel-dfield"><span>出离日期</span><b>${esc(it.exit_date || "—")}${it.current_status === "已转卖" && Number(it.sold_price) > 0 ? " · 售出 " + money(Number(it.sold_price), unit) : ""}</b></div>` : ""}
+      ${gone ? `<div class="bz-bel-dfield"><span>出离日期</span><b>${esc(String(it.exit_date || "").slice(0, 10) || "—")}${it.current_status === "已转卖" && Number(it.sold_price) > 0 ? " · 售出 " + money(Number(it.sold_price), unit) : ""}</b></div>` : ""}
       <div class="bz-bel-dfield"><span>录入 / 更新</span><b>${esc(String(it.created_date || "").slice(0, 10))} / ${esc(String(it.last_updated || "").slice(0, 10))}</b></div>
     </div>
     <div class="bz-bel-detail-acts" data-bd-acts></div>
@@ -9158,9 +9162,11 @@ var BZW_belongings = (() => {
     }
     const prevStatus = cur.current_status;
     const prevExit = cur.exit_date;
+    const prevStatusAt = cur.status_at;
     cur.current_status = s;
+    if (prevStatus !== s) cur.status_at = (/* @__PURE__ */ new Date()).toISOString();
     if (isExited(cur)) {
-      if (!exitedStatus(prevStatus)) cur.exit_date = todayStr();
+      if (!exitedStatus(prevStatus)) cur.exit_date = localNow();
     } else if (cur.exit_date != null) {
       cur.exit_date = null;
     }
@@ -9187,6 +9193,7 @@ var BZW_belongings = (() => {
             return;
           }
           now.current_status = prevStatus;
+          now.status_at = prevStatusAt != null ? prevStatusAt : null;
           if (prevExit != null) now.exit_date = prevExit;
           else if (now.exit_date != null) now.exit_date = null;
           now.last_updated = (/* @__PURE__ */ new Date()).toISOString();
@@ -9522,6 +9529,7 @@ var BZW_belongings = (() => {
             cur.purchase_price = Math.round(price * 100) / 100;
             cur.purchase_date = date;
             cur.current_status = curStatus;
+            if (snapshot.current_status !== curStatus) cur.status_at = (/* @__PURE__ */ new Date()).toISOString();
             cur.description = desc;
             if (exited) cur.exit_date = exitDate;
             else if (cur.exit_date != null) cur.exit_date = null;
@@ -9552,6 +9560,7 @@ var BZW_belongings = (() => {
               description: desc,
               created_date: (/* @__PURE__ */ new Date()).toISOString(),
               last_updated: (/* @__PURE__ */ new Date()).toISOString(),
+              status_at: (/* @__PURE__ */ new Date()).toISOString(),
               ...exited ? { exit_date: exitDate } : {},
               ...curStatus === STATUS.sold.label ? { sold_price: soldPrice } : {},
               ...formIcon ? { icon: formIcon } : {}

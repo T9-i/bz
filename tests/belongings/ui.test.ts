@@ -1549,7 +1549,7 @@ describe('归物本表单（记一笔 / 编辑）', () => {
     expect(events[0]).toEqual({ kind: 'edit', title: '键盘', changes: ['改了状态', '改了出离日期'] });
     const saved: any = JSON.parse(vault.files.get(DATA_PATH)!).items.item_1;
     expect(saved.current_status).toBe('已转卖');
-    expect(saved.exit_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(saved.exit_date).toMatch(/^\d{4}-\d{2}-\d{2}$/); // 表单里只能选日期，不编造时刻
   });
 
   it('编辑来自抽屉（移动）：表单叠抽屉（companion 防误关）→ 保存后表单关 + 抽屉关', async () => {
@@ -1977,7 +1977,7 @@ describe('状态流转 / 删除接撤销（ticket 189）', () => {
       await drain();
       const sold = JSON.parse(vault.files.get(DATA_PATH)!).items.item_1;
       expect(sold.current_status).toBe('已转卖');
-      expect(sold.exit_date).toBe('2025-06-15');
+      expect(sold.exit_date).toMatch(/^2025-06-15 \d{2}:\d{2}:\d{2}$/); // 流转自动记此刻，带时分
       // 陪伴天数封口在出离日：2024-06-01 → 2025-06-15 = 379 天（不再随时间增长）
       expect(cells()[0].querySelector('.bz-bel-mut')!.textContent).toContain('陪伴 379 天');
       // 撤销 → 回使用中 + exit_date 清除

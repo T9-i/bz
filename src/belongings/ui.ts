@@ -30,6 +30,7 @@ import { registerPanelEsc } from '../core/esc-manager';
 import { trapPanelFocus } from '../core/ui/focus-trap';
 import { isMobileEnv } from '../core/mobile';
 import { debounce } from '../core/utils';
+import { localNow } from '../core/ui/str';
 import { longPress } from '../core/dom';
 import { tryGetSettings, panelSizePersist } from '../core/settings-provider';
 import { confirmDiscard } from '../core/flow-dialog';
@@ -767,11 +768,14 @@ async function applyFlowWithUndo(it: BelongingsItem, s: string): Promise<void> {
   }
   const prevStatus = cur.current_status;
   const prevExit = cur.exit_date;
+  const prevStatusAt = cur.status_at;
   cur.current_status = s;
+  // 状态变更时刻：首页时间线要按分钟排「挂成闲置 / 转卖」，只有日期排不进当天
+  if (prevStatus !== s) cur.status_at = new Date().toISOString();
   // 出离闭环（ADR-0089）：从非出离态转入出离态记当天封口；已是出离态再流转保留原封口日期
   // （与表单编辑路径对齐，修复前转卖→丢弃会把锚点重置成今天）；退出出离态且旧值存在才清（避免写冗余 null）
   if (isExited(cur)) {
-    if (!exitedStatus(prevStatus)) cur.exit_date = todayStr();
+    if (!exitedStatus(prevStatus)) cur.exit_date = localNow(); // 到分钟：时间线要按时刻落位（展示侧 slice(0,10)）
   } else if (cur.exit_date != null) {
     cur.exit_date = null;
   }
@@ -800,6 +804,7 @@ async function applyFlowWithUndo(it: BelongingsItem, s: string): Promise<void> {
           return;
         }
         now.current_status = prevStatus;
+        now.status_at = prevStatusAt ?? null; // 撤销 = 回到旧状态，状态时刻一并回退
         // B4：恢复流转前封口快照（出离→出离撤销不丢原日期）；无快照且现值非空才清（避免写冗余 null）
         if (prevExit != null) now.exit_date = prevExit;
         else if (now.exit_date != null) now.exit_date = null;
@@ -1184,6 +1189,7 @@ export function openForm(it: BelongingsItem | null): void {
           cur.purchase_price = Math.round(price * 100) / 100;
           cur.purchase_date = date;
           cur.current_status = curStatus;
+          if (snapshot.current_status !== curStatus) cur.status_at = new Date().toISOString();
           cur.description = desc;
           // 出离字段（ADR-0089）：只在出离态写值；退出出离态且旧值存在才清（避免给老记录写冗余 null）
           if (exited) cur.exit_date = exitDate;
@@ -1219,6 +1225,7 @@ export function openForm(it: BelongingsItem | null): void {
             description: desc,
             created_date: new Date().toISOString(),
             last_updated: new Date().toISOString(),
+            status_at: new Date().toISOString(),
             ...(exited ? { exit_date: exitDate } : {}),
             ...(curStatus === STATUS.sold.label ? { sold_price: soldPrice } : {}),
             ...(formIcon ? { icon: formIcon } : {}),

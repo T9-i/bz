@@ -3612,7 +3612,7 @@ describe('已看日期（issue 536）', () => {
     await vi.waitFor(() => expect(hasNotice(/已保存「/)).toBe(true));
     const fm = fmOf(vault, '想看片');
     expect(fm).toContain('状态: 在看');
-    expect(fm).toMatch(/在看日期: "\d{4}-\d{2}-\d{2}"/);
+    expect(fm).toMatch(/在看日期: "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/); // 状态日期写到秒：首页时间线按分钟落位
     expect(fm).not.toContain('已看日期');
     expect(M.items.find((i) => i.name === '想看片')!.watchedDate).toBeNull();
   });
@@ -3627,7 +3627,7 @@ describe('已看日期（issue 536）', () => {
     clickEl(form.querySelector('[data-f-st="已看"]'));
     clickEl((root.querySelector('.cn-modal') as HTMLElement).querySelector('.j-save'));
     // 等结果而不是等 toast：同一段里前面用例的「已保存」通知可能还挂在容器上
-    await vi.waitFor(() => expect(fmOf(vault, '瑞克和莫蒂')).toMatch(/已看日期: "\d{4}-\d{2}-\d{2}"/));
+    await vi.waitFor(() => expect(fmOf(vault, '瑞克和莫蒂')).toMatch(/已看日期: "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/));
     const stamped = M.items.find((i) => i.name === '瑞克和莫蒂')!.watchedDate;
 
     // 再退回想看：状态与在看日期变，已看日期留着（那是真看过的凭据，不是排序戳）
@@ -3639,7 +3639,7 @@ describe('已看日期（issue 536）', () => {
     clickEl(form.querySelector('[data-f-st="想看"]'));
     clickEl((root.querySelector('.cn-modal') as HTMLElement).querySelector('.j-save'));
     await vi.waitFor(() => expect(fmOf(vault, '瑞克和莫蒂')).toContain('状态: 想看'));
-    expect(fmOf(vault, '瑞克和莫蒂')).toMatch(/已看日期: "\d{4}-\d{2}-\d{2}"/);
+    expect(fmOf(vault, '瑞克和莫蒂')).toMatch(/已看日期: "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/);
     expect(M.items.find((i) => i.name === '瑞克和莫蒂')!.watchedDate).toBe(stamped);
   });
 
@@ -3675,9 +3675,9 @@ tags: [电影]
     await vi.waitFor(() => expect(vault.files.has('我的/影视/《手动已看片》.md')).toBe(true));
     const fm = fmOf(vault, '手动已看片');
     expect(fm).toContain('状态: 已看');
-    expect(fm).toMatch(/已看日期: "\d{4}-\d{2}-\d{2}"/);
+    expect(fm).toMatch(/已看日期: "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/);
     expect(fm).not.toContain('在看日期');
     rebuildItems(app);
-    expect(M.items.find((i) => i.name === '手动已看片')!.watchedDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(M.items.find((i) => i.name === '手动已看片')!.watchedDate).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/); // 到秒
   });
 });

@@ -38,7 +38,7 @@ describe('成就全量落盘', () => {
     expect(lines[0]).toContain('0.4');
     expect(lines[1]).toContain('初次挖掘');
     // 日期只钉格式不钉具体值：落盘走本地时区，同一时间戳在不同机器上可能差一天
-    expect(lines[1]).toMatch(/\| \d{4}-\d{2}-\d{2} \|/);
+    expect(lines[1]).toMatch(/\| \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \|/); // 第 4 段：日期 + 本地时刻
     expect(fm['成就已解']).toBe(1);
     expect(fm['成就总数']).toBe(2);
     expect(String(fm['稀有成就'])).toContain('初次挖掘');

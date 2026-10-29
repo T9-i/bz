@@ -84,7 +84,7 @@ describe('runSync 同步链路（issue 368）', () => {
     const fm = parseFm(vault, path);
     expect(fm["AppID"]).toBe(548430);
     expect(fm["游玩分钟"]).toBe(65214);
-    expect(fm["最后游玩"]).toBe("2026-02-24");
+    expect(fm["最后游玩"]).toMatch(/^2026-02-24 \d{2}:\d{2}:\d{2}$/); // 到秒（具体时刻随运行机时区）
     expect(fm["封面"]).toContain("steam/apps/548430/header.jpg");
     expect(fm["已下架"]).toBe(false);
     expect(fm.tags).toContain('游戏');

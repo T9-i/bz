@@ -14,7 +14,10 @@ export interface BelongingsItem {
   description: string;
   created_date: string;
   last_updated: string;
-  exit_date?: string | null;  // 出离日期（转卖/丢弃时写入 'YYYY-MM-DD'；陪伴天数封口锚点；回在用/闲置清空）
+  exit_date?: string | null;  // 出离时刻（转卖/丢弃时写入；陪伴天数封口锚点；回在用/闲置清空）。
+                                // 老记录是 'YYYY-MM-DD'，新记录带时分秒——解析一律走 parseLocalDay / parseWhen，别按定长切
+  status_at?: string | null;  // 进入当前状态的时刻（ISO）：首页时间线靠它把「挂成闲置 / 转卖」排进当天
+
   sold_price?: number | null; // 转卖售价（可选；统计回本 = Σ售价扣减日均成本）
 }
 

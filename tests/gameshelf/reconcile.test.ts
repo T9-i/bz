@@ -66,8 +66,8 @@ describe('文件名与 frontmatter 归一', () => {
     expect(notePathFor('我的/游戏', game, new Set(['我的/游戏/《POOLS》.md']))).toBe('我的/游戏/《POOLS》 42.md');
   });
 
-  it('lastPlayedStr：unix 秒→本地 YYYY-MM-DD；0/非法 → 空串', () => {
-    expect(lastPlayedStr(new Date(2026, 1, 24, 15, 0).getTime())).toBe('2026-02-24');
+  it('lastPlayedStr：unix 秒→本地「日期 时刻」；0/非法 → 空串', () => {
+    expect(lastPlayedStr(new Date(2026, 1, 24, 15, 0).getTime())).toBe('2026-02-24 15:00:00');
     expect(lastPlayedStr(0)).toBe('');
     expect(lastPlayedStr(NaN)).toBe('');
   });
@@ -83,7 +83,7 @@ describe('文件名与 frontmatter 归一', () => {
     expect(fm).toMatchObject({
       AppID: 548430,
       游玩分钟: 65214,
-      最后游玩: '2026-02-24',
+      最后游玩: '2026-02-24', // 这组 fixture 的时刻是 00:00:00，按「不编造时刻」留日期
       封面源: steamCoverUrl(548430),
       同步时间: '2026-09-17T00:00:00Z',
       已下架: false,
@@ -229,21 +229,23 @@ describe('成就属性行（2026-09-18 全量落盘）', () => {
   });
 
   it('序列化：6 段齐全，未解锁与未知全球率都写 `-`，全球率一位小数', () => {
-    expect(achRowText(row())).toBe('合格菜鸟 | 完成你的第一个战役任务。 | 1 | 2021-09-04 | 45.0 | APPROVED_GREENBEARD');
+    // 第 4 段：日期 + 本地时刻（具体几点取决于运行机时区，只锁形状）
+    expect(achRowText(row())).toMatch(/^合格菜鸟 \| 完成你的第一个战役任务。 \| 1 \| 2021-09-04 \d{2}:\d{2}:\d{2} \| 45\.0 \| APPROVED_GREENBEARD$/);
     expect(achRowText(row({ unlocked: false, unlockedAt: null, globalPercent: null, desc: '' })))
       .toBe('合格菜鸟 |  | 0 | - | - | APPROVED_GREENBEARD');
   });
 
   it('往返：序列化 → 反解字段一致，空描述不丢段', () => {
     const back = achRowFromText(achRowText(row()))!;
-    expect(back).toMatchObject({ name: '合格菜鸟', desc: '完成你的第一个战役任务。', unlocked: true, date: '2021-09-04', percent: 45, apiName: 'APPROVED_GREENBEARD' });
+    expect(back).toMatchObject({ name: '合格菜鸟', desc: '完成你的第一个战役任务。', unlocked: true, percent: 45, apiName: 'APPROVED_GREENBEARD' });
+    expect(back!.date).toMatch(/^2021-09-04 \d{2}:\d{2}:\d{2}$/);
     const empty = achRowFromText(achRowText(row({ desc: '', unlocked: false, unlockedAt: null, globalPercent: null })))!;
     expect(empty).toMatchObject({ desc: '', unlocked: false, date: '', percent: null, apiName: 'APPROVED_GREENBEARD' });
   });
 
   it('竖线净化：文案带 `|` 也不会切错段（格式契约不能靠「真实数据没出现」活着）', () => {
     const t = achRowText(row({ name: 'A|B', desc: '隔着 | 的说明' }));
-    expect(t).toBe('A¦B | 隔着 ¦ 的说明 | 1 | 2021-09-04 | 45.0 | APPROVED_GREENBEARD');
+    expect(t).toMatch(/^A¦B \| 隔着 ¦ 的说明 \| 1 \| 2021-09-04 \d{2}:\d{2}:\d{2} \| 45\.0 \| APPROVED_GREENBEARD$/);
     expect(achRowFromText(t)).toMatchObject({ name: 'A¦B', desc: '隔着 ¦ 的说明', apiName: 'APPROVED_GREENBEARD' });
   });
 
@@ -258,7 +260,7 @@ describe('成就属性行（2026-09-18 全量落盘）', () => {
 
   it('行恒 6 段（ADR-0176 收回 8 段格式）', () => {
     const t = achRowText(row());
-    expect(t).toBe('合格菜鸟 | 完成你的第一个战役任务。 | 1 | 2021-09-04 | 45.0 | APPROVED_GREENBEARD');
+    expect(t).toMatch(/^合格菜鸟 \| 完成你的第一个战役任务。 \| 1 \| 2021-09-04 \d{2}:\d{2}:\d{2} \| 45\.0 \| APPROVED_GREENBEARD$/);
     expect(t.split('|')).toHaveLength(6);
   });
 

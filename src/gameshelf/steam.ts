@@ -341,12 +341,15 @@ export function sanitizeSeg(v: unknown): string {
     .trim();
 }
 
-/** 解锁时间 ISO → YYYY-MM-DD（存日期不存时间戳：可读、短、和 `最后游玩` 同格式） */
+/** 解锁时间 ISO → YYYY-MM-DD HH:mm:ss（存到秒：首页时间线按分钟落位；老笔记第 4 段是纯日期，回解侧两种都认） */
 function dateOnly(iso: string | null): string {
   if (!iso) return '-';
   const d = new Date(iso);
   if (!Number.isFinite(d.getTime())) return '-';
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; // C2 余量：pad2 收编 core 单源（深审批A 登记）
+  const ymd = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const hms = `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  // 只有日期来源（老笔记 / 上游只给天）不编造 00:00:00，原样留日期；真有时刻才写到秒
+  return hms === '00:00:00' ? ymd : `${ymd} ${hms}`;
 }
 
 /**

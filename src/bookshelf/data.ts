@@ -106,6 +106,7 @@ export function parseBookFile(file: TFile, app: App, folderPath: string, bookTag
     bookReview,
     readingDate,
     completionDate,
+    // md 书的 frontmatter 只有日期，没有精确实刻；readingAt/completedAt 留空
     // 深审 func F5：上下界都钳——frontmatter 手滑负数会出「-5%」书脊/进度条
     progress: Math.max(0, Math.min(100, progress)),
     readingTimeFormat,
@@ -195,6 +196,14 @@ export function formatReadingTime(totalReadTimeMs: number | undefined): string |
   return `${minutes}分`;
 }
 
+function toDateTime(timestamp: number | undefined): string | null {
+  if (!Number.isFinite(timestamp) || !timestamp) return null;
+  const d = new Date(timestamp as number);
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  // 本地时刻，与 localNow() 同格式：首页时间线按分钟落位用（日期口径仍走 readingDate/completionDate）
+  return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`;
+}
+
 function toDateString(timestamp: number | undefined): string | null {
   if (!Number.isFinite(timestamp) || !timestamp) return null;
   // 本地时区 YYYY-MM-DD（原 UTC 切片会在时区边界偏移一天，audit H；core localDayKey 转发壳）
@@ -256,6 +265,8 @@ function buildEpubItem(app: App, aggregate: any): BookshelfItem | null {
     bookReview: null,
     readingDate,
     completionDate,
+    readingAt: progress > 0 ? toDateTime(lastReadTime) : null,
+    completedAt: toDateTime(completedTime),
     progress,
     readingTimeFormat: formatReadingTime(totalReadTimeMs),
     readingTimeMs: totalReadTimeMs,

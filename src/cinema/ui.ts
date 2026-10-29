@@ -97,9 +97,9 @@ async function markStatus(item: CinemaItem, target: '在看' | '已看', app: Ap
   const prev = { status: item.status, rating: item.rating, watchDate: item.watchDate, watchingDate: item.watchingDate, watchedDate: item.watchedDate };
   item.status = target === '已看' ? STATUS_WATCHED : STATUS_WATCHING;
   if (target === '在看') {
-    item.watchingDate = localNow().slice(0, 10); // 状态日期（在看日期记到达日）
+    item.watchingDate = localNow(); // 状态日期（到分钟；展示侧统一 slice(0,10) 取日期）
   } else if (!item.watchedDate) {
-    item.watchedDate = localNow().slice(0, 10); // 到已看才盖「已看日期」；只增不删
+    item.watchedDate = localNow(); // 到已看才盖「已看日期」；只增不删
   }
   // 评分不再参与状态编码（2026-09-30 拍板）：流转不动评分——已看没分就是没分，分值只由用户在表单给
   item.watchDate = localNow();
@@ -2242,7 +2242,7 @@ async function saveNew(p: FormPayload, app: App, form: FormHandle): Promise<void
   }
   const group = getGroupForTag(p.tag) ?? '其他';
   const st = statusNum(p.st);
-  const today = localNow().slice(0, 10);
+  const today = localNow(); // 完整时刻：状态日期要能按分钟进时间线
   const it: CinemaItem = { file: null, name: p.name, typeTag: p.tag, group, status: st, rating: p.rating, watchDate: p.date, wantDate: st === STATUS_WANT ? today : null, watchingDate: st === STATUS_WATCHING ? today : null, watchedDate: st === STATUS_WATCHED ? today : null, rewatches: [], lists: [], shelvedOnly: false, review: p.review, poster: null, genre: null, director: null, actors: null, region: null, year: null, releaseDate: null, doubanRating: null, doubanUrl: null, synopsis: null, duration: null, seasonText: null, hotComment: null, mergeInto: null };
   try {
     if (app.vault.getAbstractFileByPath(`${M.folderPath}/《${p.name}》.md`)) {
@@ -2296,9 +2296,9 @@ async function saveEdit(item: CinemaItem, p: FormPayload, app: App, form: FormHa
   // 状态日期（想看日期/在看日期/已看日期）：状态真变了才盖今天的章，原地编辑沿用原有
   //（观影日期判据同款口径）。已看日期只增不删：已看→在看→再切回已看，记的仍是第一次到已看那天
   if (st !== prev.status) {
-    if (st === STATUS_WANT) item.wantDate = localNow().slice(0, 10);
-    else if (st === STATUS_WATCHING) item.watchingDate = localNow().slice(0, 10);
-    else if (!item.watchedDate) item.watchedDate = localNow().slice(0, 10);
+    if (st === STATUS_WANT) item.wantDate = localNow();
+    else if (st === STATUS_WATCHING) item.watchingDate = localNow();
+    else if (!item.watchedDate) item.watchedDate = localNow();
   }
   try {
     await persistItem(item, app, { prevName: prev.name, prevTag: prev.typeTag });

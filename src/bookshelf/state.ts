@@ -18,6 +18,11 @@ export interface BookshelfItem {
   bookReview: string | null;
   readingDate: string | null;
   completionDate: string | null;
+  /** 起读 / 读完的精确时刻（'YYYY-MM-DD HH:mm:ss'，只有 EPUB 有；md 书只有日期）。
+   *  readingDate / completionDate 保持日期口径不动（排序、状态派生、阅读报告都按日），
+   *  精确值只给首页时间线按分钟落位。 */
+  readingAt?: string | null;
+  completedAt?: string | null;
   /** 阅读进度 0-100（已读恒 100） */
   progress: number;
   /** 阅读时长展示文本（frontmatter readingTimeFormat / EPUB 派生「N小时M分」） */

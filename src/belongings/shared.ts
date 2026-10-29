@@ -302,7 +302,7 @@ export function belDetailHtml(it: BelongingsItem, unit: MoneyUnit = 'cny'): stri
       <div class="bz-bel-dfield"><span>购买价</span><b>${money(Number(it.purchase_price) || 0, unit)}</b></div>
       <div class="bz-bel-dfield"><span>购买日期</span><b>${esc(String(it.purchase_date || '').slice(0, 10) || '—')} · ${daysUsed(it)} 天</b></div>
       <div class="bz-bel-dfield"><span>日均成本</span><b>${moneyWith(dailyCostOf(it).toFixed(2), unit)}${gone ? '（已封口）' : '/天 · 越用越便宜'}</b></div>
-      ${gone ? `<div class="bz-bel-dfield"><span>出离日期</span><b>${esc(it.exit_date || '—')}${it.current_status === '已转卖' && Number(it.sold_price) > 0 ? ' · 售出 ' + money(Number(it.sold_price), unit) : ''}</b></div>` : ''}
+      ${gone ? `<div class="bz-bel-dfield"><span>出离日期</span><b>${esc(String(it.exit_date || '').slice(0, 10) || '—')}${it.current_status === '已转卖' && Number(it.sold_price) > 0 ? ' · 售出 ' + money(Number(it.sold_price), unit) : ''}</b></div>` : ''}
       <div class="bz-bel-dfield"><span>录入 / 更新</span><b>${esc(String(it.created_date || '').slice(0, 10))} / ${esc(String(it.last_updated || '').slice(0, 10))}</b></div>
     </div>
     <div class="bz-bel-detail-acts" data-bd-acts></div>

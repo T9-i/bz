@@ -75,8 +75,15 @@ function rawStrList(v: unknown): string[] {
   return Array.isArray(v) ? v.map((x) => (typeof x === 'string' ? x.trim() : '')) : [];
 }
 
-/** YYYY-MM-DD → 本地正午 ISO（±12 小时内任何时区格式化回来都是同一天，避免跨时区掉一天） */
+/** 成就日期 → ISO。两种存量都认：老笔记第 4 段是 YYYY-MM-DD（按本地正午落，
+ *  ±12 小时内任何时区格式化回来都是同一天），新笔记是 YYYY-MM-DD HH:mm:ss
+ *  （按本地时刻落，首页时间线要按分钟排）。 */
 function dateToLocalNoonIso(date: string): string | null {
+  const full = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/.exec(date);
+  if (full) {
+    const d = new Date(Number(full[1]), Number(full[2]) - 1, Number(full[3]), Number(full[4]), Number(full[5]), Number(full[6] ?? 0));
+    return Number.isFinite(d.getTime()) ? d.toISOString() : null;
+  }
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
   if (!m) return null;
   const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12, 0, 0, 0);

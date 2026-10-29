@@ -281,8 +281,9 @@ async function collectBookshelf(ctx: Ctx): Promise<void> {
   for (const it of items as unknown as Array<Record<string, unknown>>) {
     const title = clip(str(it.title), 20);
     if (!title) continue;
-    const start = parseWhen(it.readingDate);
-    const done = parseWhen(it.completionDate);
+    // 优先用 EPUB 的精确时刻（readingAt / completedAt）；md 书只有日期，回落
+    const start = parseWhen(it.readingAt) ?? parseWhen(it.readingDate);
+    const done = parseWhen(it.completedAt) ?? parseWhen(it.completionDate);
     if (start !== null) push(ctx, { domain: 'bookshelf', ts: start, text: COPY.bookStart(title), kind: 'progress' });
     if (done !== null) {
       push(ctx, { domain: 'bookshelf', ts: done, text: COPY.bookDone(title, start !== null ? daysBetween(start, done) : null), kind: 'produce' });
