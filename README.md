@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/">
-    <img src="https://img.shields.io/badge/%E2%96%B6%20B%E7%AB%99-%E5%8A%9F%E8%83%BD%E9%A2%84%E8%A7%88%20%26%20%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B-fb7299?style=for-the-badge&logo=bilibili&logoColor=white" alt="功能预览 & 安装教程">
+    <img src="https://img.shields.io/badge/%E2%96%B6%20B%E7%AB%99-%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B-fb7299?style=for-the-badge&logo=bilibili&logoColor=white" alt="B站使用教程">
   </a>
 </p>
 
@@ -19,8 +19,8 @@
 </p>
 
 <p align="center">
-  插件是什么、怎么装，视频里都演示了 —— <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/"><b>▶ 点这里看视频</b></a><br>
-  <sub>详细使用教程制作中</sub>
+  从装上到用起来，视频里从头走了一遍 —— <a href="https://www.bilibili.com/video/BV1vNsZ6pE7i/"><b>▶ B站使用教程</b></a><br>
+  <sub>不想看视频的话，下面是界面截图和安装步骤</sub>
 </p>
 
 <p align="center">
@@ -131,8 +131,6 @@
 </table>
 
 ## 安装
-
-视频里用的是一键安装脚本，跟着操作即可。手动装也可以：
 
 1. 到 [Releases](https://github.com/yeshimei/bz/releases) 下载最新的 `bz-<版本>.zip`
 2. 解压到 `<你的 vault>/.obsidian/plugins/` 下，得到一个 `bz/` 文件夹
