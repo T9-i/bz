@@ -7,6 +7,12 @@
 - **数据全在你自己的笔记库里**，除你主动配置的 AI 服务外，什么都不上传
 - **老数据零迁移**，装上就能接着用
 
+## 安装
+
+从 [Releases](https://github.com/yeshimei/bz/releases) 下载最新的 `bz-<版本>.zip`，解压到 `<你的 vault>/.obsidian/plugins/` 下，得到一个 `bz/` 文件夹；重启 Obsidian，在 设置 → 第三方插件 中启用。升级时覆盖 `main.js`、`manifest.json`、`styles.css` 三个文件再重启。
+
+同页还有 `bz-offline-<版本>.zip`：插件里的皮肤、工具包、手册等资源默认从 GitHub / jsDelivr 下载，连不上时把这个包解压出的 `bz-offline/` 放到 **vault 根目录**（与 `.obsidian` 同级），插件会优先读本地磁盘，一个字节都不联网。详细步骤见对应 Release 的说明。
+
 ## 快速上手
 
 1. 在 设置 → 第三方插件 中启用「包仔」。
