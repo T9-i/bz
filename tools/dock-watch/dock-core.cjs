@@ -1463,7 +1463,7 @@ function removeToolAt(path, id, fs) {
 }
 
 // src/core/tool-hint.ts
-var TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+var TOOL_SETTINGS_HINT = "「设置 → 通用 → 外部工具」";
 function toolMissingHint(label = "外部工具") {
   return `未找到${label}：到${TOOL_SETTINGS_HINT}里下载它，下载完即可用`;
 }

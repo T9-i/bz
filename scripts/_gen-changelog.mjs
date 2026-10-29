@@ -230,7 +230,22 @@ keys.forEach((key, idx) => {
   releases.push({ version: `${major}.${minor}.${patch}`, date: key, current: false, ...items });
 });
 if (releases.length) releases[releases.length - 1].current = true;
-const current = releases.length ? releases[releases.length - 1].version : '1.0.0';
+
+/* 版本号显式覆盖（--version=1.34.0，2026-10-29 加）。
+ * 版本块按「部署日」切，而部署日来自「主构建部署产物」提交——那个标记一旦隔了十几天没打，
+ * 之后所有提交都会折进同一个块、算出同一个号。此时同一天要对外发一个新版本号，
+ * 只能显式指定：只改「当前版本」这一个字符串（版本块、manifest 回写、页面标签同取它），
+ * 不参与任何分块判定，历史块的编号与内容一个字节不动。 */
+const verArg = process.argv.find((a) => a.startsWith('--version='));
+if (verArg && !/^--version=\d+\.\d+\.\d+$/.test(verArg)) {
+  console.error('--version 要写成 --version=1.2.3');
+  process.exit(1);
+}
+let current = releases.length ? releases[releases.length - 1].version : '1.0.0';
+if (verArg) {
+  current = verArg.slice('--version='.length);
+  if (releases.length) releases[releases.length - 1].version = current;
+}
 
 /* ==================== manifest.json 版本回写 ==================== */
 
