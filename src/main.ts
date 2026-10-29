@@ -27,6 +27,7 @@ import { DOMAIN_ICONS } from './core/domain-icons';
 import { clearDomainEvents } from './core/domain-bus';
 import { attachObsidianAdapter, detachObsidianAdapter } from './core/obsidian-adapter';
 
+import { bootstrapStorageDir } from './core/storage';
 import BzSettings, { DEFAULT_SETTINGS, migrateMemoSettingKeys, migrateAutoLinkSettings, migrateRetiredAIKeys, migrateRetiredFavoritesSortKey, migrateLinkMinScoreScale, migrateRetiredSecondBrainKeys, migrateRetiredJevKeys, migrateAsrKeys, migrateExternalToolKeys } from './settings';
 
 // 备忘录（memo 域，ADR-0092 旧备忘录域退役后 memo.json 唯一属主，ADR-0117 正名：UI/交互/写盘/引用同步归本域；
@@ -349,6 +350,10 @@ export default class BzPlugin extends Plugin {
     resetAIProviderCache();
     // 通用设置访问器（各域经 getSettings 读取）
     setSettingsProvider(() => this.settings);
+    // 数据目录认领（2026-10-29：缺省从 vault 根的 CONFIG/STORAGE 搬到 <插件目录>/storage）：
+    // data.json 从没写过 storagePath、但盘上已有 CONFIG/STORAGE 的老库，在这里认领成显式值。
+    // 必须排在 initDock 之前 —— 登记表路径就是从数据目录推出来的。
+    const storageDirBootstrapped = await bootstrapStorageDir(this.app, this.settings);
     // 设置保存通道（域设置弹窗写回后持久化）
     setSettingsSaver(() => this.saveSettings());
     // 工具坞（契约 v2）：登记表住数据目录的 `dock.json`，一切都是现读，没有缓存要预热。
@@ -365,7 +370,8 @@ export default class BzPlugin extends Plugin {
       retiredSecondBrainKeysMigrated ||
       retiredJevKeysMigrated ||
       asrKeysMigrated ||
-      externalToolKeysMigrated
+      externalToolKeysMigrated ||
+      storageDirBootstrapped
     ) {
       void this.saveSettings().catch((e) => console.error('[bz] 设置键迁移落盘失败:', e));
     }
