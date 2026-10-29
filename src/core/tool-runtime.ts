@@ -38,9 +38,12 @@ export interface ToolEntry {
 }
 
 export const TOOL_ENTRIES: Record<ToolId, ToolEntry> = {
-  'bili-downloader': { script: 'cli.js', label: 'B站下载器' },
+  // 2026-10-29 用户拍板改名：行名是「给谁干活」而不是「工具本身叫啥」——
+  // bili-downloader 只服务知识盒的批量下载，叫「B站下载器」会让人以为它是个通用下载器；
+  // dock-watch 也不只是一段值守进程，它带着安装/卸载脚本，是个完整的工具坞配套包。
+  'bili-downloader': { script: 'cli.js', label: '知识盒工具包' },
   'obsidian-face': { script: 'bin/bz-face.js', label: '脸谱工具包' },
-  'dock-watch': { script: 'cli.js', label: '工具坞值守' },
+  'dock-watch': { script: 'cli.js', label: '工具坞工具包' },
 };
 
 /** 工具 id 的固定顺序（面板行序、诊断行序共用；不随清单来，网络不通时也照样列得出来） */

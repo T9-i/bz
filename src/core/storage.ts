@@ -34,13 +34,14 @@
 import { getApp } from './app';
 import { tryGetSettings } from './settings-provider';
 import { notify } from './notice';
-import { DEFAULT_STORAGE_DIR, normalizeStorageDir } from './storage-path';
+import { pluginRelDirOf } from './plugin-path';
+import { DEFAULT_STORAGE_DIR, initialStorageDir, normalizeStorageDir } from './storage-path';
 
 /**
- * 路径口径的实现在 `core/storage-path.ts`（零依赖，值守进程共用）—— 这里只做转发，
+ * 路径口径的实现在 core/storage-path.ts（零依赖，值守进程共用）—— 这里只做转发，
  * 免得全仓两处各写一遍「缺省是 CONFIG/STORAGE、误配成 .json 要剥尾段」。
  */
-export { DEFAULT_STORAGE_DIR, normalizeStorageDir };
+export { DEFAULT_STORAGE_DIR, initialStorageDir, normalizeStorageDir };
 
 /** 共享数据目录（settings.storagePath 经 normalizeStorageDir 归一，全域单一口径） */
 export function storageDir(): string {
@@ -48,11 +49,44 @@ export function storageDir(): string {
   return normalizeStorageDir(s && s.storagePath);
 }
 
+/**
+ * 数据目录初值（2026-10-29：新库落到 <插件目录>/storage，小写）。
+ *
+ * **只在没有值的时候写一次**，此后它就是普通设置项 —— 用户改过就听用户的。
+ * 三条判据：
+ *  1. data.json 里已有 storagePath → 什么都不做（那是用户的值）；
+ *  2. 盘上已有 <插件目录>/storage → 认它（清过一次 data.json 的库照旧接回原处）；
+ *  3. 盘上已有老的 CONFIG/STORAGE → 认老目录（升级上来的库，数据在那儿）；
+ *  4. 都没有 → 新库，写 <插件目录>/storage。
+ *
+ * 为什么不把「缺省」做成现算：归一函数要在没有 app 的地方被调用（值守进程、纯函数单测），
+ * 兜底必须是常量；而「数据住哪」这件事必须落成一个看得见、改得动、值守也读得到的值。
+ *
+ * @returns 是否写了新值（调用方据此调度落盘）
+ */
+export async function bootstrapStorageDir(app: any, settings: { storagePath?: string } | null | undefined): Promise<boolean> {
+  if (!settings) return false;
+  if (String(settings.storagePath || '').trim()) return false;
+  const exists = async (p: string): Promise<boolean> => {
+    try {
+      return !!(await app?.vault?.adapter?.exists?.(p));
+    } catch {
+      return false;
+    }
+  };
+  const target = initialStorageDir(pluginRelDirOf(app));
+  if (await exists(target)) settings.storagePath = target;
+  else if (await exists(DEFAULT_STORAGE_DIR)) settings.storagePath = DEFAULT_STORAGE_DIR;
+  else settings.storagePath = target;
+  return true;
+}
+
 /** 共享数据文件路径（base 可覆盖 storagePath——旧字段兜底域用 storagePath||xxxPath） */
 export function storageFile(name: string, base?: string): string {
   const dir = (base || storageDir()).trim().replace(/\/+$/, '');
   return `${dir}/${name}`;
 }
+
 
 /**
  * 加密密文根目录（保险库 encrypt 与密码本 password-vault 共用的同一个库）：

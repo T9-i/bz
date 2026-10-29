@@ -65,6 +65,7 @@ import { tryGetSettings, saveSettings, getSettings } from './settings-provider';
 import { fetchEmbeddingModels, fetchProviderModels, fetchRerankModels, hasRerankNamed, isQwen3Embedding8b, providerDescriptorOf } from './ai-models';
 import { openModelPicker } from './settings-model-picker';
 import { getApp } from './app';
+
 import type { NumberRow, RowAction, SettingsSchema, SettingsRow, SettingsRowContext } from './settings-schema';
 
 /** 存储路径改动防错提示（f1；正文不带 emoji，铁律 7）——文案逐字冻结，勿改 */
@@ -852,27 +853,13 @@ function externalToolGroupRows(): SettingsRow[] {
  *  通知行型全 select，键与行为零变化）。
  *  2026-10-24：「功能域」组置顶（ADR-0254）——域级开关住这里，眼下只有小橘一行，将来要关
  *  别的域就往这组加行；终序变 外观 → 功能域 → 通知 → 存储。
- *  2026-10-26：外部工具组不在这儿，已收进 AI 页（用户拍板：工具与模型同页配齐）。 */
+ *  2026-10-26：外部工具组不在这儿，已收进 AI 页（用户拍板：工具与模型同页配齐）。
+ *  2026-10-29：**「功能域」组撤下**（用户拍板）——小橘默认关闭（DEFAULT_SETTINGS.smartcatEnabled
+ *  改 false），这一组只剩它一行，摆一个「默认关掉的功能」的开关没有意义。键与整域总闸的
+ *  行为原样保留（ADR-0254 的语义不变），开回去走 data.json 的 `"smartcatEnabled": true`。 */
 export function generalSettingsSchema(): SettingsSchema {
   return {
     groups: [
-      {
-        icon: 'layout-grid',
-        name: '功能域',
-        rows: [
-          {
-            type: 'toggle',
-            // 键 smartcatEnabled 早已存在（l7A 的启动自动加载开关），ADR-0254 把它升格成整域总闸：
-            // 关 = 卸实例 + 撤命令 + 停记忆/行为流，不只是「启动时不自动挂」
-            name: '小橘陪伴猫',
-            desc: '关闭后桌面宠物与后台记忆一并停用',
-            help:
-              '关闭后小橘不再随 Obsidian 启动，命令面板里的小橘命令一并撤下，正在跑的猫当场收起，记忆流与行为流也停止写入。' +
-              '数据文件原样留在数据目录，重新打开这个开关就接回原处，不用重载插件。',
-            binding: { key: 'smartcatEnabled' },
-          },
-        ],
-      },
       // 外部工具组（Python / ffmpeg / ffprobe）2026-10-26 已收进 AI 页，见 aiSettingsSchema。
       {
         icon: 'bell',

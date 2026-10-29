@@ -6,7 +6,7 @@
  *
  * 每条结果带一个 `fix`：告诉界面「这一项缺了该拿什么补」——
  *   node   → 下便携 Node 运行时
- *   tools  → 下外部工具目录包（B站下载器 / 值守 / 脸谱外壳）
+ *   tools  → 下外部工具目录包（知识盒工具包 / 工具坞工具包 / 脸谱工具包）
  *   docs   → 下文档与大索引（手册/更新日志/分类表/RSS/豆瓣索引）
  *   ai     → 去设置里填密钥（不是下载）
  * 界面按 fix 决定按钮，不靠关键词猜。
@@ -22,6 +22,8 @@ import { tryGetSettings } from './settings-provider';
 import { pluginRelDirOf } from './plugin-path';
 import { isMobileEnv } from './mobile';
 import { probeNodeRuntime, runtimeDiagnostics, vaultBasePathOf } from './tool-runtime';
+import { getApp } from './app';
+import { DEFAULT_STORAGE_DIR, normalizeStorageDir } from './storage-path';
 
 /** 缺项的可补方式（见文件头） */
 export type EnvFix = 'node' | 'tools' | 'docs' | 'ai';
@@ -193,14 +195,14 @@ export async function probeWritableDir(app: unknown, relPath: string): Promise<b
   }
 }
 
-/** 读设置里的数据目录（不 import 域，只读 provider） */
+/** 读设置里的数据目录（不 import 域，只读 provider）。
+ *  2026-10-29 起新库的初值是 <插件目录>/storage，且启动时会写进 data.json，
+ *  所以这里读到的通常就是真落位；空值才回落到老缺省。 */
 async function storageDirOf(): Promise<string> {
   try {
-    const { tryGetSettings } = await import('./settings-provider');
-    const { normalizeStorageDir } = await import('./storage-path');
     return normalizeStorageDir(tryGetSettings()?.storagePath);
   } catch {
-    return 'CONFIG/STORAGE';
+    return DEFAULT_STORAGE_DIR;
   }
 }
 
@@ -323,7 +325,7 @@ export async function environmentCheck(app: unknown): Promise<EnvCheckRow[]> {
       key: 'Node 运行时',
       value:
         node.kind === 'none'
-          ? '未找到（B站下载器、值守、脸谱都靠它跑）'
+          ? '未找到（知识盒工具包、工具坞工具包、脸谱工具包都靠它跑）'
           : `${node.kind === 'bundled' ? '插件内' : '系统'}${node.version ? ` ${node.version}` : ''}`,
       ok: node.kind === 'none' ? false : true,
       fix: node.kind === 'none' ? 'node' : null,

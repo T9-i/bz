@@ -119,20 +119,35 @@ let checkFailed = false;
 /** 组内行按钮（button 行窄档；行对象可变——syncGroupRows 就地改写，下次重渲即新值） */
 type BtnRow = Extract<SettingsRow, { type: 'button' }>;
 
-/** 组行引用账（构建期建立；行对象是重渲真相源，已渲染 DOM 另走 patchRenderedGroup 补丁） */
+/** 组范围：外部工具（清单里 kind='bundle' 的三个目录包）/ 在线资源（文档、数据表、皮肤） */
+export type ResourceScope = 'tools' | 'resources';
+
+/**
+ * 一个组卡的引用账（构建期建立；行对象是重渲真相源，已渲染 DOM 另走 patchRenderedGroup 补丁）。
+ *
+ * 2026-10-29：两组各带一行「全部更新」——此前只有在线资源组有，工具组只能一行一行点。
+ * 组级动作按 `scope` 认行，不按 DOM 位置认：两组的行对象来自同一张 entries 表。
+ */
 interface GroupMeta {
+  /** 组名（与 schema 里的组名逐字一致；DOM 补丁按 data-sp-group 对位） */
+  name: string;
+  scope: ResourceScope;
   /** 与 group.rows 同引用（DOM 行序 = 此序，补丁按序对位） */
   rows: SettingsRow[];
-  /** 检查更新行（恒在 rows[0]，visibleWhen 门控显隐；desc/buttonText 随核对结果就地翻转） */
-  retryRow: BtnRow;
-  /** 全部更新行（恒在 rows[1]；无待办时禁用，无清单时呈「等待检查更新」） */
+  /** 组级「全部更新」行（恒在组首；无待办时禁用，无清单时呈「等待检查更新」） */
   allRow: BtnRow;
-  /** 资源行（id → 行对象；顺序 = 清单 rowOrder） */
-  entries: Array<{ id: string; row: BtnRow }>;
-  /** 检查更新行显隐真相（visibleWhen 与本模块 DOM 补丁同读此位） */
-  retryVisible: boolean;
 }
-let currentGroup: GroupMeta | null = null;
+
+/** 当前两个组卡的账（外部工具在前、在线资源在后；顺序 = 构造顺序） */
+let currentGroups: GroupMeta[] = [];
+/** 资源行账（id → 行对象；顺序 = 清单 rowOrder，两组共用一张表） */
+let currentEntries: Array<{ id: string; row: BtnRow }> = [];
+/** 检查更新行（只在线资源组有；visibleWhen 与本模块 DOM 补丁同读此位） */
+let retryRow: BtnRow | null = null;
+/** 检查更新行显隐真相（visibleWhen 与本模块 DOM 补丁同读此位） */
+let retryVisible = false;
+/** 当前清单里属于「外部工具」的 id 集合（组范围判据；清单拉不到时是本地兜底那三行） */
+let toolIds = new Set<string>();
 /** 单飞（single-flight）同步：并发请求合流——下载事件逐条扑面时不排队做 N 次全量重扫 */
 let syncRunning: Promise<void> | null = null;
 /** 合流窗内又来了请求（本轮跑完立刻补一轮：收尾态必须落在最后一次请求之后的磁盘事实上） */
@@ -145,7 +160,11 @@ const busyIds = new Set<string>();
 export function resetOnlineResourcesState(): void {
   lastCheckAt = 0;
   checkFailed = false;
-  currentGroup = null;
+  currentGroups = [];
+  currentEntries = [];
+  retryRow = null;
+  retryVisible = false;
+  toolIds = new Set();
   syncRunning = null;
   syncDirty = false;
   busyIds.clear();
@@ -303,11 +322,18 @@ function rowButton(st: RowState): { text: string; disabled: boolean } {
   return { text: '下载', disabled: true };
 }
 
-/** 待办统计：整行口径（皮肤行按「有缺或有更」算一行），供全部更新行取数 */
-function pendingOf(states: RowState[]): { pending: number; updatable: number } {
+/** 该行是否属于这个组（组范围判据单源：两组的「全部更新」都按它取行） */
+function inScope(id: string, scope: ResourceScope): boolean {
+  if (id === SKINS_ROW_ID) return scope === 'resources'; // 皮肤聚合行恒属在线资源
+  return scope === 'tools' ? toolIds.has(id) : !toolIds.has(id);
+}
+
+/** 待办统计：整行口径（皮肤行按「有缺或有更」算一行），供「全部更新」取数；按组范围过滤 */
+function pendingOf(states: RowState[], scope: ResourceScope): { pending: number; updatable: number } {
   let pending = 0;
   let updatable = 0;
   for (const st of states) {
+    if (!inScope(st.id, scope)) continue;
     if (st.skin) {
       if (st.skin.missing + st.skin.updated > 0) pending++;
       if (st.skin.updated > 0) updatable++;
@@ -324,93 +350,101 @@ function pendingOf(states: RowState[]): { pending: number; updatable: number } {
 /** 全部更新行的按钮态：字面**恒为动作词**（与行名同源，钮上不换成状态词——
  *  行名说动作、钮说状态，用户读到的就是「没有这个按钮」）。待办数只在有得做时缀上：
  *  无待办 → 全部更新（禁用；「没得做」由禁用态表达，就绪事实由各行自述）；有更新 → 全部更新 N；
- *  只有未下载 → 全部下载 N。无清单 → 等待检查更新（状态未知，不假装没得做）。 */
-function allButton(states: RowState[], hasManifest: boolean): { text: string; disabled: boolean } {
+ *  只有未下载 → 全部下载 N。无清单 → 等待检查更新（状态未知，不假装没得做）。
+ *  按组范围取数：外部工具那行只说三个目录包的事，不会把文档/皮肤的待办算进来。 */
+function allButton(states: RowState[], hasManifest: boolean, scope: ResourceScope): { text: string; disabled: boolean } {
   if (!hasManifest) return { text: '等待检查更新', disabled: true };
-  const { pending, updatable } = pendingOf(states);
+  const { pending, updatable } = pendingOf(states, scope);
   if (pending === 0) return { text: '全部更新', disabled: true };
   return { text: updatable > 0 ? `全部更新 ${pending}` : `全部下载 ${pending}`, disabled: false };
 }
 
+/** 组级动作行（两组各建一枚：行名相同、动手范围不同） */
+function makeAllRow(scope: ResourceScope, states: RowState[], hasManifest: boolean): BtnRow {
+  const ab = allButton(states, hasManifest, scope);
+  return {
+    type: 'button',
+    name: '全部更新',
+    desc: scope === 'tools' ? '一次处理三个工具包的未下载与更新' : '一次处理全部未下载与有更新的资源',
+    buttonText: ab.text,
+    disabled: ab.disabled,
+    onClick: (ctx) => void runAll(ctx, scope),
+  };
+}
+
 /**
- * 「在线资源」组（通用域 schema loader 尾部追加；ADR-0205 起为 async——本地状态现算后建声明行）。
- * 行序：检查更新（可视状态门控）→ 全部更新 → 资源行（清单 rowOrder）；全部 button 行。
- */
-/**
- * 两个组：**外部工具**（B站下载器 / 值守 / 脸谱，kind='bundle'）在**在线资源**（文档 / 皮肤）之上。
+ * 两个组：**外部工具**（知识盒 / 工具坞 / 脸谱三个目录包，kind='bundle'）在**在线资源**（文档 / 皮肤）之上。
  *
  * 为什么拆：这三个不是「文档类资源」，它们是**插件运行时真的要 spawn 的程序**——下载完还要
  * Node、值守还要注册自启。和更新日志/手册排在一个列表里，用户看不出这层区别（2026-10-28 用户拍板拆组）。
- * 两组的行共用同一个状态机与 meta（runAll / 检查更新 / 落盘事件同步都不分叉）。
+ *
+ * 两组的行共用同一个状态机、同一张资源行表、同一条落盘事件同步链；差别只有两点：
+ * 每组装哪些行（按清单条目 kind 分），以及各自那行「全部更新」的动手范围
+ * （2026-10-29 用户要求：工具组也补一行，此前只能一行一行点）。
+ * 「检查更新」只留在在线资源组：清单是全插件共用的一份，两组各摆一行是同一件事说两遍。
  */
 export async function onlineResourcesGroups(): Promise<[GroupDecl, GroupDecl]> {
   const { rows: states, manifest } = await computeRowStates(getApp());
   const hasManifest = !!manifest;
 
-  const meta: GroupMeta = {
-    rows: [],
-    retryRow: null as unknown as BtnRow,
-    allRow: null as unknown as BtnRow,
-    entries: [],
-    retryVisible: !hasManifest || checkFailed,
-  };
-  const retryRow: BtnRow = {
+  // 外部工具的 id 集合（组范围判据）：清单里 kind='bundle' 的条目；
+  // 清单没拉到时是本地兜底那三行——它们本来就属于工具组
+  toolIds = new Set((manifest?.docs ?? []).filter((d) => d.kind === 'bundle').map((d) => d.id));
+  if (!manifest) for (const t of LOCAL_TOOL_ROWS) toolIds.add(t.id);
+
+  retryVisible = !hasManifest || checkFailed;
+  const checkRow: BtnRow = {
     type: 'button',
     name: '检查更新',
     desc: checkFailed ? '检查更新失败，可能是网络不可用' : '尚未检查更新',
     buttonText: checkFailed ? '重试' : '检查更新',
-    visibleWhen: () => meta.retryVisible,
+    // 显隐真相挂在模块位上：visibleWhen 与 DOM 补丁同读一处，别各存一份
+    visibleWhen: () => retryVisible,
     onClick: (ctx) => void retryCheck(ctx),
   };
-  meta.retryRow = retryRow;
-  meta.rows.push(retryRow);
+  retryRow = checkRow;
 
-  const ab = allButton(states, hasManifest);
-  const allRow: BtnRow = {
-    type: 'button',
-    name: '全部更新',
-    desc: '一次处理全部未下载与有更新的资源',
-    buttonText: ab.text,
-    disabled: ab.disabled,
-    onClick: (ctx) => void runAll(ctx),
-  };
-  meta.allRow = allRow;
-  meta.rows.push(allRow);
+  const toolAllRow = makeAllRow('tools', states, hasManifest);
+  const resAllRow = makeAllRow('resources', states, hasManifest);
 
+  // 资源行（两组共用一张表；行对象按 id 建一次，组只是引用它）
+  currentEntries = [];
   for (const st of states) {
     const btn = rowButton(st);
-    const row: BtnRow = {
-      type: 'button',
-      name: st.name,
-      desc: rowDesc(st),
-      buttonText: btn.text,
-      disabled: btn.disabled,
-      onClick: (ctx) => void runAction(ctx, st.id),
-    };
-    meta.rows.push(row);
-    meta.entries.push({ id: st.id, row });
+    currentEntries.push({
+      id: st.id,
+      row: {
+        type: 'button',
+        name: st.name,
+        desc: rowDesc(st),
+        buttonText: btn.text,
+        disabled: btn.disabled,
+        onClick: (ctx) => void runAction(ctx, st.id),
+      },
+    });
   }
-  currentGroup = meta;
+
+  const rowOf = (id: string): BtnRow[] => currentEntries.filter((e) => e.id === id).map((e) => e.row);
+  const toolRows = [...toolIds].flatMap(rowOf);
+  const resRows = [checkRow, resAllRow, ...currentEntries.filter((e) => !toolIds.has(e.id)).map((e) => e.row)];
+
+  // 两组各只有自己的行：外部工具 = 自己的全部更新 + 三个目录包；
+  // 在线资源 = 检查更新 + 全部更新 + 文档/皮肤/数据表。
+  // （2026-10-28 用户要求：工具单独成组、排在在线资源之上。此前按「行名 ∈ bundle id 集合」
+  //  过滤——名字是给人看的、id 才是主键，永远匹配不上，于是外部工具组是空的、
+  //  三个工具全混进在线资源里。）
+  const toolsRows = [toolAllRow, ...toolRows];
+  const tools: GroupDecl = { name: '外部工具', icon: 'wrench', rows: toolsRows };
+  const resources: GroupDecl = { name: '在线资源', icon: 'cloud-download', rows: resRows };
+  currentGroups = [
+    { name: tools.name, scope: 'tools', rows: toolsRows, allRow: toolAllRow },
+    { name: resources.name, scope: 'resources', rows: resRows, allRow: resAllRow },
+  ];
   subscribeOnce();
 
   // 打开面板顺手核对一次（60s 节流；无论成败都记窗——失败也补丁呈现，不记窗补丁链会雪球式重核）
   if (Date.now() - lastCheckAt > CHECK_THROTTLE_MS) void checkInBackground();
 
-  // 按 kind 分成两组（行对象还是同一批引用：状态机不变，只是渲染在两处）。
-  // 认 id 不认行名：行名是给人看的（「B站下载器」），id 才是清单里的主键（tool-bili-downloader）。
-  const bundleIds = new Set((manifest?.docs ?? []).filter((d) => d.kind === 'bundle').map((d) => d.id));
-  // 清单没拉到时上面这一句是空集，三行本地兜底工具会混进「在线资源」——它们本来就属于工具组
-  if (!manifest) for (const t of LOCAL_TOOL_ROWS) bundleIds.add(t.id);
-  const toolRows = meta.entries.filter((e) => bundleIds.has(e.id)).map((e) => e.row);
-  const toolSet = new Set<SettingsRow>(toolRows);
-  const restRows = meta.rows.filter((r) => !toolSet.has(r));
-
-  // 两组各只有自己的行：外部工具 = 三个目录包，在线资源 = 操作行 + 文档/皮肤。
-  // （2026-10-28 用户要求：工具单独成组、排在在线资源之上。此前按「行名 ∈ bundle id 集合」
-  //  过滤——名字是「B站下载器」、id 是「tool-bili-downloader」，永远匹配不上，
-  //  于是外部工具组是空的、三个工具全混进在线资源里。）
-  const tools: GroupDecl = { name: '外部工具', icon: 'wrench', rows: toolRows };
-  const resources: GroupDecl = { name: '在线资源', icon: 'cloud-download', rows: restRows };
   return [tools, resources];
 }
 
@@ -453,13 +487,13 @@ async function checkInBackground(): Promise<void> {
 /** 检查更新行动作：转圈 → 核对 → 门控重求值（行按需消失/留下 + 组徽标重算） */
 async function retryCheck(ctx: SettingsRowContext): Promise<void> {
   const btn = ctx.rowEl.querySelector<HTMLButtonElement>('.bz-sp-btn') ?? undefined;
-  const retryRow = currentGroup?.retryRow;
+  const row = retryRow;
   setRowBtnState(btn, 'busy', '检查更新');
-  if (retryRow) retryRow.disabled = true; // schema 面同步置忙：动作中重开的钮也点不动（busy 类只是 DOM 瞬态）
+  if (row) row.disabled = true; // schema 面同步置忙：动作中重开的钮也点不动（busy 类只是 DOM 瞬态）
   await checkInBackground(); // 内部走 syncLogged：显隐/文案此刻已落定
   // 摘转圈 + 补一次补丁：上面那轮补丁把 busy 钮跳过了，摘后按刚落定的行态写回
-  if (retryRow) retryRow.disabled = undefined;
-  setRowBtnState(btn, 'idle', retryRow?.buttonText ?? '检查更新');
+  if (row) row.disabled = undefined;
+  setRowBtnState(btn, 'idle', row?.buttonText ?? '检查更新');
   patchRenderedGroup();
   ctx.refreshVisibility();
 }
@@ -467,7 +501,7 @@ async function retryCheck(ctx: SettingsRowContext): Promise<void> {
 /** 重算资源行状态（唯一刷新通道，单飞合流）：后台核对落地、下载动作完成、下载事件三处共用。
  *  合流窗内再来的请求只置脏不排队——本轮跑完补一轮，收尾态落在最后一次请求之后的磁盘事实上。 */
 async function syncGroupRows(): Promise<void> {
-  if (!currentGroup) return;
+  if (!currentGroups.length) return;
   if (syncRunning) {
     syncDirty = true;
     return syncRunning;
@@ -477,7 +511,7 @@ async function syncGroupRows(): Promise<void> {
       do {
         syncDirty = false;
         await syncOnce();
-      } while (syncDirty && currentGroup);
+      } while (syncDirty && currentGroups.length);
     } finally {
       syncRunning = null;
     }
@@ -485,29 +519,34 @@ async function syncGroupRows(): Promise<void> {
   return syncRunning;
 }
 
-/** 单轮：读磁盘事实 → 就地改写行对象（下次重渲即新值）+ 已渲染组卡 DOM 补丁（打开中即所见即所得） */
+/** 单轮：读磁盘事实 → 就地改写行对象（下次重渲即新值）+ 已渲染组卡 DOM 补丁（打开中即所见即所得）。
+ *  两组共用一次读盘：行对象是同一批引用，组只是把它们分开摆。 */
 async function syncOnce(): Promise<void> {
-  const meta = currentGroup;
-  if (!meta) return;
+  const meta = currentGroups;
+  if (!meta.length) return;
   const { rows: states, manifest } = await computeRowStates(getApp());
-  if (currentGroup !== meta) return; // 等待期间面板重开换了组（行对象已换代）→ 本轮结果作废
+  if (currentGroups !== meta) return; // 等待期间面板重开换了组（行对象已换代）→ 本轮结果作废
 
   const hasManifest = !!manifest;
-  meta.retryVisible = !hasManifest || checkFailed;
-  meta.retryRow.desc = checkFailed ? '检查更新失败，可能是网络不可用' : '尚未检查更新';
-  meta.retryRow.buttonText = checkFailed ? '重试' : '检查更新';
+  retryVisible = !hasManifest || checkFailed;
+  if (retryRow) {
+    retryRow.desc = checkFailed ? '检查更新失败，可能是网络不可用' : '尚未检查更新';
+    retryRow.buttonText = checkFailed ? '重试' : '检查更新';
+  }
 
   // 行集合变了（远端清单增删了条目、或 rowOrder 改了）= DOM 行数与行对象不再对位，硬补必然错位：
   // 本轮直接不补，等面板重开按新清单重建整组。低频事件，不值得为它加一条重渲通道。
-  if (states.length !== meta.entries.length || states.some((st, i) => st.id !== meta.entries[i].id)) return;
+  if (states.length !== currentEntries.length || states.some((st, i) => st.id !== currentEntries[i].id)) return;
 
-  if (!busyIds.has(ALL_BUSY_ID)) {
-    const ab = allButton(states, hasManifest);
-    meta.allRow.buttonText = ab.text;
-    meta.allRow.disabled = ab.disabled;
+  // 两组各自的「全部更新」按各自范围取数：工具行的待办不会算进在线资源那枚钮（反之亦然）
+  for (const g of meta) {
+    if (busyIds.has(allBusyId(g.scope))) continue;
+    const ab = allButton(states, hasManifest, g.scope);
+    g.allRow.buttonText = ab.text;
+    g.allRow.disabled = ab.disabled;
   }
 
-  for (const { id, row } of meta.entries) {
+  for (const { id, row } of currentEntries) {
     if (busyIds.has(id)) continue; // 动作中：行态留给动作收尾那一轮写（此时写会把置忙抹掉）
     const st = states.find((s) => s.id === id);
     if (!st) continue;
@@ -520,38 +559,39 @@ async function syncOnce(): Promise<void> {
   patchRenderedGroup();
 }
 
-/** 已渲染组卡的 DOM 补丁（行序 = meta.rows 序，检查更新行恒在首位）。
+/** 已渲染组卡的 DOM 补丁（行序 = 各组的 rows 序，操作行恒在组首）。
  *  检查更新行显隐在此直接落地：后台核对落地路径没有 ctx.refreshVisibility 可借；
- *  visibleWhen 已覆盖渲染/refresh 两条通用路径，这里同读 meta.retryVisible 不冲突。 */
+ *  visibleWhen 已覆盖渲染/refresh 两条通用路径，这里同读 retryVisible 不冲突。 */
 function patchRenderedGroup(): void {
-  const meta = currentGroup;
-  if (!meta) return;
-  document.querySelectorAll<HTMLElement>('[data-sp-group="在线资源"]').forEach((card) => {
-    const domRows = card.querySelectorAll<HTMLElement>('.bz-sp-group-body > .bz-sp-set-row');
-    meta.rows.forEach((row, i) => {
-      const el = domRows[i];
-      if (!el) return;
-      const btnRow = row as BtnRow;
-      // 搜索过滤亲手藏的行不碰 display（归 applyHitFilter 所有）
-      if (row === meta.retryRow && el.dataset.spHitHidden !== '1') el.style.display = meta.retryVisible ? '' : 'none';
-      const desc = el.querySelector<HTMLElement>('.bz-sp-set-desc');
-      if (desc) {
-        const text = btnRow.desc ?? '';
-        // 文案没变不写：写 textContent 会把搜索高亮的 <mark> 包裹拍平
-        if (desc.textContent !== text) {
-          desc.textContent = text;
-          // 高亮快照同源更新，否则下次敲键 markHitText 会按旧文还原（本次更新被吞）
-          if (desc.dataset.spOrig !== undefined) desc.dataset.spOrig = text;
+  if (!currentGroups.length) return;
+  for (const g of currentGroups) {
+    document.querySelectorAll<HTMLElement>(`[data-sp-group="${g.name}"]`).forEach((card) => {
+      const domRows = card.querySelectorAll<HTMLElement>('.bz-sp-group-body > .bz-sp-set-row');
+      g.rows.forEach((row, i) => {
+        const el = domRows[i];
+        if (!el) return;
+        const btnRow = row as BtnRow;
+        // 搜索过滤亲手藏的行不碰 display（归 applyHitFilter 所有）
+        if (retryRow && row === retryRow && el.dataset.spHitHidden !== '1') el.style.display = retryVisible ? '' : 'none';
+        const desc = el.querySelector<HTMLElement>('.bz-sp-set-desc');
+        if (desc) {
+          const text = btnRow.desc ?? '';
+          // 文案没变不写：写 textContent 会把搜索高亮的 <mark> 包裹拍平
+          if (desc.textContent !== text) {
+            desc.textContent = text;
+            // 高亮快照同源更新，否则下次敲键 markHitText 会按旧文还原（本次更新被吞）
+            if (desc.dataset.spOrig !== undefined) desc.dataset.spOrig = text;
+          }
         }
-      }
-      const btn = el.querySelector<HTMLButtonElement>('.bz-sp-btn');
-      // 动作中的钮（busy 转圈）不接手：批量下载逐条事件扑面时别把转圈拍回 idle（成重复点击面）
-      if (btn && !btn.classList.contains('bz-rowbtn--busy')) {
-        setRowBtnState(btn, 'idle', btnRow.buttonText); // 清 busy/ok/fail 残留 + 恢复文案
-        btn.disabled = btnRow.disabled === true;
-      }
+        const btn = el.querySelector<HTMLButtonElement>('.bz-sp-btn');
+        // 动作中的钮（busy 转圈）不接手：批量下载逐条事件扑面时别把转圈拍回 idle（成重复点击面）
+        if (btn && !btn.classList.contains('bz-rowbtn--busy')) {
+          setRowBtnState(btn, 'idle', btnRow.buttonText); // 清 busy/ok/fail 残留 + 恢复文案
+          btn.disabled = btnRow.disabled === true;
+        }
+      });
     });
-  });
+  }
 }
 
 /** 单条资源的下载（皮肤聚合行走批量入口）；失败抛错，由调用方决定通知口径 */
@@ -576,6 +616,11 @@ async function downloadOne(app: unknown, manifest: DownloadManifest, id: string)
   await ensureAssetWithHash(app, entry.file, entry.sha256, entry.name);
 }
 
+/** 组级动作的忙位（两组各一枚：同时点两组的「全部更新」互不阻塞，自己重入仍被拦） */
+function allBusyId(scope: ResourceScope): string {
+  return `${ALL_BUSY_ID}:${scope}`;
+}
+
 /** 单行动作：置忙 → 下载 → 收尾按磁盘事实落定 */
 async function runAction(ctx: SettingsRowContext, id: string): Promise<void> {
   // 拦重入要在首个 await 之前：读缓存清单是个让位点（慢盘），让位点上再来的第二击
@@ -583,7 +628,7 @@ async function runAction(ctx: SettingsRowContext, id: string): Promise<void> {
   if (busyIds.has(id)) return;
   busyIds.add(id);
   const btn = ctx.rowEl.querySelector<HTMLButtonElement>('.bz-sp-btn') ?? undefined;
-  const row = currentGroup?.entries.find((e) => e.id === id)?.row;
+  const row = currentEntries.find((e) => e.id === id)?.row;
   setRowBtnState(btn, 'busy', btn?.textContent ?? '下载');
   if (row) row.disabled = true; // schema 面同步置忙：动作中重开的钮也点不动（busy 类只是 DOM 瞬态）
   try {
@@ -602,14 +647,18 @@ async function runAction(ctx: SettingsRowContext, id: string): Promise<void> {
 }
 
 /**
- * 全部更新（组级动作）：按行序逐条跑未就绪行，每条落盘后同步一次——逐条可见进展，
+ * 全部更新（组级动作）：按行序逐条跑**本组**未就绪行，每条落盘后同步一次——逐条可见进展，
  * 而不是憋到最后一起翻。失败行聚合计数，收尾一条 error 通知；单行动作正在跑的行跳过不抢。
+ *
+ * 范围由 `scope` 定（2026-10-29：外部工具组也有这一行）：组内的行才动手，
+ * 另一组按自己的进度照常跑——两枚钮各管各的，不互相等也不重复下。
  */
-async function runAll(ctx: SettingsRowContext): Promise<void> {
-  if (busyIds.has(ALL_BUSY_ID)) return; // 拦重入同单行：置忙提到首个 await 之前
-  busyIds.add(ALL_BUSY_ID);
+async function runAll(ctx: SettingsRowContext, scope: ResourceScope): Promise<void> {
+  const busy = allBusyId(scope);
+  if (busyIds.has(busy)) return; // 拦重入同单行：置忙提到首个 await 之前
+  busyIds.add(busy);
   const btn = ctx.rowEl.querySelector<HTMLButtonElement>('.bz-sp-btn') ?? undefined;
-  const allRow = currentGroup?.allRow;
+  const allRow = currentGroups.find((g) => g.scope === scope)?.allRow;
   setRowBtnState(btn, 'busy', btn?.textContent ?? '全部更新');
   if (allRow) allRow.disabled = true;
 
@@ -621,11 +670,12 @@ async function runAll(ctx: SettingsRowContext): Promise<void> {
     if (manifest) {
       const { rows: states } = await computeRowStates(app);
       for (const st of states) {
+        if (!inScope(st.id, scope)) continue; // 另一组的行不归这枚钮管
         if (busyIds.has(st.id)) continue; // 单行动作正在跑 → 跳过，不抢
         const isPending = st.skin ? st.skin.missing + st.skin.updated > 0 : st.doc === 'missing' || st.doc === 'updated';
         if (!isPending) continue;
         busyIds.add(st.id);
-        const row = currentGroup?.entries.find((e) => e.id === st.id)?.row;
+        const row = currentEntries.find((e) => e.id === st.id)?.row;
         if (row) row.disabled = true; // 逐行置忙：跑到的行在 schema 面也点不动
         try {
           await downloadOne(app, manifest, st.id);
@@ -642,7 +692,7 @@ async function runAll(ctx: SettingsRowContext): Promise<void> {
     notice(e instanceof Error ? e.message : String(e), 'error');
   }
 
-  busyIds.delete(ALL_BUSY_ID);
+  busyIds.delete(busy);
   await syncLogged();
   if (failed > 0) notice(`${failed} 项下载失败，可稍后重试`, 'error');
   // 摘转圈：补丁刻意绕过 busy 钮（见 patchRenderedGroup），不摘会一直转

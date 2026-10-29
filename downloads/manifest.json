@@ -38,7 +38,7 @@
     },
     {
       "id": "tool-bili-downloader",
-      "name": "B站下载器",
+      "name": "知识盒工具包",
       "file": "tools/bili-downloader.tar.gz",
       "kind": "bundle",
       "sha256": "08d70b582475875d59dc8d96516af3f59a35b0340b645276c4ad13c8f3dcd0c4",
@@ -46,7 +46,7 @@
     },
     {
       "id": "tool-dock-watch",
-      "name": "工具坞值守",
+      "name": "工具坞工具包",
       "file": "tools/dock-watch.tar.gz",
       "kind": "bundle",
       "sha256": "8735571cf637369004d88ee259756be730ebea66aae7014a5dd14f03038ba567",

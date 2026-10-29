@@ -277,6 +277,9 @@ interface ButtonRow extends RowBase {
 export interface InfoRow extends RowBase {
   type: 'info';
   name: string;
+  /** 隐藏右列的名称徽标（2026-10-29：版本行——左列已写「版本」、右列再挂一枚小字是重复）。
+   *  name 仍保留：行搜索、data-key 与原生设置页的标题都还靠它。 */
+  hideBadge?: boolean;
   actions?: RowAction[];
 }
 

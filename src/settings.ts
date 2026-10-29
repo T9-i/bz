@@ -952,8 +952,9 @@ export const DEFAULT_SETTINGS: BzSettings = {
   jevApiKeys: {},
   jevModels: {},
 
-  // 共享数据路径（ADR-0009）
-  storagePath: 'CONFIG/STORAGE',
+  // 共享数据路径（ADR-0009）：空 = 还没定过，首次启动时由 core/storage.bootstrapStorageDir 写成
+  // `<插件目录>/storage`（2026-10-29，小写；老库则认领原 CONFIG/STORAGE）。
+  storagePath: '',
 
   // 自动更新：缺省关（2026-10-28 对外分发拍板）——见 interface 里的说明
   autoUpdate: false,
@@ -1241,7 +1242,9 @@ export const DEFAULT_SETTINGS: BzSettings = {
   settingsPanelWidth: 0,
   settingsPanelHeight: 0,
   // 小橘陪伴猫（smartcat 域；移动端默认全屏键聊天/设置/数据面板共用，2026-08-23 合并一套）
-  smartcatEnabled: true,
+  // 2026-10-29 用户拍板：小橘默认关闭（通用页的「功能域」组已撤下）。
+  // 想要的人改 data.json 的这一个键即可，其余整域总闸行为（ADR-0254）一点没变。
+  smartcatEnabled: false,
   smartcatEmbeddingModel: '',
   smartcatChunkLimitChars: 800,
   // 小橘对我的称呼（ticket 163）：默认包仔——把记忆流/行为流喂给 AI 时「你/用户」替换为此称呼

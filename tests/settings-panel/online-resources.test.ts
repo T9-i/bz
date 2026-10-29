@@ -537,11 +537,13 @@ describe('无清单时外部工具不消失（2026-10-28 断网报障）', () =>
     routeFetch({ [REMOTE_MANIFEST]: new Error('ENOTFOUND'), [BACKUP_MANIFEST]: new Error('ETIMEDOUT') });
 
     const el = await toolGroup();
-    // 三行都在（顺序与 core/tool-runtime 的 TOOL_IDS 一致）
-    expect([rowName(el, 0), rowName(el, 1), rowName(el, 2)]).toEqual(['B站下载器', '工具坞值守', '脸谱工具包']);
-    expect(rowDesc(el, 0)).toContain('联网后可下载');
-    expect(rowBtn(el, 0).textContent).toBe('下载');
-    expect(rowBtn(el, 0).disabled).toBe(true); // 没清单就没有下载地址，不给假可点
+    // 组首是这一组自己的「全部更新」（2026-10-29 补），其后三行工具（顺序与 core/tool-runtime 的 TOOL_IDS 一致）
+    expect(rowName(el, 0)).toBe('全部更新');
+    expect(rowBtn(el, 0).textContent).toBe('等待检查更新');
+    expect([rowName(el, 1), rowName(el, 2), rowName(el, 3)]).toEqual(['知识盒工具包', '工具坞工具包', '脸谱工具包']);
+    expect(rowDesc(el, 1)).toContain('联网后可下载');
+    expect(rowBtn(el, 1).textContent).toBe('下载');
+    expect(rowBtn(el, 1).disabled).toBe(true); // 没清单就没有下载地址，不给假可点
   });
 
   it('工具已在磁盘上 → 说「已下载」，仍禁用（没清单就没法检查更新）', async () => {
@@ -554,11 +556,12 @@ describe('无清单时外部工具不消失（2026-10-28 断网报障）', () =>
     routeFetch({ [REMOTE_MANIFEST]: new Error('ENOTFOUND'), [BACKUP_MANIFEST]: new Error('ETIMEDOUT') });
     try {
       const el = await toolGroup();
-      expect(rowDesc(el, 0)).toContain('已下载');
-      expect(rowBtn(el, 0).textContent).toBe('已下载');
-      expect(rowBtn(el, 0).disabled).toBe(true);
+      // 第 0 行是「全部更新」（无清单 → 等待检查更新，禁用），工具行自第 1 行起
+      expect(rowBtn(el, 1).textContent).toBe('已下载');
+      expect(rowBtn(el, 1).disabled).toBe(true);
+      expect(rowDesc(el, 1)).toContain('已下载');
       // 另外两个没下载 → 仍是「下载」禁用
-      expect(rowBtn(el, 1).textContent).toBe('下载');
+      expect(rowBtn(el, 2).textContent).toBe('下载');
     } finally {
       setFsProbe(null);
       resetNodeRuntimeCache();
@@ -859,6 +862,7 @@ describe('两组分家：外部工具在前，在线资源在后', () => {
     // 2026-10-28 报障的根因：过滤用行名（「B站下载器」）去比 id 集合（tool-bili-downloader），
     // 永远匹配不上 → 外部工具组是空的，三个工具全挤在在线资源里（用户截图实证）。
     expect(tools.rows.map((r) => (r as { name: string }).name)).toEqual([
+      '全部更新', // 2026-10-29：工具组也有自己的组级动作行
       'B站下载器',
       '工具坞值守',
       '脸谱工具包',

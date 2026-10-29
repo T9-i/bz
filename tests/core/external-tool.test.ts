@@ -342,7 +342,7 @@ describe('调用壳 runExternalTool', () => {
     expect(out.error!.message).toContain('仅桌面端可用');
   });
 
-  it('空命令（工具没下载）→ 立刻失败并指向在线资源，绝不起空进程', async () => {
+  it('空命令（工具没下载）→ 立刻失败并指向外部工具组，绝不起空进程', async () => {
     // core/tool-runtime 没有 PATH 回落，未就绪时给的就是空串。这条必须在 spawn 之前拦住：
     // Windows 下 shell:true 配空命令会起一个空 cmd、退出码 0 —— 看起来「跑完了」。
     const spawn = vi.fn();
@@ -351,7 +351,7 @@ describe('调用壳 runExternalTool', () => {
     expect(spawn).not.toHaveBeenCalled();
     expect(out.ok).toBe(false);
     expect(out.code).toBeNull();
-    expect(out.error!.message).toContain('在线资源');
+    expect(out.error!.message).toContain('外部工具');
   });
 
   it('stdout 跨 chunk 半行 + 结束无尾换行 → 残留行在 close 时冲刷分发', async () => {
