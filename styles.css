@@ -4910,7 +4910,14 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   width: 520px;
   height: min(720px, calc(100vh - 48px));
   max-height: calc(100vh - 48px);
-  position: relative;
+  /* 自己钉住居中：core/styles.css 与 ui/components.css 各有一版 .bz-overlay-popup
+   * （一版 fixed+translate、一版 flex item 无 position），谁后置生效随聚合顺序变。
+   * 这里用最高特异性写死，弹窗位置不跟着别人的顺序漂（2026-10-30 实测偏到右下）。 */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
   padding: 0;
   overflow: hidden;
   background: var(--rw-paper);
@@ -5245,9 +5252,54 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   color: rgba(156, 122, 48, .5);
 }
 
-/* ---------- 窄屏 ---------- */
+/* ---------- 关闭钮（桌面右上角；移动端见窄屏段，距顶 44px） ---------- */
+.bz-rw-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #c0b5a0;
+  cursor: pointer;
+  z-index: 4;
+  transition: background .15s, color .15s;
+}
+
+/* 触屏无 hover，悬停反馈只给鼠标（bd-paradigm-hover-isolation 守卫要求） */
+@media (hover: hover) {
+  .bz-rw-close:hover {
+    background: rgba(38, 34, 29, .05);
+    color: var(--rw-ink);
+  }
+}
+
+/* ---------- 设置行图标（设置「关于」组的赞赏行，data-key = 行名） ---------- */
+.bz-sp-set-row[data-key="赞赏"] .bz-sp-set-name::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 9px;
+  vertical-align: -5px;
+  border-radius: 6px;
+  border: 1px solid #f0e0bc;
+  background: #fdf3dd url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239c7a30' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 000-7.8z'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+}
+
+/* ---------- 窄屏（全屏 + 右上角关闭钮，距顶 44px 对齐日记本口径） ---------- */
 @media (max-width: 560px) {
   .bz-overlay-popup.bz-rw-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: none;
     width: 100%;
     height: 100vh;
     max-height: 100vh;
@@ -5259,6 +5311,13 @@ a.bz-crumb:hover, button.bz-crumb:hover { color: var(--bz-text-1); }
   .bz-rw-code-box { width: 134px; height: 134px; }
   .bz-rw-list { margin: 0 24px; }
   .bz-rw-lead { font-size: 13.5px; }
+
+  .bz-rw-close {
+    top: max(44px, env(safe-area-inset-top));
+    right: 18px;
+    width: 34px;
+    height: 34px;
+  }
 }
 .stf__parent {
   position: relative;
