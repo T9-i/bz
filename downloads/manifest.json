@@ -5,8 +5,8 @@
       "id": "changelog",
       "name": "更新日志",
       "file": "bz-changelog.html",
-      "sha256": "827fa6d89e8a7a85eaeec7cf667a4a6e4ca0b0830b4b8e12dafa2d5e03c6e158",
-      "size": 92551
+      "sha256": "cc878a56c4ee8f17cd26e86b150ea45b43e14e2b66302dfa091915cad1e476b0",
+      "size": 91829
     },
     {
       "id": "manual",
@@ -49,8 +49,8 @@
       "name": "工具坞工具包",
       "file": "tools/dock-watch.tar.gz",
       "kind": "bundle",
-      "sha256": "2025be1f8e9353be6deadddfcfcf2988ff4a237b522cf4a36f6e69d3212ca583",
-      "size": 49657
+      "sha256": "a8b432c3d903a3dc7359fd28a74c48f2ebacf853298cb8ace9f37b1073f3d1bc",
+      "size": 49646
     },
     {
       "id": "tool-obsidian-face",

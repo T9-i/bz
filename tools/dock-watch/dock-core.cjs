@@ -2182,9 +2182,9 @@ async function executeOne(view, rule, runId, opts, fs) {
 }
 
 // src/core/storage-path.ts
-var DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+var DEFAULT_STORAGE_DIR = ".obsidian/plugins/bz/storage";
 function normalizeStorageDir(value) {
-  let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
+  let dir = (value || "").trim().replace(/\\/g, "/").replace(/\/+$/, "");
   if (/\.json$/i.test(dir)) {
     const idx = dir.lastIndexOf("/");
     dir = idx >= 0 ? dir.slice(0, idx) : "";
