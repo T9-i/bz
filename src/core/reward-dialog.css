@@ -392,19 +392,6 @@
   }
 }
 
-/* ---------- 设置行图标（设置「关于」组的赞赏行，data-key = 行名） ---------- */
-.bz-sp-set-row[data-key="赞赏"] .bz-sp-set-name::before {
-  content: "";
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  margin-right: 9px;
-  vertical-align: -5px;
-  border-radius: 6px;
-  border: 1px solid #f0e0bc;
-  background: #fdf3dd url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239c7a30' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 000-7.8z'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
-}
-
 /* ---------- 窄屏（全屏 + 右上角关闭钮，距顶 44px 对齐日记本口径） ---------- */
 @media (max-width: 560px) {
   .bz-overlay-popup.bz-rw-modal {
