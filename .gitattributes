@@ -1,3 +1,9 @@
+# 样式文件统一 LF：CI 跑在 Windows runner 上，git 的 autocrlf 默认会把检出转成 CRLF，
+# 而一批守卫是**逐字节**比对产物与源（skin-pack-catalog「出版产物与源逐字相同」、
+# split-domain-skins --check、build-skin-pack --check）——换行一变就整片报红，
+# 本地（autocrlf=false）永远复现不了。2026-10-29 CI 首跑实测：不写这条，主干永远红。
+*.css text eol=lf
+
 # 发布版 main.js 由构建生成（esbuild 输出 LF）：固定 LF 避免 autocrlf 检出成 CRLF，
 # 否则每次 pnpm run build 同步后 git status 都会出现行尾假差异
 main.js text eol=lf
