@@ -75,6 +75,25 @@ export function normalizeEndings(buf) {
  *     否则在 worktree 构建会产出 `../../bz/node_modules/...` 的假差异；
  *  3. 产物头部两行注释：`源指纹 <hash>` + `#preview-inputs=[...]`，供新鲜度守卫比对。
  */
+/**
+ * 预览包里的 png 一律换成 1×1 占位。
+ *
+ * 起因（2026-10-30）：设置「关于」组的赞赏弹窗内置了微信赞赏码（core/assets/reward-code.png，
+ * 68KB，主构建走 dataurl 内联）。about-group 被各域行为包共用，静态 import 链一带，
+ * 5 个 prototype-behavior.js 会各自背一份 90KB base64 —— 评审工件不该为一张码胖 450KB。
+ * 这里拦在 loader 层换占位：包体积回到原来的量级，评审壳里那格显示空图，不影响看版式。
+ * 主构建（esbuild.config.mjs）不受影响，插件里是真图。
+ */
+const pngStub = {
+  name: "png-stub",
+  setup(build) {
+    build.onLoad({ filter: /\.png$/ }, () => ({
+      contents: "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+      loader: "text",
+    }));
+  },
+};
+
 async function buildOne({ entry, outfile, globalName, banner, alias }) {
   const result = await esbuild.build({
     entryPoints: [entry],
@@ -83,6 +102,7 @@ async function buildOne({ entry, outfile, globalName, banner, alias }) {
     globalName,
     target: "es2018",
     charset: "utf8",
+    plugins: [pngStub],
     logLevel: "warning",
     write: false,
     metafile: true,

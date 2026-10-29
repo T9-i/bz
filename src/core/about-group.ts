@@ -22,6 +22,7 @@ import { notify } from './notice';
 import { openExternalUrl } from './utils';
 import { REPO_SLUG } from './remote-base';
 import { checkSelfUpdate, selfUpdateState, type SelfUpdateState } from './self-update';
+import { openRewardDialog } from './reward-dialog';
 import type { GroupDecl, SettingsRow, SettingsRowContext } from './settings-schema';
 
 /** 反馈渠道（GitHub issues；仓库 slug 与下载通道同一事实源） */
@@ -125,16 +126,15 @@ export async function aboutGroup(): Promise<GroupDecl> {
     onClick: () => void import('./setup-wizard').then((m) => m.openEnvironmentCheck(getApp())),
   };
 
-  // 赞赏（2026-10-29 用户改口径）：**暂时只有一个禁用的「暂无」**——原先是 info 行 + 一句
-  // 「收款码稍后放上」，用户要求去掉那句描述、右列直接摆按钮。禁用态（ADR-0205 的 :disabled
-  // 样式：压暗 + cursor default）比空 button 诚实：位置在、说了「暂无」、也点不出没反应的东西。
-  // 将来放微信/支付宝收款码时改成真 button 行 + 弹窗，收款码图片走在线资源下发（不塞进 main.js）。
+  // 赞赏（2026-10-30 落地）：按钮文案叫「留言」而不是「打赏/赞赏」——用户点进来是想说两句，
+  // 赞赏是顺带的（用户拍板）。弹窗见 core/reward-dialog.ts：微信赞赏码内置（esbuild dataurl，
+  // 68KB 图不走远端资产通道），下面挂留名名单，名单空时显示信笺空态。
+  // 收款码不塞 main.js 的旧口径据此作废：固定不变的小图走远端要多一条二进制通道，不值。
   const rewardRow: SettingsRow = {
     type: 'button',
     name: '赞赏',
-    buttonText: '暂无',
-    disabled: true,
-    onClick: () => undefined,
+    buttonText: '留言',
+    onClick: () => openRewardDialog(),
   };
 
   return {

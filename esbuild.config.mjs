@@ -24,6 +24,9 @@ const context = await esbuild.context({
   treeShaking: true,
   minify: prod,
   charset: "utf8",
+  // 赞赏码内置（src/core/assets/reward-code.png）：png import 直接变 data URI 字符串，
+  // 不进 downloads/ 远端资产通道（图固定不变，68KB 换一次网络往返不值）。
+  loader: { ".png": "dataurl" },
   outfile: path.join(VAULT_PLUGIN_DIR, "main.js"),
 });
 
