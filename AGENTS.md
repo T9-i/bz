@@ -34,14 +34,15 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
   - `bz-<版本>.zip` ← 主仓根 `main.js` / `manifest.json` / `styles.css`，包内必须留一层 `bz/`（压平了就是三个文件散一地，用户得自己猜往哪放）。
   - `bz-offline-<版本>.zip` ← 主仓 `downloads/` 整目录，包内路径必须是 `bz-offline/downloads/<file>`。插件按 `<vault>/bz-offline/downloads/…` 直接开文件（`src/core/offline-source.ts`），**多套一层（`bz-offline/bz-offline/downloads`）不会报错，只会静默回落到联网**，然后用户以为包没用。
   - `SHA256SUMS.txt` ← `sha256sum *.zip | sed 's/\*/ /'`（msys 默认输出 `hash *file`，那个 `*` 要去掉，不然 `sha256sum -c` 之外的工具认不出）。
-  - 正文每次重写，不复制上一版：这次改了什么 + 三条安装路（压缩包 / 三个文件 / 手机：文件 App 解压后移进 `.obsidian/plugins/`，先关限制模式）+ **离线包装法单独一节**（解压 → `bz-offline/` 放 vault 根目录、与 `.obsidian` 同级 → 目录结构图 → 回插件再点下载），并写明离线包只管资源下载与便携 Node（`bz-offline/node/`）、**插件本体升级仍要手动覆盖三件套**；内网有静态服务可改走「镜像源」。
+  - **正文 = 本版更新日志 + 固定三节**，顺序不能变：先放这一版改了什么（从 `docs/changelog.md` 取本版那一段），再接 `## 安装` / `## 离线资源包` / `## 反馈`。三节照抄 [docs/release-note-template.md](docs/release-note-template.md)，**别每次重写措辞**——措辞一飘，用户就得重新读一遍。离线包统一按模板写成「解压出的 `downloads/` 整个放进插件目录」，这条比 `bz-offline/` 放 vault 根目录少一层，也少一个套错层级就静默回落到联网的坑。
+  - 正文里要写明：插件本体升级仍要手动覆盖三件套（离线包只含资源与便携 Node）；内网有静态服务可改走「镜像源」。
   - 顺序不能倒：**先本地 `git tag -a v<版本>` 并 push，再 `gh release create`** —— tag 不存在时 `gh` 会自建一个轻量 tag，和已 push 的标注 tag 对不上。
   - 命令（Git Bash；Windows 没有 `zip`/`7z`，打包用 PowerShell `Compress-Archive`，别用 `Add-Type`——安全策略直接拦）：`gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file note.md bz-<版本>.zip bz-offline-<版本>.zip SHA256SUMS.txt main.js manifest.json styles.css`
   - 同一天发第二个版本：`_gen-changelog.mjs` 的版本块按部署日切，自己推不出新号，要显式 `--version=<新号>`，否则 `manifest.json` 与日志版本对不上。
 - 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
 
 ## 提交
-Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build` → `assets`（七步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）并 push → GitHub Release（`bz-<版本>.zip` + `bz-offline-<版本>.zip` + `SHA256SUMS.txt` + **平铺的 `main.js`/`manifest.json`/`styles.css`** + 重写的安装正文，见上）→ 子代理 review → 清 worktree。
+Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build` → `assets`（七步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）并 push → GitHub Release（`bz-<版本>.zip` + `bz-offline-<版本>.zip` + `SHA256SUMS.txt` + **平铺的 `main.js`/`manifest.json`/`styles.css`** + 正文〔更新日志 + 固定三节，模板见上〕）→ 子代理 review → 清 worktree。
 
 占 issues / ADR 编号前先查主仓库最新号；拍板结论进 `.scratch/memo-suite-plugin/spec.md`，决策进 `docs/adr/` 并同步 `CONTEXT.md`。
 
