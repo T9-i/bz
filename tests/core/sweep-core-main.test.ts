@@ -29,6 +29,11 @@ vi.mock('../../src/smartcat', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   ensureSmartCat: vi.fn(),
 }));
+// 首次引导：main.ts 用动态 import 打开（要探测网络/本机环境，测试里不能真跑），只留 spy 观察是否被唤
+vi.mock('../../src/core/setup-wizard', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  openSetupWizard: vi.fn(),
+}));
 // 第二大脑自 2026-09-12 起启动即加载（secondBrainEnabled 开关退役）→ 必须 spy 掉真实初始化
 // （原测试靠传 secondBrainEnabled: false 规避，键删后改为 mock）
 vi.mock('../../src/secondbrain', async (importOriginal) => ({
@@ -119,6 +124,18 @@ describe('C13：onLayoutReady 回调随卸载旗标短路', () => {
     expect(ensureReview).not.toHaveBeenCalled();
     expect(ensurePomodoro).not.toHaveBeenCalled();
     expect(ensureSmartCat).not.toHaveBeenCalled();
+  });
+
+  it('要弹首次引导时：备忘录提醒带 skipStartPopup 调用（引导背后不先蹦出一个面板）', async () => {
+    const { state } = await createPlugin({}); // 没有 setupDone → 需要引导
+    state.layoutReadyCb!();
+    expect(ensureMemoReminders).toHaveBeenCalledWith(expect.anything(), { skipStartPopup: true });
+  });
+
+  it('引导已走过：备忘录提醒照常（skipStartPopup 为 false）', async () => {
+    const { state } = await createPlugin({ ...LOADED_WITH_STORAGE, setupDone: true });
+    state.layoutReadyCb!();
+    expect(ensureMemoReminders).toHaveBeenCalledWith(expect.anything(), { skipStartPopup: false });
   });
 
   it('未卸载时触发回调后插件卸载：ensure* 已真实初始化（不受旗标影响，回归保护）', async () => {

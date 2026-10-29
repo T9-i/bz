@@ -121,6 +121,23 @@ describe('uiModal 焦点管理（R13 / 效率2）', () => {
     m.mask.dispatchEvent(new MouseEvent('click', { bubbles: true })); // 点遮罩 → requestClose → close
     expect(document.activeElement).toBe(trigger);
   });
+
+  it('closable: false：点遮罩与 ESC 都不关（首次引导不能被误关）', () => {
+    const { m } = buildModal({ content: '<button>开始使用</button>', closable: false });
+    expect(document.body.contains(m.mask)).toBe(true);
+    m.mask.dispatchEvent(new MouseEvent('click', { bubbles: true })); // 点遮罩
+    expect(document.body.contains(m.mask)).toBe(true);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); // ESC
+    expect(document.body.contains(m.mask)).toBe(true);
+    m.close(); // 只有代码显式关才行
+    expect(document.body.contains(m.mask)).toBe(false);
+  });
+
+  it('缺省 closable：点遮罩照旧关闭（普通弹窗行为不变）', () => {
+    const { m } = buildModal({ content: '<button>好</button>' });
+    m.mask.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(document.body.contains(m.mask)).toBe(false);
+  });
 });
 
 describe('三壳 trapFocus 接线冒烟（效率6）', () => {

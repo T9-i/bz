@@ -30,7 +30,7 @@ import { probeNodeRuntime, resetNodeRuntimeCache } from './tool-runtime';
 import { setupAfterInstall } from './tool-setup';
 import { pluginDirOf, pluginRelDirOf, vaultBasePathOf } from './plugin-path';
 import { initialStorageDir } from './storage-path';
-import { vaultKeyOf } from './vault-key';
+import { setupDoneStorageKey } from './setup-state';
 import { openPathPicker } from './path-picker';
 import { isMobileEnv } from './mobile';
 import { getApp } from './app';
@@ -209,6 +209,10 @@ interface WizardCtx {
   firstRun: boolean;
   /** 自检模式：跳过「存放 / AI」两屏，直奔清单 */
   checkOnly: boolean;
+  /** 首次引导**结束**后的回调：main.ts 用它打开首页。三条结束路径都触发——
+   *  「开始使用」「以后再说」「稍后再说」。只有「收起来，后台继续」不触发：
+   *  那是把弹窗收走让下载在后台跑，不是结束。 */
+  onFinish?: () => void;
 }
 
 interface WizardState {
@@ -339,7 +343,17 @@ export function resourceDocsOf<T extends { kind?: string }>(manifest: { docs: T[
   return manifest.docs.filter((d) => d.kind !== 'bundle');
 }
 
+/** 当前引导实例的关闭句柄（uiModal.close 幂等）：走它而不是直接 remove 遮罩，
+ *  存活登记表与 ESC 注册才跟着注销。 */
+let activeClose: (() => void) | null = null;
+
 function closeModal(ui: Ui): void {
+  if (activeClose) {
+    const close = activeClose;
+    activeClose = null;
+    close();
+    return;
+  }
   (ui.body.closest('.bz-overlay-mask') as HTMLElement | null)?.remove();
 }
 
@@ -442,6 +456,7 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
     later.onclick = () => {
       void markDone(ctx.app);
       closeModal(ui);
+      ctx.onFinish?.();
     };
     const retry = button('bz-setup-btn bz-setup-btn--cta', '重新检测');
     retry.onclick = rescan;
@@ -612,6 +627,7 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
   skip.onclick = () => {
     void markDone(ctx.app);
     closeModal(ui);
+    ctx.onFinish?.();
   };
   next.onclick = () => {
     const tasks = pending();
@@ -886,66 +902,17 @@ async function stageDone(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void>
     ui.body.appendChild(hint);
   }
   const enter = button('bz-setup-btn bz-setup-btn--cta', '开始使用');
-  enter.onclick = () => closeModal(ui);
+  enter.onclick = () => {
+    closeModal(ui);
+    ctx.onFinish?.();
+  };
   ui.foot.appendChild(enter);
 }
 
 /* ---------- 杂项 ---------- */
 
-/** 「引导已走过」的本地兜底键**前缀**（设置写不进去时用它，免得每次启动都被同一张清单拦住） */
-export const SETUP_DONE_FALLBACK_KEY = 'bz-setup-done';
-
-/**
- * 兜底键要带上 vault 目录键。
- *
- * localStorage 是 Obsidian **整个应用**共用的（所有库同一个 origin），一个全局键会让
- * 「在 A 库走完引导」变成「B 库也算走完」——2026-10-28 用户报的就是这个：换一个新库打开插件，
- * 该有的首次引导一次都没弹，而那个库里 Node、工具包、文档一概没有。
- *
- * 分键之后每个库各记各的；data.json 里的 `setupDone` 本来就是按库存的，两者口径终于一致。
- */
-export function setupDoneStorageKey(vault: string): string {
-  const key = vaultKeyOf(vault);
-  return key ? `${SETUP_DONE_FALLBACK_KEY}:${key}` : SETUP_DONE_FALLBACK_KEY;
-}
-
-/**
- * 引导是否已走过。
- *
- * @param explicitInSettings data.json **存在**（main.ts 从 loadData 的原始对象判断；不再要求里面
- *   有 setupDone 这个键）。文件存在 = 设置能写，设置就是唯一事实源。
- *
- * 三条判据的优先级不能换（2026-10-28 用户报障：手改 `"setupDone": false` 后重载仍不弹引导）：
- *  1. 设置说走过 → 走过；
- *  2. 设置写得进去（data.json 存在，无论里面有没有那个键）→ **只信设置**，不许拿 localStorage 盖掉；
- *     没有这个键、或明确写着 false（含手改重置），就是没走过。
- *  3. 设置压根写不进去（只读 vault，data.json 始终不存在）→ 才轮到兜底键。
- *
- * 兜底键只认**新格式**（`{"at":<时间戳>}`）。旧版本在引导结束时无条件写一个裸 `'1'`，
- * 后果是：删掉 data.json 想把引导重走一遍的库，第一次启动会被这把旧键静默拦住——
- * 而第一次启动恰好又把 data.json 写出来了，于是第二次反而弹了（2026-10-29 报障）。
- * 裸 `'1'` 一律当作没记过，顺手清掉。
- */
-export function setupAlreadyDone(
-  settings: { setupDone?: boolean } | null | undefined,
-  vault = '',
-  explicitInSettings = false,
-): boolean {
-  if (settings?.setupDone === true) return true;
-  if (explicitInSettings) return false;
-  try {
-    const key = setupDoneStorageKey(vault);
-    const raw = localStorage.getItem(key);
-    if (!raw) return false;
-    if (!raw.startsWith('{')) {
-      localStorage.removeItem(key); // 旧版裸 '1'：不可信，删掉
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
+/* 判据与兜底键在 core/setup-state.ts（main.ts 要同步问「这次弹不弹」）；这里转出给既有调用方。 */
+export { SETUP_DONE_FALLBACK_KEY, setupDoneStorageKey, setupAlreadyDone } from './setup-state';
 
 async function markDone(app: unknown): Promise<void> {
   try {
@@ -965,15 +932,27 @@ async function markDone(app: unknown): Promise<void> {
   }
 }
 
-/** 打开首次引导 */
-export function openSetupWizard(app: unknown = getApp(), opts: { firstRun?: boolean } = {}): void {
+/**
+ * 打开首次引导（或环境自检）。
+ *
+ * @returns 弹窗是否真的打开了。移动端直接劝退、返回 false —— main.ts 据此决定
+ *   要不要把「启动自动弹面板」压回去（没弹引导就不该压）。
+ *
+ * 首次引导**不可点遮罩 / ESC 关**（closable: false）：它是这次启动唯一的界面，
+ * 点空白就关掉等于静默中断，用户看到的是「插件打不开」。要走开只有按钮：
+ * 「稍后再说」「以后再说」或「收起来，后台继续」。
+ */
+export function openSetupWizard(
+  app: unknown = getApp(),
+  opts: { firstRun?: boolean; onFinish?: () => void } = {},
+): boolean {
   if (isMobileEnv()) {
     notice('bz 的完整功能需要桌面端 Obsidian', 'warning');
-    return;
+    return false;
   }
   const firstRun = opts.firstRun === true;
   const content = document.createElement('div');
-  uiModal({
+  const modal = uiModal({
     head: true,
     title: firstRun ? 'bz · 首次准备' : '环境自检',
     content,
@@ -985,8 +964,11 @@ export function openSetupWizard(app: unknown = getApp(), opts: { firstRun?: bool
     // 高度预算提到整屏、让长清单只滚内容区而不齐切一行。
     className: 'bz-setup-modal',
     autofocus: false,
+    // 首次引导只能由按钮结束（点遮罩/ESC 关掉 = 流程静默中断）；环境自检照旧可关
+    closable: !firstRun,
   });
-  const ctx: WizardCtx = { app, firstRun, checkOnly: !firstRun };
+  activeClose = modal.close;
+  const ctx: WizardCtx = { app, firstRun, checkOnly: !firstRun, onFinish: opts.onFinish };
   const st: WizardState = {
     net: null,
     rows: [],
@@ -999,6 +981,7 @@ export function openSetupWizard(app: unknown = getApp(), opts: { firstRun?: bool
     failed: [],
   };
   void stageProbe(ctx, st, skeleton(content));
+  return true;
 }
 
 /** 设置面板「环境自检」按钮的入口（同一视图；自检模式跳过存放与 AI 两屏） */
