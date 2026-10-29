@@ -247,6 +247,12 @@ function skeleton(root: HTMLElement): Ui {
   };
 }
 
+/** 副标题：空串 = 这屏不交代（连那行占位一起去掉，卡片上方不留空档） */
+function setSub(ui: Ui, text: string): void {
+  ui.sub.textContent = text;
+  ui.sub.classList.toggle('is-hidden', !text);
+}
+
 function button(cls: string, text: string): HTMLButtonElement {
   const b = document.createElement('button');
   b.type = 'button';
@@ -369,7 +375,7 @@ function closeModal(ui: Ui): void {
  * 现在每次进来先吃缓存（st.net / st.rows / st.manifest），要重探得点「重新检测」。
  */
 async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
-  ui.sub.textContent = ctx.firstRun ? '先看看这台机器缺什么。不会改动笔记。' : '检查运行环境。';
+  setSub(ui, ctx.firstRun ? '先看看这台机器缺什么。不会改动笔记。' : '检查运行环境。');
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -451,7 +457,7 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
     // bz-offline/」都不该出现在这里——镜像源行已经下线，而让人手动摆文件路径本身就是错的指引
     // （摆错位置不会报错，只会表现为「下载一直失败」）。真无外网的人自己知道该怎么办。
     // 具体原因不在这里复述：上面两行的值已经写着「不可达 · <原因>」。
-    ui.sub.textContent = '连不上资源站。下载类功能等网络恢复后再用，其余功能不受影响。';
+    setSub(ui, '连不上资源站。下载类功能等网络恢复后再用，其余功能不受影响。');
     const later = button('bz-setup-btn bz-setup-btn--back', '稍后再说');
     later.onclick = () => {
       void markDone(ctx.app);
@@ -474,16 +480,16 @@ async function stageProbe(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void
 /* ---------- ② 存放位置 ---------- */
 /**
  * 一页只问一件事：存在哪。
- * 早前这一屏有长句说明 + 一节带框的注意事项（内容互相重复：都在讲「放 vault 里会跟着同步」），
- * 而真正能操作的东西只有一个灰字路径和一个底栏按钮。现在路径进卡片、改目录贴着路径放，
- * 说明压成一行注释。
+ * 卡片里只有一行：键「数据目录」+ 灰字路径 + 「更改」——说明文字一个不放（2026-10-29 用户要求，
+ * 连「会被同步盘带走」那种也去掉），只有「写不进去」时 note 才出来说话。
  */
 async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   // 初值 = 缺省数据目录（<插件目录>/storage）。引导只在这里给新库一个起点，
   // 用户点「更改」选别的就按他选的；已有值的库读到的本来就是自己的值。
   const current = String(tryGetSettings()?.storagePath || initialStorageDir(pluginRelDirOf(ctx.app)));
   st.storagePath = current;
-  ui.sub.textContent = '数据以 JSON 存在这里，跟着 vault 走。';
+  // 这屏只问一件事：存哪。副标题与「会被同步盘带走」那几句删掉 —— 路径本身就是答案。
+  setSub(ui, '');
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -496,21 +502,26 @@ async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<vo
   row.append(keyEl('数据目录'), val, pick);
   box.card.appendChild(row);
 
+  // 平时不占位：只有「写不进去」才在这里说话
   const note = document.createElement('div');
-  note.className = 'bz-setup-note';
-  note.textContent = '在 vault 内，会被 iCloud / OneDrive 一起同步；目录不存在会自动创建。';
+  note.className = 'bz-setup-note is-hidden';
   ui.body.appendChild(note);
 
   const setNote = (text: string, bad = false): void => {
     note.textContent = text;
+    note.classList.remove('is-hidden');
     note.classList.toggle('bz-setup-note--bad', bad);
+  };
+  const clearNote = (): void => {
+    note.textContent = '';
+    note.classList.add('is-hidden');
+    note.classList.remove('bz-setup-note--bad');
   };
 
   pick.onclick = () =>
     openPathPicker({
       title: '数据存放在哪',
       mode: 'single',
-      desc: '选一个 vault 内的文件夹，不存在会自动创建。',
       selected: [st.storagePath],
       okText: '用这个',
       onConfirm: (picked) => {
@@ -518,7 +529,7 @@ async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<vo
         if (!chosen) return;
         st.storagePath = chosen;
         val.textContent = chosen;
-        setNote('在 vault 内，会被 iCloud / OneDrive 一起同步；目录不存在会自动创建。');
+        clearNote();
       },
     });
 
@@ -545,7 +556,7 @@ async function stageStorage(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<vo
 
 /* ---------- ③ 下载内容 ---------- */
 async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
-  ui.sub.textContent = '正在核对磁盘…';
+  setSub(ui, '正在核对磁盘…');
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -563,12 +574,15 @@ async function stageResources(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<
   const pending = (): SetupItem[] => selectedTasks(st.items, st.selected);
   const total = pending().reduce((n, t) => n + (t.size || 0), 0);
   // 一句话说清「下多少」；「点开始后自动完成，中途不用再确认」那种交代属于多余说明
-  ui.sub.textContent = pending().length
-    ? `${pending().length} 项 · ${sizeText(total) || '体积未知'}`
-    : // 清单没拉到时**不能**说「什么都不缺」：那是「不知道缺什么」，两件事
-      manifest
-      ? '都齐了。'
-      : '清单没拉到。';
+  setSub(
+    ui,
+    pending().length
+      ? `${pending().length} 项 · ${sizeText(total) || '体积未知'}`
+      : // 清单没拉到时**不能**说「什么都不缺」：那是「不知道缺什么」，两件事
+        manifest
+        ? '都齐了。'
+        : '清单没拉到。',
+  );
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -713,7 +727,8 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   st.apiKey = '';
   st.aiTest = { state: 'idle', text: '' };
 
-  ui.sub.textContent = '可选，用来做摘要和小橘。';
+  // 这屏只剩操作：选服务、贴 key、测一下。说明文字删掉（chips 与占位符已经说清了）。
+  setSub(ui, '');
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -732,17 +747,12 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   const keyLabel = keyEl('API Key');
   const test = button('bz-setup-link', '测一下');
   keyRow.append(keyLabel, input, test);
-  const desc = document.createElement('div');
-  desc.className = 'bz-setup-note';
   const testLine = document.createElement('div');
   testLine.className = 'bz-setup-note';
 
   function paint(): void {
     const d = getProviderDescriptor(st.provider);
     const local = d.id === 'ollama';
-    desc.textContent = local
-      ? '本机 Ollama，不需要密钥，确认服务已启动即可。'
-      : '密钥明文存在 data.json；vault 在同步盘上就等于放上云了。';
     // 只藏输入框：「测一下」对本地服务同样有用（此前跟着整行一起藏掉了）
     keyLabel.textContent = local ? '本机服务' : 'API Key';
     input.classList.toggle('is-hidden', local);
@@ -767,7 +777,7 @@ async function stageAi(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   }
   const box = setupGroup();
   box.card.append(keyRow);
-  ui.body.append(seg, desc, box.group, testLine);
+  ui.body.append(seg, box.group, testLine);
   paint();
 
   const back = button('bz-setup-btn bz-setup-btn--back', '上一步');
@@ -810,7 +820,7 @@ async function saveAi(st: WizardState): Promise<void> {
 
 /* ---------- ⑤ 安装 ---------- */
 async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: SetupItem[]): Promise<void> {
-  ui.sub.textContent = '自动完成，可以收起来先去忙别的。';
+  setSub(ui, '自动完成，可以收起来先去忙别的。');
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
@@ -828,7 +838,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
   // 余量预检：解压瞬时占用按 1.5 倍估，再留 64MB 给插件自己写
   const free = freeSpaceBytes(ctx.app);
   if (free !== null && free < total * 1.5 + 64 * 1024 * 1024) {
-    ui.sub.textContent = `磁盘余量不足：需要约 ${sizeText(total * 1.5 + 64 * 1024 * 1024)}，当前只剩 ${sizeText(free)}。`;
+    setSub(ui, `磁盘余量不足：需要约 ${sizeText(total * 1.5 + 64 * 1024 * 1024)}，当前只剩 ${sizeText(free)}。`);
     const again = button('bz-setup-btn bz-setup-btn--cta', '返回清单');
     again.onclick = () => void stageResources(ctx, st, ui);
     ui.foot.appendChild(again);
@@ -865,7 +875,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
 
   // 值守是唯一「改系统状态」的一步：bundle 装完就在这里问一次（setupAfterInstall 自带确认框）
   if (tasks.some((t) => t.id === 'tool-dock-watch')) {
-    ui.sub.textContent = '工具就位。还有一件事要你点头：值守要不要开机自启。';
+    setSub(ui, '工具就位。还有一件事要你点头：值守要不要开机自启。');
     try {
       await setupAfterInstall(ctx.app, 'dock-watch');
     } catch (e) {
@@ -884,7 +894,7 @@ async function stageInstall(ctx: WizardCtx, st: WizardState, ui: Ui, tasks: Setu
 async function stageDone(ctx: WizardCtx, st: WizardState, ui: Ui): Promise<void> {
   const rows = await environmentCheck(ctx.app);
   st.rows = rows;
-  ui.sub.textContent = '都就位了。';
+  setSub(ui, '都就位了。');
   ui.body.innerHTML = '';
   ui.foot.innerHTML = '';
 
