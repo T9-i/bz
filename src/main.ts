@@ -311,9 +311,9 @@ export default class BzPlugin extends Plugin {
 
   async onload() {
     const loaded = await this.loadData();
-    // data.json 里有没有 `setupDone` 这个键：有 = 设置写得进去，引导判据以设置为准；
-    // 没有 = 只读库/首次运行，才轮到 localStorage 兜底（判据细节见 core/setup-wizard）
-    const setupDoneSaved = !!loaded && typeof loaded === 'object' && 'setupDone' in (loaded as Record<string, unknown>);
+    // data.json 是否存在：存在 = 设置写得进去，引导判据只信设置（里面写没写 setupDone 都一样）；
+    // 不存在 = 只读库/从未写过设置，才轮到 localStorage 兜底（判据细节见 core/setup-wizard）
+    const setupDoneSaved = !!loaded && typeof loaded === 'object';
     // issue 260 正名迁移：旧 todo* 面板设置键就地改名（读旧写新删旧）；
     // C16：发生迁移即调度落盘——原先只改内存，data.json 旧键长期残留、每次启动重复迁移
     const memoKeysMigrated = migrateMemoSettingKeys(loaded);

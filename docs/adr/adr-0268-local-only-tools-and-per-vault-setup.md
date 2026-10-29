@@ -165,3 +165,24 @@ writeAssetText(app, 'manifest.json', text)
 就是 32），行内距 9→8、分组标题收紧，常见窗口下整份装得下；真装不下时只滚内容区、底栏常驻。
 
 对应的选择器作用域全在 `.bz-setup-modal` 下，别的弹窗一个字不动。
+
+## 补记五（2026-10-29）：删掉 data.json 后第一次启动不弹引导
+
+用户报「首次打开没有引导页，第二次打开才有」。根因还是兜底键，只是换了个方向：
+
+旧版 `markDone` **无条件**往 localStorage 写裸 `'1'`，注释写着「只读库靠它」，实现却是全量写。
+于是用户删掉 `data.json`（想在测试库里把引导重走一遍）之后：
+
+1. 第一次启动：`data.json` 不存在 → 判据落到兜底键 → 那把从没清过的 `'1'` 说「走过」→ 跳过；
+2. 而这一次启动本身会把 `data.json` 写出来（`bootstrapStorageDir` 落 storagePath 时 `saveSettings`）；
+3. 第二次启动：文件存在 → 走「设置是唯一事实源」分支 → `setupDone: false` → 弹。
+
+两处一起改：
+
+- `markDone` 只在 `saveSettings()` **抛错**时才写兜底键，且写成 `{"at":<时间戳>}`；
+- `setupAlreadyDone` 只认新格式，读到裸 `'1'` 当作没记过并 `removeItem` 清掉；
+- 第三个参数（`main.ts` 的 `setupDoneSaved`）从「data.json 里有没有 `setupDone` 键」改成
+  「**data.json 存不存在**」：文件存在 = 设置能写，里面写没写那个键都一样只信设置。
+
+代价：只读库（`data.json` 始终写不出）在升级后的第一次启动会多弹一次引导。它本来就写不了
+插件目录，这个弹窗也走不到终点——一次性的，可接受。

@@ -912,16 +912,19 @@ export function setupDoneStorageKey(vault: string): string {
 /**
  * 引导是否已走过。
  *
- * @param explicitInSettings data.json 里**确实有** `setupDone` 这个键（main.ts 从 loadData 的
- *   原始对象判断）。有键 = 设置能写，设置就是唯一事实源。
+ * @param explicitInSettings data.json **存在**（main.ts 从 loadData 的原始对象判断；不再要求里面
+ *   有 setupDone 这个键）。文件存在 = 设置能写，设置就是唯一事实源。
  *
  * 三条判据的优先级不能换（2026-10-28 用户报障：手改 `"setupDone": false` 后重载仍不弹引导）：
  *  1. 设置说走过 → 走过；
- *  2. 设置里明确写着 false（含手改重置）→ **就是没走过**，不许拿 localStorage 兜底把它盖掉；
- *  3. 设置压根写不进去（只读 vault，data.json 永远留不下这个键）→ 才轮到兜底键。
+ *  2. 设置写得进去（data.json 存在，无论里面有没有那个键）→ **只信设置**，不许拿 localStorage 盖掉；
+ *     没有这个键、或明确写着 false（含手改重置），就是没走过。
+ *  3. 设置压根写不进去（只读 vault，data.json 始终不存在）→ 才轮到兜底键。
  *
- * 兜底键存在的前提是「设置存不下」，所以它只能在第 3 条里说话。否则一个关过引导的人，
- * 改 data.json 也永远看不到引导——那是用户最直接的复位手段。
+ * 兜底键只认**新格式**（`{"at":<时间戳>}`）。旧版本在引导结束时无条件写一个裸 `'1'`，
+ * 后果是：删掉 data.json 想把引导重走一遍的库，第一次启动会被这把旧键静默拦住——
+ * 而第一次启动恰好又把 data.json 写出来了，于是第二次反而弹了（2026-10-29 报障）。
+ * 裸 `'1'` 一律当作没记过，顺手清掉。
  */
 export function setupAlreadyDone(
   settings: { setupDone?: boolean } | null | undefined,
@@ -931,7 +934,14 @@ export function setupAlreadyDone(
   if (settings?.setupDone === true) return true;
   if (explicitInSettings) return false;
   try {
-    return localStorage.getItem(setupDoneStorageKey(vault)) === '1';
+    const key = setupDoneStorageKey(vault);
+    const raw = localStorage.getItem(key);
+    if (!raw) return false;
+    if (!raw.startsWith('{')) {
+      localStorage.removeItem(key); // 旧版裸 '1'：不可信，删掉
+      return false;
+    }
+    return true;
   } catch {
     return false;
   }
@@ -942,13 +952,14 @@ async function markDone(app: unknown): Promise<void> {
     const s = getSettings();
     s.setupDone = true;
     await saveSettings();
+    return; // 设置写得进去就不留兜底键：那把键只该服务「设置写不进去」的库
   } catch {
-    /* 设置未注入（测试/早期）：走下面的 localStorage 兜底 */
+    /* 设置未注入 / 只读库：落到下面的兜底 */
   }
   // 只读 vault / 落盘失败时 data.json 写不进去，光靠设置项会导致**每次启动都弹一次**——
   // 那比不弹更糟。localStorage 不依赖 data.json，作为兜底足够（键按库分，见 setupDoneStorageKey）。
   try {
-    localStorage.setItem(setupDoneStorageKey(vaultBasePathOf(app)), '1');
+    localStorage.setItem(setupDoneStorageKey(vaultBasePathOf(app)), JSON.stringify({ at: Date.now() }));
   } catch {
     /* 无 localStorage（测试环境） */
   }

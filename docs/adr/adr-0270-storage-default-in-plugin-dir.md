@@ -24,7 +24,6 @@
 ```ts
 // core/storage-path.ts
 export const DEFAULT_STORAGE_DIR = '.obsidian/plugins/bz/storage'; // 没有 app 可问时的兜底
-export const LEGACY_STORAGE_DIR = 'CONFIG/STORAGE';                // 只用于「没值时认领老库」
 export function initialStorageDir(pluginRelDir?: string) {
   return `${pluginRelDir || '.obsidian/plugins/bz'}/storage`;      // 落盘时按真实插件目录现算
 }
@@ -40,12 +39,16 @@ export function initialStorageDir(pluginRelDir?: string) {
 |---|---|
 | `data.json` 里已有 `storagePath`（含值正好是老缺省） | 什么都不做 |
 | 盘上已有 `<插件目录>/storage` | 认它（清过一次 `data.json` 的库照旧接回原处） |
-| 盘上已有老 `CONFIG/STORAGE` | 认老目录（清过设置的老库，数据在那儿；不复制、不搬运） |
 | 都没有 | 写 `<插件目录>/storage` |
 
 **不做迁移**。曾经试过「值等于老缺省就视为没设过 → 复制文件到新目录」，那是多余的：
 `CONFIG/STORAGE` 是老库数据的实际位置，迁移的每一步失败都在拿全部数据冒险，收益却只是
 「目录好看一点」。用户要的是新装的人落在对的地方，不是让已经装好的人搬一遍家。
+
+**也不认领老目录**（同一轮改掉）：一度有过「没有 `storagePath`、但盘上有 `CONFIG/STORAGE`
+就写回老目录」这一支，结果用户删了 `data.json` 重测时，引导页的「数据目录」又显示
+`CONFIG/STORAGE` —— 那个目录本来就不该再出现。没有 `storagePath` 就是没设过，一律落到新缺省；
+老目录里就算有文件也留在原地，不读、不搬、不提。
 
 `DEFAULT_SETTINGS.storagePath` 是空串 `''`（"还没定过"），首次引导的「存放」一屏因此读到
 `initialStorageDir()` 作为初值，允许改；用户点「下一步」时才写探针（顺带建目录）、写回设置。

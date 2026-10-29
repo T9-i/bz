@@ -16,6 +16,9 @@ import {
 } from '../../src/core/setup-wizard';
 import type { DownloadManifest } from '../../src/core/download-manifest';
 
+/** 兜底标记的新格式：旧版的裸 `'1'` 已不再认（见 setupAlreadyDone 的说明） */
+const STAMP = JSON.stringify({ at: 1700000000000 });
+
 const manifest: DownloadManifest = {
   version: 1,
   docs: [
@@ -169,21 +172,49 @@ describe('引导已走过：按库分键', () => {
   });
 
   it('localStorage 兜底按库分键：A 库走过不影响 B 库', () => {
-    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), '1');
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), STAMP);
     expect(setupAlreadyDone(null, 'E:/vault-a')).toBe(true);
     expect(setupAlreadyDone(null, 'E:/vault-b')).toBe(false);
   });
 
   it('路径形态不同但指向同一个库 → 视为同一个库（反斜杠/尾斜杠归一）', () => {
-    localStorage.setItem(setupDoneStorageKey('E:\\vault-a\\'), '1');
+    localStorage.setItem(setupDoneStorageKey('E:\\vault-a\\'), STAMP);
     expect(setupAlreadyDone(null, 'E:/vault-a')).toBe(true);
   });
 
   it('取不到 vault 路径 → 退回全局那把键（不因此崩，也不误判成「走过」）', () => {
     expect(setupDoneStorageKey('')).toBe('bz-setup-done');
     expect(setupAlreadyDone(null, '')).toBe(false);
-    localStorage.setItem('bz-setup-done', '1');
+    localStorage.setItem('bz-setup-done', STAMP);
     expect(setupAlreadyDone(null, '')).toBe(true);
+  });
+});
+
+/**
+ * 删掉 data.json 想把引导重走一遍 —— 第一次启动就必须弹（2026-10-29 用户报障：
+ * 「首次打开没有引导页，第二次打开才有」）。
+ *
+ * 根因：旧版引导结束时**无条件**往 localStorage 写一个裸 `'1'`。用户删了 data.json，
+ * 第一次启动 data.json 不存在 → 判据落到兜底键 → 被那把旧 `'1'` 静默拦住；
+ * 而这一次启动恰好又把 data.json 写了出来（含 setupDone:false），于是第二次反而弹了。
+ *
+ * 现在兜底键只认新格式（`{"at":…}`），裸 `'1'` 当作没记过并清掉。
+ */
+describe('引导已走过：旧版裸标记不再生效', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('裸 \'1\'（旧版写的）→ 不算走过，并把它清掉', () => {
+    const key = setupDoneStorageKey('E:/vault-a');
+    localStorage.setItem(key, '1');
+    expect(setupAlreadyDone(null, 'E:/vault-a')).toBe(false);
+    expect(localStorage.getItem(key)).toBeNull();
+  });
+
+  it('新格式标记 → 走过（只读库靠它防每次启动都弹）', () => {
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), STAMP);
+    expect(setupAlreadyDone(null, 'E:/vault-a')).toBe(true);
   });
 });
 
@@ -191,8 +222,8 @@ describe('引导已走过：按库分键', () => {
  * 手改 `"setupDone": false` 必须能复位引导（2026-10-28 用户报障）。
  *
  * 兜底键只在「设置压根写不进去」时才有资格说话：关过引导的人，localStorage 里已经有一把
- * `1`，若还让兜底参与判定，改 data.json 就永远看不到引导 —— 而手改 data.json 是用户最直接
- * 的复位手段。第三个参数 = data.json 里是否真有这个键（main.ts 从 loadData 的原始对象判断）。
+ * 标记，若还让兜底参与判定，改 data.json 就永远看不到引导 —— 而手改 data.json 是用户最直接
+ * 的复位手段。第三个参数 = data.json 是否存在（main.ts 从 loadData 的原始对象判断）。
  */
 describe('引导已走过：设置优先，兜底只兜「设置写不进去」', () => {
   beforeEach(() => {
@@ -200,7 +231,7 @@ describe('引导已走过：设置优先，兜底只兜「设置写不进去」'
   });
 
   it('data.json 里明确 false + 兜底键还在 → 仍算没走过（复位生效）', () => {
-    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), '1');
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), STAMP);
     expect(setupAlreadyDone({ setupDone: false }, 'E:/vault-a', true)).toBe(false);
   });
 
@@ -208,8 +239,13 @@ describe('引导已走过：设置优先，兜底只兜「设置写不进去」'
     expect(setupAlreadyDone({ setupDone: true }, 'E:/vault-a', true)).toBe(true);
   });
 
-  it('data.json 里没这个键（只读库/首次）→ 才吃兜底键', () => {
-    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), '1');
+  it('data.json 存在但没有这个键（老版本写的文件）→ 只信设置：弹，无视兜底键', () => {
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), STAMP);
+    expect(setupAlreadyDone({ setupDone: false }, 'E:/vault-a', true)).toBe(false);
+  });
+
+  it('data.json 根本不存在（只读库/首次）→ 才吃兜底键', () => {
+    localStorage.setItem(setupDoneStorageKey('E:/vault-a'), STAMP);
     expect(setupAlreadyDone({ setupDone: false }, 'E:/vault-a', false)).toBe(true);
   });
 });
