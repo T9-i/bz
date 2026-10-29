@@ -1,4 +1,4 @@
-/* 源指纹 d3f665f7591e0758 · 仓内输入 64 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 e1463ee59fd510c2 · 仓内输入 64 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/dock/fake-sim.ts","prototypes/dock/fake/fake-obsidian.ts","src/core/app.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/item-actions.ts","src/core/mobile.ts","src/core/notice.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/settings-provider.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tool-hint.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/vault-key.ts","src/core/z-order.ts","src/dock/command.ts","src/dock/exec.ts","src/dock/exit-pulse.ts","src/dock/files.ts","src/dock/host.ts","src/dock/kernel.ts","src/dock/lock.ts","src/dock/parse.ts","src/dock/registry-file.ts","src/dock/registry.ts","src/dock/rules.ts","src/dock/tick-once.ts","src/dock/types.ts","src/dock/ui.ts","src/dock/vault-fs.ts","src/dock/view.ts","src/dock/watchdog-status.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/dock/fake-sim.ts → window.BZW_dock（行为单源预览包，issue 245/ADR-0106） */
 var BZW_dock = (() => {
@@ -413,7 +413,7 @@ var BZW_dock = (() => {
   var TOOL_SETTINGS_HINT;
   var init_tool_hint = __esm({
     "src/core/tool-hint.ts"() {
-      TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+      TOOL_SETTINGS_HINT = "「设置 → 通用 → 外部工具」";
     }
   });
 
@@ -1963,6 +1963,61 @@ var BZW_dock = (() => {
     }
   });
 
+  // src/core/plugin-path.ts
+  var plugin_path_exports = {};
+  __export(plugin_path_exports, {
+    injectedPluginRelDir: () => injectedPluginRelDir,
+    pluginDirOf: () => pluginDirOf,
+    pluginRelDirOf: () => pluginRelDirOf,
+    pluginVaultPath: () => pluginVaultPath,
+    setPluginRelDir: () => setPluginRelDir,
+    vaultBasePathOf: () => vaultBasePathOf
+  });
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function setPluginRelDir(rel) {
+    injectedRelDir = trimSlashes(String(rel || ""));
+  }
+  function injectedPluginRelDir() {
+    return injectedRelDir;
+  }
+  function pluginRelDirOf(app2) {
+    var _a, _b, _c, _d;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c = (_b = (_a = app2 == null ? void 0 : app2.plugins) == null ? void 0 : _a.manifests) == null ? void 0 : _b.bz) == null ? void 0 : _c.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d = app2 == null ? void 0 : app2.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app2) {
+    var _a, _b;
+    const adapter = (_a = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a.adapter;
+    try {
+      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app2) {
+    const base = vaultBasePathOf(app2);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app2)}`;
+  }
+  function pluginVaultPath(app2, rel) {
+    const dir = pluginRelDirOf(app2);
+    return `${dir}/${trimSlashes(rel)}`;
+  }
+  var injectedRelDir;
+  var init_plugin_path = __esm({
+    "src/core/plugin-path.ts"() {
+      injectedRelDir = "";
+    }
+  });
+
   // src/core/storage-path.ts
   function normalizeStorageDir(value) {
     let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
@@ -1993,6 +2048,7 @@ var BZW_dock = (() => {
       init_app();
       init_settings_provider();
       init_notice();
+      init_plugin_path();
       init_storage_path();
     }
   });
@@ -3067,61 +3123,6 @@ var BZW_dock = (() => {
       ticking = false;
       pendingEvents = [];
       warned = /* @__PURE__ */ new Set();
-    }
-  });
-
-  // src/core/plugin-path.ts
-  var plugin_path_exports = {};
-  __export(plugin_path_exports, {
-    injectedPluginRelDir: () => injectedPluginRelDir,
-    pluginDirOf: () => pluginDirOf,
-    pluginRelDirOf: () => pluginRelDirOf,
-    pluginVaultPath: () => pluginVaultPath,
-    setPluginRelDir: () => setPluginRelDir,
-    vaultBasePathOf: () => vaultBasePathOf
-  });
-  function trimSlashes(p) {
-    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
-  }
-  function setPluginRelDir(rel) {
-    injectedRelDir = trimSlashes(String(rel || ""));
-  }
-  function injectedPluginRelDir() {
-    return injectedRelDir;
-  }
-  function pluginRelDirOf(app2) {
-    var _a, _b, _c, _d;
-    if (injectedRelDir) return injectedRelDir;
-    const fromManifests = trimSlashes(
-      String(((_c = (_b = (_a = app2 == null ? void 0 : app2.plugins) == null ? void 0 : _a.manifests) == null ? void 0 : _b.bz) == null ? void 0 : _c.dir) || "")
-    );
-    if (fromManifests) return fromManifests;
-    const configDir = trimSlashes(String(((_d = app2 == null ? void 0 : app2.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
-    return `${configDir || ".obsidian"}/plugins/bz`;
-  }
-  function vaultBasePathOf(app2) {
-    var _a, _b;
-    const adapter = (_a = app2 == null ? void 0 : app2.vault) == null ? void 0 : _a.adapter;
-    try {
-      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app2) {
-    const base = vaultBasePathOf(app2);
-    if (!base) return "";
-    return `${base}/${pluginRelDirOf(app2)}`;
-  }
-  function pluginVaultPath(app2, rel) {
-    const dir = pluginRelDirOf(app2);
-    return `${dir}/${trimSlashes(rel)}`;
-  }
-  var injectedRelDir;
-  var init_plugin_path = __esm({
-    "src/core/plugin-path.ts"() {
-      injectedRelDir = "";
     }
   });
 

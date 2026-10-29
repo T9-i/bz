@@ -1,4 +1,4 @@
-/* 源指纹 eb6fdc927f2056e4 · 仓内输入 136 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 3f55cb373802641b · 仓内输入 136 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/clipbook/fake-sim.ts","prototypes/clipbook/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/obsidian-adapter.ts","src/core/offline-source.ts","src/core/path-classify.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/secondbrain/readonly.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/motion.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/clipbook/fake-sim.ts → window.BZW_clipbook（行为单源预览包，issue 245/ADR-0106） */
 var BZW_clipbook = (() => {
@@ -5251,6 +5251,46 @@ var BZW_clipbook = (() => {
     }
   });
 
+  // src/core/plugin-path.ts
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function pluginRelDirOf(app) {
+    var _a, _b, _c, _d;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c = (_b = (_a = app == null ? void 0 : app.plugins) == null ? void 0 : _a.manifests) == null ? void 0 : _b.bz) == null ? void 0 : _c.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app) {
+    var _a, _b;
+    const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
+    try {
+      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app)}`;
+  }
+  function pluginVaultPath(app, rel) {
+    const dir = pluginRelDirOf(app);
+    return `${dir}/${trimSlashes(rel)}`;
+  }
+  var injectedRelDir;
+  var init_plugin_path = __esm({
+    "src/core/plugin-path.ts"() {
+      injectedRelDir = "";
+    }
+  });
+
   // src/core/storage-path.ts
   function normalizeStorageDir(value) {
     let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
@@ -5478,6 +5518,7 @@ var BZW_clipbook = (() => {
       init_app();
       init_settings_provider();
       init_notice();
+      init_plugin_path();
       init_storage_path();
       fileTaskQueues = /* @__PURE__ */ new Map();
       CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
@@ -5685,46 +5726,6 @@ var BZW_clipbook = (() => {
         ...JSDELIVR_HOSTS.map((h) => `https://${h}/gh/${ASSETS_SLUG}@master`)
       ];
       HTML_PROXY_BASE = "https://gh-proxy.com";
-    }
-  });
-
-  // src/core/plugin-path.ts
-  function trimSlashes(p) {
-    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
-  }
-  function pluginRelDirOf(app) {
-    var _a, _b, _c, _d;
-    if (injectedRelDir) return injectedRelDir;
-    const fromManifests = trimSlashes(
-      String(((_c = (_b = (_a = app == null ? void 0 : app.plugins) == null ? void 0 : _a.manifests) == null ? void 0 : _b.bz) == null ? void 0 : _c.dir) || "")
-    );
-    if (fromManifests) return fromManifests;
-    const configDir = trimSlashes(String(((_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
-    return `${configDir || ".obsidian"}/plugins/bz`;
-  }
-  function vaultBasePathOf(app) {
-    var _a, _b;
-    const adapter = (_a = app == null ? void 0 : app.vault) == null ? void 0 : _a.adapter;
-    try {
-      const p = ((_b = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app) {
-    const base = vaultBasePathOf(app);
-    if (!base) return "";
-    return `${base}/${pluginRelDirOf(app)}`;
-  }
-  function pluginVaultPath(app, rel) {
-    const dir = pluginRelDirOf(app);
-    return `${dir}/${trimSlashes(rel)}`;
-  }
-  var injectedRelDir;
-  var init_plugin_path = __esm({
-    "src/core/plugin-path.ts"() {
-      injectedRelDir = "";
     }
   });
 
@@ -10008,7 +10009,7 @@ ${c.trim()}
   var TOOL_SETTINGS_HINT;
   var init_tool_hint = __esm({
     "src/core/tool-hint.ts"() {
-      TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+      TOOL_SETTINGS_HINT = "「设置 → 通用 → 外部工具」";
     }
   });
 
@@ -10113,9 +10114,12 @@ ${c.trim()}
       init_app();
       init_tool_hint();
       TOOL_ENTRIES = {
-        "bili-downloader": { script: "cli.js", label: "B站下载器" },
+        // 2026-10-29 用户拍板改名：行名是「给谁干活」而不是「工具本身叫啥」——
+        // bili-downloader 只服务知识盒的批量下载，叫「B站下载器」会让人以为它是个通用下载器；
+        // dock-watch 也不只是一段值守进程，它带着安装/卸载脚本，是个完整的工具坞配套包。
+        "bili-downloader": { script: "cli.js", label: "知识盒工具包" },
         "obsidian-face": { script: "bin/bz-face.js", label: "脸谱工具包" },
-        "dock-watch": { script: "cli.js", label: "工具坞值守" }
+        "dock-watch": { script: "cli.js", label: "工具坞工具包" }
       };
       BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
       fsProbe = null;
@@ -16054,8 +16058,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function humanizeError(reason) {
     const s = String(reason != null ? reason : "").trim();
     if (!s) return "";
-    if (/未找到\s*(bili-dl|B站下载器)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
-      return "下载工具未安装：到「设置 → 通用 → 在线资源」里下载「B站下载器」后重试";
+    if (/未找到\s*(bili-dl|B站下载器|知识盒工具包)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
+      return "下载工具未安装：到「设置 → 通用 → 外部工具」里下载「知识盒工具包」后重试";
     }
     if (/ffmpeg/i.test(s)) return "视频处理工具（ffmpeg）不可用：检查电脑是否已安装，或设置里的「ffmpeg 路径」";
     if (/ffprobe/i.test(s)) return "视频探测工具（ffprobe）不可用：检查电脑是否已安装，或设置里的「ffprobe 路径」";
@@ -24628,7 +24632,7 @@ ${bodyText.substring(0, 6e3)}`;
         break;
       }
       case "info": {
-        ctrlEl.innerHTML = badgeHtml(row.name);
+        if (!row.hideBadge) ctrlEl.innerHTML = badgeHtml(row.name);
         for (const a of (_o = row.actions) != null ? _o : []) {
           const holder2 = document.createElement("div");
           holder2.innerHTML = rowBtnHtml(a.text, a.cta);

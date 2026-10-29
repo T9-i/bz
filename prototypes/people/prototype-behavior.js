@@ -1,4 +1,4 @@
-/* 源指纹 932ead3d22e7905d · 仓内输入 105 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 a3d720af05891ab1 · 仓内输入 105 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/people/fake-sim.ts","prototypes/people/fake/fake-obsidian.ts","src/bookshelf/data.ts","src/bookshelf/state.ts","src/cinema/state.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/esc-manager.ts","src/core/external-tool.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/lock-stats.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-modal.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/sha256.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/password-vault/data.ts","src/people/chat.ts","src/people/data.ts","src/people/datasource.ts","src/people/describe.ts","src/people/digest.ts","src/people/export.ts","src/people/heavy-gate.ts","src/people/incremental.ts","src/people/insights.ts","src/people/jobs.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/migrate.ts","src/people/parse.ts","src/people/prep.ts","src/people/recording.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/sync.ts","src/people/thumbs.ts","src/people/types.ts","src/people/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/people/fake-sim.ts → window.BZW_people（行为单源预览包，issue 245/ADR-0106） */
 var BZW_people = (() => {
@@ -5185,6 +5185,42 @@ var BZW_people = (() => {
     }
   });
 
+  // src/core/plugin-path.ts
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function pluginRelDirOf(app) {
+    var _a2, _b2, _c2, _d2;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c2 = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c2.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d2 = app == null ? void 0 : app.vault) == null ? void 0 : _d2.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app) {
+    var _a2, _b2;
+    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
+    try {
+      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app)}`;
+  }
+  var injectedRelDir;
+  var init_plugin_path = __esm({
+    "src/core/plugin-path.ts"() {
+      injectedRelDir = "";
+    }
+  });
+
   // src/core/storage-path.ts
   function normalizeStorageDir(value) {
     let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
@@ -5431,6 +5467,7 @@ var BZW_people = (() => {
       init_app();
       init_settings_provider();
       init_notice();
+      init_plugin_path();
       init_storage_path();
       fileTaskQueues = /* @__PURE__ */ new Map();
       CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
@@ -15771,7 +15808,7 @@ ${lines}`;
   }
 
   // src/core/tool-hint.ts
-  var TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+  var TOOL_SETTINGS_HINT = "「设置 → 通用 → 外部工具」";
   function toolMissingHint(label = "外部工具") {
     return `未找到${label}：到${TOOL_SETTINGS_HINT}里下载它，下载完即可用`;
   }
@@ -16163,42 +16200,18 @@ ${lines}`;
     ...JSDELIVR_HOSTS.map((h) => `https://${h}/gh/${ASSETS_SLUG}@master`)
   ];
 
-  // src/core/plugin-path.ts
-  var injectedRelDir = "";
-  function trimSlashes(p) {
-    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
-  }
-  function pluginRelDirOf(app) {
-    var _a2, _b2, _c2, _d2;
-    if (injectedRelDir) return injectedRelDir;
-    const fromManifests = trimSlashes(
-      String(((_c2 = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c2.dir) || "")
-    );
-    if (fromManifests) return fromManifests;
-    const configDir = trimSlashes(String(((_d2 = app == null ? void 0 : app.vault) == null ? void 0 : _d2.configDir) || ".obsidian"));
-    return `${configDir || ".obsidian"}/plugins/bz`;
-  }
-  function vaultBasePathOf(app) {
-    var _a2, _b2;
-    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
-    try {
-      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app) {
-    const base = vaultBasePathOf(app);
-    if (!base) return "";
-    return `${base}/${pluginRelDirOf(app)}`;
-  }
+  // src/core/remote-asset.ts
+  init_plugin_path();
+
+  // src/core/offline-source.ts
+  init_plugin_path();
 
   // src/core/remote-asset.ts
   var DOWNLOADS_DIR = "downloads";
 
   // src/core/node-runtime-install.ts
   init_fake_obsidian();
+  init_plugin_path();
 
   // src/core/tar.ts
   var UNTAR_LIMITS = {
@@ -16222,11 +16235,15 @@ ${lines}`;
   }
 
   // src/core/tool-runtime.ts
+  init_plugin_path();
   init_app();
   var TOOL_ENTRIES = {
-    "bili-downloader": { script: "cli.js", label: "B站下载器" },
+    // 2026-10-29 用户拍板改名：行名是「给谁干活」而不是「工具本身叫啥」——
+    // bili-downloader 只服务知识盒的批量下载，叫「B站下载器」会让人以为它是个通用下载器；
+    // dock-watch 也不只是一段值守进程，它带着安装/卸载脚本，是个完整的工具坞配套包。
+    "bili-downloader": { script: "cli.js", label: "知识盒工具包" },
     "obsidian-face": { script: "bin/bz-face.js", label: "脸谱工具包" },
-    "dock-watch": { script: "cli.js", label: "工具坞值守" }
+    "dock-watch": { script: "cli.js", label: "工具坞工具包" }
   };
   function isWindows() {
     return typeof process !== "undefined" && process.platform === "win32";

@@ -1,4 +1,4 @@
-/* 源指纹 5a02848b1696ea99 · 仓内输入 306 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 4e3a4efad475700f · 仓内输入 306 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/settings-panel/fake-sim.ts","prototypes/settings-panel/fake/fake-obsidian.ts","src/auto-summary/index.ts","src/auto-summary/keys.ts","src/auto-summary/parser.ts","src/auto-summary/processor.ts","src/belongings/ai.ts","src/belongings/catalog-suggest.ts","src/belongings/category.ts","src/belongings/data.ts","src/belongings/layouts/poster/render.ts","src/belongings/motion.ts","src/belongings/render.ts","src/belongings/report-stats.ts","src/belongings/report.ts","src/belongings/shared.ts","src/belongings/ui.ts","src/bookshelf/constants.ts","src/bookshelf/data.ts","src/bookshelf/epub-notes.ts","src/bookshelf/layouts/wall/render.ts","src/bookshelf/motion.ts","src/bookshelf/notes-ui.ts","src/bookshelf/notes.ts","src/bookshelf/render.ts","src/bookshelf/settings.ts","src/bookshelf/shared.ts","src/bookshelf/state.ts","src/bookshelf/ui.ts","src/checkup/checks-consistency.ts","src/checkup/checks-drift.ts","src/checkup/checks-json.ts","src/checkup/checks-orphans.ts","src/checkup/files.ts","src/checkup/index.ts","src/checkup/run.ts","src/checkup/ui.ts","src/cinema/constants.ts","src/cinema/data.ts","src/cinema/douban-fetcher.ts","src/cinema/seasons.ts","src/cinema/settings.ts","src/cinema/shared.ts","src/cinema/state.ts","src/clipbook/anchor.ts","src/clipbook/constants.ts","src/clipbook/data.ts","src/clipbook/file-sync.ts","src/clipbook/flow.ts","src/clipbook/image-save.ts","src/clipbook/index.ts","src/clipbook/loader.ts","src/clipbook/md.ts","src/clipbook/motion.ts","src/clipbook/news-data.ts","src/clipbook/news-fetcher.ts","src/clipbook/news-source-settings.ts","src/clipbook/news-sources-group.ts","src/clipbook/press/data.ts","src/clipbook/press/engine.ts","src/clipbook/press/index.ts","src/clipbook/press/motions.ts","src/clipbook/press/view.ts","src/clipbook/render.ts","src/clipbook/report-stats.ts","src/clipbook/report-ui.ts","src/clipbook/save.ts","src/clipbook/scan.ts","src/clipbook/state.ts","src/clipbook/store.ts","src/clipbook/ui.ts","src/clipbook/write-queue.ts","src/core/about-group.ts","src/core/ai-models.ts","src/core/ai.ts","src/core/app.ts","src/core/asr-proofread.ts","src/core/bundle-asset.ts","src/core/category-table.ts","src/core/changelog.ts","src/core/chart-palette.ts","src/core/crypto.ts","src/core/diary-format.ts","src/core/dom.ts","src/core/domain-bus.ts","src/core/domain-icons.ts","src/core/douban-name-index.ts","src/core/download-manifest.ts","src/core/env-check.ts","src/core/esc-manager.ts","src/core/file-sync.ts","src/core/flow-dialog.ts","src/core/gesture.ts","src/core/http.ts","src/core/item-actions.ts","src/core/jev-fallback.ts","src/core/jev.ts","src/core/json-store.ts","src/core/knowledge-boxes.ts","src/core/landscape.ts","src/core/link-now.ts","src/core/lock-stats.ts","src/core/manual.ts","src/core/mobile.ts","src/core/model-limits.ts","src/core/net-progress.ts","src/core/node-runtime-install.ts","src/core/note-trash.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/path-picker.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/rss-catalog.ts","src/core/self-update.ts","src/core/settings-btn-state.ts","src/core/settings-common.ts","src/core/settings-main-schema.ts","src/core/settings-modal.ts","src/core/settings-model-picker.ts","src/core/settings-provider.ts","src/core/settings-schema.ts","src/core/setup-wizard.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/tar.ts","src/core/tool-hint.ts","src/core/tool-runtime.ts","src/core/tool-setup.ts","src/core/ui/button.ts","src/core/ui/cardpick.ts","src/core/ui/chip.ts","src/core/ui/choice.ts","src/core/ui/empty.ts","src/core/ui/field.ts","src/core/ui/flip.ts","src/core/ui/focus-trap.ts","src/core/ui/help-tip.ts","src/core/ui/icon.ts","src/core/ui/icons.ts","src/core/ui/index.ts","src/core/ui/lightbox.ts","src/core/ui/lock-screen.ts","src/core/ui/mainhead.ts","src/core/ui/mobstrip.ts","src/core/ui/modal.ts","src/core/ui/popover.ts","src/core/ui/progress.ts","src/core/ui/rail.ts","src/core/ui/resize.ts","src/core/ui/search.ts","src/core/ui/segmented.ts","src/core/ui/select.ts","src/core/ui/setlist.ts","src/core/ui/slide-pill.ts","src/core/ui/slider.ts","src/core/ui/splitter.ts","src/core/ui/stat.ts","src/core/ui/str.ts","src/core/ui/suggest.ts","src/core/ui/switch.ts","src/core/utils.ts","src/core/vault-key.ts","src/core/z-order.ts","src/core/zip.ts","src/diary/config.ts","src/diary/settings.ts","src/encrypt/data.ts","src/encrypt/index.ts","src/encrypt/motion.ts","src/encrypt/preview.ts","src/encrypt/ui.ts","src/encrypt/vault-assets-view.ts","src/favorites/ai.ts","src/favorites/app.ts","src/favorites/config.ts","src/favorites/data.ts","src/favorites/layouts/board/render.ts","src/favorites/motion.ts","src/favorites/render.ts","src/favorites/shared.ts","src/favorites/ui.ts","src/gameshelf/constants.ts","src/gameshelf/settings.ts","src/gameshelf/state.ts","src/home/entry-editor.ts","src/home/order.ts","src/home/settings.ts","src/home/shared.ts","src/knowledge/data.ts","src/knowledge/file-sync.ts","src/knowledge/index.ts","src/knowledge/motion.ts","src/knowledge/mount-canvas.ts","src/knowledge/mount-data.ts","src/knowledge/mount-geom.ts","src/knowledge/mount-layout.ts","src/knowledge/mount-route.ts","src/knowledge/mount-suggest.ts","src/knowledge/note-edit.ts","src/knowledge/note-gen.ts","src/knowledge/partial-json.ts","src/knowledge/processor.ts","src/knowledge/range-bar.ts","src/knowledge/relink.ts","src/knowledge/source-retire.ts","src/knowledge/source.ts","src/knowledge/tack.ts","src/knowledge/ui.ts","src/knowledge/video-meta.ts","src/memo/data.ts","src/memo/due.ts","src/memo/render.ts","src/memo/settings.ts","src/memo/state.ts","src/memo/ui.ts","src/password-vault/data.ts","src/password-vault/settings.ts","src/people/chat.ts","src/people/datasource.ts","src/people/insights.ts","src/people/me-avatar.ts","src/people/media.ts","src/people/parse.ts","src/people/render.ts","src/people/safe-store.ts","src/people/settings.ts","src/people/stats.ts","src/people/types.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/index.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts","src/reading-report/index.ts","src/reading-report/report.ts","src/reading-report/stats.ts","src/review/analysis/data.ts","src/review/analysis/engine.ts","src/review/analysis/index.ts","src/review/analysis/kits.ts","src/review/analysis/motions.ts","src/review/analysis/view.ts","src/review/app.ts","src/review/data.ts","src/review/fit.ts","src/review/fsrs.ts","src/review/index.ts","src/review/motion.ts","src/review/queue.ts","src/review/quiz-core/generator.ts","src/review/quiz-core/index.ts","src/review/quiz-core/manager.ts","src/review/quiz-core/session.ts","src/review/quiz-panel-data.ts","src/review/quiz-panel.ts","src/review/render.ts","src/review/settings-schema.ts","src/review/sprint.ts","src/review/stats-ui.ts","src/review/stats.ts","src/review/ui.ts","src/review/watch.ts","src/secondbrain/ai.ts","src/secondbrain/chunk.ts","src/secondbrain/config.ts","src/secondbrain/link-agent/data.ts","src/secondbrain/link-agent/pipeline.ts","src/secondbrain/motion.ts","src/secondbrain/panel.ts","src/secondbrain/readonly.ts","src/secondbrain/render.ts","src/secondbrain/store-file.ts","src/secondbrain/tfidf.ts","src/secondbrain/vector-math.ts","src/secondbrain/weekly-ui.ts","src/secondbrain/weekly.ts","src/secondbrain/whitelist.ts","src/settings-panel/changelog.ts","src/settings-panel/index.ts","src/settings-panel/layouts/jingwei/render.ts","src/settings-panel/manual-viewer.ts","src/settings-panel/motion.ts","src/settings-panel/online-resources.ts","src/settings-panel/render.ts","src/settings-panel/renderer.ts","src/settings-panel/shared.ts","src/settings-panel/ui.ts","src/settings.ts","src/smartcat/belongings-source.ts","src/smartcat/character.ts","src/smartcat/config.ts","src/smartcat/data.ts","src/smartcat/favorites-source.ts","src/smartcat/motion.ts","src/smartcat/types.ts","src/smartcat/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/settings-panel/fake-sim.ts → window.BZW_settings_panel（行为单源预览包，issue 245/ADR-0106） */
 var BZW_settings_panel = (() => {
@@ -10440,7 +10440,7 @@ var BZW_settings_panel = (() => {
         break;
       }
       case "info": {
-        ctrlEl.innerHTML = badgeHtml(row.name);
+        if (!row.hideBadge) ctrlEl.innerHTML = badgeHtml(row.name);
         for (const a of (_o = row.actions) != null ? _o : []) {
           const holder2 = document.createElement("div");
           holder2.innerHTML = rowBtnHtml(a.text, a.cta);
@@ -12325,21 +12325,6 @@ var BZW_settings_panel = (() => {
   function generalSettingsSchema() {
     return {
       groups: [
-        {
-          icon: "layout-grid",
-          name: "功能域",
-          rows: [
-            {
-              type: "toggle",
-              // 键 smartcatEnabled 早已存在（l7A 的启动自动加载开关），ADR-0254 把它升格成整域总闸：
-              // 关 = 卸实例 + 撤命令 + 停记忆/行为流，不只是「启动时不自动挂」
-              name: "小橘陪伴猫",
-              desc: "关闭后桌面宠物与后台记忆一并停用",
-              help: "关闭后小橘不再随 Obsidian 启动，命令面板里的小橘命令一并撤下，正在跑的猫当场收起，记忆流与行为流也停止写入。数据文件原样留在数据目录，重新打开这个开关就接回原处，不用重载插件。",
-              binding: { key: "smartcatEnabled" }
-            }
-          ]
-        },
         // 外部工具组（Python / ffmpeg / ffprobe）2026-10-26 已收进 AI 页，见 aiSettingsSchema。
         {
           icon: "bell",
@@ -12432,13 +12417,47 @@ var BZW_settings_panel = (() => {
     }
   });
 
-  // src/core/storage-path.ts
-  var storage_path_exports = {};
-  __export(storage_path_exports, {
-    DEFAULT_STORAGE_DIR: () => DEFAULT_STORAGE_DIR,
-    normalizeStorageDir: () => normalizeStorageDir,
-    storageFileIn: () => storageFileIn
+  // src/core/plugin-path.ts
+  function trimSlashes(p) {
+    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
+  }
+  function pluginRelDirOf(app) {
+    var _a2, _b2, _c, _d;
+    if (injectedRelDir) return injectedRelDir;
+    const fromManifests = trimSlashes(
+      String(((_c = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c.dir) || "")
+    );
+    if (fromManifests) return fromManifests;
+    const configDir = trimSlashes(String(((_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
+    return `${configDir || ".obsidian"}/plugins/bz`;
+  }
+  function vaultBasePathOf(app) {
+    var _a2, _b2;
+    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
+    try {
+      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
+      return String(p || "").replace(/[\\/]+$/, "");
+    } catch (e) {
+      return "";
+    }
+  }
+  function pluginDirOf(app) {
+    const base = vaultBasePathOf(app);
+    if (!base) return "";
+    return `${base}/${pluginRelDirOf(app)}`;
+  }
+  function pluginVaultPath(app, rel) {
+    const dir = pluginRelDirOf(app);
+    return `${dir}/${trimSlashes(rel)}`;
+  }
+  var injectedRelDir;
+  var init_plugin_path = __esm({
+    "src/core/plugin-path.ts"() {
+      injectedRelDir = "";
+    }
   });
+
+  // src/core/storage-path.ts
   function normalizeStorageDir(value) {
     let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
     if (/\.json$/i.test(dir)) {
@@ -12446,9 +12465,6 @@ var BZW_settings_panel = (() => {
       dir = idx >= 0 ? dir.slice(0, idx) : "";
     }
     return dir || DEFAULT_STORAGE_DIR;
-  }
-  function storageFileIn(dir, name) {
-    return `${normalizeStorageDir(dir).replace(/\/+$/, "")}/${name}`;
   }
   var DEFAULT_STORAGE_DIR;
   var init_storage_path = __esm({
@@ -12687,6 +12703,7 @@ var BZW_settings_panel = (() => {
       init_app();
       init_settings_provider();
       init_notice();
+      init_plugin_path();
       init_storage_path();
       fileTaskQueues = /* @__PURE__ */ new Map();
       CORRUPT_BACKUP_DIR = "CONFIG/.CORRUPT";
@@ -15510,46 +15527,6 @@ ${countsToText(s.missing)}
     }
   });
 
-  // src/core/plugin-path.ts
-  function trimSlashes(p) {
-    return String(p || "").replace(/^[\\/]+|[\\/]+$/g, "");
-  }
-  function pluginRelDirOf(app) {
-    var _a2, _b2, _c, _d;
-    if (injectedRelDir) return injectedRelDir;
-    const fromManifests = trimSlashes(
-      String(((_c = (_b2 = (_a2 = app == null ? void 0 : app.plugins) == null ? void 0 : _a2.manifests) == null ? void 0 : _b2.bz) == null ? void 0 : _c.dir) || "")
-    );
-    if (fromManifests) return fromManifests;
-    const configDir = trimSlashes(String(((_d = app == null ? void 0 : app.vault) == null ? void 0 : _d.configDir) || ".obsidian"));
-    return `${configDir || ".obsidian"}/plugins/bz`;
-  }
-  function vaultBasePathOf(app) {
-    var _a2, _b2;
-    const adapter = (_a2 = app == null ? void 0 : app.vault) == null ? void 0 : _a2.adapter;
-    try {
-      const p = ((_b2 = adapter == null ? void 0 : adapter.getBasePath) == null ? void 0 : _b2.call(adapter)) || (adapter == null ? void 0 : adapter.basePath) || "";
-      return String(p || "").replace(/[\\/]+$/, "");
-    } catch (e) {
-      return "";
-    }
-  }
-  function pluginDirOf(app) {
-    const base = vaultBasePathOf(app);
-    if (!base) return "";
-    return `${base}/${pluginRelDirOf(app)}`;
-  }
-  function pluginVaultPath(app, rel) {
-    const dir = pluginRelDirOf(app);
-    return `${dir}/${trimSlashes(rel)}`;
-  }
-  var injectedRelDir;
-  var init_plugin_path = __esm({
-    "src/core/plugin-path.ts"() {
-      injectedRelDir = "";
-    }
-  });
-
   // src/core/offline-source.ts
   function offlineRootOf(app) {
     const base = vaultBasePathOf(app);
@@ -16299,7 +16276,7 @@ ${countsToText(s.missing)}
   var TOOL_SETTINGS_HINT;
   var init_tool_hint = __esm({
     "src/core/tool-hint.ts"() {
-      TOOL_SETTINGS_HINT = "「设置 → 通用 → 在线资源」";
+      TOOL_SETTINGS_HINT = "「设置 → 通用 → 外部工具」";
     }
   });
 
@@ -16435,9 +16412,12 @@ ${countsToText(s.missing)}
       init_app();
       init_tool_hint();
       TOOL_ENTRIES = {
-        "bili-downloader": { script: "cli.js", label: "B站下载器" },
+        // 2026-10-29 用户拍板改名：行名是「给谁干活」而不是「工具本身叫啥」——
+        // bili-downloader 只服务知识盒的批量下载，叫「B站下载器」会让人以为它是个通用下载器；
+        // dock-watch 也不只是一段值守进程，它带着安装/卸载脚本，是个完整的工具坞配套包。
+        "bili-downloader": { script: "cli.js", label: "知识盒工具包" },
         "obsidian-face": { script: "bin/bz-face.js", label: "脸谱工具包" },
-        "dock-watch": { script: "cli.js", label: "工具坞值守" }
+        "dock-watch": { script: "cli.js", label: "工具坞工具包" }
       };
       TOOL_IDS = ["bili-downloader", "dock-watch", "obsidian-face"];
       BUNDLED_NODE_DIR = NODE_RUNTIME_DIR;
@@ -22461,8 +22441,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
   function humanizeError(reason) {
     const s = String(reason != null ? reason : "").trim();
     if (!s) return "";
-    if (/未找到\s*(bili-dl|B站下载器)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
-      return "下载工具未安装：到「设置 → 通用 → 在线资源」里下载「B站下载器」后重试";
+    if (/未找到\s*(bili-dl|B站下载器|知识盒工具包)|npm install -g @jwbz\/bili-downloader|ENOENT.*bili-dl/i.test(s)) {
+      return "下载工具未安装：到「设置 → 通用 → 外部工具」里下载「知识盒工具包」后重试";
     }
     if (/ffmpeg/i.test(s)) return "视频处理工具（ffmpeg）不可用：检查电脑是否已安装，或设置里的「ffmpeg 路径」";
     if (/ffprobe/i.test(s)) return "视频探测工具（ffprobe）不可用：检查电脑是否已安装，或设置里的「ffprobe 路径」";
@@ -26868,8 +26848,8 @@ ${String(blockText != null ? blockText : "").trim()}`);
           return p;
         };
         for (const ev of batch) {
-          const inScope = inFolders(ev.newPath, config.watchedFolders());
-          if (!(inScope || await referencedOnce(ev.oldPath) || await referencedOnce(ev.newPath))) continue;
+          const inScope2 = inFolders(ev.newPath, config.watchedFolders());
+          if (!(inScope2 || await referencedOnce(ev.oldPath) || await referencedOnce(ev.newPath))) continue;
           await config.commit((data) => config.applyRename(data, ev));
         }
       });
@@ -29882,7 +29862,7 @@ ${it.text}`).join("\n"));
     const other = activeWatchdogVault();
     const switching = !!other && other !== vault;
     const go = await openFlowDialog({
-      title: switching ? "把值守切到这个库" : "启用工具坞值守",
+      title: switching ? "把值守切到这个库" : "启用工具坞后台值守",
       message: switching ? `值守现在服务的是另一个库：
 ${other}
 
@@ -30381,7 +30361,11 @@ ${other}
   function resetOnlineResourcesState() {
     lastCheckAt = 0;
     checkFailed = false;
-    currentGroup = null;
+    currentGroups = [];
+    currentEntries = [];
+    retryRow = null;
+    retryVisible = false;
+    toolIds = /* @__PURE__ */ new Set();
     syncRunning = null;
     syncDirty = false;
     busyIds.clear();
@@ -30485,10 +30469,15 @@ ${other}
     if (st.doc === "ready") return { text: "已下载", disabled: true };
     return { text: "下载", disabled: true };
   }
-  function pendingOf(states) {
+  function inScope(id, scope) {
+    if (id === SKINS_ROW_ID) return scope === "resources";
+    return scope === "tools" ? toolIds.has(id) : !toolIds.has(id);
+  }
+  function pendingOf(states, scope) {
     let pending = 0;
     let updatable = 0;
     for (const st of states) {
+      if (!inScope(st.id, scope)) continue;
       if (st.skin) {
         if (st.skin.missing + st.skin.updated > 0) pending++;
         if (st.skin.updated > 0) updatable++;
@@ -30501,67 +30490,69 @@ ${other}
     }
     return { pending, updatable };
   }
-  function allButton(states, hasManifest) {
+  function allButton(states, hasManifest, scope) {
     if (!hasManifest) return { text: "等待检查更新", disabled: true };
-    const { pending, updatable } = pendingOf(states);
+    const { pending, updatable } = pendingOf(states, scope);
     if (pending === 0) return { text: "全部更新", disabled: true };
     return { text: updatable > 0 ? `全部更新 ${pending}` : `全部下载 ${pending}`, disabled: false };
+  }
+  function makeAllRow(scope, states, hasManifest) {
+    const ab = allButton(states, hasManifest, scope);
+    return {
+      type: "button",
+      name: "全部更新",
+      desc: scope === "tools" ? "一次处理三个工具包的未下载与更新" : "一次处理全部未下载与有更新的资源",
+      buttonText: ab.text,
+      disabled: ab.disabled,
+      onClick: (ctx) => void runAll(ctx, scope)
+    };
   }
   async function onlineResourcesGroups() {
     var _a2;
     const { rows: states, manifest } = await computeRowStates(getApp());
     const hasManifest = !!manifest;
-    const meta = {
-      rows: [],
-      retryRow: null,
-      allRow: null,
-      entries: [],
-      retryVisible: !hasManifest || checkFailed
-    };
-    const retryRow = {
+    toolIds = new Set(((_a2 = manifest == null ? void 0 : manifest.docs) != null ? _a2 : []).filter((d) => d.kind === "bundle").map((d) => d.id));
+    if (!manifest) for (const t of LOCAL_TOOL_ROWS) toolIds.add(t.id);
+    retryVisible = !hasManifest || checkFailed;
+    const checkRow = {
       type: "button",
       name: "检查更新",
       desc: checkFailed ? "检查更新失败，可能是网络不可用" : "尚未检查更新",
       buttonText: checkFailed ? "重试" : "检查更新",
-      visibleWhen: () => meta.retryVisible,
+      // 显隐真相挂在模块位上：visibleWhen 与 DOM 补丁同读一处，别各存一份
+      visibleWhen: () => retryVisible,
       onClick: (ctx) => void retryCheck(ctx)
     };
-    meta.retryRow = retryRow;
-    meta.rows.push(retryRow);
-    const ab = allButton(states, hasManifest);
-    const allRow = {
-      type: "button",
-      name: "全部更新",
-      desc: "一次处理全部未下载与有更新的资源",
-      buttonText: ab.text,
-      disabled: ab.disabled,
-      onClick: (ctx) => void runAll(ctx)
-    };
-    meta.allRow = allRow;
-    meta.rows.push(allRow);
+    retryRow = checkRow;
+    const toolAllRow = makeAllRow("tools", states, hasManifest);
+    const resAllRow = makeAllRow("resources", states, hasManifest);
+    currentEntries = [];
     for (const st of states) {
       const btn = rowButton(st);
-      const row = {
-        type: "button",
-        name: st.name,
-        desc: rowDesc(st),
-        buttonText: btn.text,
-        disabled: btn.disabled,
-        onClick: (ctx) => void runAction(ctx, st.id)
-      };
-      meta.rows.push(row);
-      meta.entries.push({ id: st.id, row });
+      currentEntries.push({
+        id: st.id,
+        row: {
+          type: "button",
+          name: st.name,
+          desc: rowDesc(st),
+          buttonText: btn.text,
+          disabled: btn.disabled,
+          onClick: (ctx) => void runAction(ctx, st.id)
+        }
+      });
     }
-    currentGroup = meta;
+    const rowOf = (id) => currentEntries.filter((e) => e.id === id).map((e) => e.row);
+    const toolRows = [...toolIds].flatMap(rowOf);
+    const resRows = [checkRow, resAllRow, ...currentEntries.filter((e) => !toolIds.has(e.id)).map((e) => e.row)];
+    const toolsRows = [toolAllRow, ...toolRows];
+    const tools = { name: "外部工具", icon: "wrench", rows: toolsRows };
+    const resources = { name: "在线资源", icon: "cloud-download", rows: resRows };
+    currentGroups = [
+      { name: tools.name, scope: "tools", rows: toolsRows, allRow: toolAllRow },
+      { name: resources.name, scope: "resources", rows: resRows, allRow: resAllRow }
+    ];
     subscribeOnce3();
     if (Date.now() - lastCheckAt > CHECK_THROTTLE_MS) void checkInBackground();
-    const bundleIds = new Set(((_a2 = manifest == null ? void 0 : manifest.docs) != null ? _a2 : []).filter((d) => d.kind === "bundle").map((d) => d.id));
-    if (!manifest) for (const t of LOCAL_TOOL_ROWS) bundleIds.add(t.id);
-    const toolRows = meta.entries.filter((e) => bundleIds.has(e.id)).map((e) => e.row);
-    const toolSet = new Set(toolRows);
-    const restRows = meta.rows.filter((r) => !toolSet.has(r));
-    const tools = { name: "外部工具", icon: "wrench", rows: toolRows };
-    const resources = { name: "在线资源", icon: "cloud-download", rows: restRows };
     return [tools, resources];
   }
   async function onlineResourcesGroup() {
@@ -30591,17 +30582,17 @@ ${other}
   async function retryCheck(ctx) {
     var _a2, _b2;
     const btn = (_a2 = ctx.rowEl.querySelector(".bz-sp-btn")) != null ? _a2 : void 0;
-    const retryRow = currentGroup == null ? void 0 : currentGroup.retryRow;
+    const row = retryRow;
     setRowBtnState(btn, "busy", "检查更新");
-    if (retryRow) retryRow.disabled = true;
+    if (row) row.disabled = true;
     await checkInBackground();
-    if (retryRow) retryRow.disabled = void 0;
-    setRowBtnState(btn, "idle", (_b2 = retryRow == null ? void 0 : retryRow.buttonText) != null ? _b2 : "检查更新");
+    if (row) row.disabled = void 0;
+    setRowBtnState(btn, "idle", (_b2 = row == null ? void 0 : row.buttonText) != null ? _b2 : "检查更新");
     patchRenderedGroup();
     ctx.refreshVisibility();
   }
   async function syncGroupRows() {
-    if (!currentGroup) return;
+    if (!currentGroups.length) return;
     if (syncRunning) {
       syncDirty = true;
       return syncRunning;
@@ -30611,7 +30602,7 @@ ${other}
         do {
           syncDirty = false;
           await syncOnce();
-        } while (syncDirty && currentGroup);
+        } while (syncDirty && currentGroups.length);
       } finally {
         syncRunning = null;
       }
@@ -30619,21 +30610,24 @@ ${other}
     return syncRunning;
   }
   async function syncOnce() {
-    const meta = currentGroup;
-    if (!meta) return;
+    const meta = currentGroups;
+    if (!meta.length) return;
     const { rows: states, manifest } = await computeRowStates(getApp());
-    if (currentGroup !== meta) return;
+    if (currentGroups !== meta) return;
     const hasManifest = !!manifest;
-    meta.retryVisible = !hasManifest || checkFailed;
-    meta.retryRow.desc = checkFailed ? "检查更新失败，可能是网络不可用" : "尚未检查更新";
-    meta.retryRow.buttonText = checkFailed ? "重试" : "检查更新";
-    if (states.length !== meta.entries.length || states.some((st, i) => st.id !== meta.entries[i].id)) return;
-    if (!busyIds.has(ALL_BUSY_ID)) {
-      const ab = allButton(states, hasManifest);
-      meta.allRow.buttonText = ab.text;
-      meta.allRow.disabled = ab.disabled;
+    retryVisible = !hasManifest || checkFailed;
+    if (retryRow) {
+      retryRow.desc = checkFailed ? "检查更新失败，可能是网络不可用" : "尚未检查更新";
+      retryRow.buttonText = checkFailed ? "重试" : "检查更新";
     }
-    for (const { id, row } of meta.entries) {
+    if (states.length !== currentEntries.length || states.some((st, i) => st.id !== currentEntries[i].id)) return;
+    for (const g of meta) {
+      if (busyIds.has(allBusyId(g.scope))) continue;
+      const ab = allButton(states, hasManifest, g.scope);
+      g.allRow.buttonText = ab.text;
+      g.allRow.disabled = ab.disabled;
+    }
+    for (const { id, row } of currentEntries) {
       if (busyIds.has(id)) continue;
       const st = states.find((s) => s.id === id);
       if (!st) continue;
@@ -30646,31 +30640,32 @@ ${other}
     patchRenderedGroup();
   }
   function patchRenderedGroup() {
-    const meta = currentGroup;
-    if (!meta) return;
-    document.querySelectorAll('[data-sp-group="在线资源"]').forEach((card) => {
-      const domRows = card.querySelectorAll(".bz-sp-group-body > .bz-sp-set-row");
-      meta.rows.forEach((row, i) => {
-        var _a2;
-        const el2 = domRows[i];
-        if (!el2) return;
-        const btnRow = row;
-        if (row === meta.retryRow && el2.dataset.spHitHidden !== "1") el2.style.display = meta.retryVisible ? "" : "none";
-        const desc = el2.querySelector(".bz-sp-set-desc");
-        if (desc) {
-          const text2 = (_a2 = btnRow.desc) != null ? _a2 : "";
-          if (desc.textContent !== text2) {
-            desc.textContent = text2;
-            if (desc.dataset.spOrig !== void 0) desc.dataset.spOrig = text2;
+    if (!currentGroups.length) return;
+    for (const g of currentGroups) {
+      document.querySelectorAll(`[data-sp-group="${g.name}"]`).forEach((card) => {
+        const domRows = card.querySelectorAll(".bz-sp-group-body > .bz-sp-set-row");
+        g.rows.forEach((row, i) => {
+          var _a2;
+          const el2 = domRows[i];
+          if (!el2) return;
+          const btnRow = row;
+          if (retryRow && row === retryRow && el2.dataset.spHitHidden !== "1") el2.style.display = retryVisible ? "" : "none";
+          const desc = el2.querySelector(".bz-sp-set-desc");
+          if (desc) {
+            const text2 = (_a2 = btnRow.desc) != null ? _a2 : "";
+            if (desc.textContent !== text2) {
+              desc.textContent = text2;
+              if (desc.dataset.spOrig !== void 0) desc.dataset.spOrig = text2;
+            }
           }
-        }
-        const btn = el2.querySelector(".bz-sp-btn");
-        if (btn && !btn.classList.contains("bz-rowbtn--busy")) {
-          setRowBtnState(btn, "idle", btnRow.buttonText);
-          btn.disabled = btnRow.disabled === true;
-        }
+          const btn = el2.querySelector(".bz-sp-btn");
+          if (btn && !btn.classList.contains("bz-rowbtn--busy")) {
+            setRowBtnState(btn, "idle", btnRow.buttonText);
+            btn.disabled = btnRow.disabled === true;
+          }
+        });
       });
-    });
+    }
   }
   async function downloadOne(app, manifest, id) {
     if (id === SKINS_ROW_ID) {
@@ -30688,12 +30683,15 @@ ${other}
     }
     await ensureAssetWithHash(app, entry.file, entry.sha256, entry.name);
   }
+  function allBusyId(scope) {
+    return `${ALL_BUSY_ID}:${scope}`;
+  }
   async function runAction(ctx, id) {
     var _a2, _b2, _c, _d;
     if (busyIds.has(id)) return;
     busyIds.add(id);
     const btn = (_a2 = ctx.rowEl.querySelector(".bz-sp-btn")) != null ? _a2 : void 0;
-    const row = (_b2 = currentGroup == null ? void 0 : currentGroup.entries.find((e) => e.id === id)) == null ? void 0 : _b2.row;
+    const row = (_b2 = currentEntries.find((e) => e.id === id)) == null ? void 0 : _b2.row;
     setRowBtnState(btn, "busy", (_c = btn == null ? void 0 : btn.textContent) != null ? _c : "下载");
     if (row) row.disabled = true;
     try {
@@ -30708,13 +30706,14 @@ ${other}
     setRowBtnState(btn, "idle", (_d = row == null ? void 0 : row.buttonText) != null ? _d : "下载");
     patchRenderedGroup();
   }
-  async function runAll(ctx) {
-    var _a2, _b2, _c, _d;
-    if (busyIds.has(ALL_BUSY_ID)) return;
-    busyIds.add(ALL_BUSY_ID);
+  async function runAll(ctx, scope) {
+    var _a2, _b2, _c, _d, _e;
+    const busy = allBusyId(scope);
+    if (busyIds.has(busy)) return;
+    busyIds.add(busy);
     const btn = (_a2 = ctx.rowEl.querySelector(".bz-sp-btn")) != null ? _a2 : void 0;
-    const allRow = currentGroup == null ? void 0 : currentGroup.allRow;
-    setRowBtnState(btn, "busy", (_b2 = btn == null ? void 0 : btn.textContent) != null ? _b2 : "全部更新");
+    const allRow = (_b2 = currentGroups.find((g) => g.scope === scope)) == null ? void 0 : _b2.allRow;
+    setRowBtnState(btn, "busy", (_c = btn == null ? void 0 : btn.textContent) != null ? _c : "全部更新");
     if (allRow) allRow.disabled = true;
     let failed = 0;
     try {
@@ -30723,11 +30722,12 @@ ${other}
       if (manifest) {
         const { rows: states } = await computeRowStates(app);
         for (const st of states) {
+          if (!inScope(st.id, scope)) continue;
           if (busyIds.has(st.id)) continue;
           const isPending = st.skin ? st.skin.missing + st.skin.updated > 0 : st.doc === "missing" || st.doc === "updated";
           if (!isPending) continue;
           busyIds.add(st.id);
-          const row = (_c = currentGroup == null ? void 0 : currentGroup.entries.find((e) => e.id === st.id)) == null ? void 0 : _c.row;
+          const row = (_d = currentEntries.find((e) => e.id === st.id)) == null ? void 0 : _d.row;
           if (row) row.disabled = true;
           try {
             await downloadOne(app, manifest, st.id);
@@ -30743,13 +30743,13 @@ ${other}
     } catch (e) {
       notice(e instanceof Error ? e.message : String(e), "error");
     }
-    busyIds.delete(ALL_BUSY_ID);
+    busyIds.delete(busy);
     await syncLogged();
     if (failed > 0) notice(`${failed} 项下载失败，可稍后重试`, "error");
-    setRowBtnState(btn, "idle", (_d = allRow == null ? void 0 : allRow.buttonText) != null ? _d : "全部更新");
+    setRowBtnState(btn, "idle", (_e = allRow == null ? void 0 : allRow.buttonText) != null ? _e : "全部更新");
     patchRenderedGroup();
   }
-  var thousand, SKINS_ROW_NAME, ALL_BUSY_ID, DESC_EXTRAS, CHECK_THROTTLE_MS, lastCheckAt, checkFailed, currentGroup, syncRunning, syncDirty, busyIds, LOCAL_TOOL_ROWS, subscribed3;
+  var thousand, SKINS_ROW_NAME, ALL_BUSY_ID, DESC_EXTRAS, CHECK_THROTTLE_MS, lastCheckAt, checkFailed, currentGroups, currentEntries, retryRow, retryVisible, toolIds, syncRunning, syncDirty, busyIds, LOCAL_TOOL_ROWS, subscribed3;
   var init_online_resources = __esm({
     "src/settings-panel/online-resources.ts"() {
       init_app();
@@ -30795,7 +30795,11 @@ ${other}
       CHECK_THROTTLE_MS = 6e4;
       lastCheckAt = 0;
       checkFailed = false;
-      currentGroup = null;
+      currentGroups = [];
+      currentEntries = [];
+      retryRow = null;
+      retryVisible = false;
+      toolIds = /* @__PURE__ */ new Set();
       syncRunning = null;
       syncDirty = false;
       busyIds = /* @__PURE__ */ new Set();
@@ -31114,11 +31118,9 @@ ${other}
   async function storageDirOf() {
     var _a2;
     try {
-      const { tryGetSettings: tryGetSettings2 } = await Promise.resolve().then(() => (init_settings_provider(), settings_provider_exports));
-      const { normalizeStorageDir: normalizeStorageDir2 } = await Promise.resolve().then(() => (init_storage_path(), storage_path_exports));
-      return normalizeStorageDir2((_a2 = tryGetSettings2()) == null ? void 0 : _a2.storagePath);
+      return normalizeStorageDir((_a2 = tryGetSettings()) == null ? void 0 : _a2.storagePath);
     } catch (e) {
-      return "CONFIG/STORAGE";
+      return DEFAULT_STORAGE_DIR;
     }
   }
   function isRealPythonOutput(out) {
@@ -31208,7 +31210,7 @@ ${other}
       rows.push({
         id: "node",
         key: "Node 运行时",
-        value: node.kind === "none" ? "未找到（B站下载器、值守、脸谱都靠它跑）" : `${node.kind === "bundled" ? "插件内" : "系统"}${node.version ? ` ${node.version}` : ""}`,
+        value: node.kind === "none" ? "未找到（知识盒工具包、工具坞工具包、脸谱工具包都靠它跑）" : `${node.kind === "bundled" ? "插件内" : "系统"}${node.version ? ` ${node.version}` : ""}`,
         ok: node.kind === "none" ? false : true,
         fix: node.kind === "none" ? "node" : null
       });
@@ -31262,6 +31264,7 @@ ${other}
       init_plugin_path();
       init_mobile();
       init_tool_runtime();
+      init_storage_path();
       PROBE_TIMEOUT_MS = 6e3;
     }
   });
@@ -32011,6 +32014,9 @@ ${other}
       type: "info",
       name: "版本",
       desc: versionDesc(st),
+      // 右列那枚「版本」小字去掉（2026-10-29 用户要求）：左列已经写着「版本」，
+      // 右列再挂一枚同名词只是噪声，还挤窄了「检查并更新」的落位。
+      hideBadge: true,
       help: "「检查并更新」会立刻去仓库取最新发布：有新版本就装下来，重载插件后生效。装之前会把当前版本备份进插件目录的 downloads/.backup 里。",
       actions: [
         {
@@ -69831,8 +69837,9 @@ ${n.content.slice(0, 2e3)}
         jevProvider: "typesafe",
         jevApiKeys: {},
         jevModels: {},
-        // 共享数据路径（ADR-0009）
-        storagePath: "CONFIG/STORAGE",
+        // 共享数据路径（ADR-0009）：空 = 还没定过，首次启动时由 core/storage.bootstrapStorageDir 写成
+        // `<插件目录>/storage`（2026-10-29，小写；老库则认领原 CONFIG/STORAGE）。
+        storagePath: "",
         // 自动更新：缺省关（2026-10-28 对外分发拍板）——见 interface 里的说明
         autoUpdate: false,
         // 首次引导没走过（首次启动会弹；走完或被跳过后置 true）
@@ -70100,7 +70107,9 @@ ${n.content.slice(0, 2e3)}
         settingsPanelWidth: 0,
         settingsPanelHeight: 0,
         // 小橘陪伴猫（smartcat 域；移动端默认全屏键聊天/设置/数据面板共用，2026-08-23 合并一套）
-        smartcatEnabled: true,
+        // 2026-10-29 用户拍板：小橘默认关闭（通用页的「功能域」组已撤下）。
+        // 想要的人改 data.json 的这一个键即可，其余整域总闸行为（ADR-0254）一点没变。
+        smartcatEnabled: false,
         smartcatEmbeddingModel: "",
         smartcatChunkLimitChars: 800,
         // 小橘对我的称呼（ticket 163）：默认包仔——把记忆流/行为流喂给 AI 时「你/用户」替换为此称呼
