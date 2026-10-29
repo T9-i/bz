@@ -1,4 +1,4 @@
-/* 源指纹 ca7c4d0bfd5e705e · 仓内输入 33 个（校验见 tests/preview-freshness.test.ts） */
+/* 源指纹 2d469de8cc6ffd05 · 仓内输入 33 个（校验见 tests/preview-freshness.test.ts） */
 /*#preview-inputs=["prototypes/pomodoro/fake-sim.ts","prototypes/pomodoro/fake/fake-obsidian.ts","src/core/app.ts","src/core/domain-bus.ts","src/core/download-manifest.ts","src/core/esc-manager.ts","src/core/http.ts","src/core/mobile.ts","src/core/notice.ts","src/core/offline-source.ts","src/core/plugin-path.ts","src/core/pomodoro-phase.ts","src/core/remote-asset.ts","src/core/remote-base.ts","src/core/settings-common.ts","src/core/settings-provider.ts","src/core/sha256.ts","src/core/skin-pack.ts","src/core/storage-path.ts","src/core/storage.ts","src/core/ui/focus-trap.ts","src/core/ui/str.ts","src/core/utils.ts","src/core/z-order.ts","src/pomodoro/config.ts","src/pomodoro/data.ts","src/pomodoro/motion.ts","src/pomodoro/render.ts","src/pomodoro/sound.ts","src/pomodoro/state.ts","src/pomodoro/stats.ts","src/pomodoro/statusbar.ts","src/pomodoro/ui.ts"]*/
 /* 构建产物（勿手改）：node scripts/build-preview.mjs — prototypes/pomodoro/fake-sim.ts → window.BZW_pomodoro（行为单源预览包，issue 245/ADR-0106） */
 var BZW_pomodoro = (() => {
@@ -4922,7 +4922,7 @@ var BZW_pomodoro = (() => {
 
   // src/core/storage-path.ts
   function normalizeStorageDir(value) {
-    let dir = (value || DEFAULT_STORAGE_DIR).trim().replace(/\\/g, "/").replace(/\/+$/, "");
+    let dir = (value || "").trim().replace(/\\/g, "/").replace(/\/+$/, "");
     if (/\.json$/i.test(dir)) {
       const idx = dir.lastIndexOf("/");
       dir = idx >= 0 ? dir.slice(0, idx) : "";
@@ -4932,7 +4932,7 @@ var BZW_pomodoro = (() => {
   var DEFAULT_STORAGE_DIR;
   var init_storage_path = __esm({
     "src/core/storage-path.ts"() {
-      DEFAULT_STORAGE_DIR = "CONFIG/STORAGE";
+      DEFAULT_STORAGE_DIR = ".obsidian/plugins/bz/storage";
     }
   });
 

@@ -39,7 +39,7 @@ Conventional Commits，**提交信息即更新日志正文**（写法 `docs/chan
 ## 去哪儿查
 | 要什么 | 去哪 |
 |---|---|
-| 某域数据落在哪 | 该域 `data.ts` 的路径 / 键常量（默认数据根 `CONFIG/STORAGE/`） |
+| 某域数据落在哪 | 该域 `data.ts` 的路径 / 键常量（缺省数据根 = `<插件目录>/storage/`，ADR-0270；`CONFIG/STORAGE/` 是 2026-10-29 之前的老库落位） |
 | 域职责、术语、口径 | `CONTEXT.md` |
 | 单源域名单 | `build-preview.mjs` 的 `PREVIEW_DOMAINS` / `BEHAVIOR_DOMAINS` |
 | 皮肤清单 | `scripts/skins.catalog.json` |

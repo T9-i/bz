@@ -58,7 +58,7 @@ async function mountMobile(host: HTMLElement): Promise<HTMLElement[]> {
 describe('首页入口拖拽（2026-09-11 用户报 bug 重写）', () => {
   beforeEach(() => {
     setApp(mockAppWithVault(new MockVault()) as any);
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE' }));
   });
 
   afterEach(() => {

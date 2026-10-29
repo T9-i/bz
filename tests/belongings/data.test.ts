@@ -4,6 +4,7 @@
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { loadDatabase, saveDatabase, getDataFilePath } from '../../src/belongings/data';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 import { setApp } from '../../src/core/app';
 import { setSettingsProvider } from '../../src/core/settings-provider';
 import { MockVault } from '../mock-vault';
@@ -203,7 +204,8 @@ describe('saveDatabase', () => {
     setSettingsProvider(() => ({ storagePath: '我的/自定数据' }) as any);
     expect(getDataFilePath()).toBe('我的/自定数据/belongings.json');
     // 未设 storagePath → core storageDir 缺省兜底（arch N2 收敛后由 core 单源提供）
+    // 2026-10-29：缺省 = <插件目录>/storage（不再是 vault 根的 CONFIG/STORAGE）
     setSettingsProvider(() => ({}) as any);
-    expect(getDataFilePath()).toBe('CONFIG/STORAGE/belongings.json');
+    expect(getDataFilePath()).toBe(`${DEFAULT_STORAGE_DIR}/belongings.json`);
   });
 });

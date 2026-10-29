@@ -250,6 +250,8 @@ describe('snapshotDomains 首次快照（library）', () => {
         notes: { highlights: [{ text: 'c1' }], excerpts: [{ commentText: 'e1' }] },
       }),
     });
+    // 本用例不建 app：显式钉住数据目录，别吃 core/storage 的缺省值（2026-10-29 起缺省搬到了插件目录）
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE' }) as any);
     const found = await snapshotDomains(async (path: string) => {
       if (path === 'CONFIG/STORAGE/weave-data.json') return w;
       throw new Error('no file');

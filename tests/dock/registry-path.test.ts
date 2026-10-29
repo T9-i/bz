@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest';
 import { setApp } from '../../src/core/app';
 import { registryPath } from '../../src/dock/registry';
 import { dirOf } from '../../src/dock/files';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 
 function vaultAt(base: string): void {
   setApp({ vault: { adapter: { getBasePath: () => base } } } as never);
@@ -22,22 +23,22 @@ function vaultAt(base: string): void {
 describe('登记表路径', () => {
   it('拼成绝对路径（含数据目录的缺省值）', () => {
     vaultAt('D:/VAULT');
-    expect(registryPath()).toBe('D:/VAULT/CONFIG/STORAGE/dock.json');
+    expect(registryPath()).toBe(`D:/VAULT/${DEFAULT_STORAGE_DIR}/dock.json`);
   });
 
   it('Windows 反斜杠统一成正斜杠，尾部斜杠不产生双斜杠', () => {
     vaultAt('E:\\Obsidian\\叫我包仔\\');
-    expect(registryPath()).toBe('E:/Obsidian/叫我包仔/CONFIG/STORAGE/dock.json');
+    expect(registryPath()).toBe(`E:/Obsidian/叫我包仔/${DEFAULT_STORAGE_DIR}/dock.json`);
   });
 
   it('取不到 vault 根时退回相对路径（移动端适配器没有 getBasePath）', () => {
     setApp({ vault: {} } as never);
-    expect(registryPath()).toBe('CONFIG/STORAGE/dock.json');
+    expect(registryPath()).toBe(`${DEFAULT_STORAGE_DIR}/dock.json`);
   });
 
   it('锁与登记表在同一个目录 —— 否则跨宿主互斥失效', () => {
     vaultAt('D:/VAULT');
     // dataDir 由 registryPath 推出来（host.ts 的 dataDir()），所以这里也应该是绝对路径
-    expect(dirOf(registryPath())).toBe('D:/VAULT/CONFIG/STORAGE');
+    expect(dirOf(registryPath())).toBe(`D:/VAULT/${DEFAULT_STORAGE_DIR}`);
   });
 });

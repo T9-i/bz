@@ -1,13 +1,14 @@
 // @vitest-environment node
 /**
  * 统一 JSON 数据读写层测试（统一数据读写重构）
- * - storageDir/storageFile：路径解析（trim 尾斜杠、空回退 CONFIG/STORAGE）
+ * - storageDir/storageFile：路径解析（trim 尾斜杠、空回退 <插件目录>/storage）
  * - jsonFileStore 泛型：defaultValue（对象/函数）、损坏留档 + onCorrupt 钩子
  * - writeIfChanged：写前比对跳过写 / 内容变才写
  * - app 注入：传 app 时用注入的，不传回退 getApp()
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { jsonFileStore, storageDir, storageFile } from '../../src/core/storage';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 import { MockVault } from '../mock-vault';
 import { setApp } from '../../src/core/app';
 import { setSettingsProvider } from '../../src/core/settings-provider';
@@ -17,8 +18,8 @@ describe('storageDir / storageFile', () => {
     setSettingsProvider(() => ({} as any));
   });
 
-  it('storageDir：默认 CONFIG/STORAGE', () => {
-    expect(storageDir()).toBe('CONFIG/STORAGE');
+  it('storageDir：默认 <插件目录>/storage（2026-10-29 起，不再是 vault 根的 CONFIG/STORAGE）', () => {
+    expect(storageDir()).toBe(DEFAULT_STORAGE_DIR);
   });
 
   it('storageDir：跟随 storagePath 并 trim 尾斜杠', () => {
@@ -26,9 +27,9 @@ describe('storageDir / storageFile', () => {
     expect(storageDir()).toBe('DATA/番茄');
   });
 
-  it('storageDir：空 storagePath 回退 CONFIG/STORAGE', () => {
+  it('storageDir：空 storagePath 回退缺省目录', () => {
     setSettingsProvider(() => ({ storagePath: '' } as any));
-    expect(storageDir()).toBe('CONFIG/STORAGE');
+    expect(storageDir()).toBe(DEFAULT_STORAGE_DIR);
   });
 
   it('storageFile：拼文件路径', () => {

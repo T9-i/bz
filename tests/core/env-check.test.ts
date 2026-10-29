@@ -12,6 +12,7 @@ import { MockVault } from '../mock-vault';
 import { environmentCheck, explainNetError, isRealPythonOutput, probeNetwork } from '../../src/core/env-check';
 import { REPO_BASES } from '../../src/core/remote-base';
 import { resetNodeRuntimeCache, setFsProbe } from '../../src/core/tool-runtime';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 
 function appOf(vault: MockVault): unknown {
   return { vault: { adapter: vault.adapter, configDir: '.obsidian' } };
@@ -39,10 +40,10 @@ describe('environmentCheck', () => {
     resetNodeRuntimeCache();
     setFsProbe(() => false);
     const vault = new MockVault();
-    // 不预置任何目录：CONFIG/STORAGE 此刻并不存在
+    // 不预置任何目录：缺省数据目录此刻并不存在
     const rows = await environmentCheck(appOf(vault));
     const row = rows.find((r) => r.key === '数据目录可写')!;
-    expect(row.value).toContain('CONFIG/STORAGE');
+    expect(row.value).toContain(DEFAULT_STORAGE_DIR);
     expect(row.ok).toBe(true);
     setFsProbe(null);
   });

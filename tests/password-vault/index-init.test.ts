@@ -39,7 +39,7 @@ describe('password-vault 域入口命令链', () => {
     localStorage.clear();
     vault = new MockVault();
     setApp(mockAppWithVault(vault) as any);
-    setSettingsProvider(() => ({ passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
+    setSettingsProvider(() => ({ storagePath: 'CONFIG/STORAGE', passwordCharset: '', passwordLength: '16', securityMode: false }) as any);
     sm = new SafeManager('CONFIG/STORAGE/.ENCRYPT');
     await sm.unlock('pw');
   });

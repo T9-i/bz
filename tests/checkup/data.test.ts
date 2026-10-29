@@ -62,7 +62,8 @@ function fullFavItem(over: Record<string, unknown> = {}): Record<string, unknown
 function makeApp(
   files: Record<string, string> = {},
   frontmatter: Record<string, Record<string, unknown>> = {},
-  settings: Record<string, unknown> = {}
+  // 夹具里的种子文件都写在老数据目录下（2026-10-29 起缺省搬到插件目录，测试显式指定）
+  settings: Record<string, unknown> = { storagePath: 'CONFIG/STORAGE' }
 ): { app: any; vault: MockVault } {
   const vault = new MockVault();
   for (const [p, c] of Object.entries(files)) vault.files.set(p, c);

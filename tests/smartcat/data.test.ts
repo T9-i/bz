@@ -7,6 +7,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { MockVault, mockAppWithVault } from '../mock-vault';
 import { setApp } from '../../src/core/app';
 import { setSettingsProvider } from '../../src/core/settings-provider';
+import { DEFAULT_STORAGE_DIR } from '../../src/core/storage-path';
 import { loadSmartCatData, saveSmartCatData, getSmartcatFilePath, getSmartcatVecPath, defaultSmartCatData, defaultMemoryStream, normalizeData, applyInsightPatch } from '../../src/smartcat/data';
 
 function baseApp(vault: MockVault) {
@@ -21,12 +22,13 @@ beforeEach(() => {
 });
 
 describe('路径', () => {
-  it('smartcat.json 跟随 storagePath（默认 CONFIG/STORAGE/smartcat.json）', () => {
-    expect(getSmartcatFilePath()).toBe('CONFIG/STORAGE/smartcat.json');
+  it('smartcat.json 跟随缺省数据目录（<插件目录>/storage/smartcat.json）', () => {
+    // 本用例没注入设置：走 core/storage 的缺省目录（2026-10-29 起是插件目录下的 storage）
+    expect(getSmartcatFilePath()).toBe(`${DEFAULT_STORAGE_DIR}/smartcat.json`);
   });
 
   it('记忆向量文件同目录（ADR-0021：.vec 豁免单 json）', () => {
-    expect(getSmartcatVecPath()).toBe('CONFIG/STORAGE/smartcat-memory-vectors.vec');
+    expect(getSmartcatVecPath()).toBe(`${DEFAULT_STORAGE_DIR}/smartcat-memory-vectors.vec`);
   });
 });
 

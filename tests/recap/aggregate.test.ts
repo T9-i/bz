@@ -190,7 +190,7 @@ describe('collectRecap（只读采集集成）', () => {
   beforeEach(() => {
     vault = new StatVault();
     setApp(mockAppWithVault(vault) as any);
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE' }));
   });
 
   it('空库：摘要全 0、无痕迹、无失败域，且不创建任何文件（只读契约）', async () => {

@@ -73,7 +73,7 @@ describe('home 活动河 UI（issue 232）', () => {
   beforeEach(() => {
     vault = new MockVault();
     setApp(mockAppWithVault(vault) as any);
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE' }));
     resetHomeState();
   });
 
@@ -115,7 +115,7 @@ describe('home 活动河 UI（issue 232）', () => {
 
   it('面板拖拽缩放 + 尺寸记忆（ADR-0084/0094）：有记忆值时打开即套用内联宽高，隐藏重开（复用显）重挂套新值', () => {
     // 可变单例 state：provider 每次读同一对象，隐藏期间改记忆值即可验证重开套新值
-    const state = { ...DEFAULT_SETTINGS, homePanelWidth: 760, homePanelHeight: 500 };
+    const state = { ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homePanelWidth: 760, homePanelHeight: 500 };
     setSettingsProvider(() => state);
     const app = recApp(vault);
     openHome(app);
@@ -202,7 +202,7 @@ describe('home 活动河 UI（issue 232）', () => {
     expect(document.querySelectorAll('.bz-home-wk--hit').length).toBe(1); // 只有昨天有动静
 
     // 缩到「当天」：周历只留今天一格（范围设置本身就管「能往回翻几天」）
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineRange: 'today' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineRange: 'today' }));
     unloadHome();
     resetHomeState();
     openHome(app);
@@ -210,7 +210,7 @@ describe('home 活动河 UI（issue 232）', () => {
     expect(document.querySelectorAll('[data-home-weekday]').length).toBe(1);
 
     // 回到「本周」：点昨天那格 → 时间线切到昨天
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineRange: 'week' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineRange: 'week' }));
     unloadHome();
     resetHomeState();
     openHome(app);
@@ -235,7 +235,7 @@ describe('home 活动河 UI（issue 232）', () => {
     // 行为流 memo:added → kind=progress（状态推进类）
     writeBehavior(vault, [{ source: 'memo', type: 'added', name: '甲', dt: todayAt(9) }]);
     setSettingsProvider(() => ({
-      ...DEFAULT_SETTINGS,
+      ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE',
       homeTimelineProgress: false, // 关掉状态推进 → 唯一的痕迹该被挡掉
       homeTimelineTime: false,
       homeTimelineSize: 'compact',
@@ -253,7 +253,7 @@ describe('home 活动河 UI（issue 232）', () => {
   it('issue 287：明天预告卡关掉 → 第三栏整个收掉（display 断移动 flex 收缩 + 修饰类断桌面 grid 轨道收口）', async () => {
     // ui P3-2 注记：旧断言只锁 style.display==='none'（实现手段）——display:none 只让 item
     // 离开网格，桌面显式三轨道仍空置 224px；修复后由 grid 修饰类同步收口轨道，两手段并断。
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeNextCards: false }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeNextCards: false }));
     const app = recApp(vault);
     openHome(app);
     await new Promise((r) => setTimeout(r, 20));
@@ -264,7 +264,7 @@ describe('home 活动河 UI（issue 232）', () => {
     const grid = document.querySelector('.bz-home-grid') as HTMLElement;
     expect(grid.classList.contains('bz-home-grid--no-next')).toBe(true);
     // 开回来 → 类摘除、栏恢复
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeNextCards: true }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeNextCards: true }));
     unloadHome();
     resetHomeState();
     openHome(app);
@@ -327,7 +327,7 @@ describe('home 活动河 UI（issue 232）', () => {
   it('issue 287：默认打开日＝最后有动静 → 开面板落在昨天并高亮那一格', async () => {
     writeBehavior(vault, [{ source: 'memo', type: 'added', name: '甲', dt: yesterdayAt(9) }]); // 只有昨天有动静
     setSettingsProvider(() => ({
-      ...DEFAULT_SETTINGS,
+      ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE',
       homeTimelineRange: 'week', // 窗口要够宽，昨天才在可选范围内
       homeDefaultDay: 'lastActive',
     }));
@@ -437,7 +437,7 @@ describe('home 活动河 UI（issue 232）', () => {
   });
 
   it('ui P3-1：字号档白名单——手改设置值含引号时白名单回落 normal，不逃逸 markup 属性位', async () => {
-    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, homeTimelineSize: '"><img src=x>' }));
+    setSettingsProvider(() => ({ ...DEFAULT_SETTINGS, storagePath: 'CONFIG/STORAGE', homeTimelineSize: '"><img src=x>' }));
     const app = recApp(vault);
     openHome(app);
     await new Promise((r) => setTimeout(r, 20));
