@@ -24,7 +24,7 @@
  */
 import type { App, TFile } from 'obsidian';
 import { collectRecap, settingDir, fileIfExists, readJsonIfExists } from '../recap/aggregate';
-import { behaviorToDays, readBehaviorItems, type TimelineEvent } from './behavior-timeline';
+import { collectTimelineEvents, type TimelineEvent } from './timeline-collect';
 import type { RecapSummary } from '../recap/aggregate';
 import { tryGetSettings } from '../core/settings-provider';
 import { storageFile } from '../core/storage';
@@ -57,11 +57,16 @@ const DAY_MS = 86400000;
 
 /* ---------- 行为流事件 → RiverDay ---------- */
 
-/** 一天的时间线：事件升序 + memoCreated 派生（行为流「新增备忘录」文案前缀契约）。
- *  summary 数字仍来自 recap（issue 305 / ADR-0132：只换痕迹源，不动计数面）。 */
+/** 一天的时间线：事件升序 + memoCreated 派生。
+ *  summary 数字仍来自 recap（issue 305 / ADR-0132：只换痕迹源，不动计数面）。
+ *  memoCreated 不再看文案前缀（换源后文案变了，前缀判类会静默归零），
+ *  改成数「当天 kind=progress 的备忘录事件」——那正是「新增备忘录」这一类。 */
 function toRiverDay(dateStr: string, summary: RecapSummary, events: TimelineEvent[]): RiverDay {
   const sorted = [...events].sort((a, b) => a.ts - b.ts);
-  const full: RiverSummary = { ...summary, memoCreated: sorted.filter((e) => e.text.startsWith('新增备忘录')).length };
+  const full: RiverSummary = {
+    ...summary,
+    memoCreated: sorted.filter((e) => e.domain === 'memo' && e.kind === 'progress').length,
+  };
   return { dateStr, events: sorted, summary: full, firstTs: sorted.length ? sorted[0].ts : null };
 }
 
@@ -263,28 +268,26 @@ function collectDaysN(): number {
 export async function collectRiver(app: App, now: number = Date.now()): Promise<RiverData> {
   // 采集窗口（今天起往回 DAYS_N 天）一次并行采集；recap anchor 参数天然支持任意天
   const DAYS_N = collectDaysN();
-  const [dayRecaps, behaviorItems] = await Promise.all([
-    Promise.all(
-      Array.from({ length: DAYS_N }, (_, i) => collectRecap(app, now - i * DAY_MS).catch(() => null))
-    ),
-    // 时间线痕迹源 = 小橘行为流（issue 305 / ADR-0132）：文件推导口径退役，外部改动免疫
-    readBehaviorItems(app).catch(() => []),
-  ]);
-  const behaviorDays = behaviorToDays(behaviorItems, now, DAYS_N);
-
-  const counts: RiverCounts = { ...EMPTY_COUNTS };
-  const safe = (fn: () => void | Promise<void>): Promise<void> =>
-    Promise.resolve()
-      .then(fn)
-      .catch(() => undefined);
-  // 全库 md 文件列表一轮采集内取一次，计数/连击分支共享（eff P2-1 同刷新内结果复用：
-  // 原 collectDiary/collectKnowledgeCounts 各自调 getMarkdownFiles，连击循环里更是每天一遍）
+  // 全库 md 文件列表一轮采集内取一次：计数/连击/时间线三处共用（时间线的目录型域靠它过滤窗口）
   let mdFiles: TFile[] = [];
   try {
     mdFiles = app.vault.getMarkdownFiles();
   } catch {
     mdFiles = []; // 目录读取失败：knowledge/diary 计数回落 0（同旧各自容错口径）
   }
+  const [dayRecaps, timelineEvents] = await Promise.all([
+    Promise.all(
+      Array.from({ length: DAYS_N }, (_, i) => collectRecap(app, now - i * DAY_MS).catch(() => null))
+    ),
+    // 时间线痕迹源 = 各域数据文件现算（不再读小橘行为流）
+    collectTimelineEvents(app, { now, days: DAYS_N, mdFiles }).catch(() => [] as TimelineEvent[]),
+  ]);
+
+  const counts: RiverCounts = { ...EMPTY_COUNTS };
+  const safe = (fn: () => void | Promise<void>): Promise<void> =>
+    Promise.resolve()
+      .then(fn)
+      .catch(() => undefined);
   // 专注相位与计数同一波并发（collectFocusing 自带失败回落 false）；
   // as const 保二元组型——否则 spread 数组并入后 focusing 会被 widen 成 void | boolean
   const [, focusing] = await Promise.all([
@@ -312,11 +315,18 @@ export async function collectRiver(app: App, now: number = Date.now()): Promise<
     /* 连击计算失败回落空 */
   }
 
-  // 时间线痕迹源 = 小橘行为流（issue 305 / ADR-0132）：recap 只继续供 summary/周历 hit，
-  // items 不再进时间线——文件推导口径退役，外部批量改动不再产生任何时间线条目。
-  const days: RiverDay[] = dayRecaps.map((r, i) =>
-    toRiverDay(dateStrOf(now - i * DAY_MS), r?.summary ?? EMPTY_SUMMARY, behaviorDays[i]?.events ?? [])
-  );
+  // 时间线痕迹源 = 各域数据文件（见 timeline-collect.ts）；recap 继续供 summary/周历 hit
+  const byDay = new Map<string, TimelineEvent[]>();
+  for (const ev of timelineEvents) {
+    const key = dateStrOf(ev.ts);
+    const bucket = byDay.get(key);
+    if (bucket) bucket.push(ev);
+    else byDay.set(key, [ev]);
+  }
+  const days: RiverDay[] = dayRecaps.map((r, i) => {
+    const dateStr = dateStrOf(now - i * DAY_MS);
+    return toRiverDay(dateStr, r?.summary ?? EMPTY_SUMMARY, byDay.get(dateStr) ?? []);
+  });
   const WD = ['日', '一', '二', '三', '四', '五', '六'];
   const week: RiverWeekDay[] = days.map((d) => {
     const dt = new Date(d.dateStr + ' 12:00:00');

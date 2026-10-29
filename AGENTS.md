@@ -45,6 +45,8 @@ tools-pack → skin-pack → changelog → catalog → manifest → build → as
 
 顺序固定：前四步出产物，`manifest` 对产物现算 sha256，`build` 出插件本体，`assets` 把 `downloads/**` 与 `releases/<tag>/` 镜像到分发仓库。`pnpm assets` 与 `node scripts/push-assets.mjs` 是同一件事，Git Bash 里用后者。
 
+生成日志要带目标版本：`node scripts/_gen-changelog.mjs --next=<版本>`。日志按 **git tag** 切块（不是按天），这一刻 tag 还没打，不传 `--next` 最新一版就不会出现在日志里，`manifest.json` 也不会回写成新版本。
+
 三个「少跑一步」的后果，都静默：
 
 | 少跑 | 症状 |
@@ -53,9 +55,11 @@ tools-pack → skin-pack → changelog → catalog → manifest → build → as
 | `tools-pack` | 旧 tar.gz 还在，用户端显示「已是最新」但内容没更新 |
 | `assets` | 下载通道只认分发仓库，客户端拿到的还是上一版 |
 
-### 2. 打 tag
+### 2. 打 tag 并校验
 
 `git tag -a v<版本>` 并 push。tag 名 = `manifest.json` 的 `version`，一个字符都不能差。
+
+打完 tag 跑一次 `node scripts/_gen-changelog.mjs --check`：它对账「最新 tag / manifest 版本 / 日志顶部版本」三项，不一致就非零退出。
 
 **先 tag 再发布**：tag 不存在时 `gh` 会自建一个轻量 tag，跟已 push 的标注 tag 对不上。
 
@@ -82,8 +86,7 @@ gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file n
 ### 4. 收尾
 子代理 review → 清 worktree。
 
-### 两条例外
-- **同一天发第二个版本**：`_gen-changelog.mjs` 的版本块按部署日切，推不出新号，要显式 `--version=<新号>`，否则 `manifest.json` 与日志版本对不上。
+### 一条例外
 - **分发仓库**：下载走 `yeshimei/bz-assets`（ADR-0269）——主仓 `.git` 超 jsDelivr 的 50 MB 上限，未缓存文件一律 403，国内 raw 又不通。`push-assets` 只留最近 3 份发布，`.git` 超 25 MB 自动压平历史。主仓仍是唯一产出地，分发仓库随时可删可重建；基址只改 `src/core/remote-base.ts`，别在两处各写一份 slug。
 
 ## 坑

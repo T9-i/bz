@@ -312,7 +312,9 @@ describe('collectRiver（只读采集集成）', () => {
   });
 
   it('周历 7 天窗口：今天在前、hit=当天有动静、label=MM-DD', async () => {
-    writeBehavior(vault, [beh('memo', 'added', '甲', new Date(2026, 8, 6, 9, 0))]);
+    vault.files.set('CONFIG/STORAGE/memo.json', JSON.stringify([
+      { title: '甲', created: '2026-09-06 09:00:00', completed: null },
+    ]));
     const data = await collectRiver(mockAppWithVault(vault) as any, NOW);
     expect(data.days.length).toBe(7);
     expect(data.days[0].dateStr).toBe(dateStrOf(NOW));
@@ -320,31 +322,30 @@ describe('collectRiver（只读采集集成）', () => {
     expect(data.week[0].dateStr).toBe(dateStrOf(NOW));
     expect(data.week[0].label).toBe('09-07');
     expect(data.week[0].hit).toBe(false); // 今天无动静
-    expect(data.week[1].hit).toBe(true); // 昨天（09-06）行为流有新增备忘录
+    expect(data.week[1].hit).toBe(true); // 昨天（09-06）新增过备忘录
     expect(data.week.map((w) => w.dayOfMonth)).toEqual([7, 6, 5, 4, 3, 2, 1]);
   });
 
-  it('时间线接通：行为流动作进时间线 + memoCreated 由「新增备忘录」前缀派生（issue 305）', async () => {
-    writeBehavior(vault, [
-      beh('memo', 'added', '甲', new Date(2026, 8, 7, 9, 0)),
-      beh('memo', 'completed', '甲', new Date(2026, 8, 7, 10, 0)),
-      beh('memo', 'added', '乙', new Date(2026, 8, 7, 11, 0)),
-      beh('movie', 'watched', '沙丘', new Date(2026, 8, 7, 20, 0), { rating: 8 }),
-      beh('movie', 'deleted', '噪音', new Date(2026, 8, 7, 20, 30)), // 删除动作不进时间线
-      beh('news', 'skipped', '某篇', new Date(2026, 8, 7, 12, 0)),
-    ]);
-    // recap 侧继续供摘要数字（完成 1 条 → memoDone；文件统计口径不受影响）
+  it('时间线接通：各域数据文件直接进时间线 + memoCreated 按事件类别派生', async () => {
     vault.files.set('CONFIG/STORAGE/memo.json', JSON.stringify([
       { title: '甲', created: '2026-09-07 09:00:00', completed: '2026-09-07 10:00:00' },
       { title: '乙', created: '2026-09-07 11:00:00', completed: null },
     ]));
+    vault.files.set('我的/影视/《沙丘》.md', [
+      '---',
+      '状态: 已看',
+      '评分: 8',
+      '已看日期: 2026-09-07 20:00:00',
+      '---',
+      '',
+    ].join('\n'));
     const data = await collectRiver(mockAppWithVault(vault) as any, NOW);
     expect(data.today.events.map((e) => e.text)).toEqual([
-      '新增备忘录『甲』', '完成『甲』', '新增备忘录『乙』', '已跳过『某篇』', '标记《沙丘》已看',
+      '记下『甲』', '办完『甲』，挂了 1 天', '记下『乙』', '看完《沙丘》，给了 ★8',
     ]);
-    expect(data.today.events.map((e) => e.kind)).toEqual(['progress', 'produce', 'progress', 'skipped', 'produce']);
-    // 域归口：行为流 source → 首页域 id（渲染徽标/彩点 hasEvent 认这个）
-    expect([...new Set(data.today.events.map((e) => e.domain))]).toEqual(['memo', 'clipping', 'cinema']);
+    expect(data.today.events.map((e) => e.kind)).toEqual(['progress', 'produce', 'progress', 'produce']);
+    // 域归口：事件带首页域 id（渲染徽标/彩点 hasEvent 认这个）
+    expect([...new Set(data.today.events.map((e) => e.domain))]).toEqual(['memo', 'cinema']);
     expect(data.today.summary.memoDone).toBe(1);
     expect(data.today.summary.memoCreated).toBe(2);
     expect(data.today.firstTs).toBe(new Date(2026, 8, 7, 9, 0).getTime());
@@ -443,7 +444,10 @@ describe('collectRiver（只读采集集成）', () => {
     const todayReads = spy.mock.calls.length;
     spy.mockRestore();
     expect(weekReads).toBeGreaterThan(0);
-    expect(todayReads).toBeLessThan(weekReads); // 窗口 7→2 天，read 面随之收
-    expect(todayReads).toBeLessThanOrEqual(Math.ceil(weekReads / 3));
+    // 换源后 read 面不再主要由 recap 的「按天读」决定：时间线要读影视笔记的 frontmatter 才能判断
+    // 日期落不落在窗口里，这部分与窗口档无关。真正要钉住的是**不随窗口变多**，且总量有界
+    // （4 篇影视 + 2 个 JSON + 少量余量），否则「打开首页扫全库」会悄悄回来。
+    expect(todayReads).toBeLessThanOrEqual(weekReads);
+    expect(weekReads).toBeLessThanOrEqual(30);
   });
 });
