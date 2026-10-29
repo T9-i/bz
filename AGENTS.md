@@ -23,28 +23,73 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 
 改完源码 → 起或复用预览服务 → 把网址交给他，让他判。门禁等他喊「同步」一次补齐（改到类型边界可顺手 `tsc --noEmit`，但那不算验证、不许拿它拖交付）。
 
-## 坑
-- Git Bash 里 pnpm 起不来（shim 把路径解析成 `D:\d\...`）→ 用 PowerShell，或 `node node_modules/<包>/…` 直调。
-- `git worktree remove` 后常残留 `node_modules`，要另删。**删前必须先 `cmd /c rmdir` 掉 worktree 里的 `node_modules` junction**——worktree 的 junction 指向主仓 node_modules 时，remove/remove --force 会穿透删除主仓 `.pnpm` 里的包（表层包还在、深处依赖悬空，测试报 Cannot find module）；穿透后 `pnpm install` 修不回（workspace 状态文件误判 up to date），要 `rm -rf node_modules && pnpm install` 整体重建（store 硬链接，很快）。
-- 发布顺序固定：`tools-pack → skin-pack → changelog → catalog → manifest → build → assets`（前四个出产物、`manifest` 对产物现算 hash、`build` 出插件本体、`assets` 把产物镜像到分发仓库；`pnpm assets` 与 `node scripts/push-assets.mjs` 是同一件事，Git Bash 里用后者）。**少跑 `manifest` = 清单永远停在上一版**（`changelog` 重出了出版页、sha256 却没跟着算），而且只有跑门禁时 `skin-pack-split-guard` 才会说话。**少跑 `tools-pack` 同理**（旧 tar.gz 还在，用户端显示「已是最新」但内容没更新）。**少跑 `assets` = 客户端拿到的还是上一版**（下载通道只认分发仓库，见下条）。
-- **下载走独立分发仓库 `yeshimei/bz-assets`**（ADR-0269）：主仓 `.git` 284 MB 超过 jsDelivr 的 50 MB 上限，它对主仓未缓存文件一律 403；国内无代理时 raw 又不通。`node scripts/push-assets.mjs` 把 `downloads/**` 与 `releases/<tag>/`（三件套）镜像过去，只保留最近 3 份发布，`.git` 超 25 MB 自动压平历史。**主仓仍是唯一产出地**，分发仓库随时可删可重建。改了 base 地址只改 `src/core/remote-base.ts`（脚本从那里读 slug，别在两处各写一份）——`tests/core/remote-base-assets.test.ts` 钉着这条。
-- 对外发布还要**打 tag**：tag 名 = `v<manifest.json 的 version>`。自更新分两段——先读分发仓库 master 的 `downloads/version.json` 拿到 tag，再去 `<分发仓库>/releases/<tag>/` 拉三件套（ADR-0263 / ADR-0269）。指针由 `pnpm manifest` 从 `manifest.json` 推出来，两者不同步 `--check` 会拦；`releases/<tag>` 目录由 `push-assets` 按同一个版本号命名，两者天然对齐。
-- **tag 之后是 GitHub Release**（`yeshimei/bz`，Release 页是普通人唯一看得到的安装说明）：三个资产 + 一份带安装教程的正文。
-  - **外加平铺的三件套**：`main.js` / `manifest.json` / `styles.css` 要作为**独立资产**挂在同一个 release 上。社区插件市场的自动校验只认平铺的那三个文件，zip 里的不算——漏了这条，市场里永远装不上，而 Release 页看起来一切正常。
-  - `bz-<版本>.zip` ← 主仓根 `main.js` / `manifest.json` / `styles.css`，包内必须留一层 `bz/`（压平了就是三个文件散一地，用户得自己猜往哪放）。
-  - `bz-offline-<版本>.zip` ← 主仓 `downloads/` 整目录，包内路径必须是 `bz-offline/downloads/<file>`。插件按 `<vault>/bz-offline/downloads/…` 直接开文件（`src/core/offline-source.ts`），**多套一层（`bz-offline/bz-offline/downloads`）不会报错，只会静默回落到联网**，然后用户以为包没用。
-  - `SHA256SUMS.txt` ← `sha256sum *.zip | sed 's/\*/ /'`（msys 默认输出 `hash *file`，那个 `*` 要去掉，不然 `sha256sum -c` 之外的工具认不出）。
-  - **正文 = 本版更新日志 + 固定三节**，顺序不能变：先放这一版改了什么（从 `docs/changelog.md` 取本版那一段），再接 `## 安装` / `## 离线资源包` / `## 反馈`。三节照抄 [docs/release-note-template.md](docs/release-note-template.md)，**别每次重写措辞**——措辞一飘，用户就得重新读一遍。离线包统一按模板写成「解压出的 `downloads/` 整个放进插件目录」，这条比 `bz-offline/` 放 vault 根目录少一层，也少一个套错层级就静默回落到联网的坑。
-  - 正文里要写明：插件本体升级仍要手动覆盖三件套（离线包只含资源与便携 Node）；内网有静态服务可改走「镜像源」。
-  - 顺序不能倒：**先本地 `git tag -a v<版本>` 并 push，再 `gh release create`** —— tag 不存在时 `gh` 会自建一个轻量 tag，和已 push 的标注 tag 对不上。
-  - 命令（Git Bash；Windows 没有 `zip`/`7z`，打包用 PowerShell `Compress-Archive`，别用 `Add-Type`——安全策略直接拦）：`gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file note.md bz-<版本>.zip bz-offline-<版本>.zip SHA256SUMS.txt main.js manifest.json styles.css`
-  - 同一天发第二个版本：`_gen-changelog.mjs` 的版本块按部署日切，自己推不出新号，要显式 `--version=<新号>`，否则 `manifest.json` 与日志版本对不上。
-- 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
-
 ## 提交
-Conventional Commits，**提交信息即更新日志正文**（写法 `docs/changelog.md`）；只有 `feat` / `fix` / `perf` 进更新日志。标题的**主句**（`——` 之前那段）至少 4 个字 —— 短于它整条会被 `_gen-changelog.mjs` 的 `rewrite()` **静默丢弃**：提交照样成功，日志里就是没这条。流程：worktree → `git merge master` → 门禁全绿（`node scripts/test-affected.mjs --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 主仓 `tools-pack` → `skin-pack` → `changelog` → `catalog` → `manifest` → `build` → `assets`（七步都要，前五步顺序固定）→ 打 tag（`v<版本号>`）并 push → GitHub Release（`bz-<版本>.zip` + `bz-offline-<版本>.zip` + `SHA256SUMS.txt` + **平铺的 `main.js`/`manifest.json`/`styles.css`** + 正文〔更新日志 + 固定三节，模板见上〕）→ 子代理 review → 清 worktree。
+
+日常改动就到这里为止，**不跑发布七步**。
+
+Conventional Commits。**提交信息即更新日志正文**，只有 `feat` / `fix` / `perf` 进日志；标题主句（`——` 之前那段）至少 4 个字，短了会被 `_gen-changelog.mjs` 的 `rewrite()` 静默丢弃（提交照样成功，日志里没这条）。
+
+流程：worktree → `git merge master` → 门禁全绿（`test-affected --since master` + `tsc --noEmit` + 自审 + diff 审查）→ 合回主仓 → 推送。
 
 占 issues / ADR 编号前先查主仓库最新号；拍板结论进 `.scratch/memo-suite-plugin/spec.md`，决策进 `docs/adr/` 并同步 `CONTEXT.md`。
+
+## 发布
+
+只有在**发版**时才走这四步。跟日常提交推送是两回事。
+
+### 1. 主仓跑七步
+
+```
+tools-pack → skin-pack → changelog → catalog → manifest → build → assets
+```
+
+顺序固定：前四步出产物，`manifest` 对产物现算 sha256，`build` 出插件本体，`assets` 把 `downloads/**` 与 `releases/<tag>/` 镜像到分发仓库。`pnpm assets` 与 `node scripts/push-assets.mjs` 是同一件事，Git Bash 里用后者。
+
+三个「少跑一步」的后果，都静默：
+
+| 少跑 | 症状 |
+|---|---|
+| `manifest` | 清单停在上一版，页面重出了、sha256 没跟着算；只有门禁里 `skin-pack-split-guard` 会说话 |
+| `tools-pack` | 旧 tar.gz 还在，用户端显示「已是最新」但内容没更新 |
+| `assets` | 下载通道只认分发仓库，客户端拿到的还是上一版 |
+
+### 2. 打 tag
+
+`git tag -a v<版本>` 并 push。tag 名 = `manifest.json` 的 `version`，一个字符都不能差。
+
+**先 tag 再发布**：tag 不存在时 `gh` 会自建一个轻量 tag，跟已 push 的标注 tag 对不上。
+
+### 3. GitHub Release
+
+七个资产，缺一不可：
+
+| 资产 | 从哪来 |
+|---|---|
+| `bz-<版本>.zip` | 根目录 `main.js` / `manifest.json` / `styles.css`，包内必须留一层 `bz/` |
+| `bz-offline-<版本>.zip` | `downloads/` 整目录，包内路径 `bz-offline/downloads/<file>` |
+| `SHA256SUMS.txt` | `sha256sum *.zip \| sed 's/\*/ /'`（msys 会输出 `hash *file`，那个 `*` 要去掉） |
+| `main.js` `manifest.json` `styles.css` | 平铺单挂。**社区市场只认这三个**，zip 里的不算——漏了市场里永远装不上，而 Release 页看起来一切正常 |
+
+正文 = **本版更新日志 + 固定三节**（`## 安装` / `## 离线资源包` / `## 反馈`），照抄 [docs/release-note-template.md](docs/release-note-template.md)，三节不要改措辞。离线包按模板写成「解压出的 `downloads/` 整个放进插件目录」，并注明插件本体升级仍要手动覆盖三件套。
+
+```bash
+gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file note.md \
+  bz-<版本>.zip bz-offline-<版本>.zip SHA256SUMS.txt main.js manifest.json styles.css
+```
+
+打包用 PowerShell `Compress-Archive`（Windows 没有 `zip`/`7z`；别用 `Add-Type`，安全策略直接拦）。
+
+### 4. 收尾
+子代理 review → 清 worktree。
+
+### 两条例外
+- **同一天发第二个版本**：`_gen-changelog.mjs` 的版本块按部署日切，推不出新号，要显式 `--version=<新号>`，否则 `manifest.json` 与日志版本对不上。
+- **分发仓库**：下载走 `yeshimei/bz-assets`（ADR-0269）——主仓 `.git` 超 jsDelivr 的 50 MB 上限，未缓存文件一律 403，国内 raw 又不通。`push-assets` 只留最近 3 份发布，`.git` 超 25 MB 自动压平历史。主仓仍是唯一产出地，分发仓库随时可删可重建；基址只改 `src/core/remote-base.ts`，别在两处各写一份 slug。
+
+## 坑
+- Git Bash 里 pnpm 起不来（shim 把路径解析成 `D:\d\...`）→ 用 PowerShell，或 `node node_modules/<包>/…` 直调。
+- `git worktree remove` 后常残留 `node_modules`，要另删。**删前必须先 `cmd /c rmdir` 掉 worktree 里的 `node_modules` junction**——junction 指向主仓 node_modules 时，remove 会穿透删除主仓 `.pnpm` 里的包（表层包还在、深处依赖悬空，测试报 Cannot find module）；穿透后 `pnpm install` 修不回（workspace 状态文件误判 up to date），要 `rm -rf node_modules && pnpm install` 整体重建（store 硬链接，很快）。
+- 改了工具坞的**判据**（`src/dock/rules.ts` / `schema.ts` / `registry.ts` / `declaration.ts` 的读侧）要重跑 `node scripts/build-dock-watch.mjs` —— 值守进程用的 `dock-core.cjs` 是这么打出来的，不重打它就还在按旧判据决定「该不该跑」（`pnpm run build` 已含这一步）。
 
 ## 去哪儿查
 | 要什么 | 去哪 |
@@ -56,8 +101,8 @@ Conventional Commits，**提交信息即更新日志正文**（写法 `docs/chan
 | 离线值守（Obsidian 关着也跑） | `tools/dock-watch/README.md`（装法/排障）· 租约与状态接口 `src/dock/watchdog.ts` · ADR-0242 |
 | 值守跑之前等网络 | `tools/dock-watch/net.js` 文件头 · ADR-0242 补记（等不到不记账，留给下一拍） |
 | 写一个接入工具坞的外部脚本 | `docs/dock-tool-guide.md`（声明文件 / 参数值文件 / 四行协议 / 运行记录 / 展示板 `panel.html`） |
-| 发布怎么推、分发仓库怎么重建 | `scripts/push-assets.mjs`（保留份数 / 压平阈值 / slug 读哪里）· ADR-0269 |
-| 发布页正文怎么写、离线包要什么结构 | 上一个 Release 的正文（`gh release view <tag> -R yeshimei/bz --json body -q .body`）· `src/core/offline-source.ts` 文件头的目录图 |
+| 发布页正文怎么写、离线包要什么结构 | `docs/release-note-template.md` · `src/core/offline-source.ts` 文件头的目录图 |
+| 分发仓库怎么重建 | `scripts/push-assets.mjs`（保留份数 / 压平阈值 / slug 读哪里）· ADR-0269 |
 | 资源地址、通道顺序 | `src/core/remote-base.ts`（唯一事实源；别在别处再写一份 slug 或域名）· ADR-0269 |
 
 本文与代码冲突时以代码为准，并顺手改这里。历史注释里的「铁律 N」是旧编号，按内容找，别按号找。
