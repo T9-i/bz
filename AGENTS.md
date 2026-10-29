@@ -81,7 +81,15 @@ tools-pack → skin-pack → changelog → catalog → manifest → build → as
 | `SHA256SUMS.txt` | `sha256sum *.zip \| sed 's/\*/ /'`（msys 会输出 `hash *file`，那个 `*` 要去掉） |
 | `main.js` `manifest.json` `styles.css` | 平铺单挂。**社区市场只认这三个**，zip 里的不算——漏了市场里永远装不上，而 Release 页看起来一切正常 |
 
-正文 = **本版更新日志 + 固定三节**（`## 安装` / `## 离线资源包` / `## 反馈`），照抄 [docs/release-note-template.md](docs/release-note-template.md)，三节不要改措辞。离线包按模板写成「解压出的 `downloads/` 整个放进插件目录」，并注明插件本体升级仍要手动覆盖三件套。
+正文 = **更新日志 + 固定三节**（`# 安装` / `# 离线资源包` / `# 反馈`），照抄 [docs/release-note-template.md](docs/release-note-template.md)，三节不要改措辞。标题层级按模板：四个一级标题并列，
+「新增 / 修复」是 `# 更新日志` 下的二级标题——少写「更新日志」这个一级标题，前两块就会和「安装」「反馈」平级，看不出它们是一组。
+离线包按模板写成「解压出的 `downloads/` 整个放进插件目录」，并注明插件本体升级仍要手动覆盖三件套。
+
+正文条目**不照搬 changelog**：照模板写成 `- **标签** ：说明`，标签说人话（赞赏 / 关于组 / 剪藏本），
+不写脚本域名（`core` / `global` / `other`）——后者会出现三个「其他」。条目可删可合并，
+同一处功能一版内改了又改的，正文里说最终态；插件内更新日志页面仍是脚本口径，不必逐条对齐。
+Release 正文里**自定义 CSS 无效**（GitHub 会剥掉 `style` / `class` / `<style>`），
+要颜色只能用分组标题上的 emoji（✨ 🐛 ⚡）。
 
 ```bash
 gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file note.md \
@@ -111,7 +119,7 @@ gh release create v<版本> -R yeshimei/bz --title "bz v<版本>" --notes-file n
 | 离线值守（Obsidian 关着也跑） | `tools/dock-watch/README.md`（装法/排障）· 租约与状态接口 `src/dock/watchdog.ts` · ADR-0242 |
 | 值守跑之前等网络 | `tools/dock-watch/net.js` 文件头 · ADR-0242 补记（等不到不记账，留给下一拍） |
 | 写一个接入工具坞的外部脚本 | `docs/dock-tool-guide.md`（声明文件 / 参数值文件 / 四行协议 / 运行记录 / 展示板 `panel.html`） |
-| 发布页正文怎么写、离线包要什么结构 | `docs/release-note-template.md` · `src/core/offline-source.ts` 文件头的目录图 |
+| 发布页正文怎么写、条目什么格式、离线包什么结构 | `docs/release-note-template.md`（条目格式段：标签说人话 + 全角冒号 + 标题 emoji）· `src/core/offline-source.ts` 文件头的目录图 |
 | 分发仓库怎么重建 | `scripts/push-assets.mjs`（保留份数 / 压平阈值 / slug 读哪里）· ADR-0269 |
 | 资源地址、通道顺序 | `src/core/remote-base.ts`（唯一事实源；别在别处再写一份 slug 或域名）· ADR-0269 |
 
