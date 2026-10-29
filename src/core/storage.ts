@@ -35,13 +35,13 @@ import { getApp } from './app';
 import { tryGetSettings } from './settings-provider';
 import { notify } from './notice';
 import { pluginRelDirOf } from './plugin-path';
-import { DEFAULT_STORAGE_DIR, LEGACY_STORAGE_DIR, initialStorageDir, normalizeStorageDir } from './storage-path';
+import { DEFAULT_STORAGE_DIR, initialStorageDir, normalizeStorageDir } from './storage-path';
 
 /**
  * 路径口径的实现在 core/storage-path.ts（零依赖，值守进程共用）—— 这里只做转发，
  * 免得全仓两处各写一遍「缺省目录是什么、误配成 .json 要剥尾段」。
  */
-export { DEFAULT_STORAGE_DIR, LEGACY_STORAGE_DIR, initialStorageDir, normalizeStorageDir };
+export { DEFAULT_STORAGE_DIR, initialStorageDir, normalizeStorageDir };
 
 /** 共享数据目录（settings.storagePath 经 normalizeStorageDir 归一，全域单一口径） */
 export function storageDir(): string {
@@ -57,10 +57,12 @@ export function storageDir(): string {
  * 的实际位置，改它等于搬家（老用户升级过来不受这个缺省值影响）。
  *
  * 判据：
- *  1. 已有 storagePath → 什么都不做；
+ *  1. 已有 storagePath → 什么都不做（哪怕值正好是老的 CONFIG/STORAGE）；
  *  2. 盘上已有 <插件目录>/storage → 认它（清过一次 data.json 的库照旧接回原处）；
- *  3. 盘上已有老的 CONFIG/STORAGE → 认老目录（清过设置的老库，数据在那儿；不复制、不搬运）；
- *  4. 都没有 → 新库，写 <插件目录>/storage（目录本身等首次落盘／引导探针时再建）。
+ *  3. 都没有 → 新库，写 <插件目录>/storage（目录本身等首次落盘／引导探针时再建）。
+ *
+ * 不再「盘上有老 CONFIG/STORAGE 就认领」：那会让 CONFIG 目录在界面上继续出现，
+ * 而用户要的是它彻底退场。没有 storagePath 就是没设过，一律落到新缺省。
  *
  * 为什么不把「缺省」做成现算：归一函数要在没有 app 的地方被调用（值守进程、纯函数单测），
  * 兜底必须是常量；而「数据住哪」这件事必须落成一个看得见、改得动、值守也读得到的值。
@@ -70,17 +72,7 @@ export function storageDir(): string {
 export async function bootstrapStorageDir(app: any, settings: { storagePath?: string } | null | undefined): Promise<boolean> {
   if (!settings) return false;
   if (String(settings.storagePath || '').trim()) return false;
-  const exists = async (p: string): Promise<boolean> => {
-    try {
-      return !!(await app?.vault?.adapter?.exists?.(p));
-    } catch {
-      return false;
-    }
-  };
-  const target = initialStorageDir(pluginRelDirOf(app));
-  if (await exists(target)) settings.storagePath = target;
-  else if (await exists(LEGACY_STORAGE_DIR)) settings.storagePath = LEGACY_STORAGE_DIR;
-  else settings.storagePath = target;
+  settings.storagePath = initialStorageDir(pluginRelDirOf(app));
   return true;
 }
 

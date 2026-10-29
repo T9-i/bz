@@ -10,8 +10,10 @@
  * 缺省值只服务**还没设过 storagePath 的库**，也就是新装用户在引导页里看到的那份初值
  * （引导的「存放」一步允许改，改了就按他填的落）。data.json 里已经有值的库一律不动：
  * 哪怕值是插件早期自己写进去的老 `CONFIG/STORAGE`，那也是库里数据的实际位置，改它等于搬家。
- * 老口径只留在 `LEGACY_STORAGE_DIR` 里，用途只剩一条：库里没有值、而盘上已经有老目录时
- * 把它认领回来（清过 data.json 的老库不至于突然变空）。不做任何复制或迁移。
+ *
+ * 盘上残留的老 `CONFIG/STORAGE` **不认领**：没有 storagePath 就是没设过，
+ * 一律落到新缺省。那里面就算有文件也是历史遗留，凭目录名去猜「这库想用老位置」
+ * 只会让 CONFIG 这个目录在界面上继续出现——用户明确不要它。
  *
  * 常量里那个 `.obsidian/plugins/bz` 只是「谁都没说」时的答案：真正落盘时调用方都传
  * `initialStorageDir(pluginRelDirOf(app))`，插件文件夹叫什么就落在哪。
@@ -19,13 +21,6 @@
 
 /** 缺省数据目录（vault 相对）：`<插件目录>/storage`。没有 app 可问的地方拿它兜底 */
 export const DEFAULT_STORAGE_DIR = '.obsidian/plugins/bz/storage';
-
-/**
- * 旧缺省（vault 根 `CONFIG/STORAGE`）。**只在「库里还没有值」时用于认领**：
- * 盘上有这个目录、data.json 又没有 storagePath，说明是老库清过设置——认它，不搬。
- * 别在任何路径计算里用它。
- */
-export const LEGACY_STORAGE_DIR = 'CONFIG/STORAGE';
 
 /** 数据目录的末段名（小写） */
 export const STORAGE_DIR_NAME = 'storage';
