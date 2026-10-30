@@ -12,6 +12,7 @@ Obsidian 插件。域 = `src/<域>/`，`core` 是共享层。中文输出。
 测试一律 `node` 直调，别走 `pnpm run`（package.json 同名脚本已同口径）：pnpm 11 跑脚本前的依赖自检默认会自动 `pnpm install`，本仓必判「过期」——主仓里 `tools/*` 子包被算成工作区项目，worktree 里还经 junction 读到主仓的状态文件。
 
 ## 硬约束（看见就是错）
+- **任何修改都必须先从最新 `master` 建独立分支/worktree，禁止直接改 `master`。** 分支内完成与改动风险匹配的验证；普通改动按门禁自动测试，用户明确要求的「快速原型」以用户实际验收为成功判据。未测试成功、未完成 diff 审查前，不得合并回 `master`，也不得推送 `master`。文档、配置和小修同样适用。
 - 样式源只有 `src/<域>/styles.css`（根 `styles.css` 是聚合产物）。域内禁 `scrollbar-width: thin/auto`、禁自绘 thumb、禁运行时注入 `<style>`、禁内联视觉样式。例外只有两处，都要先有 ADR：① 远端皮肤包，只在 `src/core/skin-pack.ts` 单一注入点（ADR-0199）；② 展示板**沙箱框文档内部**的滚动条样式，只在 `src/dock/ui.ts` 的 `FRAME_SCROLLBAR_CSS`（ADR-0243 补记，作用域仅 iframe 文档、守卫掐死范围）。
 - 域 UI 的唯一真理源是与评审壳共用的实现源码；两侧不一致 = 缺陷，改源码，别改壳、别改产物。未定稿的探索稿只写 `.scratch/<名>/`。
 - 不手改生成物：根 `main.js` / `styles.css`、`changelog-data.ts`、`prototypes/**/prototype-*.js`、`downloads/manifest.json`、`downloads/skins/`、`tools/dock-watch/dock-core.cjs`（+ 同目录 `core-version.json`）。
