@@ -40,6 +40,17 @@ const E2 = '我的/日记/2401010905.md';
 const fm = (time: string, tags: string[], body: string) => serializeDiaryEntryFile({ date: DATE, time }, tags, body);
 
 describe('addEntry（写层：取空闲条目文件名 → 建文件）', () => {
+  it('目标目录不存在时先逐级创建，再落日记文件', async () => {
+    applyDirectories({ diaryDirectory: '新库/日记', letterDirectory: '新库/信' });
+    makeVault({});
+
+    const e = await addEntry(DATE, '09:05', ['日记'], '新库第一篇');
+
+    expect(vault.dirs.has('新库')).toBe(true);
+    expect(vault.dirs.has('新库/日记')).toBe(true);
+    expect(vault.files.get(e.filePath!)).toContain('新库第一篇');
+  });
+
   it('新建条目文件：frontmatter 日期+类型，正文落盘，返回条目带完整路径', async () => {
     makeVault({});
     const e = await addEntry(DATE, '09:05', ['日记'], '新条目');

@@ -44,6 +44,7 @@ import { maybeFetchNews, fetchNowNews, notifyManualFetchResult } from './clipboo
 // 日记本（diary 域，ADR-0115：原回忆墙升格正名，旧编辑域退役；媒体墙 + 写链路单一 UI）
 import { openDiary, openDiaryWrite, prewarmDiary, unloadDiary } from './diary';
 import { applyDirectories } from './diary/config';
+import { ensureDiaryFolders } from './diary/folders';
 import { openFavoritesPanel, addFavoriteItem, unloadFavorites } from './favorites';
 // 脸谱（people 域，issue 435/ADR-0191：留痕导出的微信聊天 → AI 提炼脸谱；原文不落盘）
 import { openPeople, importWechat, unloadPeople } from './people';
@@ -500,6 +501,9 @@ export default class BzPlugin extends Plugin {
       if (this.smartcatDomainOn) void ensureSmartCat(this.app);
       // 日记本后台预热（②）：延迟一拍到空闲只读数据填缓存、不建 DOM（ADR-0003 兼容），
       // 首开日记本命中缓存秒开；四目录任一 md 变更经 domain-bus 事件自动失效。禁用插件时不预热（C13）。
+      void ensureDiaryFolders(this.app, this.settings).catch((e) => {
+        console.warn('[diary] 创建配置目录失败:', e);
+      });
       prewarmDiary(this.app, () => this.unloaded);
       // 工具坞调度（ADR-0236）：就绪后延迟首跑、之后轮询兜到点触发；只在桌面端起。
       // 传卸载旗标进去 —— 插件禁用后到点的定时器必须短路，不能幽灵运行（同 C13）。

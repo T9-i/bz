@@ -16,6 +16,8 @@
 import type { App } from 'obsidian';
 import { DiaryAppController } from './ui';
 import { loadWallEntries, invalidateWallCache } from './data';
+import { getSettings } from '../core/settings-provider';
+import { ensureDiaryFolders } from './folders';
 
 let initialized = false;
 let prewarmed = false;
@@ -29,9 +31,12 @@ function getController(): DiaryAppController {
 }
 
 /** 懒加载幂等初始化（ADR-0003）：控制器（面板 DOM 由 show() 惰性创建；条目动作全在书内，无 body 级浮层） */
-export async function ensureDiary(_app: App): Promise<void> {
+export async function ensureDiary(app: App): Promise<void> {
   if (initialized) return;
   initialized = true;
+  await ensureDiaryFolders(app, getSettings()).catch((e) => {
+    console.warn('[diary] 初始化目录失败:', e);
+  });
   getController();
 }
 

@@ -8,8 +8,27 @@
  * ⚙️ 弹窗 / 设置面板「日记本」页共用本 schema。
  */
 import type { SettingsSchema } from '../core/settings-schema';
+import { getApp } from '../core/app';
+import { notice } from '../core/notice';
 import { getSettings } from '../core/settings-provider';
 import { applyDirectories } from './config';
+import { ensureDiaryFolders } from './folders';
+
+function applyAndEnsureDirectories(): void {
+  const settings = getSettings();
+  applyDirectories(settings);
+  let app;
+  try {
+    app = getApp();
+  } catch {
+    return; // 设置 schema 的纯函数测试/极早调用尚无 app：运行时常量已更新，真实启动后会再自动补目录
+  }
+  void ensureDiaryFolders(app, settings).catch((e) => {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn('[diary] 创建目录失败:', e);
+    notice(`目录创建失败：${msg}`, 'error');
+  });
+}
 
 /** 日记本设置 schema */
 export function diarySettingsSchema(): SettingsSchema {
@@ -28,8 +47,8 @@ export function diarySettingsSchema(): SettingsSchema {
         icon: 'folder-open',
         name: '目录',
         rows: [
-          { type: 'path', mode: 'single', name: '日记文件夹', desc: '存放日记文件的文件夹', binding: { key: 'diaryDirectory' }, onChange: () => applyDirectories(getSettings()) },
-          { type: 'path', mode: 'single', name: '信件文件夹', desc: '存放信件的文件夹', binding: { key: 'letterDirectory' }, onChange: () => applyDirectories(getSettings()) },
+          { type: 'path', mode: 'single', name: '日记文件夹', desc: '存放日记文件的文件夹', binding: { key: 'diaryDirectory' }, onChange: applyAndEnsureDirectories },
+          { type: 'path', mode: 'single', name: '信件文件夹', desc: '存放信件的文件夹', binding: { key: 'letterDirectory' }, onChange: applyAndEnsureDirectories },
         ],
       },
       {

@@ -21,6 +21,7 @@ import { trashNote } from '../core/note-trash';
 import { notify } from '../core/notice';
 import { emitDomainEvent } from '../core/domain-bus';
 import { enqueueFileTask } from '../core/storage';
+import { ensureVaultFolder } from './folders';
 import {
   diaryEntryPath,
   diaryMetaFromEntryPath,
@@ -211,6 +212,8 @@ export async function addEntry(
   const addKey = `${dir}/${dateStr}`;
 
   const created = await enqueueFileTask(addKey, async () => {
+    // 保存前兜底：启动初始化可能因索引滞后/设置刚改而尚未建好父目录。
+    await ensureVaultFolder(getApp(), dir);
     let seq = 1;
     let filePath = diaryEntryPath(dir, dateStr, timeStr, seq);
     while (getApp().vault.getAbstractFileByPath(filePath)) {
