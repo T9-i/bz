@@ -6,7 +6,7 @@
  */
 import { TFile } from 'obsidian';
 import { getApp } from '../core/app';
-import { jsonFileStore, storageFile } from '../core/storage';
+import { diskPathExists, jsonFileStore, storageFile } from '../core/storage';
 import { httpGetText, requestUrlAsFetch } from '../core/http';
 import { articleKeyOf } from './constants';
 import { RSS_HUB_DEFAULT_INSTANCE } from '../core/rss-catalog';
@@ -239,10 +239,15 @@ export function parseNewsFileContent(raw: string): NewsData | null {
  *  损坏 → 不清盘（保持原文件原样——崩溃半截 JSON 保护既有设计），返回错误态（corrupt:true）；
  *  读抛错（瞬时 IO，可重试）同样返回错误态但 corrupt:false（C24：不再与损坏态混归） */
 export async function readNewsData(): Promise<ReadNewsResult> {
-  const missing = !getApp().vault.getAbstractFileByPath(getNewsFilePath());
+  const app = getApp();
+  const newsPath = getNewsFilePath();
+  // .obsidian 下的插件存储不会出现在 Vault 可见文件索引里；索引查不到时还要问 adapter，
+  // 否则磁盘上已有 news.json 时仍会被误判为首用空库（文章已抓到、界面却恒为 0）。
+  const missing = !app.vault.getAbstractFileByPath(newsPath) && !(await diskPathExists(app, newsPath));
   let corrupt = false;
   let readThrew = false; // C24：read 抛错 = 瞬时 IO（可重试），区别于 onCorrupt 的 JSON 损坏态
-  const parsed = await jsonFileStore<any>(getNewsFilePath(), {
+  const parsed = await jsonFileStore<any>(newsPath, {
+    app,
     defaultValue: () => emptyData(),
     onCorrupt: () => {
       corrupt = true;

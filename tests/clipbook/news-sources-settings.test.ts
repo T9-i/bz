@@ -9,10 +9,10 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { resetObsidianMocks } from '../mock-obsidian-entry';
-import { MockVault, mockAppWithVault } from '../mock-vault';
+import { IndexLagVault, MockVault, mockAppWithVault } from '../mock-vault';
 import { setApp } from '../../src/core/app';
 import { setSettingsProvider, setSettingsSaver } from '../../src/core/settings-provider';
-import { getNewsFilePath } from '../../src/clipbook/news-data';
+import { emptyData, getNewsFilePath, readNewsData } from '../../src/clipbook/news-data';
 import { readDataSourceState, emptyDataSourceState } from '../../src/clipbook/news-source-settings';
 import { dataSourceGroupRows } from '../../src/clipbook/news-sources-group';
 import { clipbookSettingsSchema } from '../../src/clipbook/ui';
@@ -47,6 +47,32 @@ beforeEach(() => {
 });
 
 describe('数据源组 schema 形态（声明式重写）', () => {
+  it('插件 storage 在索引不可见但磁盘存在：不误判为缺失，文章与订阅仍可读', async () => {
+    setSettingsProvider(() => ({
+      storagePath: '.obsidian/plugins/bz/storage',
+      newsRetentionUnsavedDays: '30',
+      articleDirectory: '归档/网页剪藏',
+    }) as any);
+    const vault = new IndexLagVault();
+    const data = emptyData();
+    data.articles = [{ platform: '果壳科学人', title: '隐藏目录文章', url: 'https://example.com/a', body: '正文' }];
+    data.rssFeeds = [{ url: 'https://example.com/feed', title: '示例订阅' }];
+    data.lastFetchAt = 1_790_000_000_000;
+    const newsPath = getNewsFilePath();
+    vault.files.set(newsPath, JSON.stringify(data));
+    setApp(mockAppWithVault(vault));
+
+    const res = await readNewsData();
+    expect(res.ok).toBe(true);
+    expect(res.missing).toBe(false);
+    expect(res.data.articles).toHaveLength(1);
+
+    const state = await readDataSourceState();
+    expect(state.exists).toBe(true);
+    expect(state.totalArticles).toBe(1);
+    expect(state.rssFeeds).toEqual([{ url: 'https://example.com/feed', title: '示例订阅' }]);
+  });
+
   it('news.json 存在：全组声明行、零 custom 插槽', async () => {
     seedDisk();
     const state = await readDataSourceState();
