@@ -480,7 +480,8 @@ async function trimVideo({ inPath, outPath, ffmpeg = 'ffmpeg', ffprobe = 'ffprob
     throw new Error(`裁切失败:${[r.err, r2.err].filter(Boolean).join('；') || '产物校验未通过'}`)
   }
   const r3 = await runFfmpeg({ args: buildTrimArgs({ mode: 'reencode', inPath, outPath, start, end, crf, faststartMaxSec }), ffmpeg, totalMs, onProgress })
-  if (r3.ok && (await validateClip(outPath, { expectedSec: dur, toleranceSec: 0.5, ffprobe })).ok) return { mode: 'reencode', reencoded: false }
+  // B站 duration 字段按整秒上报，实际转码流可能少不足 1 秒；压缩校验允许上下 1 秒。
+  if (r3.ok && (await validateClip(outPath, { expectedSec: dur, toleranceSec: 1, ffprobe })).ok) return { mode: 'reencode', reencoded: false }
   throw new Error(`压缩失败:${r3.err || '产物校验未通过'}`)
 }
 

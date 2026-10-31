@@ -386,6 +386,22 @@ test('trimVideo：真实 ffmpeg 裁切（copy 优先 + 校验），时长正确'
   assert.ok(dur !== null && Math.abs(dur - 2) <= 0.5, `dur=${dur}`)
 })
 
+test('trimVideo：压缩校验允许 B 站整秒时长元数据造成的 1 秒内偏差', { skip: !hasFfmpeg }, async () => {
+  const src = path.join(tmp, 'src-short.mp4')
+  const r0 = spawnSync('ffmpeg', [
+    '-y', '-f', 'lavfi', '-i', 'testsrc2=size=64x64:rate=10',
+    '-f', 'lavfi', '-i', 'sine=frequency=1000:sample_rate=44100',
+    '-t', '2.4', '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p', '-c:a', 'aac', src,
+  ], { encoding: 'utf8' })
+  assert.equal(r0.status, 0, r0.stderr || 'ffmpeg 生成源失败')
+
+  const out = path.join(tmp, 'compressed-short.mp4')
+  const res = await core.trimVideo({ inPath: src, outPath: out, start: 0, end: 3.2, crf: 23, totalMs: 3200 })
+  assert.equal(res.mode, 'reencode')
+  const dur = await core.probeDuration(out)
+  assert.ok(dur !== null && Math.abs(dur - 3.2) <= 1, `dur=${dur}`)
+})
+
 test('mergeSegments：真实 ffmpeg 拼接两段，总时长正确', { skip: !hasFfmpeg }, async () => {
   const src = path.join(tmp, 'src2.mp4')
   spawnSync('ffmpeg', ['-y', '-f', 'lavfi', '-i', 'testsrc2=size=64x64:rate=10', '-t', '3', '-c:v', 'libx264', '-preset', 'ultrafast', '-pix_fmt', 'yuv420p', src], { encoding: 'utf8' })
