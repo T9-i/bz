@@ -309,6 +309,15 @@ test('runBatch：options.outputDir 覆盖交付目录（vault 外绝对路径，
   cleanTranscript(r)
 })
 
+test('runBatch：outputDir 留空 → 默认交付到当前 vault 的 CONFIG/APPENDIX', async () => {
+  const env = makeEnv({ conf: { outputDir: '' } })
+  env.seedCache('FAKE')
+  const r = await core.runBatch({ url: 'BV1GJ411x7h7', start: null, end: null, options: { compress: false } }, { ...env.deps, conf: env.conf })
+  assert.equal(r.video, 'CONFIG/APPENDIX/批处理测试视频_BV1GJ411x7h7.mp4')
+  assert.ok(fs.existsSync(path.join(env.vault, 'CONFIG', 'APPENDIX', '批处理测试视频_BV1GJ411x7h7.mp4')))
+  cleanTranscript(r)
+})
+
 test('runBatch：[bz-info] 解析信息回传（标题/UP主/规范化 url，ADR-0067）', async () => {
   const env = makeEnv()
   env.seedCache('FAKE')

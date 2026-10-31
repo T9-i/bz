@@ -33,7 +33,7 @@ _Avoid_: 转写稿缓存（那是 resume 产物）
 _Avoid_: 成品、结果文件
 
 **交付目录 (Output Directory)**:
-「视频最终放的位置」，默认 `E:/Obsidian/叫我包仔/CONFIG/APPENDIX`（vault 内）；rc `outputDir` 可配，task.options.outputDir 可覆盖。
+「视频最终放的位置」，默认当前 `vaultPath/CONFIG/APPENDIX`（vault 内）；rc `outputDir` 可配，task.options.outputDir 可覆盖。
 _Avoid_: 输出文件夹、保存位置
 
 **rc 配置 (rc Config)**:

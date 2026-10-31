@@ -40,8 +40,8 @@ bili-dl --batch '{"url":"https://www.bilibili.com/video/BV…","start":"0:12","e
 
 ```json
 {
-  "outputDir": "E:/Obsidian/叫我包仔/CONFIG/APPENDIX",
-  "vaultPath": "E:/Obsidian/叫我包仔",
+  "outputDir": "",
+  "vaultPath": "E:/your-vault",
   "ffmpegPath": "ffmpeg",
   "ffprobePath": "ffprobe",
   "pythonPath": "python",

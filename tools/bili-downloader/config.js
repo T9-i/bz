@@ -13,8 +13,10 @@ const CONFIG_PATH = process.env.BILI_DL_CONFIG || path.join(os.homedir(), '.bili
 const COOKIES_PATH = process.env.BILI_DL_COOKIES || path.join(os.homedir(), '.bilibili-cookies.json')
 
 const DEFAULTS = {
-  outputDir: 'E:/Obsidian/叫我包仔/CONFIG/APPENDIX',   // 交付目录：视频最终放的位置
-  vaultPath: 'E:/Obsidian/叫我包仔',                   // Obsidian vault 根：交付目录在其下时生成相对路径
+  // 交付目录留空 = 使用 vaultPath/CONFIG/APPENDIX（bz 批处理恒传当前 vault）；
+  // 独立 CLI 仍需在 rc 里填 vaultPath 或 outputDir。
+  outputDir: '',
+  vaultPath: '',
   ffmpegPath: 'ffmpeg',
   ffprobePath: 'ffprobe',                              // 产物校验（时长/可播放性）用
   // pythonPath 通用默认 = 'python'（spawn 走系统 PATH）。两种转写引擎共用（装了 Python 后按引擎

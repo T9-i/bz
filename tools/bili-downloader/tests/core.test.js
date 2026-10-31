@@ -62,6 +62,18 @@ test('needsCompressFallback：压缩件严格更大才回退（相等/更小/sta
   fs.rmSync(d, { recursive: true, force: true })
 })
 
+test('failureDetail：FFmpeg 成功时优先报产物校验原因，不把 Qavg 统计当错误', () => {
+  const validation = { ok: false, reason: '时长 611.0s 与期望 612.0s 偏差超限' }
+  assert.equal(
+    core.failureDetail({ ok: true, err: '[aac @ 000001] Qavg: 366.344' }, validation),
+    validation.reason,
+  )
+  assert.equal(
+    core.failureDetail({ ok: false, err: 'Conversion failed!' }, null),
+    'Conversion failed!',
+  )
+})
+
 test('decodeBatchArg：b64: 前缀 base64 解码（shell 安全形态）；else JSON 直解析（手动命令行）；坏 JSON 双形态抛 SyntaxError', () => {
   const task = { url: 'BV1GJ411x7h7', start: '0:12', end: '1:30', page: null, options: { compress: true, crf: 23 } }
   const b64 = Buffer.from(JSON.stringify(task), 'utf8').toString('base64')

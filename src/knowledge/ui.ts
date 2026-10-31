@@ -205,9 +205,13 @@ export function humanizeError(reason: string | null | undefined): string {
   if (/pip install faster-whisper|faster-whisper 环境已安装/i.test(s)) {
     return '语音转写失败：faster-whisper 未安装，请在目标 Python 中运行 pip install faster-whisper';
   }
-  if (/whisper|faster.whisper|no module/i.test(s)) {
+  if (/funasr|No module named ['"](?:torch|torchaudio)['"]/i.test(s)) {
+    return '语音转写失败：SenseVoice 环境缺少依赖，请在目标 Python 中运行 pip install funasr torch torchaudio';
+  }
+  if (/whisper|faster\.whisper/i.test(s)) {
     return '语音转写失败：检查设置里的「Python 路径」与「Whisper 模型」';
   }
+  if (/no module/i.test(s)) return '语音转写失败：目标 Python 缺少转写依赖，请检查「Python 路径」与安装说明';
   if (/API Key|AI 配置|未配置|Unauthorized|\b401\b|invalid_api_key|insufficient|quota/i.test(s)) {
     return 'AI 配置不可用：请在插件设置 → AI 配置里检查 API Key';
   }
@@ -438,7 +442,7 @@ export function knowledgeSettingsSchema(opts?: { onClearHistory?: () => void | P
           {
             type: 'text', name: '输出文件夹', desc: '视频文件的输出文件夹',
             help:
-              '知识盒处理视频时，下载或转录出来的视频文件落在哪个目录，填完整路径，可以填 vault 之外的位置。留空则不下发这一项，由外部 bili-dl 命令行按它自己的默认值决定。' +
+              '知识盒处理视频时，下载或转录出来的视频文件落在哪个目录，填完整路径，可以填 vault 之外的位置。留空则放到当前 vault 的 CONFIG/APPENDIX。' +
               '实际写文件的是那个外部进程，插件只把路径传下去、再记录回传的结果，所以这里填错的表现是外部侧落盘失败。',
             binding: { key: 'knowledgeOutputDir' }, placeholder: '如 D:/videos',
           },

@@ -153,9 +153,15 @@ describe('BatchRunner', () => {
       expect(args[0]).toContain('/downloads/tools/bili-downloader/cli.js');
       expect(args[1]).toBe('--batch');
       expect(opts.shell).toBe(false);
-      child.stdout.emit('data', Buffer.from('[bz-step] 下载中\n[bz-step] 剪辑中\n'));
-      child.stdout.emit('data', Buffer.from(INFO_LINE));
-      child.stdout.emit('data', Buffer.from(RESULT_LINE));
+      // stdout 块边界不按协议行对齐：步骤、信息、结果都要跨块拼接后才能解析。
+      child.stdout.emit('data', Buffer.from('[bz-step] 下'));
+      child.stdout.emit('data', Buffer.from('载中\n[bz-step] 剪辑中\n'));
+      const infoBytes = Buffer.from(INFO_LINE);
+      child.stdout.emit('data', infoBytes.subarray(0, 17));
+      child.stdout.emit('data', infoBytes.subarray(17));
+      const resultBytes = Buffer.from(RESULT_LINE.trimEnd());
+      child.stdout.emit('data', resultBytes.subarray(0, 23));
+      child.stdout.emit('data', resultBytes.subarray(23));
       child.emit('close', 0);
       // 插件侧 AI：读转录（UTF-8 全文）→ generateVideoNote（title 取 [bz-info] 解析值）→ 删临时文件
       await vi.waitFor(() => expect(noteGenMocks.generateVideoNote).toHaveBeenCalledTimes(1));

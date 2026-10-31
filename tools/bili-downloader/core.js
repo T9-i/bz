@@ -465,24 +465,34 @@ async function validateClip(file, { expectedSec, toleranceSec = 2, ffprobe = 'ff
   return { ok: Math.abs(dur - expectedSec) <= toleranceSec, dur, reason: `时长 ${dur.toFixed(1)}s 与期望 ${expectedSec.toFixed(1)}s 偏差超限` }
 }
 
+// FFmpeg 成功时 stderr 末行通常是 `[aac …] Qavg: …` 之类的统计信息。
+// 只有进程失败才展示该日志；进程成功但产物校验失败时，展示真实的时长偏差。
+function failureDetail(result, validation) {
+  if (!result || !result.ok) return (result && result.err) || 'ffmpeg 执行失败'
+  return (validation && validation.reason) || '产物校验未通过'
+}
+
 // 裁切+压缩：crf 为 null 用流复制（快速无损），否则 libx264 重编码。
 // 可靠性保障（bug #5）：copy 产物 ffprobe 校验，失败/时长不符自动重编码重试，保证可播。
 // 返回 { mode: 'copy'|'reencode', reencoded }；失败抛错。
 async function trimVideo({ inPath, outPath, ffmpeg = 'ffmpeg', ffprobe = 'ffprobe', start, end, crf, totalMs, onProgress, faststartMaxSec = 1800 }) {
   const dur = Math.max(0, end - start)
   if (crf === null || crf === undefined) {
-    let r = await runFfmpeg({ args: buildTrimArgs({ mode: 'copy', inPath, outPath, start, end, faststartMaxSec }), ffmpeg, totalMs, onProgress })
-    if (r.ok && (await validateClip(outPath, { expectedSec: dur, toleranceSec: 2, ffprobe })).ok) return { mode: 'copy', reencoded: false }
+    const r = await runFfmpeg({ args: buildTrimArgs({ mode: 'copy', inPath, outPath, start, end, faststartMaxSec }), ffmpeg, totalMs, onProgress })
+    const v = r.ok ? await validateClip(outPath, { expectedSec: dur, toleranceSec: 2, ffprobe }) : null
+    if (r.ok && v.ok) return { mode: 'copy', reencoded: false }
     // copy 产物失效/时长不对 → 自动重编码（帧精确，默认 CRF 23）
     try { fs.unlinkSync(outPath) } catch {}
     const r2 = await runFfmpeg({ args: buildTrimArgs({ mode: 'reencode', inPath, outPath, start, end, crf: 23, faststartMaxSec }), ffmpeg, totalMs, onProgress })
-    if (r2.ok && (await validateClip(outPath, { expectedSec: dur, toleranceSec: 0.5, ffprobe })).ok) return { mode: 'reencode', reencoded: true }
-    throw new Error(`裁切失败:${[r.err, r2.err].filter(Boolean).join('；') || '产物校验未通过'}`)
+    const v2 = r2.ok ? await validateClip(outPath, { expectedSec: dur, toleranceSec: 0.5, ffprobe }) : null
+    if (r2.ok && v2.ok) return { mode: 'reencode', reencoded: true }
+    throw new Error(`裁切失败:${[failureDetail(r, v), failureDetail(r2, v2)].join('；')}`)
   }
   const r3 = await runFfmpeg({ args: buildTrimArgs({ mode: 'reencode', inPath, outPath, start, end, crf, faststartMaxSec }), ffmpeg, totalMs, onProgress })
+  const v3 = r3.ok ? await validateClip(outPath, { expectedSec: dur, toleranceSec: 1, ffprobe }) : null
   // B站 duration 字段按整秒上报，实际转码流可能少不足 1 秒；压缩校验允许上下 1 秒。
-  if (r3.ok && (await validateClip(outPath, { expectedSec: dur, toleranceSec: 1, ffprobe })).ok) return { mode: 'reencode', reencoded: false }
-  throw new Error(`压缩失败:${r3.err || '产物校验未通过'}`)
+  if (r3.ok && v3.ok) return { mode: 'reencode', reencoded: false }
+  throw new Error(`压缩失败:${failureDetail(r3, v3)}`)
 }
 
 // 压缩回退判定：压缩件体积严格大于压缩输入 → 压缩无收益，回退沿用输入（stat 异常保守采纳压缩件）
@@ -510,13 +520,15 @@ async function mergeSegments({ files, outPath, ffmpeg = 'ffmpeg', ffprobe = 'ffp
   const listPath = outPath + '.concat'
   writeConcatList(listPath, files)
   const faststart = expectedSec <= faststartMaxSec
-  let r = await runFfmpeg({ args: buildMergeArgs({ mode: 'copy', listPath, outPath, faststart }), ffmpeg, totalMs: expectedSec * 1000, onProgress })
-  if (r.ok && (await validateClip(outPath, { expectedSec, toleranceSec: 2, ffprobe })).ok) { try { fs.unlinkSync(listPath) } catch {}; return { mode: 'copy' } }
+  const r = await runFfmpeg({ args: buildMergeArgs({ mode: 'copy', listPath, outPath, faststart }), ffmpeg, totalMs: expectedSec * 1000, onProgress })
+  const v = r.ok ? await validateClip(outPath, { expectedSec, toleranceSec: 2, ffprobe }) : null
+  if (r.ok && v.ok) { try { fs.unlinkSync(listPath) } catch {}; return { mode: 'copy' } }
   try { fs.unlinkSync(outPath) } catch {}
   const r2 = await runFfmpeg({ args: buildMergeArgs({ mode: 'reencode', listPath, outPath, crf: crf ?? 23, faststart }), ffmpeg, totalMs: expectedSec * 1000, onProgress })
   try { fs.unlinkSync(listPath) } catch {}
-  if (r2.ok && (await validateClip(outPath, { expectedSec, toleranceSec: 0.5, ffprobe })).ok) return { mode: 'reencode' }
-  throw new Error(`合并失败:${[r.err, r2.err].filter(Boolean).join('；') || '产物校验未通过'}`)
+  const v2 = r2.ok ? await validateClip(outPath, { expectedSec, toleranceSec: 0.5, ffprobe }) : null
+  if (r2.ok && v2.ok) return { mode: 'reencode' }
+  throw new Error(`合并失败:${[failureDetail(r, v), failureDetail(r2, v2)].join('；')}`)
 }
 
 // ---- 任务中止追踪（取消时 kill 子进程 + 中断下载流）----
@@ -980,8 +992,11 @@ async function runBatch(task, deps = {}) {
   if (keepVideo) {
     onStep('交付中')
     const outOverride = String(opts.outputDir || '').trim()
-    if (!conf.outputDir && !outOverride) throw new Error('交付目录未配置（rc outputDir 或 options.outputDir），请在 bz 插件文献盒设置中填写')
-    const outDirAbs = outOverride ? path.resolve(outOverride) : path.resolve(conf.outputDir)
+    const vaultPath = String(conf.vaultPath || '').trim()
+    const outDir = outOverride || String(conf.outputDir || '').trim() ||
+      (vaultPath ? path.join(vaultPath, 'CONFIG', 'APPENDIX') : '')
+    if (!outDir) throw new Error('交付目录未配置：请填写 bz 文献盒的输出文件夹，或在 rc 中配置 vaultPath / outputDir')
+    const outDirAbs = path.resolve(outDir)
     fs.mkdirSync(outDirAbs, { recursive: true })
     const name = buildFileName({
       title: info.title, bv: bvid,
@@ -1116,7 +1131,7 @@ module.exports = {
   UA, MIXIN_KEY_ENC_TAB, getMixinKey, fetchJsonImpl, getWbiKeys, wbiSign, getViewInfo, getPlayUrls,
   lastLine, qualityLabel, sanitizeName, extractBv, fmtTime, fmtDuration, fmtSec, parseTimeInput, buildFileName,
   parseVideo, fmtEta, downloadStream, mergeStreams, downloadVideo,
-  buildTrimArgs, runFfmpeg, probeDuration, validateClip, trimVideo, needsCompressFallback,
+  buildTrimArgs, runFfmpeg, probeDuration, validateClip, failureDetail, trimVideo, needsCompressFallback,
   buildMergeArgs, writeConcatList, mergeSegments,
   loadCookies, saveCookies, readJson, writeJson, uniquePath,
   abortAll, resetAbort, trackProc, runPython, PY_TRANSCRIBE, PY_TRANSCRIBE_SENSEVOICE, resolveEngine, parseTranscriptUnits,

@@ -257,9 +257,14 @@ export const BatchRunner = {
       }
       this._child = child;
       const errChunks: Buffer[] = [];
+      let stdoutTail = '';
       const onData = (d: Buffer) => {
-        const text = String(d);
-        for (const line of text.split(/\r?\n/)) {
+        stdoutTail += String(d);
+        const lines = stdoutTail.split('\n');
+        // 最后一段可能只是半行；留到下一块 stdout 到达后再解析。
+        stdoutTail = lines.pop() || '';
+        for (const rawLine of lines) {
+          const line = rawLine.replace(/\r$/, '');
           let m = line.match(STEP_RE);
           if (m) {
             const stepText = m[1].trim();
@@ -329,6 +334,12 @@ export const BatchRunner = {
       child.on('close', (code: number) => {
         // 幂等护栏：finish 已落终态（error/中止/重复 close）后不再触发 AI 阶段
         if (settled) return;
+        // 兼容末尾没有换行的协议行：先把残留半行作为完整行解析，再判定终态。
+        if (stdoutTail) {
+          const tail = stdoutTail;
+          stdoutTail = '';
+          onData(Buffer.from(tail + '\n'));
+        }
         if (this.aborted) {
           finish(false, '已中止', null, null);
           return;
